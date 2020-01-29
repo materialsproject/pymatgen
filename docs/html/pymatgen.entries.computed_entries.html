@@ -1,0 +1,420 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pymatgen.entries.computed_entries module &mdash; pymatgen 2020.1.28 documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pymatgen.orgpymatgen.entries.computed_entries.html"/>
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.entries.entry_tools module" href="pymatgen.entries.entry_tools.html" />
+    <link rel="prev" title="pymatgen.entries.compatibility module" href="pymatgen.entries.compatibility.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pymatgen
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2020.1.28
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="team.html">Development Team</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API Docs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pymatgen.html">pymatgen package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="pymatgen.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.alchemy.html">pymatgen.alchemy package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.html">pymatgen.analysis package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.apps.html">pymatgen.apps package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.cli.html">pymatgen.cli package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.command_line.html">pymatgen.command_line package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html">pymatgen.core package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.electronic_structure.html">pymatgen.electronic_structure package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="pymatgen.entries.html">pymatgen.entries package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html">pymatgen.ext package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html">pymatgen.io package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.plugins.html">pymatgen.plugins package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.vis.html">pymatgen.vis package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#module-pymatgen">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pymatgen</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="modules.html">pymatgen</a> &raquo;</li>
+        
+          <li><a href="pymatgen.html">pymatgen package</a> &raquo;</li>
+        
+          <li><a href="pymatgen.entries.html">pymatgen.entries package</a> &raquo;</li>
+        
+      <li>pymatgen.entries.computed_entries module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.entries.computed_entries.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-pymatgen.entries.computed_entries">
+<span id="pymatgen-entries-computed-entries-module"></span><h1>pymatgen.entries.computed_entries module<a class="headerlink" href="#module-pymatgen.entries.computed_entries" title="Permalink to this headline">¶</a></h1>
+<p>This module implements equivalents of the basic ComputedEntry objects, which
+is the basic entity that can be used to perform many analyses. ComputedEntries
+contain calculated information, typically from VASP or other electronic
+structure codes. For example, ComputedEntries can be used as inputs for phase
+diagram analysis.</p>
+<dl class="class">
+<dt id="pymatgen.entries.computed_entries.ComputedEntry">
+<em class="property">class </em><code class="sig-name descname">ComputedEntry</code><span class="sig-paren">(</span><em class="sig-param">composition: pymatgen.core.composition.Composition</em>, <em class="sig-param">energy: float</em>, <em class="sig-param">correction: float = 0.0</em>, <em class="sig-param">parameters: dict = None</em>, <em class="sig-param">data: dict = None</em>, <em class="sig-param">entry_id: object = None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/entries/computed_entries.py#L31-L157"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.ComputedEntry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
+<p>An lightweight ComputedEntry object containing key computed data
+for many purposes. Extends a PDEntry so that it can be used for phase
+diagram generation. The difference between a ComputedEntry and a standard
+PDEntry is that it includes additional parameters like a correction and
+run_parameters.</p>
+<p>Initializes a ComputedEntry.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>composition</strong> (<a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><em>Composition</em></a>) – Composition of the entry. For
+flexibility, this can take the form of all the typical input
+taken by a Composition, including a {symbol: amt} dict,
+a string formula, and others.</p></li>
+<li><p><strong>energy</strong> (<em>float</em>) – Energy of the entry. Usually the final calculated
+energy from VASP or other electronic structure codes.</p></li>
+<li><p><strong>correction</strong> (<em>float</em>) – A correction to be applied to the energy.
+This is used to modify the energy for certain analyses.
+Defaults to 0.0.</p></li>
+<li><p><strong>parameters</strong> (<em>dict</em>) – An optional dict of parameters associated with
+the entry. Defaults to None.</p></li>
+<li><p><strong>data</strong> (<em>dict</em>) – An optional dict of any additional data associated
+with the entry. Defaults to None.</p></li>
+<li><p><strong>entry_id</strong> (<em>obj</em>) – An optional id to uniquely identify the entry.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.entries.computed_entries.ComputedEntry.as_dict">
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; dict<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/entries/computed_entries.py#L145-L157"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.ComputedEntry.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>MSONable dict.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.entries.computed_entries.ComputedEntry.energy">
+<em class="property">property </em><code class="sig-name descname">energy</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/entries/computed_entries.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.ComputedEntry.energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>the <em>corrected</em> energy of the entry.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.entries.computed_entries.ComputedEntry.energy_per_atom">
+<em class="property">property </em><code class="sig-name descname">energy_per_atom</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/entries/computed_entries.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.ComputedEntry.energy_per_atom" title="Permalink to this definition">¶</a></dt>
+<dd><p>the <em>corrected</em> energy per atom of the entry.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.entries.computed_entries.ComputedEntry.from_dict">
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span> &#x2192; pymatgen.entries.computed_entries.ComputedEntry<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/entries/computed_entries.py#L131-L143"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.ComputedEntry.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>d</strong> – Dict representation.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>ComputedEntry</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.entries.computed_entries.ComputedEntry.is_element">
+<em class="property">property </em><code class="sig-name descname">is_element</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/entries/computed_entries.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.ComputedEntry.is_element" title="Permalink to this definition">¶</a></dt>
+<dd><p>Whether composition of entry is an element.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.entries.computed_entries.ComputedEntry.normalize">
+<code class="sig-name descname">normalize</code><span class="sig-paren">(</span><em class="sig-param">mode: str = 'formula_unit'</em><span class="sig-paren">)</span> &#x2192; None<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/entries/computed_entries.py#L75-L92"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.ComputedEntry.normalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalize the entry’s composition, energy and any corrections.
+Generally, this would not have effect on any</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>mode</strong> – “formula_unit” is the default, which normalizes to
+composition.reduced_formula. The other option is “atom”, which
+normalizes such that the composition amounts sum to 1.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.entries.computed_entries.ComputedStructureEntry">
+<em class="property">class </em><code class="sig-name descname">ComputedStructureEntry</code><span class="sig-paren">(</span><em class="sig-param">structure: pymatgen.core.structure.Structure</em>, <em class="sig-param">energy: float</em>, <em class="sig-param">correction: float = 0.0</em>, <em class="sig-param">parameters: dict = None</em>, <em class="sig-param">data: dict = None</em>, <em class="sig-param">entry_id: object = None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/entries/computed_entries.py#L160-L232"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.ComputedStructureEntry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.entries.computed_entries.ComputedEntry" title="pymatgen.entries.computed_entries.ComputedEntry"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.entries.computed_entries.ComputedEntry</span></code></a></p>
+<p>A heavier version of ComputedEntry which contains a structure as well. The
+structure is needed for some analyses.</p>
+<p>Initializes a ComputedStructureEntry.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – The actual structure of an entry.</p></li>
+<li><p><strong>energy</strong> (<em>float</em>) – Energy of the entry. Usually the final calculated
+energy from VASP or other electronic structure codes.</p></li>
+<li><p><strong>correction</strong> (<em>float</em>) – A correction to be applied to the energy.
+This is used to modify the energy for certain analyses.
+Defaults to 0.0.</p></li>
+<li><p><strong>parameters</strong> (<em>dict</em>) – An optional dict of parameters associated with
+the entry. Defaults to None.</p></li>
+<li><p><strong>data</strong> (<em>dict</em>) – An optional dict of any additional data associated
+with the entry. Defaults to None.</p></li>
+<li><p><strong>entry_id</strong> (<em>obj</em>) – An optional id to uniquely identify the entry.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.entries.computed_entries.ComputedStructureEntry.as_dict">
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; dict<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/entries/computed_entries.py#L209-L217"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.ComputedStructureEntry.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>MSONAble dict.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.entries.computed_entries.ComputedStructureEntry.from_dict">
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span> &#x2192; pymatgen.entries.computed_entries.ComputedStructureEntry<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/entries/computed_entries.py#L219-L232"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.ComputedStructureEntry.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>d</strong> – Dict representation.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>ComputedStructureEntry</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011, Pymatgen Development Team
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+  
+ 
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+
+</body>
+</html>

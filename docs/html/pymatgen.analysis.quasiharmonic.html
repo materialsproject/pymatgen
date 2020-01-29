@@ -1,0 +1,500 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pymatgen.analysis.quasiharmonic module &mdash; pymatgen 2020.1.28 documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pymatgen.orgpymatgen.analysis.quasiharmonic.html"/>
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.analysis.reaction_calculator module" href="pymatgen.analysis.reaction_calculator.html" />
+    <link rel="prev" title="pymatgen.analysis.pourbaix_diagram module" href="pymatgen.analysis.pourbaix_diagram.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pymatgen
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2020.1.28
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="team.html">Development Team</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API Docs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pymatgen.html">pymatgen package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="pymatgen.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.alchemy.html">pymatgen.alchemy package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="pymatgen.analysis.html">pymatgen.analysis package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.apps.html">pymatgen.apps package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.cli.html">pymatgen.cli package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.command_line.html">pymatgen.command_line package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html">pymatgen.core package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.electronic_structure.html">pymatgen.electronic_structure package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.entries.html">pymatgen.entries package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html">pymatgen.ext package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html">pymatgen.io package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.plugins.html">pymatgen.plugins package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.vis.html">pymatgen.vis package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#module-pymatgen">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pymatgen</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="modules.html">pymatgen</a> &raquo;</li>
+        
+          <li><a href="pymatgen.html">pymatgen package</a> &raquo;</li>
+        
+          <li><a href="pymatgen.analysis.html">pymatgen.analysis package</a> &raquo;</li>
+        
+      <li>pymatgen.analysis.quasiharmonic module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.analysis.quasiharmonic.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-pymatgen.analysis.quasiharmonic">
+<span id="pymatgen-analysis-quasiharmonic-module"></span><h1>pymatgen.analysis.quasiharmonic module<a class="headerlink" href="#module-pymatgen.analysis.quasiharmonic" title="Permalink to this headline">¶</a></h1>
+<p>This module implements the Quasi-harmonic Debye approximation that can
+be used to compute thermal properties.</p>
+<p>See the following papers for more info:</p>
+<blockquote>
+<div><p><a class="reference external" href="http://doi.org/10.1016/j.comphy.2003.12.001">http://doi.org/10.1016/j.comphy.2003.12.001</a> (2004)
+<a class="reference external" href="http://doi.org/10.1103/PhysRevB.90.174107">http://doi.org/10.1103/PhysRevB.90.174107</a> (2014)</p>
+</div></blockquote>
+<dl class="class">
+<dt id="pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox">
+<em class="property">class </em><code class="sig-name descname">QuasiharmonicDebyeApprox</code><span class="sig-paren">(</span><em class="sig-param">energies</em>, <em class="sig-param">volumes</em>, <em class="sig-param">structure</em>, <em class="sig-param">t_min=300.0</em>, <em class="sig-param">t_step=100</em>, <em class="sig-param">t_max=300.0</em>, <em class="sig-param">eos='vinet'</em>, <em class="sig-param">pressure=0.0</em>, <em class="sig-param">poisson=0.25</em>, <em class="sig-param">use_mie_gruneisen=False</em>, <em class="sig-param">anharmonic_contribution=False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/quasiharmonic.py#L32-L327"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>energies</strong> (<em>list</em>) – list of DFT energies in eV</p></li>
+<li><p><strong>volumes</strong> (<em>list</em>) – list of volumes in Ang^3</p></li>
+<li><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – </p></li>
+<li><p><strong>t_min</strong> (<em>float</em>) – min temperature</p></li>
+<li><p><strong>t_step</strong> (<em>float</em>) – temperature step</p></li>
+<li><p><strong>t_max</strong> (<em>float</em>) – max temperature</p></li>
+<li><p><strong>eos</strong> (<em>str</em>) – <p>equation of state used for fitting the energies and the
+volumes.
+options supported by pymatgen: “quadratic”, “murnaghan”, “birch”,</p>
+<blockquote>
+<div><p>”birch_murnaghan”, “pourier_tarantola”, “vinet”,
+“deltafactor”, “numerical_eos”</p>
+</div></blockquote>
+</p></li>
+<li><p><strong>pressure</strong> (<em>float</em>) – in GPa, optional.</p></li>
+<li><p><strong>poisson</strong> (<em>float</em>) – poisson ratio.</p></li>
+<li><p><strong>use_mie_gruneisen</strong> (<em>bool</em>) – whether or not to use the mie-gruneisen
+formulation to compute the gruneisen parameter.
+The default is the slater-gamma formulation.</p></li>
+<li><p><strong>anharmonic_contribution</strong> (<em>bool</em>) – whether or not to consider the anharmonic
+contribution to the Debye temperature. Cannot be used with
+use_mie_gruneisen. Defaults to False.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.debye_integral">
+<em class="property">static </em><code class="sig-name descname">debye_integral</code><span class="sig-paren">(</span><em class="sig-param">y</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/quasiharmonic.py#L213-L232"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.debye_integral" title="Permalink to this definition">¶</a></dt>
+<dd><p>Debye integral. Eq(5) in  doi.org/10.1016/j.comphy.2003.12.001</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>y</strong> (<em>float</em>) – debye temperature/T, upper limit</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>unitless</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.debye_temperature">
+<code class="sig-name descname">debye_temperature</code><span class="sig-paren">(</span><em class="sig-param">volume</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/quasiharmonic.py#L183-L211"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.debye_temperature" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the debye temperature.
+Eq(6) in doi.org/10.1016/j.comphy.2003.12.001. Thanks to Joey.</p>
+<p>Eq(6) above is equivalent to Eq(3) in doi.org/10.1103/PhysRevB.37.790
+which does not consider anharmonic effects. Eq(20) in the same paper
+and Eq(18) in doi.org/10.1016/j.commatsci.2009.12.006 both consider
+anharmonic contributions to the Debye temperature through the Gruneisen
+parameter at 0K (Gruneisen constant).</p>
+<p>The anharmonic contribution is toggled by setting the anharmonic_contribution
+to True or False in the QuasiharmonicDebyeApprox constructor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>volume</strong> (<em>float</em>) – in Ang^3</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>debye temperature in K</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.get_summary_dict">
+<code class="sig-name descname">get_summary_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/quasiharmonic.py#L310-L327"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.get_summary_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a dict with a summary of the computed properties.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.gruneisen_parameter">
+<code class="sig-name descname">gruneisen_parameter</code><span class="sig-paren">(</span><em class="sig-param">temperature</em>, <em class="sig-param">volume</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/quasiharmonic.py#L234-L285"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.gruneisen_parameter" title="Permalink to this definition">¶</a></dt>
+<dd><dl>
+<dt>Slater-gamma formulation(the default):</dt><dd><dl>
+<dt>gruneisen paramter = - d log(theta)/ d log(V)</dt><dd><p>= - ( 1/6 + 0.5 d log(B)/ d log(V) )
+= - (1/6 + 0.5 V/B dB/dV),</p>
+<blockquote>
+<div><p>where dB/dV = d^2E/dV^2 + V * d^3E/dV^3</p>
+</div></blockquote>
+</dd>
+</dl>
+</dd>
+<dt>Mie-gruneisen formulation:</dt><dd><p>Eq(31) in doi.org/10.1016/j.comphy.2003.12.001
+Eq(7) in Blanco et. al. Joumal of Molecular Structure (Theochem)</p>
+<blockquote>
+<div><p>368 (1996) 245-255</p>
+</div></blockquote>
+<dl class="simple">
+<dt>Also se J.P. Poirier, Introduction to the Physics of the Earth’s</dt><dd><p>Interior, 2nd ed. (Cambridge University Press, Cambridge,
+2000) Eq(3.53)</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>temperature</strong> (<em>float</em>) – temperature in K</p></li>
+<li><p><strong>volume</strong> (<em>float</em>) – in Ang^3</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>unitless</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.optimize_gibbs_free_energy">
+<code class="sig-name descname">optimize_gibbs_free_energy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/quasiharmonic.py#L90-L114"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.optimize_gibbs_free_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the gibbs free energy as a function of V, T and P i.e
+G(V, T, P), minimize G(V, T, P) wrt V for each T and store the
+optimum values.</p>
+<dl class="simple">
+<dt>Note: The data points for which the equation of state fitting fails</dt><dd><p>are skipped.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.optimizer">
+<code class="sig-name descname">optimizer</code><span class="sig-paren">(</span><em class="sig-param">temperature</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/quasiharmonic.py#L116-L149"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.optimizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate G(V, T, P) at the given temperature(and pressure) and
+minimize it wrt V.</p>
+<ol class="arabic simple">
+<li><p>Compute the  vibrational helmholtz free energy, A_vib.</p></li>
+<li><dl class="simple">
+<dt>Compute the gibbs free energy as a function of volume, temperature</dt><dd><p>and pressure, G(V,T,P).</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Preform an equation of state fit to get the functional form of</dt><dd><p>gibbs free energy:G(V, T, P).</p>
+</dd>
+</dl>
+</li>
+<li><p>Finally G(V, P, T) is minimized with respect to V.</p></li>
+</ol>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>temperature</strong> (<em>float</em>) – temperature in K</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>G_opt(V_opt, T, P) in eV and V_opt in Ang^3.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float, float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.thermal_conductivity">
+<code class="sig-name descname">thermal_conductivity</code><span class="sig-paren">(</span><em class="sig-param">temperature</em>, <em class="sig-param">volume</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/quasiharmonic.py#L287-L308"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.thermal_conductivity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Eq(17) in 10.1103/PhysRevB.90.174107</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>temperature</strong> (<em>float</em>) – temperature in K</p></li>
+<li><p><strong>volume</strong> (<em>float</em>) – in Ang^3</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>thermal conductivity in W/K/m</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.vibrational_free_energy">
+<code class="sig-name descname">vibrational_free_energy</code><span class="sig-paren">(</span><em class="sig-param">temperature</em>, <em class="sig-param">volume</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/quasiharmonic.py#L151-L165"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.vibrational_free_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Vibrational Helmholtz free energy, A_vib(V, T).
+Eq(4) in doi.org/10.1016/j.comphy.2003.12.001</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>temperature</strong> (<em>float</em>) – temperature in K</p></li>
+<li><p><strong>volume</strong> (<em>float</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>vibrational free energy in eV</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.vibrational_internal_energy">
+<code class="sig-name descname">vibrational_internal_energy</code><span class="sig-paren">(</span><em class="sig-param">temperature</em>, <em class="sig-param">volume</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/quasiharmonic.py#L167-L181"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.vibrational_internal_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Vibrational internal energy, U_vib(V, T).
+Eq(4) in doi.org/10.1016/j.comphy.2003.12.001</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>temperature</strong> (<em>float</em>) – temperature in K</p></li>
+<li><p><strong>volume</strong> (<em>float</em>) – in Ang^3</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>vibrational internal energy in eV</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011, Pymatgen Development Team
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+  
+ 
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+
+</body>
+</html>

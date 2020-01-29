@@ -1,0 +1,360 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Collaborative Github Workflow &mdash; pymatgen 2020.1.28 documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pymatgen.orgcontributing.html"/>
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pymatgen
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2020.1.28
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="team.html">Development Team</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">API Docs</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pymatgen</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Collaborative Github Workflow</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/contributing.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="collaborative-github-workflow">
+<h1>Collaborative Github Workflow<a class="headerlink" href="#collaborative-github-workflow" title="Permalink to this headline">¶</a></h1>
+<p>For developers interested in expanding pymatgen for their own purposes, we
+recommend forking pymatgen directly from the
+<a class="reference external" href="https://github.com/materialsproject/pymatgen">pymatgen GitHub repo</a>. Here’s a typical workflow (adapted from
+<a class="reference external" href="http://www.eqqon.com/index.php/Collaborative_Github_Workflow">http://www.eqqon.com/index.php/Collaborative_Github_Workflow</a>):</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Ignore the Github fork queue. Let the maintainer of pymatgen worry about
+the fork queue.</p>
+</div>
+<ol class="arabic">
+<li><p>Create a free GitHub account (if you don’t already have one) and perform the
+necessary setup (e.g., install SSH keys etc.).</p></li>
+<li><p>Fork the pymatgen GitHub repo, i.e., go to the main
+<a class="reference external" href="https://github.com/materialsproject/pymatgen">pymatgen GitHub repo</a> and click fork to create a copy of the pymatgen code
+base on your own Github account.</p></li>
+<li><p>Install git on your local machine (if you don’t already have it).</p></li>
+<li><p>Clone <em>your forked repo</em> to your local machine. You will work mostly with
+your local repo and only publish changes when they are ready to be merged:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">git</span><span class="nd">@github</span><span class="o">.</span><span class="n">com</span><span class="p">:</span><span class="n">YOURNAME</span><span class="o">/</span><span class="n">pymatgen</span><span class="o">.</span><span class="n">git</span>
+</pre></div>
+</div>
+<p>Note that the entire Github repo is fairly large because of the presence of
+test files, but these are absolutely necessary for rigorous testing of the
+code.</p>
+</li>
+<li><p>It is highly recommended you install all the optional dependencies as well.</p></li>
+<li><p>Code (see <a class="reference internal" href="#coding-guidelines">Coding Guidelines</a>). Commit early and commit often. Keep your
+code up to date. You need to add the main repository to the list of your
+remotes. Let’s name the upstream repo as mpmaster (materialsproject master).</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">remote</span> <span class="n">add</span> <span class="n">mpmaster</span> <span class="n">git</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">materialsproject</span><span class="o">/</span><span class="n">pymatgen</span><span class="o">.</span><span class="n">git</span>
+</pre></div>
+</div>
+<p>Make sure your repository is clean (no uncommitted changes) and is currently
+on the master branch. If not, commit or stash any changes and switch to the
+master.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">checkout</span> <span class="n">master</span>
+</pre></div>
+</div>
+<p>Then you can pull all the new commits from the main line</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">pull</span> <span class="n">mpmaster</span> <span class="n">master</span>
+</pre></div>
+</div>
+<p>Remember, pull is a combination of the commands fetch and merge, so there may
+be merge conflicts to be manually resolved.</p>
+</li>
+<li><p>Publish your contributions. Assuming that you now have a couple of commits
+that you would like to contribute to the main repository. Please follow the
+following steps:</p>
+<ol class="loweralpha">
+<li><p>If your change is based on a relatively old state of the main repository,
+then you should probably bring your repository up-to-date first to see if
+the change is not creating any merge conflicts.</p></li>
+<li><p>Check that everything compiles cleanly and passes all tests.
+The pymatgen repo comes with a complete set of tests for all modules. If
+you have written new modules or methods, you must write tests for the new
+code as well (see <a class="reference internal" href="#coding-guidelines">Coding Guidelines</a>). Install and run nosetest in your
+local repo directory and fix all errors before continuing further. There
+must be <strong>no errors</strong> for the nosetest.</p></li>
+<li><p>If everything is ok, publish the commits to your github repository.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">push</span> <span class="n">origin</span> <span class="n">master</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</li>
+<li><p>Now that your commit is published, it doesn’t mean that it has already been
+merged into the main repository. You should issue a merge request to
+pymatgen’ maintainers. They will pull your commits and run their own tests
+before releasing.</p></li>
+</ol>
+</div>
+<div class="section" id="coding-guidelines">
+<h1>Coding Guidelines<a class="headerlink" href="#coding-guidelines" title="Permalink to this headline">¶</a></h1>
+<p>Given that pymatgen is intended to be long-term code base, we adopt very strict
+quality control and coding guidelines for all contributions to pymatgen. The
+following must be satisfied for your contributions to be accepted into pymatgen.</p>
+<ol class="arabic simple">
+<li><p><strong>Unittests</strong> are required for all new modules and methods. The only way to
+minimize code regression is to ensure that all code are well-tested. If the
+maintainer cannot test your code, the contribution will be rejected.</p></li>
+<li><p><strong>Python PEP 8</strong> <a class="reference external" href="http://www.python.org/dev/peps/pep-0008/">code style</a>.
+We allow a few exceptions when they are well-justified (e.g., Element’s
+atomic number is given a variable name of capital Z, in line with accepted
+scientific convention), but generally, PEP 8 must be observed. Code style
+will be automatically checked, but to aid you, you can copy the example
+pre-commit hook into your .git/hooks directly. This will automatically run
+pycodestyle prior to any commits. At the very least, copy pre-commit to
+.git/hooks/pre-push.</p></li>
+<li><p><strong>Python 3</strong>. We only support Python 3.5+.</p></li>
+<li><p><strong>Documentation</strong> required for all modules, classes and methods. In
+particular, the method docstrings should make clear the arguments expected
+and the return values. For complex algorithms (e.g., an Ewald summation), a
+summary of the alogirthm should be provided, and preferably with a link to a
+publication outlining the method in detail.</p></li>
+<li><p><strong>IDE</strong>. We highly recommend the use of Pycharm. You should also set up
+pycodestyle and turn those on within the IDE setup. This will warn of any
+issues with coding styles. Many code style errors can be done by simply
+selecting the entire code and using the Code-&gt;Reformat Code within Pycharm.</p></li>
+</ol>
+<p>For the above, if in doubt, please refer to the core classes in pymatgen for
+examples of what is expected.</p>
+<div class="section" id="a-word-on-coding-for-python-3-compatibility">
+<h2>A word on coding for Python 3 compatibility<a class="headerlink" href="#a-word-on-coding-for-python-3-compatibility" title="Permalink to this headline">¶</a></h2>
+<p>With effect from version 3.0, all pymatgen code must be both Python 2.7+ and 3
+compatible. Specifically, we have adopted the following practices throughout
+pymatgen.</p>
+<ol class="arabic">
+<li><p><strong>Unicode-always.</strong> Unless you are absolutely sure you need byte literals
+(rare for pymatgen), always use unicode. In particular, the following should
+be the first line of all pymatgen modules:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">unicode_literals</span>
+</pre></div>
+</div>
+<p>Future division means that 1/2 returns a float (0.5),
+which is more intuitive scientifically, instead of 0 (default integer
+division in Python 2). print_function ensures that print() is used instead
+of the print statement. And unicode_literals makes it such that all
+strings are treated as unicode by default. If you need to use bytes,
+those should be marked up explicitly as b’byte literal’.</p>
+</li>
+<li><p><strong>Use of the six package</strong>. Where necessary, use the six package to handle
+interoperability between Python 2 and 3. Examples include the six.moves
+functions (common ones are zip, filter, map), and six.stringtypes (testing
+for string types, which should be rarely done).</p></li>
+<li><p><strong>Python-modernize</strong>. Use python-modernize to check your code for any
+potential changes that need to be made.</p></li>
+<li><p><strong>Unit testing</strong>. The entire pymatgen code base is continuously being
+tested in both Python 2.7 and &gt;=3.3. If your code fails either of the
+tests, you need to fix it.</p></li>
+</ol>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011, Pymatgen Development Team
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+  
+ 
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+
+</body>
+</html>
