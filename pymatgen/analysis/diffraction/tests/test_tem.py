@@ -207,8 +207,8 @@ class XRDCalculatorTest(PymatgenTest):
         dots = c.tem_dots(structure, points)
         self.assertTrue(all([isinstance(x, tuple) for x in dots]))
 
-    def test_get_pattern_2d(self):
-        # All dependencies in get_pattern_2d method are tested.
+    def test_get_pattern(self):
+        # All dependencies in get_pattern method are tested.
         # Only make sure result is a pd dataframe.
         c = TEMCalculator()
         structure = self.get_structure("Si")
