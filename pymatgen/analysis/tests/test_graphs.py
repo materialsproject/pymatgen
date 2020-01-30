@@ -17,7 +17,8 @@ from pymatgen.analysis.local_env import (
     MinimumOKeeffeNN,
     OpenBabelNN,
     CutOffDictNN,
-    VoronoiNN
+    VoronoiNN,
+    CovalentBondNN
 )
 from pymatgen.util.testing import PymatgenTest
 try:
@@ -135,7 +136,7 @@ class StructureGraphTest(PymatgenTest):
     def test_inappropriate_construction(self):
         # Check inappropriate strategy
         with self.assertRaises(ValueError):
-            StructureGraph.with_local_env_strategy(self.NiO, OpenBabelNN())
+            StructureGraph.with_local_env_strategy(self.NiO, CovalentBondNN())
 
     def test_properties(self):
 
