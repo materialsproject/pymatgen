@@ -38,7 +38,8 @@ class BabelMolAdaptor:
 
     @requires(ob,
               "BabelMolAdaptor requires openbabel to be installed with "
-              "Python bindings. Please get it at http://openbabel.org.")
+              "Python bindings. Please get it at http://openbabel.org "
+              "(version >=3.0.0).")
     def __init__(self, mol):
         """
         Initializes with pymatgen Molecule or OpenBabel"s OBMol.

@@ -1228,8 +1228,9 @@ class OpenBabelNN(NearNeighbors):
     """
 
     @requires(ob,
-              "OpenBabelNN requires openbabel to be installed with "
-              "Python bindings. Please get it at http://openbabel.org.")
+              "BabelMolAdaptor requires openbabel to be installed with "
+              "Python bindings. Please get it at http://openbabel.org "
+              "(version >=3.0.0).")
     def __init__(self, order=True):
         """
         Args:

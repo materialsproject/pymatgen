@@ -559,7 +559,8 @@ class MoleculeMatcher(MSONable):
 
     @requires(ob,
               "BabelMolAdaptor requires openbabel to be installed with "
-              "Python bindings. Please get it at http://openbabel.org.")
+              "Python bindings. Please get it at http://openbabel.org "
+              "(version >=3.0.0).")
     def __init__(self, tolerance=0.01, mapper=InchiMolAtomMapper()):
         self._tolerance = tolerance
         self._mapper = mapper
