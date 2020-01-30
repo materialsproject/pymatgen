@@ -2661,7 +2661,7 @@ class IMolecule(SiteCollection, MSONable):
 
     def get_boxed_structure(self, a, b, c, images=(1, 1, 1),
                             random_rotation=False, min_dist=1, cls=None,
-                            offset=None, no_cross=False):
+                            offset=None, no_cross=False, reorder=True):
         """
         Creates a Structure from a Molecule by putting the Molecule in the
         center of a orthorhombic box. Useful for creating Structure for
@@ -2686,6 +2686,8 @@ class IMolecule(SiteCollection, MSONable):
             offset: Translation to offset molecule from center of mass coords
             no_cross: Whether to forbid molecule coords from extending beyond
                 boundary of box.
+            reorder: Whether to reorder the sites to be in electronegativity
+                order.
 
         Returns:
             Structure containing molecule in a box.
@@ -2746,9 +2748,14 @@ class IMolecule(SiteCollection, MSONable):
         if cls is None:
             cls = Structure
 
-        return cls(lattice, self.species * nimages, coords,
-                   coords_are_cartesian=True,
-                   site_properties=sprops).get_sorted_structure()
+        if reorder:
+            return cls(lattice, self.species * nimages, coords,
+                       coords_are_cartesian=True,
+                       site_properties=sprops).get_sorted_structure()
+        else:
+            return cls(lattice, self.species * nimages, coords,
+                       coords_are_cartesian=True,
+                       site_properties=sprops)
 
     def get_centered_molecule(self):
         """

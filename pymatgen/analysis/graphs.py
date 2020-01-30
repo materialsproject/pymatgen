@@ -268,6 +268,10 @@ class StructureGraph(MSONable):
         :return:
         """
 
+        if not strategy.structures_allowed:
+            raise ValueError("Chosen strategy is not designed for use with structures! "
+                             "Please choose another strategy.")
+
         sg = StructureGraph.with_empty_graph(structure, name="bonds")
 
         for n, neighbors in enumerate(strategy.get_all_nn_info(structure)):
@@ -1698,7 +1702,8 @@ class MoleculeGraph(MSONable):
             b = max(coords[:, 1]) - min(coords[:, 1]) + 100
             c = max(coords[:, 2]) - min(coords[:, 2]) + 100
 
-            structure = molecule.get_boxed_structure(a, b, c, no_cross=True)
+            structure = molecule.get_boxed_structure(a, b, c, no_cross=True,
+                                                     reorder=False)
         else:
             structure = None
 
@@ -1726,27 +1731,6 @@ class MoleculeGraph(MSONable):
                             to_index=to_index,
                             weight=neighbor['weight'],
                             warn_duplicates=False)
-
-        if extend_structure:
-            # Structure has different ordering than Molecule, generally
-            # Map back from one ordering to another
-            centered = molecule.get_centered_molecule()
-
-            mapping = {}
-            for s, ssite in enumerate(structure):
-                x = ssite.coords[0] - structure.lattice.a/2
-                y = ssite.coords[1] - structure.lattice.b/2
-                z = ssite.coords[2] - structure.lattice.c/2
-                scoords = (x, y, z)
-                for m, msite in enumerate(centered):
-                    match = True
-                    for i in range(3):
-                        if abs(scoords[i] - msite.coords[i]) > 0.001:
-                            match = False
-                    if match:
-                        mapping[s] = m
-
-            mg.graph = nx.relabel_nodes(mg.graph, mapping)
 
         duplicates = []
         for edge in mg.graph.edges:
