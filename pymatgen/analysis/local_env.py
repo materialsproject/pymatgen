@@ -38,10 +38,8 @@ from math import pow, pi, asin, sqrt, exp, sin, cos, acos, fabs, atan2
 import numpy as np
 
 try:
-    import openbabel as ob
-    import pybel as pb
+    from openbabel import openbabel as ob
 except Exception:
-    pb = None
     ob = None
 
 from monty.dev import requires
@@ -1182,7 +1180,7 @@ class OpenBabelNN(NearNeighbors):
     structures.
     """
 
-    @requires(pb and ob,
+    @requires(ob,
               "OpenBabelNN requires openbabel to be installed with "
               "Python bindings. Please get it at http://openbabel.org.")
     def __init__(self, order=True):
