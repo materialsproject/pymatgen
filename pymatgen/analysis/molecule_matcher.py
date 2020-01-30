@@ -30,7 +30,7 @@ from monty.dev import requires
 from pymatgen.io.babel import BabelMolAdaptor
 
 try:
-    import openbabel as ob
+    from openbabel import openbabel as ob
 except ImportError:
     ob = None
 

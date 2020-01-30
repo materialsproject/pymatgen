@@ -98,9 +98,7 @@ class BondDissociationEnergies(MSONable):
 
         # Build principle molecule graph
         self.mol_graph = MoleculeGraph.with_local_env_strategy(Molecule.from_dict(molecule_entry["final_molecule"]),
-                                                               OpenBabelNN(),
-                                                               reorder=False,
-                                                               extend_structure=False)
+                                                               OpenBabelNN())
         # Loop through bonds, aka graph edges, and fragment and process:
         for bond in self.mol_graph.graph.edges:
             bonds = [(bond[0], bond[1])]
@@ -290,13 +288,9 @@ class BondDissociationEnergies(MSONable):
             # Build initial and final molgraphs:
             entry["initial_molgraph"] = MoleculeGraph.with_local_env_strategy(
                 Molecule.from_dict(entry["initial_molecule"]),
-                OpenBabelNN(),
-                reorder=False,
-                extend_structure=False)
+                OpenBabelNN())
             entry["final_molgraph"] = MoleculeGraph.with_local_env_strategy(Molecule.from_dict(entry["final_molecule"]),
-                                                                            OpenBabelNN(),
-                                                                            reorder=False,
-                                                                            extend_structure=False)
+                                                                            OpenBabelNN())
             # Classify any potential structural change that occured during optimization:
             if entry["initial_molgraph"].isomorphic_to(entry["final_molgraph"]):
                 entry["structure_change"] = "no_change"

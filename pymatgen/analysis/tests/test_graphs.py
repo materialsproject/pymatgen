@@ -20,7 +20,7 @@ from pymatgen.analysis.local_env import (
 )
 from pymatgen.util.testing import PymatgenTest
 try:
-    import openbabel as ob
+    from openbabel import openbabel as ob
 except ImportError:
     ob = None
 try:
@@ -721,9 +721,7 @@ class MoleculeGraphTest(unittest.TestCase):
                 )
 
         mol_graph_edges = MoleculeGraph.with_edges(self.pc, edges=edges_pc)
-        mol_graph_strat = MoleculeGraph.with_local_env_strategy(
-            self.pc, OpenBabelNN(), reorder=False, extend_structure=False
-        )
+        mol_graph_strat = MoleculeGraph.with_local_env_strategy(self.pc, OpenBabelNN())
         self.assertTrue(mol_graph_edges.isomorphic_to(mol_graph_strat))
 
     def test_properties(self):

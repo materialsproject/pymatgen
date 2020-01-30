@@ -10,7 +10,7 @@ from monty.serialization import loadfn
 from pymatgen.analysis.bond_dissociation import BondDissociationEnergies
 
 try:
-    import openbabel as ob
+    from openbabel import openbabel as ob
 except ImportError:
     ob = None
 

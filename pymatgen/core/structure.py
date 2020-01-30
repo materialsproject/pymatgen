@@ -2610,7 +2610,7 @@ class IMolecule(SiteCollection, MSONable):
         Find all sites within a sphere from a point.
 
         Args:
-            pt (3x1 array): Cartesian coordinates of center of sphere.
+            pt (3x1 array): Cartesian coordinates of center of sphere
             r (float): Radius of sphere.
 
         Returns:
