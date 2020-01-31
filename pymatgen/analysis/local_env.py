@@ -235,16 +235,29 @@ class NearNeighbors:
 
     @property
     def structures_allowed(self):
+        """
+        Boolean property: can this NearNeighbors class be used with Structure
+        objects?
+        """
         raise NotImplementedError("structures_allowed"
                                   " is not defined!")
 
     @property
     def molecules_allowed(self):
+        """
+        Boolean property: can this NearNeighbors class be used with Molecule
+        objects?
+        """
         raise NotImplementedError("molecules_allowed"
                                   " is not defined!")
 
     @property
     def extend_structure_molecules(self):
+        """
+        Boolean property: Do Molecules need to be converted to Structures to use
+        this NearNeighbors class? Note: this property is not defined for classes
+        for which molecules_allowed == False.
+        """
         raise NotImplementedError("extend_structures_molecule"
                                   " is not defined!")
 
@@ -641,10 +654,18 @@ class VoronoiNN(NearNeighbors):
 
     @property
     def structures_allowed(self):
+        """
+        Boolean property: can this NearNeighbors class be used with Structure
+        objects?
+        """
         return True
 
     @property
     def molecules_allowed(self):
+        """
+        Boolean property: can this NearNeighbors class be used with Molecule
+        objects?
+        """
         return False
 
     def get_voronoi_polyhedra(self, structure, n):
@@ -1075,14 +1096,27 @@ class JmolNN(NearNeighbors):
 
     @property
     def structures_allowed(self):
+        """
+        Boolean property: can this NearNeighbors class be used with Structure
+        objects?
+        """
         return True
 
     @property
     def molecules_allowed(self):
+        """
+        Boolean property: can this NearNeighbors class be used with Molecule
+        objects?
+        """
         return True
 
     @property
     def extend_structure_molecules(self):
+        """
+        Boolean property: Do Molecules need to be converted to Structures to use
+        this NearNeighbors class? Note: this property is not defined for classes
+        for which molecules_allowed == False.
+        """
         return True
 
     def get_max_bond_distance(self, el1_sym, el2_sym):
@@ -1166,14 +1200,27 @@ class MinimumDistanceNN(NearNeighbors):
 
     @property
     def structures_allowed(self):
+        """
+        Boolean property: can this NearNeighbors class be used with Structure
+        objects?
+        """
         return True
 
     @property
     def molecules_allowed(self):
+        """
+        Boolean property: can this NearNeighbors class be used with Molecule
+        objects?
+        """
         return True
 
     @property
     def extend_structure_molecules(self):
+        """
+        Boolean property: Do Molecules need to be converted to Structures to use
+        this NearNeighbors class? Note: this property is not defined for classes
+        for which molecules_allowed == False.
+        """
         return True
 
     def get_nn_info(self, structure, n):
@@ -1241,14 +1288,27 @@ class OpenBabelNN(NearNeighbors):
 
     @property
     def structures_allowed(self):
+        """
+        Boolean property: can this NearNeighbors class be used with Structure
+        objects?
+        """
         return False
 
     @property
     def molecules_allowed(self):
+        """
+        Boolean property: can this NearNeighbors class be used with Molecule
+        objects?
+        """
         return True
 
     @property
     def extend_structure_molecules(self):
+        """
+        Boolean property: Do Molecules need to be converted to Structures to use
+        this NearNeighbors class? Note: this property is not defined for classes
+        for which molecules_allowed == False.
+        """
         return False
 
     def get_nn_info(self, structure, n):
@@ -1389,14 +1449,27 @@ class CovalentBondNN(NearNeighbors):
 
     @property
     def structures_allowed(self):
+        """
+        Boolean property: can this NearNeighbors class be used with Structure
+        objects?
+        """
         return False
 
     @property
     def molecules_allowed(self):
+        """
+        Boolean property: can this NearNeighbors class be used with Molecule
+        objects?
+        """
         return True
 
     @property
     def extend_structure_molecules(self):
+        """
+        Boolean property: Do Molecules need to be converted to Structures to use
+        this NearNeighbors class? Note: this property is not defined for classes
+        for which molecules_allowed == False.
+        """
         return False
 
     def get_nn_info(self, structure, n):
@@ -1533,14 +1606,27 @@ class MinimumOKeeffeNN(NearNeighbors):
 
     @property
     def structures_allowed(self):
+        """
+        Boolean property: can this NearNeighbors class be used with Structure
+        objects?
+        """
         return True
 
     @property
     def molecules_allowed(self):
+        """
+        Boolean property: can this NearNeighbors class be used with Molecule
+        objects?
+        """
         return True
 
     @property
     def extend_structure_molecules(self):
+        """
+        Boolean property: Do Molecules need to be converted to Structures to use
+        this NearNeighbors class? Note: this property is not defined for classes
+        for which molecules_allowed == False.
+        """
         return True
 
     def get_nn_info(self, structure, n):
@@ -1614,10 +1700,18 @@ class MinimumVIRENN(NearNeighbors):
 
     @property
     def structures_allowed(self):
+        """
+        Boolean property: can this NearNeighbors class be used with Structure
+        objects?
+        """
         return True
 
     @property
     def molecules_allowed(self):
+        """
+        Boolean property: can this NearNeighbors class be used with Molecule
+        objects?
+        """
         return False
 
     def get_nn_info(self, structure, n):
@@ -3097,10 +3191,18 @@ class BrunnerNN_reciprocal(NearNeighbors):
 
     @property
     def structures_allowed(self):
+        """
+        Boolean property: can this NearNeighbors class be used with Structure
+        objects?
+        """
         return True
 
     @property
     def molecules_allowed(self):
+        """
+        Boolean property: can this NearNeighbors class be used with Molecule
+        objects?
+        """
         return False
 
     def get_nn_info(self, structure, n):
@@ -3160,10 +3262,18 @@ class BrunnerNN_relative(NearNeighbors):
 
     @property
     def structures_allowed(self):
+        """
+        Boolean property: can this NearNeighbors class be used with Structure
+        objects?
+        """
         return True
 
     @property
     def molecules_allowed(self):
+        """
+        Boolean property: can this NearNeighbors class be used with Molecule
+        objects?
+        """
         return False
 
     def get_nn_info(self, structure, n):
@@ -3223,10 +3333,18 @@ class BrunnerNN_real(NearNeighbors):
 
     @property
     def structures_allowed(self):
+        """
+        Boolean property: can this NearNeighbors class be used with Structure
+        objects?
+        """
         return True
 
     @property
     def molecules_allowed(self):
+        """
+        Boolean property: can this NearNeighbors class be used with Molecule
+        objects?
+        """
         return False
 
     def get_nn_info(self, structure, n):
@@ -3290,14 +3408,27 @@ class EconNN(NearNeighbors):
 
     @property
     def structures_allowed(self):
+        """
+        Boolean property: can this NearNeighbors class be used with Structure
+        objects?
+        """
         return True
 
     @property
     def molecules_allowed(self):
+        """
+        Boolean property: can this NearNeighbors class be used with Molecule
+        objects?
+        """
         return True
 
     @property
     def extend_structure_molecules(self):
+        """
+        Boolean property: Do Molecules need to be converted to Structures to use
+        this NearNeighbors class? Note: this property is not defined for classes
+        for which molecules_allowed == False.
+        """
         return True
 
     def get_nn_info(self, structure, n):
@@ -3389,10 +3520,18 @@ class CrystalNN(NearNeighbors):
 
     @property
     def structures_allowed(self):
+        """
+        Boolean property: can this NearNeighbors class be used with Structure
+        objects?
+        """
         return True
 
     @property
     def molecules_allowed(self):
+        """
+        Boolean property: can this NearNeighbors class be used with Molecule
+        objects?
+        """
         return False
 
     def get_nn_info(self, structure, n):
@@ -3774,14 +3913,27 @@ class CutOffDictNN(NearNeighbors):
 
     @property
     def structures_allowed(self):
+        """
+        Boolean property: can this NearNeighbors class be used with Structure
+        objects?
+        """
         return True
 
     @property
     def molecules_allowed(self):
+        """
+        Boolean property: can this NearNeighbors class be used with Molecule
+        objects?
+        """
         return True
 
     @property
     def extend_structure_molecules(self):
+        """
+        Boolean property: Do Molecules need to be converted to Structures to use
+        this NearNeighbors class? Note: this property is not defined for classes
+        for which molecules_allowed == False.
+        """
         return True
 
     @staticmethod
@@ -3864,14 +4016,27 @@ class Critic2NN(NearNeighbors):
 
     @property
     def structures_allowed(self):
+        """
+        Boolean property: can this NearNeighbors class be used with Structure
+        objects?
+        """
         return True
 
     @property
     def molecules_allowed(self):
+        """
+        Boolean property: can this NearNeighbors class be used with Molecule
+        objects?
+        """
         return True
 
     @property
     def extend_structure_molecules(self):
+        """
+        Boolean property: Do Molecules need to be converted to Structures to use
+        this NearNeighbors class? Note: this property is not defined for classes
+        for which molecules_allowed == False.
+        """
         return True
 
     def get_bonded_structure(self, structure, decorate=False):
