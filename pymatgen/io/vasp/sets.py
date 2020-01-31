@@ -2888,18 +2888,18 @@ def validate_potcar_hash(potcar: Potcar):
                 ),
                 BadHashWarning
             )
-    else:
-        file_hash = md5(psingle.data.encode("utf-8")).hexdigest()
-        if file_hash != file_hashes[key][psingle.symbol]:
-            warnings.warn(
-                "POTCAR file hash for POTCAR {} did not pass validation. \
-                            It is possible that the metadata in the POTCAR has changed. \
-                        We will continue loading the POTCAR because the hash of \
-                        the data itself has passed validation.".format(
-                    psingle.symbol
-                ),
-                BadHashWarning
-            )
+        else:
+            file_hash = md5(psingle.data.encode("utf-8")).hexdigest()
+            if file_hash != file_hashes[key][psingle.symbol]:
+                warnings.warn(
+                    "POTCAR file hash for POTCAR {} did not pass validation. \
+                                It is possible that the metadata in the POTCAR has changed. \
+                            We will continue loading the POTCAR because the hash of \
+                            the data itself has passed validation.".format(
+                        psingle.symbol
+                    ),
+                    BadHashWarning
+                )
 
 
 def batch_write_input(
