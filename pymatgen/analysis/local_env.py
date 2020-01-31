@@ -38,10 +38,8 @@ from math import pow, pi, asin, sqrt, exp, sin, cos, acos, fabs, atan2
 import numpy as np
 
 try:
-    import openbabel as ob
-    import pybel as pb
+    from openbabel import openbabel as ob
 except Exception:
-    pb = None
     ob = None
 
 from monty.dev import requires
@@ -234,6 +232,21 @@ class NearNeighbors:
 
     def __hash__(self):
         return len(self.__dict__.items())
+
+    @property
+    def structures_allowed(self):
+        raise NotImplementedError("structures_allowed"
+                                  " is not defined!")
+
+    @property
+    def molecules_allowed(self):
+        raise NotImplementedError("molecules_allowed"
+                                  " is not defined!")
+
+    @property
+    def extend_structure_molecules(self):
+        raise NotImplementedError("extend_structures_molecule"
+                                  " is not defined!")
 
     def get_cn(self, structure, n, use_weights=False):
         """
@@ -625,6 +638,14 @@ class VoronoiNN(NearNeighbors):
         self.weight = weight
         self.extra_nn_info = extra_nn_info
         self.compute_adj_neighbors = compute_adj_neighbors
+
+    @property
+    def structures_allowed(self):
+        return True
+
+    @property
+    def molecules_allowed(self):
+        return False
 
     def get_voronoi_polyhedra(self, structure, n):
         """
@@ -1052,6 +1073,18 @@ class JmolNN(NearNeighbors):
         if el_radius_updates:
             self.el_radius.update(el_radius_updates)
 
+    @property
+    def structures_allowed(self):
+        return True
+
+    @property
+    def molecules_allowed(self):
+        return True
+
+    @property
+    def extend_structure_molecules(self):
+        return True
+
     def get_max_bond_distance(self, el1_sym, el2_sym):
         """
         Use Jmol algorithm to determine bond length from atomic parameters
@@ -1131,6 +1164,18 @@ class MinimumDistanceNN(NearNeighbors):
         self.cutoff = cutoff
         self.get_all_sites = get_all_sites
 
+    @property
+    def structures_allowed(self):
+        return True
+
+    @property
+    def molecules_allowed(self):
+        return True
+
+    @property
+    def extend_structure_molecules(self):
+        return True
+
     def get_nn_info(self, structure, n):
         """
         Get all near-neighbor sites as well as the associated image locations
@@ -1182,9 +1227,10 @@ class OpenBabelNN(NearNeighbors):
     structures.
     """
 
-    @requires(pb and ob,
-              "OpenBabelNN requires openbabel to be installed with "
-              "Python bindings. Please get it at http://openbabel.org.")
+    @requires(ob,
+              "BabelMolAdaptor requires openbabel to be installed with "
+              "Python bindings. Please get it at http://openbabel.org "
+              "(version >=3.0.0).")
     def __init__(self, order=True):
         """
         Args:
@@ -1192,6 +1238,18 @@ class OpenBabelNN(NearNeighbors):
             if bond length should be used as a weight.
         """
         self.order = order
+
+    @property
+    def structures_allowed(self):
+        return False
+
+    @property
+    def molecules_allowed(self):
+        return True
+
+    @property
+    def extend_structure_molecules(self):
+        return False
 
     def get_nn_info(self, structure, n):
         """
@@ -1329,6 +1387,18 @@ class CovalentBondNN(NearNeighbors):
 
         self.bonds = None
 
+    @property
+    def structures_allowed(self):
+        return False
+
+    @property
+    def molecules_allowed(self):
+        return True
+
+    @property
+    def extend_structure_molecules(self):
+        return False
+
     def get_nn_info(self, structure, n):
         """
         Get all near-neighbor sites and weights (orders) of bonds for a given
@@ -1395,7 +1465,7 @@ class CovalentBondNN(NearNeighbors):
                                 for n in range(len(structure))]
             structure.add_site_property('order_parameters', order_parameters)
 
-        mg = MoleculeGraph.with_local_env_strategy(structure, self, extend_structure=False)
+        mg = MoleculeGraph.with_local_env_strategy(structure, self)
 
         return mg
 
@@ -1460,6 +1530,18 @@ class MinimumOKeeffeNN(NearNeighbors):
         """
         self.tol = tol
         self.cutoff = cutoff
+
+    @property
+    def structures_allowed(self):
+        return True
+
+    @property
+    def molecules_allowed(self):
+        return True
+
+    @property
+    def extend_structure_molecules(self):
+        return True
 
     def get_nn_info(self, structure, n):
         """
@@ -1529,6 +1611,14 @@ class MinimumVIRENN(NearNeighbors):
         """
         self.tol = tol
         self.cutoff = cutoff
+
+    @property
+    def structures_allowed(self):
+        return True
+
+    @property
+    def molecules_allowed(self):
+        return False
 
     def get_nn_info(self, structure, n):
         """
@@ -3005,6 +3095,14 @@ class BrunnerNN_reciprocal(NearNeighbors):
         self.tol = tol
         self.cutoff = cutoff
 
+    @property
+    def structures_allowed(self):
+        return True
+
+    @property
+    def molecules_allowed(self):
+        return False
+
     def get_nn_info(self, structure, n):
         """
         Get all near-neighbor sites as well as the associated image locations
@@ -3060,6 +3158,14 @@ class BrunnerNN_relative(NearNeighbors):
         self.tol = tol
         self.cutoff = cutoff
 
+    @property
+    def structures_allowed(self):
+        return True
+
+    @property
+    def molecules_allowed(self):
+        return False
+
     def get_nn_info(self, structure, n):
         """
         Get all near-neighbor sites as well as the associated image locations
@@ -3114,6 +3220,14 @@ class BrunnerNN_real(NearNeighbors):
         """
         self.tol = tol
         self.cutoff = cutoff
+
+    @property
+    def structures_allowed(self):
+        return True
+
+    @property
+    def molecules_allowed(self):
+        return False
 
     def get_nn_info(self, structure, n):
         """
@@ -3173,6 +3287,18 @@ class EconNN(NearNeighbors):
         """
         self.tol = tol
         self.cutoff = cutoff
+
+    @property
+    def structures_allowed(self):
+        return True
+
+    @property
+    def molecules_allowed(self):
+        return True
+
+    @property
+    def extend_structure_molecules(self):
+        return True
 
     def get_nn_info(self, structure, n):
         """
@@ -3260,6 +3386,14 @@ class CrystalNN(NearNeighbors):
         self.search_cutoff = search_cutoff
         self.porous_adjustment = porous_adjustment
         self.fingerprint_length = fingerprint_length
+
+    @property
+    def structures_allowed(self):
+        return True
+
+    @property
+    def molecules_allowed(self):
+        return False
 
     def get_nn_info(self, structure, n):
         """
@@ -3638,6 +3772,18 @@ class CutOffDictNN(NearNeighbors):
                 self._max_dist = dist
         self._lookup_dict = lookup_dict
 
+    @property
+    def structures_allowed(self):
+        return True
+
+    @property
+    def molecules_allowed(self):
+        return True
+
+    @property
+    def extend_structure_molecules(self):
+        return True
+
     @staticmethod
     def from_preset(preset):
         """
@@ -3715,6 +3861,18 @@ class Critic2NN(NearNeighbors):
         # computations
         self.__last_structure = None
         self.__last_bonded_structure = None
+
+    @property
+    def structures_allowed(self):
+        return True
+
+    @property
+    def molecules_allowed(self):
+        return True
+
+    @property
+    def extend_structure_molecules(self):
+        return True
 
     def get_bonded_structure(self, structure, decorate=False):
         """

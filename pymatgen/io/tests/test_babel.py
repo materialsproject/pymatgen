@@ -29,14 +29,13 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         "test_files")
 
 try:
-    import openbabel as ob
-    import pybel as pb
+    from openbabel import openbabel as ob
+    from openbabel import pybel as pb
 except ImportError:
-    pb = None
     ob = None
 
 
-@unittest.skipIf(not (pb and ob), "OpenBabel not present. Skipping...")
+@unittest.skipIf(not (ob), "OpenBabel not present. Skipping...")
 class BabelMolAdaptorTest(unittest.TestCase):
 
     def setUp(self):

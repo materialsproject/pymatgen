@@ -92,9 +92,7 @@ class FunctionalGroupExtractor:
 
         if self.molgraph is None:
             self.molgraph = MoleculeGraph.with_local_env_strategy(self.molecule,
-                                                                  OpenBabelNN(),
-                                                                  reorder=False,
-                                                                  extend_structure=False)
+                                                                  OpenBabelNN())
 
         # Assign a specie and coordinates to each node in the graph,
         # corresponding to the Site in the Molecule object
