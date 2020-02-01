@@ -191,7 +191,7 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
                          "POSCAR": self.poscar,
                          "KPOINTS": self.kpoints
                          }.items():
-                if k is not None:
+                if v is not None:
                     with zopen(os.path.join(output_dir, k), "wt") as f:
                         f.write(v.__str__())
         else:

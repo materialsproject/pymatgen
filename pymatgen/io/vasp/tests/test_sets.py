@@ -1326,6 +1326,18 @@ class MPScanRelaxSetTest(PymatgenTest):
         self.assertEqual(type(v), MPScanRelaxSet)
         self.assertEqual(v._config_dict["INCAR"]["METAGGA"], "SCAN")
         self.assertEqual(v.user_incar_settings["NSW"], 500)
+    
+    def test_write_input(self):
+        self.mp_scan_set.write_input(
+            "."
+        )
+        self.assertTrue(os.path.exists("INCAR"))
+        self.assertFalse(os.path.exists("KPOINTS"))
+        self.assertTrue(os.path.exists("POTCAR"))
+        self.assertTrue(os.path.exists("POSCAR"))
+
+        for f in ["INCAR", "POSCAR", "POTCAR"]:
+            os.remove(f)
 
 
 class FuncTest(PymatgenTest):
