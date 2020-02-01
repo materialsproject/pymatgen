@@ -1,6 +1,7 @@
 # New feature updated by VASP on Oct 28, 2018. See VASP manual for more information.
 # Recommended PAW potentials for DFT calculations using VASP.5.2 have been added.
 # INCAR, KPOINTS are the same to the default Materials Project settings.
+PARENT: VASPIncarBase
 INCAR:
   ALGO: FAST
   EDIFF_PER_ATOM: 5.0e-05

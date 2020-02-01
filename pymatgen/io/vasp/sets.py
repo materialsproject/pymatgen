@@ -231,7 +231,13 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
 
 def _load_yaml_config(fname):
     config = loadfn(str(MODULE_DIR / ("%s.yaml" % fname)))
-    config["INCAR"].update(loadfn(str(MODULE_DIR / "VASPIncarBase.yaml")))
+    if "PARENT" in config:
+        parent_config = _load_yaml_config(config["PARENT"])
+        for k, v in config.items():
+            if isinstance(v, dict):
+                v_new = parent_config.get(k, {})
+                v_new.update(v)
+                config[k] = v_new
     return config
 
 
@@ -1498,7 +1504,7 @@ class MPNonSCFSet(MPRelaxSet):
         if self.nedos == 0:
             emax = max([eigs.max() for eigs in vasprun.eigenvalues.values()])
             emin = min([eigs.min() for eigs in vasprun.eigenvalues.values()])
-            self.nedos = int((emax - emin) / self.dedos) 
+            self.nedos = int((emax - emin) / self.dedos)
 
         return self
 
