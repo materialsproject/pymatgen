@@ -184,16 +184,15 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         """
         x_ray_factors = {}
         s2 = self.get_s2(bragg_angles)
-        atoms = structure.composition.elements
         scattering_factors_for_atom = {}
-        for atom in atoms:
-            coeffs = np.array(ATOMIC_SCATTERING_PARAMS[atom.symbol])
+        for site in structure:
+            element = site.specie
+            coeff = ATOMIC_SCATTERING_PARAMS[element.symbol]
             for plane in bragg_angles:
-                scattering_factor_curr = atom.Z - 41.78214 * s2[plane] * np.sum(coeffs[:, 0]
-                                                                                * np.exp(-coeffs[:, 1] * s2[plane]),
-                                                                                axis=None)
+                scattering_factor_curr = element.Z - 41.78214 * s2[plane] * sum([d[0] * np.exp(-d[1] * s2[plane])
+                                                                                 for d in coeff])
                 scattering_factors_for_atom[plane] = scattering_factor_curr
-            x_ray_factors[atom.symbol] = scattering_factors_for_atom
+            x_ray_factors[element.symbol] = scattering_factors_for_atom
             scattering_factors_for_atom = {}
         return x_ray_factors
 
@@ -210,14 +209,14 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         electron_scattering_factors = {}
         x_ray_factors = self.x_ray_factors(structure, bragg_angles)
         s2 = self.get_s2(bragg_angles)
-        atoms = structure.composition.elements
         prefactor = sc.e / (16 * (np.pi ** 2) * sc.epsilon_0)
         scattering_factors_for_atom = {}
-        for atom in atoms:
+        for site in structure:
+            element = site.specie
             for plane in bragg_angles:
-                scattering_factor_curr = prefactor * (atom.Z - x_ray_factors[atom.symbol][plane]) / s2[plane]
+                scattering_factor_curr = prefactor * (element.Z - x_ray_factors[element.symbol][plane]) / s2[plane]
                 scattering_factors_for_atom[plane] = scattering_factor_curr
-            electron_scattering_factors[atom.symbol] = scattering_factors_for_atom
+            electron_scattering_factors[element.symbol] = scattering_factors_for_atom
             scattering_factors_for_atom = {}
         return electron_scattering_factors
 
