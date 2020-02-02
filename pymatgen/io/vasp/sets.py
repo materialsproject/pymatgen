@@ -233,9 +233,11 @@ def _load_yaml_config(fname):
     config = loadfn(str(MODULE_DIR / ("%s.yaml" % fname)))
     if "PARENT" in config:
         parent_config = _load_yaml_config(config["PARENT"])
-        for k, v in config.items():
-            if isinstance(v, dict):
-                v_new = parent_config.get(k, {})
+        for k, v in parent_config.items():
+            if k not in config:
+                config[k] = v
+            elif isinstance(v, dict):
+                v_new = config.get(k, {})
                 v_new.update(v)
                 config[k] = v_new
     return config
