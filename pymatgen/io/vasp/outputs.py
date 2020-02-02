@@ -1646,6 +1646,22 @@ class Outcar:
         self.final_energy = total_energy
         self.data = {}
 
+        # Read "total number of plane waves", NPLWV:
+        self.read_pattern(
+            {"nplwv" : r"total plane-waves  NPLWV =\s*(\d+)"},
+            terminate_on_match=True,
+            postprocess=int
+        )
+
+        self.data["nplwvs_at_kpoints"] = [
+            int(n) for [n] in self.read_table_pattern(
+                r"\n+",
+                r".+plane waves:\s+(\d+)",
+                r"maximum and minimum number of plane-waves per node"
+            )
+        ]
+
+
         # Read the drift:
         self.read_pattern({
             "drift": r"total drift:\s+([\.\-\d]+)\s+([\.\-\d]+)\s+([\.\-\d]+)"},
