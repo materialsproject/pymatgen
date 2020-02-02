@@ -1648,7 +1648,7 @@ class Outcar:
 
         # Read "total number of plane waves", NPLWV:
         self.read_pattern(
-            {"nplwv" : r"total plane-waves  NPLWV =\s*(\d+)"},
+            {"nplwv": r"total plane-waves  NPLWV =\s*(\d+)"},
             terminate_on_match=True,
             postprocess=int
         )
@@ -1660,7 +1660,6 @@ class Outcar:
                 r"maximum and minimum number of plane-waves per node"
             )
         ]
-
 
         # Read the drift:
         self.read_pattern({
