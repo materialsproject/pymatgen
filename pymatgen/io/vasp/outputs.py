@@ -1648,18 +1648,27 @@ class Outcar:
 
         # Read "total number of plane waves", NPLWV:
         self.read_pattern(
-            {"nplwv": r"total plane-waves  NPLWV =\s*(\d+)"},
-            terminate_on_match=True,
-            postprocess=int
+            {"nplwv": r"total plane-waves  NPLWV =\s+(\*{6}|\d+)"},
+            terminate_on_match=True
         )
+        try:
+            self.data["nplwv"] = [[int(self.data["nplwv"][0][0])]]
+        except ValueError:
+            self.data["nplwv"] = [[None]]
 
-        self.data["nplwvs_at_kpoints"] = [
-            int(n) for [n] in self.read_table_pattern(
-                r"\n+",
-                r".+plane waves:\s+(\d+)",
-                r"maximum and minimum number of plane-waves per node"
+        nplwvs_at_kpoints = [
+            n for [n] in self.read_table_pattern(
+                r"\n{3}-{104}\n{3}",
+                r".+plane waves:\s+(\*{6,}|\d+)",
+                r"maximum and minimum number of plane-waves"
             )
         ]
+        self.data["nplwvs_at_kpoints"] = [None for n in nplwvs_at_kpoints]
+        for (n, nplwv) in enumerate(nplwvs_at_kpoints):
+            try:
+                self.data["nplwvs_at_kpoints"][n] = int(nplwv)
+            except ValueError:
+                pass
 
         # Read the drift:
         self.read_pattern({
