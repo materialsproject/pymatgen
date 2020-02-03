@@ -998,6 +998,20 @@ class OutcarTest(PymatgenTest):
         self.assertEqual(len(matrices[0][Spin.up][0]), 7)
         self.assertTrue("onsite_density_matrices" in outcar.as_dict())
 
+    def test_nplwvs(self):
+        outcar = Outcar(self.TEST_FILES_DIR / "OUTCAR")
+        self.assertEqual(outcar.data["nplwv"], [[34560]])
+        self.assertEqual(outcar.data["nplwvs_at_kpoints"],
+                         [1719, 1714, 1722, 1728, 1722, 1726, 1722, 1720, 1717, 1724, 1715, 1724, 1726, 1724, 1728,
+                          1715, 1722, 1715, 1726, 1730, 1730, 1715, 1716, 1729, 1727, 1723, 1721, 1712, 1723, 1719,
+                          1717, 1717, 1724, 1719, 1719, 1727, 1726, 1730, 1719, 1720, 1718, 1717, 1722, 1719, 1709,
+                          1714, 1724, 1726, 1718, 1713, 1720, 1713, 1711, 1713, 1715, 1717, 1728, 1726, 1712, 1722,
+                          1714, 1713, 1717, 1714, 1714, 1717, 1712, 1710, 1721, 1722, 1724, 1720, 1726, 1719, 1722,
+                          1714])
+        outcar = Outcar(self.TEST_FILES_DIR / "OUTCAR.CL")
+        self.assertEqual(outcar.data["nplwv"], [[None]])
+        self.assertEqual(outcar.data["nplwvs_at_kpoints"], [85687])
+
 
 class BSVasprunTest(PymatgenTest):
     _multiprocess_shared_ = True
