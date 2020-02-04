@@ -138,7 +138,7 @@ class XRDCalculatorTest(PymatgenTest):
         nacl = Structure.from_spacegroup("Fm-3m", Lattice.cubic(5.692), ["Na+", "Cl-"],
                                          [[0, 0, 0], [0.5, 0.5, 0.5]])
         point = [(2, 1, 3)]
-        point_nacl = [(4, 2, 0)]  #0.3927
+        point_nacl = [(4, 2, 0)]
         spacings = c.get_interplanar_spacings(cubic, point)
         spacings_nacl = c.get_interplanar_spacings(nacl, point_nacl)
         angles = c.bragg_angles(spacings)
