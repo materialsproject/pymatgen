@@ -76,18 +76,18 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
     def wavelength_rel(self) -> float:
         """
         Calculates the wavelength of the electron beam with relativistic kinematic effects taken
-        into account (electrons are way faster than X-rays, so you can't neglect these effects).
+        into account.
         Args:
             none
         Returns:
-            relativisticWavelength (in meters)
+            relativisticWavelength (in angstroms)
         """
         if self.wavelength_cache is None:
             self.wavelength_cache = {}
         if self.voltage in self.wavelength_cache:
             return self.wavelength_cache[self.voltage]
         wavelength_rel = sc.h / np.sqrt(2 * sc.m_e * sc.e * 1000 * self.voltage *
-                                        (1 + (sc.e * 1000 * self.voltage) / (2 * sc.m_e * sc.c ** 2)))
+                                        (1 + (sc.e * 1000 * self.voltage) / (2 * sc.m_e * sc.c ** 2))) * (10 ** 10)
         self.wavelength_cache[self.voltage] = wavelength_rel
         return wavelength_rel
 
@@ -132,7 +132,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             structure (Structure): the input structure.
             points (tuple): the desired hkl indices.
         Returns:
-            Dict of hkl to its interplanar spacing (float).
+            Dict of hkl to its interplanar spacing, in angstroms (float).
         """
         points_filtered = self.zone_axis_filter(points)
         if (0, 0, 0) in points_filtered:
@@ -180,19 +180,20 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             structure (Structure): The input structure.
             bragg_angles (Dict): Dictionary of hkl plane to Bragg angle.
         Returns:
-            A Dict of atomic symbol to another dict of hkl plane to x-ray factor
+            A Dict of atomic symbol to another dict of hkl plane to x-ray factor (in angstroms).
         """
         x_ray_factors = {}
         s2 = self.get_s2(bragg_angles)
+        atoms = structure.composition.elements
         scattering_factors_for_atom = {}
-        for site in structure:
-            element = site.specie
-            coeff = ATOMIC_SCATTERING_PARAMS[element.symbol]
+        for atom in atoms:
+            coeffs = np.array(ATOMIC_SCATTERING_PARAMS[atom.symbol])
             for plane in bragg_angles:
-                scattering_factor_curr = element.Z - 41.78214 * s2[plane] * sum([d[0] * np.exp(-d[1] * s2[plane])
-                                                                                 for d in coeff])
+                scattering_factor_curr = atom.Z - 41.78214 * s2[plane] * np.sum(coeffs[:, 0]
+                                                                                * np.exp(-coeffs[:, 1] * s2[plane]),
+                                                                                axis=None)
                 scattering_factors_for_atom[plane] = scattering_factor_curr
-            x_ray_factors[element.symbol] = scattering_factors_for_atom
+            x_ray_factors[atom.symbol] = scattering_factors_for_atom
             scattering_factors_for_atom = {}
         return x_ray_factors
 
@@ -204,19 +205,19 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             structure (Structure): The input structure.
             bragg_angles (dict of 3-tuple to float): The Bragg angles for each hkl plane.
         Returns:
-            dict from atomic symbol to another dict of hkl plane to factor
+            dict from atomic symbol to another dict of hkl plane to factor (in angstroms)
         """
         electron_scattering_factors = {}
         x_ray_factors = self.x_ray_factors(structure, bragg_angles)
         s2 = self.get_s2(bragg_angles)
-        prefactor = sc.e / (16 * (np.pi ** 2) * sc.epsilon_0)
+        atoms = structure.composition.elements
+        prefactor = 0.023934
         scattering_factors_for_atom = {}
-        for site in structure:
-            element = site.specie
+        for atom in atoms:
             for plane in bragg_angles:
-                scattering_factor_curr = prefactor * (element.Z - x_ray_factors[element.symbol][plane]) / s2[plane]
+                scattering_factor_curr = prefactor * (atom.Z - x_ray_factors[atom.symbol][plane]) / s2[plane]
                 scattering_factors_for_atom[plane] = scattering_factor_curr
-            electron_scattering_factors[element.symbol] = scattering_factors_for_atom
+            electron_scattering_factors[atom.symbol] = scattering_factors_for_atom
             scattering_factors_for_atom = {}
         return electron_scattering_factors
 
@@ -228,7 +229,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             structure (Structure): The input structure.
             bragg_angles (dict of 3-tuple to float): The Bragg angles for each hkl plane.
         Returns:
-            dict of hkl plane (3-tuple) to scattering factor
+            dict of hkl plane (3-tuple) to scattering factor (in angstroms).
         """
         cell_scattering_factors = {}
         electron_scattering_factors = self.electron_scattering_factors(structure, bragg_angles)
@@ -388,9 +389,9 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         points.remove(first_point)
         points.remove(second_point)
         positions[(0, 0, 0)] = np.array([0, 0])
-        r1 = 10 ** 10 * self.wavelength_rel() * self.camera_length / first_d
+        r1 = self.wavelength_rel() * self.camera_length / first_d
         positions[first_point] = np.array([r1, 0])
-        r2 = 10 ** 10 * self.wavelength_rel() * self.camera_length / second_d
+        r2 = self.wavelength_rel() * self.camera_length / second_d
         phi = np.arccos(
             np.dot(p1, np.transpose(p2)) / (np.sqrt(np.dot(p1, np.transpose(p1)) * np.dot(p2, np.transpose(p2)))))
         positions[second_point] = np.array([r2 * np.cos(phi), r2 * np.sin(phi)])

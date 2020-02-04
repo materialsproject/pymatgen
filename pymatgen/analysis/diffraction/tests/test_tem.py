@@ -129,45 +129,54 @@ class XRDCalculatorTest(PymatgenTest):
         self.assertAlmostEqual(x_ray['Cl'][(-10, 3, 0)], 2.7804915737999103)
 
     def test_electron_scattering_factors(self):
+        # Test the electron atomic scattering factor, values approximate with
+        # international table of crystallography. Rounding error when converting hkl to sin(theta)/lambda
         c = TEMCalculator()
         latt = Lattice.cubic(4.209)
         cubic = Structure(latt, ["Cs", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]])
-        point = [(-10, 3, 0)]
+        point = [(2, 1, 3)]
         spacings = c.get_interplanar_spacings(cubic, point)
         angles = c.bragg_angles(spacings)
         elscatt = c.electron_scattering_factors(cubic, angles)
-        self.assertAlmostEqual(elscatt['Cs'][(-10, 3, 0)], 3.0228630359546355e-09)
-        self.assertAlmostEqual(elscatt['Cl'][(-10, 3, 0)], 1.0592972859944387e-09)
+        self.assertAlmostEqual(elscatt['Cs'][(2, 1, 3)], 2.890, places=1)
+        self.assertAlmostEqual(elscatt['Cl'][(2, 1, 3)], 1.138, places=1)
 
     def test_cell_scattering_factors(self):
+        # Test that fcc structure gives 0 intensity for mixed even, odd hkl.
         c = TEMCalculator()
-        latt = Lattice.cubic(4.209)
-        cubic = Structure(latt, ["Cs", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]])
-        point = [(-10, 3, 0)]
-        spacings = c.get_interplanar_spacings(cubic, point)
+        nacl = Structure.from_spacegroup("Fm-3m", Lattice.cubic(5.692), ["Na+", "Cl-"],
+                                         [[0, 0, 0], [0.5, 0.5, 0.5]])
+        point = [(2, 1, 0)]
+        spacings = c.get_interplanar_spacings(nacl, point)
         angles = c.bragg_angles(spacings)
-        cellscatt = c.cell_scattering_factors(cubic, angles)
-        self.assertAlmostEqual(cellscatt[(-10, 3, 0)], 1.963565749960197e-09 + 2.0769354180385505e-24j)
+        cellscatt = c.cell_scattering_factors(nacl, angles)
+        self.assertAlmostEqual(cellscatt[(2, 1, 0)], 0)
 
     def test_cell_intensity(self):
+        # Test that bcc structure gives lower intensity for h + k + l != even.
         c = TEMCalculator()
         latt = Lattice.cubic(4.209)
         cubic = Structure(latt, ["Cs", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]])
-        point = [(-10, 3, 0)]
+        point = [(2, 1, 0)]
+        point2 = [(2, 2, 0)]
         spacings = c.get_interplanar_spacings(cubic, point)
+        spacings2 = c.get_interplanar_spacings(cubic, point2)
         angles = c.bragg_angles(spacings)
+        angles2 = c.bragg_angles(spacings2)
         cellint = c.cell_intensity(cubic, angles)
-        self.assertAlmostEqual(cellint[(-10, 3, 0)], 3.85559045441675e-18)
+        cellint2 = c.cell_intensity(cubic, angles2)
+        self.assertGreater(cellint2[(2, 2, 0)], cellint[(2, 1, 0)])
 
     def test_normalized_cell_intensity(self):
+        # Test that the method correctly normalizes a value.
         c = TEMCalculator()
         latt = Lattice.cubic(4.209)
         cubic = Structure(latt, ["Cs", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]])
-        point = [(-10, 3, 0)]
+        point = [(2, 0, 0)]
         spacings = c.get_interplanar_spacings(cubic, point)
         angles = c.bragg_angles(spacings)
         cellint = c.normalized_cell_intensity(cubic, angles)
-        self.assertAlmostEqual(cellint[(-10, 3, 0)], 1)
+        self.assertAlmostEqual(cellint[(2, 0, 0)], 1)
 
     def test_is_parallel(self):
         c = TEMCalculator()
