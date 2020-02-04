@@ -25,9 +25,9 @@ __date__ = "1/28/20"
 
 class XRDCalculatorTest(PymatgenTest):
     def test_wavelength_rel(self):
-        # Tests that the relativistic wavelength formula is correct
+        # Tests that the relativistic wavelength formula (for 200kv electron beam) is correct
         c = TEMCalculator()
-        self.assertAlmostEqual(c.wavelength_rel(), 0.00197 * 10 ** -9)
+        self.assertAlmostEqual(c.wavelength_rel(), 0.0251, places=3)
 
     def test_generate_points(self):
         # Tests that 3d points are properly generated
@@ -95,15 +95,15 @@ class XRDCalculatorTest(PymatgenTest):
             self.assertAlmostEqual(spacings_mono[p], 0.84450786041677972)
 
     def test_bragg_angles(self):
-        # Tests that the appropriate bragg angle is returned.
+        # Tests that the appropriate bragg angle is returned. Testing formula with values of x-ray diffraction in
+        # materials project.
         c = TEMCalculator()
         latt = Lattice.cubic(4.209)
         cubic = Structure(latt, ["Cs", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]])
-        point = [(-10, 3, 0)]
+        point = [(1, 1, 0)]
         spacings = c.get_interplanar_spacings(cubic, point)
-        angles = c.bragg_angles(spacings)
-        for p in angles:
-            self.assertAlmostEqual(angles[p], 2.4417132161608178e-12)
+        bragg_angles_val = np.arcsin(1.5406 / (2 * spacings[point[0]]))
+        self.assertAlmostEqual(bragg_angles_val, 0.262, places=3)
 
     def test_get_s2(self):
         # Tests that the appropriate s2 factor is returned.
