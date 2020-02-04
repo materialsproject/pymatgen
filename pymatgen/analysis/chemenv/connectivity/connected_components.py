@@ -291,8 +291,8 @@ class ConnectedComponent(MSONable):
         if env_node not in self._connected_subgraph:
             raise ValueError('Node not in Connected Component. Cannot find coordination sequence.')
         """
-        Example of an infinite periodic net in three dimensions (representation only 2d) consisting of a stacking of
-        square lattices of A planes and B planes :
+        Example of an infinite periodic net in two dimensions consisting of a stacking of
+        A and B lines :
         
             *     *     *     *     *
             *     *     *     *     *
@@ -313,14 +313,17 @@ class ConnectedComponent(MSONable):
             *     *     *     *     *
              
         One possible quotient graph of this periodic net :
-             __   __
-          _ v /   \ v _
-         / \|/     \|/ \ 
-         `<-A--->---B-<´
-           / (0,0,0) \ 
-           \         /
-            `--->---´
-             (1,0,0)
+                 __           __
+        (0,1,0) /  \         /  \ (0,1,0)
+                `<--A--->---B--<´
+                   / (0,0,0) \ 
+                   \         /
+                    `--->---´
+                     (1,0,0)
+             
+        The "number" coordination sequence starting from any environment is : 4-8-12-16-...
+        The "env:number" coordination sequence starting from any environment is :
+        {A:2, B:2}-{A:4, B:4}-{A:6, B:6}-...
         """
         current_delta = (0, 0, 0)
         current_ends = [(env_node, current_delta)]
