@@ -210,14 +210,14 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         electron_scattering_factors = {}
         x_ray_factors = self.x_ray_factors(structure, bragg_angles)
         s2 = self.get_s2(bragg_angles)
-        atoms = structure.composition.elements
+        spcs = set(structure.species)
         prefactor = 0.023934
         scattering_factors_for_atom = {}
-        for atom in atoms:
+        for spc in spcs:
             for plane in bragg_angles:
-                scattering_factor_curr = prefactor * (atom.Z - x_ray_factors[atom.symbol][plane]) / s2[plane]
+                scattering_factor_curr = prefactor * (spc.Z - x_ray_factors[spc.symbol][plane]) / s2[plane]
                 scattering_factors_for_atom[plane] = scattering_factor_curr
-            electron_scattering_factors[atom.symbol] = scattering_factors_for_atom
+            electron_scattering_factors[spc.symbol] = scattering_factors_for_atom
             scattering_factors_for_atom = {}
         return electron_scattering_factors
 

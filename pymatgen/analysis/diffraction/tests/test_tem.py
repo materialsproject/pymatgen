@@ -130,16 +130,25 @@ class XRDCalculatorTest(PymatgenTest):
 
     def test_electron_scattering_factors(self):
         # Test the electron atomic scattering factor, values approximate with
-        # international table of crystallography. Rounding error when converting hkl to sin(theta)/lambda
+        # international table of crystallography volume C. Rounding error when converting hkl to sin(theta)/lambda.
+        # Error increases as sin(theta)/lambda is smaller.
         c = TEMCalculator()
         latt = Lattice.cubic(4.209)
         cubic = Structure(latt, ["Cs", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]])
+        nacl = Structure.from_spacegroup("Fm-3m", Lattice.cubic(5.692), ["Na+", "Cl-"],
+                                         [[0, 0, 0], [0.5, 0.5, 0.5]])
         point = [(2, 1, 3)]
+        point_nacl = [(4, 2, 0)]  #0.3927
         spacings = c.get_interplanar_spacings(cubic, point)
+        spacings_nacl = c.get_interplanar_spacings(nacl, point_nacl)
         angles = c.bragg_angles(spacings)
+        angles_nacl = c.bragg_angles(spacings_nacl)
         elscatt = c.electron_scattering_factors(cubic, angles)
+        elscatt_nacl = c.electron_scattering_factors(nacl, angles_nacl)
         self.assertAlmostEqual(elscatt['Cs'][(2, 1, 3)], 2.890, places=1)
         self.assertAlmostEqual(elscatt['Cl'][(2, 1, 3)], 1.138, places=1)
+        self.assertAlmostEqual(elscatt_nacl['Na'][(4, 2, 0)], 0.852, places=1)
+        self.assertAlmostEqual(elscatt_nacl['Cl'][(4, 2, 0)], 1.372, places=1)
 
     def test_cell_scattering_factors(self):
         # Test that fcc structure gives 0 intensity for mixed even, odd hkl.
