@@ -1,0 +1,443 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pymatgen.analysis.elasticity.strain module &mdash; pymatgen 2020.1.28 documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pymatgen.orgpymatgen.analysis.elasticity.strain.html"/>
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.analysis.elasticity.stress module" href="pymatgen.analysis.elasticity.stress.html" />
+    <link rel="prev" title="pymatgen.analysis.elasticity.elastic module" href="pymatgen.analysis.elasticity.elastic.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pymatgen
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2020.1.28
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="team.html">Development Team</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API Docs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pymatgen.html">pymatgen package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="pymatgen.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.alchemy.html">pymatgen.alchemy package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="pymatgen.analysis.html">pymatgen.analysis package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.apps.html">pymatgen.apps package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.cli.html">pymatgen.cli package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.command_line.html">pymatgen.command_line package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html">pymatgen.core package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.electronic_structure.html">pymatgen.electronic_structure package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.entries.html">pymatgen.entries package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html">pymatgen.ext package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html">pymatgen.io package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.plugins.html">pymatgen.plugins package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.vis.html">pymatgen.vis package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#module-pymatgen">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pymatgen</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="modules.html">pymatgen</a> &raquo;</li>
+        
+          <li><a href="pymatgen.html">pymatgen package</a> &raquo;</li>
+        
+          <li><a href="pymatgen.analysis.html">pymatgen.analysis package</a> &raquo;</li>
+        
+          <li><a href="pymatgen.analysis.elasticity.html">pymatgen.analysis.elasticity package</a> &raquo;</li>
+        
+      <li>pymatgen.analysis.elasticity.strain module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.analysis.elasticity.strain.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-pymatgen.analysis.elasticity.strain">
+<span id="pymatgen-analysis-elasticity-strain-module"></span><h1>pymatgen.analysis.elasticity.strain module<a class="headerlink" href="#module-pymatgen.analysis.elasticity.strain" title="Permalink to this headline">¶</a></h1>
+<p>This module provides classes and methods used to describe deformations and
+strains, including applying those deformations to structure objects and
+generating deformed structure sets for further calculations.</p>
+<dl class="class">
+<dt id="pymatgen.analysis.elasticity.strain.Deformation">
+<em class="property">class </em><code class="sig-name descname">Deformation</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/elasticity/strain.py#L31-L100"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.Deformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.core.tensors.html#pymatgen.core.tensors.SquareTensor" title="pymatgen.core.tensors.SquareTensor"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.tensors.SquareTensor</span></code></a></p>
+<p>Subclass of SquareTensor that describes the deformation gradient tensor</p>
+<p>Create a Deformation object.  Note that the constructor uses __new__
+rather than __init__ according to the standard method of subclassing
+numpy ndarrays.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>deformation_gradient</strong> (<em>3x3 array-like</em>) – the 3x3 array-like
+representing the deformation gradient</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.analysis.elasticity.strain.Deformation.apply_to_structure">
+<code class="sig-name descname">apply_to_structure</code><span class="sig-paren">(</span><em class="sig-param">structure</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/elasticity/strain.py#L72-L84"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.Deformation.apply_to_structure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply the deformation gradient to a structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>structure</strong> (<em>Structure object</em>) – the structure object to
+be modified by the deformation</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.elasticity.strain.Deformation.from_index_amount">
+<em class="property">classmethod </em><code class="sig-name descname">from_index_amount</code><span class="sig-paren">(</span><em class="sig-param">matrixpos</em>, <em class="sig-param">amt</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/elasticity/strain.py#L86-L100"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.Deformation.from_index_amount" title="Permalink to this definition">¶</a></dt>
+<dd><p>Factory method for constructing a Deformation object
+from a matrix position and amount</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>matrixpos</strong> (<em>tuple</em>) – tuple corresponding the matrix position to
+have a perturbation added</p></li>
+<li><p><strong>amt</strong> (<em>float</em>) – amount to add to the identity matrix at position
+matrixpos</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.elasticity.strain.Deformation.get_perturbed_indices">
+<code class="sig-name descname">get_perturbed_indices</code><span class="sig-paren">(</span><em class="sig-param">tol=1e-08</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/elasticity/strain.py#L56-L62"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.Deformation.get_perturbed_indices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets indices of perturbed elements of the deformation gradient,
+i. e. those that differ from the identity</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.elasticity.strain.Deformation.green_lagrange_strain">
+<em class="property">property </em><code class="sig-name descname">green_lagrange_strain</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/elasticity/strain.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.Deformation.green_lagrange_strain" title="Permalink to this definition">¶</a></dt>
+<dd><p>calculates the euler-lagrange strain from
+the deformation gradient</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.elasticity.strain.Deformation.is_independent">
+<code class="sig-name descname">is_independent</code><span class="sig-paren">(</span><em class="sig-param">tol=1e-08</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/elasticity/strain.py#L50-L54"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.Deformation.is_independent" title="Permalink to this definition">¶</a></dt>
+<dd><p>checks to determine whether the deformation is independent</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.elasticity.strain.Deformation.symbol">
+<code class="sig-name descname">symbol</code><em class="property"> = 'd'</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/elasticity/strain.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.Deformation.symbol" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.analysis.elasticity.strain.DeformedStructureSet">
+<em class="property">class </em><code class="sig-name descname">DeformedStructureSet</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">norm_strains=None</em>, <em class="sig-param">shear_strains=None</em>, <em class="sig-param">symmetry=False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/elasticity/strain.py#L103-L155"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.DeformedStructureSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.abc.Sequence</span></code></p>
+<p>class that generates a set of independently deformed structures that
+can be used to calculate linear stress-strain response</p>
+<p>constructs the deformed geometries of a structure.  Generates
+m + n deformed structures according to the supplied parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – structure to undergo deformation</p></li>
+<li><p><strong>norm_strains</strong> (<em>list of floats</em>) – strain values to apply
+to each normal mode.</p></li>
+<li><p><strong>shear_strains</strong> (<em>list of floats</em>) – strain values to apply
+to each shear mode.</p></li>
+<li><p><strong>symmetry</strong> (<em>bool</em>) – whether or not to use symmetry reduction.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.analysis.elasticity.strain.Strain">
+<em class="property">class </em><code class="sig-name descname">Strain</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/elasticity/strain.py#L158-L241"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.Strain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.core.tensors.html#pymatgen.core.tensors.SquareTensor" title="pymatgen.core.tensors.SquareTensor"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.tensors.SquareTensor</span></code></a></p>
+<p>Subclass of SquareTensor that describes the Green-Lagrange strain tensor.</p>
+<p>Create a Strain object.  Note that the constructor uses __new__
+rather than __init__ according to the standard method of
+subclassing numpy ndarrays.  Note also that the default constructor
+does not include the deformation gradient</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>strain_matrix</strong> (<em>3x3 array-like</em>) – the 3x3 array-like
+representing the Green-Lagrange strain</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.analysis.elasticity.strain.Strain.from_deformation">
+<em class="property">classmethod </em><code class="sig-name descname">from_deformation</code><span class="sig-paren">(</span><em class="sig-param">deformation</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/elasticity/strain.py#L190-L200"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.Strain.from_deformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Factory method that returns a Strain object from a deformation
+gradient</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>deformation</strong> (<em>3x3 array-like</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.elasticity.strain.Strain.from_index_amount">
+<em class="property">classmethod </em><code class="sig-name descname">from_index_amount</code><span class="sig-paren">(</span><em class="sig-param">idx</em>, <em class="sig-param">amount</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/elasticity/strain.py#L202-L226"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.Strain.from_index_amount" title="Permalink to this definition">¶</a></dt>
+<dd><p>Like Deformation.from_index_amount, except generates
+a strain from the zero 3x3 tensor or voigt vector with
+the amount specified in the index location.  Ensures
+symmetric strain.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>idx</strong> (<em>tuple</em><em> or </em><em>integer</em>) – index to be perturbed, can be voigt or
+full-tensor notation</p></li>
+<li><p><strong>amount</strong> (<em>float</em>) – amount to perturb selected index</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.elasticity.strain.Strain.get_deformation_matrix">
+<code class="sig-name descname">get_deformation_matrix</code><span class="sig-paren">(</span><em class="sig-param">shape='upper'</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/elasticity/strain.py#L228-L232"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.Strain.get_deformation_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns the deformation matrix</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.elasticity.strain.Strain.symbol">
+<code class="sig-name descname">symbol</code><em class="property"> = 'e'</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/elasticity/strain.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.Strain.symbol" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.elasticity.strain.Strain.von_mises_strain">
+<em class="property">property </em><code class="sig-name descname">von_mises_strain</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/elasticity/strain.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.Strain.von_mises_strain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Equivalent strain to Von Mises Stress</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.analysis.elasticity.strain.convert_strain_to_deformation">
+<code class="sig-name descname">convert_strain_to_deformation</code><span class="sig-paren">(</span><em class="sig-param">strain</em>, <em class="sig-param">shape='upper'</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/elasticity/strain.py#L244-L264"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.convert_strain_to_deformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function converts a strain to a deformation gradient that will
+produce that strain.  Supports three methods:</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>strain</strong> (<em>3x3 array-like</em>) – strain matrix</p></li>
+<li><p><strong>shape</strong> – (string): method for determining deformation, supports
+“upper” produces an upper triangular defo
+“lower” produces a lower triangular defo
+“symmetric” produces a symmetric defo</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011, Pymatgen Development Team
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+  
+ 
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+
+</body>
+</html>

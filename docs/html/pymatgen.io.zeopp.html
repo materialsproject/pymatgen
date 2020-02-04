@@ -1,0 +1,508 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pymatgen.io.zeopp module &mdash; pymatgen 2020.1.28 documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pymatgen.orgpymatgen.io.zeopp.html"/>
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.optimization package" href="pymatgen.optimization.html" />
+    <link rel="prev" title="pymatgen.io.xyz module" href="pymatgen.io.xyz.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pymatgen
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2020.1.28
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="team.html">Development Team</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API Docs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pymatgen.html">pymatgen package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="pymatgen.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.alchemy.html">pymatgen.alchemy package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.html">pymatgen.analysis package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.apps.html">pymatgen.apps package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.cli.html">pymatgen.cli package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.command_line.html">pymatgen.command_line package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html">pymatgen.core package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.electronic_structure.html">pymatgen.electronic_structure package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.entries.html">pymatgen.entries package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html">pymatgen.ext package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="pymatgen.io.html">pymatgen.io package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.plugins.html">pymatgen.plugins package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.vis.html">pymatgen.vis package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#module-pymatgen">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pymatgen</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="modules.html">pymatgen</a> &raquo;</li>
+        
+          <li><a href="pymatgen.html">pymatgen package</a> &raquo;</li>
+        
+          <li><a href="pymatgen.io.html">pymatgen.io package</a> &raquo;</li>
+        
+      <li>pymatgen.io.zeopp module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.io.zeopp.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-pymatgen.io.zeopp">
+<span id="pymatgen-io-zeopp-module"></span><h1>pymatgen.io.zeopp module<a class="headerlink" href="#module-pymatgen.io.zeopp" title="Permalink to this headline">¶</a></h1>
+<p>Module implementing classes and functions to use Zeo++.</p>
+<div class="section" id="zeo-installation-steps">
+<h2>Zeo++ Installation Steps:<a class="headerlink" href="#zeo-installation-steps" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic simple">
+<li><p>Zeo++ requires Voro++. Download Voro++ from code.lbl.gov using
+subversion:
+“svn checkout –username anonsvn <a class="reference external" href="https://code.lbl.gov/svn/voro/trunk">https://code.lbl.gov/svn/voro/trunk</a>
+Password is anonsvn.</p></li>
+<li><p>Stable version of Zeo++ can be obtained from
+<a class="reference external" href="http://www.maciejharanczyk.info/Zeopp/">http://www.maciejharanczyk.info/Zeopp/</a>
+Alternatively it can be obtained from code.lbl.gov. Replace voro
+with zeo.</p></li>
+</ol>
+<p>3) (Optional) Install cython from pip
+Mac OS X:
+4) (a) Edit the Voro++/voro/trunk/config.mk file to suit your environment</p>
+<blockquote>
+<div><p>(compiler, linker).
+(b) Run make command</p>
+</div></blockquote>
+<ol class="arabic simple" start="5">
+<li><p>(a) Edit the Zeo++/trunk/cython_wrapper/setup.py to correctly point to
+Voro++ directory.
+(b) Run “python setup.py develop” to install Zeo++ python bindings.
+Be patient, it will take a while.</p></li>
+</ol>
+<p>Linux:
+4) (a) Edit the Voro++/voro/trunk/config.mk file to suit your environment.</p>
+<blockquote>
+<div><ol class="loweralpha simple" start="2">
+<li><p>Also add -fPIC option to CFLAGS variable in config.mk file.</p></li>
+<li><p>Run make command</p></li>
+</ol>
+</div></blockquote>
+<ol class="arabic simple" start="5">
+<li><p>(a) Go to Zeo++/zeo/trunk folder and compile zeo++ library using the
+command “make dylib”.
+(b) Edit the Zeo++/trunk/cython_wrapper/setup_alt.py to correctly
+point to Voro++ directory.
+(c) Run “python setup_alt.py develop” to install Zeo++ python bindings.</p></li>
+</ol>
+</div>
+<div class="section" id="zeo-post-installation-checking">
+<h2>Zeo++ Post-Installation Checking:<a class="headerlink" href="#zeo-post-installation-checking" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic simple">
+<li><p>Go to pymatgen/io/tests and run “python test_zeoio.py”
+If Zeo++ python bindings are properly installed, the tests should
+pass. One or two tests will be skipped.</p></li>
+</ol>
+<ol class="loweralpha simple" start="2">
+<li><p>Go to pymatgen/analysis/defects/tests and run
+“python test_point_defects.py”. Lots of tests will be skipped if GULP
+is not installed. But there should be no errors.</p></li>
+</ol>
+<dl class="class">
+<dt id="pymatgen.io.zeopp.ZeoCssr">
+<em class="property">class </em><code class="sig-name descname">ZeoCssr</code><span class="sig-paren">(</span><em class="sig-param">structure</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/zeopp.py#L76-L172"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.zeopp.ZeoCssr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.io.cssr.html#pymatgen.io.cssr.Cssr" title="pymatgen.io.cssr.Cssr"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.cssr.Cssr</span></code></a></p>
+<p>ZeoCssr adds extra fields to CSSR sites to conform with Zeo++
+input CSSR format. The coordinate system is rorated from xyz to zyx.
+This change aligns the pivot axis of pymatgen (z-axis) to pivot axis
+of Zeo++ (x-axis) for structurural modifications.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>structure</strong> – A structure to create ZeoCssr object</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.io.zeopp.ZeoCssr.from_file">
+<em class="property">static </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param">filename</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/zeopp.py#L160-L172"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.zeopp.ZeoCssr.from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads a CSSR file to a ZeoCssr object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> – Filename to read from.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>ZeoCssr object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.zeopp.ZeoCssr.from_string">
+<em class="property">static </em><code class="sig-name descname">from_string</code><span class="sig-paren">(</span><em class="sig-param">string</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/zeopp.py#L122-L158"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.zeopp.ZeoCssr.from_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads a string representation to a ZeoCssr object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>string</strong> – A string representation of a ZeoCSSR.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>ZeoCssr object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.io.zeopp.ZeoVoronoiXYZ">
+<em class="property">class </em><code class="sig-name descname">ZeoVoronoiXYZ</code><span class="sig-paren">(</span><em class="sig-param">mol</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/zeopp.py#L175-L246"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.zeopp.ZeoVoronoiXYZ" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.io.xyz.html#pymatgen.io.xyz.XYZ" title="pymatgen.io.xyz.XYZ"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.xyz.XYZ</span></code></a></p>
+<p>Class to read Voronoi Nodes from XYZ file written by Zeo++.
+The sites have an additional column representing the voronoi node radius.
+The voronoi node radius is represented by the site property voronoi_radius.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>mol</strong> – Input molecule holding the voronoi node information</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.io.zeopp.ZeoVoronoiXYZ.from_file">
+<em class="property">static </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param">filename</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/zeopp.py#L222-L234"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.zeopp.ZeoVoronoiXYZ.from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates XYZ object from a file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> – XYZ filename</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>XYZ object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.zeopp.ZeoVoronoiXYZ.from_string">
+<em class="property">static </em><code class="sig-name descname">from_string</code><span class="sig-paren">(</span><em class="sig-param">contents</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/zeopp.py#L189-L220"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.zeopp.ZeoVoronoiXYZ.from_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates Zeo++ Voronoi XYZ object from a string.
+from_string method of XYZ class is being redefined.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>contents</strong> – String representing Zeo++ Voronoi XYZ file.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>ZeoVoronoiXYZ object</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.io.zeopp.get_free_sphere_params">
+<code class="sig-name descname">get_free_sphere_params</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">rad_dict=None</em>, <em class="sig-param">probe_rad=0.1</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/../../../miniconda3/envs/py37/lib/python3.7/site-packages/monty-3.0.2-py3.7.egg/monty/dev.py#L387-L440"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.zeopp.get_free_sphere_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Analyze the void space in the input structure using voronoi decomposition
+Calls Zeo++ for Voronoi decomposition.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – pymatgen.core.structure.Structure</p></li>
+<li><p><strong>rad_dict</strong> (<em>optional</em>) – Dictionary of radii of elements in structure.
+If not given, Zeo++ default values are used.
+Note: Zeo++ uses atomic radii of elements.
+For ionic structures, pass rad_dict with ionic radii</p></li>
+<li><p><strong>probe_rad</strong> (<em>optional</em>) – Sampling probe radius in Angstroms. Default is
+0.1 A</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>voronoi nodes as pymatgen.core.structure.Strucutre within the
+unit cell defined by the lattice of input structure
+voronoi face centers as pymatgen.core.structure.Strucutre within the
+unit cell defined by the lattice of input structure</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.io.zeopp.get_high_accuracy_voronoi_nodes">
+<code class="sig-name descname">get_high_accuracy_voronoi_nodes</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">rad_dict</em>, <em class="sig-param">probe_rad=0.1</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/zeopp.py#L328-L384"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.zeopp.get_high_accuracy_voronoi_nodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Analyze the void space in the input structure using high accuracy
+voronoi decomposition.
+Calls Zeo++ for Voronoi decomposition.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – pymatgen.core.structure.Structure</p></li>
+<li><p><strong>rad_dict</strong> (<em>optional</em>) – Dictionary of radii of elements in structure.
+If not given, Zeo++ default values are used.
+Note: Zeo++ uses atomic radii of elements.
+For ionic structures, pass rad_dict with ionic radii</p></li>
+<li><p><strong>probe_rad</strong> (<em>optional</em>) – Sampling probe radius in Angstroms.
+Default is 0.1 A</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>voronoi nodes as pymatgen.core.structure.Strucutre within the
+unit cell defined by the lattice of input structure
+voronoi face centers as pymatgen.core.structure.Strucutre within the
+unit cell defined by the lattice of input structure</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.io.zeopp.get_void_volume_surfarea">
+<code class="sig-name descname">get_void_volume_surfarea</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">rad_dict=None</em>, <em class="sig-param">chan_rad=0.3</em>, <em class="sig-param">probe_rad=0.1</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/zeopp.py#L444-L501"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.zeopp.get_void_volume_surfarea" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the volume and surface area of isolated void using Zeo++.
+Useful to compute the volume and surface area of vacant site.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – pymatgen Structure containing vacancy</p></li>
+<li><p><strong>rad_dict</strong> (<em>optional</em>) – Dictionary with short name of elements and their
+radii.</p></li>
+<li><p><strong>chan_rad</strong> (<em>optional</em>) – Minimum channel Radius.</p></li>
+<li><p><strong>probe_rad</strong> (<em>optional</em>) – Probe radius for Monte Carlo sampling.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>floating number representing the volume of void</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>volume</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.io.zeopp.get_voronoi_nodes">
+<code class="sig-name descname">get_voronoi_nodes</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">rad_dict=None</em>, <em class="sig-param">probe_rad=0.1</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/../../../miniconda3/envs/py37/lib/python3.7/site-packages/monty-3.0.2-py3.7.egg/monty/dev.py#L249-L325"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.zeopp.get_voronoi_nodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Analyze the void space in the input structure using voronoi decomposition
+Calls Zeo++ for Voronoi decomposition.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – pymatgen.core.structure.Structure</p></li>
+<li><p><strong>rad_dict</strong> (<em>optional</em>) – Dictionary of radii of elements in structure.
+If not given, Zeo++ default values are used.
+Note: Zeo++ uses atomic radii of elements.
+For ionic structures, pass rad_dict with ionic radii</p></li>
+<li><p><strong>probe_rad</strong> (<em>optional</em>) – Sampling probe radius in Angstroms. Default is
+0.1 A</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>voronoi nodes as pymatgen.core.structure.Strucutre within the
+unit cell defined by the lattice of input structure
+voronoi face centers as pymatgen.core.structure.Strucutre within the
+unit cell defined by the lattice of input structure</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011, Pymatgen Development Team
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+  
+ 
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+
+</body>
+</html>

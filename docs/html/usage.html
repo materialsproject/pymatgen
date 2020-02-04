@@ -1,0 +1,782 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Usage &mdash; pymatgen 2020.1.28 documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pymatgen.orgusage.html"/>
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Development Team" href="team.html" />
+    <link rel="prev" title="Change log" href="change_log.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pymatgen
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2020.1.28
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#side-note-as-dict-from-dict">Side-note : as_dict / from_dict</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#montyencoder-decoder">MontyEncoder/Decoder</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#structures-and-molecules">Structures and Molecules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#creating-a-structure-manually">Creating a Structure manually</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#reading-and-writing-structures-molecules">Reading and writing Structures/Molecules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#things-you-can-do-with-structures">Things you can do with Structures</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#modifying-structures-or-molecules">Modifying Structures or Molecules</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#entries-basic-analysis-unit">Entries - Basic analysis unit</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#compatibility-mixing-gga-and-gga-u-runs">Compatibility - Mixing GGA and GGA+U runs</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pymatgen-borg-high-throughput-data-assimilation">pymatgen.borg - High-throughput data assimilation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#simple-example-making-a-phase-diagram">Simple example - Making a phase diagram</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#another-example-calculating-reaction-energies">Another example - Calculating reaction energies</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pymatgen-transformations">pymatgen.transformations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pymatgen-alchemy-high-throughput-transformations">pymatgen.alchemy - High-throughput transformations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pymatgen-matproj-rest-integration-with-the-materials-project-rest-api">pymatgen.matproj.rest - Integration with the Materials Project REST API</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#the-query-method">The query method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#setting-the-pmg-mapi-key-in-the-config-file">Setting the PMG_MAPI_KEY in the config file</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="team.html">Development Team</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">API Docs</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pymatgen</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Usage</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/usage.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="usage">
+<h1>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h1>
+<p>This page provides new users of the pymatgen code base with a quick overview of
+the pymatgen code base. It should also be pointed out that there is an
+<span class="xref std std-doc">examples page</span> with many ipython notebook examples with
+actual code demonstrating the use of the code. Learning from those examples
+is the fastest way to get started.</p>
+<p>Pymatgen is structured in a highly object-oriented manner. Almost everything
+(Element, Site, Structure, etc.) is an object.  Currently, the code is heavily
+biased towards the representation and manipulation of crystals with periodic
+boundary conditions, though flexibility has been built in for molecules.</p>
+<p>The core modules are in the (yes, you guess it) pymatgen.core package. Given the
+importance of this package for the overall functioning of the code, we have
+provided a quick summary of the various modules here:</p>
+<ol class="arabic simple">
+<li><p><a class="reference internal" href="pymatgen.core.periodic_table.html#module-pymatgen.core.periodic_table" title="pymatgen.core.periodic_table"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.core.periodic_table</span></code></a>: Everything begins here, where the
+Element and Specie (Element with an oxidation state) objects are defined.
+Unlike typical implementations, pymatgen’s Element object is rich,
+which means that each Element contains many useful properties associated
+with it, including atomic numbers, atomic masses, melting points,
+boiling points, just to name a few.</p></li>
+<li><p><a class="reference internal" href="pymatgen.core.lattice.html#module-pymatgen.core.lattice" title="pymatgen.core.lattice"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.core.lattice</span></code></a>: This module defines a Lattice object, which
+essentially defines the lattice vectors in three dimensions. The Lattice
+object provides convenience methods for performing fractional to cartesian
+coordinates and vice versa, lattice parameter and angles computations, etc.</p></li>
+<li><p><a class="reference internal" href="pymatgen.core.sites.html#module-pymatgen.core.sites" title="pymatgen.core.sites"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.core.sites</span></code></a>: Defines the Site and PeriodicSite objects. A
+Site is essentially a coordinate point containing an Element or Specie. A
+PeriodicSite contains a Lattice as well.</p></li>
+<li><p><a class="reference internal" href="pymatgen.core.structure.html#module-pymatgen.core.structure" title="pymatgen.core.structure"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.core.structure</span></code></a>: Defines the Structure and Molecule objects.
+A Structure and Molecule are simply a list of PeriodicSites and Site
+respectively.</p></li>
+<li><p><a class="reference internal" href="pymatgen.core.composition.html#module-pymatgen.core.composition" title="pymatgen.core.composition"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.core.composition</span></code></a>: A Composition is simply a mapping of
+Element/Specie to amounts.</p></li>
+</ol>
+<p>All units in pymatgen are typically assumed to be in atomic units, i.e.,
+angstroms for lengths, eV for energies, etc. However, most objects do not
+assume any units per se and it should be perfectly fine for the most part no
+matter what units are being used, as long as they are used consistently.</p>
+<div class="section" id="side-note-as-dict-from-dict">
+<h2>Side-note : as_dict / from_dict<a class="headerlink" href="#side-note-as-dict-from-dict" title="Permalink to this headline">¶</a></h2>
+<p>As you explore the code, you may notice that many of the objects have an as_dict
+method and a from_dict static method implemented.  For most of the non-basic
+objects, we have designed pymatgen such that it is easy to save objects for
+subsequent use. While python does provide pickling functionality, pickle tends
+to be extremely fragile with respect to code changes. Pymatgen’s as_dict
+provide a means to save your work in a more robust manner, which also has the
+added benefit of being more readable. The dict representation is also
+particularly useful for entering such objects into certain databases,
+such as MongoDb. This as_dict specification is provided in the monty library,
+which is a general python supplementary library arising from pymatgen.</p>
+<p>The output from an as_dict method is always json/yaml serializable. So if you
+want to save a structure, you may do the following:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;structure.json&#39;</span><span class="p">,</span><span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">structure</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(),</span> <span class="n">f</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Similarly, to get the structure back from a json, you can do the following to
+restore the structure (or any object with a as_dict method) from the json as
+follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;structure.json&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="n">structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>You may replace any of the above json commands with yaml in the PyYAML package
+to create a yaml file instead. There are certain tradeoffs between the two
+choices. JSON is much more efficient as a format, with extremely fast
+read/write speed, but is much less readable. YAML is an order of magnitude
+or more slower in terms of parsing, but is more human readable.</p>
+<div class="section" id="montyencoder-decoder">
+<h3>MontyEncoder/Decoder<a class="headerlink" href="#montyencoder-decoder" title="Permalink to this headline">¶</a></h3>
+<p>Extensions of the standard Python JSONEncoder and JSONDecoder has been
+implemented to support pymatgen objects. The MontyEncoder uses the as_dict
+API of pymatgen to generate the necessary dict for converting into json. To
+use the MontyEncoder, simply add it as the <em>cls</em> kwarg when using json.
+For example,:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="nb">object</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="n">MontyEncoder</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The MontyDecoder depends on finding a “&#64;module” and “&#64;class” key in the dict
+to decode the necessary python object. In general, the MontyEncoder will
+add these keys if they are not present, but for better long term stability
+(e.g., there may be situations where to_dict is called directly rather than
+through the encoder), the easiest way is to add the following to any to_dict
+property:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;@module&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span>
+<span class="n">d</span><span class="p">[</span><span class="s2">&quot;@class&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+</pre></div>
+</div>
+<p>To use the MontyDecoder, simply specify it as the <em>cls</em> kwarg when using json
+load, e.g.:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">json_string</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="n">MontyDecoder</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The decoder is written in such a way that it supports nested list and dict of
+pymatgen objects. When going through the nesting hirerachy, the decoder will
+look for the highest level module/class names specified and convert those to
+pymatgen objects.</p>
+<p>The MontyEncoder/Decoder also supports datetime and numpy arrays out of box.</p>
+</div>
+</div>
+<div class="section" id="structures-and-molecules">
+<h2>Structures and Molecules<a class="headerlink" href="#structures-and-molecules" title="Permalink to this headline">¶</a></h2>
+<p>For most applications, you will be creating and manipulating
+Structure/Molecule objects. There are several ways to create these objects:</p>
+<div class="section" id="creating-a-structure-manually">
+<h3>Creating a Structure manually<a class="headerlink" href="#creating-a-structure-manually" title="Permalink to this headline">¶</a></h3>
+<p>This is generally the most painful method. Though sometimes necessary, it is
+seldom the method you would use.  An example of creating the basic silicon
+crystal is provided below:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">Lattice</span><span class="p">,</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">Molecule</span>
+
+<span class="n">coords</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.75</span><span class="p">,</span><span class="mf">0.5</span><span class="p">,</span><span class="mf">0.75</span><span class="p">]]</span>
+<span class="n">lattice</span> <span class="o">=</span> <span class="n">Lattice</span><span class="o">.</span><span class="n">from_parameters</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mf">3.84</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mf">3.84</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="mf">3.84</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mi">120</span><span class="p">,</span>
+                                  <span class="n">beta</span><span class="o">=</span><span class="mi">90</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
+<span class="n">struct</span> <span class="o">=</span> <span class="n">Structure</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;Si&quot;</span><span class="p">,</span> <span class="s2">&quot;Si&quot;</span><span class="p">],</span> <span class="n">coords</span><span class="p">)</span>
+
+<span class="n">coords</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">0.000000</span><span class="p">,</span> <span class="mf">0.000000</span><span class="p">,</span> <span class="mf">0.000000</span><span class="p">],</span>
+          <span class="p">[</span><span class="mf">0.000000</span><span class="p">,</span> <span class="mf">0.000000</span><span class="p">,</span> <span class="mf">1.089000</span><span class="p">],</span>
+          <span class="p">[</span><span class="mf">1.026719</span><span class="p">,</span> <span class="mf">0.000000</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.363000</span><span class="p">],</span>
+          <span class="p">[</span><span class="o">-</span><span class="mf">0.513360</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.889165</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.363000</span><span class="p">],</span>
+          <span class="p">[</span><span class="o">-</span><span class="mf">0.513360</span><span class="p">,</span> <span class="mf">0.889165</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.363000</span><span class="p">]]</span>
+<span class="n">methane</span> <span class="o">=</span> <span class="n">Molecule</span><span class="p">([</span><span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="s2">&quot;H&quot;</span><span class="p">],</span> <span class="n">coords</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Note that both elements and species (elements with oxidation states) are
+supported. So both “Fe” and “Fe2+” are valid specifications.</p>
+</div>
+<div class="section" id="reading-and-writing-structures-molecules">
+<h3>Reading and writing Structures/Molecules<a class="headerlink" href="#reading-and-writing-structures-molecules" title="Permalink to this headline">¶</a></h3>
+<p>More often, you would already have the Structure/Molecule in one of many
+typical formats used (e.g., the Cystallographic Information Format (CIF),
+electronic structure code input / output, xyz, mol, etc.).</p>
+<p>Pymatgen provides a convenient way to read structures and molecules via the
+from_file and to methods:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Read a POSCAR and write to a CIF.</span>
+<span class="n">structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s2">&quot;POSCAR&quot;</span><span class="p">)</span>
+<span class="n">structure</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">&quot;CsCl.cif&quot;</span><span class="p">)</span>
+
+<span class="c1"># Read an xyz file and write to a Gaussian Input file.</span>
+<span class="n">methane</span> <span class="o">=</span> <span class="n">Molecule</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s2">&quot;methane.xyz&quot;</span><span class="p">)</span>
+<span class="n">methane</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">&quot;methane.gjf&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The format is automatically guessed from the filename.</p>
+<p>For more fine-grained control over which parsed to use, you can specify
+specific io packages. For example, to create a Structure from a cif:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pymatgen.io.cif</span> <span class="kn">import</span> <span class="n">CifParser</span>
+<span class="n">parser</span> <span class="o">=</span> <span class="n">CifParser</span><span class="p">(</span><span class="s2">&quot;mycif.cif&quot;</span><span class="p">)</span>
+<span class="n">structure</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">get_structures</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Another example, creating a Structure from a VASP POSCAR/CONTCAR file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pymatgen.io.vasp</span> <span class="kn">import</span> <span class="n">Poscar</span>
+<span class="n">poscar</span> <span class="o">=</span> <span class="n">Poscar</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s2">&quot;POSCAR&quot;</span><span class="p">)</span>
+<span class="n">structure</span> <span class="o">=</span> <span class="n">poscar</span><span class="o">.</span><span class="n">structure</span>
+</pre></div>
+</div>
+<p>Many of these io packages also provide the means to write a Structure to
+various output formats, e.g. the CifWriter in <a class="reference internal" href="pymatgen.io.cif.html#module-pymatgen.io.cif" title="pymatgen.io.cif"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.io.cif</span></code></a>. In
+particular, the <a class="reference internal" href="pymatgen.io.vasp.sets.html#module-pymatgen.io.vasp.sets" title="pymatgen.io.vasp.sets"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.io.vasp.sets</span></code></a> provides a powerful way to
+generate complete sets of VASP input files from a Structure. In general,
+most file format conversions can be done with a few quick lines of code. For
+example, to read a POSCAR and write a cif:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pymatgen.io.vasp</span> <span class="kn">import</span> <span class="n">Poscar</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.cif</span> <span class="kn">import</span> <span class="n">CifWriter</span>
+
+<span class="n">p</span> <span class="o">=</span> <span class="n">Poscar</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s1">&#39;POSCAR&#39;</span><span class="p">)</span>
+<span class="n">w</span> <span class="o">=</span> <span class="n">CifWriter</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">struct</span><span class="p">)</span>
+<span class="n">w</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="s1">&#39;mystructure.cif&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>For molecules, pymatgen has in-built support for XYZ and Gaussian input and
+output files via the <a class="reference internal" href="pymatgen.io.xyz.html#module-pymatgen.io.xyz" title="pymatgen.io.xyz"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.io.xyz</span></code></a> and
+<a class="reference internal" href="pymatgen.io.gaussian.html#module-pymatgen.io.gaussian" title="pymatgen.io.gaussian"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.io.gaussian</span></code></a> respectively:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pymatgen.io.xyz</span> <span class="kn">import</span> <span class="n">XYZ</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.gaussian</span> <span class="kn">import</span> <span class="n">GaussianInput</span>
+
+<span class="n">xyz</span> <span class="o">=</span> <span class="n">XYZ</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s1">&#39;methane.xyz&#39;</span><span class="p">)</span>
+<span class="n">gau</span> <span class="o">=</span> <span class="n">GaussianInput</span><span class="p">(</span><span class="n">xyz</span><span class="o">.</span><span class="n">molecule</span><span class="p">,</span>
+                    <span class="n">route_parameters</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;SP&#39;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;SCF&quot;</span><span class="p">:</span> <span class="s2">&quot;Tight&quot;</span><span class="p">})</span>
+<span class="n">gau</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="s1">&#39;methane.inp&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>There is also support for more than 100 file types via the OpenBabel
+interface. But that requires you to install openbabel with Python bindings.
+Please see the <a class="reference internal" href="installation.html"><span class="doc">installation guide</span></a>.</p>
+</div>
+<div class="section" id="things-you-can-do-with-structures">
+<h3>Things you can do with Structures<a class="headerlink" href="#things-you-can-do-with-structures" title="Permalink to this headline">¶</a></h3>
+<p>This section is a work in progress.  But just to give an overview of the kind of
+analysis you can do:</p>
+<ol class="arabic simple">
+<li><p>Modify Structures directly or even better, using the <code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen</span>
+<span class="pre">.transformations</span></code> and <a class="reference internal" href="pymatgen.alchemy.html#module-pymatgen.alchemy" title="pymatgen.alchemy"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.alchemy</span></code></a> packages.</p></li>
+<li><p>Analyse Structures. E.g., compute the Ewald sum using the
+<a class="reference internal" href="pymatgen.analysis.ewald.html#module-pymatgen.analysis.ewald" title="pymatgen.analysis.ewald"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.analysis.ewald</span></code></a> package, compare two structures for
+similarity using <a class="reference internal" href="pymatgen.analysis.structure_matcher.html#module-pymatgen.analysis.structure_matcher" title="pymatgen.analysis.structure_matcher"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.analysis.structure_matcher</span></code></a>.</p></li>
+</ol>
+<p>It should be noted that Structure and Molecule are designed to be mutable. In
+fact, they are the most basic mutable units (everything below in the class
+hierarchy such as Element, Specie, Site, PeriodicSite, Lattice are immutable).
+If you need guarantees of immutability for Structure/Molecule,
+you should use the IStructure and IMolecule classes instead.</p>
+<div class="section" id="modifying-structures-or-molecules">
+<h4>Modifying Structures or Molecules<a class="headerlink" href="#modifying-structures-or-molecules" title="Permalink to this headline">¶</a></h4>
+<p>Pymatgen supports a highly Pythonic interface for modifying Structures and
+Molecules. For example, you can change any site simply with:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Change the specie at site position 1 to a fluorine atom.</span>
+<span class="n">structure</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;F&quot;</span>
+<span class="n">molecule</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;F&quot;</span>
+
+<span class="c1"># Change species and coordinates (fractional assumed for Structures,</span>
+<span class="c1"># cartesian for Molecules)</span>
+<span class="n">structure</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Cl&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.51</span><span class="p">,</span> <span class="mf">0.51</span><span class="p">,</span> <span class="mf">0.51</span><span class="p">]</span>
+<span class="n">molecule</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;F&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mf">1.34</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+
+<span class="c1"># Structure/Molecule also supports typical list-like operators,</span>
+<span class="c1"># such as reverse, extend, pop, index, count.</span>
+<span class="n">structure</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
+<span class="n">molecule</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
+
+<span class="n">structure</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;F&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.9</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">])</span>
+<span class="n">molecule</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;F&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mf">2.1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span><span class="o">.</span><span class="mi">2</span> <span class="mf">4.3</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>There are also many typical transforms you can do on Structures. Here are
+some examples:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Make a supercell</span>
+<span class="n">structure</span><span class="o">.</span><span class="n">make_supercell</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+
+<span class="c1"># Get a primitive version of the Structure</span>
+<span class="n">structure</span><span class="o">.</span><span class="n">get_primitive_structure</span><span class="p">()</span>
+
+<span class="c1"># Interpolate between two structures to get 10 structures (typically for</span>
+<span class="c1"># NEB calculations.</span>
+<span class="n">structure</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">another_structure</span><span class="p">,</span> <span class="n">nimages</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The above is just some examples of typical use cases. A lot more is possible
+and you may explore the actual API doc for the structure and molecule classes.</p>
+</div>
+</div>
+</div>
+<div class="section" id="entries-basic-analysis-unit">
+<span id="entries"></span><h2>Entries - Basic analysis unit<a class="headerlink" href="#entries-basic-analysis-unit" title="Permalink to this headline">¶</a></h2>
+<p>Beyond the core Element, Site and Structure objects, most analyses within in
+pymatgen (e.g., creating a PhaseDiagram) are performed using Entry objects. An
+Entry in its most basic form contains a calculated energy and a composition,
+and may optionally contain other input or calculated data. In most instances,
+you will use the ComputedEntry or ComputedStructureEntry objects defined in
+<a class="reference internal" href="pymatgen.entries.computed_entries.html#module-pymatgen.entries.computed_entries" title="pymatgen.entries.computed_entries"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.entries.computed_entries</span></code></a>. ComputedEntry objects can be created
+by either manually parsing calculated data calculations, or by using the
+<a class="reference internal" href="pymatgen.apps.borg.html#module-pymatgen.apps.borg" title="pymatgen.apps.borg"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.apps.borg</span></code></a> package.</p>
+<div class="section" id="compatibility-mixing-gga-and-gga-u-runs">
+<span id="compatibility"></span><h3>Compatibility - Mixing GGA and GGA+U runs<a class="headerlink" href="#compatibility-mixing-gga-and-gga-u-runs" title="Permalink to this headline">¶</a></h3>
+<p>The Ceder group has developed a scheme where by GGA and GGA+U calculations can
+be “mixed” such that analyses may be performed using the type of calculation
+most appropriate for each entry. For instance, to generate a Fe-P-O phase
+diagram, metallic phases such as Fe and FexPy are most appropriately modelled
+using standard GGA, while a hubbard U should be applied for the oxides such
+as FexOy and FexPyOz.</p>
+<p>In the <a class="reference internal" href="pymatgen.io.vasp.sets.html#module-pymatgen.io.vasp.sets" title="pymatgen.io.vasp.sets"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.io.vasp.sets</span></code></a> module, pre-defined parameter sets have
+been coded to allow users to generate VASP input files that are consistent
+with input parameters that are compatible with the Materials Project data.
+Users who wish to perform analysis using runs calculated using these
+parameters should post-process entries generated from these runs using the
+appropriate compatibility. For example, if a user wants to generate a phase
+diagram from a list of entries generated from Fe-P-O vasp runs,
+he should use the following procedure:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pymatgen.entries.compatibility</span> <span class="kn">import</span> <span class="n">MaterialsProjectCompatibility</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.phase_diagram</span> <span class="kn">import</span> <span class="n">PhaseDiagram</span><span class="p">,</span> <span class="n">PDPlotter</span>
+
+<span class="c1"># Get unprocessed_entries using pymatgen.borg or other means.</span>
+
+<span class="c1"># Process the entries for compatibility</span>
+<span class="n">compat</span> <span class="o">=</span> <span class="n">MaterialsProjectCompatibility</span><span class="p">()</span>
+<span class="n">processed_entries</span> <span class="o">=</span> <span class="n">compat</span><span class="o">.</span><span class="n">process_entries</span><span class="p">(</span><span class="n">unprocessed_entries</span><span class="p">)</span>
+
+<span class="c1"># These few lines generates the phase diagram using the ComputedEntries.</span>
+<span class="n">pd</span> <span class="o">=</span> <span class="n">PhaseDiagram</span><span class="p">(</span><span class="n">processed_entries</span><span class="p">)</span>
+<span class="n">plotter</span> <span class="o">=</span> <span class="n">PDPlotter</span><span class="p">(</span><span class="n">pd</span><span class="p">)</span>
+<span class="n">plotter</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="pymatgen-borg-high-throughput-data-assimilation">
+<h2>pymatgen.borg - High-throughput data assimilation<a class="headerlink" href="#pymatgen-borg-high-throughput-data-assimilation" title="Permalink to this headline">¶</a></h2>
+<p>The borg package is still a work in progress, but a lot can already be done with
+it. The basic concept is to provide a convenient means to
+assimilate large quantities of data in a directory structure. For now, the main
+application is the assimilation of entire directory structures of VASP
+calculations into usable pymatgen entries, which can then be used for phase
+diagram and other analyses.  The outline of how it works is as follows:</p>
+<ol class="arabic simple">
+<li><p>Drones are defined in the <a class="reference internal" href="pymatgen.apps.borg.hive.html#module-pymatgen.apps.borg.hive" title="pymatgen.apps.borg.hive"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.apps.borg.hive</span></code></a> module. A Drone
+is essentially an object which defines how a directory is parsed into a
+pymatgen object. For example, the VaspToComputedEntryDrone defines how a
+directory containing a vasp run (with a vasprun.xml file) is converted
+into ComputedEntry.</p></li>
+<li><p>The BorgQueen object in <a class="reference internal" href="pymatgen.apps.borg.queen.html#module-pymatgen.apps.borg.queen" title="pymatgen.apps.borg.queen"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.apps.borg.queen</span></code></a> module uses Drones
+to assimilate an entire subdirectory structure. Parallel processing is
+used where possible to speed up the process.</p></li>
+</ol>
+<div class="section" id="simple-example-making-a-phase-diagram">
+<h3>Simple example - Making a phase diagram<a class="headerlink" href="#simple-example-making-a-phase-diagram" title="Permalink to this headline">¶</a></h3>
+<p>Let’s say you want to make the Li-O phase diagram. You have calculated all
+Li, O, and Li-O compounds you are interested in and the runs are in the
+directory “Li-O_runs”. You can then generate the phase diagram using the
+following few lines of code:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pymatgen.borg.hive</span> <span class="kn">import</span> <span class="n">VaspToComputedEntryDrone</span>
+<span class="kn">from</span> <span class="nn">pymatgen.borg.queen</span> <span class="kn">import</span> <span class="n">BorgQueen</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.phase_diagram</span> <span class="kn">import</span> <span class="n">PhaseDiagram</span><span class="p">,</span> <span class="n">PDPlotter</span>
+
+<span class="c1"># These three lines assimilate the data into ComputedEntries.</span>
+<span class="n">drone</span> <span class="o">=</span> <span class="n">VaspToComputedEntryDrone</span><span class="p">()</span>
+<span class="n">queen</span> <span class="o">=</span> <span class="n">BorgQueen</span><span class="p">(</span><span class="n">drone</span><span class="p">,</span> <span class="s2">&quot;Li-O_runs&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">entries</span> <span class="o">=</span> <span class="n">queen</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span>
+
+<span class="c1"># It&#39;s a good idea to perform a save_data, especially if you just assimilated</span>
+<span class="c1"># a large quantity of data which took some time. This allows you to reload</span>
+<span class="c1"># the data using a BorgQueen initialized with only the drone argument and</span>
+<span class="c1"># calling queen.load_data(&quot;Li-O_entries.json&quot;)</span>
+<span class="n">queen</span><span class="o">.</span><span class="n">save_data</span><span class="p">(</span><span class="s2">&quot;Li-O_entries.json&quot;</span><span class="p">)</span>
+
+<span class="c1"># These few lines generates the phase diagram using the ComputedEntries.</span>
+<span class="n">pd</span> <span class="o">=</span> <span class="n">PhaseDiagram</span><span class="p">(</span><span class="n">entries</span><span class="p">)</span>
+<span class="n">plotter</span> <span class="o">=</span> <span class="n">PDPlotter</span><span class="p">(</span><span class="n">pd</span><span class="p">)</span>
+<span class="n">plotter</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>In this example, neither Li nor O requires a Hubbard U. However, if you are
+making a phase diagram from a mix of GGA and GGA+U entries, you may need to
+post-process the assimilated entries with a Compatibility object before
+running the phase diagram code. See earlier section on <a class="reference internal" href="#entries">entries</a> and
+<a class="reference internal" href="#compatibility">compatibility</a>.</p>
+</div>
+<div class="section" id="another-example-calculating-reaction-energies">
+<h3>Another example - Calculating reaction energies<a class="headerlink" href="#another-example-calculating-reaction-energies" title="Permalink to this headline">¶</a></h3>
+<p>Another example of a cool thing you can do with the loaded entries is to
+calculate reaction energies. For example, reusing the Li-O data we have saved
+in the above step:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pymatgen.apps.borg.hive</span> <span class="kn">import</span> <span class="n">VaspToComputedEntryDrone</span>
+<span class="kn">from</span> <span class="nn">pymatgen.apps.borg.queen</span> <span class="kn">import</span> <span class="n">BorgQueen</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.reaction_calculator</span> <span class="kn">import</span> <span class="n">ComputedReaction</span>
+
+<span class="c1"># These three lines assimilate the data into ComputedEntries.</span>
+<span class="n">drone</span> <span class="o">=</span> <span class="n">VaspToComputedEntryDrone</span><span class="p">()</span>
+<span class="n">queen</span> <span class="o">=</span> <span class="n">BorgQueen</span><span class="p">(</span><span class="n">drone</span><span class="p">)</span>
+<span class="n">queen</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s2">&quot;Li-O_entries.json&quot;</span><span class="p">)</span>
+<span class="n">entries</span> <span class="o">=</span> <span class="n">queen</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span>
+
+<span class="c1">#Extract the correct entries and compute the reaction.</span>
+<span class="n">rcts</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_formula</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;Li&quot;</span><span class="p">,</span> <span class="s2">&quot;O2&quot;</span><span class="p">],</span> <span class="n">entries</span><span class="p">)</span>
+<span class="n">prods</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_formula</span> <span class="o">==</span> <span class="s2">&quot;Li2O&quot;</span><span class="p">,</span> <span class="n">entries</span><span class="p">)</span>
+<span class="n">rxn</span> <span class="o">=</span> <span class="n">ComputedReaction</span><span class="p">(</span><span class="n">rcts</span><span class="p">,</span> <span class="n">prods</span><span class="p">)</span>
+<span class="nb">print</span> <span class="n">rxn</span>
+<span class="nb">print</span> <span class="n">rxn</span><span class="o">.</span><span class="n">calculated_reaction_energy</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="pymatgen-transformations">
+<h2>pymatgen.transformations<a class="headerlink" href="#pymatgen-transformations" title="Permalink to this headline">¶</a></h2>
+<p>The <a class="reference internal" href="pymatgen.transformations.html#module-pymatgen.transformations" title="pymatgen.transformations"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.transformations</span></code></a> package is the standard package for
+performing transformations on structures. Many transformations are already
+supported today, from simple transformations such as adding and removing
+sites, and replacing species in a structure to more advanced one-to-many
+transformations such as partially removing a fraction of a certain species
+from a structure using an electrostatic energy criterion. The Transformation
+classes follow a strict API. A typical usage is as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pymatgen.io.cif</span> <span class="kn">import</span> <span class="n">CifParser</span>
+<span class="kn">from</span> <span class="nn">pymatgen.transformations.standard_transformations</span> <span class="kn">import</span> <span class="n">RemoveSpecieTransformations</span>
+
+<span class="c1"># Read in a LiFePO4 structure from a cif.</span>
+<span class="n">parser</span> <span class="o">=</span> <span class="n">CifParser</span><span class="p">(</span><span class="s1">&#39;LiFePO4.cif&#39;</span><span class="p">)</span>
+<span class="n">struct</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">get_structures</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="n">t</span> <span class="o">=</span> <span class="n">RemoveSpeciesTransformation</span><span class="p">([</span><span class="s2">&quot;Li&quot;</span><span class="p">])</span>
+<span class="n">modified_structure</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">apply_transformation</span><span class="p">(</span><span class="n">struct</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="pymatgen-alchemy-high-throughput-transformations">
+<h2>pymatgen.alchemy - High-throughput transformations<a class="headerlink" href="#pymatgen-alchemy-high-throughput-transformations" title="Permalink to this headline">¶</a></h2>
+<p>The <a class="reference internal" href="pymatgen.alchemy.html#module-pymatgen.alchemy" title="pymatgen.alchemy"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.alchemy</span></code></a> package is a framework for performing
+high-throughput (HT) structure transformations. For example, it allows a user
+to define a series of transformations to be applied to a set of structures,
+generating new structures in the process. The framework is also designed to
+provide proper logging of all changes performed on structures,
+with infinite undo. The main classes are:</p>
+<ol class="arabic simple">
+<li><p><a class="reference internal" href="pymatgen.alchemy.materials.html#pymatgen.alchemy.materials.TransformedStructure" title="pymatgen.alchemy.materials.TransformedStructure"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.alchemy.materials.TransformedStructure</span></code></a> - Standard object
+representing a TransformedStructure. Takes in an input structure and a list
+of transformations as an input. Can also be generated from cifs and POSCARs.</p></li>
+<li><p><a class="reference internal" href="pymatgen.alchemy.transmuters.html#pymatgen.alchemy.transmuters.StandardTransmuter" title="pymatgen.alchemy.transmuters.StandardTransmuter"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.alchemy.transmuters.StandardTransmuter</span></code></a> - An example of
+a Transmuter class, which takes a list of structures, and apply a sequence
+of transformations on all of them.</p></li>
+</ol>
+<p>Usage example - replace Fe with Mn and remove all Li in all structures:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pymatgen.alchemy.transmuters</span> <span class="kn">import</span> <span class="n">CifTransmuter</span>
+<span class="kn">from</span> <span class="nn">pymatgen.transformations.standard_transformations</span> <span class="kn">import</span> <span class="n">SubstitutionTransformation</span><span class="p">,</span> <span class="n">RemoveSpeciesTransformation</span>
+
+<span class="n">trans</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">trans</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">SubstitutionTransformation</span><span class="p">({</span><span class="s2">&quot;Fe&quot;</span><span class="p">:</span><span class="s2">&quot;Mn&quot;</span><span class="p">}))</span>
+<span class="n">trans</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">RemoveSpecieTransformation</span><span class="p">([</span><span class="s2">&quot;Lu&quot;</span><span class="p">]))</span>
+<span class="n">transmuter</span> <span class="o">=</span> <span class="n">CifTransmuter</span><span class="o">.</span><span class="n">from_filenames</span><span class="p">([</span><span class="s2">&quot;MultiStructure.cif&quot;</span><span class="p">],</span> <span class="n">trans</span><span class="p">)</span>
+<span class="n">structures</span> <span class="o">=</span> <span class="n">transmuter</span><span class="o">.</span><span class="n">transformed_structures</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="pymatgen-matproj-rest-integration-with-the-materials-project-rest-api">
+<h2>pymatgen.matproj.rest - Integration with the Materials Project REST API<a class="headerlink" href="#pymatgen-matproj-rest-integration-with-the-materials-project-rest-api" title="Permalink to this headline">¶</a></h2>
+<p>In version 2.0.0 of pymatgen, we introduced one of the most powerful and useful
+tools yet - an adaptor to the Materials Project REST API. The Materials Project
+REST API (simply Materials API) was introduced to provide a means for
+users to programmatically query for materials data. This allows users to
+efficiently perform structure manipulation and analyses without going through
+the web interface.</p>
+<p>In parallel, we have coded in the <a class="reference internal" href="pymatgen.ext.matproj.html#module-pymatgen.ext.matproj" title="pymatgen.ext.matproj"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.ext.matproj</span></code></a> module a
+MPRester, a user-friendly high-level interface to the Materials API to obtain
+useful pymatgen objects for further analyses.  To use the Materials API,
+your need to first register with the Materials Project and generate your API
+key in your dashboard at <a class="reference external" href="https://www.materialsproject.org/dashboard">https://www.materialsproject.org/dashboard</a>. In the
+examples below, the user’s Materials API key is designated as “USER_API_KEY”.</p>
+<p>The MPRester provides many convenience methods, but we will just highlight
+a few key methods here.</p>
+<p>To obtain information on a material with Materials Project Id “mp-1234”,
+one can use the following:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">MPRester</span><span class="p">(</span><span class="s2">&quot;USER_API_KEY&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">m</span><span class="p">:</span>
+
+    <span class="c1"># Structure for material id</span>
+    <span class="n">structure</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">get_structure_by_material_id</span><span class="p">(</span><span class="s2">&quot;mp-1234&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Dos for material id</span>
+    <span class="n">dos</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">get_dos_by_material_id</span><span class="p">(</span><span class="s2">&quot;mp-1234&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Bandstructure for material id</span>
+    <span class="n">bandstructure</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">get_bandstructure_by_material_id</span><span class="p">(</span><span class="s2">&quot;mp-1234&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The Materials API also allows for query of data by formulas:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># To get a list of data for all entries having formula Fe2O3</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="s2">&quot;Fe2O3&quot;</span><span class="p">)</span>
+
+<span class="c1"># To get the energies of all entries having formula Fe2O3</span>
+<span class="n">energies</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="s2">&quot;Fe2O3&quot;</span><span class="p">,</span> <span class="s2">&quot;energy&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Finally, the MPRester provides methods to obtain all entries in a
+chemical system. Combined with the borg framework, this provides a
+particularly powerful way to combine one’s own calculations with Materials
+Project data for analysis. The code below demonstrates the phase stability of
+a new calculated material can be determined:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pymatgen.ext.matproj</span> <span class="kn">import</span> <span class="n">MPRester</span>
+<span class="kn">from</span> <span class="nn">pymatgen.apps.borg.hive</span> <span class="kn">import</span> <span class="n">VaspToComputedEntryDrone</span>
+<span class="kn">from</span> <span class="nn">pymatgen.apps.borg.queen</span> <span class="kn">import</span> <span class="n">BorgQueen</span>
+<span class="kn">from</span> <span class="nn">pymatgen.entries.compatibility</span> <span class="kn">import</span> <span class="n">MaterialsProjectCompatibility</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.phase_diagram</span> <span class="kn">import</span> <span class="n">PhaseDiagram</span><span class="p">,</span> <span class="n">PDPlotter</span>
+
+<span class="c1"># Assimilate VASP calculations into ComputedEntry object. Let&#39;s assume that</span>
+<span class="c1"># the calculations are for a series of new LixFeyOz phases that we want to</span>
+<span class="c1"># know the phase stability.</span>
+<span class="n">drone</span> <span class="o">=</span> <span class="n">VaspToComputedEntryDrone</span><span class="p">()</span>
+<span class="n">queen</span> <span class="o">=</span> <span class="n">BorgQueen</span><span class="p">(</span><span class="n">drone</span><span class="p">,</span> <span class="n">rootpath</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
+<span class="n">entries</span> <span class="o">=</span> <span class="n">queen</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span>
+
+<span class="c1"># Obtain all existing Li-Fe-O phases using the Materials Project REST API</span>
+<span class="k">with</span> <span class="n">MPRester</span><span class="p">(</span><span class="s2">&quot;USER_API_KEY&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">m</span><span class="p">:</span>
+    <span class="n">mp_entries</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">get_entries_in_chemsys</span><span class="p">([</span><span class="s2">&quot;Li&quot;</span><span class="p">,</span> <span class="s2">&quot;Fe&quot;</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">])</span>
+
+<span class="c1"># Combined entry from calculated run with Materials Project entries</span>
+<span class="n">entries</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">mp_entries</span><span class="p">)</span>
+
+<span class="c1"># Process entries using the MaterialsProjectCompatibility</span>
+<span class="n">compat</span> <span class="o">=</span> <span class="n">MaterialsProjectCompatibility</span><span class="p">()</span>
+<span class="n">entries</span> <span class="o">=</span> <span class="n">compat</span><span class="o">.</span><span class="n">process_entries</span><span class="p">(</span><span class="n">entries</span><span class="p">)</span>
+
+<span class="c1"># Generate and plot Li-Fe-O phase diagram</span>
+<span class="n">pd</span> <span class="o">=</span> <span class="n">PhaseDiagram</span><span class="p">(</span><span class="n">entries</span><span class="p">)</span>
+<span class="n">plotter</span> <span class="o">=</span> <span class="n">PDPlotter</span><span class="p">(</span><span class="n">pd</span><span class="p">)</span>
+<span class="n">plotter</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="section" id="the-query-method">
+<h3>The query method<a class="headerlink" href="#the-query-method" title="Permalink to this headline">¶</a></h3>
+<p>For the most flexibility, you can also use the query method of the MPRester.
+This method allows any kind of mongo query to be performed on the Materials
+Project database. It also supports a simple string syntax with wild cards.
+Examples are given below:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pymatgen.ext.matproj</span> <span class="kn">import</span> <span class="n">MPRester</span>
+
+<span class="k">with</span> <span class="n">MPRester</span><span class="p">(</span><span class="s2">&quot;USER_API_KEY&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">m</span><span class="p">:</span>
+
+    <span class="c1"># Get all energies of materials with formula &quot;*2O&quot;.</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">&quot;*2O&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">])</span>
+
+    <span class="c1"># Get the formulas and energies of materials with materials_id mp-1234</span>
+    <span class="c1"># or with formula FeO.</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">&quot;FeO mp-1234&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;pretty_formula&#39;</span><span class="p">,</span> <span class="s1">&#39;energy&#39;</span><span class="p">])</span>
+
+    <span class="c1"># Get all compounds of the form ABO3</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">&quot;**O3&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;pretty_formula&#39;</span><span class="p">,</span> <span class="s1">&#39;energy&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>It is highly recommended that you consult the Materials API documentation at
+<a class="reference external" href="http://bit.ly/materialsapi">http://bit.ly/materialsapi</a>, which provides a comprehensive explanation of the
+document schema used in the Materials Project and how best to query for the
+relevant information you need.</p>
+</div>
+<div class="section" id="setting-the-pmg-mapi-key-in-the-config-file">
+<h3>Setting the PMG_MAPI_KEY in the config file<a class="headerlink" href="#setting-the-pmg-mapi-key-in-the-config-file" title="Permalink to this headline">¶</a></h3>
+<p>MPRester can also read the API key via the pymatgen config file. Simply run:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pmg</span> <span class="n">config</span> <span class="o">--</span><span class="n">add</span> <span class="n">PMG_MAPI_KEY</span> <span class="o">&lt;</span><span class="n">USER_API_KEY</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>to add this to the <cite>.pmgrc.yaml</cite>, and you can now call MPRester without any
+arguments. This makes it much easier for heavy users of the Materials API to
+use MPRester without having to constantly insert their API key in the scripts.</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011, Pymatgen Development Team
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+  
+ 
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+
+</body>
+</html>

@@ -1,0 +1,2339 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pymatgen.core.structure module &mdash; pymatgen 2020.1.28 documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pymatgen.orgpymatgen.core.structure.html"/>
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.core.surface module" href="pymatgen.core.surface.html" />
+    <link rel="prev" title="pymatgen.core.spectrum module" href="pymatgen.core.spectrum.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pymatgen
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2020.1.28
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="team.html">Development Team</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API Docs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pymatgen.html">pymatgen package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="pymatgen.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.alchemy.html">pymatgen.alchemy package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.html">pymatgen.analysis package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.apps.html">pymatgen.apps package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.cli.html">pymatgen.cli package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.command_line.html">pymatgen.command_line package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="pymatgen.core.html">pymatgen.core package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.electronic_structure.html">pymatgen.electronic_structure package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.entries.html">pymatgen.entries package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html">pymatgen.ext package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html">pymatgen.io package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.plugins.html">pymatgen.plugins package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.vis.html">pymatgen.vis package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#module-pymatgen">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pymatgen</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="modules.html">pymatgen</a> &raquo;</li>
+        
+          <li><a href="pymatgen.html">pymatgen package</a> &raquo;</li>
+        
+          <li><a href="pymatgen.core.html">pymatgen.core package</a> &raquo;</li>
+        
+      <li>pymatgen.core.structure module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.core.structure.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-pymatgen.core.structure">
+<span id="pymatgen-core-structure-module"></span><h1>pymatgen.core.structure module<a class="headerlink" href="#module-pymatgen.core.structure" title="Permalink to this headline">¶</a></h1>
+<p>This module provides classes used to define a non-periodic molecule and a
+periodic structure.</p>
+<dl class="class">
+<dt id="pymatgen.core.structure.IMolecule">
+<em class="property">class </em><code class="sig-name descname">IMolecule</code><span class="sig-paren">(</span><em class="sig-param">species: Sequence[Union[str, pymatgen.core.periodic_table.Element, pymatgen.core.periodic_table.Specie, pymatgen.core.periodic_table.DummySpecie, pymatgen.core.composition.Composition]], coords: Sequence[Sequence[float]], charge: float = 0.0, spin_multiplicity: float = None, validate_proximity: bool = False, site_properties: dict = None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L2321-L2898"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IMolecule" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.core.structure.SiteCollection" title="pymatgen.core.structure.SiteCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.structure.SiteCollection</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
+<p>Basic immutable Molecule object without periodicity. Essentially a
+sequence of sites. IMolecule is made to be immutable so that they can
+function as keys in a dict. For a mutable molecule,
+use the :class:Molecule.</p>
+<p>Molecule extends Sequence and Hashable, which means that in many cases,
+it can be used like any Python sequence. Iterating through a molecule is
+equivalent to going through the sites in sequence.</p>
+<p>Creates a Molecule.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>species</strong> – list of atomic species. Possible kinds of input include a
+list of dict of elements/species and occupancies, a List of
+elements/specie specified as actual Element/Specie, Strings
+(“Fe”, “Fe2+”) or atomic numbers (1,56).</p></li>
+<li><p><strong>coords</strong> (<em>3x1 array</em>) – list of cartesian coordinates of each species.</p></li>
+<li><p><strong>charge</strong> (<em>float</em>) – Charge for the molecule. Defaults to 0.</p></li>
+<li><p><strong>spin_multiplicity</strong> (<em>int</em>) – Spin multiplicity for molecule.
+Defaults to None, which means that the spin multiplicity is
+set to 1 if the molecule has no unpaired electrons and to 2
+if there are unpaired electrons.</p></li>
+<li><p><strong>validate_proximity</strong> (<em>bool</em>) – Whether to check if there are sites
+that are less than 1 Ang apart. Defaults to False.</p></li>
+<li><p><strong>site_properties</strong> (<em>dict</em>) – Properties associated with the sites as
+a dict of sequences, e.g., {“magmom”:[5,5,5,5]}. The
+sequences have to be the same length as the atomic species
+and fractional_coords. Defaults to None for no properties.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.core.structure.IMolecule.as_dict">
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L2562-L2576"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IMolecule.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Json-serializable dict representation of Molecule</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.IMolecule.break_bond">
+<code class="sig-name descname">break_bond</code><span class="sig-paren">(</span><em class="sig-param">ind1</em>, <em class="sig-param">ind2</em>, <em class="sig-param">tol=0.2</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L2461-L2504"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IMolecule.break_bond" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns two molecules based on breaking the bond between atoms at index
+ind1 and ind2.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ind1</strong> (<em>int</em>) – Index of first site.</p></li>
+<li><p><strong>ind2</strong> (<em>int</em>) – Index of second site.</p></li>
+<li><p><strong>tol</strong> (<em>float</em>) – Relative tolerance to test. Basically, the code
+checks if the distance between the sites is less than (1 +
+tol) * typical bond distances. Defaults to 0.2, i.e.,
+20% longer.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Two Molecule objects representing the two clusters formed from
+breaking the bond.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.IMolecule.center_of_mass">
+<em class="property">property </em><code class="sig-name descname">center_of_mass</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IMolecule.center_of_mass" title="Permalink to this definition">¶</a></dt>
+<dd><p>Center of mass of molecule.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.IMolecule.charge">
+<em class="property">property </em><code class="sig-name descname">charge</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IMolecule.charge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Charge of molecule</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.IMolecule.from_dict">
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L2578-L2593"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IMolecule.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reconstitute a Molecule object from a dict representation created using
+as_dict().</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>d</strong> (<em>dict</em>) – dict representation of Molecule.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Molecule object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.IMolecule.from_file">
+<em class="property">classmethod </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param">filename</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L2858-L2898"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IMolecule.from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads a molecule from a file. Supported formats include xyz,
+gaussian input (gjf|g03|g09|com|inp), Gaussian output (.out|and
+pymatgen’s JSON serialized molecules. Using openbabel,
+many more extensions are supported but requires openbabel to be
+installed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – The filename to read from.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Molecule</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.IMolecule.from_sites">
+<em class="property">classmethod </em><code class="sig-name descname">from_sites</code><span class="sig-paren">(</span><em class="sig-param">sites</em>, <em class="sig-param">charge=0</em>, <em class="sig-param">spin_multiplicity=None</em>, <em class="sig-param">validate_proximity=False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L2437-L2459"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IMolecule.from_sites" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenience constructor to make a Molecule from a list of sites.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sites</strong> (<em>[</em><a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.Site" title="pymatgen.core.sites.Site"><em>Site</em></a><em>]</em>) – Sequence of Sites.</p></li>
+<li><p><strong>charge</strong> (<em>int</em>) – Charge of molecule. Defaults to 0.</p></li>
+<li><p><strong>spin_multiplicity</strong> (<em>int</em>) – Spin multicipity. Defaults to None,
+in which it is determined automatically.</p></li>
+<li><p><strong>validate_proximity</strong> (<em>bool</em>) – Whether to check that atoms are too
+close.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.IMolecule.from_str">
+<em class="property">classmethod </em><code class="sig-name descname">from_str</code><span class="sig-paren">(</span><em class="sig-param">input_string</em>, <em class="sig-param">fmt</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L2823-L2856"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IMolecule.from_str" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads the molecule from a string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_string</strong> (<em>str</em>) – String to parse.</p></li>
+<li><p><strong>fmt</strong> (<em>str</em>) – Format to output to. Defaults to JSON unless filename
+is provided. If fmt is specifies, it overrides whatever the
+filename is. Options include “xyz”, “gjf”, “g03”, “json”. If
+you have OpenBabel installed, any of the formats supported by
+OpenBabel. Non-case sensitive.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>IMolecule or Molecule.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.IMolecule.get_boxed_structure">
+<code class="sig-name descname">get_boxed_structure</code><span class="sig-paren">(</span><em class="sig-param">a</em>, <em class="sig-param">b</em>, <em class="sig-param">c</em>, <em class="sig-param">images=(1</em>, <em class="sig-param">1</em>, <em class="sig-param">1)</em>, <em class="sig-param">random_rotation=False</em>, <em class="sig-param">min_dist=1</em>, <em class="sig-param">cls=None</em>, <em class="sig-param">offset=None</em>, <em class="sig-param">no_cross=False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L2662-L2751"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IMolecule.get_boxed_structure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a Structure from a Molecule by putting the Molecule in the
+center of a orthorhombic box. Useful for creating Structure for
+calculating molecules using periodic codes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>a</strong> (<em>float</em>) – a-lattice parameter.</p></li>
+<li><p><strong>b</strong> (<em>float</em>) – b-lattice parameter.</p></li>
+<li><p><strong>c</strong> (<em>float</em>) – c-lattice parameter.</p></li>
+<li><p><strong>images</strong> – No. of boxed images in each direction. Defaults to
+(1, 1, 1), meaning single molecule with 1 lattice parameter
+in each direction.</p></li>
+<li><p><strong>random_rotation</strong> (<em>bool</em>) – Whether to apply a random rotation to
+each molecule. This jumbles all the molecules so that they
+are not exact images of each other.</p></li>
+<li><p><strong>min_dist</strong> (<em>float</em>) – The minimum distance that atoms should be from
+each other. This is only used if random_rotation is True.
+The randomized rotations are searched such that no two atoms
+are less than min_dist from each other.</p></li>
+<li><p><strong>cls</strong> – The Structure class to instantiate (defaults to pymatgen
+structure)</p></li>
+<li><p><strong>offset</strong> – Translation to offset molecule from center of mass coords</p></li>
+<li><p><strong>no_cross</strong> – Whether to forbid molecule coords from extending beyond
+boundary of box.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Structure containing molecule in a box.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.IMolecule.get_centered_molecule">
+<code class="sig-name descname">get_centered_molecule</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L2753-L2765"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IMolecule.get_centered_molecule" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a Molecule centered at the center of mass.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Molecule centered with center of mass at origin.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.IMolecule.get_covalent_bonds">
+<code class="sig-name descname">get_covalent_bonds</code><span class="sig-paren">(</span><em class="sig-param">tol=0.2</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L2506-L2521"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IMolecule.get_covalent_bonds" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines the covalent bonds in a molecule.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>tol</strong> (<em>float</em>) – The tol to determine bonds in a structure. See
+CovalentBond.is_bonded.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of bonds</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.IMolecule.get_distance">
+<code class="sig-name descname">get_distance</code><span class="sig-paren">(</span><em class="sig-param">i</em>, <em class="sig-param">j</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L2595-L2606"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IMolecule.get_distance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get distance between site i and j.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>i</strong> (<em>int</em>) – Index of first site</p></li>
+<li><p><strong>j</strong> (<em>int</em>) – Index of second site</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Distance between the two sites.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.IMolecule.get_neighbors">
+<code class="sig-name descname">get_neighbors</code><span class="sig-paren">(</span><em class="sig-param">site</em>, <em class="sig-param">r</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L2628-L2642"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IMolecule.get_neighbors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all neighbors to a site within a sphere of radius r.  Excludes the
+site itself.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>site</strong> (<a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.Site" title="pymatgen.core.sites.Site"><em>Site</em></a>) – Site at the center of the sphere.</p></li>
+<li><p><strong>r</strong> (<em>float</em>) – Radius of sphere.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>[(site, dist) …] since most of the time, subsequent processing
+requires the distance.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.IMolecule.get_neighbors_in_shell">
+<code class="sig-name descname">get_neighbors_in_shell</code><span class="sig-paren">(</span><em class="sig-param">origin</em>, <em class="sig-param">r</em>, <em class="sig-param">dr</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L2644-L2660"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IMolecule.get_neighbors_in_shell" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns all sites in a shell centered on origin (coords) between radii
+r-dr and r+dr.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>origin</strong> (<em>3x1 array</em>) – Cartesian coordinates of center of sphere.</p></li>
+<li><p><strong>r</strong> (<em>float</em>) – Inner radius of shell.</p></li>
+<li><p><strong>dr</strong> (<em>float</em>) – Width of shell.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>[(site, dist) …] since most of the time, subsequent processing
+requires the distance.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.IMolecule.get_sites_in_sphere">
+<code class="sig-name descname">get_sites_in_sphere</code><span class="sig-paren">(</span><em class="sig-param">pt</em>, <em class="sig-param">r</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L2608-L2626"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IMolecule.get_sites_in_sphere" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find all sites within a sphere from a point.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pt</strong> (<em>3x1 array</em>) – Cartesian coordinates of center of sphere.</p></li>
+<li><p><strong>r</strong> (<em>float</em>) – Radius of sphere.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>[Neighbor] since most of the time, subsequent processing
+requires the distance.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.IMolecule.nelectrons">
+<em class="property">property </em><code class="sig-name descname">nelectrons</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IMolecule.nelectrons" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of electrons in the molecule.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.IMolecule.sites">
+<em class="property">property </em><code class="sig-name descname">sites</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IMolecule.sites" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a tuple of sites in the Molecule.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.IMolecule.spin_multiplicity">
+<em class="property">property </em><code class="sig-name descname">spin_multiplicity</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IMolecule.spin_multiplicity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Spin multiplicity of molecule.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.IMolecule.to">
+<code class="sig-name descname">to</code><span class="sig-paren">(</span><em class="sig-param">fmt=None</em>, <em class="sig-param">filename=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L2767-L2821"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IMolecule.to" title="Permalink to this definition">¶</a></dt>
+<dd><p>Outputs the molecule to a file or string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fmt</strong> (<em>str</em>) – Format to output to. Defaults to JSON unless filename
+is provided. If fmt is specifies, it overrides whatever the
+filename is. Options include “xyz”, “gjf”, “g03”, “json”. If
+you have OpenBabel installed, any of the formats supported by
+OpenBabel. Non-case sensitive.</p></li>
+<li><p><strong>filename</strong> (<em>str</em>) – If provided, output will be written to a file. If
+fmt is not specified, the format is determined from the
+filename. Defaults is None, i.e. string output.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(str) if filename is None. None otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.core.structure.IStructure">
+<em class="property">class </em><code class="sig-name descname">IStructure</code><span class="sig-paren">(</span><em class="sig-param">lattice: Union[List, numpy.ndarray, pymatgen.core.lattice.Lattice], species: Sequence[Union[str, pymatgen.core.periodic_table.Element, pymatgen.core.periodic_table.Specie, pymatgen.core.periodic_table.DummySpecie, pymatgen.core.composition.Composition]], coords: Sequence[Sequence[float]], charge: float = None, validate_proximity: bool = False, to_unit_cell: bool = False, coords_are_cartesian: bool = False, site_properties: dict = None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L619-L2318"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.core.structure.SiteCollection" title="pymatgen.core.structure.SiteCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.structure.SiteCollection</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
+<p>Basic immutable Structure object with periodicity. Essentially a sequence
+of PeriodicSites having a common lattice. IStructure is made to be
+(somewhat) immutable so that they can function as keys in a dict. To make
+modifications, use the standard Structure object instead. Structure
+extends Sequence and Hashable, which means that in many cases,
+it can be used like any Python sequence. Iterating through a
+structure is equivalent to going through the sites in sequence.</p>
+<p>Create a periodic structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lattice</strong> (<em>Lattice/3x3 array</em>) – The lattice, either as a
+<a class="reference internal" href="pymatgen.core.lattice.html#pymatgen.core.lattice.Lattice" title="pymatgen.core.lattice.Lattice"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.lattice.Lattice</span></code></a> or
+simply as any 2D array. Each row should correspond to a lattice
+vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
+lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].</p></li>
+<li><p><strong>species</strong> (<em>[</em><a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Specie" title="pymatgen.core.periodic_table.Specie"><em>Specie</em></a><em>]</em>) – <p>Sequence of species on each site. Can take in
+flexible input, including:</p>
+<ol class="lowerroman simple">
+<li><p>A sequence of element / specie specified either as string
+symbols, e.g. [“Li”, “Fe2+”, “P”, …] or atomic numbers,
+e.g., (3, 56, …) or actual Element or Specie objects.</p></li>
+<li><p>List of dict of elements/species and occupancies, e.g.,
+[{“Fe” : 0.5, “Mn”:0.5}, …]. This allows the setup of
+disordered structures.</p></li>
+</ol>
+</p></li>
+<li><p><strong>coords</strong> (<em>Nx3 array</em>) – list of fractional/cartesian coordinates of
+each species.</p></li>
+<li><p><strong>charge</strong> (<em>int</em>) – overall charge of the structure. Defaults to behavior
+in SiteCollection where total charge is the sum of the oxidation
+states.</p></li>
+<li><p><strong>validate_proximity</strong> (<em>bool</em>) – Whether to check if there are sites
+that are less than 0.01 Ang apart. Defaults to False.</p></li>
+<li><p><strong>to_unit_cell</strong> (<em>bool</em>) – Whether to map all sites into the unit cell,
+i.e., fractional coords between 0 and 1. Defaults to False.</p></li>
+<li><p><strong>coords_are_cartesian</strong> (<em>bool</em>) – Set to True if you are providing
+coordinates in cartesian coordinates. Defaults to False.</p></li>
+<li><p><strong>site_properties</strong> (<em>dict</em>) – Properties associated with the sites as a
+dict of sequences, e.g., {“magmom”:[5,5,5,5]}. The sequences
+have to be the same length as the atomic species and
+fractional_coords. Defaults to None for no properties.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.core.structure.IStructure.as_dict">
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><em class="sig-param">verbosity=1</em>, <em class="sig-param">fmt=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L2043-L2082"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dict representation of Structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>verbosity</strong> (<em>int</em>) – Verbosity level. Default of 1 includes both
+direct and cartesian coordinates for all sites, lattice
+parameters, etc. Useful for reading and for insertion into a
+database. Set to 0 for an extremely lightweight version
+that only includes sufficient information to reconstruct the
+object.</p></li>
+<li><p><strong>fmt</strong> (<em>str</em>) – Specifies a format for the dict. Defaults to None,
+which is the default format used in pymatgen. Other options
+include “abivars”.</p></li>
+<li><p><strong>**kwargs</strong> – Allow passing of other kwargs needed for certain</p></li>
+<li><p><strong>e.g.</strong><strong>, </strong><strong>&quot;abivars&quot;.</strong> (<em>formats</em><em>,</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>JSON serializable dict representation.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.IStructure.charge">
+<em class="property">property </em><code class="sig-name descname">charge</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.charge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overall charge of the structure</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.IStructure.copy">
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><em class="sig-param">site_properties=None</em>, <em class="sig-param">sanitize=False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L1620-L1664"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.copy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenience method to get a copy of the structure, with options to add
+site properties.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>site_properties</strong> (<em>dict</em>) – Properties to add or override. The
+properties are specified in the same way as the constructor,
+i.e., as a dict of the form {property: [values]}. The
+properties should be in the order of the <em>original</em> structure
+if you are performing sanitization.</p></li>
+<li><p><strong>sanitize</strong> (<em>bool</em>) – If True, this method will return a sanitized
+structure. Sanitization performs a few things: (i) The sites are
+sorted by electronegativity, (ii) a LLL lattice reduction is
+carried out to obtain a relatively orthogonalized cell,
+(iii) all fractional coords for sites are mapped into the
+unit cell.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A copy of the Structure, with optionally new site_properties and
+optionally sanitized.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.IStructure.density">
+<em class="property">property </em><code class="sig-name descname">density</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.density" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the density in units of g/cc</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.IStructure.distance_matrix">
+<em class="property">property </em><code class="sig-name descname">distance_matrix</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.distance_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the distance matrix between all sites in the structure. For
+periodic structures, this should return the nearest image distance.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.IStructure.frac_coords">
+<em class="property">property </em><code class="sig-name descname">frac_coords</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.frac_coords" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fractional coordinates as a Nx3 numpy array.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.IStructure.from_dict">
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em>, <em class="sig-param">fmt=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L2084-L2103"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reconstitute a Structure object from a dict representation of Structure
+created using as_dict().</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>d</strong> (<em>dict</em>) – Dict representation of structure.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Structure object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.IStructure.from_file">
+<em class="property">classmethod </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param">filename</em>, <em class="sig-param">primitive=False</em>, <em class="sig-param">sort=False</em>, <em class="sig-param">merge_tol=0.0</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L2236-L2318"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads a structure from a file. For example, anything ending in
+a “cif” is assumed to be a Crystallographic Information Format file.
+Supported formats include CIF, POSCAR/CONTCAR, CHGCAR, LOCPOT,
+vasprun.xml, CSSR, Netcdf and pymatgen’s JSON serialized structures.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>str</em>) – The filename to read from.</p></li>
+<li><p><strong>primitive</strong> (<em>bool</em>) – Whether to convert to a primitive cell
+Only available for cifs. Defaults to False.</p></li>
+<li><p><strong>sort</strong> (<em>bool</em>) – Whether to sort sites. Default to False.</p></li>
+<li><p><strong>merge_tol</strong> (<em>float</em>) – If this is some positive number, sites that
+are within merge_tol from each other will be merged. Usually
+0.01 should be enough to deal with common numerical issues.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Structure.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.IStructure.from_magnetic_spacegroup">
+<em class="property">classmethod </em><code class="sig-name descname">from_magnetic_spacegroup</code><span class="sig-paren">(</span><em class="sig-param">msg: Union[str, MagneticSpaceGroup], lattice: Union[List, numpy.ndarray, pymatgen.core.lattice.Lattice], species: Sequence[Union[str, pymatgen.core.periodic_table.Element, pymatgen.core.periodic_table.Specie, pymatgen.core.periodic_table.DummySpecie, pymatgen.core.composition.Composition]], coords: Sequence[Sequence[float]], site_properties: Dict[str, Sequence], coords_are_cartesian: bool = False, tol: float = 1e-05</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L838-L944"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.from_magnetic_spacegroup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a structure using a magnetic spacegroup. Note that only
+symmetrically distinct species, coords and magmoms should be provided.]
+All equivalent sites are generated from the spacegroup operations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>msg</strong> (str/list/<a class="reference internal" href="pymatgen.symmetry.maggroups.html#pymatgen.symmetry.maggroups.MagneticSpaceGroup" title="pymatgen.symmetry.maggroups.MagneticSpaceGroup"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.symmetry.maggroups.MagneticSpaceGroup</span></code></a>) – The magnetic spacegroup.
+If a string, it will be interpreted as one of the notations
+supported by MagneticSymmetryGroup, e.g., “R-3’c” or “Fm’-3’m”.
+If a list of two ints, it will be interpreted as the number of
+the spacegroup in its Belov, Neronova and Smirnova (BNS) setting.</p></li>
+<li><p><strong>lattice</strong> (<em>Lattice/3x3 array</em>) – The lattice, either as a
+<a class="reference internal" href="pymatgen.core.lattice.html#pymatgen.core.lattice.Lattice" title="pymatgen.core.lattice.Lattice"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.lattice.Lattice</span></code></a> or
+simply as any 2D array. Each row should correspond to a lattice
+vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
+lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].
+Note that no attempt is made to check that the lattice is
+compatible with the spacegroup specified. This may be
+introduced in a future version.</p></li>
+<li><p><strong>species</strong> (<em>[</em><a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Specie" title="pymatgen.core.periodic_table.Specie"><em>Specie</em></a><em>]</em>) – <p>Sequence of species on each site. Can take in
+flexible input, including:
+i.  A sequence of element / specie specified either as string
+symbols, e.g. [“Li”, “Fe2+”, “P”, …] or atomic numbers,
+e.g., (3, 56, …) or actual Element or Specie objects.</p>
+<ol class="lowerroman simple" start="2">
+<li><p>List of dict of elements/species and occupancies, e.g.,
+[{“Fe” : 0.5, “Mn”:0.5}, …]. This allows the setup of
+disordered structures.</p></li>
+</ol>
+</p></li>
+<li><p><strong>coords</strong> (<em>Nx3 array</em>) – list of fractional/cartesian coordinates of
+each species.</p></li>
+<li><p><strong>site_properties</strong> (<em>dict</em>) – Properties associated with the sites as a
+dict of sequences, e.g., {“magmom”:[5,5,5,5]}. The sequences
+have to be the same length as the atomic species and
+fractional_coords. Unlike Structure.from_spacegroup(),
+this argument is mandatory, since magnetic moment information
+has to be included. Note that the <em>direction</em> of the supplied
+magnetic moment relative to the crystal is important, even if
+the resulting structure is used for collinear calculations.</p></li>
+<li><p><strong>coords_are_cartesian</strong> (<em>bool</em>) – Set to True if you are providing
+coordinates in cartesian coordinates. Defaults to False.</p></li>
+<li><p><strong>tol</strong> (<em>float</em>) – A fractional tolerance to deal with numerical
+precision issues in determining if orbits are the same.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.IStructure.from_sites">
+<em class="property">classmethod </em><code class="sig-name descname">from_sites</code><span class="sig-paren">(</span><em class="sig-param">sites: List[pymatgen.core.sites.PeriodicSite], charge: float = None, validate_proximity: bool = False, to_unit_cell: bool = False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L702-L746"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.from_sites" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenience constructor to make a Structure from a list of sites.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sites</strong> – Sequence of PeriodicSites. Sites must have the same
+lattice.</p></li>
+<li><p><strong>charge</strong> – Charge of structure.</p></li>
+<li><p><strong>validate_proximity</strong> (<em>bool</em>) – Whether to check if there are sites
+that are less than 0.01 Ang apart. Defaults to False.</p></li>
+<li><p><strong>to_unit_cell</strong> (<em>bool</em>) – Whether to translate sites into the unit
+cell.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(Structure) Note that missing properties are set as None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.IStructure.from_spacegroup">
+<em class="property">classmethod </em><code class="sig-name descname">from_spacegroup</code><span class="sig-paren">(</span><em class="sig-param">sg: str, lattice: Union[List, numpy.ndarray, pymatgen.core.lattice.Lattice], species: Sequence[Union[str, pymatgen.core.periodic_table.Element, pymatgen.core.periodic_table.Specie, pymatgen.core.periodic_table.DummySpecie, pymatgen.core.composition.Composition]], coords: Sequence[Sequence[float]], site_properties: Dict[str, Sequence] = None, coords_are_cartesian: bool = False, tol: float = 1e-05</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L748-L836"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.from_spacegroup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a structure using a spacegroup. Note that only symmetrically
+distinct species and coords should be provided. All equivalent sites
+are generated from the spacegroup operations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sg</strong> (<em>str/int</em>) – The spacegroup. If a string, it will be interpreted
+as one of the notations supported by
+pymatgen.symmetry.groups.Spacegroup. E.g., “R-3c” or “Fm-3m”.
+If an int, it will be interpreted as an international number.</p></li>
+<li><p><strong>lattice</strong> (<em>Lattice/3x3 array</em>) – The lattice, either as a
+<a class="reference internal" href="pymatgen.core.lattice.html#pymatgen.core.lattice.Lattice" title="pymatgen.core.lattice.Lattice"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.lattice.Lattice</span></code></a> or
+simply as any 2D array. Each row should correspond to a lattice
+vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
+lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].
+Note that no attempt is made to check that the lattice is
+compatible with the spacegroup specified. This may be
+introduced in a future version.</p></li>
+<li><p><strong>species</strong> (<em>[</em><a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Specie" title="pymatgen.core.periodic_table.Specie"><em>Specie</em></a><em>]</em>) – <p>Sequence of species on each site. Can take in
+flexible input, including:</p>
+<ol class="lowerroman simple">
+<li><p>A sequence of element / specie specified either as string
+symbols, e.g. [“Li”, “Fe2+”, “P”, …] or atomic numbers,
+e.g., (3, 56, …) or actual Element or Specie objects.</p></li>
+<li><p>List of dict of elements/species and occupancies, e.g.,
+[{“Fe” : 0.5, “Mn”:0.5}, …]. This allows the setup of
+disordered structures.</p></li>
+</ol>
+</p></li>
+<li><p><strong>coords</strong> (<em>Nx3 array</em>) – list of fractional/cartesian coordinates of
+each species.</p></li>
+<li><p><strong>coords_are_cartesian</strong> (<em>bool</em>) – Set to True if you are providing
+coordinates in cartesian coordinates. Defaults to False.</p></li>
+<li><p><strong>site_properties</strong> (<em>dict</em>) – Properties associated with the sites as a
+dict of sequences, e.g., {“magmom”:[5,5,5,5]}. The sequences
+have to be the same length as the atomic species and
+fractional_coords. Defaults to None for no properties.</p></li>
+<li><p><strong>tol</strong> (<em>float</em>) – A fractional tolerance to deal with numerical
+precision issues in determining if orbits are the same.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.IStructure.from_str">
+<em class="property">classmethod </em><code class="sig-name descname">from_str</code><span class="sig-paren">(</span><em class="sig-param">input_string</em>, <em class="sig-param">fmt</em>, <em class="sig-param">primitive=False</em>, <em class="sig-param">sort=False</em>, <em class="sig-param">merge_tol=0.0</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L2181-L2234"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.from_str" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads a structure from a string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_string</strong> (<em>str</em>) – String to parse.</p></li>
+<li><p><strong>fmt</strong> (<em>str</em>) – A format specification.</p></li>
+<li><p><strong>primitive</strong> (<em>bool</em>) – Whether to find a primitive cell. Defaults to
+False.</p></li>
+<li><p><strong>sort</strong> (<em>bool</em>) – Whether to sort the sites in accordance to the default
+ordering criteria, i.e., electronegativity.</p></li>
+<li><p><strong>merge_tol</strong> (<em>float</em>) – If this is some positive number, sites that
+are within merge_tol from each other will be merged. Usually
+0.01 should be enough to deal with common numerical issues.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>IStructure / Structure</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.IStructure.get_all_neighbors">
+<code class="sig-name descname">get_all_neighbors</code><span class="sig-paren">(</span><em class="sig-param">r: float</em>, <em class="sig-param">include_index: bool = False</em>, <em class="sig-param">include_image: bool = False</em>, <em class="sig-param">sites: List[pymatgen.core.sites.PeriodicSite] = None</em>, <em class="sig-param">numerical_tol: float = 1e-08</em><span class="sig-paren">)</span> &#x2192; List[List[pymatgen.core.structure.PeriodicNeighbor]]<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L1324-L1402"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.get_all_neighbors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get neighbors for each atom in the unit cell, out to a distance r
+Returns a list of list of neighbors for each site in structure.
+Use this method if you are planning on looping over all sites in the
+crystal. If you only want neighbors for a particular site, use the
+method get_neighbors as it may not have to build such a large supercell
+However if you are looping over all sites in the crystal, this method
+is more efficient since it only performs one pass over a large enough
+supercell to contain all possible atoms out to a distance r.
+The return type is a [(site, dist) …] since most of the time,
+subsequent processing requires the distance.</p>
+<p>A note about periodic images: Before computing the neighbors, this
+operation translates all atoms to within the unit cell (having
+fractional coordinates within [0,1)). This means that the “image” of a
+site does not correspond to how much it has been translates from its
+current position, but which image of the unit cell it resides.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>r</strong> (<em>float</em>) – Radius of sphere.</p></li>
+<li><p><strong>include_index</strong> (<em>bool</em>) – Deprecated. Now, the non-supercell site index
+is always included in the returned data.</p></li>
+<li><p><strong>include_image</strong> (<em>bool</em>) – Deprecated. Now the supercell image
+is always included in the returned data.</p></li>
+<li><p><strong>sites</strong> (<em>list of Sites</em><em> or </em><em>None</em>) – sites for getting all neighbors,
+default is None, which means neighbors will be obtained for all
+sites. This is useful in the situation where you are interested
+only in one subspecies type, and makes it a lot faster.</p></li>
+<li><p><strong>numerical_tol</strong> (<em>float</em>) – This is a numerical tolerance for distances.
+Sites which are &lt; numerical_tol are determined to be conincident
+with the site. Sites which are r + numerical_tol away is deemed
+to be within r from the site. The default of 1e-8 should be
+ok in most instances.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>[PeriodicNeighbor] where PeriodicNeighbor is a namedtuple containing
+(site, distance, index, image).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.IStructure.get_all_neighbors_old">
+<code class="sig-name descname">get_all_neighbors_old</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/../../../miniconda3/envs/py37/lib/python3.7/site-packages/monty-3.0.2-py3.7.egg/monty/dev.py#L32-L46"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.get_all_neighbors_old" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.IStructure.get_all_neighbors_py">
+<code class="sig-name descname">get_all_neighbors_py</code><span class="sig-paren">(</span><em class="sig-param">r: float</em>, <em class="sig-param">include_index: bool = False</em>, <em class="sig-param">include_image: bool = False</em>, <em class="sig-param">sites: List[pymatgen.core.sites.PeriodicSite] = None</em>, <em class="sig-param">numerical_tol: float = 1e-08</em><span class="sig-paren">)</span> &#x2192; List[List[pymatgen.core.structure.PeriodicNeighbor]]<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L1404-L1475"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.get_all_neighbors_py" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get neighbors for each atom in the unit cell, out to a distance r
+Returns a list of list of neighbors for each site in structure.
+Use this method if you are planning on looping over all sites in the
+crystal. If you only want neighbors for a particular site, use the
+method get_neighbors as it may not have to build such a large supercell
+However if you are looping over all sites in the crystal, this method
+is more efficient since it only performs one pass over a large enough
+supercell to contain all possible atoms out to a distance r.
+The return type is a [(site, dist) …] since most of the time,
+subsequent processing requires the distance.</p>
+<p>A note about periodic images: Before computing the neighbors, this
+operation translates all atoms to within the unit cell (having
+fractional coordinates within [0,1)). This means that the “image” of a
+site does not correspond to how much it has been translates from its
+current position, but which image of the unit cell it resides.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>r</strong> (<em>float</em>) – Radius of sphere.</p></li>
+<li><p><strong>include_index</strong> (<em>bool</em>) – Deprecated. Now, the non-supercell site index
+is always included in the returned data.</p></li>
+<li><p><strong>include_image</strong> (<em>bool</em>) – Deprecated. Now the supercell image
+is always included in the returned data.</p></li>
+<li><p><strong>sites</strong> (<em>list of Sites</em><em> or </em><em>None</em>) – sites for getting all neighbors,
+default is None, which means neighbors will be obtained for all
+sites. This is useful in the situation where you are interested
+only in one subspecies type, and makes it a lot faster.</p></li>
+<li><p><strong>numerical_tol</strong> (<em>float</em>) – This is a numerical tolerance for distances.
+Sites which are &lt; numerical_tol are determined to be conincident
+with the site. Sites which are r + numerical_tol away is deemed
+to be within r from the site. The default of 1e-8 should be
+ok in most instances.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>[PeriodicNeighbor] where PeriodicNeighbor is a namedtuple containing
+(site, distance, index, image).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.IStructure.get_distance">
+<code class="sig-name descname">get_distance</code><span class="sig-paren">(</span><em class="sig-param">i</em>, <em class="sig-param">j</em>, <em class="sig-param">jimage=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L1113-L1131"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.get_distance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get distance between site i and j assuming periodic boundary
+conditions. If the index jimage of two sites atom j is not specified it
+selects the jimage nearest to the i atom and returns the distance and
+jimage indices in terms of lattice vector translations if the index
+jimage of atom j is specified it returns the distance between the i
+atom and the specified jimage atom.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>i</strong> (<em>int</em>) – Index of first site</p></li>
+<li><p><strong>j</strong> (<em>int</em>) – Index of second site</p></li>
+<li><p><strong>jimage</strong> – Number of lattice translations in each lattice direction.
+Default is None for nearest image.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>distance</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.IStructure.get_miller_index_from_site_indexes">
+<code class="sig-name descname">get_miller_index_from_site_indexes</code><span class="sig-paren">(</span><em class="sig-param">site_ids</em>, <em class="sig-param">round_dp=4</em>, <em class="sig-param">verbose=True</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L1777-L1800"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.get_miller_index_from_site_indexes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the Miller index of a plane from a set of sites indexes.</p>
+<p>A minimum of 3 sites are required. If more than 3 sites are given
+the best plane that minimises the distance to all points will be
+calculated.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>site_ids</strong> (<em>list of int</em>) – A list of site indexes to consider. A
+minimum of three site indexes are required. If more than three
+sites are provided, the best plane that minimises the distance
+to all sites will be calculated.</p></li>
+<li><p><strong>round_dp</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of decimal places to round the
+miller index to.</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to print warnings.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The Miller index.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(tuple)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.IStructure.get_neighbor_list">
+<code class="sig-name descname">get_neighbor_list</code><span class="sig-paren">(</span><em class="sig-param">r: float</em>, <em class="sig-param">sites: List[pymatgen.core.sites.PeriodicSite] = None</em>, <em class="sig-param">numerical_tol: float = 1e-08</em>, <em class="sig-param">exclude_self: bool = True</em><span class="sig-paren">)</span> &#x2192; Tuple[numpy.ndarray, ...]<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L1272-L1322"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.get_neighbor_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get neighbor lists using numpy array representations without constructing
+Neighbor objects. If the cython extension is installed,  this method will
+be orders of magnitude faster than <cite>get_all_neighbors</cite>.
+The returned values are a tuple of numpy arrays
+(center_indices, points_indices, offset_vectors, distances).
+Atom <cite>center_indices[i]</cite> has neighbor atom <cite>points_indices[i]</cite> that is
+translated by <cite>offset_vectors[i]</cite> lattice vectors, and the distance is
+<cite>distances[i]</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>r</strong> (<em>float</em>) – Radius of sphere</p></li>
+<li><p><strong>sites</strong> (<em>list of Sites</em><em> or </em><em>None</em>) – sites for getting all neighbors,
+default is None, which means neighbors will be obtained for all
+sites. This is useful in the situation where you are interested
+only in one subspecies type, and makes it a lot faster.</p></li>
+<li><p><strong>numerical_tol</strong> (<em>float</em>) – This is a numerical tolerance for distances.
+Sites which are &lt; numerical_tol are determined to be conincident
+with the site. Sites which are r + numerical_tol away is deemed
+to be within r from the site. The default of 1e-8 should be
+ok in most instances.</p></li>
+<li><p><strong>exclude_self</strong> (<em>bool</em>) – whether to exclude atom neighboring with itself within
+numerical tolerance distance, default to True</p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns: (center_indices, points_indices, offset_vectors, distances)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.IStructure.get_neighbors">
+<code class="sig-name descname">get_neighbors</code><span class="sig-paren">(</span><em class="sig-param">site: pymatgen.core.sites.PeriodicSite</em>, <em class="sig-param">r: float</em>, <em class="sig-param">include_index: bool = False</em>, <em class="sig-param">include_image: bool = False</em><span class="sig-paren">)</span> &#x2192; List[pymatgen.core.structure.PeriodicNeighbor]<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L1182-L1203"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.get_neighbors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all neighbors to a site within a sphere of radius r.  Excludes the
+site itself.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>site</strong> (<a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.Site" title="pymatgen.core.sites.Site"><em>Site</em></a>) – Which is the center of the sphere.</p></li>
+<li><p><strong>r</strong> (<em>float</em>) – Radius of sphere.</p></li>
+<li><p><strong>include_index</strong> (<em>bool</em>) – Deprecated. Now, the non-supercell site index
+is always included in the returned data.</p></li>
+<li><p><strong>include_image</strong> (<em>bool</em>) – Deprecated. Now the supercell image
+is always included in the returned data.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>[PeriodicNeighbor] where PeriodicNeighbor is a namedtuple containing
+(site, distance, index, image).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.IStructure.get_neighbors_in_shell">
+<code class="sig-name descname">get_neighbors_in_shell</code><span class="sig-paren">(</span><em class="sig-param">origin</em>, <em class="sig-param">r</em>, <em class="sig-param">dr</em>, <em class="sig-param">include_index=False</em>, <em class="sig-param">include_image=False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L1553-L1575"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.get_neighbors_in_shell" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns all sites in a shell centered on origin (coords) between radii
+r-dr and r+dr.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>origin</strong> (<em>3x1 array</em>) – Cartesian coordinates of center of sphere.</p></li>
+<li><p><strong>r</strong> (<em>float</em>) – Inner radius of shell.</p></li>
+<li><p><strong>dr</strong> (<em>float</em>) – Width of shell.</p></li>
+<li><p><strong>include_index</strong> (<em>bool</em>) – Deprecated. Now, the non-supercell site index
+is always included in the returned data.</p></li>
+<li><p><strong>include_image</strong> (<em>bool</em>) – Deprecated. Now the supercell image
+is always included in the returned data.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>[NearestNeighbor] where Nearest Neighbor is a named tuple containing
+(site, distance, index, image).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.IStructure.get_neighbors_old">
+<code class="sig-name descname">get_neighbors_old</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/../../../miniconda3/envs/py37/lib/python3.7/site-packages/monty-3.0.2-py3.7.egg/monty/dev.py#L32-L46"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.get_neighbors_old" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.IStructure.get_primitive_structure">
+<code class="sig-name descname">get_primitive_structure</code><span class="sig-paren">(</span><em class="sig-param">tolerance=0.25</em>, <em class="sig-param">use_site_props=False</em>, <em class="sig-param">constrain_latt=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L1802-L2001"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.get_primitive_structure" title="Permalink to this definition">¶</a></dt>
+<dd><p>This finds a smaller unit cell than the input. Sometimes it doesn”t
+find the smallest possible one, so this method is recursively called
+until it is unable to find a smaller cell.</p>
+<p>NOTE: if the tolerance is greater than 1/2 the minimum inter-site
+distance in the primitive cell, the algorithm will reject this lattice.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tolerance</strong> (<em>float</em>) – Tolerance for each coordinate of a
+particular site. For example, [0.1, 0, 0.1] in cartesian
+coordinates will be considered to be on the same coordinates
+as [0, 0, 0] for a tolerance of 0.25. Defaults to 0.25.</p></li>
+<li><p><strong>use_site_props</strong> (<em>bool</em>) – Whether to account for site properties in
+differntiating sites.</p></li>
+<li><p><strong>constrain_latt</strong> (<em>list/dict</em>) – List of lattice parameters we want to
+preserve, e.g. [“alpha”, “c”] or dict with the lattice
+parameter names as keys and values we want the parameters to
+be e.g. {“alpha”: 90, “c”: 2.5}.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The most primitive structure found.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.IStructure.get_reduced_structure">
+<code class="sig-name descname">get_reduced_structure</code><span class="sig-paren">(</span><em class="sig-param">reduction_algo: str = 'niggli'</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L1593-L1618"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.get_reduced_structure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a reduced structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>reduction_algo</strong> (<em>str</em>) – The lattice reduction algorithm to use.
+Currently supported options are “niggli” or “LLL”.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.IStructure.get_sites_in_sphere">
+<code class="sig-name descname">get_sites_in_sphere</code><span class="sig-paren">(</span><em class="sig-param">pt: numpy.array</em>, <em class="sig-param">r: float</em>, <em class="sig-param">include_index: bool = False</em>, <em class="sig-param">include_image: bool = False</em><span class="sig-paren">)</span> &#x2192; List[Tuple[pymatgen.core.sites.PeriodicSite, float, Optional[int], Optional[Tuple[int]]]]<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L1133-L1180"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.get_sites_in_sphere" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find all sites within a sphere from the point, including a site (if any)
+sitting on the point itself. This includes sites in other periodic
+images.</p>
+<p>Algorithm:</p>
+<ol class="arabic">
+<li><p>place sphere of radius r in crystal and determine minimum supercell
+(parallelpiped) which would contain a sphere of radius r. for this
+we need the projection of a_1 on a unit vector perpendicular
+to a_2 &amp; a_3 (i.e. the unit vector in the direction b_1) to
+determine how many a_1”s it will take to contain the sphere.</p>
+<p>Nxmax = r * length_of_b_1 / (2 Pi)</p>
+</li>
+<li><p>keep points falling within r.</p></li>
+</ol>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pt</strong> (<em>3x1 array</em>) – cartesian coordinates of center of sphere.</p></li>
+<li><p><strong>r</strong> (<em>float</em>) – Radius of sphere.</p></li>
+<li><p><strong>include_index</strong> (<em>bool</em>) – Whether the non-supercell site index
+is included in the returned data</p></li>
+<li><p><strong>include_image</strong> (<em>bool</em>) – Whether to include the supercell image
+is included in the returned data</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>[(site, dist) …] since most of the time, subsequent processing
+requires the distance.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.IStructure.get_sorted_structure">
+<code class="sig-name descname">get_sorted_structure</code><span class="sig-paren">(</span><em class="sig-param">key=None</em>, <em class="sig-param">reverse=False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L1577-L1591"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.get_sorted_structure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a sorted copy of the structure. The parameters have the same
+meaning as in list.sort. By default, sites are sorted by the
+electronegativity of the species.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>key</strong> – Specifies a function of one argument that is used to extract
+a comparison key from each list element: key=str.lower. The
+default value is None (compare the elements directly).</p></li>
+<li><p><strong>reverse</strong> (<em>bool</em>) – If set to True, then the list elements are sorted
+as if each comparison were reversed.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.IStructure.get_space_group_info">
+<code class="sig-name descname">get_space_group_info</code><span class="sig-paren">(</span><em class="sig-param">symprec=0.01</em>, <em class="sig-param">angle_tolerance=5.0</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L986-L1003"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.get_space_group_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenience method to quickly get the spacegroup of a structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>symprec</strong> (<em>float</em>) – Same definition as in SpacegroupAnalyzer.
+Defaults to 1e-2.</p></li>
+<li><p><strong>angle_tolerance</strong> (<em>float</em>) – Same definition as in SpacegroupAnalyzer.
+Defaults to 5 degrees.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>spacegroup_symbol, international_number</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.IStructure.interpolate">
+<code class="sig-name descname">interpolate</code><span class="sig-paren">(</span><em class="sig-param">end_structure</em>, <em class="sig-param">nimages: Union[int</em>, <em class="sig-param">Iterable] = 10</em>, <em class="sig-param">interpolate_lattices: bool = False</em>, <em class="sig-param">pbc: bool = True</em>, <em class="sig-param">autosort_tol: float = 0</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L1666-L1775"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.interpolate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Interpolate between this structure and end_structure. Useful for
+construction of NEB inputs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>end_structure</strong> (<a class="reference internal" href="#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – structure to interpolate between this
+structure and end.</p></li>
+<li><p><strong>nimages</strong> (<em>int</em><em>,</em><em>list</em>) – No. of interpolation images or a list of
+interpolation images. Defaults to 10 images.</p></li>
+<li><p><strong>interpolate_lattices</strong> (<em>bool</em>) – Whether to interpolate the lattices.
+Interpolates the lengths and angles (rather than the matrix)
+so orientation may be affected.</p></li>
+<li><p><strong>pbc</strong> (<em>bool</em>) – Whether to use periodic boundary conditions to find
+the shortest path between endpoints.</p></li>
+<li><p><strong>autosort_tol</strong> (<em>float</em>) – A distance tolerance in angstrom in
+which to automatically sort end_structure to match to the
+closest points in this particular structure. This is usually
+what you want in a NEB calculation. 0 implies no sorting.
+Otherwise, a 0.5 value usually works pretty well.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of interpolated structures. The starting and ending
+structures included as the first and last structures respectively.
+A total of (nimages + 1) structures are returned.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.IStructure.lattice">
+<em class="property">property </em><code class="sig-name descname">lattice</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.lattice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Lattice of the structure.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.IStructure.matches">
+<code class="sig-name descname">matches</code><span class="sig-paren">(</span><em class="sig-param">other</em>, <em class="sig-param">anonymous=False</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L1005-L1023"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.matches" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check whether this structure is similar to another structure.
+Basically a convenience method to call structure matching.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>other</strong> (<em>IStructure/Structure</em>) – Another structure.</p></li>
+<li><p><strong>**kwargs</strong> – Same <a href="#id1"><span class="problematic" id="id2">**</span></a>kwargs as in
+<a class="reference internal" href="pymatgen.analysis.structure_matcher.html#pymatgen.analysis.structure_matcher.StructureMatcher" title="pymatgen.analysis.structure_matcher.StructureMatcher"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.structure_matcher.StructureMatcher</span></code></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(bool) True is the structures are similar under some affine
+transformation.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.IStructure.sites">
+<em class="property">property </em><code class="sig-name descname">sites</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.sites" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an iterator for the sites in the Structure.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.IStructure.to">
+<code class="sig-name descname">to</code><span class="sig-paren">(</span><em class="sig-param">fmt=None</em>, <em class="sig-param">filename=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L2105-L2179"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.to" title="Permalink to this definition">¶</a></dt>
+<dd><p>Outputs the structure to a file or string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fmt</strong> (<em>str</em>) – Format to output to. Defaults to JSON unless filename
+is provided. If fmt is specifies, it overrides whatever the
+filename is. Options include “cif”, “poscar”, “cssr”, “json”.
+Non-case sensitive.</p></li>
+<li><p><strong>filename</strong> (<em>str</em>) – If provided, output will be written to a file. If
+fmt is not specified, the format is determined from the
+filename. Defaults is None, i.e. string output.</p></li>
+<li><p><strong>**kwargs</strong> – Kwargs passthru to relevant methods. E.g., This allows
+the passing of parameters like symprec to the
+CifWriter.__init__ method for generation of symmetric cifs.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(str) if filename is None. None otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.IStructure.volume">
+<em class="property">property </em><code class="sig-name descname">volume</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.volume" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the volume of the structure.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.core.structure.Molecule">
+<em class="property">class </em><code class="sig-name descname">Molecule</code><span class="sig-paren">(</span><em class="sig-param">species: Sequence[Union[str, pymatgen.core.periodic_table.Element, pymatgen.core.periodic_table.Specie, pymatgen.core.periodic_table.DummySpecie, pymatgen.core.composition.Composition]], coords: Sequence[Sequence[float]], charge: float = 0.0, spin_multiplicity: float = None, validate_proximity: bool = False, site_properties: dict = None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L3535-L3913"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.Molecule" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.core.structure.IMolecule" title="pymatgen.core.structure.IMolecule"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.structure.IMolecule</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.abc.MutableSequence</span></code></p>
+<p>Mutable Molecule. It has all the methods in IMolecule, but in addition,
+it allows a user to perform edits on the molecule.</p>
+<p>Creates a MutableMolecule.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>species</strong> – list of atomic species. Possible kinds of input include a
+list of dict of elements/species and occupancies, a List of
+elements/specie specified as actual Element/Specie, Strings
+(“Fe”, “Fe2+”) or atomic numbers (1,56).</p></li>
+<li><p><strong>coords</strong> (<em>3x1 array</em>) – list of cartesian coordinates of each species.</p></li>
+<li><p><strong>charge</strong> (<em>float</em>) – Charge for the molecule. Defaults to 0.</p></li>
+<li><p><strong>spin_multiplicity</strong> (<em>int</em>) – Spin multiplicity for molecule.
+Defaults to None, which means that the spin multiplicity is
+set to 1 if the molecule has no unpaired electrons and to 2
+if there are unpaired electrons.</p></li>
+<li><p><strong>validate_proximity</strong> (<em>bool</em>) – Whether to check if there are sites
+that are less than 1 Ang apart. Defaults to False.</p></li>
+<li><p><strong>site_properties</strong> (<em>dict</em>) – Properties associated with the sites as
+a dict of sequences, e.g., {“magmom”:[5,5,5,5]}. The
+sequences have to be the same length as the atomic species
+and fractional_coords. Defaults to None for no properties.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.core.structure.Molecule.append">
+<code class="sig-name descname">append</code><span class="sig-paren">(</span><em class="sig-param">species</em>, <em class="sig-param">coords</em>, <em class="sig-param">validate_proximity=True</em>, <em class="sig-param">properties=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L3622-L3638"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.Molecule.append" title="Permalink to this definition">¶</a></dt>
+<dd><p>Appends a site to the molecule.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>species</strong> – Species of inserted site</p></li>
+<li><p><strong>coords</strong> – Coordinates of inserted site</p></li>
+<li><p><strong>validate_proximity</strong> (<em>bool</em>) – Whether to check if inserted site is
+too close to an existing site. Defaults to True.</p></li>
+<li><p><strong>properties</strong> (<em>dict</em>) – A dict of properties for the Site.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>New molecule with inserted site.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.Molecule.apply_operation">
+<code class="sig-name descname">apply_operation</code><span class="sig-paren">(</span><em class="sig-param">symmop</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L3798-L3811"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.Molecule.apply_operation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply a symmetry operation to the molecule.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>symmop</strong> (<a class="reference internal" href="pymatgen.core.operations.html#pymatgen.core.operations.SymmOp" title="pymatgen.core.operations.SymmOp"><em>SymmOp</em></a>) – Symmetry operation to apply.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.Molecule.copy">
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L3813-L3820"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.Molecule.copy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenience method to get a copy of the molecule.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A copy of the Molecule.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.Molecule.insert">
+<code class="sig-name descname">insert</code><span class="sig-paren">(</span><em class="sig-param">i</em>, <em class="sig-param">species</em>, <em class="sig-param">coords</em>, <em class="sig-param">validate_proximity=False</em>, <em class="sig-param">properties=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L3669-L3691"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.Molecule.insert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Insert a site to the molecule.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>i</strong> (<em>int</em>) – Index to insert site</p></li>
+<li><p><strong>species</strong> – species of inserted site</p></li>
+<li><p><strong>coords</strong> (<em>3x1 array</em>) – coordinates of inserted site</p></li>
+<li><p><strong>validate_proximity</strong> (<em>bool</em>) – Whether to check if inserted site is
+too close to an existing site. Defaults to True.</p></li>
+<li><p><strong>properties</strong> (<em>dict</em>) – Dict of properties for the Site.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>New molecule with inserted site.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.Molecule.perturb">
+<code class="sig-name descname">perturb</code><span class="sig-paren">(</span><em class="sig-param">distance</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L3779-L3796"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.Molecule.perturb" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs a random perturbation of the sites in a structure to break
+symmetries.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>distance</strong> (<em>float</em>) – Distance in angstroms by which to perturb each
+site.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.Molecule.remove_sites">
+<code class="sig-name descname">remove_sites</code><span class="sig-paren">(</span><em class="sig-param">indices</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L3710-L3718"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.Molecule.remove_sites" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete sites with at indices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>indices</strong> – Sequence of indices of sites to delete.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.Molecule.remove_species">
+<code class="sig-name descname">remove_species</code><span class="sig-paren">(</span><em class="sig-param">species</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L3693-L3708"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.Molecule.remove_species" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove all occurrences of a species from a molecule.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>species</strong> – Species to remove.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.Molecule.rotate_sites">
+<code class="sig-name descname">rotate_sites</code><span class="sig-paren">(</span><em class="sig-param">indices=None</em>, <em class="sig-param">theta=0</em>, <em class="sig-param">axis=None</em>, <em class="sig-param">anchor=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L3740-L3777"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.Molecule.rotate_sites" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rotate specific sites by some angle around vector at anchor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>indices</strong> (<em>list</em>) – List of site indices on which to perform the
+translation.</p></li>
+<li><p><strong>theta</strong> (<em>float</em>) – Angle in radians</p></li>
+<li><p><strong>axis</strong> (<em>3x1 array</em>) – Rotation axis vector.</p></li>
+<li><p><strong>anchor</strong> (<em>3x1 array</em>) – Point of rotation.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.Molecule.set_charge_and_spin">
+<code class="sig-name descname">set_charge_and_spin</code><span class="sig-paren">(</span><em class="sig-param">charge: float</em>, <em class="sig-param">spin_multiplicity: Optional[float] = None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L3640-L3667"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.Molecule.set_charge_and_spin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the charge and spin multiplicity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>charge</strong> (<em>int</em>) – Charge for the molecule. Defaults to 0.</p></li>
+<li><p><strong>spin_multiplicity</strong> (<em>int</em>) – Spin multiplicity for molecule.
+Defaults to None, which means that the spin multiplicity is
+set to 1 if the molecule has no unpaired electrons and to 2
+if there are unpaired electrons.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.Molecule.substitute">
+<code class="sig-name descname">substitute</code><span class="sig-paren">(</span><em class="sig-param">index</em>, <em class="sig-param">func_grp</em>, <em class="sig-param">bond_order=1</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L3822-L3913"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.Molecule.substitute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Substitute atom at index with a functional group.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>index</strong> (<em>int</em>) – Index of atom to substitute.</p></li>
+<li><p><strong>func_grp</strong> – <p>Substituent molecule. There are two options:</p>
+<ol class="arabic simple">
+<li><p>Providing an actual molecule as the input. The first atom
+must be a DummySpecie X, indicating the position of
+nearest neighbor. The second atom must be the next
+nearest atom. For example, for a methyl group
+substitution, func_grp should be X-CH3, where X is the
+first site and C is the second site. What the code will
+do is to remove the index site, and connect the nearest
+neighbor to the C atom in CH3. The X-C bond indicates the
+directionality to connect the atoms.</p></li>
+<li><p>A string name. The molecule will be obtained from the
+relevant template in func_groups.json.</p></li>
+</ol>
+</p></li>
+<li><p><strong>bond_order</strong> (<em>int</em>) – A specified bond order to calculate the bond
+length between the attached functional group and the nearest
+neighbor site. Defaults to 1.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.Molecule.translate_sites">
+<code class="sig-name descname">translate_sites</code><span class="sig-paren">(</span><em class="sig-param">indices=None</em>, <em class="sig-param">vector=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L3720-L3738"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.Molecule.translate_sites" title="Permalink to this definition">¶</a></dt>
+<dd><p>Translate specific sites by some vector, keeping the sites within the
+unit cell.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>indices</strong> (<em>list</em>) – List of site indices on which to perform the
+translation.</p></li>
+<li><p><strong>vector</strong> (<em>3x1 array</em>) – Translation vector for sites.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.core.structure.Neighbor">
+<em class="property">class </em><code class="sig-name descname">Neighbor</code><span class="sig-paren">(</span><em class="sig-param">species: pymatgen.core.composition.Composition</em>, <em class="sig-param">coords: numpy.ndarray</em>, <em class="sig-param">properties: dict = None</em>, <em class="sig-param">nn_distance: float = 0.0</em>, <em class="sig-param">index: int = 0</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L50-L95"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.Neighbor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.Site" title="pymatgen.core.sites.Site"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.sites.Site</span></code></a></p>
+<p>Simple Site subclass to contain a neighboring atom that skips all the
+unnecessary checks for speed. Can be
+used as a fixed-length tuple of size 3 to retain backwards compatibility
+with past use cases.</p>
+<blockquote>
+<div><p>(site, nn_distance, index).</p>
+</div></blockquote>
+<p>In future, usage should be to call attributes, e.g., Neighbor.index,
+Neighbor.distance, etc.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>species</strong> – Same as Site</p></li>
+<li><p><strong>coords</strong> – Same as Site, but must be fractional.</p></li>
+<li><p><strong>properties</strong> – Same as Site</p></li>
+<li><p><strong>nn_distance</strong> – Distance to some other Site.</p></li>
+<li><p><strong>index</strong> – Index within structure.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.core.structure.PeriodicNeighbor">
+<em class="property">class </em><code class="sig-name descname">PeriodicNeighbor</code><span class="sig-paren">(</span><em class="sig-param">species: pymatgen.core.composition.Composition</em>, <em class="sig-param">coords: numpy.ndarray</em>, <em class="sig-param">lattice: pymatgen.core.lattice.Lattice</em>, <em class="sig-param">properties: dict = None</em>, <em class="sig-param">nn_distance: float = 0.0</em>, <em class="sig-param">index: int = 0</em>, <em class="sig-param">image: tuple = (0</em>, <em class="sig-param">0</em>, <em class="sig-param">0)</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L98-L155"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.PeriodicNeighbor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.PeriodicSite" title="pymatgen.core.sites.PeriodicSite"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.sites.PeriodicSite</span></code></a></p>
+<p>Simple PeriodicSite subclass to contain a neighboring atom that skips all
+the unnecessary checks for speed. Can be used as a fixed-length tuple of
+size 4 to retain backwards compatibility with past use cases.</p>
+<blockquote>
+<div><p>(site, distance, index, image).</p>
+</div></blockquote>
+<p>In future, usage should be to call attributes, e.g., PeriodicNeighbor.index,
+PeriodicNeighbor.distance, etc.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>species</strong> – Same as PeriodicSite</p></li>
+<li><p><strong>coords</strong> – Same as PeriodicSite, but must be fractional.</p></li>
+<li><p><strong>lattice</strong> – Same as PeriodicSite</p></li>
+<li><p><strong>properties</strong> – Same as PeriodicSite</p></li>
+<li><p><strong>nn_distance</strong> – Distance to some other Site.</p></li>
+<li><p><strong>index</strong> – Index within structure.</p></li>
+<li><p><strong>image</strong> – PeriodicImage</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.core.structure.PeriodicNeighbor.coords">
+<em class="property">property </em><code class="sig-name descname">coords</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.PeriodicNeighbor.coords" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cartesian coords.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.core.structure.SiteCollection">
+<em class="property">class </em><code class="sig-name descname">SiteCollection</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L158-L616"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.SiteCollection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.abc.Sequence</span></code></p>
+<p>Basic SiteCollection. Essentially a sequence of Sites or PeriodicSites.
+This serves as a base class for Molecule (a collection of Site, i.e., no
+periodicity) and Structure (a collection of PeriodicSites, i.e.,
+periodicity). Not meant to be instantiated directly.</p>
+<dl class="attribute">
+<dt id="pymatgen.core.structure.SiteCollection.DISTANCE_TOLERANCE">
+<code class="sig-name descname">DISTANCE_TOLERANCE</code><em class="property"> = 0.5</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.SiteCollection.DISTANCE_TOLERANCE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.SiteCollection.add_oxidation_state_by_element">
+<code class="sig-name descname">add_oxidation_state_by_element</code><span class="sig-paren">(</span><em class="sig-param">oxidation_states: Dict[str, float]</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L482-L499"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.SiteCollection.add_oxidation_state_by_element" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add oxidation states.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>oxidation_states</strong> (<em>dict</em>) – Dict of oxidation states.
+E.g., {“Li”:1, “Fe”:2, “P”:5, “O”:-2}</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.SiteCollection.add_oxidation_state_by_guess">
+<code class="sig-name descname">add_oxidation_state_by_guess</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L530-L540"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.SiteCollection.add_oxidation_state_by_guess" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decorates the structure with oxidation state, guessing
+using Composition.oxi_state_guesses()</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>**kwargs</strong> – parameters to pass into oxi_state_guesses()</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.SiteCollection.add_oxidation_state_by_site">
+<code class="sig-name descname">add_oxidation_state_by_site</code><span class="sig-paren">(</span><em class="sig-param">oxidation_states: List[float]</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L501-L517"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.SiteCollection.add_oxidation_state_by_site" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add oxidation states to a structure by site.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>oxidation_states</strong> (<em>list</em>) – List of oxidation states.
+E.g., [1, 1, 1, 1, 2, 2, 2, 2, 5, 5, 5, 5, -2, -2, -2, -2]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.SiteCollection.add_site_property">
+<code class="sig-name descname">add_site_property</code><span class="sig-paren">(</span><em class="sig-param">property_name: str</em>, <em class="sig-param">values: List</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L423-L435"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.SiteCollection.add_site_property" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a property to a site.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>property_name</strong> (<em>str</em>) – The name of the property to add.</p></li>
+<li><p><strong>values</strong> (<em>list</em>) – A sequence of values. Must be same length as
+number of sites.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.SiteCollection.add_spin_by_element">
+<code class="sig-name descname">add_spin_by_element</code><span class="sig-paren">(</span><em class="sig-param">spins: Dict[str, float]</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L542-L557"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.SiteCollection.add_spin_by_element" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add spin states to a structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>spins</strong> (<em>dict</em>) – Dict of spins associated with elements or species,
+e.g. {“Ni”:+5} or {“Ni2+”:5}</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.SiteCollection.add_spin_by_site">
+<code class="sig-name descname">add_spin_by_site</code><span class="sig-paren">(</span><em class="sig-param">spins: List[float]</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L559-L578"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.SiteCollection.add_spin_by_site" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add spin states to a structure by site.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>spins</strong> (<em>list</em>) – List of spins
+E.g., [+5, -5, 0, 0]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.SiteCollection.atomic_numbers">
+<em class="property">property </em><code class="sig-name descname">atomic_numbers</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.SiteCollection.atomic_numbers" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of atomic numbers.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.SiteCollection.cart_coords">
+<em class="property">property </em><code class="sig-name descname">cart_coords</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.SiteCollection.cart_coords" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a np.array of the cartesian coordinates of sites in the
+structure.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.SiteCollection.charge">
+<em class="property">property </em><code class="sig-name descname">charge</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.SiteCollection.charge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the net charge of the structure based on oxidation states. If
+Elements are found, a charge of 0 is assumed.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.SiteCollection.composition">
+<em class="property">property </em><code class="sig-name descname">composition</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.SiteCollection.composition" title="Permalink to this definition">¶</a></dt>
+<dd><p>(Composition) Returns the composition</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.SiteCollection.distance_matrix">
+<em class="property">property </em><code class="sig-name descname">distance_matrix</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.SiteCollection.distance_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the distance matrix between all sites in the structure. For
+periodic structures, this is overwritten to return the nearest image
+distance.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.SiteCollection.extract_cluster">
+<code class="sig-name descname">extract_cluster</code><span class="sig-paren">(</span><em class="sig-param">target_sites: List[pymatgen.core.sites.Site], **kwargs</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L591-L616"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.SiteCollection.extract_cluster" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extracts a cluster of atoms based on bond lengths</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target_sites</strong> (<em>[</em><a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.Site" title="pymatgen.core.sites.Site"><em>Site</em></a><em>]</em>) – List of initial sites to nucleate cluster.</p></li>
+<li><p><strong>**kwargs</strong> – kwargs passed through to CovalentBond.is_bonded.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>[Site/PeriodicSite] Cluster of atoms.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.SiteCollection.formula">
+<em class="property">property </em><code class="sig-name descname">formula</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.SiteCollection.formula" title="Permalink to this definition">¶</a></dt>
+<dd><p>(str) Returns the formula.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.SiteCollection.from_file">
+<em class="property">abstract classmethod </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param">filename: str</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L416-L421"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.SiteCollection.from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads in SiteCollection from a filename.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.SiteCollection.from_str">
+<em class="property">abstract classmethod </em><code class="sig-name descname">from_str</code><span class="sig-paren">(</span><em class="sig-param">input_string: str</em>, <em class="sig-param">fmt: str</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L409-L414"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.SiteCollection.from_str" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads in SiteCollection from a string.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.SiteCollection.get_angle">
+<code class="sig-name descname">get_angle</code><span class="sig-paren">(</span><em class="sig-param">i: int</em>, <em class="sig-param">j: int</em>, <em class="sig-param">k: int</em><span class="sig-paren">)</span> &#x2192; float<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L346-L360"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.SiteCollection.get_angle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns angle specified by three sites.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>i</strong> – Index of first site.</p></li>
+<li><p><strong>j</strong> – Index of second site.</p></li>
+<li><p><strong>k</strong> – Index of third site.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Angle in degrees.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.SiteCollection.get_dihedral">
+<code class="sig-name descname">get_dihedral</code><span class="sig-paren">(</span><em class="sig-param">i: int</em>, <em class="sig-param">j: int</em>, <em class="sig-param">k: int</em>, <em class="sig-param">l: int</em><span class="sig-paren">)</span> &#x2192; float<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L362-L381"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.SiteCollection.get_dihedral" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns dihedral angle specified by four sites.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>i</strong> – Index of first site</p></li>
+<li><p><strong>j</strong> – Index of second site</p></li>
+<li><p><strong>k</strong> – Index of third site</p></li>
+<li><p><strong>l</strong> – Index of fourth site</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dihedral angle in degrees.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.SiteCollection.get_distance">
+<em class="property">abstract </em><code class="sig-name descname">get_distance</code><span class="sig-paren">(</span><em class="sig-param">i: int</em>, <em class="sig-param">j: int</em><span class="sig-paren">)</span> &#x2192; float<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L176-L187"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.SiteCollection.get_distance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns distance between sites at index i and j.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>i</strong> – Index of first site</p></li>
+<li><p><strong>j</strong> – Index of second site</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Distance between sites at index i and index j.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.SiteCollection.group_by_types">
+<code class="sig-name descname">group_by_types</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Iterator[Union[pymatgen.core.sites.Site, pymatgen.core.sites.PeriodicSite]]<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L234-L239"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.SiteCollection.group_by_types" title="Permalink to this definition">¶</a></dt>
+<dd><p>Iterate over species grouped by type</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.SiteCollection.indices_from_symbol">
+<code class="sig-name descname">indices_from_symbol</code><span class="sig-paren">(</span><em class="sig-param">symbol: str</em><span class="sig-paren">)</span> &#x2192; Tuple[int, ...]<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L241-L247"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.SiteCollection.indices_from_symbol" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a tuple with the sequential indices of the sites
+that contain an element with the given chemical symbol.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.SiteCollection.is_ordered">
+<em class="property">property </em><code class="sig-name descname">is_ordered</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.SiteCollection.is_ordered" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if structure is ordered, meaning no partial occupancies in any
+of the sites.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.SiteCollection.is_valid">
+<code class="sig-name descname">is_valid</code><span class="sig-paren">(</span><em class="sig-param">tol: float = 0.5</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L383-L400"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.SiteCollection.is_valid" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if SiteCollection does not contain atoms that are too close
+together. Note that the distance definition is based on type of
+SiteCollection. Cartesian distances are used for non-periodic
+Molecules, while PBC is taken into account for periodic structures.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>tol</strong> (<em>float</em>) – Distance tolerance. Default is 0.5A.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(bool) True if SiteCollection does not contain atoms that are too
+close together.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.SiteCollection.ntypesp">
+<em class="property">property </em><code class="sig-name descname">ntypesp</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.SiteCollection.ntypesp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of types of atoms.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.SiteCollection.num_sites">
+<em class="property">property </em><code class="sig-name descname">num_sites</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.SiteCollection.num_sites" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of sites.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.SiteCollection.remove_oxidation_states">
+<code class="sig-name descname">remove_oxidation_states</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L519-L528"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.SiteCollection.remove_oxidation_states" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes oxidation states from a structure.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.SiteCollection.remove_site_property">
+<code class="sig-name descname">remove_site_property</code><span class="sig-paren">(</span><em class="sig-param">property_name</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L437-L445"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.SiteCollection.remove_site_property" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a property to a site.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>property_name</strong> (<em>str</em>) – The name of the property to add.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.SiteCollection.remove_spin">
+<code class="sig-name descname">remove_spin</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L580-L589"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.SiteCollection.remove_spin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes spin states from a structure.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.SiteCollection.replace_species">
+<code class="sig-name descname">replace_species</code><span class="sig-paren">(</span><em class="sig-param">species_mapping: Dict[str, str]</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L447-L480"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.SiteCollection.replace_species" title="Permalink to this definition">¶</a></dt>
+<dd><p>Swap species.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>species_mapping</strong> (<em>dict</em>) – dict of species to swap. Species can be
+elements too. E.g., {Element(“Li”): Element(“Na”)} performs
+a Li for Na substitution. The second species can be a
+sp_and_occu dict. For example, a site with 0.5 Si that is
+passed the mapping {Element(‘Si): {Element(‘Ge’):0.75,
+Element(‘C’):0.25} } will have .375 Ge and .125 C.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.SiteCollection.site_properties">
+<em class="property">property </em><code class="sig-name descname">site_properties</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.SiteCollection.site_properties" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the site properties as a dict of sequences. E.g.,
+{“magmom”: (5,-5), “charge”: (-4,4)}.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.SiteCollection.sites">
+<em class="property">abstract property </em><code class="sig-name descname">sites</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.SiteCollection.sites" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a tuple of sites.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.SiteCollection.species">
+<em class="property">property </em><code class="sig-name descname">species</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.SiteCollection.species" title="Permalink to this definition">¶</a></dt>
+<dd><p>Only works for ordered structures.
+Disordered structures will raise an AttributeError.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>([Specie]) List of species at each site of the structure.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.SiteCollection.species_and_occu">
+<em class="property">property </em><code class="sig-name descname">species_and_occu</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.SiteCollection.species_and_occu" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of species and occupancies at each site of the structure.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.SiteCollection.symbol_set">
+<em class="property">property </em><code class="sig-name descname">symbol_set</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.SiteCollection.symbol_set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tuple with the set of chemical symbols.
+Note that len(symbol_set) == len(types_of_specie)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.SiteCollection.to">
+<em class="property">abstract </em><code class="sig-name descname">to</code><span class="sig-paren">(</span><em class="sig-param">fmt: str = None</em>, <em class="sig-param">filename: str = None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L402-L407"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.SiteCollection.to" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates well-known string representations of SiteCollections (e.g.,
+molecules / structures). Should return a string type or write to a file.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.SiteCollection.types_of_specie">
+<em class="property">property </em><code class="sig-name descname">types_of_specie</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.SiteCollection.types_of_specie" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of types of specie.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.core.structure.Structure">
+<em class="property">class </em><code class="sig-name descname">Structure</code><span class="sig-paren">(</span><em class="sig-param">lattice: Union[List, numpy.ndarray, pymatgen.core.lattice.Lattice], species: Sequence[Union[str, pymatgen.core.periodic_table.Element, pymatgen.core.periodic_table.Specie, pymatgen.core.periodic_table.DummySpecie, pymatgen.core.composition.Composition]], coords: Sequence[Sequence[float]], charge: float = None, validate_proximity: bool = False, to_unit_cell: bool = False, coords_are_cartesian: bool = False, site_properties: dict = None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L2901-L3532"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.Structure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.core.structure.IStructure" title="pymatgen.core.structure.IStructure"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.structure.IStructure</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.abc.MutableSequence</span></code></p>
+<p>Mutable version of structure.</p>
+<p>Create a periodic structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lattice</strong> – The lattice, either as a pymatgen.core.lattice.Lattice or
+simply as any 2D array. Each row should correspond to a lattice
+vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
+lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].</p></li>
+<li><p><strong>species</strong> – <p>List of species on each site. Can take in flexible input,
+including:</p>
+<ol class="lowerroman simple">
+<li><p>A sequence of element / specie specified either as string
+symbols, e.g. [“Li”, “Fe2+”, “P”, …] or atomic numbers,
+e.g., (3, 56, …) or actual Element or Specie objects.</p></li>
+<li><p>List of dict of elements/species and occupancies, e.g.,
+[{“Fe” : 0.5, “Mn”:0.5}, …]. This allows the setup of
+disordered structures.</p></li>
+</ol>
+</p></li>
+<li><p><strong>coords</strong> (<em>Nx3 array</em>) – list of fractional/cartesian coordinates of
+each species.</p></li>
+<li><p><strong>charge</strong> (<em>int</em>) – overall charge of the structure. Defaults to behavior
+in SiteCollection where total charge is the sum of the oxidation
+states.</p></li>
+<li><p><strong>validate_proximity</strong> (<em>bool</em>) – Whether to check if there are sites
+that are less than 0.01 Ang apart. Defaults to False.</p></li>
+<li><p><strong>to_unit_cell</strong> (<em>bool</em>) – Whether to map all sites into the unit cell,
+i.e., fractional coords between 0 and 1. Defaults to False.</p></li>
+<li><p><strong>coords_are_cartesian</strong> (<em>bool</em>) – Set to True if you are providing
+coordinates in cartesian coordinates. Defaults to False.</p></li>
+<li><p><strong>site_properties</strong> (<em>dict</em>) – Properties associated with the sites as a
+dict of sequences, e.g., {“magmom”:[5,5,5,5]}. The sequences
+have to be the same length as the atomic species and
+fractional_coords. Defaults to None for no properties.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.core.structure.Structure.append">
+<code class="sig-name descname">append</code><span class="sig-paren">(</span><em class="sig-param">species</em>, <em class="sig-param">coords</em>, <em class="sig-param">coords_are_cartesian=False</em>, <em class="sig-param">validate_proximity=False</em>, <em class="sig-param">properties=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L3047-L3067"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.Structure.append" title="Permalink to this definition">¶</a></dt>
+<dd><p>Append a site to the structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>species</strong> – Species of inserted site</p></li>
+<li><p><strong>coords</strong> (<em>3x1 array</em>) – Coordinates of inserted site</p></li>
+<li><p><strong>coords_are_cartesian</strong> (<em>bool</em>) – Whether coordinates are cartesian.
+Defaults to False.</p></li>
+<li><p><strong>validate_proximity</strong> (<em>bool</em>) – Whether to check if inserted site is
+too close to an existing site. Defaults to False.</p></li>
+<li><p><strong>properties</strong> (<em>dict</em>) – Properties of the site.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>New structure with inserted site.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.Structure.apply_operation">
+<code class="sig-name descname">apply_operation</code><span class="sig-paren">(</span><em class="sig-param">symmop</em>, <em class="sig-param">fractional=False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L3259-L3294"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.Structure.apply_operation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply a symmetry operation to the structure and return the new
+structure. The lattice is operated by the rotation matrix only.
+Coords are operated in full and then transformed to the new lattice.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>symmop</strong> (<a class="reference internal" href="pymatgen.core.operations.html#pymatgen.core.operations.SymmOp" title="pymatgen.core.operations.SymmOp"><em>SymmOp</em></a>) – Symmetry operation to apply.</p></li>
+<li><p><strong>fractional</strong> (<em>bool</em>) – Whether the symmetry operation is applied in
+fractional space. Defaults to False, i.e., symmetry operation
+is applied in cartesian coordinates.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.Structure.apply_strain">
+<code class="sig-name descname">apply_strain</code><span class="sig-paren">(</span><em class="sig-param">strain</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L3309-L3321"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.Structure.apply_strain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply a strain to the lattice.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>strain</strong> (<em>float</em><em> or </em><em>list</em>) – Amount of strain to apply. Can be a float,
+or a sequence of 3 numbers. E.g., 0.01 means all lattice
+vectors are increased by 1%. This is equivalent to calling
+modify_lattice with a lattice with lattice parameters that
+are 1% larger.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.Structure.insert">
+<code class="sig-name descname">insert</code><span class="sig-paren">(</span><em class="sig-param">i</em>, <em class="sig-param">species</em>, <em class="sig-param">coords</em>, <em class="sig-param">coords_are_cartesian=False</em>, <em class="sig-param">validate_proximity=False</em>, <em class="sig-param">properties=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L3069-L3101"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.Structure.insert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Insert a site to the structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>i</strong> (<em>int</em>) – Index to insert site</p></li>
+<li><p><strong>species</strong> (<em>species-like</em>) – Species of inserted site</p></li>
+<li><p><strong>coords</strong> (<em>3x1 array</em>) – Coordinates of inserted site</p></li>
+<li><p><strong>coords_are_cartesian</strong> (<em>bool</em>) – Whether coordinates are cartesian.
+Defaults to False.</p></li>
+<li><p><strong>validate_proximity</strong> (<em>bool</em>) – Whether to check if inserted site is
+too close to an existing site. Defaults to False.</p></li>
+<li><p><strong>properties</strong> (<em>dict</em>) – Properties associated with the site.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>New structure with inserted site.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.Structure.lattice">
+<em class="property">property </em><code class="sig-name descname">lattice</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.Structure.lattice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Lattice assciated with structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.Structure.make_supercell">
+<code class="sig-name descname">make_supercell</code><span class="sig-paren">(</span><em class="sig-param">scaling_matrix</em>, <em class="sig-param">to_unit_cell=True</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L3441-L3466"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.Structure.make_supercell" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a supercell.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>scaling_matrix</strong> – <p>A scaling matrix for transforming the lattice
+vectors. Has to be all integers. Several options are possible:</p>
+<ol class="loweralpha simple">
+<li><p>A full 3x3 scaling matrix defining the linear combination
+the old lattice vectors. E.g., [[2,1,0],[0,3,0],[0,0,
+1]] generates a new structure with lattice vectors a’ =
+2a + b, b’ = 3b, c’ = c where a, b, and c are the lattice
+vectors of the original structure.</p></li>
+<li><p>An sequence of three scaling factors. E.g., [2, 1, 1]
+specifies that the supercell should have dimensions 2a x b x
+c.</p></li>
+<li><p>A number, which simply scales all lattice vectors by the
+same factor.</p></li>
+</ol>
+</p></li>
+<li><p><strong>to_unit_cell</strong> – Whether or not to fall back sites into the unit cell</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.Structure.merge_sites">
+<code class="sig-name descname">merge_sites</code><span class="sig-paren">(</span><em class="sig-param">tol=0.01</em>, <em class="sig-param">mode='sum'</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L3478-L3523"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.Structure.merge_sites" title="Permalink to this definition">¶</a></dt>
+<dd><p>Merges sites (adding occupancies) within tol of each other.
+Removes site properties.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tol</strong> (<em>float</em>) – Tolerance for distance to merge sites.</p></li>
+<li><p><strong>mode</strong> (<em>str</em>) – Three modes supported. “delete” means duplicate sites are
+deleted. “sum” means the occupancies are summed for the sites.
+“average” means that the site is deleted but the properties are averaged
+Only first letter is considered.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.Structure.modify_lattice">
+<code class="sig-name descname">modify_lattice</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/../../../miniconda3/envs/py37/lib/python3.7/site-packages/monty-3.0.2-py3.7.egg/monty/dev.py#L32-L46"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.Structure.modify_lattice" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.Structure.perturb">
+<code class="sig-name descname">perturb</code><span class="sig-paren">(</span><em class="sig-param">distance</em>, <em class="sig-param">min_distance=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L3414-L3439"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.Structure.perturb" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs a random perturbation of the sites in a structure to break
+symmetries.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>distance</strong> (<em>float</em>) – Distance in angstroms by which to perturb each
+site.</p></li>
+<li><p><strong>min_distance</strong> (<em>None</em><em>, </em><em>int</em><em>, or </em><em>float</em>) – if None, all displacements will
+be equal amplitude. If int or float, perturb each site a
+distance drawn from the uniform distribution between
+‘min_distance’ and ‘distance’.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.Structure.remove_sites">
+<code class="sig-name descname">remove_sites</code><span class="sig-paren">(</span><em class="sig-param">indices</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L3249-L3257"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.Structure.remove_sites" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete sites with at indices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>indices</strong> – Sequence of indices of sites to delete.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.Structure.remove_species">
+<code class="sig-name descname">remove_species</code><span class="sig-paren">(</span><em class="sig-param">species</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L3230-L3247"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.Structure.remove_species" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove all occurrences of several species from a structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>species</strong> – Sequence of species to remove, e.g., [“Li”, “Na”].</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.Structure.replace">
+<code class="sig-name descname">replace</code><span class="sig-paren">(</span><em class="sig-param">i</em>, <em class="sig-param">species</em>, <em class="sig-param">coords=None</em>, <em class="sig-param">coords_are_cartesian=False</em>, <em class="sig-param">properties=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L3103-L3127"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.Structure.replace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace a single site. Takes either a species or a dict of species and
+occupations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>i</strong> (<em>int</em>) – Index of the site in the _sites list.</p></li>
+<li><p><strong>species</strong> (<em>species-like</em>) – Species of replacement site</p></li>
+<li><p><strong>coords</strong> (<em>3x1 array</em>) – Coordinates of replacement site. If None,
+the current coordinates are assumed.</p></li>
+<li><p><strong>coords_are_cartesian</strong> (<em>bool</em>) – Whether coordinates are cartesian.
+Defaults to False.</p></li>
+<li><p><strong>properties</strong> (<em>dict</em>) – Properties associated with the site.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.Structure.rotate_sites">
+<code class="sig-name descname">rotate_sites</code><span class="sig-paren">(</span><em class="sig-param">indices=None</em>, <em class="sig-param">theta=0</em>, <em class="sig-param">axis=None</em>, <em class="sig-param">anchor=None</em>, <em class="sig-param">to_unit_cell=True</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L3370-L3412"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.Structure.rotate_sites" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rotate specific sites by some angle around vector at anchor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>indices</strong> (<em>list</em>) – List of site indices on which to perform the
+translation.</p></li>
+<li><p><strong>theta</strong> (<em>float</em>) – Angle in radians</p></li>
+<li><p><strong>axis</strong> (<em>3x1 array</em>) – Rotation axis vector.</p></li>
+<li><p><strong>anchor</strong> (<em>3x1 array</em>) – Point of rotation.</p></li>
+<li><p><strong>to_unit_cell</strong> (<em>bool</em>) – Whether new sites are transformed to unit
+cell</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.Structure.scale_lattice">
+<code class="sig-name descname">scale_lattice</code><span class="sig-paren">(</span><em class="sig-param">volume</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L3468-L3476"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.Structure.scale_lattice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs a scaling of the lattice vectors so that length proportions
+and angles are preserved.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>volume</strong> (<em>float</em>) – New volume of the unit cell in A^3.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.Structure.set_charge">
+<code class="sig-name descname">set_charge</code><span class="sig-paren">(</span><em class="sig-param">new_charge: float = 0.0</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L3525-L3532"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.Structure.set_charge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the overall structure charge</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>new_charge</strong> (<em>float</em>) – new charge to set</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.Structure.sort">
+<code class="sig-name descname">sort</code><span class="sig-paren">(</span><em class="sig-param">key=None</em>, <em class="sig-param">reverse=False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L3323-L3339"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.Structure.sort" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sort a structure in place. The parameters have the same meaning as in
+list.sort. By default, sites are sorted by the electronegativity of
+the species. The difference between this method and
+get_sorted_structure (which also works in IStructure) is that the
+latter returns a new Structure, while this just sorts the Structure
+in place.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>key</strong> – Specifies a function of one argument that is used to extract
+a comparison key from each list element: key=str.lower. The
+default value is None (compare the elements directly).</p></li>
+<li><p><strong>reverse</strong> (<em>bool</em>) – If set to True, then the list elements are sorted
+as if each comparison were reversed.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.Structure.substitute">
+<code class="sig-name descname">substitute</code><span class="sig-paren">(</span><em class="sig-param">index</em>, <em class="sig-param">func_grp</em>, <em class="sig-param">bond_order=1</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L3129-L3228"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.Structure.substitute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Substitute atom at index with a functional group.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>index</strong> (<em>int</em>) – Index of atom to substitute.</p></li>
+<li><p><strong>func_grp</strong> – <p>Substituent molecule. There are two options:</p>
+<ol class="arabic simple">
+<li><p>Providing an actual Molecule as the input. The first atom
+must be a DummySpecie X, indicating the position of
+nearest neighbor. The second atom must be the next
+nearest atom. For example, for a methyl group
+substitution, func_grp should be X-CH3, where X is the
+first site and C is the second site. What the code will
+do is to remove the index site, and connect the nearest
+neighbor to the C atom in CH3. The X-C bond indicates the
+directionality to connect the atoms.</p></li>
+<li><p>A string name. The molecule will be obtained from the
+relevant template in func_groups.json.</p></li>
+</ol>
+</p></li>
+<li><p><strong>bond_order</strong> (<em>int</em>) – A specified bond order to calculate the bond
+length between the attached functional group and the nearest
+neighbor site. Defaults to 1.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.Structure.translate_sites">
+<code class="sig-name descname">translate_sites</code><span class="sig-paren">(</span><em class="sig-param">indices</em>, <em class="sig-param">vector</em>, <em class="sig-param">frac_coords=True</em>, <em class="sig-param">to_unit_cell=True</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L3341-L3368"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.Structure.translate_sites" title="Permalink to this definition">¶</a></dt>
+<dd><p>Translate specific sites by some vector, keeping the sites within the
+unit cell.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>indices</strong> – Integer or List of site indices on which to perform the
+translation.</p></li>
+<li><p><strong>vector</strong> – Translation vector for sites.</p></li>
+<li><p><strong>frac_coords</strong> (<em>bool</em>) – Whether the vector corresponds to fractional or
+cartesian coordinates.</p></li>
+<li><p><strong>to_unit_cell</strong> (<em>bool</em>) – Whether new sites are transformed to unit
+cell</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="pymatgen.core.structure.StructureError">
+<em class="property">exception </em><code class="sig-name descname">StructureError</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/structure.py#L3916-L3921"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.StructureError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Exception class for Structure.
+Raised when the structure has problems, e.g., atoms that are too close.</p>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011, Pymatgen Development Team
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+  
+ 
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+
+</body>
+</html>

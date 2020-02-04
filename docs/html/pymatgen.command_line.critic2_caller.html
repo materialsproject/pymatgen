@@ -1,0 +1,529 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pymatgen.command_line.critic2_caller module &mdash; pymatgen 2020.1.28 documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pymatgen.orgpymatgen.command_line.critic2_caller.html"/>
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.command_line.enumlib_caller module" href="pymatgen.command_line.enumlib_caller.html" />
+    <link rel="prev" title="pymatgen.command_line.bader_caller module" href="pymatgen.command_line.bader_caller.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pymatgen
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2020.1.28
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="team.html">Development Team</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API Docs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pymatgen.html">pymatgen package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="pymatgen.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.alchemy.html">pymatgen.alchemy package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.html">pymatgen.analysis package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.apps.html">pymatgen.apps package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.cli.html">pymatgen.cli package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="pymatgen.command_line.html">pymatgen.command_line package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html">pymatgen.core package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.electronic_structure.html">pymatgen.electronic_structure package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.entries.html">pymatgen.entries package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html">pymatgen.ext package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html">pymatgen.io package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.plugins.html">pymatgen.plugins package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.vis.html">pymatgen.vis package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#module-pymatgen">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pymatgen</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="modules.html">pymatgen</a> &raquo;</li>
+        
+          <li><a href="pymatgen.html">pymatgen package</a> &raquo;</li>
+        
+          <li><a href="pymatgen.command_line.html">pymatgen.command_line package</a> &raquo;</li>
+        
+      <li>pymatgen.command_line.critic2_caller module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.command_line.critic2_caller.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-pymatgen.command_line.critic2_caller">
+<span id="pymatgen-command-line-critic2-caller-module"></span><h1>pymatgen.command_line.critic2_caller module<a class="headerlink" href="#module-pymatgen.command_line.critic2_caller" title="Permalink to this headline">¶</a></h1>
+<p>This module implements an interface to the critic2 Bader analysis code.</p>
+<p>For most Bader analysis purposes, users are referred to
+pymatgen.command_line.bader_caller instead, this module is for advanced
+usage requiring identification of critical points in the charge density.</p>
+<p>This module depends on a compiled critic2 executable available in the path.
+Please follow the instructions at <a class="reference external" href="https://github.com/aoterodelaroza/critic2">https://github.com/aoterodelaroza/critic2</a>
+to compile.</p>
+<p>New users are <em>strongly</em> encouraged to read the critic2 manual first.</p>
+<p>In brief,
+* critic2 searches for critical points in charge density
+* a critical point can be one of four types: nucleus, bond, ring
+or cage
+* it does this by seeding locations for likely critical points
+and then searching in these regions
+* there are two lists of critical points in the output, a list
+of non-equivalent points (with in-depth information about the
+field at those points), and a full list of points generated
+by the appropriate symmetry operations
+* connectivity between these points is also provided when
+appropriate (e.g. the two nucleus critical points linked to</p>
+<blockquote>
+<div><p>a bond critical point)</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>critic2 can do many other things besides</p></li>
+</ul>
+<p>If you use this module, please cite the following:</p>
+<p>A. Otero-de-la-Roza, E. R. Johnson and V. Luaña,
+Comput. Phys. Commun. 185, 1007-1018 (2014)
+(<a class="reference external" href="http://dx.doi.org/10.1016/j.cpc.2013.10.026">http://dx.doi.org/10.1016/j.cpc.2013.10.026</a>)</p>
+<p>A. Otero-de-la-Roza, M. A. Blanco, A. Martín Pendás and
+V. Luaña, Comput. Phys. Commun. 180, 157–166 (2009)
+(<a class="reference external" href="http://dx.doi.org/10.1016/j.cpc.2008.07.018">http://dx.doi.org/10.1016/j.cpc.2008.07.018</a>)</p>
+<dl class="class">
+<dt id="pymatgen.command_line.critic2_caller.Critic2Caller">
+<em class="property">class </em><code class="sig-name descname">Critic2Caller</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">chgcar=None</em>, <em class="sig-param">chgcar_ref=None</em>, <em class="sig-param">user_input_settings=None</em>, <em class="sig-param">write_cml=False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/command_line/critic2_caller.py#L67-L240"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.critic2_caller.Critic2Caller" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class to call critic2 and store standard output for further processing.</p>
+<p>Run Critic2 in automatic mode on a supplied structure, charge
+density (chgcar) and reference charge density (chgcar_ref).</p>
+<p>The reason for a separate reference field is that in
+VASP, the CHGCAR charge density only contains valence
+electrons and may be missing substantial charge at
+nuclei leading to misleading results. Thus, a reference
+field is commonly constructed from the sum of AECCAR0
+and AECCAR2 which is the total charge density, but then
+the valence charge density is used for the final analysis.</p>
+<p>If chgcar_ref is not supplied, chgcar will be used as the
+reference field. If chgcar is not supplied, the promolecular
+charge density will be used as the reference field – this can
+often still give useful results if only topological information
+is wanted.</p>
+<p>User settings is a dictionary that can contain:
+* GRADEPS, float (field units), gradient norm threshold
+* CPEPS, float (Bohr units in crystals), minimum distance between</p>
+<blockquote>
+<div><p>critical points for them to be equivalent</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>NUCEPS, same as CPEPS but specifically for nucleus critical
+points (critic2 default is depedent on grid dimensions)</p></li>
+<li><p>NUCEPSH, same as NUCEPS but specifically for hydrogen nuclei
+since associated charge density can be significantly displaced
+from hydrogen nucleus</p></li>
+<li><p>EPSDEGEN, float (field units), discard critical point if any
+element of the diagonal of the Hessian is below this value,
+useful for discarding points in vacuum regions</p></li>
+<li><p>DISCARD, float (field units), discard critical points with field
+value below this value, useful for discarding points in vacuum
+regions</p></li>
+<li><p>SEED, list of strings, strategies for seeding points, default
+is [‘WS 1’, ‘PAIR 10’] which seeds critical points by
+sub-dividing the Wigner-Seitz cell and between every atom pair
+closer than 10 Bohr, see critic2 manual for more options</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – Structure to analyze</p></li>
+<li><p><strong>chgcar</strong> – Charge density to use for analysis. If None, will
+use promolecular density.</p></li>
+<li><p><strong>chgcar_ref</strong> – Reference charge density. If None, will use
+chgcar as reference.</p></li>
+<li><p><strong>(</strong><strong>dict</strong><strong>)</strong> (<em>user_input_settings</em>) – </p></li>
+<li><p><strong>(</strong><strong>bool</strong><strong>)</strong> (<em>write_cml</em>) – Useful for debug, if True will write all
+critical points to a file ‘table.cml’ in the working directory
+useful for visualization</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.command_line.critic2_caller.Critic2Caller.from_path">
+<em class="property">classmethod </em><code class="sig-name descname">from_path</code><span class="sig-paren">(</span><em class="sig-param">path</em>, <em class="sig-param">suffix=''</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/command_line/critic2_caller.py#L192-L240"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.critic2_caller.Critic2Caller.from_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenience method to run critic2 analysis on a folder containing
+typical VASP output files.
+This method will:</p>
+<p>1. Look for files CHGCAR, AECAR0, AECAR2, POTCAR or their gzipped
+counterparts.</p>
+<p>2. If AECCAR* files are present, constructs a temporary reference
+file as AECCAR0 + AECCAR2.</p>
+<p>3. Runs critic2 analysis twice: once for charge, and a second time
+for the charge difference (magnetization density).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> – path to folder to search in</p></li>
+<li><p><strong>suffix</strong> – specific suffix to look for (e.g. ‘.relax1’ for
+‘CHGCAR.relax1.gz’)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.command_line.critic2_caller.Critic2Output">
+<em class="property">class </em><code class="sig-name descname">Critic2Output</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">critic2_stdout</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/command_line/critic2_caller.py#L320-L613"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.critic2_caller.Critic2Output" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
+<p>Class to process the standard output from critic2.</p>
+<p>This class is used to store results from the Critic2Caller.</p>
+<p>To explore the bond graph, use the “structure_graph”
+method, which returns a user-friendly StructureGraph
+class with bonding information. By default, this returns
+a StructureGraph with edge weights as bond lengths, but
+can optionally return a graph with edge weights as any
+property supported by the <cite>CriticalPoint</cite> class, such as
+bond ellipticity.</p>
+<p>This class also provides an interface to explore just the
+non-symmetrically-equivalent critical points via the
+<cite>critical_points</cite> attribute, and also all critical
+points (via nodes dict) and connections between them
+(via edges dict). The user should be familiar with critic2
+before trying to understand these.</p>
+<p>Indexes of nucleus critical points in the nodes dict are the
+same as the corresponding sites in structure, with indices of
+other critical points arbitrarily assigned.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – associated Structure</p></li>
+<li><p><strong>critic2_stdout</strong> – stdout from running critic2 in automatic
+mode</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.command_line.critic2_caller.Critic2Output.get_critical_point_for_site">
+<code class="sig-name descname">get_critical_point_for_site</code><span class="sig-paren">(</span><em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/command_line/critic2_caller.py#L450-L457"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.critic2_caller.Critic2Output.get_critical_point_for_site" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>n</strong> – Site index n</p>
+</dd>
+</dl>
+<p>Returns: A CriticalPoint instance</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.command_line.critic2_caller.Critic2Output.structure_graph">
+<code class="sig-name descname">structure_graph</code><span class="sig-paren">(</span><em class="sig-param">edge_weight=None</em>, <em class="sig-param">edge_weight_units=None</em>, <em class="sig-param">include_critical_points=('bond'</em>, <em class="sig-param">'ring'</em>, <em class="sig-param">'cage')</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/command_line/critic2_caller.py#L362-L448"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.critic2_caller.Critic2Output.structure_graph" title="Permalink to this definition">¶</a></dt>
+<dd><p>A StructureGraph object describing bonding information
+in the crystal. Lazily constructed.
+:param edge_weight: a value to store on the Graph edges,
+:param by default this is “bond_length” but other supported:
+:param values are any of the attributes of CriticalPoint:
+:param edge_weight_units: optional metadata for
+:param book-keeping:
+:type book-keeping: e.g. Å for “bond_length” edge weight
+:param include_critical_points: add DummySpecie for
+:param the critical points themselves, a list of:
+:param “nucleus”, “bond”, “ring”, “cage”, set to None:
+:param to disable:</p>
+<p>Returns: a StructureGraph</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.command_line.critic2_caller.CriticalPoint">
+<em class="property">class </em><code class="sig-name descname">CriticalPoint</code><span class="sig-paren">(</span><em class="sig-param">index</em>, <em class="sig-param">type</em>, <em class="sig-param">frac_coords</em>, <em class="sig-param">point_group</em>, <em class="sig-param">multiplicity</em>, <em class="sig-param">field</em>, <em class="sig-param">field_gradient</em>, <em class="sig-param">coords=None</em>, <em class="sig-param">field_hessian=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/command_line/critic2_caller.py#L254-L317"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.critic2_caller.CriticalPoint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
+<p>Access information about a critical point and the field values at that point.</p>
+<p>Class to characterise a critical point from a topological
+analysis of electron charge density.</p>
+<p>Note this class is usually associated with a Structure, so
+has information on multiplicity/point group symmetry.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>index</strong> – index of point</p></li>
+<li><p><strong>type</strong> – type of point, given as a string</p></li>
+<li><p><strong>coords</strong> – Cartesian co-ordinates in Angstroms</p></li>
+<li><p><strong>frac_coords</strong> – fractional co-ordinates</p></li>
+<li><p><strong>point_group</strong> – point group associated with critical point</p></li>
+<li><p><strong>multiplicity</strong> – number of equivalent critical points</p></li>
+<li><p><strong>field</strong> – value of field at point (f)</p></li>
+<li><p><strong>field_gradient</strong> – gradient of field at point (grad f)</p></li>
+<li><p><strong>field_hessian</strong> – hessian of field at point (del^2 f)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.command_line.critic2_caller.CriticalPoint.ellipticity">
+<em class="property">property </em><code class="sig-name descname">ellipticity</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/command_line/critic2_caller.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.critic2_caller.CriticalPoint.ellipticity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Most meaningful for bond critical points,
+can be physically interpreted as e.g. degree
+of pi-bonding in organic molecules. Consult
+literature for more information.
+Returns: The ellpiticity of the field at the critical point</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.command_line.critic2_caller.CriticalPoint.laplacian">
+<em class="property">property </em><code class="sig-name descname">laplacian</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/command_line/critic2_caller.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.critic2_caller.CriticalPoint.laplacian" title="Permalink to this definition">¶</a></dt>
+<dd><p>The Laplacian of the field at the critical point</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.command_line.critic2_caller.CriticalPoint.type">
+<em class="property">property </em><code class="sig-name descname">type</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/command_line/critic2_caller.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.critic2_caller.CriticalPoint.type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Instance of CriticalPointType</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.command_line.critic2_caller.CriticalPointType">
+<em class="property">class </em><code class="sig-name descname">CriticalPointType</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/command_line/critic2_caller.py#L243-L251"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.critic2_caller.CriticalPointType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
+<p>Enum type for the different varieties of critical point.</p>
+<dl class="attribute">
+<dt id="pymatgen.command_line.critic2_caller.CriticalPointType.bond">
+<code class="sig-name descname">bond</code><em class="property"> = 'bond'</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/command_line/critic2_caller.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.critic2_caller.CriticalPointType.bond" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.command_line.critic2_caller.CriticalPointType.cage">
+<code class="sig-name descname">cage</code><em class="property"> = 'cage'</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/command_line/critic2_caller.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.critic2_caller.CriticalPointType.cage" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.command_line.critic2_caller.CriticalPointType.nucleus">
+<code class="sig-name descname">nucleus</code><em class="property"> = 'nucleus'</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/command_line/critic2_caller.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.critic2_caller.CriticalPointType.nucleus" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.command_line.critic2_caller.CriticalPointType.ring">
+<code class="sig-name descname">ring</code><em class="property"> = 'ring'</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/command_line/critic2_caller.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.critic2_caller.CriticalPointType.ring" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011, Pymatgen Development Team
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+  
+ 
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+
+</body>
+</html>

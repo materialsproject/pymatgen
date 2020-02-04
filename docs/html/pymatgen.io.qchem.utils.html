@@ -1,0 +1,377 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pymatgen.io.qchem.utils module &mdash; pymatgen 2020.1.28 documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pymatgen.orgpymatgen.io.qchem.utils.html"/>
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.io.vasp package" href="pymatgen.io.vasp.html" />
+    <link rel="prev" title="pymatgen.io.qchem.sets module" href="pymatgen.io.qchem.sets.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pymatgen
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2020.1.28
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="team.html">Development Team</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API Docs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pymatgen.html">pymatgen package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="pymatgen.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.alchemy.html">pymatgen.alchemy package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.html">pymatgen.analysis package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.apps.html">pymatgen.apps package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.cli.html">pymatgen.cli package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.command_line.html">pymatgen.command_line package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html">pymatgen.core package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.electronic_structure.html">pymatgen.electronic_structure package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.entries.html">pymatgen.entries package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html">pymatgen.ext package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="pymatgen.io.html">pymatgen.io package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.plugins.html">pymatgen.plugins package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.vis.html">pymatgen.vis package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#module-pymatgen">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pymatgen</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="modules.html">pymatgen</a> &raquo;</li>
+        
+          <li><a href="pymatgen.html">pymatgen package</a> &raquo;</li>
+        
+          <li><a href="pymatgen.io.html">pymatgen.io package</a> &raquo;</li>
+        
+          <li><a href="pymatgen.io.qchem.html">pymatgen.io.qchem package</a> &raquo;</li>
+        
+      <li>pymatgen.io.qchem.utils module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.io.qchem.utils.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-pymatgen.io.qchem.utils">
+<span id="pymatgen-io-qchem-utils-module"></span><h1>pymatgen.io.qchem.utils module<a class="headerlink" href="#module-pymatgen.io.qchem.utils" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="pymatgen.io.qchem.utils.lower_and_check_unique">
+<code class="sig-name descname">lower_and_check_unique</code><span class="sig-paren">(</span><em class="sig-param">dict_to_check</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/qchem/utils.py#L110-L142"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.utils.lower_and_check_unique" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes a dictionary and makes all the keys lower case. Also replaces
+“jobtype” with “job_type” just so that key specifically can be called
+elsewhere without ambiguity. Finally, ensures that multiple identical
+keys, that differed only due to different capitalizations, are not
+present. If there are multiple equivalent keys, an Exception is raised.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dict_to_check</strong> (<em>dict</em>) – The dictionary to check and standardize</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>An identical dictionary but with all keys made</dt><dd><p>lower case and no identical keys present.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>to_return (dict)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.io.qchem.utils.process_parsed_coords">
+<code class="sig-name descname">process_parsed_coords</code><span class="sig-paren">(</span><em class="sig-param">coords</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/qchem/utils.py#L145-L154"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.utils.process_parsed_coords" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes a set of parsed coordinates, which come as an array of strings,
+and returns a numpy array of floats.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.io.qchem.utils.read_pattern">
+<code class="sig-name descname">read_pattern</code><span class="sig-paren">(</span><em class="sig-param">text_str</em>, <em class="sig-param">patterns</em>, <em class="sig-param">terminate_on_match=False</em>, <em class="sig-param">postprocess=&lt;class 'str'&gt;</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/qchem/utils.py#L6-L38"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.utils.read_pattern" title="Permalink to this definition">¶</a></dt>
+<dd><p>General pattern reading on an input string</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>text_str</strong> (<em>str</em>) – the input string to search for patterns</p></li>
+<li><p><strong>patterns</strong> (<em>dict</em>) – A dict of patterns, e.g.,
+{“energy”: r”energy(sigma-&gt;0)s+=s+([d-.]+)”}.</p></li>
+<li><p><strong>terminate_on_match</strong> (<em>bool</em>) – Whether to terminate when there is at
+least one match in each key in pattern.</p></li>
+<li><p><strong>postprocess</strong> (<em>callable</em>) – A post processing function to convert all
+matches. Defaults to str, i.e., no change.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Renders accessible:</dt><dd><p>Any attribute in patterns. For example,
+{“energy”: r”energy(sigma-&gt;0)s+=s+([d-.]+)”} will set the
+value of matches[“energy”] = [[-1234], [-3453], …], to the
+results from regex and postprocess. Note that the returned values
+are lists of lists, because you can grep multiple items on one line.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.io.qchem.utils.read_table_pattern">
+<code class="sig-name descname">read_table_pattern</code><span class="sig-paren">(</span><em class="sig-param">text_str</em>, <em class="sig-param">header_pattern</em>, <em class="sig-param">row_pattern</em>, <em class="sig-param">footer_pattern</em>, <em class="sig-param">postprocess=&lt;class 'str'&gt;</em>, <em class="sig-param">attribute_name=None</em>, <em class="sig-param">last_one_only=False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/qchem/utils.py#L41-L107"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.utils.read_table_pattern" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>Parse table-like data. A table composes of three parts: header,
+main body, footer. All the data matches “row pattern” in the main body
+will be returned.</p>
+<dl>
+<dt>Args:</dt><dd><p>text_str (str): the input string to search for patterns
+header_pattern (str): The regular expression pattern matches the</p>
+<blockquote>
+<div><p>table header. This pattern should match all the text
+immediately before the main body of the table. For multiple
+sections table match the text until the section of
+interest. MULTILINE and DOTALL options are enforced, as a
+result, the “.” meta-character will also match “</p>
+</div></blockquote>
+</dd>
+</dl>
+</div></blockquote>
+<dl>
+<dt>” in this</dt><dd><blockquote>
+<div><blockquote>
+<div><p>section.</p>
+</div></blockquote>
+<dl class="simple">
+<dt>row_pattern (str): The regular expression matches a single line in</dt><dd><p>the table. Capture interested field using regular expression
+groups.</p>
+</dd>
+<dt>footer_pattern (str): The regular expression matches the end of the</dt><dd><p>table. E.g. a long dash line.</p>
+</dd>
+<dt>postprocess (callable): A post processing function to convert all</dt><dd><p>matches. Defaults to str, i.e., no change.</p>
+</dd>
+<dt>attribute_name (str): Name of this table. If present the parsed data</dt><dd><p>will be attached to “data. e.g. self.data[“efg”] = […]</p>
+</dd>
+<dt>last_one_only (bool): All the tables will be parsed, if this option</dt><dd><p>is set to True, only the last table will be returned. The
+enclosing list will be removed. i.e. Only a single table will
+be returned. Default to be True.</p>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>List of tables. 1) A table is a list of rows. 2) A row if either a list of
+attribute values in case the the capturing group is defined without name in
+row_pattern, or a dict in case that named capturing groups are defined by
+row_pattern.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011, Pymatgen Development Team
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+  
+ 
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+
+</body>
+</html>

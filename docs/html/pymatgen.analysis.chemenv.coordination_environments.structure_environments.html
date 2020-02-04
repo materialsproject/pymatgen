@@ -1,0 +1,1183 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pymatgen.analysis.chemenv.coordination_environments.structure_environments module &mdash; pymatgen 2020.1.28 documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pymatgen.orgpymatgen.analysis.chemenv.coordination_environments.structure_environments.html"/>
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.analysis.chemenv.coordination_environments.voronoi module" href="pymatgen.analysis.chemenv.coordination_environments.voronoi.html" />
+    <link rel="prev" title="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder module" href="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pymatgen
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2020.1.28
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="team.html">Development Team</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API Docs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pymatgen.html">pymatgen package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="pymatgen.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.alchemy.html">pymatgen.alchemy package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="pymatgen.analysis.html">pymatgen.analysis package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.apps.html">pymatgen.apps package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.cli.html">pymatgen.cli package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.command_line.html">pymatgen.command_line package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html">pymatgen.core package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.electronic_structure.html">pymatgen.electronic_structure package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.entries.html">pymatgen.entries package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html">pymatgen.ext package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html">pymatgen.io package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.plugins.html">pymatgen.plugins package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.vis.html">pymatgen.vis package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#module-pymatgen">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pymatgen</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="modules.html">pymatgen</a> &raquo;</li>
+        
+          <li><a href="pymatgen.html">pymatgen package</a> &raquo;</li>
+        
+          <li><a href="pymatgen.analysis.html">pymatgen.analysis package</a> &raquo;</li>
+        
+          <li><a href="pymatgen.analysis.chemenv.html">pymatgen.analysis.chemenv package</a> &raquo;</li>
+        
+          <li><a href="pymatgen.analysis.chemenv.coordination_environments.html">pymatgen.analysis.chemenv.coordination_environments package</a> &raquo;</li>
+        
+      <li>pymatgen.analysis.chemenv.coordination_environments.structure_environments module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.analysis.chemenv.coordination_environments.structure_environments.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-pymatgen.analysis.chemenv.coordination_environments.structure_environments">
+<span id="pymatgen-analysis-chemenv-coordination-environments-structure-environments-module"></span><h1>pymatgen.analysis.chemenv.coordination_environments.structure_environments module<a class="headerlink" href="#module-pymatgen.analysis.chemenv.coordination_environments.structure_environments" title="Permalink to this headline">¶</a></h1>
+<p>This module contains objects that are used to describe the environments in a structure. The most detailed object
+(StructureEnvironments) contains a very thorough analysis of the environments of a given atom but is difficult to
+used as such. The LightStructureEnvironments object is a lighter version that is obtained by applying a “strategy”
+on the StructureEnvironments object. Basically, the LightStructureEnvironments provides the coordination environment(s)
+and possibly some fraction corresponding to these.</p>
+<dl class="class">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.ChemicalEnvironments">
+<em class="property">class </em><code class="sig-name descname">ChemicalEnvironments</code><span class="sig-paren">(</span><em class="sig-param">coord_geoms=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py#L1875-L2147"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.ChemicalEnvironments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
+<p>Class used to store all the information about the chemical environment of a given site for a given list of
+coordinated neighbours (internally called “cn_map”).</p>
+<p>Initializes the ChemicalEnvironments object containing all the information about the chemical
+environment of a given site.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>coord_geoms</strong> – coordination geometries to be added to the chemical environment.</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.ChemicalEnvironments.add_coord_geom">
+<code class="sig-name descname">add_coord_geom</code><span class="sig-paren">(</span><em class="sig-param">mp_symbol</em>, <em class="sig-param">symmetry_measure</em>, <em class="sig-param">algo='UNKNOWN'</em>, <em class="sig-param">permutation=None</em>, <em class="sig-param">override=False</em>, <em class="sig-param">local2perfect_map=None</em>, <em class="sig-param">perfect2local_map=None</em>, <em class="sig-param">detailed_voronoi_index=None</em>, <em class="sig-param">other_symmetry_measures=None</em>, <em class="sig-param">rotation_matrix=None</em>, <em class="sig-param">scaling_factor=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py#L1967-L2007"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.ChemicalEnvironments.add_coord_geom" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a coordination geometry to the ChemicalEnvironments object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mp_symbol</strong> – Symbol of the coordination geometry added.</p></li>
+<li><p><strong>symmetry_measure</strong> – Symmetry measure of the coordination geometry added.</p></li>
+<li><p><strong>algo</strong> – Algorithm used for the search of the coordination geometry added.</p></li>
+<li><p><strong>permutation</strong> – Permutation of the neighbors that leads to the csm stored.</p></li>
+<li><p><strong>override</strong> – If set to True, the coordination geometry will override the existent one if present.</p></li>
+<li><p><strong>local2perfect_map</strong> – Mapping of the local indices to the perfect indices.</p></li>
+<li><p><strong>perfect2local_map</strong> – Mapping of the perfect indices to the local indices.</p></li>
+<li><p><strong>detailed_voronoi_index</strong> – Index in the voronoi containing the neighbors set.</p></li>
+<li><p><strong>other_symmetry_measures</strong> – Other symmetry measure of the coordination geometry added (with/without the
+central atom, centered on the central atom or on the centroid with/without the central atom).</p></li>
+<li><p><strong>rotation_matrix</strong> – Rotation matrix mapping the local geometry to the perfect geometry.</p></li>
+<li><p><strong>scaling_factor</strong> – Scaling factor mapping the local geometry to the perfect geometry.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ChemenvError if the coordination geometry is already added and override is set to False</strong> – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.ChemicalEnvironments.as_dict">
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py#L2099-L2108"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.ChemicalEnvironments.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a dictionary representation of the ChemicalEnvironments object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A dictionary representation of the ChemicalEnvironments object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.ChemicalEnvironments.from_dict">
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py#L2110-L2147"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.ChemicalEnvironments.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reconstructs the ChemicalEnvironments object from a dict representation of the ChemicalEnvironments created
+using the as_dict method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>d</strong> – dict representation of the ChemicalEnvironments object.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>ChemicalEnvironments object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.ChemicalEnvironments.is_close_to">
+<code class="sig-name descname">is_close_to</code><span class="sig-paren">(</span><em class="sig-param">other</em>, <em class="sig-param">rtol=0.0</em>, <em class="sig-param">atol=1e-08</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py#L2041-L2063"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.ChemicalEnvironments.is_close_to" title="Permalink to this definition">¶</a></dt>
+<dd><p>Whether this ChemicalEnvironments object is close to another one.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>other</strong> – Another ChemicalEnvironments object.</p></li>
+<li><p><strong>rtol</strong> – Relative tolerance for the comparison of Continuous Symmetry Measures.</p></li>
+<li><p><strong>atol</strong> – Absolute tolerance for the comparison of Continuous Symmetry Measures.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if the two ChemicalEnvironments objects are close to each other.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.ChemicalEnvironments.minimum_geometries">
+<code class="sig-name descname">minimum_geometries</code><span class="sig-paren">(</span><em class="sig-param">n=None</em>, <em class="sig-param">symmetry_measure_type=None</em>, <em class="sig-param">max_csm=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py#L1936-L1965"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.ChemicalEnvironments.minimum_geometries" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of geometries with increasing continuous symmetry measure in this ChemicalEnvironments object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>n</strong> – Number of geometries to be included in the list.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of geometries with increasing continuous symmetry measure in this ChemicalEnvironments object.</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>ValueError if no coordination geometry is found in this ChemicalEnvironments object.</strong> – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.ChemicalEnvironments.minimum_geometry">
+<code class="sig-name descname">minimum_geometry</code><span class="sig-paren">(</span><em class="sig-param">symmetry_measure_type=None</em>, <em class="sig-param">max_csm=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py#L1911-L1934"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.ChemicalEnvironments.minimum_geometry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the geometry with the minimum continuous symmetry measure of this ChemicalEnvironments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>tuple (symbol, csm) with symbol being the geometry with the minimum continuous symmetry measure and
+csm being the continuous symmetry measure associated to it.</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError if no coordination geometry is found in this ChemicalEnvironments object.</strong> – </p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments">
+<em class="property">class </em><code class="sig-name descname">LightStructureEnvironments</code><span class="sig-paren">(</span><em class="sig-param">strategy</em>, <em class="sig-param">coordination_environments=None</em>, <em class="sig-param">all_nbs_sites=None</em>, <em class="sig-param">neighbors_sets=None</em>, <em class="sig-param">structure=None</em>, <em class="sig-param">valences=None</em>, <em class="sig-param">valences_origin=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py#L1190-L1872"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
+<p>Class used to store the chemical environments of a given structure obtained from a given ChemenvStrategy. Currently,
+only strategies leading to the determination of a unique environment for each site is allowed
+This class does not store all the information contained in the StructureEnvironments object, only the coordination
+environment found.</p>
+<p>Constructor for the LightStructureEnvironments object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>strategy</strong> – ChemEnv strategy used to get the environments.</p></li>
+<li><p><strong>coordination_environments</strong> – The coordination environments identified.</p></li>
+<li><p><strong>all_nbs_sites</strong> – All the possible neighbors for each site in the structure.</p></li>
+<li><p><strong>neighbors_sets</strong> – The neighbors sets of each site in the structure.</p></li>
+<li><p><strong>structure</strong> – The structure.</p></li>
+<li><p><strong>valences</strong> – The valences used to get the environments (if needed).</p></li>
+<li><p><strong>valences_origin</strong> – How the valences were obtained (e.g. from the Bond-valence analysis or from the original
+structure).</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.DEFAULT_STATISTICS_FIELDS">
+<code class="sig-name descname">DEFAULT_STATISTICS_FIELDS</code><em class="property"> = ['anion_list', 'anion_atom_list', 'cation_list', 'cation_atom_list', 'neutral_list', 'neutral_atom_list', 'atom_coordination_environments_present', 'ion_coordination_environments_present', 'fraction_atom_coordination_environments_present', 'fraction_ion_coordination_environments_present', 'coordination_environments_atom_present', 'coordination_environments_ion_present']</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.DEFAULT_STATISTICS_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.DELTA_MAX_OXIDATION_STATE">
+<code class="sig-name descname">DELTA_MAX_OXIDATION_STATE</code><em class="property"> = 0.1</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.DELTA_MAX_OXIDATION_STATE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.NeighborsSet">
+<em class="property">class </em><code class="sig-name descname">NeighborsSet</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">isite</em>, <em class="sig-param">all_nbs_sites</em>, <em class="sig-param">all_nbs_sites_indices</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py#L44-L418"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.NeighborsSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class used to store a given set of neighbors of a given site (based on a list of sites, the voronoi
+container is not part of the LightStructureEnvironments object).</p>
+<p>Constructor for NeighborsSet.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – Structure object.</p></li>
+<li><p><strong>isite</strong> – Index of the site for which neighbors are stored in this NeighborsSet.</p></li>
+<li><p><strong>all_nbs_sites</strong> – All the possible neighbors for this site.</p></li>
+<li><p><strong>all_nbs_sites_indices</strong> – Indices of the sites in all_nbs_sites that make up this NeighborsSet.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.NeighborsSet.as_dict">
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py#L1284-L1289"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.NeighborsSet.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>A JSON serializable dict representation of the NeighborsSet.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.NeighborsSet.from_dict">
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">dd</em>, <em class="sig-param">structure</em>, <em class="sig-param">all_nbs_sites</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py#L1292-L1312"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.NeighborsSet.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reconstructs the NeighborsSet algorithm from its JSON serializable dict representation, together with
+the structure and all the possible neighbors sites.</p>
+<p>As an inner (nested) class, the NeighborsSet is not supposed to be used anywhere else that inside the
+LightStructureEnvironments. The from_dict method is thus using the structure and all_nbs_sites when
+reconstructing itself. These two are both in the LightStructureEnvironments object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dd</strong> – a JSON serializable dict representation of a NeighborsSet.</p></li>
+<li><p><strong>structure</strong> – The structure.</p></li>
+<li><p><strong>all_nbs_sites</strong> – The list of all the possible neighbors for a given site.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns: a NeighborsSet.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.NeighborsSet.neighb_coords">
+<em class="property">property </em><code class="sig-name descname">neighb_coords</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.NeighborsSet.neighb_coords" title="Permalink to this definition">¶</a></dt>
+<dd><p>Coordinates of neighbors for this NeighborsSet.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.NeighborsSet.neighb_indices_and_images">
+<em class="property">property </em><code class="sig-name descname">neighb_indices_and_images</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.NeighborsSet.neighb_indices_and_images" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of indices and images with respect to the original unit cell sites for this NeighborsSet.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.NeighborsSet.neighb_sites">
+<em class="property">property </em><code class="sig-name descname">neighb_sites</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.NeighborsSet.neighb_sites" title="Permalink to this definition">¶</a></dt>
+<dd><p>Neighbors for this NeighborsSet as pymatgen Sites.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.NeighborsSet.neighb_sites_and_indices">
+<em class="property">property </em><code class="sig-name descname">neighb_sites_and_indices</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.NeighborsSet.neighb_sites_and_indices" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of neighbors for this NeighborsSet as pymatgen Sites and their index in the original structure.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.as_dict">
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py#L1815-L1832"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bson-serializable dict representation of the LightStructureEnvironments object.
+:returns: Bson-serializable dict representation of the LightStructureEnvironments object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.clear_environments">
+<code class="sig-name descname">clear_environments</code><span class="sig-paren">(</span><em class="sig-param">conditions=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py#L1734-L1752"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.clear_environments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the clear environments in the structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>conditions</strong> – Conditions to be checked for an environment to be “clear”.</p>
+</dd>
+</dl>
+<p>Returns: Set of clear environments in this structure.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.contains_only_one_anion">
+<code class="sig-name descname">contains_only_one_anion</code><span class="sig-paren">(</span><em class="sig-param">anion</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py#L1651-L1660"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.contains_only_one_anion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Whether this LightStructureEnvironments concerns a structure with only one given anion type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>anion</strong> – Anion (e.g. O2-, …).</p>
+</dd>
+</dl>
+<p>Returns: True if this LightStructureEnvironments concerns a structure with only one given anion.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.contains_only_one_anion_atom">
+<code class="sig-name descname">contains_only_one_anion_atom</code><span class="sig-paren">(</span><em class="sig-param">anion_atom</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py#L1639-L1649"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.contains_only_one_anion_atom" title="Permalink to this definition">¶</a></dt>
+<dd><p>Whether this LightStructureEnvironments concerns a structure with only one given anion atom type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>anion_atom</strong> – Anion (e.g. O, …). The structure could contain O2- and O- though.</p>
+</dd>
+</dl>
+<p>Returns: True if this LightStructureEnvironments concerns a structure with only one given anion_atom.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.environments_identified">
+<code class="sig-name descname">environments_identified</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py#L1771-L1779"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.environments_identified" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the set of environments identified in this structure.</p>
+<p>Returns: Set of environments identified in this structure.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.from_dict">
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py#L1834-L1872"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reconstructs the LightStructureEnvironments object from a dict representation of the
+LightStructureEnvironments created using the as_dict method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>d</strong> – dict representation of the LightStructureEnvironments object.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>LightStructureEnvironments object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.from_structure_environments">
+<em class="property">classmethod </em><code class="sig-name descname">from_structure_environments</code><span class="sig-paren">(</span><em class="sig-param">strategy</em>, <em class="sig-param">structure_environments</em>, <em class="sig-param">valences=None</em>, <em class="sig-param">valences_origin=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py#L1339-L1419"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.from_structure_environments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct a LightStructureEnvironments object from a strategy and a StructureEnvironments object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>strategy</strong> – ChemEnv strategy used.</p></li>
+<li><p><strong>structure_environments</strong> – StructureEnvironments object from which to construct the LightStructureEnvironments.</p></li>
+<li><p><strong>valences</strong> – The valences of each site in the structure.</p></li>
+<li><p><strong>valences_origin</strong> – How the valences were obtained (e.g. from the Bond-valence analysis or from the original
+structure).</p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns: a LightStructureEnvironments object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.get_site_info_for_specie_allces">
+<code class="sig-name descname">get_site_info_for_specie_allces</code><span class="sig-paren">(</span><em class="sig-param">specie</em>, <em class="sig-param">min_fraction=0.0</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py#L1591-L1617"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.get_site_info_for_specie_allces" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get list of indices that have the given specie.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>specie</strong> – Specie to get.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Returns: Dictionary with the list of coordination environments for the given species, the indices of the sites</dt><dd><p>in which they appear, their fractions and continuous symmetry measures.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.get_site_info_for_specie_ce">
+<code class="sig-name descname">get_site_info_for_specie_ce</code><span class="sig-paren">(</span><em class="sig-param">specie</em>, <em class="sig-param">ce_symbol</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py#L1565-L1589"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.get_site_info_for_specie_ce" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get list of indices that have the given specie with a given Coordination environment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>specie</strong> – Specie to get.</p></li>
+<li><p><strong>ce_symbol</strong> – Symbol of the coordination environment to get.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Returns: Dictionary with the list of indices in the structure that have the given specie in the given</dt><dd><p>environment, their fraction and continuous symmetry measures.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.get_statistics">
+<code class="sig-name descname">get_statistics</code><span class="sig-paren">(</span><em class="sig-param">statistics_fields=['anion_list', 'anion_atom_list', 'cation_list', 'cation_atom_list', 'neutral_list', 'neutral_atom_list', 'atom_coordination_environments_present', 'ion_coordination_environments_present', 'fraction_atom_coordination_environments_present', 'fraction_ion_coordination_environments_present', 'coordination_environments_atom_present', 'coordination_environments_ion_present'], bson_compatible=False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py#L1619-L1637"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.get_statistics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the statistics of environments for this structure.
+:param statistics_fields: Which statistics to get.
+:param bson_compatible: Whether to make the dictionary BSON-compatible.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A dictionary with the requested statistics.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.setup_statistic_lists">
+<code class="sig-name descname">setup_statistic_lists</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py#L1421-L1563"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.setup_statistic_lists" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set up the statistics of environments for this LightStructureEnvironments.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.site_contains_environment">
+<code class="sig-name descname">site_contains_environment</code><span class="sig-paren">(</span><em class="sig-param">isite</em>, <em class="sig-param">ce_symbol</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py#L1662-L1674"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.site_contains_environment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Whether a given site contains a given coordination environment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>isite</strong> – Index of the site.</p></li>
+<li><p><strong>ce_symbol</strong> – Symbol of the coordination environment.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns: True if the site contains the given coordination environment.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.site_has_clear_environment">
+<code class="sig-name descname">site_has_clear_environment</code><span class="sig-paren">(</span><em class="sig-param">isite</em>, <em class="sig-param">conditions=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py#L1676-L1707"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.site_has_clear_environment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Whether a given site has a “clear” environments.</p>
+<p>A “clear” environment is somewhat arbitrary. You can pass (multiple) conditions, e.g. the environment should
+have a continuous symmetry measure lower than this, a fraction higher than that, …</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>isite</strong> – Index of the site.</p></li>
+<li><p><strong>conditions</strong> – Conditions to be checked for an environment to be “clear”.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns: True if the site has a clear environment.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.structure_contains_atom_environment">
+<code class="sig-name descname">structure_contains_atom_environment</code><span class="sig-paren">(</span><em class="sig-param">atom_symbol</em>, <em class="sig-param">ce_symbol</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py#L1754-L1769"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.structure_contains_atom_environment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks whether the structure contains a given atom in a given environment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>atom_symbol</strong> – Symbol of the atom.</p></li>
+<li><p><strong>ce_symbol</strong> – Symbol of the coordination environment.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if the coordination environment is found, False otherwise</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.structure_has_clear_environments">
+<code class="sig-name descname">structure_has_clear_environments</code><span class="sig-paren">(</span><em class="sig-param">conditions=None</em>, <em class="sig-param">skip_none=True</em>, <em class="sig-param">skip_empty=False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py#L1709-L1732"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.structure_has_clear_environments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Whether all sites in a structure have “clear” environments.
+:param conditions: Conditions to be checked for an environment to be “clear”.
+:param skip_none: Whether to skip sites for which no environments have been computed.
+:param skip_empty: Whether to skip sites for which no environments could be found.</p>
+<p>Returns: True if all the sites in the structure have clear environments.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.uniquely_determines_coordination_environments">
+<em class="property">property </em><code class="sig-name descname">uniquely_determines_coordination_environments</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.uniquely_determines_coordination_environments" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if the coordination environments are uniquely determined.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments">
+<em class="property">class </em><code class="sig-name descname">StructureEnvironments</code><span class="sig-paren">(</span><em class="sig-param">voronoi</em>, <em class="sig-param">valences</em>, <em class="sig-param">sites_map</em>, <em class="sig-param">equivalent_sites</em>, <em class="sig-param">ce_list</em>, <em class="sig-param">structure</em>, <em class="sig-param">neighbors_sets=None</em>, <em class="sig-param">info=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py#L38-L1187"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
+<p>Class used to store the chemical environments of a given structure.</p>
+<p>Constructor for the StructureEnvironments object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>voronoi</strong> – VoronoiContainer object for the structure.</p></li>
+<li><p><strong>valences</strong> – Valences provided.</p></li>
+<li><p><strong>sites_map</strong> – Mapping of equivalent sites to the unequivalent sites that have been computed.</p></li>
+<li><p><strong>equivalent_sites</strong> – List of list of equivalent sites of the structure.</p></li>
+<li><p><strong>ce_list</strong> – List of chemical environments.</p></li>
+<li><p><strong>structure</strong> – Structure object.</p></li>
+<li><p><strong>neighbors_sets</strong> – List of neighbors sets.</p></li>
+<li><p><strong>info</strong> – Additional information for this StructureEnvironments object.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.AC">
+<code class="sig-name descname">AC</code><em class="property"> = &lt;pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions object&gt;</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.AC" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet">
+<em class="property">class </em><code class="sig-name descname">NeighborsSet</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">isite</em>, <em class="sig-param">detailed_voronoi</em>, <em class="sig-param">site_voronoi_indices</em>, <em class="sig-param">sources=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py#L44-L418"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class used to store a given set of neighbors of a given site (based on the detailed_voronoi).</p>
+<p>Constructor for NeighborsSet.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – Structure object.</p></li>
+<li><p><strong>isite</strong> – Index of the site for which neighbors are stored in this NeighborsSet.</p></li>
+<li><p><strong>detailed_voronoi</strong> – Corresponding DetailedVoronoiContainer object containing all the possible
+neighbors of the give site.</p></li>
+<li><p><strong>site_voronoi_indices</strong> – Indices of the voronoi sites in the DetailedVoronoiContainer object that
+make up this NeighborsSet.</p></li>
+<li><p><strong>sources</strong> – Sources for this NeighborsSet, i.e. how this NeighborsSet was generated.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.add_source">
+<code class="sig-name descname">add_source</code><span class="sig-paren">(</span><em class="sig-param">source</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py#L359-L367"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.add_source" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a source to this NeighborsSet.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>source</strong> – Information about the generation of this NeighborsSet.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.angle_plateau">
+<code class="sig-name descname">angle_plateau</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py#L211-L232"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.angle_plateau" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the angles plateau’s for this NeighborsSet.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.angles">
+<em class="property">property </em><code class="sig-name descname">angles</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.angles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Angles for each neighbor in this NeighborsSet.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.as_dict">
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py#L388-L394"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>A JSON serializable dict representation of the NeighborsSet.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.coords">
+<em class="property">property </em><code class="sig-name descname">coords</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.coords" title="Permalink to this definition">¶</a></dt>
+<dd><p>Coordinates of the current central atom and its neighbors for this NeighborsSet.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.distance_plateau">
+<code class="sig-name descname">distance_plateau</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py#L191-L209"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.distance_plateau" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the distances plateau’s for this NeighborsSet.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.distances">
+<em class="property">property </em><code class="sig-name descname">distances</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.distances" title="Permalink to this definition">¶</a></dt>
+<dd><p>Distances to each neighbor in this NeighborsSet.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.from_dict">
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">dd</em>, <em class="sig-param">structure</em>, <em class="sig-param">detailed_voronoi</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py#L396-L418"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reconstructs the NeighborsSet algorithm from its JSON serializable dict representation, together with
+the structure and the DetailedVoronoiContainer.</p>
+<p>As an inner (nested) class, the NeighborsSet is not supposed to be used anywhere else that inside the
+StructureEnvironments. The from_dict method is thus using the structure and  detailed_voronoi when
+reconstructing itself. These two are both in the StructureEnvironments object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dd</strong> – a JSON serializable dict representation of a NeighborsSet.</p></li>
+<li><p><strong>structure</strong> – The structure.</p></li>
+<li><p><strong>detailed_voronoi</strong> – The Voronoi object containing all the neighboring atoms from which the subset of
+neighbors for this NeighborsSet is extracted.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns: a NeighborsSet.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.get_neighb_voronoi_indices">
+<code class="sig-name descname">get_neighb_voronoi_indices</code><span class="sig-paren">(</span><em class="sig-param">permutation</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py#L77-L86"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.get_neighb_voronoi_indices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the indices in the detailed_voronoi corresponding to the current permutation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>permutation</strong> – Current permutation for which the indices in the detailed_voronoi are needed.</p>
+</dd>
+</dl>
+<p>Returns: List of indices in the detailed_voronoi.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.info">
+<em class="property">property </em><code class="sig-name descname">info</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Summarized information about this NeighborsSet.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.neighb_coords">
+<em class="property">property </em><code class="sig-name descname">neighb_coords</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.neighb_coords" title="Permalink to this definition">¶</a></dt>
+<dd><p>Coordinates of neighbors for this NeighborsSet.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.neighb_coordsOpt">
+<em class="property">property </em><code class="sig-name descname">neighb_coordsOpt</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.neighb_coordsOpt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optimized access to the coordinates of neighbors for this NeighborsSet.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.neighb_sites">
+<em class="property">property </em><code class="sig-name descname">neighb_sites</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.neighb_sites" title="Permalink to this definition">¶</a></dt>
+<dd><p>Neighbors for this NeighborsSet as pymatgen Sites.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.neighb_sites_and_indices">
+<em class="property">property </em><code class="sig-name descname">neighb_sites_and_indices</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.neighb_sites_and_indices" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of neighbors for this NeighborsSet as pymatgen Sites and their index in the original structure.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.normalized_angles">
+<em class="property">property </em><code class="sig-name descname">normalized_angles</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.normalized_angles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalized angles for each neighbor in this NeighborsSet.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.normalized_distances">
+<em class="property">property </em><code class="sig-name descname">normalized_distances</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.normalized_distances" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalized distances to each neighbor in this NeighborsSet.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.source">
+<em class="property">property </em><code class="sig-name descname">source</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.source" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the source of this NeighborsSet (how it was generated, e.g. from which Voronoi cut-offs, or from
+hints).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.voronoi_grid_surface_points">
+<code class="sig-name descname">voronoi_grid_surface_points</code><span class="sig-paren">(</span><em class="sig-param">additional_condition=1</em>, <em class="sig-param">other_origins='DO_NOTHING'</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py#L234-L347"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.voronoi_grid_surface_points" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the surface points in the Voronoi grid for this neighbor from the sources.
+The general shape of the points should look like a staircase such as in the following figure :</p>
+<blockquote>
+<div><p>^</p>
+</div></blockquote>
+<dl>
+<dt>0.0|</dt><dd><div class="line-block">
+<div class="line"><br /></div>
+<div class="line-block">
+<div class="line">B—-C</div>
+<div class="line">|    |</div>
+<div class="line">|    |</div>
+</div>
+</div>
+</dd>
+</dl>
+<p>a  |      k    D——-E
+n  |      |            |
+g  |      |            |
+l  |      |            |
+e  |      j            F—-n———G</p>
+<blockquote>
+<div><div class="line-block">
+<div class="line">|                           |</div>
+<div class="line">|                           |</div>
+<div class="line">A—-g——-h—-i———H</div>
+<div class="line"><br /></div>
+<div class="line"><br /></div>
+</div>
+</div></blockquote>
+<dl class="simple">
+<dt>1.0+————————————————-&gt;</dt><dd><p>1.0              distance              2.0   -&gt;+Inf</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>additional_condition</strong> – Additional condition for the neighbors.</p></li>
+<li><p><strong>other_origins</strong> – What to do with sources that do not come from the Voronoi grid (e.g. “from hints”).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.add_neighbors_set">
+<code class="sig-name descname">add_neighbors_set</code><span class="sig-paren">(</span><em class="sig-param">isite</em>, <em class="sig-param">nb_set</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py#L510-L530"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.add_neighbors_set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a neighbor set to the list of neighbors sets for this site.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>isite</strong> – Index of the site under consideration.</p></li>
+<li><p><strong>nb_set</strong> – NeighborsSet to be added.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.as_dict">
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py#L1120-L1149"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bson-serializable dict representation of the StructureEnvironments object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Bson-serializable dict representation of the StructureEnvironments object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.differences_wrt">
+<code class="sig-name descname">differences_wrt</code><span class="sig-paren">(</span><em class="sig-param">other</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py#L990-L1091"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.differences_wrt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return differences found in the current StructureEnvironments with respect to another StructureEnvironments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>other</strong> – A StructureEnvironments object.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of differences between the two StructureEnvironments objects.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.from_dict">
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py#L1151-L1187"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reconstructs the StructureEnvironments object from a dict representation of the StructureEnvironments created
+using the as_dict method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>d</strong> – dict representation of the StructureEnvironments object.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>StructureEnvironments object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.get_coordination_environments">
+<code class="sig-name descname">get_coordination_environments</code><span class="sig-paren">(</span><em class="sig-param">isite</em>, <em class="sig-param">cn</em>, <em class="sig-param">nb_set</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py#L569-L588"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.get_coordination_environments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the ChemicalEnvironments for a given site, coordination and neighbors set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>isite</strong> – Index of the site for which the ChemicalEnvironments is looked for.</p></li>
+<li><p><strong>cn</strong> – Coordination for which the ChemicalEnvironments is looked for.</p></li>
+<li><p><strong>nb_set</strong> – Neighbors set for which the ChemicalEnvironments is looked for.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns: a ChemicalEnvironments object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.get_csm">
+<code class="sig-name descname">get_csm</code><span class="sig-paren">(</span><em class="sig-param">isite</em>, <em class="sig-param">mp_symbol</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py#L590-L608"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.get_csm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the continuous symmetry measure for a given site in the given coordination environment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>isite</strong> – Index of the site.</p></li>
+<li><p><strong>mp_symbol</strong> – Symbol of the coordination environment for which we want the continuous symmetry measure.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns: Continuous symmetry measure of the given site in the given environment.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.get_csm_and_maps">
+<code class="sig-name descname">get_csm_and_maps</code><span class="sig-paren">(</span><em class="sig-param">isite</em>, <em class="sig-param">max_csm=8.0</em>, <em class="sig-param">figsize=None</em>, <em class="sig-param">symmetry_measure_type=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py#L652-L789"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.get_csm_and_maps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plotting of the coordination numbers of a given site for all the distfactor/angfactor parameters. If the
+chemical environments are given, a color map is added to the plot, with the lowest continuous symmetry measure
+as the value for the color of that distfactor/angfactor set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>isite</strong> – Index of the site for which the plot has to be done.</p></li>
+<li><p><strong>max_csm</strong> – Maximum continuous symmetry measure to be shown.</p></li>
+<li><p><strong>figsize</strong> – Size of the figure.</p></li>
+<li><p><strong>symmetry_measure_type</strong> – Type of continuous symmetry measure to be used.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Matplotlib figure and axes representing the csm and maps.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.get_csms">
+<code class="sig-name descname">get_csms</code><span class="sig-paren">(</span><em class="sig-param">isite</em>, <em class="sig-param">mp_symbol</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py#L610-L630"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.get_csms" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Returns the continuous symmetry measure(s) of site with index isite with respect to the</dt><dd><p>perfect coordination environment with mp_symbol. For some environments, a given mp_symbol might not
+be available (if there is no voronoi parameters leading to a number of neighbours corresponding to
+the coordination number of environment mp_symbol). For some environments, a given mp_symbol might
+lead to more than one csm (when two or more different voronoi parameters lead to different neighbours
+but with same number of neighbours).</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>isite</strong> – Index of the site.</p></li>
+<li><p><strong>mp_symbol</strong> – MP symbol of the perfect environment for which the csm has to be given.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of csms for site isite with respect to geometry mp_symbol</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.get_environments_figure">
+<code class="sig-name descname">get_environments_figure</code><span class="sig-paren">(</span><em class="sig-param">isite</em>, <em class="sig-param">plot_type=None</em>, <em class="sig-param">title='Coordination numbers'</em>, <em class="sig-param">max_dist=2.0</em>, <em class="sig-param">colormap=None</em>, <em class="sig-param">figsize=None</em>, <em class="sig-param">strategy=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py#L791-L941"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.get_environments_figure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plotting of the coordination environments of a given site for all the distfactor/angfactor regions. The
+chemical environments with the lowest continuous symmetry measure is shown for each distfactor/angfactor
+region as the value for the color of that distfactor/angfactor region (using a colormap).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>isite</strong> – Index of the site for which the plot has to be done.</p></li>
+<li><p><strong>plot_type</strong> – How to plot the coordinations.</p></li>
+<li><p><strong>title</strong> – Title for the figure.</p></li>
+<li><p><strong>max_dist</strong> – Maximum distance to be plotted when the plotting of the distance is set to ‘initial_normalized’
+or ‘initial_real’ (Warning: this is not the same meaning in both cases! In the first case, the
+closest atom lies at a “normalized” distance of 1.0 so that 2.0 means refers to this normalized
+distance while in the second case, the real distance is used).</p></li>
+<li><p><strong>colormap</strong> – Color map to be used for the continuous symmetry measure.</p></li>
+<li><p><strong>figsize</strong> – Size of the figure.</p></li>
+<li><p><strong>strategy</strong> – Whether to plot information about one of the Chemenv Strategies.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Matplotlib figure and axes representing the environments.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.init_neighbors_sets">
+<code class="sig-name descname">init_neighbors_sets</code><span class="sig-paren">(</span><em class="sig-param">isite</em>, <em class="sig-param">additional_conditions=None</em>, <em class="sig-param">valences=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py#L448-L508"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.init_neighbors_sets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize the list of neighbors sets for the current site.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>isite</strong> – Index of the site under consideration.</p></li>
+<li><p><strong>additional_conditions</strong> – Additional conditions to be used for the initialization of the list of
+neighbors sets, e.g. “Only anion-cation bonds”, …</p></li>
+<li><p><strong>valences</strong> – List of valences for each site in the structure (needed if an additional condition based on the
+valence is used, e.g. only anion-cation bonds).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.plot_csm_and_maps">
+<code class="sig-name descname">plot_csm_and_maps</code><span class="sig-paren">(</span><em class="sig-param">isite</em>, <em class="sig-param">max_csm=8.0</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py#L632-L650"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.plot_csm_and_maps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plotting of the coordination numbers of a given site for all the distfactor/angfactor parameters. If the
+chemical environments are given, a color map is added to the plot, with the lowest continuous symmetry measure
+as the value for the color of that distfactor/angfactor set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>isite</strong> – Index of the site for which the plot has to be done</p></li>
+<li><p><strong>max_csm</strong> – Maximum continuous symmetry measure to be shown.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.plot_environments">
+<code class="sig-name descname">plot_environments</code><span class="sig-paren">(</span><em class="sig-param">isite</em>, <em class="sig-param">plot_type=None</em>, <em class="sig-param">title='Coordination numbers'</em>, <em class="sig-param">max_dist=2.0</em>, <em class="sig-param">figsize=None</em>, <em class="sig-param">strategy=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py#L943-L966"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.plot_environments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plotting of the coordination numbers of a given site for all the distfactor/angfactor parameters. If the
+chemical environments are given, a color map is added to the plot, with the lowest continuous symmetry measure
+as the value for the color of that distfactor/angfactor set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>isite</strong> – Index of the site for which the plot has to be done.</p></li>
+<li><p><strong>plot_type</strong> – How to plot the coordinations.</p></li>
+<li><p><strong>title</strong> – Title for the figure.</p></li>
+<li><p><strong>max_dist</strong> – Maximum distance to be plotted when the plotting of the distance is set to ‘initial_normalized’
+or ‘initial_real’ (Warning: this is not the same meaning in both cases! In the first case, the
+closest atom lies at a “normalized” distance of 1.0 so that 2.0 means refers to this normalized
+distance while in the second case, the real distance is used).</p></li>
+<li><p><strong>figsize</strong> – Size of the figure.</p></li>
+<li><p><strong>strategy</strong> – Whether to plot information about one of the Chemenv Strategies.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.save_environments_figure">
+<code class="sig-name descname">save_environments_figure</code><span class="sig-paren">(</span><em class="sig-param">isite</em>, <em class="sig-param">imagename='image.png'</em>, <em class="sig-param">plot_type=None</em>, <em class="sig-param">title='Coordination numbers'</em>, <em class="sig-param">max_dist=2.0</em>, <em class="sig-param">figsize=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py#L968-L988"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.save_environments_figure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves the environments figure to a given file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>isite</strong> – Index of the site for which the plot has to be done.</p></li>
+<li><p><strong>imagename</strong> – Name of the file to which the figure has to be saved.</p></li>
+<li><p><strong>plot_type</strong> – How to plot the coordinations.</p></li>
+<li><p><strong>title</strong> – Title for the figure.</p></li>
+<li><p><strong>max_dist</strong> – Maximum distance to be plotted when the plotting of the distance is set to ‘initial_normalized’
+or ‘initial_real’ (Warning: this is not the same meaning in both cases! In the first case, the
+closest atom lies at a “normalized” distance of 1.0 so that 2.0 means refers to this normalized
+distance while in the second case, the real distance is used).</p></li>
+<li><p><strong>figsize</strong> – Size of the figure.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.update_coordination_environments">
+<code class="sig-name descname">update_coordination_environments</code><span class="sig-paren">(</span><em class="sig-param">isite</em>, <em class="sig-param">cn</em>, <em class="sig-param">nb_set</em>, <em class="sig-param">ce</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py#L532-L555"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.update_coordination_environments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the coordination environment for this site, coordination and neighbor set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>isite</strong> – Index of the site to be updated.</p></li>
+<li><p><strong>cn</strong> – Coordination to be updated.</p></li>
+<li><p><strong>nb_set</strong> – Neighbors set to be updated.</p></li>
+<li><p><strong>ce</strong> – ChemicalEnvironments object for this neighbors set.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.update_site_info">
+<code class="sig-name descname">update_site_info</code><span class="sig-paren">(</span><em class="sig-param">isite</em>, <em class="sig-param">info_dict</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/structure_environments.py#L557-L567"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.update_site_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update information about this site.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>isite</strong> – Index of the site for which info has to be updated.</p></li>
+<li><p><strong>info_dict</strong> – Dictionary of information to be added for this site.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011, Pymatgen Development Team
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+  
+ 
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+
+</body>
+</html>

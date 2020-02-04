@@ -11,7 +11,7 @@ from pymatgen.util.testing import PymatgenTest
 from pymatgen.analysis.fragmenter import Fragmenter, metal_edge_extender
 
 try:
-    import openbabel as ob
+    from openbabel import openbabel as ob
 except ImportError:
     ob = None
 
@@ -56,8 +56,7 @@ class TestFragmentMolecule(PymatgenTest):
         fragmenter = Fragmenter(molecule=self.pc, open_rings=True)
         self.assertEqual(fragmenter.open_rings, True)
         self.assertEqual(fragmenter.opt_steps, 10000)
-        default_mol_graph = MoleculeGraph.with_local_env_strategy(self.pc, OpenBabelNN(),
-                                                                  reorder=False, extend_structure=False)
+        default_mol_graph = MoleculeGraph.with_local_env_strategy(self.pc, OpenBabelNN())
         self.assertEqual(fragmenter.mol_graph, default_mol_graph)
         self.assertEqual(fragmenter.total_unique_fragments, 13)
 
@@ -66,8 +65,7 @@ class TestFragmentMolecule(PymatgenTest):
         fragmenter = Fragmenter(molecule=self.pc)
         self.assertEqual(fragmenter.open_rings, False)
         self.assertEqual(fragmenter.opt_steps, 10000)
-        default_mol_graph = MoleculeGraph.with_local_env_strategy(self.pc, OpenBabelNN(),
-                                                                  reorder=False, extend_structure=False)
+        default_mol_graph = MoleculeGraph.with_local_env_strategy(self.pc, OpenBabelNN())
         self.assertEqual(fragmenter.mol_graph, default_mol_graph)
         self.assertEqual(fragmenter.total_unique_fragments, 8)
 

@@ -1,0 +1,365 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pymatgen.ext.cod module &mdash; pymatgen 2020.1.28 documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pymatgen.orgpymatgen.ext.cod.html"/>
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.ext.crystalsai module" href="pymatgen.ext.crystalsai.html" />
+    <link rel="prev" title="pymatgen.ext package" href="pymatgen.ext.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pymatgen
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2020.1.28
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="team.html">Development Team</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API Docs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pymatgen.html">pymatgen package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="pymatgen.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.alchemy.html">pymatgen.alchemy package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.html">pymatgen.analysis package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.apps.html">pymatgen.apps package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.cli.html">pymatgen.cli package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.command_line.html">pymatgen.command_line package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html">pymatgen.core package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.electronic_structure.html">pymatgen.electronic_structure package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.entries.html">pymatgen.entries package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="pymatgen.ext.html">pymatgen.ext package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html">pymatgen.io package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.plugins.html">pymatgen.plugins package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.vis.html">pymatgen.vis package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#module-pymatgen">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pymatgen</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="modules.html">pymatgen</a> &raquo;</li>
+        
+          <li><a href="pymatgen.html">pymatgen package</a> &raquo;</li>
+        
+          <li><a href="pymatgen.ext.html">pymatgen.ext package</a> &raquo;</li>
+        
+      <li>pymatgen.ext.cod module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.ext.cod.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-pymatgen.ext.cod">
+<span id="pymatgen-ext-cod-module"></span><h1>pymatgen.ext.cod module<a class="headerlink" href="#module-pymatgen.ext.cod" title="Permalink to this headline">¶</a></h1>
+<p>This module provides classes to interface with the Crystallography Open
+Database. If you use data from the COD, please cite the following works (as
+stipulated by the COD developers):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Merkys</span><span class="p">,</span> <span class="n">A</span><span class="o">.</span><span class="p">,</span> <span class="n">Vaitkus</span><span class="p">,</span> <span class="n">A</span><span class="o">.</span><span class="p">,</span> <span class="n">Butkus</span><span class="p">,</span> <span class="n">J</span><span class="o">.</span><span class="p">,</span> <span class="n">Okulič</span><span class="o">-</span><span class="n">Kazarinas</span><span class="p">,</span> <span class="n">M</span><span class="o">.</span><span class="p">,</span> <span class="n">Kairys</span><span class="p">,</span> <span class="n">V</span><span class="o">.</span> <span class="o">&amp;</span>
+<span class="n">Gražulis</span><span class="p">,</span> <span class="n">S</span><span class="o">.</span> <span class="p">(</span><span class="mi">2016</span><span class="p">)</span> <span class="s2">&quot;COD::CIF::Parser: an error-correcting CIF parser for</span>
+<span class="n">the</span> <span class="n">Perl</span> <span class="n">language</span><span class="s2">&quot;. Journal of Applied Crystallography 49.</span>
+
+<span class="n">Gražulis</span><span class="p">,</span> <span class="n">S</span><span class="o">.</span><span class="p">,</span> <span class="n">Merkys</span><span class="p">,</span> <span class="n">A</span><span class="o">.</span><span class="p">,</span> <span class="n">Vaitkus</span><span class="p">,</span> <span class="n">A</span><span class="o">.</span> <span class="o">&amp;</span> <span class="n">Okulič</span><span class="o">-</span><span class="n">Kazarinas</span><span class="p">,</span> <span class="n">M</span><span class="o">.</span> <span class="p">(</span><span class="mi">2015</span><span class="p">)</span>
+<span class="s2">&quot;Computing stoichiometric molecular composition from crystal structures&quot;</span><span class="o">.</span>
+<span class="n">Journal</span> <span class="n">of</span> <span class="n">Applied</span> <span class="n">Crystallography</span> <span class="mi">48</span><span class="p">,</span> <span class="mi">85</span><span class="o">-</span><span class="mf">91.</span>
+
+<span class="n">Gražulis</span><span class="p">,</span> <span class="n">S</span><span class="o">.</span><span class="p">,</span> <span class="n">Daškevič</span><span class="p">,</span> <span class="n">A</span><span class="o">.</span><span class="p">,</span> <span class="n">Merkys</span><span class="p">,</span> <span class="n">A</span><span class="o">.</span><span class="p">,</span> <span class="n">Chateigner</span><span class="p">,</span> <span class="n">D</span><span class="o">.</span><span class="p">,</span> <span class="n">Lutterotti</span><span class="p">,</span> <span class="n">L</span><span class="o">.</span><span class="p">,</span>
+<span class="n">Quirós</span><span class="p">,</span> <span class="n">M</span><span class="o">.</span><span class="p">,</span> <span class="n">Serebryanaya</span><span class="p">,</span> <span class="n">N</span><span class="o">.</span> <span class="n">R</span><span class="o">.</span><span class="p">,</span> <span class="n">Moeck</span><span class="p">,</span> <span class="n">P</span><span class="o">.</span><span class="p">,</span> <span class="n">Downs</span><span class="p">,</span> <span class="n">R</span><span class="o">.</span> <span class="n">T</span><span class="o">.</span> <span class="o">&amp;</span> <span class="n">LeBail</span><span class="p">,</span> <span class="n">A</span><span class="o">.</span>
+<span class="p">(</span><span class="mi">2012</span><span class="p">)</span> <span class="s2">&quot;Crystallography Open Database (COD): an open-access collection of</span>
+<span class="n">crystal</span> <span class="n">structures</span> <span class="ow">and</span> <span class="n">platform</span> <span class="k">for</span> <span class="n">world</span><span class="o">-</span><span class="n">wide</span> <span class="n">collaboration</span><span class="s2">&quot;. Nucleic</span>
+<span class="n">Acids</span> <span class="n">Research</span> <span class="mi">40</span><span class="p">,</span> <span class="n">D420</span><span class="o">-</span><span class="n">D427</span><span class="o">.</span>
+
+<span class="n">Grazulis</span><span class="p">,</span> <span class="n">S</span><span class="o">.</span><span class="p">,</span> <span class="n">Chateigner</span><span class="p">,</span> <span class="n">D</span><span class="o">.</span><span class="p">,</span> <span class="n">Downs</span><span class="p">,</span> <span class="n">R</span><span class="o">.</span> <span class="n">T</span><span class="o">.</span><span class="p">,</span> <span class="n">Yokochi</span><span class="p">,</span> <span class="n">A</span><span class="o">.</span> <span class="n">T</span><span class="o">.</span><span class="p">,</span> <span class="n">Quiros</span><span class="p">,</span> <span class="n">M</span><span class="o">.</span><span class="p">,</span>
+<span class="n">Lutterotti</span><span class="p">,</span> <span class="n">L</span><span class="o">.</span><span class="p">,</span> <span class="n">Manakova</span><span class="p">,</span> <span class="n">E</span><span class="o">.</span><span class="p">,</span> <span class="n">Butkus</span><span class="p">,</span> <span class="n">J</span><span class="o">.</span><span class="p">,</span> <span class="n">Moeck</span><span class="p">,</span> <span class="n">P</span><span class="o">.</span> <span class="o">&amp;</span> <span class="n">Le</span> <span class="n">Bail</span><span class="p">,</span> <span class="n">A</span><span class="o">.</span> <span class="p">(</span><span class="mi">2009</span><span class="p">)</span>
+<span class="s2">&quot;Crystallography Open Database – an open-access collection of crystal</span>
+<span class="n">structures</span><span class="s2">&quot;. J. Appl. Cryst. 42, 726-729.</span>
+
+<span class="n">Downs</span><span class="p">,</span> <span class="n">R</span><span class="o">.</span> <span class="n">T</span><span class="o">.</span> <span class="o">&amp;</span> <span class="n">Hall</span><span class="o">-</span><span class="n">Wallace</span><span class="p">,</span> <span class="n">M</span><span class="o">.</span> <span class="p">(</span><span class="mi">2003</span><span class="p">)</span> <span class="s2">&quot;The American Mineralogist Crystal</span>
+<span class="n">Structure</span> <span class="n">Database</span><span class="s2">&quot;. American Mineralogist 88, 247-250.</span>
+</pre></div>
+</div>
+<dl class="class">
+<dt id="pymatgen.ext.cod.COD">
+<em class="property">class </em><code class="sig-name descname">COD</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/ext/cod.py#L49-L147"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.cod.COD" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>An interface to the Crystallography Open Database.</p>
+<p>Blank __init__. No args required.</p>
+<dl class="method">
+<dt id="pymatgen.ext.cod.COD.get_cod_ids">
+<code class="sig-name descname">get_cod_ids</code><span class="sig-paren">(</span><em class="sig-param">formula</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/../../../miniconda3/envs/py37/lib/python3.7/site-packages/monty-3.0.2-py3.7.egg/monty/dev.py#L72-L96"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.cod.COD.get_cod_ids" title="Permalink to this definition">¶</a></dt>
+<dd><p>Queries the COD for all cod ids associated with a formula. Requires
+mysql executable to be in the path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>formula</strong> (<em>str</em>) – Formula.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of cod ids.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.ext.cod.COD.get_structure_by_formula">
+<code class="sig-name descname">get_structure_by_formula</code><span class="sig-paren">(</span><em class="sig-param">formula</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/../../../miniconda3/envs/py37/lib/python3.7/site-packages/monty-3.0.2-py3.7.egg/monty/dev.py#L113-L147"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.cod.COD.get_structure_by_formula" title="Permalink to this definition">¶</a></dt>
+<dd><p>Queries the COD for structures by formula. Requires mysql executable to
+be in the path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cod_id</strong> (<em>int</em>) – COD id.</p></li>
+<li><p><strong>kwargs</strong> – All kwargs supported by
+<code class="xref py py-func docutils literal notranslate"><span class="pre">pymatgen.core.structure.Structure.from_str()</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A list of dict of the format
+[{“structure”: Structure, “cod_id”: cod_id, “sg”: “P n m a”}]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.ext.cod.COD.get_structure_by_id">
+<code class="sig-name descname">get_structure_by_id</code><span class="sig-paren">(</span><em class="sig-param">cod_id</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/ext/cod.py#L98-L111"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.cod.COD.get_structure_by_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Queries the COD for a structure by id.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cod_id</strong> (<em>int</em>) – COD id.</p></li>
+<li><p><strong>kwargs</strong> – All kwargs supported by
+<code class="xref py py-func docutils literal notranslate"><span class="pre">pymatgen.core.structure.Structure.from_str()</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A Structure.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.ext.cod.COD.query">
+<code class="sig-name descname">query</code><span class="sig-paren">(</span><em class="sig-param">sql: str</em><span class="sig-paren">)</span> &#x2192; str<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/ext/cod.py#L60-L70"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.cod.COD.query" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform a query.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>sql</strong> – SQL string</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Response from SQL query.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011, Pymatgen Development Team
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+  
+ 
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+
+</body>
+</html>

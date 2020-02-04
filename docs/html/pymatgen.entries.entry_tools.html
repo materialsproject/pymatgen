@@ -1,0 +1,407 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pymatgen.entries.entry_tools module &mdash; pymatgen 2020.1.28 documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pymatgen.orgpymatgen.entries.entry_tools.html"/>
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.entries.exp_entries module" href="pymatgen.entries.exp_entries.html" />
+    <link rel="prev" title="pymatgen.entries.computed_entries module" href="pymatgen.entries.computed_entries.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pymatgen
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2020.1.28
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="team.html">Development Team</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API Docs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pymatgen.html">pymatgen package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="pymatgen.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.alchemy.html">pymatgen.alchemy package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.html">pymatgen.analysis package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.apps.html">pymatgen.apps package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.cli.html">pymatgen.cli package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.command_line.html">pymatgen.command_line package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html">pymatgen.core package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.electronic_structure.html">pymatgen.electronic_structure package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="pymatgen.entries.html">pymatgen.entries package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html">pymatgen.ext package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html">pymatgen.io package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.plugins.html">pymatgen.plugins package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.vis.html">pymatgen.vis package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#module-pymatgen">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pymatgen</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="modules.html">pymatgen</a> &raquo;</li>
+        
+          <li><a href="pymatgen.html">pymatgen package</a> &raquo;</li>
+        
+          <li><a href="pymatgen.entries.html">pymatgen.entries package</a> &raquo;</li>
+        
+      <li>pymatgen.entries.entry_tools module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.entries.entry_tools.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-pymatgen.entries.entry_tools">
+<span id="pymatgen-entries-entry-tools-module"></span><h1>pymatgen.entries.entry_tools module<a class="headerlink" href="#module-pymatgen.entries.entry_tools" title="Permalink to this headline">¶</a></h1>
+<p>This module implements functions to perform various useful operations on
+entries, such as grouping entries by structure.</p>
+<dl class="class">
+<dt id="pymatgen.entries.entry_tools.EntrySet">
+<em class="property">class </em><code class="sig-name descname">EntrySet</code><span class="sig-paren">(</span><em class="sig-param">entries: Iterable[Union[pymatgen.analysis.phase_diagram.PDEntry, pymatgen.entries.computed_entries.ComputedEntry, pymatgen.entries.computed_entries.ComputedStructureEntry]]</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/entries/entry_tools.py#L149-L299"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.entry_tools.EntrySet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.abc.MutableSet</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
+<p>A convenient container for manipulating entries. Allows for generating
+subsets, dumping into files, etc.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>entries</strong> – All the entries.</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.entries.entry_tools.EntrySet.add">
+<code class="sig-name descname">add</code><span class="sig-paren">(</span><em class="sig-param">element</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/entries/entry_tools.py#L171-L177"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.entry_tools.EntrySet.add" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add an entry.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>element</strong> – Entry</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.entries.entry_tools.EntrySet.as_dict">
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/entries/entry_tools.py#L235-L241"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.entry_tools.EntrySet.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>MSONable dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.entries.entry_tools.EntrySet.chemsys">
+<em class="property">property </em><code class="sig-name descname">chemsys</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/entries/entry_tools.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.entry_tools.EntrySet.chemsys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns:
+set representing the chemical system, e.g., {“Li”, “Fe”, “P”, “O”}</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.entries.entry_tools.EntrySet.discard">
+<code class="sig-name descname">discard</code><span class="sig-paren">(</span><em class="sig-param">element</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/entries/entry_tools.py#L179-L185"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.entry_tools.EntrySet.discard" title="Permalink to this definition">¶</a></dt>
+<dd><p>Discard an entry.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>element</strong> – Entry</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.entries.entry_tools.EntrySet.from_csv">
+<em class="property">classmethod </em><code class="sig-name descname">from_csv</code><span class="sig-paren">(</span><em class="sig-param">filename: str</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/entries/entry_tools.py#L269-L299"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.entry_tools.EntrySet.from_csv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Imports PDEntries from a csv.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> – Filename to import from.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of Elements, List of PDEntries</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.entries.entry_tools.EntrySet.get_subset_in_chemsys">
+<code class="sig-name descname">get_subset_in_chemsys</code><span class="sig-paren">(</span><em class="sig-param">chemsys: List[str]</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/entries/entry_tools.py#L209-L233"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.entry_tools.EntrySet.get_subset_in_chemsys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an EntrySet containing only the set of entries belonging to
+a particular chemical system (in this definition, it includes all sub
+systems). For example, if the entries are from the
+Li-Fe-P-O system, and chemsys=[“Li”, “O”], only the Li, O,
+and Li-O entries are returned.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>chemsys</strong> – Chemical system specified as list of elements. E.g.,
+[“Li”, “O”]</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>EntrySet</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.entries.entry_tools.EntrySet.remove_non_ground_states">
+<code class="sig-name descname">remove_non_ground_states</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/entries/entry_tools.py#L198-L207"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.entry_tools.EntrySet.remove_non_ground_states" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes all non-ground state entries, i.e., only keep the lowest energy
+per atom entry at each composition.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.entries.entry_tools.EntrySet.to_csv">
+<code class="sig-name descname">to_csv</code><span class="sig-paren">(</span><em class="sig-param">filename: str</em>, <em class="sig-param">latexify_names: bool = False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/entries/entry_tools.py#L243-L267"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.entry_tools.EntrySet.to_csv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exports PDEntries to a csv</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> – Filename to write to.</p></li>
+<li><p><strong>entries</strong> – PDEntries to export.</p></li>
+<li><p><strong>latexify_names</strong> – Format entry names to be LaTex compatible,
+e.g., Li_{2}O</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.entries.entry_tools.group_entries_by_structure">
+<code class="sig-name descname">group_entries_by_structure</code><span class="sig-paren">(</span><em class="sig-param">entries</em>, <em class="sig-param">species_to_remove=None</em>, <em class="sig-param">ltol=0.2</em>, <em class="sig-param">stol=0.4</em>, <em class="sig-param">angle_tol=5</em>, <em class="sig-param">primitive_cell=True</em>, <em class="sig-param">scale=True</em>, <em class="sig-param">comparator=&lt;pymatgen.analysis.structure_matcher.SpeciesComparator object&gt;</em>, <em class="sig-param">ncpus=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/entries/entry_tools.py#L82-L146"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.entry_tools.group_entries_by_structure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a sequence of ComputedStructureEntries, use structure fitter to group
+them by structural similarity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>entries</strong> – Sequence of ComputedStructureEntries.</p></li>
+<li><p><strong>species_to_remove</strong> – Sometimes you want to compare a host framework
+(e.g., in Li-ion battery analysis). This allows you to specify
+species to remove before structural comparison.</p></li>
+<li><p><strong>ltol</strong> (<em>float</em>) – Fractional length tolerance. Default is 0.2.</p></li>
+<li><p><strong>stol</strong> (<em>float</em>) – Site tolerance in Angstrom. Default is 0.4 Angstrom.</p></li>
+<li><p><strong>angle_tol</strong> (<em>float</em>) – Angle tolerance in degrees. Default is 5 degrees.</p></li>
+<li><p><strong>primitive_cell</strong> (<em>bool</em>) – If true: input structures will be reduced to
+primitive cells prior to matching. Defaults to True.</p></li>
+<li><p><strong>scale</strong> – Input structures are scaled to equivalent volume if true;
+For exact matching, set to False.</p></li>
+<li><p><strong>comparator</strong> – A comparator object implementing an equals method that
+declares equivalency of sites. Default is SpeciesComparator,
+which implies rigid species mapping.</p></li>
+<li><p><strong>ncpus</strong> – Number of cpus to use. Use of multiple cpus can greatly improve
+fitting speed. Default of None means serial processing.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Sequence of sequence of entries by structural similarity. e.g,
+[[ entry1, entry2], [entry3, entry4, entry5]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011, Pymatgen Development Team
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+  
+ 
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+
+</body>
+</html>

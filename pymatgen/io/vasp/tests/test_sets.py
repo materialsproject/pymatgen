@@ -61,16 +61,16 @@ class HashPotcarTest(PymatgenTest):
     def tearDown(self):
         SETTINGS["PMG_VASP_PSP_DIR"] = self.pmg_dir
 
-    def test_bad_hash(self):
+    def test_bad_hash_warning(self):
         SETTINGS["PMG_VASP_PSP_DIR"] = self.TEST_FILES_DIR / "modified_potcars_data"
-        with pytest.raises(BadHashError):
+        with pytest.warns(BadHashWarning, match="POTCAR data hash"):
             potcar = MPRelaxSet(self.struct, potcar_functional="PBE").potcar
             print(potcar.spec)
 
     def test_data_hash_warning(self):
         SETTINGS["PMG_VASP_PSP_DIR"] = self.TEST_FILES_DIR / "modified_potcars_header"
 
-        with pytest.warns(UserWarning, match="did not pass validation"):
+        with pytest.warns(BadHashWarning, match="did not pass validation"):
             potcar = MPRelaxSet(self.struct, potcar_functional="PBE").potcar
 
 
@@ -88,16 +88,15 @@ class SetChangeCheckTest(PymatgenTest):
         for input_set in input_sets:
             with open(input_set, "r") as f:
                 hashes[input_set] = hashlib.sha1(f.read().encode("utf-8")).hexdigest()
-        known_hashes = {
-            "MVLGWSet.yaml": "594f90b32ac517df118f861acfad4ab0116d83ae",
-            "MVLRelax52Set.yaml": "eb538ffb45c0cd13f13df48afc1e71c44d2e34b2",
-            "MPHSERelaxSet.yaml": "01b080259186018b2233156006a5ebdd9172afaf",
-            "VASPIncarBase.yaml": "10788d13605478628167c90af50d644a836e6db4",
-            "MPSCANRelaxSet.yaml": "0d5d2a5fb7d6d6322bccc993df1bc34c7a062e6b",
-            "MPRelaxSet.yaml": "5426bc9e9b2584ca913051c715c715663860ea81",
-            "MITRelaxSet.yaml": "07d1b896615c40d6b536f75c6aeaf89866e1795a",
-            "vdW_parameters.yaml": "66541f58b221c8966109156f4f651b2ca8aa76da",
-        }
+        known_hashes = {'MVLGWSet.yaml': 'f4df9516cf7dd923b37281172c662a70fa32bebc',
+                        'MVLRelax52Set.yaml': 'fdc14002ae7c835936327a6439c2cbedea7c896c',
+                        'MPHSERelaxSet.yaml': '2bb969e64b57ff049077c8ec10e64f94c9c97f42',
+                        'VASPIncarBase.yaml': 'dbdbfe7d5c055a3f1e87223a031ae3ad58631395',
+                        'MPSCANRelaxSet.yaml': 'd582e2e6dc55e1931c7616bacaf703326f3f1110',
+                        'MPRelaxSet.yaml': '6e981500f8b8b3c33b6bee3c279a3b824cbafe3d',
+                        'MITRelaxSet.yaml': '1a0970f8cad9417ec810f7ab349dc854eaa67010',
+                        'vdW_parameters.yaml': '66541f58b221c8966109156f4f651b2ca8aa76da'}
+
         # assert hashes == known_hashes
         if hashes != known_hashes:
             raise UserWarning(
@@ -604,6 +603,11 @@ class MPNonSCFSetTest(PymatgenTest):
         self.assertEqual(vis.incar["ISMEAR"], -5)
         self.assertEqual(vis.incar["ISYM"], 2)
 
+        # check uniform mode with automatic nedos
+        vis = MPNonSCFSet.from_prev_calc(prev_calc_dir=prev_run, mode="Uniform",
+                                         nedos=0)
+        self.assertEqual(vis.incar["NEDOS"], 12217)
+
         # test line mode
         vis = MPNonSCFSet.from_prev_calc(
             prev_calc_dir=prev_run,
@@ -656,6 +660,10 @@ class MPNonSCFSetTest(PymatgenTest):
         vis.override_from_prev_calc(prev_calc_dir=prev_run)
         self.assertEqual(vis.incar["ISMEAR"], -5)
         self.assertEqual(vis.incar["ISYM"], 2)
+
+        vis = MPNonSCFSet(_dummy_structure, mode="Uniform", nedos=0)
+        vis.override_from_prev_calc(prev_calc_dir=prev_run)
+        self.assertEqual(vis.incar["NEDOS"], 12217)
 
         # test line mode
         vis = MPNonSCFSet(
@@ -776,7 +784,7 @@ class MagmomLdauTest(PymatgenTest):
 
     def test_ln_magmom(self):
         YAML_PATH = os.path.join(os.path.dirname(__file__), "../VASPIncarBase.yaml")
-        MAGMOM_SETTING = loadfn(YAML_PATH)["MAGMOM"]
+        MAGMOM_SETTING = loadfn(YAML_PATH)["INCAR"]["MAGMOM"]
         structure = Structure.from_file(self.TEST_FILES_DIR / "La4Fe4O12.cif")
         structure.add_oxidation_state_by_element({"La": +3, "Fe": +3, "O": -2})
         for ion in MAGMOM_SETTING:
@@ -1318,6 +1326,18 @@ class MPScanRelaxSetTest(PymatgenTest):
         self.assertEqual(type(v), MPScanRelaxSet)
         self.assertEqual(v._config_dict["INCAR"]["METAGGA"], "SCAN")
         self.assertEqual(v.user_incar_settings["NSW"], 500)
+    
+    def test_write_input(self):
+        self.mp_scan_set.write_input(
+            "."
+        )
+        self.assertTrue(os.path.exists("INCAR"))
+        self.assertFalse(os.path.exists("KPOINTS"))
+        self.assertTrue(os.path.exists("POTCAR"))
+        self.assertTrue(os.path.exists("POSCAR"))
+
+        for f in ["INCAR", "POSCAR", "POTCAR"]:
+            os.remove(f)
 
 
 class FuncTest(PymatgenTest):
