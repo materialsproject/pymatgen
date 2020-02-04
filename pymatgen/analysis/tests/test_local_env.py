@@ -21,8 +21,8 @@ from pymatgen import Element, Molecule, Structure, Lattice
 from pymatgen.util.testing import PymatgenTest
 
 try:
-    import openbabel as ob
-    import pybel as pb
+    from openbabel import openbabel as ob
+    from openbabel import pybel as pb
 except ImportError:
     pb = None
     ob = None

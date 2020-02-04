@@ -191,7 +191,7 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
                          "POSCAR": self.poscar,
                          "KPOINTS": self.kpoints
                          }.items():
-                if k is not None:
+                if v is not None:
                     with zopen(os.path.join(output_dir, k), "wt") as f:
                         f.write(v.__str__())
         else:
@@ -231,7 +231,15 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
 
 def _load_yaml_config(fname):
     config = loadfn(str(MODULE_DIR / ("%s.yaml" % fname)))
-    config["INCAR"].update(loadfn(str(MODULE_DIR / "VASPIncarBase.yaml")))
+    if "PARENT" in config:
+        parent_config = _load_yaml_config(config["PARENT"])
+        for k, v in parent_config.items():
+            if k not in config:
+                config[k] = v
+            elif isinstance(v, dict):
+                v_new = config.get(k, {})
+                v_new.update(v)
+                config[k] = v_new
     return config
 
 
@@ -1277,6 +1285,7 @@ class MPNonSCFSet(MPRelaxSet):
         prev_incar=None,
         mode="line",
         nedos=2001,
+        dedos=0.005,
         reciprocal_density=100,
         sym_prec=0.1,
         kpoints_line_density=20,
@@ -1292,6 +1301,9 @@ class MPNonSCFSet(MPRelaxSet):
             prev_incar (Incar/string): Incar file from previous run.
             mode (str): Line, Uniform or Boltztrap mode supported.
             nedos (int): nedos parameter. Default to 2001.
+            dedos (float): setting nedos=0 and uniform mode in from_prev_calc,
+                an automatic nedos will be calculated using the total energy range
+                divided by the energy step dedos
             reciprocal_density (int): density of k-mesh by reciprocal
                 volume (defaults to 100)
             sym_prec (float): Symmetry precision (for Uniform mode).
@@ -1313,6 +1325,7 @@ class MPNonSCFSet(MPRelaxSet):
         self.prev_incar = prev_incar
         self.kwargs = kwargs
         self.nedos = nedos
+        self.dedos = dedos
         self.reciprocal_density = reciprocal_density
         self.sym_prec = sym_prec
         self.kpoints_line_density = kpoints_line_density
@@ -1488,6 +1501,13 @@ class MPNonSCFSet(MPRelaxSet):
                 self.kpoints_line_density = (
                     self.kpoints_line_density * self.small_gap_multiply[1]
                 )
+
+        # automatic setting of nedos using the total energy range and the energy step dedos
+        if self.nedos == 0:
+            emax = max([eigs.max() for eigs in vasprun.eigenvalues.values()])
+            emin = min([eigs.min() for eigs in vasprun.eigenvalues.values()])
+            self.nedos = int((emax - emin) / self.dedos)
+
         return self
 
     @classmethod
@@ -2837,9 +2857,9 @@ class BadInputSetWarning(UserWarning):
     pass
 
 
-class BadHashError(Exception):
+class BadHashWarning(UserWarning):
     """
-    Error raised when POTCAR hashes do not pass validation
+    Warning raised when POTCAR hashes do not pass validation
     """
 
     pass
@@ -2856,8 +2876,8 @@ def validate_potcar_hash(potcar: Potcar):
     VASP 5.4.4 are stored in 'vasp_potcar_file_hashes.json' and
     'vasp_potcar_file_hashes.json'.
 
-    A warning is raised if the data hash passes validation but the
-    file hash does not.
+    A BadHashWarning is raised if either the data hash or the file hash do
+    not pass validation.
     """
     # hashes computed from pseudopotential distributed with VASP 5.4.4
     cwd = os.path.abspath(os.path.dirname(__file__))
@@ -2868,24 +2888,26 @@ def validate_potcar_hash(potcar: Potcar):
 
     for psingle in potcar:
         if psingle.hash != pymatgen_hashes[key][psingle.symbol]:
-            raise BadHashError(
+            warnings.warn(
                 "POTCAR data hash for POTCAR {} did not pass \
                                 validation. Verify the integrity of your \
                                 POTCAR files. ".format(
                     psingle.symbol
-                )
+                ),
+                BadHashWarning
             )
-    else:
-        file_hash = md5(psingle.data.encode("utf-8")).hexdigest()
-        if file_hash != file_hashes[key][psingle.symbol]:
-            warnings.warn(
-                "POTCAR file hash for POTCAR {} did not pass validation. \
-                            It is possible that the metadata in the POTCAR has changed. \
-                        We will continue loading the POTCAR because the hash of \
-                        the data itself has passed validation.".format(
-                    psingle.symbol
+        else:
+            file_hash = md5(psingle.data.encode("utf-8")).hexdigest()
+            if file_hash != file_hashes[key][psingle.symbol]:
+                warnings.warn(
+                    "POTCAR file hash for POTCAR {} did not pass validation. \
+                                It is possible that the metadata in the POTCAR has changed. \
+                            We will continue loading the POTCAR because the hash of \
+                            the data itself has passed validation.".format(
+                        psingle.symbol
+                    ),
+                    BadHashWarning
                 )
-            )
 
 
 def batch_write_input(

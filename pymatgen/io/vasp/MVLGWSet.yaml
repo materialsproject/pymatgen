@@ -1,4 +1,5 @@
 # Default VASP settings for GW calculations used by the Materials Virtual Lab.
+PARENT: VASPIncarBase
 INCAR:
   ALGO: Normal
   EDIFF: 1.0e-8

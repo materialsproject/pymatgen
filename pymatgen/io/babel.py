@@ -10,10 +10,9 @@ from pymatgen.analysis.graphs import MoleculeGraph
 from monty.dev import requires
 
 try:
-    import openbabel as ob
-    import pybel as pb
+    from openbabel import openbabel as ob
+    from openbabel import pybel as pb
 except Exception:
-    pb = None
     ob = None
 
 """
@@ -37,9 +36,10 @@ class BabelMolAdaptor:
     Molecule.
     """
 
-    @requires(pb and ob,
+    @requires(ob,
               "BabelMolAdaptor requires openbabel to be installed with "
-              "Python bindings. Please get it at http://openbabel.org.")
+              "Python bindings. Please get it at http://openbabel.org "
+              "(version >=3.0.0).")
     def __init__(self, mol):
         """
         Initializes with pymatgen Molecule or OpenBabel"s OBMol.
@@ -72,7 +72,6 @@ class BabelMolAdaptor:
             obmol.SetTotalSpinMultiplicity(mol.spin_multiplicity)
             obmol.SetTotalCharge(int(mol.charge))
             obmol.Center()
-            obmol.Kekulize()
             obmol.EndModify()
             self._obmol = obmol
         elif isinstance(mol, ob.OBMol):
