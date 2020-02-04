@@ -233,9 +233,11 @@ def _load_yaml_config(fname):
     config = loadfn(str(MODULE_DIR / ("%s.yaml" % fname)))
     if "PARENT" in config:
         parent_config = _load_yaml_config(config["PARENT"])
-        for k, v in config.items():
-            if isinstance(v, dict):
-                v_new = parent_config.get(k, {})
+        for k, v in parent_config.items():
+            if k not in config:
+                config[k] = v
+            elif isinstance(v, dict):
+                v_new = config.get(k, {})
                 v_new.update(v)
                 config[k] = v_new
     return config
@@ -2894,18 +2896,18 @@ def validate_potcar_hash(potcar: Potcar):
                 ),
                 BadHashWarning
             )
-    else:
-        file_hash = md5(psingle.data.encode("utf-8")).hexdigest()
-        if file_hash != file_hashes[key][psingle.symbol]:
-            warnings.warn(
-                "POTCAR file hash for POTCAR {} did not pass validation. \
-                            It is possible that the metadata in the POTCAR has changed. \
-                        We will continue loading the POTCAR because the hash of \
-                        the data itself has passed validation.".format(
-                    psingle.symbol
-                ),
-                BadHashWarning
-            )
+        else:
+            file_hash = md5(psingle.data.encode("utf-8")).hexdigest()
+            if file_hash != file_hashes[key][psingle.symbol]:
+                warnings.warn(
+                    "POTCAR file hash for POTCAR {} did not pass validation. \
+                                It is possible that the metadata in the POTCAR has changed. \
+                            We will continue loading the POTCAR because the hash of \
+                            the data itself has passed validation.".format(
+                        psingle.symbol
+                    ),
+                    BadHashWarning
+                )
 
 
 def batch_write_input(

@@ -89,7 +89,7 @@ class SetChangeCheckTest(PymatgenTest):
             with open(input_set, "r") as f:
                 hashes[input_set] = hashlib.sha1(f.read().encode("utf-8")).hexdigest()
         known_hashes = {'MVLGWSet.yaml': 'f4df9516cf7dd923b37281172c662a70fa32bebc',
-                        'MVLRelax52Set.yaml': 'fdc14002ae7c835936327a6439c2cbedea7c896c',
+                        'MVLRelax52Set.yaml': 'a3ea9f6d992b3acd8cdee18c1ac348cda7d584af',
                         'MPHSERelaxSet.yaml': '2bb969e64b57ff049077c8ec10e64f94c9c97f42',
                         'VASPIncarBase.yaml': 'dbdbfe7d5c055a3f1e87223a031ae3ad58631395',
                         'MPSCANRelaxSet.yaml': 'd582e2e6dc55e1931c7616bacaf703326f3f1110',
@@ -1326,7 +1326,7 @@ class MPScanRelaxSetTest(PymatgenTest):
         self.assertEqual(type(v), MPScanRelaxSet)
         self.assertEqual(v._config_dict["INCAR"]["METAGGA"], "SCAN")
         self.assertEqual(v.user_incar_settings["NSW"], 500)
-    
+
     def test_write_input(self):
         self.mp_scan_set.write_input(
             "."
