@@ -261,7 +261,18 @@ class StructureConnectivity(MSONable):
 
     @classmethod
     def from_dict(cls, d):
+        # Reconstructs the graph with integer as nodes (json's as_dict replaces integer keys with str keys)
+        cgraph = nx.from_dict_of_dicts(d['connectivity_graph'], create_using=nx.MultiGraph, multigraph_input=True)
+        cgraph = nx.relabel_nodes(cgraph, int)  # Just relabel the nodes using integer casting (maps str->int)
+        # Relabel multiedges (removes multiedges with str keys and adds them back with int keys)
+        edges = set(cgraph.edges())
+        for n1, n2 in edges:
+            new_edges = {int(iedge): edata for iedge, edata in cgraph[n1][n2].items()}
+            cgraph.remove_edges_from([(n1, n2, iedge) for iedge, edata in cgraph[n1][n2].items()])
+            cgraph.add_edges_from([(n1, n2, iedge, edata) for iedge, edata in new_edges.items()])
         return cls(LightStructureEnvironments.from_dict(d['light_structure_environments']),
-                   connectivity_graph=nx.from_dict_of_dicts(d['connectivity_graph'], multigraph_input=True),
-                   environment_subgraphs={env_key: nx.from_dict_of_dicts(subgraph, multigraph_input=True)
-                                          for env_key, subgraph in d['environment_subgraphs'].items()})
+                   connectivity_graph=cgraph,
+                   environment_subgraphs=None)
+        # TODO: also deserialize the environment_subgraphs
+                   # environment_subgraphs={env_key: nx.from_dict_of_dicts(subgraph, multigraph_input=True)
+                   #                        for env_key, subgraph in d['environment_subgraphs'].items()})
