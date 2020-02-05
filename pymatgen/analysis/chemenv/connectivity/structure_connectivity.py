@@ -274,5 +274,5 @@ class StructureConnectivity(MSONable):
                    connectivity_graph=cgraph,
                    environment_subgraphs=None)
         # TODO: also deserialize the environment_subgraphs
-                   # environment_subgraphs={env_key: nx.from_dict_of_dicts(subgraph, multigraph_input=True)
-                   #                        for env_key, subgraph in d['environment_subgraphs'].items()})
+        #            environment_subgraphs={env_key: nx.from_dict_of_dicts(subgraph, multigraph_input=True)
+        #                                   for env_key, subgraph in d['environment_subgraphs'].items()})
