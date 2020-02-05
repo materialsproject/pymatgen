@@ -10,6 +10,7 @@ from pymatgen.analysis.chemenv.connectivity.environment_nodes import Environment
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import LocalGeometryFinder
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import SimplestChemenvStrategy
 from pymatgen.analysis.chemenv.coordination_environments.structure_environments import LightStructureEnvironments
+from pymatgen.analysis.chemenv.coordination_environments.structure_environments import StructureEnvironments
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
@@ -635,3 +636,42 @@ Node #3 Li (O:6), connected to :
         assert len(ccs) == 2
         ccs_periodicities = set(cc.periodicity for cc in ccs)
         assert ccs_periodicities == {'0D', '2D'}
+
+    def test_coordination_sequences(self):
+        BaTiO3_se_fpath = os.path.join(self.TEST_FILES_DIR,
+                                       'chemenv', 'structure_environments_files',
+                                       'se_mp-5020.json')
+        with open(BaTiO3_se_fpath, 'r') as f:
+            dd = json.load(f)
+        se = StructureEnvironments.from_dict(dd)
+        lse = LightStructureEnvironments.from_structure_environments(strategy=SimplestChemenvStrategy(),
+                                                                     structure_environments=se)
+        cf = ConnectivityFinder()
+        sc = cf.get_structure_connectivity(light_structure_environments=lse)
+        ccs_oct = sc.get_connected_components(environments_symbols=['O:6'])
+        ccs_all = sc.get_connected_components(environments_symbols=['O:6', 'C:12'])
+        assert len(ccs_oct) == 1
+        assert len(ccs_all) == 1
+        cc_oct = ccs_oct[0]
+        cc_all = ccs_all[0]
+        cc_oct_node = list(cc_oct.graph.nodes())[0]
+        cseq = cc_oct.coordination_sequence(source_node=cc_oct_node, path_size=6)
+        assert cseq == {1: 6, 2: 18, 3: 38, 4: 66, 5: 102, 6: 146}
+        cc_all_oct_node = next(n for n in cc_all.graph.nodes() if n.coordination_environment == 'O:6')
+        cc_all_cuboct_node = next(n for n in cc_all.graph.nodes() if n.coordination_environment == 'C:12')
+        cseq = cc_all.coordination_sequence(source_node=cc_all_oct_node, path_size=6)
+        assert cseq == {1: 14, 2: 74, 3: 218, 4: 442, 5: 746, 6: 1130}
+        cseq = cc_all.coordination_sequence(source_node=cc_all_cuboct_node, path_size=6)
+        assert cseq == {1: 26, 2: 122, 3: 298, 4: 554, 5: 890, 6: 1306}
+        cseq = cc_all.coordination_sequence(source_node=cc_all_cuboct_node, path_size=6, include_source=True)
+        assert cseq == {0: 1, 1: 26, 2: 122, 3: 298, 4: 554, 5: 890, 6: 1306}
+        cseq = cc_all.coordination_sequence(source_node=cc_all_oct_node, path_size=4, coordination='env:number')
+        assert cseq == {1: {'O:6': 6, 'C:12': 8}, 2: {'O:6': 26, 'C:12': 48},
+                        3: {'O:6': 90, 'C:12': 128}, 4: {'O:6': 194, 'C:12': 248}}
+        cseq = cc_all.coordination_sequence(source_node=cc_all_cuboct_node, path_size=4, coordination='env:number')
+        assert cseq == {1: {'O:6': 8, 'C:12': 18}, 2: {'O:6': 48, 'C:12': 74},
+                        3: {'O:6': 128, 'C:12': 170}, 4: {'O:6': 248, 'C:12': 306}}
+        cseq = cc_all.coordination_sequence(source_node=cc_all_cuboct_node, path_size=4, coordination='env:number',
+                                            include_source=True)
+        assert cseq == {0: {'C:12': 1}, 1: {'O:6': 8, 'C:12': 18}, 2: {'O:6': 48, 'C:12': 74},
+                        3: {'O:6': 128, 'C:12': 170}, 4: {'O:6': 248, 'C:12': 306}}
