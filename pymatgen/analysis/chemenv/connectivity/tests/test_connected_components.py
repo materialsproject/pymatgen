@@ -655,17 +655,23 @@ Node #3 Li (O:6), connected to :
         cc_oct = ccs_oct[0]
         cc_all = ccs_all[0]
         cc_oct_node = list(cc_oct.graph.nodes())[0]
-        cseq = cc_oct.coordination_sequence(env_node=cc_oct_node, path_size=6)
+        cseq = cc_oct.coordination_sequence(source_node=cc_oct_node, path_size=6)
         assert cseq == {1: 6, 2: 18, 3: 38, 4: 66, 5: 102, 6: 146}
         cc_all_oct_node = next(n for n in cc_all.graph.nodes() if n.coordination_environment == 'O:6')
         cc_all_cuboct_node = next(n for n in cc_all.graph.nodes() if n.coordination_environment == 'C:12')
-        cseq = cc_all.coordination_sequence(env_node=cc_all_oct_node, path_size=6)
+        cseq = cc_all.coordination_sequence(source_node=cc_all_oct_node, path_size=6)
         assert cseq == {1: 14, 2: 74, 3: 218, 4: 442, 5: 746, 6: 1130}
-        cseq = cc_all.coordination_sequence(env_node=cc_all_cuboct_node, path_size=6)
+        cseq = cc_all.coordination_sequence(source_node=cc_all_cuboct_node, path_size=6)
         assert cseq == {1: 26, 2: 122, 3: 298, 4: 554, 5: 890, 6: 1306}
-        cseq = cc_all.coordination_sequence(env_node=cc_all_oct_node, path_size=4, coordination='env:number')
+        cseq = cc_all.coordination_sequence(source_node=cc_all_cuboct_node, path_size=6, include_source=True)
+        assert cseq == {0: 1, 1: 26, 2: 122, 3: 298, 4: 554, 5: 890, 6: 1306}
+        cseq = cc_all.coordination_sequence(source_node=cc_all_oct_node, path_size=4, coordination='env:number')
         assert cseq == {1: {'O:6': 6, 'C:12': 8}, 2: {'O:6': 26, 'C:12': 48},
                         3: {'O:6': 90, 'C:12': 128}, 4: {'O:6': 194, 'C:12': 248}}
-        cseq = cc_all.coordination_sequence(env_node=cc_all_cuboct_node, path_size=4, coordination='env:number')
+        cseq = cc_all.coordination_sequence(source_node=cc_all_cuboct_node, path_size=4, coordination='env:number')
         assert cseq == {1: {'O:6': 8, 'C:12': 18}, 2: {'O:6': 48, 'C:12': 74},
+                        3: {'O:6': 128, 'C:12': 170}, 4: {'O:6': 248, 'C:12': 306}}
+        cseq = cc_all.coordination_sequence(source_node=cc_all_cuboct_node, path_size=4, coordination='env:number',
+                                            include_source=True)
+        assert cseq == {0: {'C:12': 1}, 1: {'O:6': 8, 'C:12': 18}, 2: {'O:6': 48, 'C:12': 74},
                         3: {'O:6': 128, 'C:12': 170}, 4: {'O:6': 248, 'C:12': 306}}
