@@ -434,6 +434,21 @@ class DictSet(VaspInputSet):
             for k, v in self.user_potcar_settings.items():
                 self._config_dict["POTCAR"][k] = v
 
+        # warn if the selected POTCARs do not correspond to the chosen
+        # potcar_functional
+        for psingle in self.potcar:
+            if self.potcar_functional not in psingle.identify_potcar()[0]:
+                warnings.warn(
+                    "POTCAR data with symbol {} is not known by pymatgen to\
+                    correspond with the selected potcar_functional {}. This POTCAR\
+                    is known to correspond with functionals {}. Please verify that\
+                    you are using the right POTCARs!"
+                        .format(psingle.symbol,
+                                self.potcar_functional,
+                                psingle.identify_potcar(mode='data')[0]),
+                    BadInputSetWarning,
+                )
+
     @property
     def structure(self) -> Structure:
         """
