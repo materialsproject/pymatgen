@@ -54,7 +54,6 @@ from monty.serialization import loadfn
 from monty.io import zopen
 from monty.dev import deprecated
 from zipfile import ZipFile
-from hashlib import md5
 
 from pymatgen.core.periodic_table import Specie, Element
 from pymatgen.core.structure import Structure
@@ -128,7 +127,6 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
         Potcar object.
         """
         potcar = Potcar(self.potcar_symbols, functional=self.potcar_functional)
-        validate_potcar_hash(potcar)
         return potcar
 
     @property  # type: ignore
@@ -2855,59 +2853,6 @@ class BadInputSetWarning(UserWarning):
     """
 
     pass
-
-
-class BadHashWarning(UserWarning):
-    """
-    Warning raised when POTCAR hashes do not pass validation
-    """
-
-    pass
-
-
-def validate_potcar_hash(potcar: Potcar):
-    """
-    Validate POTCAR contents against pre-compiled hashes.
-
-    Two hashes are checked - the "file hash" checks the md5 hash of
-    the entire file, including metadata. The "pymatgen hash" is computed
-    using the get_potcar_hash method and represents a hash of just the
-    PSCTR data in the header. Hashes of the POTCARs distributed with
-    VASP 5.4.4 are stored in 'vasp_potcar_file_hashes.json' and
-    'vasp_potcar_file_hashes.json'.
-
-    A BadHashWarning is raised if either the data hash or the file hash do
-    not pass validation.
-    """
-    # hashes computed from pseudopotential distributed with VASP 5.4.4
-    cwd = os.path.abspath(os.path.dirname(__file__))
-    pymatgen_hashes = loadfn(os.path.join(cwd, "vasp_potcar_pymatgen_hashes.json"))
-    file_hashes = loadfn(os.path.join(cwd, "vasp_potcar_file_hashes.json"))
-
-    key = potcar[0].functional_dir[potcar.functional]
-
-    for psingle in potcar:
-        if psingle.hash != pymatgen_hashes[key][psingle.symbol]:
-            warnings.warn(
-                "POTCAR data hash for POTCAR {} did not pass \
-                                validation. Verify the integrity of your \
-                                POTCAR files. ".format(
-                    psingle.symbol
-                ),
-                BadHashWarning
-            )
-        else:
-            file_hash = md5(psingle.data.encode("utf-8")).hexdigest()
-            if file_hash != file_hashes[key][psingle.symbol]:
-                warnings.warn(
-                    "POTCAR file hash for POTCAR {} did not pass validation. \
-                                It is possible that the metadata in the POTCAR has changed. \
-                            We will continue loading the POTCAR because the hash of \
-                            the data itself has passed validation.".format(
-                        psingle.symbol
-                    ),
-                    BadHashWarning
-                )
 
 
 def batch_write_input(
