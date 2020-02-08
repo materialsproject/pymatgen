@@ -777,7 +777,7 @@ class PotcarSingleTest(PymatgenTest):
 
     def test_identify_potcar(self):
         filename = (self.TEST_FILES_DIR / "POT_GGA_PAW_PBE_54" / "POTCAR.Fe.gz")
-        #filename = "/Users/ryan/VASP POTCARS downloaded 2020-02-04 by KP/potpaw_PBE/Li_sv/POTCAR"
+
         with pytest.warns(None) as warning:
             psingle = PotcarSingle.from_file(filename)
         assert "PBE_54" in psingle.identify_potcar()[0]
@@ -793,7 +793,7 @@ class PotcarSingleTest(PymatgenTest):
     def test_potcar_file_hash_warning(self):
         filename = (self.TEST_FILES_DIR / "modified_potcars_header" /
                     "POT_GGA_PAW_PBE" / "POTCAR.Fe_pv")
-        with pytest.warns(BadPotcarWarning, match = "following"):
+        with pytest.warns(BadPotcarWarning, match="following"):
             PotcarSingle.from_file(filename)
 
     # def test_default_functional(self):
