@@ -2254,8 +2254,8 @@ class MITNEBSet(MITRelaxSet):
         if len(structures) < 3:
             raise ValueError("You need at least 3 structures for an NEB.")
         kwargs["sort_structure"] = False
-        super().__init__(structures[0], **kwargs)
         self.structures = self._process_structures(structures)
+        super().__init__(structures[0], **kwargs)
         self.unset_encut = False
         if unset_encut:
             self._config_dict["INCAR"].pop("ENCUT", None)
