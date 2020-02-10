@@ -115,7 +115,7 @@ def read_potentials(filename):
 
 
 # TODO: Setting the default basis set to triple zeta double valence potential (highest accuracy). Check this.
-def get_basis_and_potential(species, potential_type='GTH', functional='PBE', basis_type='TZV2P'):
+def get_basis_and_potential(species, potential_type='GTH', functional='PBE', basis_type='MOLOPT', cardinality='DZVP'):
 
     """
     Given a specie and a potential/basis type, this function accesses the available basis sets and potentials in
@@ -149,12 +149,18 @@ def get_basis_and_potential(species, potential_type='GTH', functional='PBE', bas
 
     d = {}
     for specie in species:
-        l = list(potentials[functional][specie].keys())
-        if len(l) == 1:
-            s = l[0].split('-')
-            d[specie] = {'potential': l[0],
-                         'basis': "{}-GTH-{}".format(basis_type, s[-1])}
+        d[specie] = {}
+        if basis_type is 'MOLOPT':
+            d[specie]['basis'] = "{}-MOLOPT-GTH".format(cardinality)
+        elif basis_type is 'GTH':
+            d[specie]['basis'] = "{}-GTH".format(cardinality)
+        elif basis_type is 'ANO':
+            d[specie]['basis'] = "{}-ANO".format(cardinality)
+        elif (basis_type is 'ALL') or (basis_type is 'ALLELECTRON'):
+            d[specie]['basis'] = "{}-ALL".format(cardinality)
         else:
-            raise AttributeError('FOUND MORE THAN ONE FUNCTIONAL FOR {} WITH TYPE {}'.format(specie, type),
-                                 'AMBIGUITY CANNOT BE HANDLED. MUST MANUALLY SET THE POTENTIAL')
+            raise AttributeError("AN UNKNOWN BASIS SET TYPE, {}, HAS BEEN SPECIFIED.".format(basis_type))
+
+        d[specie]['potential'] = "GTH-{}".format(functional)
+
     return d

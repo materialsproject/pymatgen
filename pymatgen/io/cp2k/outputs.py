@@ -80,31 +80,34 @@ class Cp2kOuput:
 
     """
 
-    def __init__(self, filename, verbose=False):
+    def __init__(self, filename, verbose=False, auto_load=True):
         self.filename = filename
         self.is_stopped = False
         self.data = {}
-        self._parse_global_params()  # Always present, parse the global parameters, most important is what run type
-        self._parse_dft_params()  # TODO: assumes DFT, should be more general to support QMMM, MC, etc.
-        self._ran_successfully()  # Only if job completed. No info about convergence etc.
 
-        toten_pattern = re.compile(r"Total FORCE_EVAL.*\s(-?\d+.\d+)")
-        self.read_pattern({'total_energy': toten_pattern},
-                          terminate_on_match=True, postprocess=float, reverse=True)
-        self.final_energy = self.data.get('total_energy', [])[-1][-1]
+        if auto_load:
+            self._parse_global_params()  # Always present, parse the global parameters, most important is what run type
+            self._parse_dft_params()  # TODO: assumes DFT, should be more general to support QMMM, MC, etc.
+            self._ran_successfully()  # Only if job completed. No info about convergence etc.
+            self._convergence()
 
-        self._parse_cell_params()  # Get the initial lattice
-        self._parse_initial_structure()  # Get the initial structure by parsing lattice and then parsing coords
-        self._parse_timing()  # Get timing info (includes total CPU time consumed, but also much more)
+            toten_pattern = re.compile(r"Total FORCE_EVAL.*\s(-?\d+.\d+)")
+            self.read_pattern({'total_energy': toten_pattern},
+                              terminate_on_match=True, postprocess=float, reverse=True)
+            self.final_energy = self.data.get('total_energy', [])[-1][-1]
 
-        # TODO: Is this the best way to implement? Should there just be the option to select each individually?
-        if verbose:
-            self._parse_scf_opt()
-            self._parse_opt_steps()
-            self._parse_total_numbers()
+            self._parse_cell_params()  # Get the initial lattice
+            self._parse_initial_structure()  # Get the initial structure by parsing lattice and then parsing coords
+            self._parse_timing()  # Get timing info (includes total CPU time consumed, but also much more)
 
-        self._parse_mulliken()
-        self._parse_hirshfeld()
+            # TODO: Is this the best way to implement? Should there just be the option to select each individually?
+            if verbose:
+                self._parse_scf_opt()
+                self._parse_opt_steps()
+                self._parse_total_numbers()
+
+            self._parse_mulliken()
+            self._parse_hirshfeld()
 
     @property
     def completed(self):
@@ -120,7 +123,8 @@ class Cp2kOuput:
 
     @property
     def spin_polarized(self):
-        if 'UKS' in self.data['dft'].values():
+        if ('UKS' or 'UNRESTRICTED_KOHN_SHAM' or 'LSD' or 'SPIN_POLARIZED') in \
+                self.data['dft'].values():
             return True
         return False
 
@@ -136,6 +140,24 @@ class Cp2kOuput:
                           reverse=True, terminate_on_match=True, postprocess=bool)
         self.read_pattern(patterns={'num_warnings': num_warnings},
                           reverse=True, terminate_on_match=True, postprocess=int)
+
+    def _convergence(self):
+        # SCF Loops
+        uncoverged_inner_loop = re.compile(r"(Leaving inner SCF loop)")
+        scf_converged = re.compile(r"(SCF run converged)")
+        scf_not_converged = re.compile(r"(SCF run NOT converged)")
+        self.read_pattern(patterns={'uncoverged_inner_loop': uncoverged_inner_loop,
+                                    'scf_converged': scf_converged,
+                                    'scf_not_converged': scf_not_converged},
+                          reverse=True,
+                          terminate_on_match=False, postprocess=bool)
+
+        # GEO_OPT
+        geo_opt_not_converged = re.compile(r"(MAXIMUM NUMBER OF OPTIMIZATION STEPS REACHED)")
+        geo_opt_converged = re.compile(r"(GEOMETRY OPTIMIZATION COMPLETED)")
+        self.read_pattern(patterns={'geo_opt_converged': geo_opt_converged,
+                                    'geo_opt_not_converged': geo_opt_not_converged},
+                          reverse=True, terminate_on_match=True, postprocess=bool)
 
     def _parse_global_params(self):
         """
@@ -207,9 +229,11 @@ class Cp2kOuput:
                                        row_pattern=row, footer_pattern=footer,
                                        last_one_only=False)
 
-        self.data['electronic_steps'] = []
-        for i in scfs:
-            self.data['electronic_steps'].append([float(j[-2]) for j in i])
+        self.data['electronic_steps'] = scfs
+
+        #self.data['electronic_steps'] = []
+        #for i in scfs:
+        #    self.data['electronic_steps'].append([float(j[-2]) for j in i])
 
     def _parse_timing(self):
         header = r"SUBROUTINE\s+CALLS\s+ASD\s+SELF TIME\s+TOTAL TIME" + \
