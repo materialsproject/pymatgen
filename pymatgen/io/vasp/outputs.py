@@ -3273,7 +3273,7 @@ class VolumetricData(MSONable):
             f.attrs["structure_json"] = json.dumps(self.structure.as_dict())
 
     @classmethod
-    def from_hdf5(cls, filename):
+    def from_hdf5(cls, filename, **kwargs):
         """
         Reads VolumetricData from HDF5 file.
 
@@ -3283,8 +3283,11 @@ class VolumetricData(MSONable):
         import h5py
         with h5py.File(filename, "r") as f:
             data = {k: np.array(v) for k, v in f["vdata"].items()}
+            data_aug = None
+            if 'vdata_aug' in f:
+                data_aug = {k: np.array(v) for k, v in f["vdata_aug"].items()}
             structure = Structure.from_dict(json.loads(f.attrs["structure_json"]))
-            return cls(structure=structure, data=data)
+            return cls(structure=structure, data=data, data_aug=data_aug,**kwargs)
 
 
 class Locpot(VolumetricData):
@@ -3301,8 +3304,8 @@ class Locpot(VolumetricData):
         super().__init__(poscar.structure, data)
         self.name = poscar.comment
 
-    @staticmethod
-    def from_file(filename):
+    @classmethod
+    def from_file(cls, filename, **kwargs):
         """
         Reads a LOCPOT file.
 
@@ -3310,7 +3313,7 @@ class Locpot(VolumetricData):
         :return: Locpot
         """
         (poscar, data, data_aug) = VolumetricData.parse_file(filename)
-        return Locpot(poscar, data)
+        return cls(poscar, data, **kwargs)
 
 
 class Chgcar(VolumetricData):
@@ -3318,16 +3321,26 @@ class Chgcar(VolumetricData):
     Simple object for reading a CHGCAR file.
     """
 
-    def __init__(self, poscar, data, data_aug=None):
+    def __init__(self, structure, data, data_aug=None):
         """
         Args:
-            poscar (Poscar): Poscar object containing structure.
+            structure (Poscar): Poscar object containing structure.
             data: Actual data.
+            data_aug: Augmentation charge data
         """
-        super().__init__(poscar.structure, data, data_aug=data_aug)
-        self.poscar = poscar
-        self.name = poscar.comment
+        # allow for poscar or structure files to be passed
+        if isinstance(structure, Poscar):
+            tmp_struct = structure.structure
+            self.poscar = structure
+            self.name = structure.comment
+        elif isinstance(structure, Structure):
+            tmp_struct = structure
+            self.poscar = Poscar(structure)
+            self.name = None
+
+        super().__init__(tmp_struct, data, data_aug=data_aug)
         self._distance_matrix = {}
+
 
     @staticmethod
     def from_file(filename):
