@@ -594,7 +594,7 @@ class StructureMatcher(MSONable):
         else:
             struct1, struct2, fu, s1_supercell = self._preprocess(struct1, struct2)
             match1 = self._match(struct1, struct2, fu, s1_supercell,
-                                break_on_match=True)
+                                 break_on_match=True)
             struct1, struct2 = struct2, struct1
             struct1, struct2, fu, s1_supercell = self._preprocess(struct1, struct2)
             match2 = self._match(struct1, struct2, fu, s1_supercell,
@@ -604,7 +604,6 @@ class StructureMatcher(MSONable):
                 return False
             else:
                 return max(match1[0], match2[0]) <= self.stol
-
 
     def get_rms_dist(self, struct1, struct2):
         """

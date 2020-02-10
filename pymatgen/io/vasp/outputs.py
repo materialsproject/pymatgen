@@ -3287,7 +3287,7 @@ class VolumetricData(MSONable):
             if 'vdata_aug' in f:
                 data_aug = {k: np.array(v) for k, v in f["vdata_aug"].items()}
             structure = Structure.from_dict(json.loads(f.attrs["structure_json"]))
-            return cls(structure, data=data, data_aug=data_aug,**kwargs)
+            return cls(structure, data=data, data_aug=data_aug, **kwargs)
 
 
 class Locpot(VolumetricData):
@@ -3340,7 +3340,6 @@ class Chgcar(VolumetricData):
 
         super().__init__(tmp_struct, data, data_aug=data_aug)
         self._distance_matrix = {}
-
 
     @staticmethod
     def from_file(filename):

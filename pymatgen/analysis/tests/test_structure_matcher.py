@@ -279,14 +279,12 @@ class StructureMatcherTest(PymatgenTest):
                                           stol=0.6,
                                           angle_tol=6,)
 
-
         s1 = Structure.from_file(test_dir+"/fit_symm_s1.vasp")
         s2 = Structure.from_file(test_dir+"/fit_symm_s2.vasp")
         self.assertEqual(sm_coarse.fit(s1, s2), True)
         self.assertEqual(sm_coarse.fit(s2, s1), False)
         self.assertEqual(sm_coarse.fit(s1, s2, symmetric=True), False)
         self.assertEqual(sm_coarse.fit(s2, s1, symmetric=True), False)
-
 
     def test_oxi(self):
         """Test oxidation state removal matching"""
