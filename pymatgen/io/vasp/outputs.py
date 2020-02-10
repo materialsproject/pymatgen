@@ -3287,7 +3287,7 @@ class VolumetricData(MSONable):
             if 'vdata_aug' in f:
                 data_aug = {k: np.array(v) for k, v in f["vdata_aug"].items()}
             structure = Structure.from_dict(json.loads(f.attrs["structure_json"]))
-            return cls(structure=structure, data=data, data_aug=data_aug,**kwargs)
+            return cls(structure, data=data, data_aug=data_aug,**kwargs)
 
 
 class Locpot(VolumetricData):
@@ -3321,21 +3321,21 @@ class Chgcar(VolumetricData):
     Simple object for reading a CHGCAR file.
     """
 
-    def __init__(self, structure, data, data_aug=None):
+    def __init__(self, poscar, data, data_aug=None):
         """
         Args:
-            structure (Poscar): Poscar object containing structure.
+            poscar (Poscar): Poscar object containing structure.
             data: Actual data.
             data_aug: Augmentation charge data
         """
         # allow for poscar or structure files to be passed
-        if isinstance(structure, Poscar):
-            tmp_struct = structure.structure
-            self.poscar = structure
-            self.name = structure.comment
-        elif isinstance(structure, Structure):
-            tmp_struct = structure
-            self.poscar = Poscar(structure)
+        if isinstance(poscar, Poscar):
+            tmp_struct = poscar.structure
+            self.poscar = poscar
+            self.name = poscar.comment
+        elif isinstance(poscar, Structure):
+            tmp_struct = poscar
+            self.poscar = Poscar(poscar)
             self.name = None
 
         super().__init__(tmp_struct, data, data_aug=data_aug)
