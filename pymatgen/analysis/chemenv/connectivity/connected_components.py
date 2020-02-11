@@ -1,23 +1,39 @@
-from __future__ import print_function
-from pymatgen.analysis.chemenv.utils.graph_utils import get_delta
+"""
+Connected components.
+"""
 
-__author__ = 'waroquiers'
+import logging
+import itertools
 
-from monty.json import MSONable
-from monty.json import jsanitize
-from pymatgen.analysis.chemenv.utils.chemenv_errors import ChemenvError
+import numpy as np
+from matplotlib.patches import FancyArrowPatch, Circle
+
 import networkx as nx
 from networkx.algorithms.traversal import bfs_tree
 from networkx.algorithms.components import is_connected
-import numpy as np
+
+from monty.json import MSONable
+from monty.json import jsanitize
+
+from pymatgen.analysis.chemenv.utils.graph_utils import get_delta
+from pymatgen.analysis.chemenv.utils.chemenv_errors import ChemenvError
 from pymatgen.analysis.chemenv.utils.math_utils import get_linearly_independent_vectors
 from pymatgen.analysis.chemenv.connectivity.environment_nodes import EnvironmentNode
-import itertools
-from matplotlib.patches import FancyArrowPatch, Circle
-import logging
 
 
 def draw_network(env_graph, pos, ax, sg=None, periodicity_vectors=None):
+    """
+
+    Args:
+        env_graph ():
+        pos ():
+        ax ():
+        sg ():
+        periodicity_vectors ():
+
+    Returns:
+
+    """
     for n in env_graph:
         c = Circle(pos[n], radius=0.02, alpha=0.5)
         ax.add_patch(c)
@@ -87,59 +103,17 @@ def draw_network(env_graph, pos, ax, sg=None, periodicity_vectors=None):
     return e
 
 
-# def get_ordered_path_isites(path):
-#     i_smallest = np.argmin(path)
-#     if path[np.mod(i_smallest + 1, len(path))] > path[np.mod(i_smallest - 1, len(path))]:
-#         return tuple([path[np.mod(ii, len(path))] for ii in range(i_smallest, i_smallest + len(path))])
-#     else:
-#         return tuple([path[np.mod(ii, len(path))] for ii in range(i_smallest, i_smallest - len(path), - 1)])
-
-
-# def get_ordered_node_group(node_group):
-#     min_groups = [np.min(gg) for gg in node_group]
-#     isorted = np.argsort(min_groups)
-#     return tuple([tuple(sorted(node_group[ii])) for ii in isorted])
-
-
-# def all_pairs_combinations(even_length_list, return_indices=False):
-#     indices_list = list(range(len(even_length_list)))
-#     pairs_combinations = []
-#     groups = []
-#     opposite_groups = []
-#     for group in itertools.combinations(indices_list, len(even_length_list) / 2):
-#         opposite_group = tuple(set(indices_list) - set(group))
-#         if group not in groups and opposite_group not in groups:
-#             groups.append(group)
-#             opposite_groups.append(opposite_group)
-#     for igroup, group in enumerate(groups):
-#         for group_perm in itertools.permutations(opposite_groups[igroup]):
-#             combination = tuple(tuple(sorted([group[ii], group_perm[ii]])) for ii in range(len(group)))
-#             if not combination in pairs_combinations:
-#                 pairs_combinations.append(combination)
-#     if return_indices:
-#         return pairs_combinations
-#     return [[(even_length_list[pair[0]],
-#               even_length_list[pair[1]]) for pair in pair_combi] for pair_combi in pairs_combinations]
-
-
-# def cycle_contains_edge(cycle, edge):
-#     found = 0
-#     for cycle_edge in cycle:
-#         if cycle_edge[0] == edge[0] and cycle_edge[1] == edge[1] and cycle_edge[2] == edge[2]:
-#             found = 1
-#             break
-#         elif cycle_edge[0] == edge[1] and cycle_edge[1] == edge[0] and cycle_edge[2] == edge[2]:
-#             found = -1
-#             break
-#     if found == 0:
-#         return False
-#     delta = np.zeros(3, np.int)
-#     for n1, n2, key, data in cycle:
-#         delta += get_delta(n1, n2, data)
-#     return tuple(found*delta)
-
-
 def make_supergraph(graph, multiplicity, periodicity_vectors):
+    """
+
+    Args:
+        graph ():
+        multiplicity ():
+        periodicity_vectors ():
+
+    Returns:
+
+    """
     supergraph = nx.MultiGraph()
     print('peridoicity vectors :')
     print(periodicity_vectors)
@@ -167,30 +141,30 @@ def make_supergraph(graph, multiplicity, periodicity_vectors):
                     input('Are we ok with this ?')
                 other_edges.append((n1, n2, key, data))
 
-        for imult in range(mult-1):
+        for imult in range(mult - 1):
             for n1, n2, key, data in other_edges:
                 new_data = dict(data)
-                new_data['start'] = (imult*len(nodes)) + indices_nodes[n1]
-                new_data['end'] = (imult*len(nodes)) + indices_nodes[n2]
+                new_data['start'] = (imult * len(nodes)) + indices_nodes[n1]
+                new_data['end'] = (imult * len(nodes)) + indices_nodes[n2]
                 supergraph.add_edge(new_data['start'], new_data['end'],
                                     key=key, attr_dict=new_data)
             for n1, n2, key, data in connecting_edges:
                 new_data = dict(data)
-                new_data['start'] = (imult*len(nodes)) + indices_nodes[n1]
-                new_data['end'] = np.mod(((imult+1)*len(nodes)) + indices_nodes[n2], len(nodes)*mult)
+                new_data['start'] = (imult * len(nodes)) + indices_nodes[n1]
+                new_data['end'] = np.mod(((imult + 1) * len(nodes)) + indices_nodes[n2], len(nodes) * mult)
                 new_data['delta'] = (0, 0, 0)
                 supergraph.add_edge(new_data['start'], new_data['end'],
                                     key=key, attr_dict=new_data)
-        imult = mult-1
+        imult = mult - 1
         for n1, n2, key, data in other_edges:
             new_data = dict(data)
-            new_data['start'] = (imult*len(nodes)) + indices_nodes[n1]
-            new_data['end'] = (imult*len(nodes)) + indices_nodes[n2]
+            new_data['start'] = (imult * len(nodes)) + indices_nodes[n1]
+            new_data['end'] = (imult * len(nodes)) + indices_nodes[n2]
             supergraph.add_edge(new_data['start'], new_data['end'],
                                 key=key, attr_dict=new_data)
         for n1, n2, key, data in connecting_edges:
             new_data = dict(data)
-            new_data['start'] = (imult*len(nodes)) + indices_nodes[n1]
+            new_data['start'] = (imult * len(nodes)) + indices_nodes[n1]
             new_data['end'] = indices_nodes[n2]
             supergraph.add_edge(new_data['start'], new_data['end'],
                                 key=key, attr_dict=new_data)
@@ -373,6 +347,14 @@ class ConnectedComponent(MSONable):
         return len(self.graph)
 
     def compute_periodicity(self, algorithm='all_simple_paths'):
+        """
+
+        Args:
+            algorithm ():
+
+        Returns:
+
+        """
         if algorithm == 'all_simple_paths':
             self.compute_periodicity_all_simple_paths_algorithm()
         elif algorithm == 'cycle_basis':
@@ -382,6 +364,11 @@ class ConnectedComponent(MSONable):
         self._order_periodicity_vectors()
 
     def compute_periodicity_all_simple_paths_algorithm(self):
+        """
+
+        Returns:
+
+        """
         self_loop_nodes = list(nx.nodes_with_selfloops(self._connected_subgraph))
         all_nodes_independent_cell_image_vectors = []
         my_simple_graph = nx.Graph(self._connected_subgraph)
@@ -412,7 +399,7 @@ class ConnectedComponent(MSONable):
                     for edge1_data, edge2_data in itertools.combinations(node_node_neighbor_edges_data, 2):
                         delta1 = get_delta(test_node, test_node_neighbor, edge1_data)
                         delta2 = get_delta(test_node_neighbor, test_node, edge2_data)
-                        this_path_deltas.append(delta1+delta2)
+                        this_path_deltas.append(delta1 + delta2)
                     this_node_cell_img_vectors.extend(this_path_deltas)
                     this_node_cell_img_vectors = get_linearly_independent_vectors(this_node_cell_img_vectors)
                     if len(this_node_cell_img_vectors) == 3:
@@ -461,6 +448,11 @@ class ConnectedComponent(MSONable):
                     break
 
     def compute_periodicity_cycle_basis(self):
+        """
+
+        Returns:
+
+        """
         my_simple_graph = nx.Graph(self._connected_subgraph)
         cycles = nx.cycle_basis(my_simple_graph)
         all_deltas = []
@@ -504,10 +496,29 @@ class ConnectedComponent(MSONable):
         self._periodicity_vectors = all_deltas
 
     def make_supergraph(self, multiplicity):
+        """
+
+        Args:
+            multiplicity ():
+
+        Returns:
+
+        """
         supergraph = make_supergraph(self._connected_subgraph, multiplicity, self._periodicity_vectors)
         return supergraph
 
     def show_graph(self, graph=None, save_file=None, drawing_type='internal', pltshow=True):
+        """
+
+        Args:
+            graph ():
+            save_file ():
+            drawing_type ():
+            pltshow ():
+
+        Returns:
+
+        """
         import matplotlib.pyplot as plt
 
         if graph is None:
@@ -548,28 +559,53 @@ class ConnectedComponent(MSONable):
 
     @property
     def is_periodic(self):
+        """
+
+        Returns:
+
+        """
         return not self.is_0d
 
     @property
     def is_0d(self):
+        """
+
+        Returns:
+
+        """
         if self._periodicity_vectors is None:
             self.compute_periodicity()
         return len(self._periodicity_vectors) == 0
 
     @property
     def is_1d(self):
+        """
+
+        Returns:
+
+        """
         if self._periodicity_vectors is None:
             self.compute_periodicity()
         return len(self._periodicity_vectors) == 1
 
     @property
     def is_2d(self):
+        """
+
+        Returns:
+
+        """
         if self._periodicity_vectors is None:
             self.compute_periodicity()
         return len(self._periodicity_vectors) == 2
 
     @property
     def is_3d(self):
+        """
+
+        Returns:
+
+        """
         if self._periodicity_vectors is None:
             self.compute_periodicity()
         return len(self._periodicity_vectors) == 3
@@ -605,17 +641,35 @@ class ConnectedComponent(MSONable):
 
     @property
     def periodicity_vectors(self):
+        """
+
+        Returns:
+
+        """
         if self._periodicity_vectors is None:
             self.compute_periodicity()
         return [np.array(pp) for pp in self._periodicity_vectors]
 
     @property
     def periodicity(self):
+        """
+
+        Returns:
+
+        """
         if self._periodicity_vectors is None:
             self.compute_periodicity()
         return '{:d}D'.format(len(self._periodicity_vectors))
 
     def elastic_centered_graph(self, start_node=None):
+        """
+
+        Args:
+            start_node ():
+
+        Returns:
+
+        """
         logging.info('In elastic centering')
         # Loop on start_nodes, sometimes some nodes cannot be elastically taken
         # inside the cell if you start from a specific node
@@ -694,12 +748,12 @@ class ConnectedComponent(MSONable):
                                 centered_connected_subgraph[n1][n2][key]['delta'] = tuple([ii
                                                                                            for ii in
                                                                                            np.array(edata['delta'],
-                                                                                                    np.int)+myddelta])
+                                                                                                    np.int) + myddelta])
                             elif edata['end'] == node_neighbor.isite:
                                 centered_connected_subgraph[n1][n2][key]['delta'] = tuple([ii
                                                                                            for ii in
                                                                                            np.array(edata['delta'],
-                                                                                                    np.int)-myddelta])
+                                                                                                    np.int) - myddelta])
                             else:
                                 raise ValueError('DUHH')
                             logging.debug('                  {} to node {} now has delta '
@@ -837,6 +891,14 @@ class ConnectedComponent(MSONable):
         return cls(graph=g)
 
     def description(self, full=False):
+        """
+
+        Args:
+            full ():
+
+        Returns:
+
+        """
         out = ['Connected component with environment nodes :']
         if not full:
             out.extend([str(en) for en in sorted(self.graph.nodes())])

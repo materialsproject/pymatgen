@@ -563,13 +563,16 @@ class StructureMatcher(MSONable):
             inds = inds[::fu]
         return np.array(mask, dtype=np.int_), inds, i
 
-    def fit(self, struct1, struct2):
+    def fit(self, struct1, struct2, symmetric=False):
         """
         Fit two structures.
 
         Args:
             struct1 (Structure): 1st structure
             struct2 (Structure): 2nd structure
+            symmetric (Bool): Defaults to False
+                If True, check the equality both ways.
+                This only impacts a small percentage of structures
 
         Returns:
             True or False.
@@ -580,14 +583,27 @@ class StructureMatcher(MSONable):
                 != self._comparator.get_hash(struct2.composition):
             return None
 
-        struct1, struct2, fu, s1_supercell = self._preprocess(struct1, struct2)
-        match = self._match(struct1, struct2, fu, s1_supercell,
-                            break_on_match=True)
-
-        if match is None:
-            return False
+        if not symmetric:
+            struct1, struct2, fu, s1_supercell = self._preprocess(struct1, struct2)
+            match = self._match(struct1, struct2, fu, s1_supercell,
+                                break_on_match=True)
+            if match is None:
+                return False
+            else:
+                return match[0] <= self.stol
         else:
-            return match[0] <= self.stol
+            struct1, struct2, fu, s1_supercell = self._preprocess(struct1, struct2)
+            match1 = self._match(struct1, struct2, fu, s1_supercell,
+                                 break_on_match=True)
+            struct1, struct2 = struct2, struct1
+            struct1, struct2, fu, s1_supercell = self._preprocess(struct1, struct2)
+            match2 = self._match(struct1, struct2, fu, s1_supercell,
+                                 break_on_match=True)
+
+            if match1 is None or match2 is None:
+                return False
+            else:
+                return max(match1[0], match2[0]) <= self.stol
 
     def get_rms_dist(self, struct1, struct2):
         """
