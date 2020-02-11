@@ -31,11 +31,12 @@ In order to implement a new Set within the current code structure, follow this 3
     (3) Call self.update(override_default_params) in order to allow user settings.
 """
 
-from pymatgen.core.structure import Structure
+
 class Cp2kInputSet(Cp2kInput):
 
-    def __init__(self, structure, potential_and_basis={}, kppa=1000,
-                 auto_supercell=True,
+    def __init__(self, structure, potential_and_basis={},
+                 kppa=1000, break_symmetry=False,
+                 multiplicity=0,
                  override_default_params={}, **kwargs):
         """
         The basic representation of a CP2K input set as a collection of "sections" defining the simulation
@@ -86,14 +87,26 @@ class Cp2kInputSet(Cp2kInput):
         """
         super(Cp2kInputSet, self).__init__(name='CP2K_INPUT', subsections={})
 
-        if auto_supercell:
-            # Only sample gamma point, need k-points / num_atoms to be < 8
+        # Important CP2K set parameters
+        self.structure = structure
+        self.charge = structure.charge
+        self.multiplicity = multiplicity  # spin multiplicity = 2s+1
+        self.override_default_params = override_default_params
+
+        if kppa > 0:
+            # Only sample gamma point, need k-points / num_atoms to be < 8.
             structure.make_supercell(math.ceil(math.pow(kppa / structure.num_sites / 8, 1/3)))
 
-        coord = Coord(structure)
+        # Build the simulation cell from structure
+        if break_symmetry:
+            coord = Coord(structure, True)
+        else:
+            coord = Coord(structure, alias=False)
+
         cell = Cell(structure.lattice)
         subsys = Subsys(subsections={'CELL': cell, 'COORD': coord})
 
+        # Decide what basis sets/pseudopotentials to use
         basis_type = potential_and_basis.get("basis", 'MOLOPT')
         potential = potential_and_basis.get("potential", 'GTH')
         functional = potential_and_basis.get('functional', 'PBE')
@@ -102,15 +115,33 @@ class Cp2kInputSet(Cp2kInput):
                                                       functional=functional, basis_type=basis_type,
                                                       cardinality=cardinality)
 
-        for s in structure.symbol_set:
-            subsys.insert(Kind(s, basis_set=basis_and_potential[s]['basis'],
-                          potential=basis_and_potential[s]['potential']))
+        # The natural way to do this is define a "KIND" for each element, but, if
+        # there are site properties of interest MAGMOM/MAGNETIZATION, then these
+        # are defined in the KIND section, so we need to split of the KIND sections
+        # by site.
+        if break_symmetry:
+            for i, s in enumerate(structure.sites):
+                _kind_subsections = {}
+                if 'magmom' in s.properties:
+                    magnetization = s.properties.get('magmom')
+                elif 'magnetization' in s.properties:
+                    magnetization = s.properties.get('magnetization')
+                else:
+                    magnetization = 0
+                if 'BS' in s.properties:
+                    _kind_subsections['BS'] = BrokenSymmetry(**s.properties.get('BS'))
+                alias = s.species_string+'_'+str(i+1)
+                subsys.insert(Kind(s.species_string, alias=alias, magnetization=magnetization,
+                                   subsections=_kind_subsections, verbose=False,
+                                   basis_set=basis_and_potential[s.species_string]['basis'],
+                                   potential=basis_and_potential[s.species_string]['potential']))
+        else:
+            for s in structure.symbol_set:
+                subsys.insert(Kind(s, basis_set=basis_and_potential[s]['basis'],
+                              potential=basis_and_potential[s]['potential']))
 
-        if 'FORCE_EVAL' not in self.subsections.keys():
-            self.insert(ForceEval())
-
+        self.insert(ForceEval())
         self['FORCE_EVAL'].insert(subsys)
-
         self.update(override_default_params)
 
     def activate_hybrid(self, structure, method='HSE06', hf_fraction=0.25, gga_x_fraction=0.75, gga_c_fraction=1):
@@ -145,6 +176,10 @@ class Cp2kInputSet(Cp2kInput):
                                       Keyword('SCREEN_P_FORCES', True)])
 
         if method is 'HSE06':
+            xc_functional.insert(Section('XWPBE', subsections={},
+                                         keywords=[Keyword('SCALE_X0', 1),
+                                                   Keyword('SCALE_X', -hf_fraction),
+                                                   Keyword('OMEGA', 0.11)]))
             ip_keywords = [
                 Keyword('POTENTIAL_TYPE', 'SHORTRANGE'),
                 Keyword('OMEGA', 0.11)  # TODO This value should be tested, can we afford to increase it to an opt val?
@@ -172,31 +207,50 @@ class Cp2kInputSet(Cp2kInput):
         self.subsections['FORCE_EVAL']['DFT'].insert(xc)
 
 
-class QsSet(Cp2kInputSet):
+class DftSet(Cp2kInputSet):
     """
-    Base for an input set using the Quickstep module (i.e. a DFT calculation).
+    Base for an input set using the Quickstep module (i.e. a DFT calculation). The DFT section is pretty vast
+    in CP2K, so this set hopes to make the DFT setup fairly simple. The provided parameters are pretty conservative,
+    and so they should not need to be changed very often.
 
-    Optional Params:
-        BAND_GAP:
-        MINIMIZER
-        PRECONDITIONER
+    Args:
+        structure: Pymatgen structure object
+        ot (bool): Whether or not to use orbital transformation method for matrix diagonalization. OT is the flagship
+            matrix diagonalizer of CP2K, and will provide huge speed-ups for this part of the calculation, but the
+            system must have a band gap for OT to be used (higher band-gap --> faster convergence). Band gap is also
+            used by the preconditioner for OT, and should be set as a value SMALLER than the true band gap to get good
+            efficiency. Generally, this parameter does not need to be changed from default of 0.01
+        band_gap (float): The band gap can also be specified in order to determine if ot should be turned on.
+        eps_default (float): Replaces all EPS_XX Keywords in the DFT section (NOT its subsections!) to have this value,
+            ensuring an overall accuracy of at least this much.
+        minimizer (str): The minimization scheme. DIIS can be as much as 50% faster than the more robust conjugate
+            gradient method, and so it is chosen as default. Switch to CG if dealing with a difficult system.
+        preconditioner (str): Preconditioner for the OT method. The FULL_ALL preconditioner with a small estimate
+            of the band gap is usually very robust. Should only change when simulation cell gets to be very large.
+        cutoff (int): Cutoff energy (in Ry) for the finest level of the multigrid. A high cutoff will allow you to have
+            very accurate calculations PROVIDED that REL_CUTOFF is appropriate.
+        rel_cutoff (int): This cutoff decides how the Guassians are mapped onto the different levels of the multigrid:
+            From CP2K: A Gaussian is mapped onto the coarsest level of the multi-grid, on which the function will cover
+                number of grid points greater than or equal to the number of grid points
+                will cover on a reference grid defined by REL_CUTOFF.
+        progression_factor (int): Divisor of CUTOFF to get the cutoff for the next level of the multigrid.
 
-        CUTOFF
-        REL_CUTOFF
-        NGRIDS
-        PROGRESSION_FACTOR
+        Takeaway for the cutoffs: https://www.cp2k.org/howto:converging_cutoff
+        If CUTOFF is too low, then all grids will be coarse and the calculation may become inaccurate; and if
+        REL_CUTOFF is too low, then even if you have a high CUTOFF, all Gaussians will be mapped onto the coarsest
+        level of the multi-grid, and thus the effective integration grid for the calculation may still be too coarse.
     """
 
-    def __init__(self, structure, ot=True, band_gap=0.01, eps_default=1e-6,
-                 minimizer='CG', preconditioner='FULL_ALL',
-                 cutoff=1200, rel_cutoff=80, ngrids=5, progression_factor=3, multigrid_set=False,
+    def __init__(self, structure, ot=True, band_gap=0.01, eps_default=1e-12,
+                 eps_scf=1e-7, minimizer='DIIS', preconditioner='FULL_ALL',
+                 cutoff=1200, rel_cutoff=80, ngrids=5, progression_factor=3,
                  override_default_params={}, **kwargs):
 
-        super(QsSet, self).__init__(structure, **kwargs)
+        super(DftSet, self).__init__(structure, **kwargs)
 
         # Build the QS Section
         qs = QS(eps_default=eps_default)
-        scf = Scf(subsections={})
+        scf = Scf(eps_scf=eps_scf, subsections={})
 
         # If there's a band gap, always use OT, else use Davidson
         if band_gap or ot:
@@ -206,15 +260,18 @@ class QsSet(Cp2kInputSet):
             scf.insert(Section('OUTER_SCF', subsections={},
                                keywords=[
                                    Keyword('MAX_SCF', kwargs.get('outer_max_scf', 20)),
-                                   Keyword('EPS_SCF', kwargs.get('outer_eps_scf', 1e-6))
+                                   Keyword('EPS_SCF', kwargs.get('outer_eps_scf', eps_scf))
                                ]))
         else:
             scf.insert(Section('DIAGONALIZATION', subsections={}))
             scf['DIAGONALIZATION'].insert(Section('DAVIDSON', subsections={}))
 
-        mgrid = Mgrid(cutoff=cutoff, rel_cutoff=rel_cutoff, ngrids=ngrids, progression_factor=progression_factor,
-                      multigrid_set=multigrid_set)
-        dft = Dft(subsections={'QS': qs, 'SCF': scf, 'MGRID': mgrid})
+        # Create the multigrid for FFTs
+        mgrid = Mgrid(cutoff=cutoff, rel_cutoff=rel_cutoff, ngrids=ngrids, progression_factor=progression_factor)
+
+        # Set the DFT calculation with global parameters
+        dft = Dft(MULTIPLICITY=self.multiplicity, CHARGE=self.charge,
+                  subsections={'QS': qs, 'SCF': scf, 'MGRID': mgrid})
 
         # Create subsections and insert into them
         self['FORCE_EVAL'].insert(dft)
@@ -228,41 +285,71 @@ class QsSet(Cp2kInputSet):
         self.update(override_default_params)
 
     def print_pdos(self, nlumo=-1):
-        if not self.check('FORCE_EVAL/DFT/PRINT'):
-            self['FORCE_EVAL']['DFT'].insert(Section('PRINT', subsections={}))
-        self['FORCE_EVAL']['DFT']['PRINT'].insert(PDOS(nlumo=nlumo))
+        """
+        Activate creation of the PDOS file.
+
+        Args:
+            nlumo (int): Number of virtual orbitals to be added to the MO set (-1=all).
+                CAUTION: Setting this value to be higher than the number of states present may cause a Cholesky error.
+        """
+        if not self.check('FORCE_EVAL/DFT/PRINT/PDOS'):
+            self['FORCE_EVAL']['DFT']['PRINT'].insert(PDOS(nlumo=nlumo))
 
     def print_mo_cubes(self, write_cube=False, nlumo=1, nhomo=1):
-        if not self.check('FORCE_EVAL/DFT/PRINT'):
-            self['FORCE_EVAL']['DFT'].insert(Section('PRINT', subsections={}))
-        self['FORCE_EVAL']['DFT']['PRINT'].insert(MO_Cubes(write_cube=write_cube, nlumo=nlumo, nhomo=nhomo))
+        """
+        Activate printing of molecular orbitals.
+
+        Args:
+            write_cube (bool): whether to write cube file for the MOs (setting false will just print levels in out file)
+            nlumo (int): Controls the number of lumos that are printed and dumped as a cube (-1=all)
+            nhomo (int): Controls the number of homos that are printed and dumped as a cube (-1=all)
+        """
+        if not self.check('FORCE_EVAL/DFT/PRINT/MO_CUBES'):
+            self['FORCE_EVAL']['DFT']['PRINT'].insert(MO_Cubes(write_cube=write_cube, nlumo=nlumo, nhomo=nhomo))
 
     def print_hartree_potential(self):
-        if not self.check('FORCE_EVAL/DFT/PRINT'):
-            self['FORCE_EVAL']['DFT'].insert(Section('PRINT', subsections={}))
-        self['FORCE_EVAL']['DFT']['PRINT'].insert(V_Hartree_Cube())
+        """
+        Controls the printing of a cube file with eletrostatic potential generated by the total density
+        (electrons+ions). It is valid only for QS with GPW formalism.
+        Note that by convention the potential has opposite sign than the expected physical one.
+        """
+        if not self.check('FORCE_EVAL/DFT/PRINT/V_HARTREE_CUBE'):
+            self['FORCE_EVAL']['DFT']['PRINT'].insert(V_Hartree_Cube())
 
     def print_e_density(self):
-        if not self.check('FORCE_EVAL/DFT/PRINT'):
-            self['FORCE_EVAL']['DFT'].insert(Section('PRINT', subsections={}))
-        self['FORCE_EVAL']['DFT']['PRINT'].insert(E_Density_Cube())
+        """
+        Controls the printing of cube files with the electronic density and, for LSD calculations, the spin density
+        """
+        if not self.check('FORCE_EVAL/DFT/PRINT/E_DENSITY_CUBE'):
+            self['FORCE_EVAL']['DFT']['PRINT'].insert(E_Density_Cube())
+
+    def set_charge(self, charge):
+        """
+        Set the overall charge of the simulation cell
+        """
+        self['FORCE_EVAL']['DFT'].set_keyword(Keyword('CHARGE', charge))
 
 
-class StaticSet(QsSet):
-    """
-    Basic static energy calculation. Turns on Quickstep module, sets the run_type in global,
-    and uses structure object to build the subsystem.
-    """
+class StaticSet(DftSet):
 
     def __init__(self, structure, project_name='CP2K', run_type='ENERGY_FORCE',
                  override_default_params={}, **kwargs):
+        """
+        Basic static energy calculation. Turns on Quickstep module, sets the run_type in global,
+        and uses structure object to build the subsystem.
+
+        Args:
+            structure: Pymatgen structure object
+            project_name (str): What to name this cp2k project (controls naming of files printed out)
+            run_type (str): Run type. As a static set it should be one of the static aliases, like 'ENERGY_FORCE'
+        """
         super(StaticSet, self).__init__(structure, **kwargs)
         global_section = Global(project_name=project_name, run_type=run_type)
         self.insert(global_section)
         self.update(override_default_params)
 
 
-class RelaxSet(QsSet):
+class RelaxSet(DftSet):
 
     def __init__(self, structure, max_drift=1e-3, max_force=1e-3, max_iter=200,
                  optimizer='CG', override_default_params={}, **kwargs):
@@ -318,17 +405,24 @@ class RelaxSet(QsSet):
 
 class HybridStaticSet(StaticSet):
 
-    def __init__(self, structure, override_default_params={}, **kwargs):
+    def __init__(self, structure, method='HSE06', hf_fraction=0.25,
+                 gga_x_fraction=0.75, gga_c_fraction=1, override_default_params={}, **kwargs):
+        """
+        Static calculation using hybrid DFT with the ADMM formalism in Cp2k.
+        :param structure:
+        """
         super(HybridStaticSet, self).__init__(structure, **kwargs)
-        self.activate_hybrid(structure, method='HSE06', hf_fraction=0.25, gga_x_fraction=0.75, gga_c_fraction=1)
+        self.activate_hybrid(structure, method=method, hf_fraction=hf_fraction,
+                             gga_x_fraction=gga_x_fraction, gga_c_fraction=gga_c_fraction)
         self.update(override_default_params)
 
 
 class HybridRelaxSet(RelaxSet):
 
-    def __init__(self, structure, override_default_params={}, **kwargs):
+    def __init__(self, structure, method='HSE06', hf_fraction=0.25,
+                 gga_x_fraction=0.75, gga_c_fraction=1, override_default_params={}, **kwargs):
         super(HybridRelaxSet, self).__init__(structure, **kwargs)
-        self.activate_hybrid(structure, method='HSE06', hf_fraction=0.25, gga_x_fraction=0.75, gga_c_fraction=1)
+        self.activate_hybrid(structure, method=method, hf_fraction=hf_fraction,
+                             gga_x_fraction=gga_x_fraction, gga_c_fraction=gga_c_fraction)
         self.update(override_default_params)
-
 

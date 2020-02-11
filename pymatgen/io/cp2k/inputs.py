@@ -98,6 +98,13 @@ class Section(MSONable):
             if k.name == kwd:
                 return i, k
 
+    def set_keyword(self, kwd):
+        for i, k in enumerate(self.keywords):
+            if k.name == kwd.name:
+                self.keywords[i] = kwd
+                return
+        self.keywords.append(kwd)
+
     def set(self, d):
         return self.update(d)
 
@@ -475,8 +482,7 @@ class Scf(Section):
 class Mgrid(Section):
 
     def __init__(self, cutoff=1200, rel_cutoff=80, ngrids=5,
-                 progression_factor=3, multigrid_set=False,
-                 subsections={}, **kwargs):
+                 progression_factor=3, subsections={}, **kwargs):
 
         description = 'Multigrid information. Multigrid allows for sharp gaussians and diffuse ' + \
                         'gaussians to be treated on different grids, where the spacing of FFT integration ' + \
@@ -488,7 +494,6 @@ class Mgrid(Section):
                     description='Controls which gaussians are mapped to which level of the MG'),
             Keyword('NGRIDS', ngrids),
             Keyword('PROGRESSION_FACTOR', progression_factor),
-            Keyword('MULTIGRID_SET', multigrid_set)
         ]
 
         super(Mgrid, self).__init__('MGRID', description=description, keywords=keywords,
@@ -576,7 +581,7 @@ class Cell(Section):
 class Kind(Section):
 
     def __init__(self, specie, alias=None, magnetization=0.0,
-                 basis_set='GTH_BASIS', potential='GTH_POTENTIALS',
+                 subsections={}, basis_set='GTH_BASIS', potential='GTH_POTENTIALS',
                  **kwargs):
         """
         Specifies the information for the different atom types being simulated.
@@ -607,29 +612,31 @@ class Kind(Section):
 
         section_param = alias if alias else specie.__str__()
 
-        super(Kind, self).__init__('KIND', subsections={}, description=description, keywords=keywords,
-                                   section_parameters=[section_param], **kwargs)
+        super(Kind, self).__init__('KIND '+section_param, subsections=subsections, description=description, keywords=keywords,
+                                   section_parameters=[], **kwargs)
 
 
 class Coord(Section):
 
-    def __init__(self, structure, **kwargs):
+    def __init__(self, structure, alias=False):
         """
         Specifies the coordinates of the atoms using a pymatgen structure object.
 
         Args:
             structure: Pymatgen structure object
-            kwargs: additional kwargs to pass to Section()
+            alisa (bool): whether or not to identify the sites by Element + number so you can do things like
+                assign unique magnetization do different elements.
         """
 
         description = 'The coordinates for simple systems (like small QM cells) are specified ' + \
                       'here by default using explicit XYZ coordinates. More complex systems ' + \
                       'should be given via an external coordinate file in the SUBSYS%TOPOLOGY section.'
+        if alias:
+            keywords = [Keyword(s.specie.symbol+'_'+str(i+1), *s.coords) for i,s in enumerate(structure.sites)]
+        else:
+            keywords = [Keyword(s.specie.symbol, *s.coords) for s in structure.sites]
 
-        keywords = [Keyword(s.specie.symbol, *s.coords) for s in structure.sites]
-
-        super(Coord, self).__init__('COORD', description=description, keywords=keywords,
-                                    subsections={}, **kwargs)
+        super(Coord, self).__init__('COORD', description=description, keywords=keywords, subsections={})
 
 
 class PDOS(Section):
@@ -704,6 +711,7 @@ class E_Density_Cube(Section):
 
         super(E_Density_Cube, self).__init__('E_DENSITY_CUBE', description=description,
                                              keywords=keywords, subsections={})
+
 
 class Smear(Section):
 
