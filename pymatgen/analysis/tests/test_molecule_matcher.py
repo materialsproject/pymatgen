@@ -14,7 +14,7 @@ try:
     from pymatgen.analysis.molecule_matcher import MoleculeMatcher
     from pymatgen.analysis.molecule_matcher import IsomorphismMolAtomMapper
     from pymatgen.analysis.molecule_matcher import InchiMolAtomMapper
-except ImportError:
+except (ImportError, RuntimeError):
     ob = None
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
