@@ -234,11 +234,11 @@ class ZeoVoronoiXYZ(XYZ):
             return ZeoVoronoiXYZ.from_string(f.read())
 
     def __str__(self):
-        output = [str(len(self._mol)), self._mol.composition.formula]
+        output = [str(len(self._mols[0])), self._mols[0].composition.formula]
         fmtstr = "{{}} {{:.{0}f}} {{:.{0}f}} {{:.{0}f}} {{:.{0}f}}".format(
             self.precision
         )
-        for site in self._mol:
+        for site in self._mols[0]:
             output.append(fmtstr.format(
                 site.specie.symbol, site.z, site.x, site.y,
                 site.properties['voronoi_radius']
@@ -299,7 +299,7 @@ def get_voronoi_nodes(structure, rad_dict=None, probe_rad=0.1):
         coords.append(list(site.coords))
         prop.append(site.properties['voronoi_radius'])
 
-    lattice = Lattice.from_parameters(structure.lattice.parameters)
+    lattice = Lattice.from_parameters(*structure.lattice.parameters)
     vor_node_struct = Structure(
         lattice, species, coords, coords_are_cartesian=True,
         to_unit_cell=True, site_properties={"voronoi_radius": prop})
@@ -376,7 +376,7 @@ def get_high_accuracy_voronoi_nodes(structure, rad_dict, probe_rad=0.1):
         coords.append(list(site.coords))
         prop.append(site.properties['voronoi_radius'])
 
-    lattice = Lattice.from_parameters(structure.lattice.parameters)
+    lattice = Lattice.from_parameters(*structure.lattice.parameters)
     vor_node_struct = Structure(
         lattice, species, coords, coords_are_cartesian=True,
         to_unit_cell=True, site_properties={"voronoi_radius": prop})
