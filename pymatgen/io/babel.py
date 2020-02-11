@@ -2,6 +2,12 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+OpenBabel interface module, which opens up access to the hundreds of file
+formats supported by OpenBabel. Requires openbabel with python bindings to be
+installed. Please consult the
+`openbabel documentation <http://openbabel.org/wiki/Main_Page>`_.
+"""
 
 import warnings
 import copy
@@ -15,12 +21,6 @@ try:
 except Exception:
     ob = None
 
-"""
-OpenBabel interface module, which opens up access to the hundreds of file
-formats supported by OpenBabel. Requires openbabel with python bindings to be
-installed. Please consult the
-`openbabel documentation <http://openbabel.org/wiki/Main_Page>`_.
-"""
 
 __author__ = "Shyue Ping Ong, Qi Wang"
 __copyright__ = "Copyright 2012, The Materials Project"
