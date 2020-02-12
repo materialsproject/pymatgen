@@ -7,11 +7,10 @@ from collections import OrderedDict, namedtuple
 
 import numpy as np
 import scipy.constants as const
-
 from monty.json import jsanitize
+from pymatgen.electronic_structure.plotter import plot_brillouin_zone
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.util.plotting import pretty_plot, add_fig_kwargs, get_ax_fig_plt
-from pymatgen.electronic_structure.plotter import plot_brillouin_zone
 
 """
 This module implements plotter for DOS and band structure.
