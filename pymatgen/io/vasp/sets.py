@@ -2257,7 +2257,7 @@ class MITNEBSet(MITRelaxSet):
         kwargs["sort_structure"] = False
         super().__init__(structures[0], **kwargs)
         self.structures = self._process_structures(structures)
-        
+
         self.unset_encut = False
         if unset_encut:
             self._config_dict["INCAR"].pop("ENCUT", None)
