@@ -60,6 +60,9 @@ class SetChangeCheckTest(PymatgenTest):
 class MITMPRelaxSetTest(PymatgenTest):
     @classmethod
     def setUpClass(cls):
+        from _pytest.monkeypatch import MonkeyPatch
+        cls.monkeypatch = MonkeyPatch()
+
         filepath = cls.TEST_FILES_DIR / "POSCAR"
         poscar = Poscar.from_file(filepath)
         cls.structure = poscar.structure
@@ -126,20 +129,13 @@ class MITMPRelaxSetTest(PymatgenTest):
         self.assertEqual(syms, ["P", "Fe_pv", "O"])
 
     def test_potcar_validation(self):
-        coords = list()
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.5, 0.75])
-        coords.append([0.75, 0.25, 0.75])
-        lattice = Lattice(
-            [
-                [3.8401979337, 0.00, 0.00],
-                [1.9200989668, 3.3257101909, 0.00],
-                [0.00, -2.2171384943, 3.1355090603],
-            ]
-        )
-        structure = Structure(lattice, ["P", "Fe", "O"], coords)
-        with pytest.warns(BadInputSetWarning, match="not known by pymatgen"):
-            MITRelaxSet(structure, user_potcar_functional="LDA").potcar
+        structure = Structure(self.lattice, ["P", "Fe"], self.coords)
+        # Use pytest's monkeypatch to temporarily point pymatgen to a directory 
+        # containing the wrong POTCARs (LDA potcars in a PBE directory)
+        with self.monkeypatch.context() as m:
+            m.setitem(SETTINGS, "PMG_VASP_PSP_DIR", str(self.TEST_FILES_DIR / "wrong_potcars"))
+            with pytest.warns(BadInputSetWarning, match="not known by pymatgen"):
+                MITRelaxSet(structure).potcar
 
     def test_lda_potcar(self):
         structure = Structure(self.lattice, ["P", "Fe"], self.coords)
