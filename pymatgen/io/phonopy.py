@@ -264,10 +264,9 @@ def get_displaced_structures(pmg_structure, atom_disp=0.01,
 
     if yaml_fname is not None:
         displacements = phonon.get_displacements()
-        directions = phonon.get_displacement_directions()
         write_disp_yaml(displacements=displacements,
                         supercell=phonon.get_supercell(),
-                        directions=directions, filename=yaml_fname)
+                        filename=yaml_fname)
 
     # Supercell structures with displacement
     disp_supercells = phonon.get_supercells_with_displacements()
