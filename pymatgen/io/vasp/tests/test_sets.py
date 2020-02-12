@@ -139,7 +139,7 @@ class MITMPRelaxSetTest(PymatgenTest):
         )
         structure = Structure(lattice, ["P", "Fe", "O"], coords)
         with pytest.warns(BadInputSetWarning, match="not known by pymatgen"):
-            MPRelaxSet(structure, user_potcar_functional="LDA").potcar
+           MITRelaxSet(structure, user_potcar_functional="LDA").potcar
 
     def test_lda_potcar(self):
         structure = Structure(self.lattice, ["P", "Fe"], self.coords)
