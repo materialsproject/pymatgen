@@ -204,6 +204,7 @@ class PhononDosPlotter:
         """
         plt = self.get_plot(xlim, ylim, units=units)
         plt.savefig(filename, format=img_format)
+        plt.close()
 
     def show(self, xlim=None, ylim=None, units="thz"):
         """
