@@ -5,6 +5,7 @@
 
 import unittest
 import pytest  # type: ignore
+from _pytest.monkeypatch import MonkeyPatch  # type: ignore
 import os
 import tempfile
 import hashlib
@@ -60,7 +61,6 @@ class SetChangeCheckTest(PymatgenTest):
 class MITMPRelaxSetTest(PymatgenTest):
     @classmethod
     def setUpClass(cls):
-        from _pytest.monkeypatch import MonkeyPatch
         cls.monkeypatch = MonkeyPatch()
 
         filepath = cls.TEST_FILES_DIR / "POSCAR"
