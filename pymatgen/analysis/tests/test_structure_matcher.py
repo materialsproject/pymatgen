@@ -79,6 +79,12 @@ class StructureMatcherTest(PymatgenTest):
         self.assertEqual(sm._get_supercell_size(s2, s1),
                          (2, True))
 
+        sm = StructureMatcher(supercell_size=['Ag', 'Cu'])
+        self.assertEqual(sm._get_supercell_size(s1, s2),
+                         (1, True))
+        self.assertEqual(sm._get_supercell_size(s2, s1),
+                         (1, True))
+
         sm = StructureMatcher(supercell_size='wfieoh')
         self.assertRaises(ValueError, sm._get_supercell_size, s1, s2)
 

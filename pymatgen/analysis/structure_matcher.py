@@ -373,14 +373,15 @@ class StructureMatcher(MSONable):
                 supplying a comparison function is that it is not possible to
                 pickle a function, which makes it otherwise difficult to use
                 StructureMatcher with Python's multiprocessing.
-            supercell_size (str): Method to use for determining the size of a
-                supercell (if applicable). Possible values are num_sites,
-                num_atoms, volume, or an element present in both structures.
-            ignored_species (list): A list of ions to be ignored in matching. Useful
-                for matching structures that have similar frameworks except for
-                certain ions, e.g., Li-ion intercalation frameworks. This is more
-                useful than allow_subset because it allows better control over
-                what species are ignored in the matching.
+            supercell_size (str or list): Method to use for determining the
+                size of a supercell (if applicable). Possible values are
+                num_sites, num_atoms, volume, or an element or list of elements
+                present in both structures.
+            ignored_species (list): A list of ions to be ignored in matching.
+                Useful for matching structures that have similar frameworks
+                except for certain ions, e.g., Li-ion intercalation frameworks.
+                This is more useful than allow_subset because it allows better
+                control over what species are ignored in the matching.
         """
 
         self.ltol = ltol
@@ -407,11 +408,18 @@ class StructureMatcher(MSONable):
             fu = s2.composition.num_atoms / s1.composition.num_atoms
         elif self._supercell_size == 'volume':
             fu = s2.volume / s1.volume
+        elif not isinstance(self._supercell_size, str):
+            s1comp, s2comp = 0, 0
+            for el in self._supercell_size:
+                el = get_el_sp(el)
+                s1comp += s1.composition[el]
+                s2comp += s2.composition[el]
+            fu = s2comp / s1comp
         else:
             try:
                 el = get_el_sp(self._supercell_size)
                 fu = s2.composition[el] / s1.composition[el]
-            except Exception:
+            except ValueError:
                 raise ValueError('Invalid argument for supercell_size.')
 
         if fu < 2 / 3:
