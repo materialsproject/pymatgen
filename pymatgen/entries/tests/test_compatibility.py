@@ -574,7 +574,7 @@ class MaterialsProjectCompatibility2020Test(unittest.TestCase):
     def test_correction_values(self):
         # test_corrections
         self.assertAlmostEqual(
-            self.compat.process_entry(self.entry1).correction, -2.252 * 2 - 0.719 * 3
+            self.compat.process_entry(self.entry1).correction, -2.24 * 2 - 0.716 * 3
         )
 
         entry = ComputedEntry(
@@ -601,11 +601,11 @@ class MaterialsProjectCompatibility2020Test(unittest.TestCase):
 
         # Check actual correction
         self.assertAlmostEqual(
-            self.compat.process_entry(entry).correction, -0.457 * 3 + -2.252
+            self.compat.process_entry(entry).correction, -0.46 * 3 + -2.24
         )
 
         self.assertAlmostEqual(
-            self.compat.process_entry(self.entry_sulfide).correction, -0.631
+            self.compat.process_entry(self.entry_sulfide).correction, -0.633
         )
 
     def test_U_values(self):
@@ -798,10 +798,10 @@ class MaterialsProjectCompatibility2020Test(unittest.TestCase):
             },
         )
         c, e = compat.get_corrections_dict(entry)
-        self.assertAlmostEqual(c["MP Composition Correction"], -0.719 * 3)
-        self.assertAlmostEqual(c["MP Advanced Correction"], -2.252 * 2)
+        self.assertAlmostEqual(c["MP Composition Correction"], -0.716 * 3)
+        self.assertAlmostEqual(c["MP Advanced Correction"], -2.24 * 2)
         self.assertAlmostEqual(e["MP Composition Correction"], 0.0016 * 3)
-        self.assertAlmostEqual(e["MP Advanced Correction"], 0.008 * 2)
+        self.assertAlmostEqual(e["MP Advanced Correction"], 0.0079 * 2)
 
         entry.parameters["is_hubbard"] = False
         del entry.parameters["hubbards"]
@@ -1978,24 +1978,24 @@ class CorrectionErrorsCompatibility2020Test(unittest.TestCase):
         entry1_corrected = self.compat.process_entry(self.entry1)
         self.assertAlmostEqual(
             entry1_corrected.data["correction_uncertainty"],
-            sqrt((2 * 0.008) ** 2 + (3 * 0.0016) ** 2),
+            sqrt((2 * 0.0079) ** 2 + (3 * 0.0016) ** 2),
         )
 
         entry2_corrected = self.compat.process_entry(self.entry2)
         self.assertAlmostEqual(
             entry2_corrected.data["correction_uncertainty"],
-            sqrt((3 * 0.008) ** 2 + (4 * 0.0016) ** 2),
+            sqrt((3 * 0.0079) ** 2 + (4 * 0.0016) ** 2),
         )
 
         entry_sulfide_corrected = self.compat.process_entry(self.entry_sulfide)
         self.assertAlmostEqual(
-            entry_sulfide_corrected.data["correction_uncertainty"], 0.0122
+            entry_sulfide_corrected.data["correction_uncertainty"], 0.0121
         )
 
         entry_fluoride_corrected = self.compat.process_entry(self.entry_fluoride)
         self.assertAlmostEqual(
             entry_fluoride_corrected.data["correction_uncertainty"],
-            sqrt((3 * 0.0025) ** 2 + 0.008 ** 2),
+            sqrt((3 * 0.0025) ** 2 + 0.0079 ** 2),
         )
 
 
