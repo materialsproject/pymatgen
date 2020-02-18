@@ -10,6 +10,7 @@ import scipy.constants as const
 from monty.json import jsanitize
 from pymatgen.electronic_structure.plotter import plot_brillouin_zone
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
+from pymatgen.phonon.dos import PhononDos
 from pymatgen.util.plotting import pretty_plot, add_fig_kwargs, get_ax_fig_plt
 
 """
@@ -21,7 +22,7 @@ logger = logging.getLogger(__name__)
 FreqUnits = namedtuple("FreqUnits", ["factor", "label"])
 
 
-def freq_units(units):
+def freq_units(units:str):
     """
     Returns conversion factor from THz to the requred units and the label in the form of a namedtuple
     Accepted values: thz, ev, mev, ha, cm-1, cm^-1
@@ -56,20 +57,22 @@ class PhononDosPlotter:
         # Alternatively, you can add a dict of DOSs. This is the typical
         # form returned by CompletePhononDos.get_element_dos().
 
-    Args:
-        stack: Whether to plot the DOS as a stacked area graph
-        key_sort_func: function used to sort the dos_dict keys.
-        sigma: A float specifying a standard deviation for Gaussian smearing
-            the DOS for nicer looking plots. Defaults to None for no
-            smearing.
     """
 
-    def __init__(self, stack=False, sigma=None):
+    def __init__(self, stack: bool = False, sigma: float = None):
+        """
+
+        Args:
+            stack: Whether to plot the DOS as a stacked area graph
+            sigma: A float specifying a standard deviation for Gaussian smearing
+            the DOS for nicer looking plots. Defaults to None for no
+            smearing.
+        """
         self.stack = stack
         self.sigma = sigma
         self._doses = OrderedDict()
 
-    def add_dos(self, label, dos):
+    def add_dos(self, label: str, dos: PhononDos):
         """
         Adds a dos for plotting.
 
@@ -84,7 +87,7 @@ class PhononDosPlotter:
             else dos.densities
         self._doses[label] = {'frequencies': dos.frequencies, 'densities': densities}
 
-    def add_dos_dict(self, dos_dict, key_sort_func=None):
+    def add_dos_dict(self, dos_dict:dict, key_sort_func=None):
         """
         Add a dictionary of doses, with an optional sorting function for the
         keys.
@@ -112,7 +115,7 @@ class PhononDosPlotter:
         """
         return jsanitize(self._doses)
 
-    def get_plot(self, xlim=None, ylim=None, units="thz"):
+    def get_plot(self, xlim=None, ylim=None, units: str = "thz") :
         """
         Get a matplotlib plot showing the DOS.
 
@@ -189,7 +192,7 @@ class PhononDosPlotter:
         plt.tight_layout()
         return plt
 
-    def save_plot(self, filename, img_format="eps", xlim=None, ylim=None, units="thz"):
+    def save_plot(self, filename: str, img_format: str = "eps", xlim=None, ylim=None, units: str = "thz"):
         """
         Save matplotlib plot to a file.
 
@@ -205,7 +208,7 @@ class PhononDosPlotter:
         plt.savefig(filename, format=img_format)
         plt.close()
 
-    def show(self, xlim=None, ylim=None, units="thz"):
+    def show(self, xlim=None, ylim=None, units: str = "thz"):
         """
         Show the plot using matplotlib.
 
@@ -223,11 +226,14 @@ class PhononBSPlotter:
     """
     Class to plot or get data to facilitate the plot of band structure objects.
 
-    Args:
-        bs: A BandStructureSymmLine object.
+
     """
 
-    def __init__(self, bs):
+    def __init__(self, bs: PhononBandStructureSymmLine):
+        """
+        Args:
+            bs: A PhononBandStructureSymmLine object.
+        """
         if not isinstance(bs, PhononBandStructureSymmLine):
             raise ValueError(
                 "PhononBSPlotter only works with PhononBandStructureSymmLine objects. "
@@ -638,7 +644,7 @@ class ThermoPlotter:
         return fig
 
     @add_fig_kwargs
-    def plot_thermodynamic_properties(self, tmin, tmax, ntemp, ylim=None, **kwargs):
+    def plot_thermodynamic_properties(self, tmin: float, tmax: float, ntemp: int, ylim=None, **kwargs):
         """
         Plots all the thermodynamic properties in a temperature range.
 
