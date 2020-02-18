@@ -114,6 +114,8 @@ class Cp2kInputSet(Cp2kInput):
         basis_and_potential = get_basis_and_potential(structure.symbol_set, potential_type=potential,
                                                       functional=functional, basis_type=basis_type,
                                                       cardinality=cardinality)
+        self.basis_set_file_name = basis_and_potential['basis_filename']
+        self.potential_file_name = basis_and_potential['potential_filename']
 
         # The natural way to do this is define a "KIND" for each element, but, if
         # there are site properties of interest MAGMOM/MAGNETIZATION, then these
@@ -271,6 +273,8 @@ class DftSet(Cp2kInputSet):
 
         # Set the DFT calculation with global parameters
         dft = Dft(MULTIPLICITY=self.multiplicity, CHARGE=self.charge,
+                  basis_set_filename=self.basis_set_file_name,
+                  potential_filename=self.potential_file_name,
                   subsections={'QS': qs, 'SCF': scf, 'MGRID': mgrid})
 
         # Create subsections and insert into them
@@ -328,6 +332,12 @@ class DftSet(Cp2kInputSet):
         Set the overall charge of the simulation cell
         """
         self['FORCE_EVAL']['DFT'].set_keyword(Keyword('CHARGE', charge))
+
+    def print_structures(self):
+        trajectory = Section('TRAJECTORY', section_parameters=['HIGH'], subsections={})
+        cell = Section('CELL', subsections={})
+        print = Section('PRINT', subsections={'TRAJECTORY': trajectory, 'CELL': cell})
+        self['MOTION'] = Section('MOTION', subsections={'PRINT': print})
 
 
 class StaticSet(DftSet):
@@ -396,7 +406,9 @@ class RelaxSet(DftSet):
         geo_opt = Section('GEO_OPT', subsections={}, keywords=geo_opt_params)
         geo_opt.insert(cg)
 
-        motion = Section('MOTION', subsections={'GEO_OPT': geo_opt})
+        if not self.check(['MOTION']):
+            motion = Section('MOTION', subsections={})
+        self['MOTION'].insert(geo_opt)
 
         self.insert(global_section)
         self.insert(motion)

@@ -19,8 +19,10 @@ from monty.re import regrep
 from monty.os.path import zpath
 
 from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Structure
-
+from pymatgen.core.structure import Structure, Molecule
+from pymatgen.electronic_structure.core import Spin, Orbital
+from pymatgen.electronic_structure.dos import Dos
+from pymatgen.io.xyz import XYZ
 """
 Classes for reading/manipulating/writing CP2K ouput files. 
 Adapted from pymatgen.io.vasp.outputs 
@@ -32,6 +34,8 @@ __status__ = "Development"
 
 logger = logging.getLogger(__name__)
 
+_hartree_to_ev_ = 2.72113838565563E+01
+_bohr_to_angstrom_ = 5.29177208590000E-01
 
 # TODO This might need more testing
 def _postprocessor(s):
@@ -395,4 +399,73 @@ class Cp2kOuput:
         if attribute_name is not None:
             self.data[attribute_name] = retained_data
         return retained_data
+
+
+# TODO Use pymatgen's new "trajectory" object instead of a list of structures
+def parse_structures(trajectory_file, lattice_file):
+    mols = XYZ.from_file(trajectory_file).all_molecules
+    lattice = np.loadtxt(lattice_file)
+    structures = []
+    for m, l in zip(mols, lattice):
+        structures.append(Structure(lattice=l[2:].reshape(3,3),
+                                    coords=[s.coords for s in m.sites],
+                                    species=[s.specie for s in m.sites],
+                                    coords_are_cartesian=True))
+
+
+def parse_energies(energy_file):
+    pass
+
+
+def parse_pdos(pdos_file):
+
+    with zopen(pdos_file) as f:
+        lines = f.readlines()
+        efermi = float(lines[0].split()[-2])*_hartree_to_ev_
+        header = re.split(r'\s{2,}', lines[1].replace('#','').strip())
+
+        dat = np.loadtxt('test_files/pdos')
+        dat[:,1] = dat[:,1]*_hartree_to_ev_
+
+        for i in range(len(header)):
+            if header[i] == 'd-2':
+                header[i] = 'dxy'
+            elif header[i] == 'd-1':
+                header[i] = 'dyz'
+            elif header[i] == 'd0':
+                header[i] = 'dz2'
+            elif header[i] == 'd+1':
+                header[i] = 'dxz'
+            elif header[i] == 'd+2':
+                header[i] = 'dx2'
+            elif header[i] == 'f-3':
+                header[i] = 'f_3'
+            elif header[i] == 'f-2':
+                header[i] = 'f_2'
+            elif header[i] == 'f-1':
+                header[i] = 'f_1'
+            elif header[i] == 'f0':
+                header[i] = 'f0'
+            elif header[i] == 'f+1':
+                header[i] = 'f1'
+            elif header[i] == 'f+2':
+                header[i] = 'f2'
+            elif header[i] == 'f+3':
+                header[i] = 'f3'
+
+        densities = {}
+        energies = []
+        for i in range(2, len(header)):
+            densities[getattr(Orbital, header[i])] = {Spin.up: []}
+
+        for r in dat:
+            energies.append(float(r[1]))
+            for i in range(3, len(r)):
+                densities[getattr(Orbital, header[i-1])][Spin.up].append(r[i])
+
+        dos = {}
+        for k,v in densities.items():
+            dos[k] = Dos(efermi=efermi, energies=energies, densities=v)
+
+
 

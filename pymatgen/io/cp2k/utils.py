@@ -152,12 +152,16 @@ def get_basis_and_potential(species, potential_type='GTH', functional='PBE', bas
         d[specie] = {}
         if basis_type is 'MOLOPT':
             d[specie]['basis'] = "{}-MOLOPT-GTH".format(cardinality)
+            d['basis_filename'] = 'BASIS_MOLOPT'
+            d['potential_filename'] = 'GTH_POTENTIALS'
         elif basis_type is 'GTH':
             d[specie]['basis'] = "{}-GTH".format(cardinality)
-        elif basis_type is 'ANO':
-            d[specie]['basis'] = "{}-ANO".format(cardinality)
+            d['basis_filename'] = 'GTH_BASIS_SETS'
+            d['potential_filename'] = 'GTH_POTENTIALS'
         elif (basis_type is 'ALL') or (basis_type is 'ALLELECTRON'):
             d[specie]['basis'] = "{}-ALL".format(cardinality)
+            d['basis_filename'] = 'ALL_BASIS_SETS'
+            d['potential_filename'] = 'ALL_POTENTIALS'
         else:
             raise AttributeError("AN UNKNOWN BASIS SET TYPE, {}, HAS BEEN SPECIFIED.".format(basis_type))
 

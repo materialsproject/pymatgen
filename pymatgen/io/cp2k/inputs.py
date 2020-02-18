@@ -2,11 +2,9 @@ import os
 import copy
 import textwrap
 from monty.json import MSONable
+from monty.io import zopen
 
-# TODO: Use multisets for keywords?
-# Todo: update method for section?
 # TODO: Location/Dependencies
-# TODO can either use kwargs accessed with kwargs.get(,default) or actual default keyword arguments. Which one?
 
 
 class Section(MSONable):
@@ -96,7 +94,7 @@ class Section(MSONable):
     def get_keyword(self, kwd):
         for i, k in enumerate(self.keywords):
             if k.name == kwd:
-                return i, k
+                return k
 
     def set_keyword(self, kwd):
         for i, k in enumerate(self.keywords):
@@ -356,7 +354,7 @@ class Cp2kInput(Section):
 
     @staticmethod
     def from_file(file):
-        with open(file) as f:
+        with zopen(file, 'rt') as f:
             lines = f.read().splitlines()
             lines = [line.replace('\t', '') for line in lines]
             lines = [line for line in lines if line]
@@ -423,14 +421,15 @@ class ForceEval(Section):
 
 class Dft(Section):
 
-    def __init__(self, subsections={}, **kwargs):
+    def __init__(self, subsections={}, basis_set_filename='BASIS_MOLOPT',
+                 potential_filename='GTH_POTENTIALS', uks=True, **kwargs):
 
         description = 'parameter needed by dft programs'
 
         keywords = [
-            Keyword('BASIS_SET_FILE_NAME', kwargs.get('BASIS_SET_FILE_NAME', 'BASIS_MOLOPT')),
-            Keyword('POTENTIAL_FILE_NAME', kwargs.get('POTENTIAL_FILE_NAME', 'GTH_POTENTIALS')),
-            Keyword('UKS', kwargs.get('UKS', True))
+            Keyword('BASIS_SET_FILE_NAME', basis_set_filename),
+            Keyword('POTENTIAL_FILE_NAME', potential_filename),
+            Keyword('UKS', uks)
         ]
 
         super().__init__('DFT', description=description, keywords=keywords,
@@ -503,7 +502,7 @@ class Mgrid(Section):
 class Diagonalization(Section):
     
     def __init__(self, eps_adapt=0, eps_iter=1e-8, eps_jacobi=0,
-                 jacobi_threshold=1e-7, max_iter=2, subsections={}):
+                 jacobi_threshold=1e-7, subsections={}):
 
         location = 'CP2K_INPUT/FORCE_EVAL/DFT/SCF/DIAGONALIZATION'
 
@@ -828,6 +827,5 @@ class PBE(Section):
         super(PBE, self).__init__('PBE', subsections={}, repeats=False,
                                   location=location, section_parameters=[],
                                   keywords=keywords)
-
 
 
