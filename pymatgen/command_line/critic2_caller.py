@@ -44,12 +44,13 @@ import numpy as np
 import glob
 
 from scipy.spatial import KDTree
-from pymatgen.io.vasp.outputs import Chgcar
+from pymatgen.io.vasp.outputs import Chgcar, VolumetricData
 from pymatgen.analysis.graphs import StructureGraph
 from pymatgen.core.periodic_table import DummySpecie
 from monty.os.path import which
 from monty.dev import requires
 from monty.json import MSONable
+from monty.serialization import loadfn
 from monty.tempfile import ScratchDir
 from enum import Enum
 
@@ -72,7 +73,8 @@ class Critic2Caller:
     @requires(which("critic2"), "Critic2Caller requires the executable critic to be in the path. "
                                 "Please follow the instructions at https://github.com/aoterodelaroza/critic2.")
     def __init__(self, structure, chgcar=None, chgcar_ref=None,
-                 user_input_settings=None, write_cml=False):
+                 user_input_settings=None, write_cml=False,
+                 write_json=True):
         """
         Run Critic2 in automatic mode on a supplied structure, charge
         density (chgcar) and reference charge density (chgcar_ref).
@@ -113,14 +115,18 @@ class Critic2Caller:
 
         :param structure: Structure to analyze
         :param chgcar: Charge density to use for analysis. If None, will
-            use promolecular density.
+            use promolecular density. Should be a Chgcar object or path (string).
         :param chgcar_ref: Reference charge density. If None, will use
-            chgcar as reference.
-        :param user_input_settings (dict):
+            chgcar as reference. Should be a Chgcar object or path (string).
+        :param user_input_settings (dict): as explained above
         :param write_cml (bool): Useful for debug, if True will write all
             critical points to a file 'table.cml' in the working directory
             useful for visualization
+        :param write_json (bool): Whether to write out critical points
+        and YT json. YT integration will be performed with this setting.
         """
+
+        # TODO: add ZPSP detection
 
         settings = {'CPEPS': 0.1, 'SEED': ["WS", "PAIR DIST 10"]}
         if user_input_settings:
@@ -131,12 +137,12 @@ class Critic2Caller:
 
         # Load data to use as reference field
         if chgcar_ref:
-            input_script += ["load VASPCHG CHGCAR_ref id chgcar_ref",
+            input_script += ["load ref.CHGCAR id chgcar_ref",
                              "reference chgcar_ref"]
 
         # Load data to use for analysis
         if chgcar:
-            input_script += ["load VASPCHG CHGCAR_int id chgcar",
+            input_script += ["load int.CHGCAR id chgcar",
                              "integrable chgcar"]
 
         # Command to run automatic analysis
@@ -152,6 +158,14 @@ class Critic2Caller:
         if write_cml:
             input_script += ["cpreport ../table.cml cell border graph"]
 
+        if write_json:
+            input_script += ["cpreport cpreport.json"]
+
+        if write_json and chgcar:
+            # requires gridded data to work
+            input_script += ["yt"]
+            input_script += ["yt JSON yt.json"]
+
         input_script = "\n".join(input_script)
 
         with ScratchDir(".") as temp_dir:
@@ -163,11 +177,15 @@ class Critic2Caller:
 
             structure.to(filename='POSCAR')
 
-            if chgcar:
-                chgcar.write_file('CHGCAR_int')
+            if chgcar and isinstance(chgcar, VolumetricData):
+                chgcar.write_file('int.CHGCAR')
+            elif chgcar:
+                os.symlink(chgcar, 'int.CHGCAR')
 
-            if chgcar_ref:
-                chgcar_ref.write_file('CHGCAR_ref')
+            if chgcar_ref and isinstance(chgcar_ref, VolumetricData):
+                chgcar_ref.write_file('ref.CHGCAR')
+            elif chgcar_ref:
+                os.symlink(chgcar_ref, 'ref.CHGCAR')
 
             args = ["critic2", "input_script.cri"]
             rs = subprocess.Popen(args,
@@ -182,12 +200,24 @@ class Critic2Caller:
                 warnings.warn(stderr)
 
             if rs.returncode != 0:
-                raise RuntimeError("critic2 exited with return code {}.".format(rs.returncode))
+                raise RuntimeError("critic2 exited with return code {}: {}".format(rs.returncode, stdout))
 
             self._stdout = stdout
             self._stderr = stderr
 
-            self.output = Critic2Output(structure, stdout)
+            if os.path.exists('cpreport.json'):
+                cpreport = loadfn('cpreport.json')
+            else:
+                cpreport = None
+
+            if os.path.exists('yt.json'):
+                yt = loadfn('yt.json')
+            else:
+                yt = None
+
+            self.output = Critic2Output(structure, critic2_stdout=stdout,
+                                        critic2_stderr=stderr, cpreport_json=cpreport,
+                                        yt_json=yt)
 
     @classmethod
     def from_path(cls, path, suffix=''):
@@ -322,7 +352,8 @@ class Critic2Output(MSONable):
     Class to process the standard output from critic2.
     """
 
-    def __init__(self, structure, critic2_stdout):
+    def __init__(self, structure, critic2_stdout=None, critic2_stderr=None,
+                 cpreport_json=None, yt_json=None):
         """
         This class is used to store results from the Critic2Caller.
 
@@ -348,11 +379,18 @@ class Critic2Output(MSONable):
         :param structure: associated Structure
         :param critic2_stdout: stdout from running critic2 in automatic
             mode
+        :param critic2_stderr: stderr from running critic2 in automatic
+            mode
+        :param cpreport_json: json output from CPREPORT command
+        :param yt_json: json output from YT command
         """
 
         self.structure = structure
 
         self._critic2_stdout = critic2_stdout
+        self._critic2_stderr = critic2_stderr
+        self._cpreport_json = cpreport_json
+        self._yt_json = yt_json
 
         self.nodes = {}
         self.edges = {}
