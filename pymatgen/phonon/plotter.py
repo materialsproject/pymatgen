@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 FreqUnits = namedtuple("FreqUnits", ["factor", "label"])
 
 
-def freq_units(units: str):
+def freq_units(units):
     """
     Returns conversion factor from THz to the requred units and the label in the form of a namedtuple
     Accepted values: thz, ev, mev, ha, cm-1, cm^-1
@@ -59,7 +59,7 @@ class PhononDosPlotter:
 
     """
 
-    def __init__(self, stack: bool = False, sigma: float = None):
+    def __init__(self, stack=False, sigma=None):
         """
 
         Args:
@@ -72,7 +72,7 @@ class PhononDosPlotter:
         self.sigma = sigma
         self._doses = OrderedDict()
 
-    def add_dos(self, label: str, dos: PhononDos):
+    def add_dos(self, label, dos):
         """
         Adds a dos for plotting.
 
@@ -87,7 +87,7 @@ class PhononDosPlotter:
             else dos.densities
         self._doses[label] = {'frequencies': dos.frequencies, 'densities': densities}
 
-    def add_dos_dict(self, dos_dict: dict, key_sort_func=None):
+    def add_dos_dict(self, dos_dict, key_sort_func=None):
         """
         Add a dictionary of doses, with an optional sorting function for the
         keys.
@@ -115,7 +115,6 @@ class PhononDosPlotter:
         """
         return jsanitize(self._doses)
 
-    def get_plot(self, xlim=None, ylim=None, units: str = "thz"):
         """
         Get a matplotlib plot showing the DOS.
 
@@ -192,7 +191,7 @@ class PhononDosPlotter:
         plt.tight_layout()
         return plt
 
-    def save_plot(self, filename: str, img_format: str = "eps", xlim=None, ylim=None, units: str = "thz"):
+    def save_plot(self, filename, img_format="eps", xlim=None, ylim=None, units="thz"):
         """
         Save matplotlib plot to a file.
 
@@ -208,7 +207,7 @@ class PhononDosPlotter:
         plt.savefig(filename, format=img_format)
         plt.close()
 
-    def show(self, xlim=None, ylim=None, units: str = "thz"):
+    def show(self, xlim=None, ylim=None, units="thz"):
         """
         Show the plot using matplotlib.
 
@@ -229,7 +228,7 @@ class PhononBSPlotter:
 
     """
 
-    def __init__(self, bs: PhononBandStructureSymmLine):
+    def __init__(self, bs):
         """
         Args:
             bs: A PhononBandStructureSymmLine object.
@@ -644,7 +643,7 @@ class ThermoPlotter:
         return fig
 
     @add_fig_kwargs
-    def plot_thermodynamic_properties(self, tmin: float, tmax: float, ntemp: int, ylim=None, **kwargs):
+    def plot_thermodynamic_properties(self, tmin, tmax, ntemp, ylim=None, **kwargs):
         """
         Plots all the thermodynamic properties in a temperature range.
 
