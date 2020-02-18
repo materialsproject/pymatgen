@@ -54,7 +54,6 @@ from monty.serialization import loadfn
 from monty.io import zopen
 from monty.dev import deprecated
 from zipfile import ZipFile
-from hashlib import md5
 
 from pymatgen.core.periodic_table import Specie, Element
 from pymatgen.core.structure import Structure
@@ -128,7 +127,22 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
         Potcar object.
         """
         potcar = Potcar(self.potcar_symbols, functional=self.potcar_functional)
-        validate_potcar_hash(potcar)
+
+        # warn if the selected POTCARs do not correspond to the chosen
+        # potcar_functional
+        for psingle in potcar:
+            if self.potcar_functional not in psingle.identify_potcar()[0]:
+                warnings.warn(
+                    "POTCAR data with symbol {} is not known by pymatgen to\
+                    correspond with the selected potcar_functional {}. This POTCAR\
+                    is known to correspond with functionals {}. Please verify that\
+                    you are using the right POTCARs!"
+                        .format(psingle.symbol,
+                                self.potcar_functional,
+                                psingle.identify_potcar(mode='data')[0]),
+                    BadInputSetWarning,
+                )
+
         return potcar
 
     @property  # type: ignore
@@ -160,7 +174,8 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
             potcar=self.potcar,
         )
 
-    def write_input(self, output_dir, make_dir_if_not_present=True, include_cif=False):
+    def write_input(self, output_dir, make_dir_if_not_present=True, include_cif=False,
+                    potcar_spec=False, zip_output=False):
         """
         Writes a set of VASP input to a directory.
 
@@ -171,45 +186,47 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
                 present.
             include_cif (bool): Whether to write a CIF file in the output
                 directory for easier opening by VESTA.
+            potcar_spec (bool): Instead of writing the POTCAR, write a "POTCAR.spec".
+                This is intended to help sharing an input set with people who might
+                not have a license to specific Potcar files. Given a "POTCAR.spec",
+                the specific POTCAR file can be re-generated using pymatgen with the
+                "generate_potcar" function in the pymatgen CLI.
+            zip_output (bool): If True, output will be zipped into a file with the
+                same name as the InputSet (e.g., MPStaticSet.zip)
         """
-        vinput = self.get_vasp_input()
-        vinput.write_input(output_dir, make_dir_if_not_present=make_dir_if_not_present)
+        if potcar_spec:
+            if make_dir_if_not_present and not os.path.exists(output_dir):
+                os.makedirs(output_dir)
+
+            with zopen(os.path.join(output_dir, "POTCAR.spec"), "wt") as f:
+                f.write("\n".join(self.potcar_symbols))
+
+            for k, v in {"INCAR": self.incar,
+                         "POSCAR": self.poscar,
+                         "KPOINTS": self.kpoints
+                         }.items():
+                if v is not None:
+                    with zopen(os.path.join(output_dir, k), "wt") as f:
+                        f.write(v.__str__())
+        else:
+            vinput = self.get_vasp_input()
+            vinput.write_input(output_dir, make_dir_if_not_present=make_dir_if_not_present)
+
+        cifname = ""
         if include_cif:
             s = vinput["POSCAR"].structure
-            fname = Path(output_dir) / ("%s.cif" % re.sub(r"\s", "", s.formula))
-            s.to(filename=fname)
+            cifname = Path(output_dir) / ("%s.cif" % re.sub(r"\s", "", s.formula))
+            s.to(filename=cifname)
 
-    def write_spec(self, filename=None, readme=None):
-        """
-        Write a set of the VASP input files to a zip file, WITHOUT the Potcar
-        file. The Potcar file will instead be written as a "POTCAR.spec". This is
-        intended to help sharing an input set with people who might not have a license
-        to specific Potcar files.
-
-        Given a "POTCAR.spec", the specific POTCAR file can be re-generated using
-        pymatgen with the "generate_potcar" function in the pymatgen CLI when set
-        up with a corresponding directory of POTCAR files.
-
-        Args:
-            filename (str): Filename to output as zip file, will default to name
-            of input set.
-            readme (str): Additional file to include as README
-        """
-
-        if not filename:
-            filename = self.__class__.__name__ + "_spec.zip"
-        if not filename.endswith(".zip"):
-            filename += ".zip"
-
-        with ZipFile(filename, "w") as zip:
-            zip.writestr("INCAR", str(self.incar))
-            zip.writestr("POSCAR", str(self.poscar))
-            zip.writestr("KPOINTS", str(self.kpoints))
-            zip.writestr("POTCAR.spec", "\n".join(self.potcar_symbols))
-            if readme:
-                zip.writestr("README", readme)
-            # TODO: should write transformations.json also where appropriate
-            # cannot import TransformedStructure due to circular import
+        if zip_output:
+            filename = self.__class__.__name__ + ".zip"
+            with ZipFile(filename, "w") as zip:
+                for file in ["INCAR", "POSCAR", "KPOINTS", "POTCAR", "POTCAR.spec", cifname]:
+                    try:
+                        zip.write(file)
+                        os.remove(file)
+                    except FileNotFoundError:
+                        pass
 
     def as_dict(self, verbosity=2):
         """
@@ -228,7 +245,15 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
 
 def _load_yaml_config(fname):
     config = loadfn(str(MODULE_DIR / ("%s.yaml" % fname)))
-    config["INCAR"].update(loadfn(str(MODULE_DIR / "VASPIncarBase.yaml")))
+    if "PARENT" in config:
+        parent_config = _load_yaml_config(config["PARENT"])
+        for k, v in parent_config.items():
+            if k not in config:
+                config[k] = v
+            elif isinstance(v, dict):
+                v_new = config.get(k, {})
+                v_new.update(v)
+                config[k] = v_new
     return config
 
 
@@ -670,20 +695,31 @@ class DictSet(VaspInputSet):
         output_dir: str,
         make_dir_if_not_present: bool = True,
         include_cif: bool = False,
+        potcar_spec: bool = False,
+        zip_output: bool = False,
     ):
         """
         Writes out all input to a directory.
 
-        :param output_dir: Name of output dir.
-        :param make_dir_if_not_present: Makes the directory if it does not
-            exist.
-        :param include_cif: Whether to include a CIF file for easier reading.
-        :return:
+        Args:
+            output_dir (str): Directory to output the VASP input files
+            make_dir_if_not_present (bool): Set to True if you want the
+                directory (and the whole path) to be created if it is not
+                present.
+            include_cif (bool): Whether to write a CIF file in the output
+                directory for easier opening by VESTA.
+            potcar_spec (bool): Instead of writing the POTCAR, write a "POTCAR.spec".
+                This is intended to help sharing an input set with people who might
+                not have a license to specific Potcar files. Given a "POTCAR.spec",
+                the specific POTCAR file can be re-generated using pymatgen with the
+                "generate_potcar" function in the pymatgen CLI.
         """
         super().write_input(
             output_dir=output_dir,
             make_dir_if_not_present=make_dir_if_not_present,
             include_cif=include_cif,
+            potcar_spec=potcar_spec,
+            zip_output=zip_output
         )
         for k, v in self.files_to_transfer.items():
             with zopen(v, "rb") as fin, zopen(str(Path(output_dir) / k), "wb") as fout:
@@ -1263,6 +1299,7 @@ class MPNonSCFSet(MPRelaxSet):
         prev_incar=None,
         mode="line",
         nedos=2001,
+        dedos=0.005,
         reciprocal_density=100,
         sym_prec=0.1,
         kpoints_line_density=20,
@@ -1278,6 +1315,9 @@ class MPNonSCFSet(MPRelaxSet):
             prev_incar (Incar/string): Incar file from previous run.
             mode (str): Line, Uniform or Boltztrap mode supported.
             nedos (int): nedos parameter. Default to 2001.
+            dedos (float): setting nedos=0 and uniform mode in from_prev_calc,
+                an automatic nedos will be calculated using the total energy range
+                divided by the energy step dedos
             reciprocal_density (int): density of k-mesh by reciprocal
                 volume (defaults to 100)
             sym_prec (float): Symmetry precision (for Uniform mode).
@@ -1299,6 +1339,7 @@ class MPNonSCFSet(MPRelaxSet):
         self.prev_incar = prev_incar
         self.kwargs = kwargs
         self.nedos = nedos
+        self.dedos = dedos
         self.reciprocal_density = reciprocal_density
         self.sym_prec = sym_prec
         self.kpoints_line_density = kpoints_line_density
@@ -1344,7 +1385,7 @@ class MPNonSCFSet(MPRelaxSet):
 
         if self.mode.lower() == "uniform":
             # use tetrahedron method for DOS and optics calculations
-            incar.update({"ISMEAR": -5})
+            incar.update({"ISMEAR": -5, "ISYM": 2})
         else:
             # if line mode, can't use ISMEAR=-5; also use small sigma to avoid
             # partial occupancies for small band gap materials.
@@ -1474,6 +1515,12 @@ class MPNonSCFSet(MPRelaxSet):
                 self.kpoints_line_density = (
                     self.kpoints_line_density * self.small_gap_multiply[1]
                 )
+
+        # automatic setting of nedos using the total energy range and the energy step dedos
+        if self.nedos == 0:
+            emax = max([eigs.max() for eigs in vasprun.eigenvalues.values()])
+            emin = min([eigs.min() for eigs in vasprun.eigenvalues.values()])
+            self.nedos = int((emax - emin) / self.dedos)
 
         return self
 
@@ -2210,6 +2257,7 @@ class MITNEBSet(MITRelaxSet):
         kwargs["sort_structure"] = False
         super().__init__(structures[0], **kwargs)
         self.structures = self._process_structures(structures)
+
         self.unset_encut = False
         if unset_encut:
             self._config_dict["INCAR"].pop("ENCUT", None)
@@ -2824,57 +2872,6 @@ class BadInputSetWarning(UserWarning):
     pass
 
 
-class BadHashError(Exception):
-    """
-    Error raised when POTCAR hashes do not pass validation
-    """
-
-    pass
-
-
-def validate_potcar_hash(potcar: Potcar):
-    """
-    Validate POTCAR contents against pre-compiled hashes.
-
-    Two hashes are checked - the "file hash" checks the md5 hash of
-    the entire file, including metadata. The "pymatgen hash" is computed
-    using the get_potcar_hash method and represents a hash of just the
-    PSCTR data in the header. Hashes of the POTCARs distributed with
-    VASP 5.4.4 are stored in 'vasp_potcar_file_hashes.json' and
-    'vasp_potcar_file_hashes.json'.
-
-    A warning is raised if the data hash passes validation but the
-    file hash does not.
-    """
-    # hashes computed from pseudopotential distributed with VASP 5.4.4
-    cwd = os.path.abspath(os.path.dirname(__file__))
-    pymatgen_hashes = loadfn(os.path.join(cwd, "vasp_potcar_pymatgen_hashes.json"))
-    file_hashes = loadfn(os.path.join(cwd, "vasp_potcar_file_hashes.json"))
-
-    key = potcar[0].functional_dir[potcar.functional]
-
-    for psingle in potcar:
-        if psingle.hash != pymatgen_hashes[key][psingle.symbol]:
-            raise BadHashError(
-                "POTCAR data hash for POTCAR {} did not pass \
-                                validation. Verify the integrity of your \
-                                POTCAR files. ".format(
-                    psingle.symbol
-                )
-            )
-    else:
-        file_hash = md5(psingle.data.encode("utf-8")).hexdigest()
-        if file_hash != file_hashes[key][psingle.symbol]:
-            warnings.warn(
-                "POTCAR file hash for POTCAR {} did not pass validation. \
-                            It is possible that the metadata in the POTCAR has changed. \
-                        We will continue loading the POTCAR because the hash of \
-                        the data itself has passed validation.".format(
-                    psingle.symbol
-                )
-            )
-
-
 def batch_write_input(
     structures,
     vasp_input_set=MPRelaxSet,
@@ -2883,6 +2880,8 @@ def batch_write_input(
     subfolder=None,
     sanitize=False,
     include_cif=False,
+    potcar_spec=False,
+    zip_output=False,
     **kwargs
 ):
     """
@@ -2906,6 +2905,13 @@ def batch_write_input(
             Defaults to False.
         include_cif (bool): Whether to output a CIF as well. CIF files are
             generally better supported in visualization programs.
+        potcar_spec (bool): Instead of writing the POTCAR, write a "POTCAR.spec".
+                This is intended to help sharing an input set with people who might
+                not have a license to specific Potcar files. Given a "POTCAR.spec",
+                the specific POTCAR file can be re-generated using pymatgen with the
+                "generate_potcar" function in the pymatgen CLI.
+        zip_output (bool): If True, output will be zipped into a file with the
+            same name as the InputSet (e.g., MPStaticSet.zip)
         **kwargs: Additional kwargs are passed to the vasp_input_set class
             in addition to structure.
     """
@@ -2924,6 +2930,8 @@ def batch_write_input(
             str(d),
             make_dir_if_not_present=make_dir_if_not_present,
             include_cif=include_cif,
+            potcar_spec=potcar_spec,
+            zip_output=zip_output,
         )
 
 

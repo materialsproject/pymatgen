@@ -157,9 +157,10 @@ class CoordinationGeometryFinderTest(PymatgenTest):
                       11: [7, 6, 4, 1, 2, 5, 0, 8, 9, 10, 3],
                       12: [5, 8, 9, 0, 3, 1, 4, 2, 6, 11, 10, 7],
                       13: [4, 11, 5, 12, 1, 2, 8, 3, 0, 6, 9, 7, 10],
+                      20: [8, 12, 11, 0, 14, 10, 13, 6, 18, 1, 9, 17, 3, 19, 5, 7, 15, 2, 16, 4]
                       }
 
-        for coordination in range(1, 14):
+        for coordination in range(1, 21):
             for mp_symbol in allcg.get_implemented_geometries(coordination=coordination,
                                                               returned='mp_symbol'):
                 cg = allcg.get_geometry_from_mp_symbol(mp_symbol=mp_symbol)

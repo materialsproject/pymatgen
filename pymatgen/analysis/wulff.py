@@ -21,7 +21,6 @@ Tran, R.; Xu, Z.; Radhakrishnan, B.; Winston, D.; Persson, K. A.; Ong, S. P.
 from pymatgen.core.structure import Structure
 from pymatgen.util.coord import get_angle
 import numpy as np
-import scipy as sp
 from scipy.spatial import ConvexHull
 import logging
 import warnings
@@ -29,7 +28,7 @@ import warnings
 __author__ = 'Zihan Xu, Richard Tran, Shyue Ping Ong'
 __copyright__ = 'Copyright 2013, The Materials Virtual Lab'
 __version__ = '0.1'
-__maintainer__ = 'Zihan Xu'
+__maintainer__ = 'Zihan Xu' 
 __email__ = 'zix009@eng.ucsd.edu'
 __date__ = 'May 5 2016'
 
@@ -64,7 +63,7 @@ def get_tri_area(pts):
     a, b, c = pts[0], pts[1], pts[2]
     v1 = np.array(b) - np.array(a)
     v2 = np.array(c) - np.array(a)
-    area_tri = abs(sp.linalg.norm(sp.cross(v1, v2)) / 2)
+    area_tri = abs(np.linalg.norm(np.cross(v1, v2)) / 2)
     return area_tri
 
 
@@ -248,7 +247,7 @@ class WulffShape:
                 if miller not in all_hkl:
                     all_hkl.append(miller)
                     normal = recp.get_cartesian_coords(miller)
-                    normal /= sp.linalg.norm(normal)
+                    normal /= np.linalg.norm(normal)
                     normal_pt = [x * energy for x in normal]
                     dual_pt = [x / energy for x in normal]
                     color_plane = color_ind[divmod(i, len(color_ind))[1]]
@@ -272,7 +271,7 @@ class WulffShape:
         """
         matrix_surfs = [self.facets[dual_simp[i]].normal for i in range(3)]
         matrix_e = [self.facets[dual_simp[i]].e_surf for i in range(3)]
-        cross_pt = sp.dot(sp.linalg.inv(matrix_surfs), matrix_e)
+        cross_pt = np.dot(np.linalg.inv(matrix_surfs), matrix_e)
         return cross_pt
 
     def _get_simpx_plane(self):

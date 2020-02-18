@@ -278,7 +278,9 @@ class Element(Enum):
 
         .. attribute:: mendeleev_no
 
-            Mendeleev number
+            Mendeleev number from definition given by Pettifor, D. G. (1984).
+            A chemical scale for crystal-structure maps. Solid State Communications,
+            51 (1), 31-34 
 
         .. attribute:: electrical_resistivity
 

@@ -807,16 +807,18 @@ class CifParser:
                 id = list(map(int, (
                     data.data.get("_space_group_magn.number_BNS").split("."))))
 
-            msg = MagneticSpaceGroup(id)
-
             if data.data.get("_space_group_magn.transform_BNS_Pp_abc"):
                 if data.data.get(
                         "_space_group_magn.transform_BNS_Pp_abc") != "a,b,c;0,0,0":
-                    return NotImplementedError(
-                        "Non-standard settings not currently supported.")
+
+                    jf = data.data.get("_space_group_magn.transform_BNS_Pp_abc")
+                    msg = MagneticSpaceGroup(id, jf)
+
             elif data.data.get("_space_group_magn.transform_BNS_Pp"):
                 return NotImplementedError(
                     "Incomplete specification to implement.")
+            else:
+                msg = MagneticSpaceGroup(id)
 
             magsymmops = msg.symmetry_ops
 

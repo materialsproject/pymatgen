@@ -6,21 +6,21 @@
 import unittest
 import os
 
-from pymatgen.analysis.molecule_matcher import MoleculeMatcher
-from pymatgen.analysis.molecule_matcher import IsomorphismMolAtomMapper
-from pymatgen.analysis.molecule_matcher import InchiMolAtomMapper
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure import Molecule
 
 try:
     import openbabel as ob
-except ImportError:
+    from pymatgen.analysis.molecule_matcher import MoleculeMatcher
+    from pymatgen.analysis.molecule_matcher import IsomorphismMolAtomMapper
+    from pymatgen.analysis.molecule_matcher import InchiMolAtomMapper
+except (ImportError, RuntimeError):
     ob = None
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files', "molecules", "molecule_matcher")
 
-obalign_missing = ob is None or 'OBAlign' not in dir(ob)
+obalign_missing = (ob is None) or ('OBAlign' not in dir(ob))
 
 
 @unittest.skipIf(obalign_missing, "OBAlign is missing, Skipping")

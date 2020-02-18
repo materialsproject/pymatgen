@@ -6,6 +6,7 @@ Subpackages
 
 .. toctree::
 
+   pymatgen.analysis.chemenv.connectivity
    pymatgen.analysis.chemenv.coordination_environments
    pymatgen.analysis.chemenv.utils
 
