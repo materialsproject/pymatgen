@@ -215,9 +215,9 @@ class Critic2Caller:
             else:
                 yt = None
 
-            self.output = Critic2Output(structure, critic2_stdout=stdout,
-                                        critic2_stderr=stderr, cpreport_json=cpreport,
-                                        yt_json=yt)
+            self.output = Critic2Analysis(structure, stdout=stdout,
+                                          stderr=stderr, cpreport=cpreport,
+                                          yt=yt)
 
     @classmethod
     def from_path(cls, path, suffix=''):
@@ -347,13 +347,13 @@ class CriticalPoint(MSONable):
         return eig[0]/eig[1] - 1
 
 
-class Critic2Output(MSONable):
+class Critic2Analysis(MSONable):
     """
-    Class to process the standard output from critic2.
+    Class to process the standard output from critic2 into pymatgen-compatible objects.
     """
 
-    def __init__(self, structure, critic2_stdout=None, critic2_stderr=None,
-                 cpreport_json=None, yt_json=None):
+    def __init__(self, structure, stdout=None, stderr=None,
+                 cpreport=None, yt=None):
         """
         This class is used to store results from the Critic2Caller.
 
@@ -376,26 +376,38 @@ class Critic2Output(MSONable):
         same as the corresponding sites in structure, with indices of
         other critical points arbitrarily assigned.
 
+        Only one of (stdout, cpreport) required, with cpreport preferred
+        since this is a new, native JSON output from critic2.
+
         :param structure: associated Structure
-        :param critic2_stdout: stdout from running critic2 in automatic
+        :param stdout: stdout from running critic2 in automatic
             mode
-        :param critic2_stderr: stderr from running critic2 in automatic
+        :param stderr: stderr from running critic2 in automatic
             mode
-        :param cpreport_json: json output from CPREPORT command
-        :param yt_json: json output from YT command
+        :param cpreport: json output from CPREPORT command
+        :param yt: json output from YT command
         """
 
         self.structure = structure
 
-        self._critic2_stdout = critic2_stdout
-        self._critic2_stderr = critic2_stderr
-        self._cpreport_json = cpreport_json
-        self._yt_json = yt_json
+        self._stdout = stdout
+        self._stderr = stderr
+        self._cpreport = cpreport
+        self._yt = yt
 
         self.nodes = {}
         self.edges = {}
+        self.node_values = None  # used to store integratable properties, e.g. volumes
 
-        self._parse_stdout(critic2_stdout)
+        if yt:
+            self.node_values = self._parse_yt(yt)
+
+        if stdout:
+            self._parse_stdout(stdout)
+        elif cpreport:
+            self._parse_cpreport(cpreport)
+        else:
+            raise ValueError("One of cpreport or stdout required.")
 
     def structure_graph(self, edge_weight=None, edge_weight_units=None,
                         include_critical_points=("bond", "ring", "cage")):
@@ -494,6 +506,12 @@ class Critic2Output(MSONable):
         """
         return self.critical_points[self.nodes[n]['unique_idx']]
 
+    def _parse_cpreport(self, cpreport):
+        raise NotImplementedError
+
+    def _parse_yt(self, yt):
+        return {}
+
     def _parse_stdout(self, stdout):
 
         stdout = stdout.split("\n")
@@ -547,7 +565,6 @@ class Critic2Output(MSONable):
                                       multiplicity, field, field_gradient)
                 unique_critical_points.append(point)
 
-        # TODO: may be other useful information to parse here too
         for i, line in enumerate(stdout):
             if '+ Critical point no.' in line:
                 unique_idx = int(line.split()[4]) - 1

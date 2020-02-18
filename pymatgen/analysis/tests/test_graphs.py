@@ -9,7 +9,7 @@ import copy
 
 from monty.serialization import loadfn  # , dumpfn
 
-from pymatgen.command_line.critic2_caller import Critic2Output
+from pymatgen.command_line.critic2_caller import Critic2Analysis
 from pymatgen.core.structure import Molecule, Structure, FunctionalGroups, Site
 from pymatgen.analysis.graphs import *
 from pymatgen.analysis.local_env import (
@@ -111,7 +111,7 @@ class StructureGraphTest(PymatgenTest):
                 "test_files/critic2/MoS2.cif",
             )
         )
-        c2o = Critic2Output(self.structure, reference_stdout)
+        c2o = Critic2Analysis(self.structure, reference_stdout)
         self.mos2_sg = c2o.structure_graph(
             edge_weight="bond_length", edge_weight_units="Å", include_critical_points=False
         )
