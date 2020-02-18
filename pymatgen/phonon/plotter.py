@@ -10,7 +10,6 @@ import scipy.constants as const
 from monty.json import jsanitize
 from pymatgen.electronic_structure.plotter import plot_brillouin_zone
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
-from pymatgen.phonon.dos import PhononDos
 from pymatgen.util.plotting import pretty_plot, add_fig_kwargs, get_ax_fig_plt
 
 """
@@ -115,6 +114,7 @@ class PhononDosPlotter:
         """
         return jsanitize(self._doses)
 
+    def get_plot(self, xlim=None, ylim=None, units="thz"):
         """
         Get a matplotlib plot showing the DOS.
 
