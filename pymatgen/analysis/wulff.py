@@ -28,7 +28,7 @@ import warnings
 __author__ = 'Zihan Xu, Richard Tran, Shyue Ping Ong'
 __copyright__ = 'Copyright 2013, The Materials Virtual Lab'
 __version__ = '0.1'
-__maintainer__ = 'Zihan Xu'
+__maintainer__ = 'Zihan Xu' 
 __email__ = 'zix009@eng.ucsd.edu'
 __date__ = 'May 5 2016'
 
