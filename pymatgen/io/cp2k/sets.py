@@ -342,7 +342,7 @@ class DftSet(Cp2kInputSet):
 
 class StaticSet(DftSet):
 
-    def __init__(self, structure, project_name='CP2K', run_type='ENERGY_FORCE',
+    def __init__(self, structure, project_name='Static', run_type='ENERGY_FORCE',
                  override_default_params={}, **kwargs):
         """
         Basic static energy calculation. Turns on Quickstep module, sets the run_type in global,
@@ -362,7 +362,7 @@ class StaticSet(DftSet):
 class RelaxSet(DftSet):
 
     def __init__(self, structure, max_drift=1e-3, max_force=1e-3, max_iter=200,
-                 optimizer='CG', override_default_params={}, **kwargs):
+                 project_name='Relax', optimizer='DIIS', override_default_params={}, **kwargs):
 
         """
         CP2K input set containing the basic settings for performing geometry optimization. Description
@@ -391,7 +391,7 @@ class RelaxSet(DftSet):
         super(RelaxSet, self).__init__(structure, **kwargs)
 
         s = structure.composition.formula.replace(' ', '-')
-        global_section = Global(project_name='{}-GEO_OPT'.format(s), run_type='GEO_OPT')
+        global_section = Global(project_name=project_name, run_type='GEO_OPT')
 
         geo_opt_params = [
             Keyword('TYPE', 'MINIMIZATION'),
@@ -417,13 +417,13 @@ class RelaxSet(DftSet):
 
 class HybridStaticSet(StaticSet):
 
-    def __init__(self, structure, method='HSE06', hf_fraction=0.25,
+    def __init__(self, structure, method='HSE06', hf_fraction=0.25, project_name='Hybrid-Static',
                  gga_x_fraction=0.75, gga_c_fraction=1, override_default_params={}, **kwargs):
         """
         Static calculation using hybrid DFT with the ADMM formalism in Cp2k.
         :param structure:
         """
-        super(HybridStaticSet, self).__init__(structure, **kwargs)
+        super(HybridStaticSet, self).__init__(structure, project_name=project_name, **kwargs)
         self.activate_hybrid(structure, method=method, hf_fraction=hf_fraction,
                              gga_x_fraction=gga_x_fraction, gga_c_fraction=gga_c_fraction)
         self.update(override_default_params)
@@ -431,9 +431,9 @@ class HybridStaticSet(StaticSet):
 
 class HybridRelaxSet(RelaxSet):
 
-    def __init__(self, structure, method='HSE06', hf_fraction=0.25,
+    def __init__(self, structure, method='HSE06', hf_fraction=0.25, project_name='Hybrid-Relax',
                  gga_x_fraction=0.75, gga_c_fraction=1, override_default_params={}, **kwargs):
-        super(HybridRelaxSet, self).__init__(structure, **kwargs)
+        super(HybridRelaxSet, self).__init__(structure, project_name=project_name, **kwargs)
         self.activate_hybrid(structure, method=method, hf_fraction=hf_fraction,
                              gga_x_fraction=gga_x_fraction, gga_c_fraction=gga_c_fraction)
         self.update(override_default_params)
