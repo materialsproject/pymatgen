@@ -2,6 +2,10 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+This module implements plotter for DOS and band structure.
+"""
+
 import logging
 from collections import OrderedDict, namedtuple
 
@@ -12,10 +16,6 @@ from pymatgen.electronic_structure.plotter import plot_brillouin_zone
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.util.plotting import pretty_plot, add_fig_kwargs, get_ax_fig_plt
 
-"""
-This module implements plotter for DOS and band structure.
-"""
-
 logger = logging.getLogger(__name__)
 
 FreqUnits = namedtuple("FreqUnits", ["factor", "label"])
@@ -23,8 +23,13 @@ FreqUnits = namedtuple("FreqUnits", ["factor", "label"])
 
 def freq_units(units):
     """
-    Returns conversion factor from THz to the requred units and the label in the form of a namedtuple
-    Accepted values: thz, ev, mev, ha, cm-1, cm^-1
+
+    Args:
+        units: str, accepted values: thz, ev, mev, ha, cm-1, cm^-1
+
+    Returns:
+        Returns conversion factor from THz to the requred units and the label in the form of a namedtuple
+
     """
 
     d = {"thz": FreqUnits(1, "THz"),
