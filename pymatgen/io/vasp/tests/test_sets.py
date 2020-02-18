@@ -5,6 +5,7 @@
 
 import unittest
 import pytest  # type: ignore
+from _pytest.monkeypatch import MonkeyPatch  # type: ignore
 import os
 import tempfile
 import hashlib
@@ -21,57 +22,6 @@ from pymatgen.io.vasp.outputs import Vasprun
 MODULE_DIR = Path(__file__).resolve().parent
 
 dec = MontyDecoder()
-
-
-class HashPotcarTest(PymatgenTest):
-    def setUp(self):
-        self.pmg_dir = os.environ.get("PMG_VASP_PSP_DIR", str(self.TEST_FILES_DIR))
-
-        d = {
-            "@module": "pymatgen.core.structure",
-            "@class": "Structure",
-            "charge": None,
-            "lattice": {
-                "matrix": [
-                    [2.32547694, 0.0, -0.82218026],
-                    [-1.16273847, 2.01392211, -0.82218026],
-                    [0.0, 0.0, 2.46654077],
-                ],
-                "a": 2.4665407716892562,
-                "b": 2.4665407749920663,
-                "c": 2.46654077,
-                "alpha": 109.47122067561966,
-                "beta": 109.47122070274486,
-                "gamma": 109.47122053911131,
-                "volume": 11.55162296798055,
-            },
-            "sites": [
-                {
-                    "species": [{"element": "Fe", "occu": 1}],
-                    "abc": [0.0, 0.0, 0.0],
-                    "xyz": [0.0, 0.0, 0.0],
-                    "label": "Fe",
-                    "properties": {"magmom": -2.279},
-                }
-            ],
-        }
-
-        self.struct = Structure.from_dict(d)
-
-    def tearDown(self):
-        SETTINGS["PMG_VASP_PSP_DIR"] = self.pmg_dir
-
-    def test_bad_hash_warning(self):
-        SETTINGS["PMG_VASP_PSP_DIR"] = self.TEST_FILES_DIR / "modified_potcars_data"
-        with pytest.warns(BadHashWarning, match="POTCAR data hash"):
-            potcar = MPRelaxSet(self.struct, potcar_functional="PBE").potcar
-            print(potcar.spec)
-
-    def test_data_hash_warning(self):
-        SETTINGS["PMG_VASP_PSP_DIR"] = self.TEST_FILES_DIR / "modified_potcars_header"
-
-        with pytest.warns(BadHashWarning, match="did not pass validation"):
-            potcar = MPRelaxSet(self.struct, potcar_functional="PBE").potcar
 
 
 class SetChangeCheckTest(PymatgenTest):
@@ -111,6 +61,8 @@ class SetChangeCheckTest(PymatgenTest):
 class MITMPRelaxSetTest(PymatgenTest):
     @classmethod
     def setUpClass(cls):
+        cls.monkeypatch = MonkeyPatch()
+
         filepath = cls.TEST_FILES_DIR / "POSCAR"
         poscar = Poscar.from_file(filepath)
         cls.structure = poscar.structure
@@ -175,6 +127,15 @@ class MITMPRelaxSetTest(PymatgenTest):
         paramset = MPRelaxSet(structure, sort_structure=False)
         syms = paramset.potcar_symbols
         self.assertEqual(syms, ["P", "Fe_pv", "O"])
+
+    def test_potcar_validation(self):
+        structure = Structure(self.lattice, ["P", "Fe"], self.coords)
+        # Use pytest's monkeypatch to temporarily point pymatgen to a directory 
+        # containing the wrong POTCARs (LDA potcars in a PBE directory)
+        with self.monkeypatch.context() as m:
+            m.setitem(SETTINGS, "PMG_VASP_PSP_DIR", str(self.TEST_FILES_DIR / "wrong_potcars"))
+            with pytest.warns(BadInputSetWarning, match="not known by pymatgen"):
+                MITRelaxSet(structure).potcar
 
     def test_lda_potcar(self):
         structure = Structure(self.lattice, ["P", "Fe"], self.coords)
