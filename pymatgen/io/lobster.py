@@ -254,7 +254,7 @@ class Icohplist:
 
         # LOBSTER list files have an extra trailing blank line
         # and we don't need the header.
-        with zopen(filename) as f:
+        with zopen(filename, 'rt') as f:
             data = f.read().split("\n")[1:-1]
         if len(data) == 0:
             raise IOError("ICOHPLIST file contains no data.")
