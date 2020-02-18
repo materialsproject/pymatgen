@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 FreqUnits = namedtuple("FreqUnits", ["factor", "label"])
 
 
-def freq_units(units:str):
+def freq_units(units: str):
     """
     Returns conversion factor from THz to the requred units and the label in the form of a namedtuple
     Accepted values: thz, ev, mev, ha, cm-1, cm^-1
@@ -87,7 +87,7 @@ class PhononDosPlotter:
             else dos.densities
         self._doses[label] = {'frequencies': dos.frequencies, 'densities': densities}
 
-    def add_dos_dict(self, dos_dict:dict, key_sort_func=None):
+    def add_dos_dict(self, dos_dict: dict, key_sort_func=None):
         """
         Add a dictionary of doses, with an optional sorting function for the
         keys.
@@ -115,7 +115,7 @@ class PhononDosPlotter:
         """
         return jsanitize(self._doses)
 
-    def get_plot(self, xlim=None, ylim=None, units: str = "thz") :
+    def get_plot(self, xlim=None, ylim=None, units: str = "thz"):
         """
         Get a matplotlib plot showing the DOS.
 
