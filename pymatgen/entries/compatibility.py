@@ -12,6 +12,7 @@ import warnings
 
 from collections import defaultdict
 from math import sqrt
+import numpy as np
 
 from typing import Sequence, Tuple
 from monty.design_patterns import cached_class
@@ -644,7 +645,7 @@ class Compatibility(MSONable):
         if tot_error == 0:
             # if there are no error values available for the corrections applied,
             # set correction_uncertainty to not a number
-            entry.data["correction_uncertainty"] = float("NaN")
+            entry.data["correction_uncertainty"] = np.nan
         else:
             entry.data["correction_uncertainty"] = tot_error
         return entry
