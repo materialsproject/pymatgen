@@ -17,10 +17,10 @@ import plotly.graph_objs as go  # type: ignore
 
 __author__ = "Frank Wan, Jason Liang"
 __copyright__ = "Copyright 2019, The Materials Project"
-__version__ = "0.2"
+__version__ = "0.201"
 __maintainer__ = "Jason Liang"
 __email__ = "fwan@berkeley.edu, yhljason@berkeley.edu"
-__date__ = "1/28/20"
+__date__ = "2/20/20"
 
 
 class XRDCalculatorTest(PymatgenTest):
@@ -232,10 +232,18 @@ class XRDCalculatorTest(PymatgenTest):
         structure = self.get_structure("Si")
         self.assertTrue(isinstance(c.get_pattern(structure), pd.DataFrame))
 
-    def test_show_plot_2d(self):
+    def test_get_plot_2d(self):
         c = TEMCalculator()
         structure = self.get_structure("Si")
-        self.assertTrue(isinstance(c.show_plot_2d(structure), go.Figure))
+        self.assertTrue(isinstance(c.get_plot_2d(structure), go.Figure))
+
+    def test_get_plot_2d_concise(self):
+        c = TEMCalculator()
+        structure = self.get_structure("Si")
+        fig = c.get_plot_2d_concise(structure)
+        width = fig.layout.width
+        height = fig.layout.height
+        self.assertTrue(width == 100 and height == 100)
 
 
 if __name__ == '__main__':

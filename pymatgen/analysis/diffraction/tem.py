@@ -21,6 +21,7 @@ import plotly.offline as poff  # type: ignore
 from IPython.display import set_matplotlib_formats  # type: ignore
 from pymatgen.core.structure import Structure  # type: ignore
 from pymatgen.analysis.diffraction.core import AbstractDiffractionPatternCalculator  # type: ignore
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer  # type: ignore
 
 with open(os.path.join(os.path.dirname(__file__),
                        "atomic_scattering_params.json")) as f:
@@ -28,42 +29,45 @@ with open(os.path.join(os.path.dirname(__file__),
 set_matplotlib_formats('retina')
 poff.init_notebook_mode(connected=True)
 
-__author__ = "Frank Wan, Jason L"
-__copyright__ = "Copyright 2018, The Materials Project"
-__version__ = "0.2"
-__maintainer__ = "Frank Wan respect for S.P.O"
+__author__ = "Frank Wan, Jason Liang"
+__copyright__ = "Copyright 2020, The Materials Project"
+__version__ = "0.201"
+__maintainer__ = "Jason Liang"
 __email__ = "fwan@berkeley.edu, yhljason@berkeley.edu"
-__date__ = "06/19/2019, updated 01/2020"
+__date__ = "02/30/2020"
 
 
 class TEMCalculator(AbstractDiffractionPatternCalculator):
     """
     Computes the TEM pattern of a crystal structure for multiple Laue zones.
+    Code partially inspired from XRD calculation implementation. X-ray factor to electron factor
+        conversion based on the International Table of Crystallography.
+    #TODO: Could add "number of iterations", "magnification", "critical value of beam",
+            "twin direction" for certain materials, "sample thickness", and "excitation error s"
     """
 
     def __init__(self, wavelength_cache: Dict[float, float] = None, symprec: float = None, voltage: float = 200,
                  beam_direction: Tuple[int, int, int] = (0, 0, 1), camera_length: int = 160,
                  debye_waller_factors: Dict[str, float] = None, cs: float = 1) -> None:
         """
-        Initializes the TEM calculator with a given radiation.
+        Initializes the TEM calculator with given voltage,
         Args:
-            wavelength_cache (dict) : A wavelength to voltage reference for later use.
+            wavelength_cache (dict): Reference of voltage to relativistic wavelength. Value dependent on
+                user input voltage.
             symprec (float): Symmetry precision for structure refinement. If
-            set to 0, no refinement is done. Otherwise, refinement is
-            performed using spglib with provided precision.
+                set to 0, no refinement is done. Otherwise, refinement is
+                performed using spglib with provided precision.
             voltage (float): The wavelength is a function of the TEM microscope's
-            voltage. By default, set to 200 kV. Units in kV.
+                voltage. By default, set to 200 kV. Units in kV.
             beam_direction (tuple): The direction of the electron beam fired onto the sample.
-            By default, set to [0,0,1], which corresponds to the normal direction
-            of the sample plane.
+                By default, set to [0,0,1], which corresponds to the normal direction
+                of the sample plane.
             camera_length (int): The distance from the sample to the projected diffraction pattern.
-            By default, set to 160 cm. Units in cm.
+                By default, set to 160 cm. Units in cm.
             debye_waller_factors ({element symbol: float}): Allows the
-            specification of Debye-Waller factors. Note that these
-            factors are temperature dependent.
+                specification of Debye-Waller factors. Note that these
+                factors are temperature dependent.
             cs (float): the chromatic aberration coefficient. set by default to 1 mm.
-            later on: may want "number of iterations", "magnification", "critical value of beam",
-            "twin direction" for certain materials, "sample thickness", and "excitation error s"
         """
         self.wavelength_cache = wavelength_cache
         self.symprec = symprec
@@ -76,11 +80,11 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
     def wavelength_rel(self) -> float:
         """
         Calculates the wavelength of the electron beam with relativistic kinematic effects taken
-        into account.
+            into account.
         Args:
             none
         Returns:
-            relativisticWavelength (in angstroms)
+            Relativistic Wavelength (in angstroms)
         """
         if self.wavelength_cache is None:
             self.wavelength_cache = {}
@@ -163,7 +167,8 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         Args:
             bragg_angles (Dict): The bragg angles for each hkl plane.
         Returns:
-            Dict of hkl plane to s2 parameter, calcs the s squared parameter (= square of sin theta over lambda).
+            Dict of hkl plane to s2 parameter, calculates the s squared parameter
+                (= square of sin theta over lambda).
         """
         plane = list(bragg_angles.keys())
         bragg_angles_val = np.array(list(bragg_angles.values()))
@@ -272,12 +277,14 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             Returns:
                 PandasDataFrame
         """
+        if self.symprec:
+            finder = SpacegroupAnalyzer(structure, symprec=self.symprec)
+            structure = finder.get_refined_structure()
         points = self.generate_points(-10, 11)
-        TEM_dots = self.tem_dots(structure, points)
-        field_names = ["Pos", "(hkl)", "Intnsty (norm)", "Film rad", "Interplanar Spacing"]
+        tem_dots = self.tem_dots(structure, points)
+        field_names = ["Position", "(hkl)", "Intensity (norm)", "Film radius", "Interplanar Spacing"]
         rows_list = []
-        for dot in TEM_dots:
-            dict1 = {}
+        for dot in tem_dots:
             dict1 = {'Pos': dot.position, '(hkl)': dot.hkl, 'Intnsty (norm)': dot.intensity,
                      'Film rad': dot.film_radius, 'Interplanar Spacing': dot.d_spacing}
             rows_list.append(dict1)
@@ -431,11 +438,11 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             intensity = cell_intensity[plane]
             film_radius = 0.91 * (10 ** -3 * self.cs * self.wavelength_rel() ** 3) ** Fraction('1/4')
             d_spacing = interplanar_spacings[plane]
-            TEM_dot = dot(position, hkl, intensity, film_radius, d_spacing)
-            dots.append(TEM_dot)
+            tem_dot = dot(position, hkl, intensity, film_radius, d_spacing)
+            dots.append(tem_dot)
         return dots
 
-    def show_plot_2d(self, structure: Structure) -> go.Figure:
+    def get_plot_2d(self, structure: Structure) -> go.Figure:
         """
         Generates the 2D diffraction pattern of the input structure.
         Args:
@@ -443,19 +450,20 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         Returns:
             Figure
         """
+        if self.symprec:
+            finder = SpacegroupAnalyzer(structure, symprec=self.symprec)
+            structure = finder.get_refined_structure()
         points = self.generate_points(-10, 11)
-        TEM_dots = self.tem_dots(structure, points)
+        tem_dots = self.tem_dots(structure, points)
         xs = []
         ys = []
         hkls = []
         intensities = []
-
-        for dot in TEM_dots:
+        for dot in tem_dots:
             xs.append(dot.position[0])
             ys.append(dot.position[1])
             hkls.append(dot.hkl)
             intensities.append(dot.intensity)
-
         data = [
             go.Scatter(
                 x=xs,
@@ -517,7 +525,84 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             paper_bgcolor='rgba(100,110,110,0.5)',
             plot_bgcolor='black'
         )
-
         fig = go.Figure(data=data, layout=layout)
         poff.iplot(fig, filename='stuff')
+        return fig
+
+    def get_plot_2d_concise(self, structure: Structure) -> go.Figure:
+        """
+        Generates the concise 2D diffraction pattern of the input structure of a smaller size and without layout.
+        Does not display.
+        Args:
+            structure (Structure): The input structure.
+        Returns:
+            Figure
+        """
+        if self.symprec:
+            finder = SpacegroupAnalyzer(structure, symprec=self.symprec)
+            structure = finder.get_refined_structure()
+        points = self.generate_points(-10, 11)
+        tem_dots = self.tem_dots(structure, points)
+        xs = []
+        ys = []
+        hkls = []
+        intensities = []
+        for dot in tem_dots:
+            xs.append(dot.position[0])
+            ys.append(dot.position[1])
+            hkls.append(dot.hkl)
+            intensities.append(dot.intensity)
+        data = [
+            go.Scatter(
+                x=xs,
+                y=ys,
+                text=hkls,
+                mode='markers',
+                hoverinfo='skip',
+                marker=dict(
+                    size=4,
+                    cmax=1,
+                    cmin=0,
+                    color=intensities,
+                    colorscale=[[0, 'black'], [1.0, 'white']]
+                ),
+                showlegend=False
+            ), go.Scatter(
+                x=[0],
+                y=[0],
+                text="(0, 0, 0): Direct beam",
+                mode='markers',
+                hoverinfo='skip',
+                marker=dict(
+                    size=7,
+                    cmax=1,
+                    cmin=0,
+                    color='white'
+                ),
+            )
+        ]
+        layout = go.Layout(
+            xaxis=dict(
+                autorange=True,
+                showgrid=False,
+                zeroline=False,
+                showline=False,
+                ticks='',
+                showticklabels=False
+            ),
+            yaxis=dict(
+                autorange=True,
+                showgrid=False,
+                zeroline=False,
+                showline=False,
+                ticks='',
+                showticklabels=False,
+            ),
+            plot_bgcolor='black',
+            margin={'l': 0, 'r': 0, 't': 0, 'b': 0},
+            width=100,
+            height=100,
+        )
+        fig = go.Figure(data=data, layout=layout)
+        fig.layout.update(showlegend=False)
         return fig
