@@ -17,8 +17,6 @@ from monty.json import MontyEncoder, MontyDecoder
 from pymatgen.core.composition import Composition
 from pymatgen.core.structure import Structure
 from pymatgen.entries.entry import Entry
-from monty.json import MSONable
-
 
 __author__ = "Shyue Ping Ong, Anubhav Jain"
 __copyright__ = "Copyright 2011, The Materials Project"

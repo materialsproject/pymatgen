@@ -9,13 +9,7 @@ contain calculated information, typically from VASP or other electronic
 structure codes. For example, ComputedEntries can be used as inputs for phase
 diagram analysis.
 """
-
-import json
-
-from monty.json import MontyEncoder, MontyDecoder
-
 from pymatgen.core.composition import Composition
-from pymatgen.core.structure import Structure
 from monty.json import MSONable
 
 
@@ -30,11 +24,8 @@ from monty.json import MSONable
 
 class Entry(MSONable):
     """
-    An lightweight ComputedEntry object containing key computed data
-    for many purposes. Extends a PDEntry so that it can be used for phase
-    diagram generation. The difference between a ComputedEntry and a standard
-    PDEntry is that it includes additional parameters like a correction and
-    run_parameters.
+    An lightweight Entry object containing key computed data
+    for many purposes.
 
     """
 
@@ -43,7 +34,7 @@ class Entry(MSONable):
                  energy: float,
                  correction: float = 0.0):
         """
-        Initializes a ComputedEntry.
+        Initializes an Entry.
 
         Args:
             composition (Composition): Composition of the entry. For
@@ -55,11 +46,6 @@ class Entry(MSONable):
             correction (float): A correction to be applied to the energy.
                 This is used to modify the energy for certain analyses.
                 Defaults to 0.0.
-            parameters (dict): An optional dict of parameters associated with
-                the entry. Defaults to None.
-            data (dict): An optional dict of any additional data associated
-                with the entry. Defaults to None.
-            entry_id (obj): An optional id to uniquely identify the entry.
         """
         self.uncorrected_energy = energy
         self.composition = Composition(composition)
