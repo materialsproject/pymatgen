@@ -1,0 +1,415 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pymatgen.analysis.interface_reactions module &mdash; pymatgen 2020.1.28 documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pymatgen.orgpymatgen.analysis.interface_reactions.html"/>
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.analysis.local_env module" href="pymatgen.analysis.local_env.html" />
+    <link rel="prev" title="pymatgen.analysis.interface module" href="pymatgen.analysis.interface.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pymatgen
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2020.1.28
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="team.html">Development Team</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API Docs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pymatgen.html">pymatgen package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="pymatgen.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.alchemy.html">pymatgen.alchemy package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="pymatgen.analysis.html">pymatgen.analysis package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.apps.html">pymatgen.apps package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.cli.html">pymatgen.cli package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.command_line.html">pymatgen.command_line package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html">pymatgen.core package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.electronic_structure.html">pymatgen.electronic_structure package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.entries.html">pymatgen.entries package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html">pymatgen.ext package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html">pymatgen.io package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.plugins.html">pymatgen.plugins package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.vis.html">pymatgen.vis package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#module-pymatgen">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pymatgen</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="modules.html">pymatgen</a> &raquo;</li>
+        
+          <li><a href="pymatgen.html">pymatgen package</a> &raquo;</li>
+        
+          <li><a href="pymatgen.analysis.html">pymatgen.analysis package</a> &raquo;</li>
+        
+      <li>pymatgen.analysis.interface_reactions module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.analysis.interface_reactions.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-pymatgen.analysis.interface_reactions">
+<span id="pymatgen-analysis-interface-reactions-module"></span><h1>pymatgen.analysis.interface_reactions module<a class="headerlink" href="#module-pymatgen.analysis.interface_reactions" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pymatgen.analysis.interface_reactions.InterfacialReactivity">
+<em class="property">class </em><code class="sig-name descname">InterfacialReactivity</code><span class="sig-paren">(</span><em class="sig-param">c1</em>, <em class="sig-param">c2</em>, <em class="sig-param">pd</em>, <em class="sig-param">norm=True</em>, <em class="sig-param">include_no_mixing_energy=False</em>, <em class="sig-param">pd_non_grand=None</em>, <em class="sig-param">use_hull_energy=False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/interface_reactions.py#L28-L553"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface_reactions.InterfacialReactivity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>An object encompassing all relevant data for interface reactions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>c1</strong> (<a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><em>Composition</em></a>) – Composition object for reactant 1.</p></li>
+<li><p><strong>c2</strong> (<a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><em>Composition</em></a>) – Composition object for reactant 2.</p></li>
+<li><p><strong>pd</strong> (<a class="reference internal" href="pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.PhaseDiagram" title="pymatgen.analysis.phase_diagram.PhaseDiagram"><em>PhaseDiagram</em></a>) – PhaseDiagram object or GrandPotentialPhaseDiagram
+object built from all elements in composition c1 and c2.</p></li>
+<li><p><strong>norm</strong> (<em>bool</em>) – Whether or not the total number of atoms in composition
+of reactant will be normalized to 1.</p></li>
+<li><p><strong>include_no_mixing_energy</strong> (<em>bool</em>) – No_mixing_energy for a reactant is the
+opposite number of its energy above grand potential convex hull. In
+cases where reactions involve elements reservoir, this param
+determines whether no_mixing_energy of reactants will be included
+in the final reaction energy calculation. By definition, if pd is
+not a GrandPotentialPhaseDiagram object, this param is False.</p></li>
+<li><p><strong>pd_non_grand</strong> (<a class="reference internal" href="pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.PhaseDiagram" title="pymatgen.analysis.phase_diagram.PhaseDiagram"><em>PhaseDiagram</em></a>) – PhaseDiagram object but not
+GrandPotentialPhaseDiagram object built from elements in c1 and c2.</p></li>
+<li><p><strong>use_hull_energy</strong> (<em>bool</em>) – Whether or not use the convex hull energy for
+a given composition for reaction energy calculation. If false,
+the energy of ground state structure will be used instead.
+Note that in case when ground state can not be found for a
+composition, convex hull energy will be used associated with a
+warning message.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="pymatgen.analysis.interface_reactions.InterfacialReactivity.EV_TO_KJ_PER_MOL">
+<code class="sig-name descname">EV_TO_KJ_PER_MOL</code><em class="property"> = 96.4853</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/interface_reactions.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface_reactions.InterfacialReactivity.EV_TO_KJ_PER_MOL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.interface_reactions.InterfacialReactivity.get_chempot_correction">
+<em class="property">static </em><code class="sig-name descname">get_chempot_correction</code><span class="sig-paren">(</span><em class="sig-param">element</em>, <em class="sig-param">temp</em>, <em class="sig-param">pres</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/interface_reactions.py#L499-L553"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface_reactions.InterfacialReactivity.get_chempot_correction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the normalized correction term Δμ for chemical potential of a gas
+phase consisting of element at given temperature and pressure,
+referenced to that in the standard state (T_std = 298.15 K,
+T_std = 1 bar). The gas phase is limited to be one of O2, N2, Cl2,
+F2, H2. Calculation formula can be found in the documentation of
+Materials Project website.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>element</strong> (<em>string</em>) – The string representing the element.</p></li>
+<li><p><strong>temp</strong> (<em>float</em>) – The temperature of the gas phase.</p></li>
+<li><p><strong>pres</strong> (<em>float</em>) – The pressure of the gas phase.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The correction of chemical potential in eV/atom of the gas
+phase at given temperature and pressure.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.interface_reactions.InterfacialReactivity.get_critical_original_kink_ratio">
+<code class="sig-name descname">get_critical_original_kink_ratio</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/interface_reactions.py#L369-L386"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface_reactions.InterfacialReactivity.get_critical_original_kink_ratio" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of molar mixing ratio for each kink between ORIGINAL
+(instead of processed) reactant compositions. This is the
+same list as mixing ratio obtained from get_kinks method
+if self.norm = False.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A list of floats representing molar mixing ratios between
+the original reactant compositions for each kink.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.interface_reactions.InterfacialReactivity.get_kinks">
+<code class="sig-name descname">get_kinks</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/interface_reactions.py#L309-L367"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface_reactions.InterfacialReactivity.get_kinks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds all the kinks in mixing ratio where reaction products changes
+along the tie line of composition self.c1 and composition self.c2.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>Zip object of tuples (index, mixing ratio,</dt><dd><p>reaction energy per atom in eV/atom,
+reaction formula,
+reaction energy per mol of reaction
+formula in kJ/mol).</p>
+</dd>
+</dl>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.interface_reactions.InterfacialReactivity.get_no_mixing_energy">
+<code class="sig-name descname">get_no_mixing_energy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/interface_reactions.py#L479-L497"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface_reactions.InterfacialReactivity.get_no_mixing_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates the opposite number of energy above grand potential
+convex hull for both reactants.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>[(reactant1, no_mixing_energy1),(reactant2,no_mixing_energy2)].</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.interface_reactions.InterfacialReactivity.get_products">
+<code class="sig-name descname">get_products</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/interface_reactions.py#L259-L267"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface_reactions.InterfacialReactivity.get_products" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of formulas of potential products. E.g., [‘Li’,’O2’,’Mn’].</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.interface_reactions.InterfacialReactivity.labels">
+<code class="sig-name descname">labels</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/interface_reactions.py#L409-L419"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface_reactions.InterfacialReactivity.labels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a dictionary containing kink information:
+{index: ‘x= mixing_ratio energy= reaction_energy reaction_equation’}.
+E.g., {1: ‘x= 0.0 energy = 0.0 Mn -&gt; Mn’,</p>
+<blockquote>
+<div><p>2: ‘x= 0.5 energy = -15.0 O2 + Mn -&gt; MnO2’,
+3: ‘x= 1.0 energy = 0.0 O2 -&gt; O2’}.</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.interface_reactions.InterfacialReactivity.minimum">
+<code class="sig-name descname">minimum</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/interface_reactions.py#L468-L477"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface_reactions.InterfacialReactivity.minimum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds the minimum reaction energy E_min and corresponding
+mixing ratio x_min.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Tuple (x_min, E_min).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.interface_reactions.InterfacialReactivity.plot">
+<code class="sig-name descname">plot</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/interface_reactions.py#L421-L466"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface_reactions.InterfacialReactivity.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots reaction energy as a function of mixing ratio x in
+self.c1 - self.c2 tie line using pylab.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Pylab object that plots reaction energy as a function of
+mixing ratio x.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011, Pymatgen Development Team
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+  
+ 
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+
+</body>
+</html>

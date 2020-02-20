@@ -1,0 +1,515 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pymatgen.io.cif module &mdash; pymatgen 2020.1.28 documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pymatgen.orgpymatgen.io.cif.html"/>
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.io.cssr module" href="pymatgen.io.cssr.html" />
+    <link rel="prev" title="pymatgen.io.babel module" href="pymatgen.io.babel.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pymatgen
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2020.1.28
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="team.html">Development Team</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API Docs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pymatgen.html">pymatgen package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="pymatgen.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.alchemy.html">pymatgen.alchemy package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.html">pymatgen.analysis package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.apps.html">pymatgen.apps package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.cli.html">pymatgen.cli package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.command_line.html">pymatgen.command_line package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html">pymatgen.core package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.electronic_structure.html">pymatgen.electronic_structure package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.entries.html">pymatgen.entries package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html">pymatgen.ext package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="pymatgen.io.html">pymatgen.io package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.plugins.html">pymatgen.plugins package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.vis.html">pymatgen.vis package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#module-pymatgen">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pymatgen</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="modules.html">pymatgen</a> &raquo;</li>
+        
+          <li><a href="pymatgen.html">pymatgen package</a> &raquo;</li>
+        
+          <li><a href="pymatgen.io.html">pymatgen.io package</a> &raquo;</li>
+        
+      <li>pymatgen.io.cif module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.io.cif.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-pymatgen.io.cif">
+<span id="pymatgen-io-cif-module"></span><h1>pymatgen.io.cif module<a class="headerlink" href="#module-pymatgen.io.cif" title="Permalink to this headline">¶</a></h1>
+<p>Wrapper classes for Cif input and output from Structures.</p>
+<dl class="class">
+<dt id="pymatgen.io.cif.CifBlock">
+<em class="property">class </em><code class="sig-name descname">CifBlock</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">loops</em>, <em class="sig-param">header</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/cif.py#L65-L242"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cif.CifBlock" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Object for storing cif data. All data is stored in a single dictionary.
+Data inside loops are stored in lists in the data dictionary, and
+information on which keys are grouped together are stored in the loops
+attribute.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> – dict or OrderedDict of data to go into the cif. Values should
+be convertible to string, or lists of these if the key is
+in a loop</p></li>
+<li><p><strong>loops</strong> – list of lists of keys, grouped by which loop they should
+appear in</p></li>
+<li><p><strong>header</strong> – name of the block (appears after the <a href="#id1"><span class="problematic" id="id2">data_</span></a> on the first
+line)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.io.cif.CifBlock.from_string">
+<em class="property">classmethod </em><code class="sig-name descname">from_string</code><span class="sig-paren">(</span><em class="sig-param">string</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/cif.py#L198-L242"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cif.CifBlock.from_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads CifBlock from string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>string</strong> – String representation.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>CifBlock</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.cif.CifBlock.maxlen">
+<code class="sig-name descname">maxlen</code><em class="property"> = 70</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/cif.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cif.CifBlock.maxlen" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.io.cif.CifFile">
+<em class="property">class </em><code class="sig-name descname">CifFile</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">orig_string=None</em>, <em class="sig-param">comment=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/cif.py#L245-L297"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cif.CifFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Reads and parses CifBlocks from a .cif file or string</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>OrderedDict</em>) – Of CifBlock objects.å</p></li>
+<li><p><strong>orig_string</strong> (<em>str</em>) – The original cif string.</p></li>
+<li><p><strong>comment</strong> (<em>str</em>) – Comment string.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.io.cif.CifFile.from_file">
+<em class="property">classmethod </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param">filename</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/cif.py#L288-L297"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cif.CifFile.from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads CifFile from a filename.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> – Filename</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>CifFile</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.cif.CifFile.from_string">
+<em class="property">classmethod </em><code class="sig-name descname">from_string</code><span class="sig-paren">(</span><em class="sig-param">string</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/cif.py#L265-L286"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cif.CifFile.from_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads CifFile from a string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>string</strong> – String representation.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>CifFile</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.io.cif.CifParser">
+<em class="property">class </em><code class="sig-name descname">CifParser</code><span class="sig-paren">(</span><em class="sig-param">filename</em>, <em class="sig-param">occupancy_tolerance=1.0</em>, <em class="sig-param">site_tolerance=0.0001</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/cif.py#L300-L1204"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cif.CifParser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Parses a CIF file. Attempts to fix CIFs that are out-of-spec, but will
+issue warnings if corrections applied. These are also stored in the
+CifParser’s errors attribute.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>str</em>) – CIF filename, bzipped or gzipped CIF files are fine too.</p></li>
+<li><p><strong>occupancy_tolerance</strong> (<em>float</em>) – If total occupancy of a site is between 1
+and occupancy_tolerance, the occupancies will be scaled down to 1.</p></li>
+<li><p><strong>site_tolerance</strong> (<em>float</em>) – This tolerance is used to determine if two
+sites are sitting in the same position, in which case they will be
+combined to a single disordered site. Defaults to 1e-4.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.io.cif.CifParser.as_dict">
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/cif.py#L1188-L1197"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cif.CifParser.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>MSONable dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.cif.CifParser.from_string">
+<em class="property">static </em><code class="sig-name descname">from_string</code><span class="sig-paren">(</span><em class="sig-param">cif_string</em>, <em class="sig-param">occupancy_tolerance=1.0</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/cif.py#L370-L385"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cif.CifParser.from_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a CifParser from a string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cif_string</strong> (<em>str</em>) – String representation of a CIF.</p></li>
+<li><p><strong>occupancy_tolerance</strong> (<em>float</em>) – If total occupancy of a site is
+between 1 and occupancy_tolerance, the occupancies will be
+scaled down to 1.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>CifParser</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.cif.CifParser.get_bibtex_string">
+<code class="sig-name descname">get_bibtex_string</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/cif.py#L1123-L1186"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cif.CifParser.get_bibtex_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get BibTeX reference from CIF file.
+:param data:
+:return: BibTeX string</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.cif.CifParser.get_lattice">
+<code class="sig-name descname">get_lattice</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">length_strings=('a'</em>, <em class="sig-param">'b'</em>, <em class="sig-param">'c')</em>, <em class="sig-param">angle_strings=('alpha'</em>, <em class="sig-param">'beta'</em>, <em class="sig-param">'gamma')</em>, <em class="sig-param">lattice_type=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/cif.py#L621-L663"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cif.CifParser.get_lattice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate the lattice from the provided lattice parameters. In
+the absence of all six lattice parameters, the crystal system
+and necessary parameters are parsed</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.cif.CifParser.get_magsymops">
+<code class="sig-name descname">get_magsymops</code><span class="sig-paren">(</span><em class="sig-param">data</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/cif.py#L760-L831"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cif.CifParser.get_magsymops" title="Permalink to this definition">¶</a></dt>
+<dd><p>Equivalent to get_symops except for magnetic symmetry groups.
+Separate function since additional operation for time reversal symmetry
+(which changes magnetic moments on sites) needs to be returned.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.cif.CifParser.get_structures">
+<code class="sig-name descname">get_structures</code><span class="sig-paren">(</span><em class="sig-param">primitive=True</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/cif.py#L1092-L1121"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cif.CifParser.get_structures" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return list of structures in CIF file. primitive boolean sets whether a
+conventional cell structure or primitive cell structure is returned.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>primitive</strong> (<em>bool</em>) – Set to False to return conventional unit cells.
+Defaults to True. With magnetic CIF files, will return primitive
+magnetic cell which may be larger than nuclear primitive cell.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of Structures.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.cif.CifParser.get_symops">
+<code class="sig-name descname">get_symops</code><span class="sig-paren">(</span><em class="sig-param">data</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/cif.py#L665-L758"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cif.CifParser.get_symops" title="Permalink to this definition">¶</a></dt>
+<dd><p>In order to generate symmetry equivalent positions, the symmetry
+operations are parsed. If the symops are not present, the space
+group symbol is parsed, and symops are generated.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.cif.CifParser.has_errors">
+<em class="property">property </em><code class="sig-name descname">has_errors</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/cif.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cif.CifParser.has_errors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Whether there are errors/warnings detected in CIF parsing.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.cif.CifParser.parse_magmoms">
+<code class="sig-name descname">parse_magmoms</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">lattice=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/cif.py#L852-L871"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cif.CifParser.parse_magmoms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse atomic magnetic moments from data dictionary</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.cif.CifParser.parse_oxi_states">
+<code class="sig-name descname">parse_oxi_states</code><span class="sig-paren">(</span><em class="sig-param">data</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/cif.py#L833-L850"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cif.CifParser.parse_oxi_states" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse oxidation states from data dictionary</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.io.cif.CifWriter">
+<em class="property">class </em><code class="sig-name descname">CifWriter</code><span class="sig-paren">(</span><em class="sig-param">struct</em>, <em class="sig-param">symprec=None</em>, <em class="sig-param">write_magmoms=False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/cif.py#L1207-L1390"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cif.CifWriter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A wrapper around CifFile to write CIF files from pymatgen structures.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>struct</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – structure to write</p></li>
+<li><p><strong>symprec</strong> (<em>float</em>) – If not none, finds the symmetry of the structure
+and writes the cif with symmetry information. Passes symprec
+to the SpacegroupAnalyzer</p></li>
+<li><p><strong>write_magmoms</strong> (<em>bool</em>) – If True, will write magCIF file. Incompatible
+with symprec</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.io.cif.CifWriter.write_file">
+<code class="sig-name descname">write_file</code><span class="sig-paren">(</span><em class="sig-param">filename</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/cif.py#L1385-L1390"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cif.CifWriter.write_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write the cif file.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.io.cif.str2float">
+<code class="sig-name descname">str2float</code><span class="sig-paren">(</span><em class="sig-param">text</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/cif.py#L1393-L1408"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cif.str2float" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove uncertainty brackets from strings and return the float.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.io.cif.sub_spgrp">
+<code class="sig-name descname">sub_spgrp</code><span class="sig-paren">(</span><em class="sig-param">string</em>, <em class="sig-param">count=0</em>, <em class="sig-param">flags=0</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/cif.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cif.sub_spgrp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the string obtained by replacing the leftmost
+non-overlapping occurrences of the pattern in string by the
+replacement repl.  repl can be either a string or a callable;
+if a string, backslash escapes in it are processed.  If it is
+a callable, it’s passed the Match object and must return
+a replacement string to be used.</p>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011, Pymatgen Development Team
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+  
+ 
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+
+</body>
+</html>

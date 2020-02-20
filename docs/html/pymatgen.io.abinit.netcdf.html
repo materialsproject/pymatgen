@@ -1,0 +1,437 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pymatgen.io.abinit.netcdf module &mdash; pymatgen 2020.1.28 documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pymatgen.orgpymatgen.io.abinit.netcdf.html"/>
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.io.abinit.pseudos module" href="pymatgen.io.abinit.pseudos.html" />
+    <link rel="prev" title="pymatgen.io.abinit.inputs module" href="pymatgen.io.abinit.inputs.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pymatgen
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2020.1.28
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="team.html">Development Team</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API Docs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pymatgen.html">pymatgen package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="pymatgen.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.alchemy.html">pymatgen.alchemy package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.html">pymatgen.analysis package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.apps.html">pymatgen.apps package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.cli.html">pymatgen.cli package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.command_line.html">pymatgen.command_line package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html">pymatgen.core package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.electronic_structure.html">pymatgen.electronic_structure package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.entries.html">pymatgen.entries package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html">pymatgen.ext package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="pymatgen.io.html">pymatgen.io package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.plugins.html">pymatgen.plugins package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.vis.html">pymatgen.vis package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#module-pymatgen">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pymatgen</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="modules.html">pymatgen</a> &raquo;</li>
+        
+          <li><a href="pymatgen.html">pymatgen package</a> &raquo;</li>
+        
+          <li><a href="pymatgen.io.html">pymatgen.io package</a> &raquo;</li>
+        
+          <li><a href="pymatgen.io.abinit.html">pymatgen.io.abinit package</a> &raquo;</li>
+        
+      <li>pymatgen.io.abinit.netcdf module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.io.abinit.netcdf.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-pymatgen.io.abinit.netcdf">
+<span id="pymatgen-io-abinit-netcdf-module"></span><h1>pymatgen.io.abinit.netcdf module<a class="headerlink" href="#module-pymatgen.io.abinit.netcdf" title="Permalink to this headline">¶</a></h1>
+<p>Wrapper for netCDF readers.</p>
+<dl class="function">
+<dt id="pymatgen.io.abinit.netcdf.as_ncreader">
+<code class="sig-name descname">as_ncreader</code><span class="sig-paren">(</span><em class="sig-param">file</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/abinit/netcdf.py#L61-L67"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.as_ncreader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert file into a NetcdfReader instance.
+Returns reader, closeit where closeit is set to True
+if we have to close the file before leaving the procedure.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.io.abinit.netcdf.as_etsfreader">
+<code class="sig-name descname">as_etsfreader</code><span class="sig-paren">(</span><em class="sig-param">file</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/abinit/netcdf.py#L70-L72"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.as_etsfreader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an ETSF_Reader. Accepts filename or ETSF_Reader.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.io.abinit.netcdf.NetcdfReader">
+<em class="property">class </em><code class="sig-name descname">NetcdfReader</code><span class="sig-paren">(</span><em class="sig-param">path</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/abinit/netcdf.py#L83-L255"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.NetcdfReader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Wraps and extends netCDF4.Dataset. Read only mode. Supports with statements.</p>
+<dl class="simple">
+<dt>Additional documentation available at:</dt><dd><p><a class="reference external" href="http://netcdf4-python.googlecode.com/svn/trunk/docs/netCDF4-module.html">http://netcdf4-python.googlecode.com/svn/trunk/docs/netCDF4-module.html</a></p>
+</dd>
+</dl>
+<p>Open the Netcdf file specified by path (read mode).</p>
+<dl class="attribute">
+<dt id="pymatgen.io.abinit.netcdf.NetcdfReader.Error">
+<code class="sig-name descname">Error</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/abinit/netcdf.py#L75-L76"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.NetcdfReader.Error" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">NetcdfReaderError</span></code></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.abinit.netcdf.NetcdfReader.close">
+<code class="sig-name descname">close</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/abinit/netcdf.py#L118-L123"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.NetcdfReader.close" title="Permalink to this definition">¶</a></dt>
+<dd><p>Close the file.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.abinit.netcdf.NetcdfReader.print_tree">
+<code class="sig-name descname">print_tree</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/abinit/netcdf.py#L139-L143"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.NetcdfReader.print_tree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print all the groups in the file.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.abinit.netcdf.NetcdfReader.read_dimvalue">
+<code class="sig-name descname">read_dimvalue</code><span class="sig-paren">(</span><em class="sig-param">dimname</em>, <em class="sig-param">path='/'</em>, <em class="sig-param">default=&lt;class 'pymatgen.io.abinit.netcdf.NO_DEFAULT'&gt;</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/abinit/netcdf.py#L145-L161"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.NetcdfReader.read_dimvalue" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the value of a dimension.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dimname</strong> – Name of the variable</p></li>
+<li><p><strong>path</strong> – path to the group.</p></li>
+<li><p><strong>default</strong> – return <cite>default</cite> if <cite>dimname</cite> is not present and
+<cite>default</cite> is not <cite>NO_DEFAULT</cite> else raise self.Error.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.abinit.netcdf.NetcdfReader.read_keys">
+<code class="sig-name descname">read_keys</code><span class="sig-paren">(</span><em class="sig-param">keys</em>, <em class="sig-param">dict_cls=&lt;class 'monty.collections.AttrDict'&gt;</em>, <em class="sig-param">path='/'</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/abinit/netcdf.py#L238-L255"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.NetcdfReader.read_keys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read a list of variables/dimensions from file. If a key is not present the corresponding
+entry in the output dictionary is set to None.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.abinit.netcdf.NetcdfReader.read_value">
+<code class="sig-name descname">read_value</code><span class="sig-paren">(</span><em class="sig-param">varname</em>, <em class="sig-param">path='/'</em>, <em class="sig-param">cmode=None</em>, <em class="sig-param">default=&lt;class 'pymatgen.io.abinit.netcdf.NO_DEFAULT'&gt;</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/abinit/netcdf.py#L171-L206"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.NetcdfReader.read_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the values of variable with name varname in the group specified by path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>varname</strong> – Name of the variable</p></li>
+<li><p><strong>path</strong> – path to the group.</p></li>
+<li><p><strong>cmode</strong> – if cmode==”c”, a complex ndarrays is constructed and returned
+(netcdf does not provide native support from complex datatype).</p></li>
+<li><p><strong>default</strong> – returns default if varname is not present.
+self.Error is raised if default is default is NO_DEFAULT</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>numpy array if varname represents an array, scalar otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.abinit.netcdf.NetcdfReader.read_variable">
+<code class="sig-name descname">read_variable</code><span class="sig-paren">(</span><em class="sig-param">varname</em>, <em class="sig-param">path='/'</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/abinit/netcdf.py#L208-L210"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.NetcdfReader.read_variable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the variable with name varname in the group specified by path.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.abinit.netcdf.NetcdfReader.read_varnames">
+<code class="sig-name descname">read_varnames</code><span class="sig-paren">(</span><em class="sig-param">path='/'</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/abinit/netcdf.py#L163-L169"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.NetcdfReader.read_varnames" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of variable names stored in the group specified by path.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.abinit.netcdf.NetcdfReader.walk_tree">
+<code class="sig-name descname">walk_tree</code><span class="sig-paren">(</span><em class="sig-param">top=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/abinit/netcdf.py#L125-L137"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.NetcdfReader.walk_tree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Navigate all the groups in the file starting from top.
+If top is None, the root group is used.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.io.abinit.netcdf.ETSF_Reader">
+<em class="property">class </em><code class="sig-name descname">ETSF_Reader</code><span class="sig-paren">(</span><em class="sig-param">path</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/abinit/netcdf.py#L258-L320"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.ETSF_Reader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.netcdf.NetcdfReader" title="pymatgen.io.abinit.netcdf.NetcdfReader"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.netcdf.NetcdfReader</span></code></a></p>
+<p>This object reads data from a file written according to the ETSF-IO specifications.</p>
+<p>We assume that the netcdf file contains at least the crystallographic section.</p>
+<p>Open the Netcdf file specified by path (read mode).</p>
+<dl class="attribute">
+<dt id="pymatgen.io.abinit.netcdf.ETSF_Reader.chemical_symbols">
+<code class="sig-name descname">chemical_symbols</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/abinit/netcdf.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.ETSF_Reader.chemical_symbols" title="Permalink to this definition">¶</a></dt>
+<dd><p>Chemical symbols char [number of atom species][symbol length].</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.abinit.netcdf.ETSF_Reader.read_abinit_hdr">
+<code class="sig-name descname">read_abinit_hdr</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/abinit/netcdf.py#L294-L320"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.ETSF_Reader.read_abinit_hdr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read the variables associated to the Abinit header.</p>
+<p>Return <code class="xref py py-class docutils literal notranslate"><span class="pre">AbinitHeader</span></code></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.abinit.netcdf.ETSF_Reader.read_abinit_xcfunc">
+<code class="sig-name descname">read_abinit_xcfunc</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/abinit/netcdf.py#L287-L292"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.ETSF_Reader.read_abinit_xcfunc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read ixc from an Abinit file. Return <code class="xref py py-class docutils literal notranslate"><span class="pre">XcFunc</span></code> object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.abinit.netcdf.ETSF_Reader.read_structure">
+<code class="sig-name descname">read_structure</code><span class="sig-paren">(</span><em class="sig-param">cls=&lt;class 'pymatgen.core.structure.Structure'&gt;</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/abinit/netcdf.py#L280-L285"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.ETSF_Reader.read_structure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the crystalline structure.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.abinit.netcdf.ETSF_Reader.typeidx_from_symbol">
+<code class="sig-name descname">typeidx_from_symbol</code><span class="sig-paren">(</span><em class="sig-param">symbol</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/abinit/netcdf.py#L276-L278"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.ETSF_Reader.typeidx_from_symbol" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the type index from the chemical symbol. Note python convention.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.io.abinit.netcdf.NO_DEFAULT">
+<em class="property">class </em><code class="sig-name descname">NO_DEFAULT</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/abinit/netcdf.py#L79-L80"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.NO_DEFAULT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Signal that read_value should raise an Error</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.io.abinit.netcdf.structure_from_ncdata">
+<code class="sig-name descname">structure_from_ncdata</code><span class="sig-paren">(</span><em class="sig-param">ncdata</em>, <em class="sig-param">site_properties=None</em>, <em class="sig-param">cls=&lt;class 'pymatgen.core.structure.Structure'&gt;</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/abinit/netcdf.py#L323-L370"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.structure_from_ncdata" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads and returns a pymatgen structure from a NetCDF file
+containing crystallographic data in the ETSF-IO format.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ncdata</strong> – filename or NetcdfReader instance.</p></li>
+<li><p><strong>site_properties</strong> – Dictionary with site properties.</p></li>
+<li><p><strong>cls</strong> – The Structure class to instanciate.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011, Pymatgen Development Team
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+  
+ 
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+
+</body>
+</html>

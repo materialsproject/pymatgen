@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.core.trajectory module &mdash; pymatgen 2019.12.22 documentation</title>
+  <title>pymatgen.core.trajectory module &mdash; pymatgen 2020.1.10 documentation</title>
   
 
   
@@ -73,7 +73,7 @@
             
             
               <div class="version">
-                2019.12.22
+                2020.1.10
               </div>
             
           
@@ -208,7 +208,7 @@
 <p>This module provides classes used to define a MD trajectory.</p>
 <dl class="class">
 <dt id="pymatgen.core.trajectory.Trajectory">
-<em class="property">class </em><code class="sig-name descname">Trajectory</code><span class="sig-paren">(</span><em class="sig-param">lattice: Union[List, numpy.ndarray, pymatgen.core.lattice.Lattice], species: List[Union[str, pymatgen.core.periodic_table.Element, pymatgen.core.periodic_table.Specie, pymatgen.core.periodic_table.DummySpecie, pymatgen.core.composition.Composition]], frac_coords: List[Sequence[Sequence[float]]], time_step: float = 2, site_properties: dict = None, frame_properties: dict = None, constant_lattice: bool = True, coords_are_displacement: bool = False, base_positions: Sequence[Sequence[float]] = None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/trajectory.py#L27-L474"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Trajectory</code><span class="sig-paren">(</span><em class="sig-param">lattice: Union[List, numpy.ndarray, pymatgen.core.lattice.Lattice], species: List[Union[str, pymatgen.core.periodic_table.Element, pymatgen.core.periodic_table.Specie, pymatgen.core.periodic_table.DummySpecie, pymatgen.core.composition.Composition]], frac_coords: List[Sequence[Sequence[float]]], time_step: float = 2, site_properties: dict = None, frame_properties: dict = None, constant_lattice: bool = True, coords_are_displacement: bool = False, base_positions: Sequence[Sequence[float]] = None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/core/trajectory.py#L27-L474"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Trajectory object that stores structural information related to a MD simulation.
 Provides basic functions such as slicing trajectory or obtaining displacements.</p>
@@ -255,7 +255,7 @@ coords_are_displacement=True. Defaults to first index of frac_coords if coords_a
 </dl>
 <dl class="method">
 <dt id="pymatgen.core.trajectory.Trajectory.as_dict">
-<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/trajectory.py#L308-L323"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/core/trajectory.py#L308-L323"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>MSONAble dict.</p>
@@ -265,7 +265,7 @@ coords_are_displacement=True. Defaults to first index of frac_coords if coords_a
 
 <dl class="method">
 <dt id="pymatgen.core.trajectory.Trajectory.copy">
-<code class="sig-name descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/trajectory.py#L252-L259"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory.copy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/core/trajectory.py#L252-L259"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory.copy" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Copy of Trajectory.</p>
@@ -275,7 +275,7 @@ coords_are_displacement=True. Defaults to first index of frac_coords if coords_a
 
 <dl class="method">
 <dt id="pymatgen.core.trajectory.Trajectory.extend">
-<code class="sig-name descname">extend</code><span class="sig-paren">(</span><em class="sig-param">trajectory</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/trajectory.py#L136-L162"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory.extend" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">extend</code><span class="sig-paren">(</span><em class="sig-param">trajectory</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/core/trajectory.py#L136-L162"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory.extend" title="Permalink to this definition">¶</a></dt>
 <dd><p>Concatenate another trajectory
 :param trajectory: Trajectory to add
 :type trajectory: Trajectory</p>
@@ -283,7 +283,7 @@ coords_are_displacement=True. Defaults to first index of frac_coords if coords_a
 
 <dl class="method">
 <dt id="pymatgen.core.trajectory.Trajectory.from_file">
-<em class="property">classmethod </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param">filename</em>, <em class="sig-param">constant_lattice=True</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/trajectory.py#L285-L306"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory.from_file" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param">filename</em>, <em class="sig-param">constant_lattice=True</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/core/trajectory.py#L285-L306"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory.from_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenience constructor to obtain trajectory from XDATCAR or vasprun.xml file
 :param filename: The filename to read from.
 :type filename: str
@@ -300,7 +300,7 @@ coords_are_displacement=True. Defaults to first index of frac_coords if coords_a
 
 <dl class="method">
 <dt id="pymatgen.core.trajectory.Trajectory.from_structures">
-<em class="property">classmethod </em><code class="sig-name descname">from_structures</code><span class="sig-paren">(</span><em class="sig-param">structures</em>, <em class="sig-param">constant_lattice=True</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/trajectory.py#L261-L283"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory.from_structures" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_structures</code><span class="sig-paren">(</span><em class="sig-param">structures</em>, <em class="sig-param">constant_lattice=True</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/core/trajectory.py#L261-L283"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory.from_structures" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenience constructor to obtain trajectory from a list of structures.
 Note: Assumes no atoms removed during simulation</p>
 <dl class="field-list simple">
@@ -319,7 +319,7 @@ simulation. True results in</p></li>
 
 <dl class="method">
 <dt id="pymatgen.core.trajectory.Trajectory.get_structure">
-<code class="sig-name descname">get_structure</code><span class="sig-paren">(</span><em class="sig-param">i</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/trajectory.py#L103-L111"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory.get_structure" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_structure</code><span class="sig-paren">(</span><em class="sig-param">i</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/core/trajectory.py#L103-L111"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory.get_structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns structure at specified index
 :param i: Index of structure
 :type i: int</p>
@@ -332,19 +332,19 @@ simulation. True results in</p></li>
 
 <dl class="method">
 <dt id="pymatgen.core.trajectory.Trajectory.to_displacements">
-<code class="sig-name descname">to_displacements</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/trajectory.py#L123-L134"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory.to_displacements" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">to_displacements</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/core/trajectory.py#L123-L134"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory.to_displacements" title="Permalink to this definition">¶</a></dt>
 <dd><p>Converts position coordinates of trajectory into displacements between consecutive frames</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.trajectory.Trajectory.to_positions">
-<code class="sig-name descname">to_positions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/trajectory.py#L113-L121"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory.to_positions" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">to_positions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/core/trajectory.py#L113-L121"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory.to_positions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Converts fractional coordinates of trajectory into positions</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.trajectory.Trajectory.write_Xdatcar">
-<code class="sig-name descname">write_Xdatcar</code><span class="sig-paren">(</span><em class="sig-param">filename='XDATCAR'</em>, <em class="sig-param">system=None</em>, <em class="sig-param">significant_figures=6</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/core/trajectory.py#L423-L474"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory.write_Xdatcar" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">write_Xdatcar</code><span class="sig-paren">(</span><em class="sig-param">filename='XDATCAR'</em>, <em class="sig-param">system=None</em>, <em class="sig-param">significant_figures=6</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/core/trajectory.py#L423-L474"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.trajectory.Trajectory.write_Xdatcar" title="Permalink to this definition">¶</a></dt>
 <dd><p>Writes Xdatcar to a file. The supported kwargs are the same as those for
 the Xdatcar_from_structs.get_string method and are passed through directly.</p>
 <dl class="field-list simple">

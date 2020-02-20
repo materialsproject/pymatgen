@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen package &mdash; pymatgen 2019.12.22 documentation</title>
+  <title>pymatgen package &mdash; pymatgen 2020.1.10 documentation</title>
   
 
   
@@ -73,7 +73,7 @@
             
             
               <div class="version">
-                2019.12.22
+                2020.1.10
               </div>
             
           
@@ -225,6 +225,20 @@
 <li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.html#subpackages">Subpackages</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.html">pymatgen.analysis.chemenv package</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.chemenv.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.html">pymatgen.analysis.chemenv.connectivity package</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.html#subpackages">Subpackages</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.html#submodules">Submodules</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.connected_components.html">pymatgen.analysis.chemenv.connectivity.connected_components module</a></li>
+<li class="toctree-l7"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.connectivity_finder.html">pymatgen.analysis.chemenv.connectivity.connectivity_finder module</a></li>
+<li class="toctree-l7"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.environment_nodes.html">pymatgen.analysis.chemenv.connectivity.environment_nodes module</a></li>
+<li class="toctree-l7"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.structure_connectivity.html">pymatgen.analysis.chemenv.connectivity.structure_connectivity module</a></li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.html#module-pymatgen.analysis.chemenv.connectivity">Module contents</a></li>
+</ul>
+</li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.html">pymatgen.analysis.chemenv.coordination_environments package</a><ul>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.html#subpackages">Subpackages</a><ul>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.coordination_geometries_files.html">pymatgen.analysis.chemenv.coordination_environments.coordination_geometries_files package</a><ul>
@@ -258,6 +272,7 @@
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.html">pymatgen.analysis.chemenv.utils.coordination_geometry_utils module</a></li>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.analysis.chemenv.utils.defs_utils.html">pymatgen.analysis.chemenv.utils.defs_utils module</a></li>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.analysis.chemenv.utils.func_utils.html">pymatgen.analysis.chemenv.utils.func_utils module</a></li>
+<li class="toctree-l7"><a class="reference internal" href="pymatgen.analysis.chemenv.utils.graph_utils.html">pymatgen.analysis.chemenv.utils.graph_utils module</a></li>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.analysis.chemenv.utils.math_utils.html">pymatgen.analysis.chemenv.utils.math_utils module</a></li>
 <li class="toctree-l7"><a class="reference internal" href="pymatgen.analysis.chemenv.utils.scripts_utils.html">pymatgen.analysis.chemenv.utils.scripts_utils module</a></li>
 </ul>
@@ -794,7 +809,7 @@
 for materials analysis. This is the root package.</p>
 <dl class="function">
 <dt id="pymatgen.get_structure_from_mp">
-<code class="sig-name descname">get_structure_from_mp</code><span class="sig-paren">(</span><em class="sig-param">formula</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/__init__.py#L58-L79"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.get_structure_from_mp" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_structure_from_mp</code><span class="sig-paren">(</span><em class="sig-param">formula</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/__init__.py#L58-L79"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.get_structure_from_mp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenience method to get a crystal from the Materials Project database via
 the API. Requires PMG_MAPI_KEY to be set.</p>
 <dl class="field-list simple">
@@ -813,7 +828,7 @@ the API. Requires PMG_MAPI_KEY to be set.</p>
 
 <dl class="function">
 <dt id="pymatgen.loadfn">
-<code class="sig-name descname">loadfn</code><span class="sig-paren">(</span><em class="sig-param">fname</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/__init__.py#L82-L104"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.loadfn" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">loadfn</code><span class="sig-paren">(</span><em class="sig-param">fname</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/__init__.py#L82-L104"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.loadfn" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenience method to perform quick loading of data from a filename. The
 type of object returned depends the file type.</p>
 <dl class="field-list simple">

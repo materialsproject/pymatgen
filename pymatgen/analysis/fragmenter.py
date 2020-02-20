@@ -71,9 +71,7 @@ class Fragmenter(MSONable):
         self.opt_steps = opt_steps
 
         if edges is None:
-            self.mol_graph = MoleculeGraph.with_local_env_strategy(molecule, OpenBabelNN(),
-                                                                   reorder=False,
-                                                                   extend_structure=False)
+            self.mol_graph = MoleculeGraph.with_local_env_strategy(molecule, OpenBabelNN())
         else:
             edges = {(e[0], e[1]): None for e in edges}
             self.mol_graph = MoleculeGraph.with_edges(molecule, edges)
@@ -296,8 +294,7 @@ def open_ring(mol_graph, bond, opt_steps):
     obmol = BabelMolAdaptor.from_molecule_graph(mol_graph)
     obmol.remove_bond(bond[0][0] + 1, bond[0][1] + 1)
     obmol.localopt(steps=opt_steps, forcefield='uff')
-    return MoleculeGraph.with_local_env_strategy(obmol.pymatgen_mol, OpenBabelNN(), reorder=False,
-                                                 extend_structure=False)
+    return MoleculeGraph.with_local_env_strategy(obmol.pymatgen_mol, OpenBabelNN())
 
 
 def metal_edge_extender(mol_graph):

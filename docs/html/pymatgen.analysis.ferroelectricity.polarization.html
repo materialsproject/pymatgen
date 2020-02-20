@@ -1,0 +1,551 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pymatgen.analysis.ferroelectricity.polarization module &mdash; pymatgen 2020.1.28 documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pymatgen.orgpymatgen.analysis.ferroelectricity.polarization.html"/>
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.analysis.gb package" href="pymatgen.analysis.gb.html" />
+    <link rel="prev" title="pymatgen.analysis.ferroelectricity package" href="pymatgen.analysis.ferroelectricity.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pymatgen
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2020.1.28
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="team.html">Development Team</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API Docs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pymatgen.html">pymatgen package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="pymatgen.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.alchemy.html">pymatgen.alchemy package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="pymatgen.analysis.html">pymatgen.analysis package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.apps.html">pymatgen.apps package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.cli.html">pymatgen.cli package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.command_line.html">pymatgen.command_line package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html">pymatgen.core package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.electronic_structure.html">pymatgen.electronic_structure package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.entries.html">pymatgen.entries package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html">pymatgen.ext package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html">pymatgen.io package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.plugins.html">pymatgen.plugins package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.vis.html">pymatgen.vis package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#module-pymatgen">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pymatgen</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="modules.html">pymatgen</a> &raquo;</li>
+        
+          <li><a href="pymatgen.html">pymatgen package</a> &raquo;</li>
+        
+          <li><a href="pymatgen.analysis.html">pymatgen.analysis package</a> &raquo;</li>
+        
+          <li><a href="pymatgen.analysis.ferroelectricity.html">pymatgen.analysis.ferroelectricity package</a> &raquo;</li>
+        
+      <li>pymatgen.analysis.ferroelectricity.polarization module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.analysis.ferroelectricity.polarization.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-pymatgen.analysis.ferroelectricity.polarization">
+<span id="pymatgen-analysis-ferroelectricity-polarization-module"></span><h1>pymatgen.analysis.ferroelectricity.polarization module<a class="headerlink" href="#module-pymatgen.analysis.ferroelectricity.polarization" title="Permalink to this headline">¶</a></h1>
+<p>This module contains classes useful for analyzing ferroelectric candidates.
+The Polarization class can recover the spontaneous polarization using
+multiple calculations along a nonpolar to polar ferroelectric distortion.
+The EnergyTrend class is useful for assessing the trend in energy across
+the distortion.</p>
+<p>See Nicola Spaldin’s “A beginner’s guide to the modern theory of polarization”
+(<a class="reference external" href="https://arxiv.org/abs/1202.1831">https://arxiv.org/abs/1202.1831</a>) for an introduction to crystal polarization.</p>
+<p>VASP reports dipole moment values (used to derive polarization) along Cartesian
+directions (see pead.F around line 970 in the VASP source to confirm this).
+However, it is most convenient to perform the adjustments necessary to recover
+a same branch polarization by expressing the polarization along lattice directions.
+For this reason, calc_ionic calculates ionic contributions to the polarization
+along lattice directions. We provide the means to convert Cartesian direction
+polarizations to lattice direction polarizations in the Polarization class.</p>
+<p>We recommend using our calc_ionic function for calculating the ionic
+polarization rather than the values from OUTCAR. We find that the ionic
+dipole moment reported in OUTCAR differ from the naive calculation of
+\sum_i Z_i r_i where i is the index of the atom, Z_i is the ZVAL from the
+pseudopotential file, and r is the distance in Angstroms along the lattice vectors.
+Note, this difference is not simply due to VASP using Cartesian directions and
+calc_ionic using lattice direction but rather how the ionic polarization is
+computed. Compare calc_ionic to VASP SUBROUTINE POINT_CHARGE_DIPOL in dipol.F in
+the VASP source to see the differences. We are able to recover a smooth same
+branch polarization more frequently using the naive calculation in calc_ionic
+than using the ionic dipole moment reported in the OUTCAR.</p>
+<p>Some defintions of terms used in the comments below:</p>
+<p>A polar structure belongs to a polar space group. A polar space group has a
+one of the 10 polar point group:</p>
+<blockquote>
+<div><p>(1, 2, m, mm2, 4, 4mm, 3, 3m, 6, 6m)</p>
+</div></blockquote>
+<p>Being nonpolar is not equivalent to being centrosymmetric (having inversion
+symmetry). For example, any space group with point group 222 is nonpolar but
+not centrosymmetric.</p>
+<p>By symmetry the polarization of a nonpolar material modulo the quantum
+of polarization can only be zero or 1/2. We use a nonpolar structure to help
+determine the spontaneous polarization because it serves as a reference point.</p>
+<dl class="class">
+<dt id="pymatgen.analysis.ferroelectricity.polarization.EnergyTrend">
+<em class="property">class </em><code class="sig-name descname">EnergyTrend</code><span class="sig-paren">(</span><em class="sig-param">energies</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/ferroelectricity/polarization.py#L443-L496"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.EnergyTrend" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class for fitting trends to energies.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>energies</strong> – Energies</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.analysis.ferroelectricity.polarization.EnergyTrend.endpoints_minima">
+<code class="sig-name descname">endpoints_minima</code><span class="sig-paren">(</span><em class="sig-param">slope_cutoff=0.005</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/ferroelectricity/polarization.py#L483-L496"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.EnergyTrend.endpoints_minima" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test if spline endpoints are at minima for a given slope cutoff.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.ferroelectricity.polarization.EnergyTrend.max_spline_jump">
+<code class="sig-name descname">max_spline_jump</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/ferroelectricity/polarization.py#L476-L481"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.EnergyTrend.max_spline_jump" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get maximum difference between spline and energy trend.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.ferroelectricity.polarization.EnergyTrend.smoothness">
+<code class="sig-name descname">smoothness</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/ferroelectricity/polarization.py#L461-L474"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.EnergyTrend.smoothness" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get rms average difference between spline and energy trend.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.ferroelectricity.polarization.EnergyTrend.spline">
+<code class="sig-name descname">spline</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/ferroelectricity/polarization.py#L453-L459"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.EnergyTrend.spline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit spline to energy trend data.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.analysis.ferroelectricity.polarization.Polarization">
+<em class="property">class </em><code class="sig-name descname">Polarization</code><span class="sig-paren">(</span><em class="sig-param">p_elecs</em>, <em class="sig-param">p_ions</em>, <em class="sig-param">structures</em>, <em class="sig-param">p_elecs_in_cartesian=True</em>, <em class="sig-param">p_ions_in_cartesian=False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/ferroelectricity/polarization.py#L135-L440"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.Polarization" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class for recovering the same branch polarization for a set of
+polarization calculations along the nonpolar - polar distortion
+path of a ferroelectric.</p>
+<p>p_elecs, p_ions, and structures lists should be given in order
+of nonpolar to polar! For example, the structures returned from:</p>
+<blockquote>
+<div><p>nonpolar.interpolate(polar,interpolate_lattices=True)</p>
+</div></blockquote>
+<p>if nonpolar is the nonpolar Structure and polar is the polar structure.</p>
+<p>It is assumed that the electronic and ionic dipole moment values
+are given in electron Angstroms along the three lattice directions
+(a,b,c).</p>
+<p>p_elecs: np.array of electronic contribution to the polarization with shape [N, 3]
+p_ions: np.array of ionic contribution to the polarization with shape [N, 3]
+p_elecs_in_cartesian: whether p_elecs is along Cartesian directions (rather than lattice directions).</p>
+<blockquote>
+<div><p>Default is True because that is the convention for VASP.</p>
+</div></blockquote>
+<dl class="simple">
+<dt>p_ions_in_cartesian: whether p_ions is along Cartesian directions (rather than lattice directions).</dt><dd><p>Default is False because calc_ionic (which we recommend using for calculating the ionic
+contribution to the polarization) uses lattice directions.</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.analysis.ferroelectricity.polarization.Polarization.from_outcars_and_structures">
+<em class="property">classmethod </em><code class="sig-name descname">from_outcars_and_structures</code><span class="sig-paren">(</span><em class="sig-param">outcars</em>, <em class="sig-param">structures</em>, <em class="sig-param">calc_ionic_from_zval=False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/ferroelectricity/polarization.py#L175-L196"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.Polarization.from_outcars_and_structures" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create Polarization object from list of Outcars and Structures in order
+of nonpolar to polar.</p>
+<p>Note, we recommend calculating the ionic dipole moment using calc_ionic
+than using the values in Outcar (see module comments). To do this set
+calc_ionic_from_zval = True</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.ferroelectricity.polarization.Polarization.get_lattice_quanta">
+<code class="sig-name descname">get_lattice_quanta</code><span class="sig-paren">(</span><em class="sig-param">convert_to_muC_per_cm2=True</em>, <em class="sig-param">all_in_polar=True</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/ferroelectricity/polarization.py#L329-L361"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.Polarization.get_lattice_quanta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the dipole / polarization quanta along a, b, and c for
+all structures.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.ferroelectricity.polarization.Polarization.get_pelecs_and_pions">
+<code class="sig-name descname">get_pelecs_and_pions</code><span class="sig-paren">(</span><em class="sig-param">convert_to_muC_per_cm2=False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/ferroelectricity/polarization.py#L198-L224"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.Polarization.get_pelecs_and_pions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the electronic and ionic dipole moments / polarizations.</p>
+<dl class="simple">
+<dt>convert_to_muC_per_cm2: Convert from electron * Angstroms to microCoulomb</dt><dd><p>per centimeter**2</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.ferroelectricity.polarization.Polarization.get_polarization_change">
+<code class="sig-name descname">get_polarization_change</code><span class="sig-paren">(</span><em class="sig-param">convert_to_muC_per_cm2=True</em>, <em class="sig-param">all_in_polar=True</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/ferroelectricity/polarization.py#L363-L371"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.Polarization.get_polarization_change" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get difference between nonpolar and polar same branch polarization.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.ferroelectricity.polarization.Polarization.get_polarization_change_norm">
+<code class="sig-name descname">get_polarization_change_norm</code><span class="sig-paren">(</span><em class="sig-param">convert_to_muC_per_cm2=True</em>, <em class="sig-param">all_in_polar=True</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/ferroelectricity/polarization.py#L373-L385"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.Polarization.get_polarization_change_norm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get magnitude of difference between nonpolar and polar same branch
+polarization.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.ferroelectricity.polarization.Polarization.get_same_branch_polarization_data">
+<code class="sig-name descname">get_same_branch_polarization_data</code><span class="sig-paren">(</span><em class="sig-param">convert_to_muC_per_cm2=True</em>, <em class="sig-param">all_in_polar=True</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/ferroelectricity/polarization.py#L226-L327"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.Polarization.get_same_branch_polarization_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get same branch dipole moment (convert_to_muC_per_cm2=False)
+or polarization for given polarization data (convert_to_muC_per_cm2=True).</p>
+<p>Polarization is a lattice vector, meaning it is only defined modulo the
+quantum of polarization:</p>
+<blockquote>
+<div><p>P = P_0 + \sum_i \frac{n_i e R_i}{\Omega}</p>
+</div></blockquote>
+<p>where n_i is an integer, e is the charge of the electron in microCoulombs,
+R_i is a lattice vector, and \Omega is the unit cell volume in cm**3
+(giving polarization units of microCoulomb per centimeter**2).</p>
+<p>The quantum of the dipole moment in electron Angstroms (as given by VASP) is:</p>
+<blockquote>
+<div><p>\sum_i n_i e R_i</p>
+</div></blockquote>
+<p>where e, the electron charge, is 1 and R_i is a lattice vector, and n_i is an integer.</p>
+<p>Given N polarization calculations in order from nonpolar to polar, this algorithm
+minimizes the distance between adjacent polarization images. To do this, it
+constructs a polarization lattice for each polarization calculation using the
+pymatgen.core.structure class and calls the get_nearest_site method to find the
+image of a given polarization lattice vector that is closest to the previous polarization
+lattice vector image.</p>
+<p>Note, using convert_to_muC_per_cm2=True and all_in_polar=True calculates the “proper
+polarization” (meaning the change in polarization does not depend on the choice of
+polarization branch) while convert_to_muC_per_cm2=True and all_in_polar=False calculates
+the “improper polarization” (meaning the change in polarization does depend on the choice
+of branch). As one might guess from the names. We recommend calculating the “proper
+polarization”.</p>
+<dl class="simple">
+<dt>convert_to_muC_per_cm2: convert polarization from electron * Angstroms to</dt><dd><p>microCoulomb per centimeter**2</p>
+</dd>
+</dl>
+<p>all_in_polar: convert polarization to be in polar (final structure) polarization lattice</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.ferroelectricity.polarization.Polarization.max_spline_jumps">
+<code class="sig-name descname">max_spline_jumps</code><span class="sig-paren">(</span><em class="sig-param">convert_to_muC_per_cm2=True</em>, <em class="sig-param">all_in_polar=True</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/ferroelectricity/polarization.py#L410-L422"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.Polarization.max_spline_jumps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get maximum difference between spline and same branch polarization data.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.ferroelectricity.polarization.Polarization.same_branch_splines">
+<code class="sig-name descname">same_branch_splines</code><span class="sig-paren">(</span><em class="sig-param">convert_to_muC_per_cm2=True</em>, <em class="sig-param">all_in_polar=True</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/ferroelectricity/polarization.py#L387-L408"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.Polarization.same_branch_splines" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit splines to same branch polarization. This is used to assess any jumps
+in the same branch polarizaiton.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.ferroelectricity.polarization.Polarization.smoothness">
+<code class="sig-name descname">smoothness</code><span class="sig-paren">(</span><em class="sig-param">convert_to_muC_per_cm2=True</em>, <em class="sig-param">all_in_polar=True</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/ferroelectricity/polarization.py#L424-L440"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.Polarization.smoothness" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get rms average difference between spline and same branch polarization data.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.analysis.ferroelectricity.polarization.PolarizationLattice">
+<em class="property">class </em><code class="sig-name descname">PolarizationLattice</code><span class="sig-paren">(</span><em class="sig-param">lattice: Union[List, numpy.ndarray, pymatgen.core.lattice.Lattice], species: Sequence[Union[str, pymatgen.core.periodic_table.Element, pymatgen.core.periodic_table.Specie, pymatgen.core.periodic_table.DummySpecie, pymatgen.core.composition.Composition]], coords: Sequence[Sequence[float]], charge: float = None, validate_proximity: bool = False, to_unit_cell: bool = False, coords_are_cartesian: bool = False, site_properties: dict = None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/ferroelectricity/polarization.py#L107-L132"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.PolarizationLattice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.structure.Structure</span></code></a></p>
+<p>Why is a Lattice inheriting a structure? This is ridiculous.</p>
+<p>Create a periodic structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lattice</strong> – The lattice, either as a pymatgen.core.lattice.Lattice or
+simply as any 2D array. Each row should correspond to a lattice
+vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
+lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].</p></li>
+<li><p><strong>species</strong> – <p>List of species on each site. Can take in flexible input,
+including:</p>
+<ol class="lowerroman simple">
+<li><p>A sequence of element / specie specified either as string
+symbols, e.g. [“Li”, “Fe2+”, “P”, …] or atomic numbers,
+e.g., (3, 56, …) or actual Element or Specie objects.</p></li>
+<li><p>List of dict of elements/species and occupancies, e.g.,
+[{“Fe” : 0.5, “Mn”:0.5}, …]. This allows the setup of
+disordered structures.</p></li>
+</ol>
+</p></li>
+<li><p><strong>coords</strong> (<em>Nx3 array</em>) – list of fractional/cartesian coordinates of
+each species.</p></li>
+<li><p><strong>charge</strong> (<em>int</em>) – overall charge of the structure. Defaults to behavior
+in SiteCollection where total charge is the sum of the oxidation
+states.</p></li>
+<li><p><strong>validate_proximity</strong> (<em>bool</em>) – Whether to check if there are sites
+that are less than 0.01 Ang apart. Defaults to False.</p></li>
+<li><p><strong>to_unit_cell</strong> (<em>bool</em>) – Whether to map all sites into the unit cell,
+i.e., fractional coords between 0 and 1. Defaults to False.</p></li>
+<li><p><strong>coords_are_cartesian</strong> (<em>bool</em>) – Set to True if you are providing
+coordinates in cartesian coordinates. Defaults to False.</p></li>
+<li><p><strong>site_properties</strong> (<em>dict</em>) – Properties associated with the sites as a
+dict of sequences, e.g., {“magmom”:[5,5,5,5]}. The sequences
+have to be the same length as the atomic species and
+fractional_coords. Defaults to None for no properties.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.analysis.ferroelectricity.polarization.PolarizationLattice.get_nearest_site">
+<code class="sig-name descname">get_nearest_site</code><span class="sig-paren">(</span><em class="sig-param">coords</em>, <em class="sig-param">site</em>, <em class="sig-param">r=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/ferroelectricity/polarization.py#L112-L132"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.PolarizationLattice.get_nearest_site" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given coords and a site, find closet site to coords.
+:param coords: cartesian coords of center of sphere
+:type coords: 3x1 array
+:param site: site to find closest to coords
+:param r: radius of sphere. Defaults to diagonal of unit cell</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Closest site and distance.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.analysis.ferroelectricity.polarization.calc_ionic">
+<code class="sig-name descname">calc_ionic</code><span class="sig-paren">(</span><em class="sig-param">site</em>, <em class="sig-param">structure</em>, <em class="sig-param">zval</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/ferroelectricity/polarization.py#L76-L87"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.calc_ionic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the ionic dipole moment using ZVAL from pseudopotential</p>
+<p>site: PeriodicSite
+structure: Structure
+zval: Charge value for ion (ZVAL for VASP pseudopotential)</p>
+<p>Returns polarization in electron Angstroms.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.analysis.ferroelectricity.polarization.get_total_ionic_dipole">
+<code class="sig-name descname">get_total_ionic_dipole</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">zval_dict</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/ferroelectricity/polarization.py#L90-L104"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.get_total_ionic_dipole" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the total ionic dipole moment for a structure.</p>
+<p>structure: pymatgen Structure
+zval_dict: specie, zval dictionary pairs
+center (np.array with shape [3,1]) : dipole center used by VASP
+tiny (float) : tolerance for determining boundary of calculation.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.analysis.ferroelectricity.polarization.zval_dict_from_potcar">
+<code class="sig-name descname">zval_dict_from_potcar</code><span class="sig-paren">(</span><em class="sig-param">potcar</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/ferroelectricity/polarization.py#L63-L73"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ferroelectricity.polarization.zval_dict_from_potcar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates zval_dictionary for calculating the ionic polarization from
+Potcar object</p>
+<p>potcar: Potcar object</p>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011, Pymatgen Development Team
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+  
+ 
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+
+</body>
+</html>
