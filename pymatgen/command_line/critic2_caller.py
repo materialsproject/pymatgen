@@ -45,6 +45,7 @@ import glob
 
 from scipy.spatial import KDTree
 from pymatgen.io.vasp.outputs import Chgcar, VolumetricData
+from pymatgen.io.vasp.inputs import Potcar
 from pymatgen.analysis.graphs import StructureGraph
 from pymatgen.core.periodic_table import DummySpecie
 from monty.os.path import which
@@ -74,7 +75,7 @@ class Critic2Caller:
                                 "Please follow the instructions at https://github.com/aoterodelaroza/critic2.")
     def __init__(self, structure, chgcar=None, chgcar_ref=None,
                  user_input_settings=None, write_cml=False,
-                 write_json=True):
+                 write_json=True, zpsp=None):
         """
         Run Critic2 in automatic mode on a supplied structure, charge
         density (chgcar) and reference charge density (chgcar_ref).
@@ -124,9 +125,10 @@ class Critic2Caller:
             useful for visualization
         :param write_json (bool): Whether to write out critical points
         and YT json. YT integration will be performed with this setting.
+        :param zpsp (dict): Dict of element/symbol name to number of electrons
+        (ZVAL in VASP pseudopotential), with which to properly augment core regions
+        and calculate charge transfer. Optional.
         """
-
-        # TODO: add ZPSP detection
 
         settings = {'CPEPS': 0.1, 'SEED': ["WS", "PAIR DIST 10"]}
         if user_input_settings:
@@ -137,13 +139,17 @@ class Critic2Caller:
 
         # Load data to use as reference field
         if chgcar_ref:
-            input_script += ["load ref.CHGCAR id chgcar_ref",
-                             "reference chgcar_ref"]
+            input_script += ["load ref.CHGCAR id chg_ref",
+                             "reference chg_ref"]
 
         # Load data to use for analysis
         if chgcar:
-            input_script += ["load int.CHGCAR id chgcar",
-                             "integrable chgcar"]
+            input_script += ["load int.CHGCAR id chg_int",
+                             "integrable chg_int"]
+            if zpsp:
+                zpsp_str = " zpsp " + " ".join(["{} {}".format(symbol, zval)
+                                               for symbol, zval in zpsp.items()])
+                input_script[-2] += zpsp_str
 
         # Command to run automatic analysis
         auto = "auto "
@@ -217,7 +223,7 @@ class Critic2Caller:
 
             self.output = Critic2Analysis(structure, stdout=stdout,
                                           stderr=stderr, cpreport=cpreport,
-                                          yt=yt)
+                                          yt=yt, zpsp=zpsp)
 
     @classmethod
     def from_path(cls, path, suffix=''):
@@ -267,7 +273,12 @@ class Critic2Caller:
 
         chgcar_ref = aeccar0.linear_add(aeccar2) if (aeccar0 and aeccar2) else None
 
-        return cls(chgcar.structure, chgcar, chgcar_ref)
+        potcar_path = _get_filepath('POTCAR', 'Could not find POTCAR, will not be able to calculate charge transfer.')
+        if potcar_path:
+            potcar = Potcar.from_file(potcar_path)
+            zpsp = {p.symbol: p.zval for p in potcar}
+
+        return cls(chgcar.structure, chgcar, chgcar_ref, zpsp=zpsp)
 
 
 class CriticalPointType(Enum):
@@ -353,7 +364,7 @@ class Critic2Analysis(MSONable):
     """
 
     def __init__(self, structure, stdout=None, stderr=None,
-                 cpreport=None, yt=None):
+                 cpreport=None, yt=None, zpsp=None):
         """
         This class is used to store results from the Critic2Caller.
 
@@ -386,6 +397,9 @@ class Critic2Analysis(MSONable):
             mode
         :param cpreport: json output from CPREPORT command
         :param yt: json output from YT command
+        :param zpsp (dict): Dict of element/symbol name to number of electrons
+        (ZVAL in VASP pseudopotential), with which to calculate charge transfer.
+        Optional.
         """
 
         self.structure = structure
@@ -394,18 +408,18 @@ class Critic2Analysis(MSONable):
         self._stderr = stderr
         self._cpreport = cpreport
         self._yt = yt
+        self._zpsp = zpsp
 
         self.nodes = {}
         self.edges = {}
-        self.node_values = None  # used to store integratable properties, e.g. volumes
 
         if yt:
-            self.node_values = self._parse_yt(yt)
+            self.structure = self._annotate_structure_with_yt(yt, structure)
 
-        if stdout:
-            self._parse_stdout(stdout)
-        elif cpreport:
+        if cpreport:
             self._parse_cpreport(cpreport)
+        elif stdout:
+            self._parse_stdout(stdout)
         else:
             raise ValueError("One of cpreport or stdout required.")
 
@@ -506,11 +520,93 @@ class Critic2Analysis(MSONable):
         """
         return self.critical_points[self.nodes[n]['unique_idx']]
 
-    def _parse_cpreport(self, cpreport):
-        raise NotImplementedError
+    def get_volume_and_charge_for_site(self, n):
+        """
+        Args:
+            n: Site index n
 
-    def _parse_yt(self, yt):
-        return {}
+        Returns: A dict containing "volume" and "charge" keys,
+        or None if YT integration not performed
+        """
+        if not self._node_values:
+            return None
+        return self._node_values[n]
+
+    def _parse_cpreport(self, cpreport):
+
+        def get_type(signature):
+            if signature == 3:
+                return "cage"
+            elif signature == 1:
+                return "ring"
+            elif signature == -1:
+                return "bond"
+            elif signature == -3:
+                return "nucleus"
+
+        bohr_to_angstrom = 0.529177
+
+        self.critical_points = [
+            CriticalPoint(
+                p["id"]-1,
+                get_type(p["signature"]),
+                p["fractional_coordinates"],
+                p["point_group"],
+                p["multiplicity"],
+                p["field"],
+                p["gradient"],
+                coords=[x*bohr_to_angstrom for x in p["cartesian_coordinates"]] if cpreport["units"] == "bohr" else None,
+                field_hessian=p["hessian"]
+            ) for p in cpreport["critical_points"]["nonequivalent_cps"]
+        ]
+
+        for idx, p in enumerate(cpreport["critical_points"]["cell_cps"]):
+            self._add_node(idx=p["id"]-1, unique_idx=p["nonequivalent_id"]-1,
+                            frac_coords=p["fractional_coordinates"])
+            if "attractors" in p:
+                self._add_edge(idx=p["id"]-1,
+                               from_idx=int(p["attractors"][0]["cell_id"])-1,
+                               from_lvec=p["attractors"][0]["lvec"],
+                               to_idx=int(p["attractors"][1]["cell_id"])-1,
+                               to_lvec=p["attractors"][1]["lvec"])
+
+    @staticmethod
+    def _annotate_structure_with_yt(yt, structure):
+
+        volume_idx = None
+        charge_idx = None
+
+        for prop in yt["integration"]["properties"]:
+            if prop["label"] == "Volume":
+                volume_idx = prop["id"]-1  # 1-indexed, change to 0
+            elif prop["label"] == "$chg_int":
+                charge_idx = prop["id"]-1
+
+        def get_volume_and_charge(nonequiv_idx):
+            attractor = yt["integration"]["attractors"][nonequiv_idx-1]
+            if attractor["id"] != nonequiv_idx:
+                raise ValueError("List of attractors may be un-ordered (wanted id={}): {}".format(nonequiv_idx,
+                                                                                                  attractor))
+            return attractor["integrals"][volume_idx], attractor["integrals"][charge_idx]
+
+        volumes = []
+        charges = []
+
+        for idx, site in enumerate(yt["structure"]["cell_atoms"]):
+            if not np.allclose(structure[idx].frac_coords, site['fractional_coordinates']):
+                raise IndexError("Site in structure doesn't seem to match site in YT integration:\n{}\n{}".format(
+                    structure[idx],
+                    site
+                ))
+            volume, charge = get_volume_and_charge(site["nonequivalent_id"])
+            volumes.append(volume)
+            charges.append(charge)
+
+        structure = structure.copy()
+        structure.add_site_property("bader_volume", volumes)
+        structure.add_site_property("bader_charge", charges)
+
+        return structure
 
     def _parse_stdout(self, stdout):
 
@@ -553,7 +649,7 @@ class Critic2Analysis(MSONable):
                 unique_idx = int(l[0]) - 1
                 point_group = l[1]
                 # type = l[2]  # type from definition of critical point e.g. (3, -3)
-                type = l[3]  # type from name, e.g. nucleus
+                critical_point_type = l[3]  # type from name, e.g. nucleus
                 frac_coords = [float(l[4]), float(l[5]), float(l[6])]
                 multiplicity = float(l[7])
                 # name = float(l[8])
@@ -561,7 +657,7 @@ class Critic2Analysis(MSONable):
                 field_gradient = float(l[10])
                 # laplacian = float(l[11])
 
-                point = CriticalPoint(unique_idx, type, frac_coords, point_group,
+                point = CriticalPoint(unique_idx, critical_point_type, frac_coords, point_group,
                                       multiplicity, field, field_gradient)
                 unique_critical_points.append(point)
 
@@ -633,7 +729,7 @@ class Critic2Analysis(MSONable):
         """
         Add information about a node describing a critical point.
 
-        :param idx: unique index
+        :param idx: index
         :param unique_idx: index of unique CriticalPoint,
             used to look up more information of point (field etc.)
         :param frac_coord: fractional co-ordinates of point

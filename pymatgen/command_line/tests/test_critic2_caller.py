@@ -40,7 +40,7 @@ class Critic2CallerTest(unittest.TestCase):
         self.assertGreaterEqual(len(c2c._stdout), 500)
 
 
-class Critic2OutputTest(unittest.TestCase):
+class Critic2AnalysisTest(unittest.TestCase):
     _multiprocess_shared_ = True
 
     def setUp(self):
@@ -56,8 +56,8 @@ class Critic2OutputTest(unittest.TestCase):
         structure = Structure.from_file(os.path.join(os.path.dirname(__file__), "..", "..", "..",
                                                      'test_files/critic2/MoS2.cif'))
 
-        self.c2o = Critic2Output(structure, reference_stdout)
-        self.c2o_new_format = Critic2Output(structure, reference_stdout_new_format)
+        self.c2o = Critic2Analysis(structure, reference_stdout)
+        self.c2o_new_format = Critic2Analysis(structure, reference_stdout_new_format)
 
     def test_properties_to_from_dict(self):
 
@@ -91,12 +91,10 @@ class Critic2OutputTest(unittest.TestCase):
                                                  'to_idx': 0, 'to_lvec': (1, 0, 0)})
         # test as/from dict
         d = self.c2o.as_dict()
-        if "@version" in set(d.keys()):
-            self.assertEqual(set(d.keys()), {'@module', '@class', '@version',
-                                             'structure', 'critic2_stdout'})
-        else:
-            self.assertEqual(set(d.keys()), {'@module', '@class',
-                                             'structure', 'critic2_stdout'})
+        self.assertEqual(set(d.keys()), {'@module', '@class', '@version',
+                                         'structure', 'stdout',
+                                         'stderr', 'cpreport',
+                                         'yt', 'zpsp'})
         self.c2o.from_dict(d)
 
     def test_graph_output(self):
