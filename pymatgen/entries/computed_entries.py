@@ -16,6 +16,7 @@ from monty.json import MontyEncoder, MontyDecoder
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.structure import Structure
+from pymatgen.entries.entry import Entry
 from monty.json import MSONable
 
 
@@ -28,7 +29,7 @@ __status__ = "Production"
 __date__ = "Apr 30, 2012"
 
 
-class ComputedEntry(MSONable):
+class ComputedEntry(Entry):
     """
     An lightweight ComputedEntry object containing key computed data
     for many purposes. Extends a PDEntry so that it can be used for phase
@@ -64,53 +65,11 @@ class ComputedEntry(MSONable):
                 with the entry. Defaults to None.
             entry_id (obj): An optional id to uniquely identify the entry.
         """
-        self.uncorrected_energy = energy
-        self.composition = Composition(composition)
-        self.correction = correction
+        super().__init__(composition, energy, correction)
         self.parameters = parameters if parameters else {}
         self.data = data if data else {}
         self.entry_id = entry_id
         self.name = self.composition.reduced_formula
-
-    def normalize(self, mode: str = "formula_unit") -> None:
-        """
-        Normalize the entry's composition, energy and any corrections.
-        Generally, this would not have effect on any
-
-        Args:
-            mode: "formula_unit" is the default, which normalizes to
-                composition.reduced_formula. The other option is "atom", which
-                normalizes such that the composition amounts sum to 1.
-        """
-        if mode == "atom":
-            factor = self.composition.num_atoms
-            comp = self.composition / factor
-        else:
-            comp, factor = self.composition.get_reduced_composition_and_factor()
-        self.composition = comp
-        self.uncorrected_energy /= factor
-        self.correction /= factor
-
-    @property
-    def is_element(self) -> bool:
-        """
-        :return: Whether composition of entry is an element.
-        """
-        return self.composition.is_element
-
-    @property
-    def energy(self) -> float:
-        """
-        :return: the *corrected* energy of the entry.
-        """
-        return self.uncorrected_energy + self.correction
-
-    @property
-    def energy_per_atom(self) -> float:
-        """
-        :return: the *corrected* energy per atom of the entry.
-        """
-        return self.energy / self.composition.num_atoms
 
     def __repr__(self):
         output = ["ComputedEntry {} - {}".format(self.entry_id,
@@ -124,9 +83,6 @@ class ComputedEntry(MSONable):
         for k, v in self.data.items():
             output.append("{} = {}".format(k, v))
         return "\n".join(output)
-
-    def __str__(self):
-        return self.__repr__()
 
     @classmethod
     def from_dict(cls, d) -> 'ComputedEntry':
@@ -146,15 +102,11 @@ class ComputedEntry(MSONable):
         """
         :return: MSONable dict.
         """
-        return {"@module": self.__class__.__module__,
-                "@class": self.__class__.__name__,
-                "energy": self.uncorrected_energy,
-                "composition": self.composition.as_dict(),
-                "correction": self.correction,
-                "parameters": json.loads(json.dumps(self.parameters,
-                                                    cls=MontyEncoder)),
-                "data": json.loads(json.dumps(self.data, cls=MontyEncoder)),
-                "entry_id": self.entry_id}
+        return_dict = super().as_dict()
+        return_dict.update({"parameters": json.loads(json.dumps(self.parameters, cls=MontyEncoder)),
+                            "data": json.loads(json.dumps(self.data, cls=MontyEncoder)),
+                            "entry_id": self.entry_id})
+        return return_dict
 
 
 class ComputedStructureEntry(ComputedEntry):
