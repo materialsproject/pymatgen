@@ -40,8 +40,6 @@ class Critic2CallerTest(unittest.TestCase):
         self.assertAlmostEqual(c2o.structure.site_properties["bader_volume"][0], 66.0148355)
         self.assertAlmostEqual(c2o.structure.site_properties["bader_charge"][0], 12.2229131)
 
-
-
     def test_from_structure(self):
         # uses promolecular density
         structure = Structure.from_file(os.path.join(os.path.dirname(__file__), "..", "..", "..",

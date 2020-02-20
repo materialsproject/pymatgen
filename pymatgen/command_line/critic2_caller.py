@@ -56,6 +56,7 @@ from monty.tempfile import ScratchDir
 from enum import Enum
 
 import logging
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -71,11 +72,21 @@ class Critic2Caller:
     Class to call critic2 and store standard output for further processing.
     """
 
-    @requires(which("critic2"), "Critic2Caller requires the executable critic to be in the path. "
-                                "Please follow the instructions at https://github.com/aoterodelaroza/critic2.")
-    def __init__(self, structure, chgcar=None, chgcar_ref=None,
-                 user_input_settings=None, write_cml=False,
-                 write_json=True, zpsp=None):
+    @requires(
+        which("critic2"),
+        "Critic2Caller requires the executable critic to be in the path. "
+        "Please follow the instructions at https://github.com/aoterodelaroza/critic2.",
+    )
+    def __init__(
+        self,
+        structure,
+        chgcar=None,
+        chgcar_ref=None,
+        user_input_settings=None,
+        write_cml=False,
+        write_json=True,
+        zpsp=None,
+    ):
         """
         Run Critic2 in automatic mode on a supplied structure, charge
         density (chgcar) and reference charge density (chgcar_ref).
@@ -130,7 +141,7 @@ class Critic2Caller:
         and calculate charge transfer. Optional.
         """
 
-        settings = {'CPEPS': 0.1, 'SEED': ["WS", "PAIR DIST 10"]}
+        settings = {"CPEPS": 0.1, "SEED": ["WS", "PAIR DIST 10"]}
         if user_input_settings:
             settings.update(user_input_settings)
 
@@ -139,16 +150,15 @@ class Critic2Caller:
 
         # Load data to use as reference field
         if chgcar_ref:
-            input_script += ["load ref.CHGCAR id chg_ref",
-                             "reference chg_ref"]
+            input_script += ["load ref.CHGCAR id chg_ref", "reference chg_ref"]
 
         # Load data to use for analysis
         if chgcar:
-            input_script += ["load int.CHGCAR id chg_int",
-                             "integrable chg_int"]
+            input_script += ["load int.CHGCAR id chg_int", "integrable chg_int"]
             if zpsp:
-                zpsp_str = " zpsp " + " ".join(["{} {}".format(symbol, zval)
-                                               for symbol, zval in zpsp.items()])
+                zpsp_str = " zpsp " + " ".join(
+                    ["{} {}".format(symbol, zval) for symbol, zval in zpsp.items()]
+                )
                 input_script[-2] += zpsp_str
 
         # Command to run automatic analysis
@@ -156,9 +166,9 @@ class Critic2Caller:
         for k, v in settings.items():
             if isinstance(v, list):
                 for item in v:
-                    auto += '{} {} '.format(k, item)
+                    auto += "{} {} ".format(k, item)
             else:
-                auto += '{} {} '.format(k, v)
+                auto += "{} {} ".format(k, v)
         input_script += [auto]
 
         if write_cml:
@@ -178,25 +188,25 @@ class Critic2Caller:
 
             os.chdir(temp_dir)
 
-            with open('input_script.cri', 'w') as f:
+            with open("input_script.cri", "w") as f:
                 f.write(input_script)
 
-            structure.to(filename='POSCAR')
+            structure.to(filename="POSCAR")
 
             if chgcar and isinstance(chgcar, VolumetricData):
-                chgcar.write_file('int.CHGCAR')
+                chgcar.write_file("int.CHGCAR")
             elif chgcar:
-                os.symlink(chgcar, 'int.CHGCAR')
+                os.symlink(chgcar, "int.CHGCAR")
 
             if chgcar_ref and isinstance(chgcar_ref, VolumetricData):
-                chgcar_ref.write_file('ref.CHGCAR')
+                chgcar_ref.write_file("ref.CHGCAR")
             elif chgcar_ref:
-                os.symlink(chgcar_ref, 'ref.CHGCAR')
+                os.symlink(chgcar_ref, "ref.CHGCAR")
 
             args = ["critic2", "input_script.cri"]
-            rs = subprocess.Popen(args,
-                                  stdout=subprocess.PIPE,
-                                  stdin=subprocess.PIPE, close_fds=True)
+            rs = subprocess.Popen(
+                args, stdout=subprocess.PIPE, stdin=subprocess.PIPE, close_fds=True
+            )
 
             stdout, stderr = rs.communicate()
             stdout = stdout.decode()
@@ -206,27 +216,36 @@ class Critic2Caller:
                 warnings.warn(stderr)
 
             if rs.returncode != 0:
-                raise RuntimeError("critic2 exited with return code {}: {}".format(rs.returncode, stdout))
+                raise RuntimeError(
+                    "critic2 exited with return code {}: {}".format(
+                        rs.returncode, stdout
+                    )
+                )
 
             self._stdout = stdout
             self._stderr = stderr
 
-            if os.path.exists('cpreport.json'):
-                cpreport = loadfn('cpreport.json')
+            if os.path.exists("cpreport.json"):
+                cpreport = loadfn("cpreport.json")
             else:
                 cpreport = None
 
-            if os.path.exists('yt.json'):
-                yt = loadfn('yt.json')
+            if os.path.exists("yt.json"):
+                yt = loadfn("yt.json")
             else:
                 yt = None
 
-            self.output = Critic2Analysis(structure, stdout=stdout,
-                                          stderr=stderr, cpreport=cpreport,
-                                          yt=yt, zpsp=zpsp)
+            self.output = Critic2Analysis(
+                structure,
+                stdout=stdout,
+                stderr=stderr,
+                cpreport=cpreport,
+                yt=yt,
+                zpsp=zpsp,
+            )
 
     @classmethod
-    def from_path(cls, path, suffix=''):
+    def from_path(cls, path, suffix=""):
         """
         Convenience method to run critic2 analysis on a folder containing
         typical VASP output files.
@@ -248,7 +267,7 @@ class Critic2Caller:
         """
 
         def _get_filepath(filename, warning, path=path, suffix=suffix):
-            paths = glob.glob(os.path.join(path, filename + suffix + '*'))
+            paths = glob.glob(os.path.join(path, filename + suffix + "*"))
             if not paths:
                 warnings.warn(warning)
                 return None
@@ -258,22 +277,31 @@ class Critic2Caller:
                 # and this would give 'static' over 'relax2' over 'relax'
                 # however, better to use 'suffix' kwarg to avoid this!
                 paths.sort(reverse=True)
-                warnings.warn('Multiple files detected, using {}'.format(os.path.basename(path)))
+                warnings.warn(
+                    "Multiple files detected, using {}".format(os.path.basename(path))
+                )
             path = paths[0]
             return path
 
-        chgcar_path = _get_filepath('CHGCAR', 'Could not find CHGCAR!')
+        chgcar_path = _get_filepath("CHGCAR", "Could not find CHGCAR!")
         chgcar = Chgcar.from_file(chgcar_path)
 
-        aeccar0_path = _get_filepath('AECCAR0', 'Could not find AECCAR0, interpret Bader results with caution.')
+        aeccar0_path = _get_filepath(
+            "AECCAR0", "Could not find AECCAR0, interpret Bader results with caution."
+        )
         aeccar0 = Chgcar.from_file(aeccar0_path) if aeccar0_path else None
 
-        aeccar2_path = _get_filepath('AECCAR2', 'Could not find AECCAR2, interpret Bader results with caution.')
+        aeccar2_path = _get_filepath(
+            "AECCAR2", "Could not find AECCAR2, interpret Bader results with caution."
+        )
         aeccar2 = Chgcar.from_file(aeccar2_path) if aeccar2_path else None
 
         chgcar_ref = aeccar0.linear_add(aeccar2) if (aeccar0 and aeccar2) else None
 
-        potcar_path = _get_filepath('POTCAR', 'Could not find POTCAR, will not be able to calculate charge transfer.')
+        potcar_path = _get_filepath(
+            "POTCAR",
+            "Could not find POTCAR, will not be able to calculate charge transfer.",
+        )
         if potcar_path:
             potcar = Potcar.from_file(potcar_path)
             zpsp = {p.symbol: p.zval for p in potcar}
@@ -299,9 +327,18 @@ class CriticalPoint(MSONable):
     Access information about a critical point and the field values at that point.
     """
 
-    def __init__(self, index, type, frac_coords, point_group,
-                 multiplicity, field, field_gradient,
-                 coords=None, field_hessian=None):
+    def __init__(
+        self,
+        index,
+        type,
+        frac_coords,
+        point_group,
+        multiplicity,
+        field,
+        field_gradient,
+        coords=None,
+        field_hessian=None,
+    ):
         """
         Class to characterise a critical point from a topological
         analysis of electron charge density.
@@ -357,7 +394,7 @@ class CriticalPoint(MSONable):
         """
         eig, _ = np.linalg.eig(self.field_hessian)
         eig.sort()
-        return eig[0]/eig[1] - 1
+        return eig[0] / eig[1] - 1
 
 
 class Critic2Analysis(MSONable):
@@ -365,8 +402,9 @@ class Critic2Analysis(MSONable):
     Class to process the standard output from critic2 into pymatgen-compatible objects.
     """
 
-    def __init__(self, structure, stdout=None, stderr=None,
-                 cpreport=None, yt=None, zpsp=None):
+    def __init__(
+        self, structure, stdout=None, stderr=None, cpreport=None, yt=None, zpsp=None
+    ):
         """
         This class is used to store results from the Critic2Caller.
 
@@ -425,8 +463,12 @@ class Critic2Analysis(MSONable):
         else:
             raise ValueError("One of cpreport or stdout required.")
 
-    def structure_graph(self, edge_weight=None, edge_weight_units=None,
-                        include_critical_points=("bond", "ring", "cage")):
+    def structure_graph(
+        self,
+        edge_weight=None,
+        edge_weight_units=None,
+        include_critical_points=("bond", "ring", "cage"),
+    ):
         """
         A StructureGraph object describing bonding information
         in the crystal. Lazily constructed.
@@ -450,66 +492,91 @@ class Critic2Analysis(MSONable):
             # atoms themselves don't have field information
             # so set to 0
             for prop in ("ellipticity", "laplacian", "field"):
-                structure.add_site_property(prop, [0]*len(structure))
+                structure.add_site_property(prop, [0] * len(structure))
             for idx, node in self.nodes.items():
                 cp = self.critical_points[node["unique_idx"]]
                 if cp.type.value in include_critical_points:
-                    specie = DummySpecie("{}cp".format(cp.type.value[0]), oxidation_state=None)
-                    structure.append(specie, node["frac_coords"],
-                                     properties={"ellipticity": cp.ellipticity,
-                                                 "laplacian": cp.laplacian,
-                                                 "field": cp.field})
+                    specie = DummySpecie(
+                        "{}cp".format(cp.type.value[0]), oxidation_state=None
+                    )
+                    structure.append(
+                        specie,
+                        node["frac_coords"],
+                        properties={
+                            "ellipticity": cp.ellipticity,
+                            "laplacian": cp.laplacian,
+                            "field": cp.field,
+                        },
+                    )
 
-        sg = StructureGraph.with_empty_graph(structure, name="bonds",
-                                             edge_weight_name=edge_weight,
-                                             edge_weight_units=edge_weight_units)
+        sg = StructureGraph.with_empty_graph(
+            structure,
+            name="bonds",
+            edge_weight_name=edge_weight,
+            edge_weight_units=edge_weight_units,
+        )
 
         edges = self.edges.copy()
         idx_to_delete = []
         # check for duplicate bonds
         for idx, edge in edges.items():
-            unique_idx = self.nodes[idx]['unique_idx']
+            unique_idx = self.nodes[idx]["unique_idx"]
             # only check edges representing bonds, not rings
             if self.critical_points[unique_idx].type == CriticalPointType.bond:
                 if idx not in idx_to_delete:
                     for idx2, edge2 in edges.items():
                         if idx != idx2 and edge == edge2:
                             idx_to_delete.append(idx2)
-                            warnings.warn("Duplicate edge detected, try re-running "
-                                          "critic2 with custom parameters to fix this. "
-                                          "Mostly harmless unless user is also "
-                                          "interested in rings/cages.")
-                            logger.debug("Duplicate edge between points {} (unique point {})"
-                                         "and {} ({}).".format(idx, self.nodes[idx]['unique_idx'],
-                                                               idx2, self.nodes[idx2]['unique_idx']))
+                            warnings.warn(
+                                "Duplicate edge detected, try re-running "
+                                "critic2 with custom parameters to fix this. "
+                                "Mostly harmless unless user is also "
+                                "interested in rings/cages."
+                            )
+                            logger.debug(
+                                "Duplicate edge between points {} (unique point {})"
+                                "and {} ({}).".format(
+                                    idx,
+                                    self.nodes[idx]["unique_idx"],
+                                    idx2,
+                                    self.nodes[idx2]["unique_idx"],
+                                )
+                            )
         # and remove any duplicate bonds present
         for idx in idx_to_delete:
             del edges[idx]
 
         for idx, edge in edges.items():
-            unique_idx = self.nodes[idx]['unique_idx']
+            unique_idx = self.nodes[idx]["unique_idx"]
             # only add edges representing bonds, not rings
             if self.critical_points[unique_idx].type == CriticalPointType.bond:
 
-                from_idx = edge['from_idx']
-                to_idx = edge['to_idx']
+                from_idx = edge["from_idx"]
+                to_idx = edge["to_idx"]
 
-                from_lvec = edge['from_lvec']
-                to_lvec = edge['to_lvec']
+                from_lvec = edge["from_lvec"]
+                to_lvec = edge["to_lvec"]
 
                 relative_lvec = np.subtract(to_lvec, from_lvec)
 
                 if edge_weight == "bond_length":
-                    weight = self.structure.get_distance(from_idx, to_idx, jimage=relative_lvec)
+                    weight = self.structure.get_distance(
+                        from_idx, to_idx, jimage=relative_lvec
+                    )
                 elif edge_weight:
-                    weight = getattr(self.critical_points[unique_idx],
-                                     edge_weight, None)
+                    weight = getattr(
+                        self.critical_points[unique_idx], edge_weight, None
+                    )
                 else:
                     weight = None
 
-                sg.add_edge(from_idx, to_idx,
-                            from_jimage=from_lvec, to_jimage=to_lvec,
-                            weight=weight)
+                sg.add_edge(
+                    from_idx,
+                    to_idx,
+                    from_jimage=from_lvec,
+                    to_jimage=to_lvec,
+                    weight=weight,
+                )
 
         return sg
 
@@ -520,7 +587,7 @@ class Critic2Analysis(MSONable):
 
         Returns: A CriticalPoint instance
         """
-        return self.critical_points[self.nodes[n]['unique_idx']]
+        return self.critical_points[self.nodes[n]["unique_idx"]]
 
     def get_volume_and_charge_for_site(self, n):
         """
@@ -535,7 +602,6 @@ class Critic2Analysis(MSONable):
         return self._node_values[n]
 
     def _parse_cpreport(self, cpreport):
-
         def get_type(signature):
             if signature == 3:
                 return "cage"
@@ -550,27 +616,35 @@ class Critic2Analysis(MSONable):
 
         self.critical_points = [
             CriticalPoint(
-                p["id"]-1,
+                p["id"] - 1,
                 get_type(p["signature"]),
                 p["fractional_coordinates"],
                 p["point_group"],
                 p["multiplicity"],
                 p["field"],
                 p["gradient"],
-                coords=[x*bohr_to_angstrom for x in p["cartesian_coordinates"]] if cpreport["units"] == "bohr" else None,
-                field_hessian=p["hessian"]
-            ) for p in cpreport["critical_points"]["nonequivalent_cps"]
+                coords=[x * bohr_to_angstrom for x in p["cartesian_coordinates"]]
+                if cpreport["units"] == "bohr"
+                else None,
+                field_hessian=p["hessian"],
+            )
+            for p in cpreport["critical_points"]["nonequivalent_cps"]
         ]
 
         for idx, p in enumerate(cpreport["critical_points"]["cell_cps"]):
-            self._add_node(idx=p["id"]-1, unique_idx=p["nonequivalent_id"]-1,
-                            frac_coords=p["fractional_coordinates"])
+            self._add_node(
+                idx=p["id"] - 1,
+                unique_idx=p["nonequivalent_id"] - 1,
+                frac_coords=p["fractional_coordinates"],
+            )
             if "attractors" in p:
-                self._add_edge(idx=p["id"]-1,
-                               from_idx=int(p["attractors"][0]["cell_id"])-1,
-                               from_lvec=p["attractors"][0]["lvec"],
-                               to_idx=int(p["attractors"][1]["cell_id"])-1,
-                               to_lvec=p["attractors"][1]["lvec"])
+                self._add_edge(
+                    idx=p["id"] - 1,
+                    from_idx=int(p["attractors"][0]["cell_id"]) - 1,
+                    from_lvec=p["attractors"][0]["lvec"],
+                    to_idx=int(p["attractors"][1]["cell_id"]) - 1,
+                    to_lvec=p["attractors"][1]["lvec"],
+                )
 
     @staticmethod
     def _annotate_structure_with_yt(yt, structure):
@@ -580,26 +654,35 @@ class Critic2Analysis(MSONable):
 
         for prop in yt["integration"]["properties"]:
             if prop["label"] == "Volume":
-                volume_idx = prop["id"]-1  # 1-indexed, change to 0
+                volume_idx = prop["id"] - 1  # 1-indexed, change to 0
             elif prop["label"] == "$chg_int":
-                charge_idx = prop["id"]-1
+                charge_idx = prop["id"] - 1
 
         def get_volume_and_charge(nonequiv_idx):
-            attractor = yt["integration"]["attractors"][nonequiv_idx-1]
+            attractor = yt["integration"]["attractors"][nonequiv_idx - 1]
             if attractor["id"] != nonequiv_idx:
-                raise ValueError("List of attractors may be un-ordered (wanted id={}): {}".format(nonequiv_idx,
-                                                                                                  attractor))
-            return attractor["integrals"][volume_idx], attractor["integrals"][charge_idx]
+                raise ValueError(
+                    "List of attractors may be un-ordered (wanted id={}): {}".format(
+                        nonequiv_idx, attractor
+                    )
+                )
+            return (
+                attractor["integrals"][volume_idx],
+                attractor["integrals"][charge_idx],
+            )
 
         volumes = []
         charges = []
 
         for idx, site in enumerate(yt["structure"]["cell_atoms"]):
-            if not np.allclose(structure[idx].frac_coords, site['fractional_coordinates']):
-                raise IndexError("Site in structure doesn't seem to match site in YT integration:\n{}\n{}".format(
-                    structure[idx],
-                    site
-                ))
+            if not np.allclose(
+                structure[idx].frac_coords, site["fractional_coordinates"]
+            ):
+                raise IndexError(
+                    "Site in structure doesn't seem to match site in YT integration:\n{}\n{}".format(
+                        structure[idx], site
+                    )
+                )
             volume, charge = get_volume_and_charge(site["nonequivalent_id"])
             volumes.append(volume)
             charges.append(charge)
@@ -659,20 +742,29 @@ class Critic2Analysis(MSONable):
                 field_gradient = float(l[10])
                 # laplacian = float(l[11])
 
-                point = CriticalPoint(unique_idx, critical_point_type, frac_coords, point_group,
-                                      multiplicity, field, field_gradient)
+                point = CriticalPoint(
+                    unique_idx,
+                    critical_point_type,
+                    frac_coords,
+                    point_group,
+                    multiplicity,
+                    field,
+                    field_gradient,
+                )
                 unique_critical_points.append(point)
 
         for i, line in enumerate(stdout):
-            if '+ Critical point no.' in line:
+            if "+ Critical point no." in line:
                 unique_idx = int(line.split()[4]) - 1
             elif "Hessian:" in line:
                 l1 = list(map(float, stdout[i + 1].split()))
                 l2 = list(map(float, stdout[i + 2].split()))
                 l3 = list(map(float, stdout[i + 3].split()))
-                hessian = [[l1[0], l1[1], l1[2]],
-                           [l2[0], l2[1], l2[2]],
-                           [l3[0], l3[1], l3[2]]]
+                hessian = [
+                    [l1[0], l1[1], l1[2]],
+                    [l2[0], l2[1], l2[2]],
+                    [l3[0], l3[1], l3[2]],
+                ]
                 unique_critical_points[unique_idx].field_hessian = hessian
 
         self.critical_points = unique_critical_points
@@ -703,8 +795,10 @@ class Critic2Analysis(MSONable):
                     node_mapping[critic2_idx] = kd.query(frac_coord)[1]
 
         if len(node_mapping) != len(self.structure):
-            warnings.warn("Check that all sites in input structure have "
-                          "been detected by critic2.")
+            warnings.warn(
+                "Check that all sites in input structure have "
+                "been detected by critic2."
+            )
 
         def _remap(critic2_idx):
             return node_mapping.get(critic2_idx, critic2_idx)
@@ -722,8 +816,13 @@ class Critic2Analysis(MSONable):
                 if len(l) > 6:
                     from_idx = _remap(int(l[6]) - 1)
                     to_idx = _remap(int(l[10]) - 1)
-                    self._add_edge(idx, from_idx=from_idx, from_lvec=(int(l[7]), int(l[8]), int(l[9])),
-                                   to_idx=to_idx, to_lvec=(int(l[11]), int(l[12]), int(l[13])))
+                    self._add_edge(
+                        idx,
+                        from_idx=from_idx,
+                        from_lvec=(int(l[7]), int(l[8]), int(l[9])),
+                        to_idx=to_idx,
+                        to_lvec=(int(l[11]), int(l[12]), int(l[13])),
+                    )
 
         self._map = node_mapping
 
@@ -737,7 +836,7 @@ class Critic2Analysis(MSONable):
         :param frac_coord: fractional co-ordinates of point
         :return:
         """
-        self.nodes[idx] = {'unique_idx': unique_idx, 'frac_coords': frac_coords}
+        self.nodes[idx] = {"unique_idx": unique_idx, "frac_coords": frac_coords}
 
     def _add_edge(self, idx, from_idx, from_lvec, to_idx, to_lvec):
         """
@@ -762,5 +861,9 @@ class Critic2Analysis(MSONable):
             tuple of ints
         :return:
         """
-        self.edges[idx] = {'from_idx': from_idx, 'from_lvec': from_lvec,
-                           'to_idx': to_idx, 'to_lvec': to_lvec}
+        self.edges[idx] = {
+            "from_idx": from_idx,
+            "from_lvec": from_lvec,
+            "to_idx": to_idx,
+            "to_lvec": to_lvec,
+        }
