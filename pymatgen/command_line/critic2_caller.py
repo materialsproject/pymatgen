@@ -277,6 +277,8 @@ class Critic2Caller:
         if potcar_path:
             potcar = Potcar.from_file(potcar_path)
             zpsp = {p.symbol: p.zval for p in potcar}
+        else:
+            zpsp = None
 
         return cls(chgcar.structure, chgcar, chgcar_ref, zpsp=zpsp)
 

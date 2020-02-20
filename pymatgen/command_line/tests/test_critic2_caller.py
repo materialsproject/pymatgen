@@ -29,6 +29,19 @@ class Critic2CallerTest(unittest.TestCase):
         # check we have some results!
         self.assertGreaterEqual(len(c2c._stdout), 500)
 
+        c2o = c2c.output
+
+        # check we get our structure graph
+        sg = c2o.structure_graph(include_critical_points=None)
+        self.assertEqual(sg.get_coordination_of_site(0), 4)
+
+        # check yt integration
+        # TODO: check that these values are sane
+        self.assertAlmostEqual(c2o.structure.site_properties["bader_volume"][0], 66.0148355)
+        self.assertAlmostEqual(c2o.structure.site_properties["bader_charge"][0], 12.2229131)
+
+
+
     def test_from_structure(self):
         # uses promolecular density
         structure = Structure.from_file(os.path.join(os.path.dirname(__file__), "..", "..", "..",
