@@ -13,6 +13,7 @@ import os
 from collections import namedtuple
 from fractions import Fraction
 from typing import List, Dict, Tuple, cast
+from functools import lru_cache
 import numpy as np  # type: ignore
 import scipy.constants as sc  # type: ignore
 import pandas as pd  # type: ignore
@@ -34,7 +35,7 @@ __copyright__ = "Copyright 2020, The Materials Project"
 __version__ = "0.201"
 __maintainer__ = "Jason Liang"
 __email__ = "fwan@berkeley.edu, yhljason@berkeley.edu"
-__date__ = "02/30/2020"
+__date__ = "02/20/2020"
 
 
 class TEMCalculator(AbstractDiffractionPatternCalculator):
@@ -46,14 +47,11 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             "twin direction" for certain materials, "sample thickness", and "excitation error s"
     """
 
-    def __init__(self, wavelength_cache: Dict[float, float] = None, symprec: float = None, voltage: float = 200,
+    def __init__(self, symprec: float = None, voltage: float = 200,
                  beam_direction: Tuple[int, int, int] = (0, 0, 1), camera_length: int = 160,
                  debye_waller_factors: Dict[str, float] = None, cs: float = 1) -> None:
         """
-        Initializes the TEM calculator with given voltage,
         Args:
-            wavelength_cache (dict): Reference of voltage to relativistic wavelength. Value dependent on
-                user input voltage.
             symprec (float): Symmetry precision for structure refinement. If
                 set to 0, no refinement is done. Otherwise, refinement is
                 performed using spglib with provided precision.
@@ -69,7 +67,6 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
                 factors are temperature dependent.
             cs (float): the chromatic aberration coefficient. set by default to 1 mm.
         """
-        self.wavelength_cache = wavelength_cache
         self.symprec = symprec
         self.voltage = voltage
         self.beam_direction = beam_direction
@@ -77,6 +74,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         self.debye_waller_factors = debye_waller_factors or {}
         self.cs = cs
 
+    @lru_cache(1)
     def wavelength_rel(self) -> float:
         """
         Calculates the wavelength of the electron beam with relativistic kinematic effects taken
@@ -86,13 +84,8 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         Returns:
             Relativistic Wavelength (in angstroms)
         """
-        if self.wavelength_cache is None:
-            self.wavelength_cache = {}
-        if self.voltage in self.wavelength_cache:
-            return self.wavelength_cache[self.voltage]
         wavelength_rel = sc.h / np.sqrt(2 * sc.m_e * sc.e * 1000 * self.voltage *
                                         (1 + (sc.e * 1000 * self.voltage) / (2 * sc.m_e * sc.c ** 2))) * (10 ** 10)
-        self.wavelength_cache[self.voltage] = wavelength_rel
         return wavelength_rel
 
     def generate_points(self, coord_left: int = -10, coord_right: int = 10) -> np.ndarray:
