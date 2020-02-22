@@ -1,0 +1,418 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pymatgen.symmetry.groups module &mdash; pymatgen 2020.1.28 documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pymatgen.orgpymatgen.symmetry.groups.html"/>
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.symmetry.maggroups module" href="pymatgen.symmetry.maggroups.html" />
+    <link rel="prev" title="pymatgen.symmetry.bandstructure module" href="pymatgen.symmetry.bandstructure.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pymatgen
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2020.1.28
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="team.html">Development Team</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API Docs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pymatgen.html">pymatgen package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="pymatgen.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.alchemy.html">pymatgen.alchemy package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.html">pymatgen.analysis package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.apps.html">pymatgen.apps package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.cli.html">pymatgen.cli package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.command_line.html">pymatgen.command_line package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html">pymatgen.core package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.electronic_structure.html">pymatgen.electronic_structure package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.entries.html">pymatgen.entries package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html">pymatgen.ext package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html">pymatgen.io package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.plugins.html">pymatgen.plugins package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.vis.html">pymatgen.vis package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#module-pymatgen">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pymatgen</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="modules.html">pymatgen</a> &raquo;</li>
+        
+          <li><a href="pymatgen.html">pymatgen package</a> &raquo;</li>
+        
+          <li><a href="pymatgen.symmetry.html">pymatgen.symmetry package</a> &raquo;</li>
+        
+      <li>pymatgen.symmetry.groups module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.symmetry.groups.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-pymatgen.symmetry.groups">
+<span id="pymatgen-symmetry-groups-module"></span><h1>pymatgen.symmetry.groups module<a class="headerlink" href="#module-pymatgen.symmetry.groups" title="Permalink to this headline">¶</a></h1>
+<p>Defines SymmetryGroup parent class and PointGroup and SpaceGroup classes.
+Shyue Ping Ong thanks Marc De Graef for his generous sharing of his
+SpaceGroup data as published in his textbook “Structure of Materials”.</p>
+<dl class="class">
+<dt id="pymatgen.symmetry.groups.PointGroup">
+<em class="property">class </em><code class="sig-name descname">PointGroup</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/symmetry/groups.py#L93-L163"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.groups.PointGroup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.symmetry.groups.PointGroup" title="pymatgen.symmetry.groups.PointGroup"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.symmetry.groups.PointGroup</span></code></a></p>
+<p>Class representing a Point Group, with generators and symmetry operations.</p>
+<dl class="attribute">
+<dt id="pymatgen.symmetry.groups.PointGroup.symbol">
+<code class="sig-name descname">symbol</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/symmetry/groups.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.groups.PointGroup.symbol" title="Permalink to this definition">¶</a></dt>
+<dd><p>Full International or Hermann-Mauguin Symbol.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.symmetry.groups.PointGroup.generators">
+<code class="sig-name descname">generators</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/symmetry/groups.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.groups.PointGroup.generators" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of generator matrices. Note that 3x3 matrices are used for Point
+Groups.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.symmetry.groups.PointGroup.symmetry_ops">
+<code class="sig-name descname">symmetry_ops</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/symmetry/groups.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.groups.PointGroup.symmetry_ops" title="Permalink to this definition">¶</a></dt>
+<dd><p>Full set of symmetry operations as matrices.</p>
+</dd></dl>
+
+<p>Pass through…
+:param args:
+:param kwargs:
+:return:</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.symmetry.groups.SpaceGroup">
+<em class="property">class </em><code class="sig-name descname">SpaceGroup</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/symmetry/groups.py#L167-L487"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.groups.SpaceGroup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.symmetry.groups.SpaceGroup" title="pymatgen.symmetry.groups.SpaceGroup"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.symmetry.groups.SpaceGroup</span></code></a></p>
+<p>Class representing a SpaceGroup.</p>
+<dl class="attribute">
+<dt id="pymatgen.symmetry.groups.SpaceGroup.symbol">
+<code class="sig-name descname">symbol</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/symmetry/groups.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.groups.SpaceGroup.symbol" title="Permalink to this definition">¶</a></dt>
+<dd><p>Full International or Hermann-Mauguin Symbol.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.symmetry.groups.SpaceGroup.int_number">
+<code class="sig-name descname">int_number</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/symmetry/groups.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.groups.SpaceGroup.int_number" title="Permalink to this definition">¶</a></dt>
+<dd><p>International number</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.symmetry.groups.SpaceGroup.generators">
+<code class="sig-name descname">generators</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/symmetry/groups.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.groups.SpaceGroup.generators" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of generator matrices. Note that 4x4 matrices are used for Space
+Groups.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.symmetry.groups.SpaceGroup.order">
+<code class="sig-name descname">order</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/symmetry/groups.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.groups.SpaceGroup.order" title="Permalink to this definition">¶</a></dt>
+<dd><p>Order of Space Group</p>
+</dd></dl>
+
+<p>Pass through…
+:param args:
+:param kwargs:
+:return:</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.symmetry.groups.SymmetryGroup">
+<em class="property">class </em><code class="sig-name descname">SymmetryGroup</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/symmetry/groups.py#L36-L89"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.groups.SymmetryGroup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.abc.Sequence</span></code></p>
+<p>Abstract class representation a symmetry group.</p>
+<dl class="method">
+<dt id="pymatgen.symmetry.groups.SymmetryGroup.is_subgroup">
+<code class="sig-name descname">is_subgroup</code><span class="sig-paren">(</span><em class="sig-param">supergroup</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/symmetry/groups.py#L64-L75"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.groups.SymmetryGroup.is_subgroup" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if this group is a subgroup of the supplied group.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>supergroup</strong> (<a class="reference internal" href="#pymatgen.symmetry.groups.SymmetryGroup" title="pymatgen.symmetry.groups.SymmetryGroup"><em>SymmetryGroup</em></a>) – Supergroup to test.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if this group is a subgroup of the supplied group.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.symmetry.groups.SymmetryGroup.is_supergroup">
+<code class="sig-name descname">is_supergroup</code><span class="sig-paren">(</span><em class="sig-param">subgroup</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/symmetry/groups.py#L77-L89"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.groups.SymmetryGroup.is_supergroup" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if this group is a supergroup of the supplied group.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>subgroup</strong> (<a class="reference internal" href="#pymatgen.symmetry.groups.SymmetryGroup" title="pymatgen.symmetry.groups.SymmetryGroup"><em>SymmetryGroup</em></a>) – Subgroup to test.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if this group is a supergroup of the supplied group.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.symmetry.groups.SymmetryGroup.symmetry_ops">
+<em class="property">abstract property </em><code class="sig-name descname">symmetry_ops</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/symmetry/groups.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.groups.SymmetryGroup.symmetry_ops" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of symmetry operations</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.symmetry.groups.in_array_list">
+<code class="sig-name descname">in_array_list</code><span class="sig-paren">(</span><em class="sig-param">array_list</em>, <em class="sig-param">a</em>, <em class="sig-param">tol=1e-05</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/symmetry/groups.py#L519-L540"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.groups.in_array_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extremely efficient nd-array comparison using numpy’s broadcasting. This
+function checks if a particular array a, is present in a list of arrays.
+It works for arrays of any size, e.g., even matrix searches.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>array_list</strong> (<em>[</em><em>array</em><em>]</em>) – A list of arrays to compare to.</p></li>
+<li><p><strong>a</strong> (<em>array</em>) – The test array for comparison.</p></li>
+<li><p><strong>tol</strong> (<em>float</em>) – The tolerance. Defaults to 1e-5. If 0, an exact match is
+done.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(bool)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.symmetry.groups.sg_symbol_from_int_number">
+<code class="sig-name descname">sg_symbol_from_int_number</code><span class="sig-paren">(</span><em class="sig-param">int_number</em>, <em class="sig-param">hexagonal=True</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/symmetry/groups.py#L490-L516"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.groups.sg_symbol_from_int_number" title="Permalink to this definition">¶</a></dt>
+<dd><p>Obtains a SpaceGroup name from its international number.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>int_number</strong> (<em>int</em>) – International number.</p></li>
+<li><p><strong>hexagonal</strong> (<em>bool</em>) – For rhombohedral groups, whether to return the
+hexagonal setting (default) or rhombohedral setting.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(str) Spacegroup symbol</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011, Pymatgen Development Team
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+  
+ 
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+
+</body>
+</html>

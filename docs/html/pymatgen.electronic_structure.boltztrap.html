@@ -1,0 +1,1218 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pymatgen.electronic_structure.boltztrap module &mdash; pymatgen 2020.1.28 documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pymatgen.orgpymatgen.electronic_structure.boltztrap.html"/>
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.electronic_structure.boltztrap2 module" href="pymatgen.electronic_structure.boltztrap2.html" />
+    <link rel="prev" title="pymatgen.electronic_structure.bandstructure module" href="pymatgen.electronic_structure.bandstructure.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pymatgen
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2020.1.28
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="team.html">Development Team</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API Docs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pymatgen.html">pymatgen package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="pymatgen.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.alchemy.html">pymatgen.alchemy package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.html">pymatgen.analysis package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.apps.html">pymatgen.apps package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.cli.html">pymatgen.cli package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.command_line.html">pymatgen.command_line package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html">pymatgen.core package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="pymatgen.electronic_structure.html">pymatgen.electronic_structure package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.entries.html">pymatgen.entries package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html">pymatgen.ext package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html">pymatgen.io package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.plugins.html">pymatgen.plugins package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.vis.html">pymatgen.vis package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#module-pymatgen">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pymatgen</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="modules.html">pymatgen</a> &raquo;</li>
+        
+          <li><a href="pymatgen.html">pymatgen package</a> &raquo;</li>
+        
+          <li><a href="pymatgen.electronic_structure.html">pymatgen.electronic_structure package</a> &raquo;</li>
+        
+      <li>pymatgen.electronic_structure.boltztrap module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.electronic_structure.boltztrap.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-pymatgen.electronic_structure.boltztrap">
+<span id="pymatgen-electronic-structure-boltztrap-module"></span><h1>pymatgen.electronic_structure.boltztrap module<a class="headerlink" href="#module-pymatgen.electronic_structure.boltztrap" title="Permalink to this headline">¶</a></h1>
+<p>This module provides classes to run and analyze boltztrap on pymatgen band
+structure objects. Boltztrap is a software interpolating band structures and
+computing materials properties from this band structure using Boltzmann
+semi-classical transport theory.</p>
+<p>Boltztrap has been developed by Georg Madsen.</p>
+<p><a class="reference external" href="http://www.icams.de/content/research/software-development/boltztrap/">http://www.icams.de/content/research/software-development/boltztrap/</a></p>
+<p>You need version 1.2.3 or higher</p>
+<p>References are:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Madsen</span><span class="p">,</span> <span class="n">G</span><span class="o">.</span> <span class="n">K</span><span class="o">.</span> <span class="n">H</span><span class="o">.</span><span class="p">,</span> <span class="ow">and</span> <span class="n">Singh</span><span class="p">,</span> <span class="n">D</span><span class="o">.</span> <span class="n">J</span><span class="o">.</span> <span class="p">(</span><span class="mi">2006</span><span class="p">)</span><span class="o">.</span>
+<span class="n">BoltzTraP</span><span class="o">.</span> <span class="n">A</span> <span class="n">code</span> <span class="k">for</span> <span class="n">calculating</span> <span class="n">band</span><span class="o">-</span><span class="n">structure</span> <span class="n">dependent</span> <span class="n">quantities</span><span class="o">.</span>
+<span class="n">Computer</span> <span class="n">Physics</span> <span class="n">Communications</span><span class="p">,</span> <span class="mi">175</span><span class="p">,</span> <span class="mi">67</span><span class="o">-</span><span class="mi">71</span>
+</pre></div>
+</div>
+<dl class="class">
+<dt id="pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer">
+<em class="property">class </em><code class="sig-name descname">BoltztrapAnalyzer</code><span class="sig-paren">(</span><em class="sig-param">gap=None</em>, <em class="sig-param">mu_steps=None</em>, <em class="sig-param">cond=None</em>, <em class="sig-param">seebeck=None</em>, <em class="sig-param">kappa=None</em>, <em class="sig-param">hall=None</em>, <em class="sig-param">doping=None</em>, <em class="sig-param">mu_doping=None</em>, <em class="sig-param">seebeck_doping=None</em>, <em class="sig-param">cond_doping=None</em>, <em class="sig-param">kappa_doping=None</em>, <em class="sig-param">hall_doping=None</em>, <em class="sig-param">intrans=None</em>, <em class="sig-param">dos=None</em>, <em class="sig-param">dos_partial=None</em>, <em class="sig-param">carrier_conc=None</em>, <em class="sig-param">vol=None</em>, <em class="sig-param">warning=None</em>, <em class="sig-param">bz_bands=None</em>, <em class="sig-param">bz_kpoints=None</em>, <em class="sig-param">fermi_surface_data=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/boltztrap.py#L769-L2220"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class used to store all the data from a boltztrap run</p>
+<p>Constructor taking directly all the data generated by Boltztrap. You
+won’t probably use it directly but instead use the from_files and
+from_dict methods.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>gap</strong> – The gap after interpolation in eV</p></li>
+<li><p><strong>mu_steps</strong> – The steps of electron chemical potential (or Fermi
+level) in eV.</p></li>
+<li><p><strong>cond</strong> – The electronic conductivity tensor divided by a constant
+relaxation time (sigma/tau) at different temperature and
+fermi levels.
+The format is {temperature: [array of 3x3 tensors at each
+fermi level in mu_steps]}. The units are 1/(Ohm*m*s).</p></li>
+<li><p><strong>seebeck</strong> – The Seebeck tensor at different temperatures and fermi
+levels. The format is {temperature: [array of 3x3 tensors at
+each fermi level in mu_steps]}. The units are V/K</p></li>
+<li><p><strong>kappa</strong> – The electronic thermal conductivity tensor divided by a
+constant relaxation time (kappa/tau) at different temperature
+and fermi levels. The format is {temperature: [array of 3x3
+tensors at each fermi level in mu_steps]}
+The units are W/(m*K*s)</p></li>
+<li><p><strong>hall</strong> – The hall tensor at different temperature and fermi levels
+The format is {temperature: [array of 27 coefficients list at
+each fermi level in mu_steps]}
+The units are m^3/C</p></li>
+<li><p><strong>doping</strong> – The different doping levels that have been given to
+Boltztrap. The format is {‘p’:[],’n’:[]} with an array of
+doping levels. The units are cm^-3</p></li>
+<li><p><strong>mu_doping</strong> – Gives the electron chemical potential (or Fermi level)
+for a given set of doping.
+Format is {‘p’:{temperature: [fermi levels],’n’:{temperature:
+[fermi levels]}}
+the fermi level array is ordered according to the doping
+levels in doping units for doping are in cm^-3 and for Fermi
+level in eV</p></li>
+<li><p><strong>seebeck_doping</strong> – The Seebeck tensor at different temperatures and
+doping levels. The format is {‘p’: {temperature: [Seebeck
+tensors]}, ‘n’:{temperature: [Seebeck tensors]}}
+The [Seebeck tensors] array is ordered according to the
+doping levels in doping units for doping are in cm^-3 and for
+Seebeck in V/K</p></li>
+<li><p><strong>cond_doping</strong> – The electronic conductivity tensor divided by a
+constant relaxation time (sigma/tau) at different
+temperatures and doping levels
+The format is {‘p’:{temperature: [conductivity tensors]},
+‘n’:{temperature: [conductivity tensors]}}
+The [conductivity tensors] array is ordered according to the
+doping levels in doping units for doping are in cm^-3 and for
+conductivity in 1/(Ohm*m*s)</p></li>
+<li><p><strong>kappa_doping</strong> – The thermal conductivity tensor divided by a constant
+relaxation time (kappa/tau) at different temperatures and
+doping levels.
+The format is {‘p’:{temperature: [thermal conductivity
+tensors]},’n’:{temperature: [thermal conductivity tensors]}}
+The [thermal conductivity tensors] array is ordered according
+to the doping levels in doping units for doping are in cm^-3
+and for thermal conductivity in W/(m*K*s)</p></li>
+<li><p><strong>hall_doping</strong> – The Hall tensor at different temperatures and doping
+levels.
+The format is {‘p’:{temperature: [Hall tensors]},
+‘n’:{temperature: [Hall tensors]}}
+The [Hall tensors] array is ordered according to the doping
+levels in doping and each Hall tensor is represented by a 27
+coefficients list.
+The units are m^3/C</p></li>
+<li><p><strong>intrans</strong> – a dictionary of inputs e.g. {“scissor”: 0.0}</p></li>
+<li><p><strong>carrier_conc</strong> – The concentration of carriers in electron (or hole)
+per unit cell</p></li>
+<li><p><strong>dos</strong> – The dos computed by Boltztrap given as a pymatgen Dos object</p></li>
+<li><p><strong>dos_partial</strong> – Data for the partial DOS projected on sites and
+orbitals</p></li>
+<li><p><strong>vol</strong> – Volume of the unit cell in angstrom cube (A^3)</p></li>
+<li><p><strong>warning</strong> – string if BoltzTraP outputted a warning, else None</p></li>
+<li><p><strong>bz_bands</strong> – Data for interpolated bands on a k-point line
+(run_type=BANDS)</p></li>
+<li><p><strong>bz_kpoints</strong> – k-point in reciprocal coordinates for interpolated
+bands (run_type=BANDS)</p></li>
+<li><p><strong>fermi_surface_data</strong> – energy values in a 3D grid imported from the
+output .cube file.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.as_dict">
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/boltztrap.py#L2112-L2134"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>MSONable dict.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.check_acc_bzt_bands">
+<em class="property">static </em><code class="sig-name descname">check_acc_bzt_bands</code><span class="sig-paren">(</span><em class="sig-param">sbs_bz</em>, <em class="sig-param">sbs_ref</em>, <em class="sig-param">warn_thr=(0.03</em>, <em class="sig-param">0.03)</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/boltztrap.py#L950-L1020"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.check_acc_bzt_bands" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compare sbs_bz BandStructureSymmLine calculated with boltztrap with
+the sbs_ref BandStructureSymmLine as reference (from MP for
+instance), computing correlation and energy difference for eight bands
+around the gap (semiconductors) or fermi level (metals).
+warn_thr is a threshold to get a warning in the accuracy of Boltztap
+interpolated bands.
+Return a dictionary with these keys:
+- “N”: the index of the band compared; inside each there are:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>“Corr”: correlation coefficient for the 8 compared bands</p></li>
+<li><p>“Dist”: energy distance for the 8 compared bands</p></li>
+<li><p>“branch_name”: energy distance for that branch</p></li>
+</ul>
+</div></blockquote>
+<ul class="simple">
+<li><p>“avg_corr”: average of correlation coefficient over the 8 bands</p></li>
+<li><p>“avg_dist”: average of energy distance over the 8 bands</p></li>
+<li><p>“nb_list”: list of indexes of the 8 compared bands</p></li>
+<li><dl class="simple">
+<dt>“acc_thr”: list of two float corresponing to the two warning</dt><dd><p>thresholds in input</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>“acc_err”: list of two bools:</dt><dd><p>True if the avg_corr &gt; warn_thr[0], and
+True if the avg_dist &gt; warn_thr[1]</p>
+</dd>
+</dl>
+</li>
+</ul>
+<p>See also compare_sym_bands function doc</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.from_dict">
+<em class="property">static </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">data</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/boltztrap.py#L2136-L2220"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> – Dict representation.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>BoltztrapAnalyzer</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.from_files">
+<em class="property">static </em><code class="sig-name descname">from_files</code><span class="sig-paren">(</span><em class="sig-param">path_dir</em>, <em class="sig-param">dos_spin=1</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/boltztrap.py#L2047-L2110"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.from_files" title="Permalink to this definition">¶</a></dt>
+<dd><p>get a BoltztrapAnalyzer object from a set of files</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path_dir</strong> – directory where the boltztrap files are</p></li>
+<li><p><strong>dos_spin</strong> – in DOS mode, set to 1 for spin up and -1 for spin down</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a BoltztrapAnalyzer object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_average_eff_mass">
+<code class="sig-name descname">get_average_eff_mass</code><span class="sig-paren">(</span><em class="sig-param">output='eigs'</em>, <em class="sig-param">doping_levels=True</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/boltztrap.py#L1307-L1382"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_average_eff_mass" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gives the average effective mass tensor. We call it average because
+it takes into account all the bands
+and regions in the Brillouin zone. This is different than the standard
+textbook effective mass which relates
+often to only one (parabolic) band.
+The average effective mass tensor is defined as the integrated
+average of the second derivative of E(k)
+This effective mass tensor takes into account:
+-non-parabolicity
+-multiple extrema
+-multiple bands</p>
+<p>For more information about it. See:</p>
+<p>Hautier, G., Miglio, A., Waroquiers, D., Rignanese, G., &amp; Gonze,
+X. (2014).
+How Does Chemistry Influence Electron Effective Mass in Oxides?
+A High-Throughput Computational Analysis. Chemistry of Materials,
+26(19), 5447–5458. doi:10.1021/cm404079a</p>
+<p>or</p>
+<p>Hautier, G., Miglio, A., Ceder, G., Rignanese, G.-M., &amp; Gonze,
+X. (2013).
+Identification and design principles of low hole effective mass
+p-type transparent conducting oxides.
+Nature Communications, 4, 2292. doi:10.1038/ncomms3292</p>
+<p>Depending on the value of output, we have either the full 3x3
+effective mass tensor,
+its 3 eigenvalues or an average</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>output</strong> (<em>string</em>) – ‘eigs’ for eigenvalues, ‘tensor’ for the full</p></li>
+<li><p><strong>and 'average' for an average</strong> (<em>tensor</em>) – </p></li>
+<li><p><strong>doping_levels</strong> (<em>boolean</em>) – True for the results to be given at</p></li>
+<li><p><strong>doping levels</strong><strong>, </strong><strong>False for results</strong> (<em>different</em>) – </p></li>
+<li><p><strong>different electron chemical potentials</strong> (<em>at</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>{temp:[]},’n’:{temp:[]}}
+with an array of effective mass tensor, eigenvalues of average
+value (depending on output) for each temperature and for each
+doping level.
+The ‘p’ links to hole effective mass tensor and ‘n’ to electron
+effective mass tensor.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>If doping_levels=True,a dictionary {‘p’</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_carrier_concentration">
+<code class="sig-name descname">get_carrier_concentration</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/boltztrap.py#L1729-L1740"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_carrier_concentration" title="Permalink to this definition">¶</a></dt>
+<dd><p>gives the carrier concentration (in cm^-3)</p>
+<dl class="simple">
+<dt>Returns</dt><dd><p>a dictionary {temp:[]} with an array of carrier concentration
+(in cm^-3) at each temperature
+The array relates to each step of electron chemical potential</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_complete_dos">
+<code class="sig-name descname">get_complete_dos</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">analyzer_for_second_spin=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/boltztrap.py#L1666-L1720"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_complete_dos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gives a CompleteDos object with the DOS from the interpolated
+projected band structure
+:param the structure:
+:type the structure: necessary to identify sites for projection
+:param analyzer_for_second_spin must be specified to have a:
+:param CompleteDos with both Spin components:</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>a CompleteDos object</p>
+</dd>
+</dl>
+<p>Example of use in case of spin polarized case:</p>
+<blockquote>
+<div><p>BoltztrapRunner(bs=bs,nelec=10,run_type=”DOS”,spin=1).run(path_dir=’dos_up/’)
+an_up=BoltztrapAnalyzer.from_files(“dos_up/boltztrap/”,dos_spin=1)</p>
+<p>BoltztrapRunner(bs=bs,nelec=10,run_type=”DOS”,spin=-1).run(path_dir=’dos_dw/’)
+an_dw=BoltztrapAnalyzer.from_files(“dos_dw/boltztrap/”,dos_spin=-1)</p>
+<p>cdos=an_up.get_complete_dos(bs.structure,an_dw)</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_complexity_factor">
+<code class="sig-name descname">get_complexity_factor</code><span class="sig-paren">(</span><em class="sig-param">output='average'</em>, <em class="sig-param">temp=300</em>, <em class="sig-param">doping_levels=False</em>, <em class="sig-param">Lambda=0.5</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/boltztrap.py#L1448-L1505"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_complexity_factor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fermi surface complexity factor respect to calculated as explained in Ref.
+Gibbs, Z. M. et al., Effective mass and fermi surface complexity factor
+from ab initio band structure calculations.
+npj Computational Materials 3, 8 (2017).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>output</strong> – ‘average’ returns the complexity factor calculated using the average
+of the three diagonal components of the seebeck and conductivity tensors.
+‘tensor’ returns the complexity factor respect to the three
+diagonal components of seebeck and conductivity tensors.</p></li>
+<li><p><strong>doping_levels</strong> – False means that the complexity factor is calculated
+for every value of the chemical potential
+True means that the complexity factor is calculated
+for every value of the doping levels for both n and p types</p></li>
+<li><p><strong>temp</strong> – temperature of calculated seebeck and conductivity.</p></li>
+<li><p><strong>Lambda</strong> – fitting parameter used to model the scattering (0.5 means constant
+relaxation time).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a list of values for the complexity factor w.r.t the chemical potential,
+if doping_levels is set at False;
+a dict with n an p keys that contain a list of values for the complexity factor
+w.r.t the doping levels, if doping_levels is set at True;
+if ‘tensor’ is selected, each element of the lists is a list containing
+the three components of the complexity factor.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_conductivity">
+<code class="sig-name descname">get_conductivity</code><span class="sig-paren">(</span><em class="sig-param">output='eigs'</em>, <em class="sig-param">doping_levels=True</em>, <em class="sig-param">relaxation_time=1e-14</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/boltztrap.py#L1057-L1093"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_conductivity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gives the conductivity (1/Ohm*m) in either a full 3x3 tensor
+form, as 3 eigenvalues, or as the average value
+(trace/3.0) If doping_levels=True, the results are given at
+different p and n doping
+levels (given by self.doping), otherwise it is given as a series
+of electron chemical potential values</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>output</strong> (<em>string</em>) – the type of output. ‘tensor’ give the full</p></li>
+<li><p><strong>tensor</strong><strong>, </strong><strong>'eigs' its 3 eigenvalues and</strong> (<em>3x3</em>) – </p></li>
+<li><p><strong>the average of the three eigenvalues</strong> (<em>'average'</em>) – </p></li>
+<li><p><strong>doping_levels</strong> (<em>boolean</em>) – True for the results to be given at</p></li>
+<li><p><strong>doping levels</strong><strong>, </strong><strong>False for results</strong> (<em>different</em>) – </p></li>
+<li><p><strong>different electron chemical potentials</strong> (<em>at</em>) – </p></li>
+<li><p><strong>relaxation_time</strong> (<em>float</em>) – constant relaxation time in secs</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p>{‘p’:[],’n’:[]}}.
+The ‘p’ links to conductivity
+at p-type doping and ‘n’ to the conductivity at n-type
+doping. Otherwise,
+returns a {temp:[]} dictionary. The result contains either
+the sorted three eigenvalues of the symmetric
+conductivity tensor (format=’eigs’) or a full tensor (3x3
+array) (output=’tensor’) or as an average
+(output=’average’).
+The result includes a given constant relaxation time</p>
+<p>units are 1/Ohm*m</p>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>If doping_levels=True, a dictionary {temp</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_extreme">
+<code class="sig-name descname">get_extreme</code><span class="sig-paren">(</span><em class="sig-param">target_prop</em>, <em class="sig-param">maximize=True</em>, <em class="sig-param">min_temp=None</em>, <em class="sig-param">max_temp=None</em>, <em class="sig-param">min_doping=None</em>, <em class="sig-param">max_doping=None</em>, <em class="sig-param">isotropy_tolerance=0.05</em>, <em class="sig-param">use_average=True</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/boltztrap.py#L1507-L1617"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_extreme" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method takes in eigenvalues over a range of carriers,
+temperatures, and doping levels, and tells you what is the “best”
+value that can be achieved for the given target_property. Note that
+this method searches the doping dict only, not the full mu dict.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target_prop</strong> – target property, i.e. “seebeck”, “power factor”,
+“conductivity”, “kappa”, or “zt”</p></li>
+<li><p><strong>maximize</strong> – True to maximize, False to minimize (e.g. kappa)</p></li>
+<li><p><strong>min_temp</strong> – minimum temperature allowed</p></li>
+<li><p><strong>max_temp</strong> – maximum temperature allowed</p></li>
+<li><p><strong>min_doping</strong> – minimum doping allowed (e.g., 1E18)</p></li>
+<li><p><strong>max_doping</strong> – maximum doping allowed (e.g., 1E20)</p></li>
+<li><p><strong>isotropy_tolerance</strong> – tolerance for isotropic (0.05 = 5%)</p></li>
+<li><p><strong>use_average</strong> – True for avg of eigenval, False for max eigenval</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>{“value”, “temperature”, “doping”, “isotropic”}</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>A dictionary with keys {“p”, “n”, “best”} with sub-keys</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_hall_carrier_concentration">
+<code class="sig-name descname">get_hall_carrier_concentration</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/boltztrap.py#L1742-L1761"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_hall_carrier_concentration" title="Permalink to this definition">¶</a></dt>
+<dd><p>gives the Hall carrier concentration (in cm^-3). This is the trace of
+the Hall tensor (see Boltztrap source code) Hall carrier concentration
+are not always exactly the same than carrier concentration.</p>
+<dl class="simple">
+<dt>Returns</dt><dd><p>a dictionary {temp:[]} with an array of Hall carrier concentration
+(in cm^-3) at each temperature The array relates to each step of
+electron chemical potential</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_mu_bounds">
+<code class="sig-name descname">get_mu_bounds</code><span class="sig-paren">(</span><em class="sig-param">temp=300</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/boltztrap.py#L1722-L1727"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_mu_bounds" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>temp</strong> – Temperature.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The chemical potential bounds at that temperature.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_power_factor">
+<code class="sig-name descname">get_power_factor</code><span class="sig-paren">(</span><em class="sig-param">output='eigs'</em>, <em class="sig-param">doping_levels=True</em>, <em class="sig-param">relaxation_time=1e-14</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/boltztrap.py#L1095-L1158"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_power_factor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gives the power factor (Seebeck^2 * conductivity) in units
+microW/(m*K^2) in either a full 3x3 tensor form,
+as 3 eigenvalues, or as the average value (trace/3.0) If
+doping_levels=True, the results are given at
+different p and n doping levels (given by self.doping), otherwise it
+is given as a series of
+electron chemical potential values</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>output</strong> (<em>string</em>) – the type of output. ‘tensor’ give the full 3x3</p></li>
+<li><p><strong>'eigs' its 3 eigenvalues and</strong> (<em>tensor</em><em>,</em>) – </p></li>
+<li><p><strong>the average of the three eigenvalues</strong> (<em>'average'</em>) – </p></li>
+<li><p><strong>doping_levels</strong> (<em>boolean</em>) – True for the results to be given at</p></li>
+<li><p><strong>doping levels</strong><strong>, </strong><strong>False for results</strong> (<em>different</em>) – </p></li>
+<li><p><strong>different electron chemical potentials</strong> (<em>at</em>) – </p></li>
+<li><p><strong>relaxation_time</strong> (<em>float</em>) – constant relaxation time in secs</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p>{‘p’:[],’n’:[]}}. The
+‘p’ links to power factor
+at p-type doping and ‘n’ to the conductivity at n-type doping.
+Otherwise,
+returns a {temp:[]} dictionary. The result contains either the
+sorted three eigenvalues of the symmetric
+power factor tensor (format=’eigs’) or a full tensor (3x3 array) (
+output=’tensor’) or as an average
+(output=’average’).
+The result includes a given constant relaxation time</p>
+<p>units are microW/(m K^2)</p>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>If doping_levels=True, a dictionnary {temp</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_seebeck">
+<code class="sig-name descname">get_seebeck</code><span class="sig-paren">(</span><em class="sig-param">output='eigs'</em>, <em class="sig-param">doping_levels=True</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/boltztrap.py#L1022-L1055"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_seebeck" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gives the seebeck coefficient (microV/K) in either a
+full 3x3 tensor form, as 3 eigenvalues, or as the average value
+(trace/3.0) If doping_levels=True, the results are given at
+different p and n doping
+levels (given by self.doping), otherwise it is given as a series
+of electron chemical potential values</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>output</strong> (<em>string</em>) – the type of output. ‘tensor’ give the full</p></li>
+<li><p><strong>tensor</strong><strong>, </strong><strong>'eigs' its 3 eigenvalues and</strong> (<em>3x3</em>) – </p></li>
+<li><p><strong>the average of the three eigenvalues</strong> (<em>'average'</em>) – </p></li>
+<li><p><strong>doping_levels</strong> (<em>boolean</em>) – True for the results to be given at</p></li>
+<li><p><strong>doping levels</strong><strong>, </strong><strong>False for results</strong> (<em>different</em>) – </p></li>
+<li><p><strong>different electron chemical potentials</strong> (<em>at</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p>{‘p’:[],’n’:[]}}.
+The ‘p’ links to Seebeck at p-type doping
+and ‘n’ to the Seebeck at n-type doping. Otherwise, returns a
+{temp:[]} dictionary
+The result contains either the sorted three eigenvalues of
+the symmetric
+Seebeck tensor (output=’eigs’) or a full tensor (3x3 array) (
+output=’tensor’) or as an average
+(output=’average’).</p>
+<p>units are microV/K</p>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>If doping_levels=True, a dictionary {temp</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_seebeck_eff_mass">
+<code class="sig-name descname">get_seebeck_eff_mass</code><span class="sig-paren">(</span><em class="sig-param">output='average'</em>, <em class="sig-param">temp=300</em>, <em class="sig-param">doping_levels=False</em>, <em class="sig-param">Lambda=0.5</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/boltztrap.py#L1384-L1446"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_seebeck_eff_mass" title="Permalink to this definition">¶</a></dt>
+<dd><p>Seebeck effective mass calculated as explained in Ref.
+Gibbs, Z. M. et al., Effective mass and fermi surface complexity factor
+from ab initio band structure calculations.
+npj Computational Materials 3, 8 (2017).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>output</strong> – ‘average’ returns the seebeck effective mass calculated using
+the average of the three diagonal components of the seebeck tensor.
+‘tensor’ returns the seebeck effective mass respect to the three
+diagonal components of the seebeck tensor.</p></li>
+<li><p><strong>doping_levels</strong> – False means that the seebeck effective mass is calculated
+for every value of the chemical potential
+True means that the seebeck effective mass is calculated
+for every value of the doping levels for both n and p types</p></li>
+<li><p><strong>temp</strong> – temperature of calculated seebeck.</p></li>
+<li><p><strong>Lambda</strong> – fitting parameter used to model the scattering (0.5 means constant
+relaxation time).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a list of values for the seebeck effective mass w.r.t the chemical potential,
+if doping_levels is set at False;
+a dict with n an p keys that contain a list of values for the seebeck effective
+mass w.r.t the doping levels, if doping_levels is set at True;
+if ‘tensor’ is selected, each element of the lists is a list containing
+the three components of the seebeck effective mass.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_symm_bands">
+<code class="sig-name descname">get_symm_bands</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">efermi</em>, <em class="sig-param">kpt_line=None</em>, <em class="sig-param">labels_dict=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/boltztrap.py#L884-L948"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_symm_bands" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function useful to read bands from Boltztrap output and get a
+BandStructureSymmLine object comparable with that one from a DFT
+calculation (if the same kpt_line is provided). Default kpt_line
+and labels_dict is the standard path of high symmetry k-point for
+the specified structure. They could be extracted from the
+BandStructureSymmLine object that you want to compare with. efermi
+variable must be specified to create the BandStructureSymmLine
+object (usually it comes from DFT or Boltztrap calc)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_thermal_conductivity">
+<code class="sig-name descname">get_thermal_conductivity</code><span class="sig-paren">(</span><em class="sig-param">output='eigs'</em>, <em class="sig-param">doping_levels=True</em>, <em class="sig-param">k_el=True</em>, <em class="sig-param">relaxation_time=1e-14</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/boltztrap.py#L1160-L1231"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_thermal_conductivity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gives the electronic part of the thermal conductivity in either a
+full 3x3 tensor form,
+as 3 eigenvalues, or as the average value (trace/3.0) If
+doping_levels=True, the results are given at
+different p and n doping levels (given by self.doping), otherwise it
+is given as a series of
+electron chemical potential values</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>output</strong> (<em>string</em>) – the type of output. ‘tensor’ give the full 3x3</p></li>
+<li><p><strong>'eigs' its 3 eigenvalues and</strong> (<em>tensor</em><em>,</em>) – </p></li>
+<li><p><strong>the average of the three eigenvalues</strong> (<em>'average'</em>) – </p></li>
+<li><p><strong>doping_levels</strong> (<em>boolean</em>) – True for the results to be given at</p></li>
+<li><p><strong>doping levels</strong><strong>, </strong><strong>False for results</strong> (<em>different</em>) – </p></li>
+<li><p><strong>different electron chemical potentials</strong> (<em>at</em>) – </p></li>
+<li><p><strong>k_el</strong> (<em>boolean</em>) – True for k_0-PF*T, False for k_0</p></li>
+<li><p><strong>relaxation_time</strong> (<em>float</em>) – constant relaxation time in secs</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p>{‘p’:[],’n’:[]}}. The
+‘p’ links to thermal conductivity
+at p-type doping and ‘n’ to the thermal conductivity at n-type
+doping. Otherwise,
+returns a {temp:[]} dictionary. The result contains either the
+sorted three eigenvalues of the symmetric
+conductivity tensor (format=’eigs’) or a full tensor (3x3 array) (
+output=’tensor’) or as an average
+(output=’average’).
+The result includes a given constant relaxation time</p>
+<p>units are W/mK</p>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>If doping_levels=True, a dictionary {temp</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_zt">
+<code class="sig-name descname">get_zt</code><span class="sig-paren">(</span><em class="sig-param">output='eigs'</em>, <em class="sig-param">doping_levels=True</em>, <em class="sig-param">relaxation_time=1e-14</em>, <em class="sig-param">kl=1.0</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/boltztrap.py#L1233-L1305"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_zt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gives the ZT coefficient (S^2*cond*T/thermal cond) in either a full
+3x3 tensor form,
+as 3 eigenvalues, or as the average value (trace/3.0) If
+doping_levels=True, the results are given at
+different p and n doping levels (given by self.doping), otherwise it
+is given as a series of
+electron chemical potential values. We assume a constant relaxation
+time and a constant
+lattice thermal conductivity</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>output</strong> (<em>string</em>) – the type of output. ‘tensor’ give the full 3x3</p></li>
+<li><p><strong>'eigs' its 3 eigenvalues and</strong> (<em>tensor</em><em>,</em>) – </p></li>
+<li><p><strong>the average of the three eigenvalues</strong> (<em>'average'</em>) – </p></li>
+<li><p><strong>doping_levels</strong> (<em>boolean</em>) – True for the results to be given at</p></li>
+<li><p><strong>doping levels</strong><strong>, </strong><strong>False for results</strong> (<em>different</em>) – </p></li>
+<li><p><strong>different electron chemical potentials</strong> (<em>at</em>) – </p></li>
+<li><p><strong>relaxation_time</strong> (<em>float</em>) – constant relaxation time in secs</p></li>
+<li><p><strong>k_l</strong> (<em>float</em>) – lattice thermal cond in W/(m*K)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>{‘p’:[],’n’:[]}}. The
+‘p’ links to ZT
+at p-type doping and ‘n’ to the ZT at n-type doping. Otherwise,
+returns a {temp:[]} dictionary. The result contains either the
+sorted three eigenvalues of the symmetric
+ZT tensor (format=’eigs’) or a full tensor (3x3 array) (
+output=’tensor’) or as an average
+(output=’average’).
+The result includes a given constant relaxation time and lattice
+thermal conductivity</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>If doping_levels=True, a dictionary {temp</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.parse_cond_and_hall">
+<em class="property">static </em><code class="sig-name descname">parse_cond_and_hall</code><span class="sig-paren">(</span><em class="sig-param">path_dir</em>, <em class="sig-param">doping_levels=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/boltztrap.py#L1914-L2045"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.parse_cond_and_hall" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses the conductivity and Hall tensors
+:param path_dir: Path containing .condtens / .halltens files
+:param doping_levels: ([float]) - doping lvls, parse outtrans to get this</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>mu_steps, cond, seebeck, kappa, hall, pn_doping_levels,
+mu_doping, seebeck_doping, cond_doping, kappa_doping,
+hall_doping, carrier_conc</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.parse_intrans">
+<em class="property">static </em><code class="sig-name descname">parse_intrans</code><span class="sig-paren">(</span><em class="sig-param">path_dir</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/boltztrap.py#L1875-L1896"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.parse_intrans" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses boltztrap.intrans mainly to extract the value of scissor applied
+to the bands or some other inputs</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path_dir</strong> – (str) dir containing the boltztrap.intrans file</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>a dictionary containing various inputs that had</dt><dd><p>been used in the Boltztrap run.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>intrans (dict)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.parse_outputtrans">
+<em class="property">static </em><code class="sig-name descname">parse_outputtrans</code><span class="sig-paren">(</span><em class="sig-param">path_dir</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/boltztrap.py#L1763-L1795"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.parse_outputtrans" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses .outputtrans file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path_dir</strong> – dir containing boltztrap.outputtrans</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>tuple - (run_type, warning, efermi, gap, doping_levels)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.parse_struct">
+<em class="property">static </em><code class="sig-name descname">parse_struct</code><span class="sig-paren">(</span><em class="sig-param">path_dir</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/boltztrap.py#L1898-L1912"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.parse_struct" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses boltztrap.struct file (only the volume)
+:param path_dir: (str) dir containing the boltztrap.struct file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>(float) volume</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.parse_transdos">
+<em class="property">static </em><code class="sig-name descname">parse_transdos</code><span class="sig-paren">(</span><em class="sig-param">path_dir</em>, <em class="sig-param">efermi</em>, <em class="sig-param">dos_spin=1</em>, <em class="sig-param">trim_dos=False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/boltztrap.py#L1797-L1873"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.parse_transdos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses .transdos (total DOS) and .transdos_x_y (partial DOS) files
+:param path_dir: (str) dir containing DOS files
+:param efermi: (float) Fermi energy
+:param dos_spin: (int) -1 for spin down, +1 for spin up
+:param trim_dos: (bool) whether to post-process / trim DOS</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>tuple - (DOS, dict of partial DOS)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="pymatgen.electronic_structure.boltztrap.BoltztrapError">
+<em class="property">exception </em><code class="sig-name descname">BoltztrapError</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/boltztrap.py#L761-L766"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Exception class for boltztrap.
+Raised when the boltztrap gives an error</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.electronic_structure.boltztrap.BoltztrapRunner">
+<em class="property">class </em><code class="sig-name descname">BoltztrapRunner</code><span class="sig-paren">(</span><em class="sig-param">bs</em>, <em class="sig-param">nelec</em>, <em class="sig-param">dos_type='HISTO'</em>, <em class="sig-param">energy_grid=0.005</em>, <em class="sig-param">lpfac=10</em>, <em class="sig-param">run_type='BOLTZ'</em>, <em class="sig-param">band_nb=None</em>, <em class="sig-param">tauref=0</em>, <em class="sig-param">tauexp=0</em>, <em class="sig-param">tauen=0</em>, <em class="sig-param">soc=False</em>, <em class="sig-param">doping=None</em>, <em class="sig-param">energy_span_around_fermi=1.5</em>, <em class="sig-param">scissor=0.0</em>, <em class="sig-param">kpt_line=None</em>, <em class="sig-param">spin=None</em>, <em class="sig-param">cond_band=False</em>, <em class="sig-param">tmax=1300</em>, <em class="sig-param">tgrid=50</em>, <em class="sig-param">symprec=0.001</em>, <em class="sig-param">cb_cut=10</em>, <em class="sig-param">timeout=7200</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/boltztrap.py#L56-L758"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapRunner" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
+<p>This class is used to run Boltztrap on a band structure object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bs</strong> – A band structure object</p></li>
+<li><p><strong>nelec</strong> – the number of electrons</p></li>
+<li><p><strong>dos_type</strong> – two options for the band structure integration: “HISTO”
+(histogram) or “TETRA” using the tetrahedon method. TETRA
+typically gives better results (especially for DOSes)
+but takes more time</p></li>
+<li><p><strong>energy_grid</strong> – the energy steps used for the integration (eV)</p></li>
+<li><p><strong>lpfac</strong> – the number of interpolation points in the real space. By
+default 10 gives 10 time more points in the real space than
+the number of kpoints given in reciprocal space</p></li>
+<li><p><strong>run_type</strong> – type of boltztrap usage. by default
+- BOLTZ: (default) compute transport coefficients
+- BANDS: interpolate all bands contained in the energy range
+specified in energy_span_around_fermi variable, along specified
+k-points
+- DOS: compute total and partial dos (custom BoltzTraP code
+needed!)
+- FERMI: compute fermi surface or more correctly to
+get certain bands interpolated</p></li>
+<li><p><strong>band_nb</strong> – indicates a band number. Used for Fermi Surface interpolation
+(run_type=”FERMI”)</p></li>
+<li><p><strong>spin</strong> – specific spin component (1: up, -1: down) of the band selected
+in FERMI mode (mandatory).</p></li>
+<li><p><strong>cond_band</strong> – if a conduction band is specified in FERMI mode,
+set this variable as True</p></li>
+<li><p><strong>tauref</strong> – reference relaxation time. Only set to a value different than
+zero if we want to model beyond the constant relaxation time.</p></li>
+<li><p><strong>tauexp</strong> – exponent for the energy in the non-constant relaxation time
+approach</p></li>
+<li><p><strong>tauen</strong> – reference energy for the non-constant relaxation time approach</p></li>
+<li><p><strong>soc</strong> – results from spin-orbit coupling (soc) computations give
+typically non-polarized (no spin up or down) results but single
+electron occupations. If the band structure comes from a soc
+computation, you should set soc to True (default False)</p></li>
+<li><p><strong>doping</strong> – the fixed doping levels you want to compute. Boltztrap provides
+both transport values depending on electron chemical potential
+(fermi energy) and for a series of fixed carrier
+concentrations. By default, this is set to 1e16 to 1e22 in
+increments of factors of 10.</p></li>
+<li><p><strong>energy_span_around_fermi</strong> – usually the interpolation is not needed on the entire energy
+range but on a specific range around the fermi level.
+This energy gives this range in eV. by default it is 1.5 eV.
+If DOS or BANDS type are selected, this range is automatically
+set to cover the entire energy range.</p></li>
+<li><p><strong>scissor</strong> – scissor to apply to the band gap (eV). This applies a scissor
+operation moving the band edges without changing the band
+shape. This is useful to correct the often underestimated band
+gap in DFT. Default is 0.0 (no scissor)</p></li>
+<li><p><strong>kpt_line</strong> – list of fractional coordinates of kpoints as arrays or list of
+Kpoint objects for BANDS mode calculation (standard path of
+high symmetry k-points is automatically set as default)</p></li>
+<li><p><strong>tmax</strong> – Maximum temperature (K) for calculation (default=1300)</p></li>
+<li><p><strong>tgrid</strong> – Temperature interval for calculation (default=50)</p></li>
+<li><p><strong>symprec</strong> – 1e-3 is the default in pymatgen. If the kmesh has been
+generated using a different symprec, it has to be specified
+to avoid a “factorization error” in BoltzTraP calculation.
+If a kmesh that spans the whole Brillouin zone has been used,
+or to disable all the symmetries, set symprec to None.</p></li>
+<li><p><strong>cb_cut</strong> – by default 10% of the highest conduction bands are
+removed because they are often not accurate.
+Tune cb_cut to change the percentage (0-100) of bands
+that are removed.</p></li>
+<li><p><strong>timeout</strong> – overall time limit (in seconds): mainly to avoid infinite
+loop when trying to find Fermi levels.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.electronic_structure.boltztrap.BoltztrapRunner.as_dict">
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/boltztrap.py#L732-L758"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapRunner.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>MSONable dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.boltztrap.BoltztrapRunner.bs">
+<em class="property">property </em><code class="sig-name descname">bs</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/boltztrap.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapRunner.bs" title="Permalink to this definition">¶</a></dt>
+<dd><p>The BandStructure</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.boltztrap.BoltztrapRunner.nelec">
+<em class="property">property </em><code class="sig-name descname">nelec</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/boltztrap.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapRunner.nelec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of electrons</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.boltztrap.BoltztrapRunner.run">
+<code class="sig-name descname">run</code><span class="sig-paren">(</span><em class="sig-param">path_dir=None</em>, <em class="sig-param">convergence=True</em>, <em class="sig-param">write_input=True</em>, <em class="sig-param">clear_dir=False</em>, <em class="sig-param">max_lpfac=150</em>, <em class="sig-param">min_egrid=5e-05</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/boltztrap.py#L568-L730"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapRunner.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write inputs (optional), run BoltzTraP, and ensure
+convergence (optional)
+:param path_dir: directory in which to run BoltzTraP
+:type path_dir: str
+:param convergence: whether to check convergence and make</p>
+<blockquote>
+<div><p>corrections if needed</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>write_input</strong> – (bool) whether to write input files before the run
+(required for convergence mode)</p></li>
+<li><p><strong>clear_dir</strong> – (bool) whether to remove all files in the path_dir
+before starting</p></li>
+<li><p><strong>max_lpfac</strong> – (float) maximum lpfac value to try before reducing egrid
+in convergence mode</p></li>
+<li><p><strong>min_egrid</strong> – (float) minimum egrid value to try before giving up in
+convergence mode</p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.boltztrap.BoltztrapRunner.write_def">
+<code class="sig-name descname">write_def</code><span class="sig-paren">(</span><em class="sig-param">output_file</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/boltztrap.py#L329-L362"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapRunner.write_def" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes the def to an output file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>output_file</strong> – Filename</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.boltztrap.BoltztrapRunner.write_energy">
+<code class="sig-name descname">write_energy</code><span class="sig-paren">(</span><em class="sig-param">output_file</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/boltztrap.py#L239-L294"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapRunner.write_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes the energy to an output file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>output_file</strong> – Filename</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.boltztrap.BoltztrapRunner.write_input">
+<code class="sig-name descname">write_input</code><span class="sig-paren">(</span><em class="sig-param">output_dir</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/boltztrap.py#L549-L566"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapRunner.write_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes the input files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>output_dir</strong> – Directory to write the input files.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.boltztrap.BoltztrapRunner.write_intrans">
+<code class="sig-name descname">write_intrans</code><span class="sig-paren">(</span><em class="sig-param">output_file</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/boltztrap.py#L438-L547"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapRunner.write_intrans" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes the intrans to an output file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>output_file</strong> – Filename</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.boltztrap.BoltztrapRunner.write_proj">
+<code class="sig-name descname">write_proj</code><span class="sig-paren">(</span><em class="sig-param">output_file_proj</em>, <em class="sig-param">output_file_def</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/boltztrap.py#L364-L436"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapRunner.write_proj" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes the projections to an output file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>output_file</strong> – Filename</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.boltztrap.BoltztrapRunner.write_struct">
+<code class="sig-name descname">write_struct</code><span class="sig-paren">(</span><em class="sig-param">output_file</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/boltztrap.py#L296-L327"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapRunner.write_struct" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes the structure to an output file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>output_file</strong> – Filename</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.electronic_structure.boltztrap.compare_sym_bands">
+<code class="sig-name descname">compare_sym_bands</code><span class="sig-paren">(</span><em class="sig-param">bands_obj</em>, <em class="sig-param">bands_ref_obj</em>, <em class="sig-param">nb=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/boltztrap.py#L2266-L2338"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.compare_sym_bands" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the mean of correlation between bzt and vasp bandstructure on
+sym line, for all bands and locally (for each branches) the difference
+squared (%) if nb is specified.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.electronic_structure.boltztrap.eta_from_seebeck">
+<code class="sig-name descname">eta_from_seebeck</code><span class="sig-paren">(</span><em class="sig-param">seeb</em>, <em class="sig-param">Lambda</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/boltztrap.py#L2351-L2359"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.eta_from_seebeck" title="Permalink to this definition">¶</a></dt>
+<dd><p>It takes a value of seebeck and adjusts the analytic seebeck until it’s equal
+Returns: eta where the two seebeck coefficients are equal
+(reduced chemical potential)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.electronic_structure.boltztrap.read_cube_file">
+<code class="sig-name descname">read_cube_file</code><span class="sig-paren">(</span><em class="sig-param">filename</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/boltztrap.py#L2223-L2263"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.read_cube_file" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> – Cube filename</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Energy data.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.electronic_structure.boltztrap.seebeck_eff_mass_from_carr">
+<code class="sig-name descname">seebeck_eff_mass_from_carr</code><span class="sig-paren">(</span><em class="sig-param">eta</em>, <em class="sig-param">n</em>, <em class="sig-param">T</em>, <em class="sig-param">Lambda</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/boltztrap.py#L2362-L2374"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.seebeck_eff_mass_from_carr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate seebeck effective mass at a certain carrier concentration
+eta in kB*T units, n in cm-3, T in K, returns mass in m0 units</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.electronic_structure.boltztrap.seebeck_eff_mass_from_seebeck_carr">
+<code class="sig-name descname">seebeck_eff_mass_from_seebeck_carr</code><span class="sig-paren">(</span><em class="sig-param">seeb</em>, <em class="sig-param">n</em>, <em class="sig-param">T</em>, <em class="sig-param">Lambda</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/boltztrap.py#L2377-L2385"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.seebeck_eff_mass_from_seebeck_carr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the chemical potential where analytic and calculated seebeck are identical
+and then calculate the seebeck effective mass at that chemical potential and
+a certain carrier concentration n</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.electronic_structure.boltztrap.seebeck_spb">
+<code class="sig-name descname">seebeck_spb</code><span class="sig-paren">(</span><em class="sig-param">eta</em>, <em class="sig-param">Lambda=0.5</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/boltztrap.py#L2341-L2348"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.seebeck_spb" title="Permalink to this definition">¶</a></dt>
+<dd><p>Seebeck analytic formula in the single parabolic model</p>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011, Pymatgen Development Team
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+  
+ 
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+
+</body>
+</html>

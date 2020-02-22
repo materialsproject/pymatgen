@@ -1,8 +1,9 @@
 Change log
 ==========
 
-v2019.12.22
------------
-* Improvements to reaction calculator (@mattmcdermott)
-* VASP input set for SCAN from Materials Project, MPScanSet (@rkingsbury)
-* Bug fixes and documentation improvements (@LindaHung-TRI, @rkingsbury, @kwaters4, @rwoodsrobinson, @JaGeo, @nishiyamat, @smheidrich)
+v2020.1.10
+----------
+* New connectivity analysis in Chemenv (@davidwaroquiers)
+* Improvements to DOSPlotter (@uthpalah)
+* Improvements to writing VASP input sets (@rkingsbury)
+* Bug fix for PhaseDiagram (@montoyjh)

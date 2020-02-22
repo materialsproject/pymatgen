@@ -1646,6 +1646,30 @@ class Outcar:
         self.final_energy = total_energy
         self.data = {}
 
+        # Read "total number of plane waves", NPLWV:
+        self.read_pattern(
+            {"nplwv": r"total plane-waves  NPLWV =\s+(\*{6}|\d+)"},
+            terminate_on_match=True
+        )
+        try:
+            self.data["nplwv"] = [[int(self.data["nplwv"][0][0])]]
+        except ValueError:
+            self.data["nplwv"] = [[None]]
+
+        nplwvs_at_kpoints = [
+            n for [n] in self.read_table_pattern(
+                r"\n{3}-{104}\n{3}",
+                r".+plane waves:\s+(\*{6,}|\d+)",
+                r"maximum and minimum number of plane-waves"
+            )
+        ]
+        self.data["nplwvs_at_kpoints"] = [None for n in nplwvs_at_kpoints]
+        for (n, nplwv) in enumerate(nplwvs_at_kpoints):
+            try:
+                self.data["nplwvs_at_kpoints"][n] = int(nplwv)
+            except ValueError:
+                pass
+
         # Read the drift:
         self.read_pattern({
             "drift": r"total drift:\s+([\.\-\d]+)\s+([\.\-\d]+)\s+([\.\-\d]+)"},
@@ -3249,7 +3273,7 @@ class VolumetricData(MSONable):
             f.attrs["structure_json"] = json.dumps(self.structure.as_dict())
 
     @classmethod
-    def from_hdf5(cls, filename):
+    def from_hdf5(cls, filename, **kwargs):
         """
         Reads VolumetricData from HDF5 file.
 
@@ -3259,8 +3283,11 @@ class VolumetricData(MSONable):
         import h5py
         with h5py.File(filename, "r") as f:
             data = {k: np.array(v) for k, v in f["vdata"].items()}
+            data_aug = None
+            if 'vdata_aug' in f:
+                data_aug = {k: np.array(v) for k, v in f["vdata_aug"].items()}
             structure = Structure.from_dict(json.loads(f.attrs["structure_json"]))
-            return cls(structure=structure, data=data)
+            return cls(structure, data=data, data_aug=data_aug, **kwargs)
 
 
 class Locpot(VolumetricData):
@@ -3277,8 +3304,8 @@ class Locpot(VolumetricData):
         super().__init__(poscar.structure, data)
         self.name = poscar.comment
 
-    @staticmethod
-    def from_file(filename):
+    @classmethod
+    def from_file(cls, filename, **kwargs):
         """
         Reads a LOCPOT file.
 
@@ -3286,7 +3313,7 @@ class Locpot(VolumetricData):
         :return: Locpot
         """
         (poscar, data, data_aug) = VolumetricData.parse_file(filename)
-        return Locpot(poscar, data)
+        return cls(poscar, data, **kwargs)
 
 
 class Chgcar(VolumetricData):
@@ -3299,10 +3326,19 @@ class Chgcar(VolumetricData):
         Args:
             poscar (Poscar): Poscar object containing structure.
             data: Actual data.
+            data_aug: Augmentation charge data
         """
-        super().__init__(poscar.structure, data, data_aug=data_aug)
-        self.poscar = poscar
-        self.name = poscar.comment
+        # allow for poscar or structure files to be passed
+        if isinstance(poscar, Poscar):
+            tmp_struct = poscar.structure
+            self.poscar = poscar
+            self.name = poscar.comment
+        elif isinstance(poscar, Structure):
+            tmp_struct = poscar
+            self.poscar = Poscar(poscar)
+            self.name = None
+
+        super().__init__(tmp_struct, data, data_aug=data_aug)
         self._distance_matrix = {}
 
     @staticmethod

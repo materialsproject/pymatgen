@@ -1,0 +1,544 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pymatgen.apps.borg.hive module &mdash; pymatgen 2020.1.28 documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pymatgen.orgpymatgen.apps.borg.hive.html"/>
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.apps.borg.queen module" href="pymatgen.apps.borg.queen.html" />
+    <link rel="prev" title="pymatgen.apps.borg package" href="pymatgen.apps.borg.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pymatgen
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2020.1.28
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="team.html">Development Team</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API Docs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pymatgen.html">pymatgen package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="pymatgen.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.alchemy.html">pymatgen.alchemy package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.html">pymatgen.analysis package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="pymatgen.apps.html">pymatgen.apps package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.cli.html">pymatgen.cli package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.command_line.html">pymatgen.command_line package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html">pymatgen.core package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.electronic_structure.html">pymatgen.electronic_structure package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.entries.html">pymatgen.entries package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html">pymatgen.ext package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html">pymatgen.io package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.plugins.html">pymatgen.plugins package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.vis.html">pymatgen.vis package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#module-pymatgen">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pymatgen</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="modules.html">pymatgen</a> &raquo;</li>
+        
+          <li><a href="pymatgen.html">pymatgen package</a> &raquo;</li>
+        
+          <li><a href="pymatgen.apps.html">pymatgen.apps package</a> &raquo;</li>
+        
+          <li><a href="pymatgen.apps.borg.html">pymatgen.apps.borg package</a> &raquo;</li>
+        
+      <li>pymatgen.apps.borg.hive module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.apps.borg.hive.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-pymatgen.apps.borg.hive">
+<span id="pymatgen-apps-borg-hive-module"></span><h1>pymatgen.apps.borg.hive module<a class="headerlink" href="#module-pymatgen.apps.borg.hive" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pymatgen.apps.borg.hive.AbstractDrone">
+<em class="property">class </em><code class="sig-name descname">AbstractDrone</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/apps/borg/hive.py#L35-L78"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.borg.hive.AbstractDrone" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
+<p>Abstract drone class that defines the various methods that must be
+implemented by drones. Because of the quirky nature of Python”s
+multiprocessing, the intermediate data representations has to be in the
+form of python primitives. So all objects that drones work with must be
+MSONable. All drones must also implement the standard MSONable as_dict() and
+from_dict API.</p>
+<dl class="method">
+<dt id="pymatgen.apps.borg.hive.AbstractDrone.assimilate">
+<em class="property">abstract </em><code class="sig-name descname">assimilate</code><span class="sig-paren">(</span><em class="sig-param">path</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/apps/borg/hive.py#L45-L58"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.borg.hive.AbstractDrone.assimilate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assimilate data in a directory path into a pymatgen object. Because of
+the quirky nature of Python”s multiprocessing, the object must support
+pymatgen’s as_dict() for parallel processing.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> – directory path</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>An assimilated object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.apps.borg.hive.AbstractDrone.get_valid_paths">
+<em class="property">abstract </em><code class="sig-name descname">get_valid_paths</code><span class="sig-paren">(</span><em class="sig-param">path</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/apps/borg/hive.py#L60-L78"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.borg.hive.AbstractDrone.get_valid_paths" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if path contains valid data for assimilation, and then returns
+the valid paths. The paths returned can be a list of directory or file
+paths, depending on what kind of data you are assimilating. For
+example, if you are assimilating VASP runs, you are only interested in
+directories containing vasprun.xml files. On the other hand, if you are
+interested converting all POSCARs in a directory tree to cifs for
+example, you will want the file paths.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> – input path as a tuple generated from os.walk, i.e.,
+(parent, subdirs, files).</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of valid dir/file paths for assimilation</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.apps.borg.hive.GaussianToComputedEntryDrone">
+<em class="property">class </em><code class="sig-name descname">GaussianToComputedEntryDrone</code><span class="sig-paren">(</span><em class="sig-param">inc_structure=False</em>, <em class="sig-param">parameters=None</em>, <em class="sig-param">data=None</em>, <em class="sig-param">file_extensions=('.log'</em>, <em class="sig-param">)</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/apps/borg/hive.py#L289-L374"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.borg.hive.GaussianToComputedEntryDrone" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.apps.borg.hive.AbstractDrone" title="pymatgen.apps.borg.hive.AbstractDrone"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.apps.borg.hive.AbstractDrone</span></code></a></p>
+<p>GaussianToEntryDrone assimilates directories containing Gaussian output to
+ComputedEntry/ComputedStructureEntry objects. By default, it is assumed
+that Gaussian output files have a “.log” extension.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inc_structure</strong> (<em>bool</em>) – Set to True if you want
+ComputedStructureEntries to be returned instead of
+ComputedEntries.</p></li>
+<li><p><strong>parameters</strong> (<em>list</em>) – Input parameters to include. It has to be one of
+the properties supported by the GaussianOutput object. See
+<code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.gaussianio</span> <span class="pre">GaussianOutput</span></code>. The parameters
+have to be one of python”s primitive types, i.e., list, dict of
+strings and integers. If parameters is None, a default set of
+parameters will be set.</p></li>
+<li><p><strong>data</strong> (<em>list</em>) – Output data to include. Has to be one of the properties
+supported by the GaussianOutput object. The parameters have to
+be one of python”s primitive types, i.e. list, dict of strings
+and integers. If data is None, a default set will be set.</p></li>
+<li><p><strong>file_extensions</strong> (<em>list</em>) – File extensions to be considered as Gaussian output files.
+Defaults to just the typical “log” extension.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Like the GaussianOutput class, this is still in early beta.</p>
+</div>
+<dl class="method">
+<dt id="pymatgen.apps.borg.hive.GaussianToComputedEntryDrone.as_dict">
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/apps/borg/hive.py#L364-L370"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.borg.hive.GaussianToComputedEntryDrone.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>A JSON serializable dict representation of an object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.apps.borg.hive.GaussianToComputedEntryDrone.assimilate">
+<code class="sig-name descname">assimilate</code><span class="sig-paren">(</span><em class="sig-param">path</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/apps/borg/hive.py#L333-L354"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.borg.hive.GaussianToComputedEntryDrone.assimilate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assimilate data in a directory path into a pymatgen object. Because of
+the quirky nature of Python”s multiprocessing, the object must support
+pymatgen’s as_dict() for parallel processing.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> – directory path</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>An assimilated object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.apps.borg.hive.GaussianToComputedEntryDrone.from_dict">
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/apps/borg/hive.py#L372-L374"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.borg.hive.GaussianToComputedEntryDrone.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>d</strong> – Dict representation.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>MSONable class.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.apps.borg.hive.GaussianToComputedEntryDrone.get_valid_paths">
+<code class="sig-name descname">get_valid_paths</code><span class="sig-paren">(</span><em class="sig-param">path</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/apps/borg/hive.py#L356-L359"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.borg.hive.GaussianToComputedEntryDrone.get_valid_paths" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if path contains valid data for assimilation, and then returns
+the valid paths. The paths returned can be a list of directory or file
+paths, depending on what kind of data you are assimilating. For
+example, if you are assimilating VASP runs, you are only interested in
+directories containing vasprun.xml files. On the other hand, if you are
+interested converting all POSCARs in a directory tree to cifs for
+example, you will want the file paths.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> – input path as a tuple generated from os.walk, i.e.,
+(parent, subdirs, files).</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of valid dir/file paths for assimilation</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.apps.borg.hive.SimpleVaspToComputedEntryDrone">
+<em class="property">class </em><code class="sig-name descname">SimpleVaspToComputedEntryDrone</code><span class="sig-paren">(</span><em class="sig-param">inc_structure=False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/apps/borg/hive.py#L173-L286"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.borg.hive.SimpleVaspToComputedEntryDrone" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.apps.borg.hive.VaspToComputedEntryDrone" title="pymatgen.apps.borg.hive.VaspToComputedEntryDrone"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.apps.borg.hive.VaspToComputedEntryDrone</span></code></a></p>
+<p>A simpler VaspToComputedEntryDrone. Instead of parsing vasprun.xml, it
+parses only the INCAR, POTCAR, OSZICAR and KPOINTS files, which are much
+smaller and faster to parse. However, much fewer properties are available
+compared to the standard VaspToComputedEntryDrone.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>inc_structure</strong> (<em>bool</em>) – Set to True if you want
+ComputedStructureEntries to be returned instead of
+ComputedEntries. Structure will be parsed from the CONTCAR.</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.apps.borg.hive.SimpleVaspToComputedEntryDrone.as_dict">
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/apps/borg/hive.py#L279-L282"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.borg.hive.SimpleVaspToComputedEntryDrone.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>A JSON serializable dict representation of an object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.apps.borg.hive.SimpleVaspToComputedEntryDrone.assimilate">
+<code class="sig-name descname">assimilate</code><span class="sig-paren">(</span><em class="sig-param">path</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/apps/borg/hive.py#L191-L274"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.borg.hive.SimpleVaspToComputedEntryDrone.assimilate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assimilate data in a directory path into a pymatgen object. Because of
+the quirky nature of Python”s multiprocessing, the object must support
+pymatgen’s as_dict() for parallel processing.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> – directory path</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>An assimilated object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.apps.borg.hive.SimpleVaspToComputedEntryDrone.from_dict">
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/apps/borg/hive.py#L284-L286"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.borg.hive.SimpleVaspToComputedEntryDrone.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>d</strong> – Dict representation.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>MSONable class.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.apps.borg.hive.VaspToComputedEntryDrone">
+<em class="property">class </em><code class="sig-name descname">VaspToComputedEntryDrone</code><span class="sig-paren">(</span><em class="sig-param">inc_structure=False</em>, <em class="sig-param">parameters=None</em>, <em class="sig-param">data=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/apps/borg/hive.py#L81-L170"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.borg.hive.VaspToComputedEntryDrone" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.apps.borg.hive.AbstractDrone" title="pymatgen.apps.borg.hive.AbstractDrone"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.apps.borg.hive.AbstractDrone</span></code></a></p>
+<p>VaspToEntryDrone assimilates directories containing vasp output to
+ComputedEntry/ComputedStructureEntry objects. There are some restrictions
+on the valid directory structures:</p>
+<ol class="arabic simple">
+<li><p>There can be only one vasp run in each directory.</p></li>
+<li><p>Directories designated “relax1”, “relax2” are considered to be 2 parts
+of an aflow style run, and only “relax2” is parsed.</p></li>
+<li><p>The drone parses only the vasprun.xml file.</p></li>
+</ol>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inc_structure</strong> (<em>bool</em>) – Set to True if you want
+ComputedStructureEntries to be returned instead of
+ComputedEntries.</p></li>
+<li><p><strong>parameters</strong> (<em>list</em>) – Input parameters to include. It has to be one of
+the properties supported by the Vasprun object. See
+<code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.vasp.Vasprun</span></code>. If parameters is None,
+a default set of parameters that are necessary for typical
+post-processing will be set.</p></li>
+<li><p><strong>data</strong> (<em>list</em>) – Output data to include. Has to be one of the properties
+supported by the Vasprun object.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.apps.borg.hive.VaspToComputedEntryDrone.as_dict">
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/apps/borg/hive.py#L160-L166"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.borg.hive.VaspToComputedEntryDrone.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>A JSON serializable dict representation of an object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.apps.borg.hive.VaspToComputedEntryDrone.assimilate">
+<code class="sig-name descname">assimilate</code><span class="sig-paren">(</span><em class="sig-param">path</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/apps/borg/hive.py#L114-L142"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.borg.hive.VaspToComputedEntryDrone.assimilate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assimilate data in a directory path into a pymatgen object. Because of
+the quirky nature of Python”s multiprocessing, the object must support
+pymatgen’s as_dict() for parallel processing.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> – directory path</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>An assimilated object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.apps.borg.hive.VaspToComputedEntryDrone.from_dict">
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/apps/borg/hive.py#L168-L170"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.borg.hive.VaspToComputedEntryDrone.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>d</strong> – Dict representation.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>MSONable class.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.apps.borg.hive.VaspToComputedEntryDrone.get_valid_paths">
+<code class="sig-name descname">get_valid_paths</code><span class="sig-paren">(</span><em class="sig-param">path</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/apps/borg/hive.py#L144-L155"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.borg.hive.VaspToComputedEntryDrone.get_valid_paths" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if path contains valid data for assimilation, and then returns
+the valid paths. The paths returned can be a list of directory or file
+paths, depending on what kind of data you are assimilating. For
+example, if you are assimilating VASP runs, you are only interested in
+directories containing vasprun.xml files. On the other hand, if you are
+interested converting all POSCARs in a directory tree to cifs for
+example, you will want the file paths.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> – input path as a tuple generated from os.walk, i.e.,
+(parent, subdirs, files).</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of valid dir/file paths for assimilation</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011, Pymatgen Development Team
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+  
+ 
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+
+</body>
+</html>

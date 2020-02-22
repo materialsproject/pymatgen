@@ -245,6 +245,8 @@ class IcohplistTest(unittest.TestCase):
         self.icoop_bise = Icohplist(filename=os.path.join(test_dir, "ICOOPLIST.lobster.BiSe"),
                                     are_coops=True)
         self.icohp_fe = Icohplist(filename=os.path.join(test_dir, "ICOHPLIST.lobster"))
+        # allow gzipped files
+        self.icohp_gzipped = Icohplist(filename=os.path.join(test_dir, "ICOHPLIST.lobster.gz"))
         self.icoop_fe = Icohplist(filename=os.path.join(test_dir, "ICOHPLIST.lobster"), are_coops=True)
 
     def test_attributes(self):

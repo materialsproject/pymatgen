@@ -1,0 +1,559 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pymatgen.io.feff.sets module &mdash; pymatgen 2020.1.28 documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pymatgen.orgpymatgen.io.feff.sets.html"/>
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.io.lammps package" href="pymatgen.io.lammps.html" />
+    <link rel="prev" title="pymatgen.io.feff.outputs module" href="pymatgen.io.feff.outputs.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pymatgen
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2020.1.28
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="team.html">Development Team</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API Docs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pymatgen.html">pymatgen package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="pymatgen.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.alchemy.html">pymatgen.alchemy package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.html">pymatgen.analysis package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.apps.html">pymatgen.apps package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.cli.html">pymatgen.cli package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.command_line.html">pymatgen.command_line package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html">pymatgen.core package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.electronic_structure.html">pymatgen.electronic_structure package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.entries.html">pymatgen.entries package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html">pymatgen.ext package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="pymatgen.io.html">pymatgen.io package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.plugins.html">pymatgen.plugins package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.vis.html">pymatgen.vis package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#module-pymatgen">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pymatgen</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="modules.html">pymatgen</a> &raquo;</li>
+        
+          <li><a href="pymatgen.html">pymatgen package</a> &raquo;</li>
+        
+          <li><a href="pymatgen.io.html">pymatgen.io package</a> &raquo;</li>
+        
+          <li><a href="pymatgen.io.feff.html">pymatgen.io.feff package</a> &raquo;</li>
+        
+      <li>pymatgen.io.feff.sets module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.io.feff.sets.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-pymatgen.io.feff.sets">
+<span id="pymatgen-io-feff-sets-module"></span><h1>pymatgen.io.feff.sets module<a class="headerlink" href="#module-pymatgen.io.feff.sets" title="Permalink to this headline">¶</a></h1>
+<p>This module defines the FeffInputSet abstract base class and a concrete
+implementation for the Materials Project.  The basic concept behind an input
+set is to specify a scheme to generate a consistent set of Feff inputs from a
+structure without further user intervention. This ensures comparability across
+runs.</p>
+<dl class="class">
+<dt id="pymatgen.io.feff.sets.AbstractFeffInputSet">
+<em class="property">class </em><code class="sig-name descname">AbstractFeffInputSet</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/feff/sets.py#L43-L125"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.sets.AbstractFeffInputSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
+<p>Abstract base class representing a set of Feff input parameters.
+The idea is that using a FeffInputSet, a complete set of input files
+(feffPOT, feffXANES, feffEXAFS, ATOMS, feff.inp)set_
+can be generated in an automated fashion for any structure.</p>
+<dl class="method">
+<dt id="pymatgen.io.feff.sets.AbstractFeffInputSet.all_input">
+<code class="sig-name descname">all_input</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/feff/sets.py#L85-L94"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.sets.AbstractFeffInputSet.all_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns all input files as a dict of {filename: feffio object}</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.feff.sets.AbstractFeffInputSet.atoms">
+<em class="property">abstract property </em><code class="sig-name descname">atoms</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/feff/sets.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.sets.AbstractFeffInputSet.atoms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns Atoms string from a structure that goes in feff.inp file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Atoms object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.feff.sets.AbstractFeffInputSet.header">
+<em class="property">abstract </em><code class="sig-name descname">header</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/feff/sets.py#L51-L56"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.sets.AbstractFeffInputSet.header" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns header to be used in feff.inp file from a pymatgen structure</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.feff.sets.AbstractFeffInputSet.potential">
+<em class="property">abstract property </em><code class="sig-name descname">potential</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/feff/sets.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.sets.AbstractFeffInputSet.potential" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns POTENTIAL section used in feff.inp from a structure.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.feff.sets.AbstractFeffInputSet.tags">
+<em class="property">abstract property </em><code class="sig-name descname">tags</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/feff/sets.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.sets.AbstractFeffInputSet.tags" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns standard calculation parameters.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.feff.sets.AbstractFeffInputSet.write_input">
+<code class="sig-name descname">write_input</code><span class="sig-paren">(</span><em class="sig-param">output_dir='.'</em>, <em class="sig-param">make_dir_if_not_present=True</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/feff/sets.py#L96-L125"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.sets.AbstractFeffInputSet.write_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes a set of FEFF input to a directory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>output_dir</strong> – Directory to output the FEFF input files</p></li>
+<li><p><strong>make_dir_if_not_present</strong> – Set to True if you want the directory (
+and the whole path) to be created if it is not present.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.io.feff.sets.FEFFDictSet">
+<em class="property">class </em><code class="sig-name descname">FEFFDictSet</code><span class="sig-paren">(</span><em class="sig-param">absorbing_atom</em>, <em class="sig-param">structure</em>, <em class="sig-param">radius</em>, <em class="sig-param">config_dict</em>, <em class="sig-param">edge='K'</em>, <em class="sig-param">spectrum='EXAFS'</em>, <em class="sig-param">nkpts=1000</em>, <em class="sig-param">user_tag_settings=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/feff/sets.py#L128-L301"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.sets.FEFFDictSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.feff.sets.AbstractFeffInputSet" title="pymatgen.io.feff.sets.AbstractFeffInputSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.feff.sets.AbstractFeffInputSet</span></code></a></p>
+<p>Standard implementation of FeffInputSet, which can be extended by specific
+implementations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>absorbing_atom</strong> (<em>str/int</em>) – absorbing atom symbol or site index</p></li>
+<li><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – input structure</p></li>
+<li><p><strong>radius</strong> (<em>float</em>) – cluster radius</p></li>
+<li><p><strong>config_dict</strong> (<em>dict</em>) – control tag settings dict</p></li>
+<li><p><strong>edge</strong> (<em>str</em>) – absorption edge</p></li>
+<li><p><strong>spectrum</strong> (<em>str</em>) – type of spectrum to calculate, available options :
+EXAFS, XANES, DANES, XMCD, ELNES, EXELFS, FPRIME, NRIXS, XES.
+The default is EXAFS.</p></li>
+<li><p><strong>nkpts</strong> (<em>int</em>) – Total number of kpoints in the brillouin zone. Used
+only when feff is run in the reciprocal space mode.</p></li>
+<li><p><strong>user_tag_settings</strong> (<em>dict</em>) – override default tag settings. To delete
+tags, set the key ‘_del’ in the user_tag_settings.
+eg: user_tag_settings={“_del”: [“COREHOLE”, “EXCHANGE”]}</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.io.feff.sets.FEFFDictSet.atoms">
+<em class="property">property </em><code class="sig-name descname">atoms</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/feff/sets.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.sets.FEFFDictSet.atoms" title="Permalink to this definition">¶</a></dt>
+<dd><p>absorber + the rest</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Atoms</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.feff.sets.FEFFDictSet.from_directory">
+<em class="property">static </em><code class="sig-name descname">from_directory</code><span class="sig-paren">(</span><em class="sig-param">input_dir</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/feff/sets.py#L245-L301"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.sets.FEFFDictSet.from_directory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read in a set of FEFF input files from a directory, which is
+useful when existing FEFF input needs some adjustment.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.feff.sets.FEFFDictSet.header">
+<code class="sig-name descname">header</code><span class="sig-paren">(</span><em class="sig-param">source=''</em>, <em class="sig-param">comment=''</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/feff/sets.py#L173-L186"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.sets.FEFFDictSet.header" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates header string from structure object</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source</strong> – Source identifier used to create structure, can be defined
+however user wants to organize structures, calculations, etc.
+example would be Materials Project material ID number.</p></li>
+<li><p><strong>comment</strong> – comment to include in header</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Header</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.feff.sets.FEFFDictSet.potential">
+<em class="property">property </em><code class="sig-name descname">potential</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/feff/sets.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.sets.FEFFDictSet.potential" title="Permalink to this definition">¶</a></dt>
+<dd><p>FEFF potential</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Potential</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.feff.sets.FEFFDictSet.tags">
+<em class="property">property </em><code class="sig-name descname">tags</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/feff/sets.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.sets.FEFFDictSet.tags" title="Permalink to this definition">¶</a></dt>
+<dd><p>FEFF job parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Tags</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.io.feff.sets.MPEELSDictSet">
+<em class="property">class </em><code class="sig-name descname">MPEELSDictSet</code><span class="sig-paren">(</span><em class="sig-param">absorbing_atom</em>, <em class="sig-param">structure</em>, <em class="sig-param">edge</em>, <em class="sig-param">spectrum</em>, <em class="sig-param">radius</em>, <em class="sig-param">beam_energy</em>, <em class="sig-param">beam_direction</em>, <em class="sig-param">collection_angle</em>, <em class="sig-param">convergence_angle</em>, <em class="sig-param">config_dict</em>, <em class="sig-param">user_eels_settings=None</em>, <em class="sig-param">nkpts=1000</em>, <em class="sig-param">user_tag_settings=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/feff/sets.py#L354-L404"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.sets.MPEELSDictSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.feff.sets.FEFFDictSet" title="pymatgen.io.feff.sets.FEFFDictSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.feff.sets.FEFFDictSet</span></code></a></p>
+<p>FeffDictSet for ELNES spectroscopy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>absorbing_atom</strong> (<em>str/int</em>) – absorbing atom symbol or site index</p></li>
+<li><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – input structure</p></li>
+<li><p><strong>edge</strong> (<em>str</em>) – absorption edge</p></li>
+<li><p><strong>spectrum</strong> (<em>str</em>) – ELNES or EXELFS</p></li>
+<li><p><strong>radius</strong> (<em>float</em>) – cluster radius in Angstroms.</p></li>
+<li><p><strong>beam_energy</strong> (<em>float</em>) – Incident beam energy in keV</p></li>
+<li><p><strong>beam_direction</strong> (<em>list</em>) – Incident beam direction. If None, the
+cross section will be averaged.</p></li>
+<li><p><strong>collection_angle</strong> (<em>float</em>) – Detector collection angle in mrad.</p></li>
+<li><p><strong>convergence_angle</strong> (<em>float</em>) – Beam convergence angle in mrad.</p></li>
+<li><p><strong>user_eels_settings</strong> (<em>dict</em>) – override default EELS config.
+See MPELNESSet.yaml for supported keys.</p></li>
+<li><p><strong>nkpts</strong> (<em>int</em>) – Total number of kpoints in the brillouin zone. Used
+only when feff is run in the reciprocal space mode.</p></li>
+<li><p><strong>user_tag_settings</strong> (<em>dict</em>) – override default tag settings</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.io.feff.sets.MPELNESSet">
+<em class="property">class </em><code class="sig-name descname">MPELNESSet</code><span class="sig-paren">(</span><em class="sig-param">absorbing_atom</em>, <em class="sig-param">structure</em>, <em class="sig-param">edge='K'</em>, <em class="sig-param">radius=10.0</em>, <em class="sig-param">beam_energy=100</em>, <em class="sig-param">beam_direction=None</em>, <em class="sig-param">collection_angle=1</em>, <em class="sig-param">convergence_angle=1</em>, <em class="sig-param">user_eels_settings=None</em>, <em class="sig-param">nkpts=1000</em>, <em class="sig-param">user_tag_settings=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/feff/sets.py#L407-L441"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.sets.MPELNESSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.feff.sets.MPEELSDictSet" title="pymatgen.io.feff.sets.MPEELSDictSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.feff.sets.MPEELSDictSet</span></code></a></p>
+<p>FeffDictSet for ELNES spectroscopy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>absorbing_atom</strong> (<em>str/int</em>) – absorbing atom symbol or site index</p></li>
+<li><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – input structure</p></li>
+<li><p><strong>edge</strong> (<em>str</em>) – absorption edge</p></li>
+<li><p><strong>radius</strong> (<em>float</em>) – cluster radius in Angstroms.</p></li>
+<li><p><strong>beam_energy</strong> (<em>float</em>) – Incident beam energy in keV</p></li>
+<li><p><strong>beam_direction</strong> (<em>list</em>) – Incident beam direction. If None, the
+cross section will be averaged.</p></li>
+<li><p><strong>collection_angle</strong> (<em>float</em>) – Detector collection angle in mrad.</p></li>
+<li><p><strong>convergence_angle</strong> (<em>float</em>) – Beam convergence angle in mrad.</p></li>
+<li><p><strong>user_eels_settings</strong> (<em>dict</em>) – override default EELS config.
+See MPELNESSet.yaml for supported keys.</p></li>
+<li><p><strong>nkpts</strong> (<em>int</em>) – Total number of kpoints in the brillouin zone. Used
+only when feff is run in the reciprocal space mode.</p></li>
+<li><p><strong>user_tag_settings</strong> (<em>dict</em>) – override default tag settings</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="pymatgen.io.feff.sets.MPELNESSet.CONFIG">
+<code class="sig-name descname">CONFIG</code><em class="property"> = {'CONTROL': '1 1 1 1 1 1', 'COREHOLE': 'FSR', 'EDGE': 'K', 'ELNES': {'ANGLES': '1 1', 'BEAM_DIRECTION': '0 1 0', 'BEAM_ENERGY': '100 0 1 1', 'ENERGY': '4 0.04 0.1', 'MESH': '50 1', 'POSITION': '0.0 0.0'}, 'EXCHANGE': '0 0.0 0.0 2', 'FMS': '7.5 0', 'LDOS': '-20.0 20.0 0.1', 'PRINT': '1 0 0 0 0 0', 'S02': 0.0, 'SCF': '6.0 0 30 0.2 1'}</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/feff/sets.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.sets.MPELNESSet.CONFIG" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.io.feff.sets.MPEXAFSSet">
+<em class="property">class </em><code class="sig-name descname">MPEXAFSSet</code><span class="sig-paren">(</span><em class="sig-param">absorbing_atom</em>, <em class="sig-param">structure</em>, <em class="sig-param">edge='K'</em>, <em class="sig-param">radius=10.0</em>, <em class="sig-param">nkpts=1000</em>, <em class="sig-param">user_tag_settings=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/feff/sets.py#L329-L351"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.sets.MPEXAFSSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.feff.sets.FEFFDictSet" title="pymatgen.io.feff.sets.FEFFDictSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.feff.sets.FEFFDictSet</span></code></a></p>
+<p>FeffDictSet for EXAFS spectroscopy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>absorbing_atom</strong> (<em>str/int</em>) – absorbing atom symbol or site index</p></li>
+<li><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – input structure</p></li>
+<li><p><strong>edge</strong> (<em>str</em>) – absorption edge</p></li>
+<li><p><strong>radius</strong> (<em>float</em>) – cluster radius in Angstroms.</p></li>
+<li><p><strong>nkpts</strong> (<em>int</em>) – Total number of kpoints in the brillouin zone. Used
+only when feff is run in the reciprocal space mode.</p></li>
+<li><p><strong>user_tag_settings</strong> (<em>dict</em>) – override default tag settings</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="pymatgen.io.feff.sets.MPEXAFSSet.CONFIG">
+<code class="sig-name descname">CONFIG</code><em class="property"> = {'CONTROL': '1 1 1 1 1 1', 'COREHOLE': 'FSR', 'EDGE': 'K', 'EXAFS': 20, 'PRINT': '1 0 0 0 0 0', 'RPATH': 10, 'S02': 0.0, 'SCF': '4.5 0 30 .2 1'}</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/feff/sets.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.sets.MPEXAFSSet.CONFIG" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.io.feff.sets.MPEXELFSSet">
+<em class="property">class </em><code class="sig-name descname">MPEXELFSSet</code><span class="sig-paren">(</span><em class="sig-param">absorbing_atom</em>, <em class="sig-param">structure</em>, <em class="sig-param">edge='K'</em>, <em class="sig-param">radius=10.0</em>, <em class="sig-param">beam_energy=100</em>, <em class="sig-param">beam_direction=None</em>, <em class="sig-param">collection_angle=1</em>, <em class="sig-param">convergence_angle=1</em>, <em class="sig-param">user_eels_settings=None</em>, <em class="sig-param">nkpts=1000</em>, <em class="sig-param">user_tag_settings=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/feff/sets.py#L444-L478"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.sets.MPEXELFSSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.feff.sets.MPEELSDictSet" title="pymatgen.io.feff.sets.MPEELSDictSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.feff.sets.MPEELSDictSet</span></code></a></p>
+<p>FeffDictSet for EXELFS spectroscopy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>absorbing_atom</strong> (<em>str/int</em>) – absorbing atom symbol or site index</p></li>
+<li><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – input structure</p></li>
+<li><p><strong>edge</strong> (<em>str</em>) – absorption edge</p></li>
+<li><p><strong>radius</strong> (<em>float</em>) – cluster radius in Angstroms.</p></li>
+<li><p><strong>beam_energy</strong> (<em>float</em>) – Incident beam energy in keV</p></li>
+<li><p><strong>beam_direction</strong> (<em>list</em>) – Incident beam direction. If None, the
+cross section will be averaged.</p></li>
+<li><p><strong>collection_angle</strong> (<em>float</em>) – Detector collection angle in mrad.</p></li>
+<li><p><strong>convergence_angle</strong> (<em>float</em>) – Beam convergence angle in mrad.</p></li>
+<li><p><strong>user_eels_settings</strong> (<em>dict</em>) – override default EELS config.
+See MPEXELFSSet.yaml for supported keys.</p></li>
+<li><p><strong>nkpts</strong> (<em>int</em>) – Total number of kpoints in the brillouin zone. Used
+only when feff is run in the reciprocal space mode.</p></li>
+<li><p><strong>user_tag_settings</strong> (<em>dict</em>) – override default tag settings</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="pymatgen.io.feff.sets.MPEXELFSSet.CONFIG">
+<code class="sig-name descname">CONFIG</code><em class="property"> = {'CONTROL': '1 1 1 1 1 1', 'COREHOLE': 'FSR', 'EDGE': 'K', 'EXCHANGE': '0 0.0 0.0 2', 'EXELFS': {'ANGLES': '1 1', 'BEAM_DIRECTION': '0 1 0', 'BEAM_ENERGY': '100 0 1 1', 'ENERGY': 20, 'MESH': '50 1', 'POSITION': '0.0 0.0'}, 'PRINT': '1 0 0 0 0 0', 'RPATH': 10, 'S02': 0.0, 'SCF': '5.0 0 30 0.2 1'}</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/feff/sets.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.sets.MPEXELFSSet.CONFIG" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.io.feff.sets.MPXANESSet">
+<em class="property">class </em><code class="sig-name descname">MPXANESSet</code><span class="sig-paren">(</span><em class="sig-param">absorbing_atom</em>, <em class="sig-param">structure</em>, <em class="sig-param">edge='K'</em>, <em class="sig-param">radius=10.0</em>, <em class="sig-param">nkpts=1000</em>, <em class="sig-param">user_tag_settings=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/feff/sets.py#L304-L326"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.sets.MPXANESSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.feff.sets.FEFFDictSet" title="pymatgen.io.feff.sets.FEFFDictSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.feff.sets.FEFFDictSet</span></code></a></p>
+<p>FeffDictSet for XANES spectroscopy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>absorbing_atom</strong> (<em>str/int</em>) – absorbing atom symbol or site index</p></li>
+<li><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – input</p></li>
+<li><p><strong>edge</strong> (<em>str</em>) – absorption edge</p></li>
+<li><p><strong>radius</strong> (<em>float</em>) – cluster radius in Angstroms.</p></li>
+<li><p><strong>nkpts</strong> (<em>int</em>) – Total number of kpoints in the brillouin zone. Used
+only when feff is run in the reciprocal space mode.</p></li>
+<li><p><strong>user_tag_settings</strong> (<em>dict</em>) – override default tag settings</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="pymatgen.io.feff.sets.MPXANESSet.CONFIG">
+<code class="sig-name descname">CONFIG</code><em class="property"> = {'CONTROL': '1 1 1 1 1 1', 'COREHOLE': 'FSR', 'EDGE': 'K', 'EXCHANGE': '0 0.0 0.0 2', 'FMS': '7.5 0', 'LDOS': '-30. 15. .1', 'PRINT': '1 0 0 0 0 0', 'S02': 0.0, 'SCF': '4.5 0 30 .2 1', 'XANES': '3.7 .04 .1'}</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/io/feff/sets.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.sets.MPXANESSet.CONFIG" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011, Pymatgen Development Team
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+  
+ 
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+
+</body>
+</html>

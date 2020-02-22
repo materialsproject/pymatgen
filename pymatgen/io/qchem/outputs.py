@@ -2,6 +2,10 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+Parsers for Qchem output files.
+"""
+
 import re
 import logging
 import os
@@ -19,7 +23,7 @@ from pymatgen.analysis.local_env import OpenBabelNN
 import networkx as nx
 
 try:
-    import openbabel as ob
+    from openbabel import openbabel as ob
 
     have_babel = True
 except ImportError:
@@ -316,12 +320,12 @@ class QCOutput(MSONable):
     @staticmethod
     def multiple_outputs_from_file(cls, filename, keep_sub_files=True):
         """
-            Parses a QChem output file with multiple calculations
-            1.) Seperates the output into sub-files
-                e.g. qcout -> qcout.0, qcout.1, qcout.2 ... qcout.N
-                a.) Find delimeter for multiple calcualtions
-                b.) Make seperate output sub-files
-            2.) Creates seperate QCCalcs for each one from the sub-files
+        Parses a QChem output file with multiple calculations
+        1.) Seperates the output into sub-files
+            e.g. qcout -> qcout.0, qcout.1, qcout.2 ... qcout.N
+            a.) Find delimeter for multiple calcualtions
+            b.) Make seperate output sub-files
+        2.) Creates seperate QCCalcs for each one from the sub-files
         """
         to_return = []
         with zopen(filename, 'rt') as f:
@@ -830,7 +834,7 @@ class QCOutput(MSONable):
             self.data["energy_trajectory"] = real_energy_trajectory
             self._read_geometries()
             if have_babel:
-                self.data["structure_change"] = check_for_structure_changes(
+                self.data["structure_change"] = _check_for_structure_changes(
                     self.data["initial_molecule"],
                     self.data["molecule_from_last_geometry"])
             self._read_gradients()
@@ -1151,6 +1155,10 @@ class QCOutput(MSONable):
             self.data["errors"] += ["unknown_error"]
 
     def as_dict(self):
+        """
+        Returns:
+            MSONAble dict.
+        """
         d = {}
         d["data"] = self.data
         d["text"] = self.text
@@ -1158,7 +1166,7 @@ class QCOutput(MSONable):
         return jsanitize(d, strict=True)
 
 
-def check_for_structure_changes(mol1, mol2):
+def _check_for_structure_changes(mol1, mol2):
     special_elements = ["Li", "Na", "Mg", "Ca", "Zn"]
     mol_list = [copy.deepcopy(mol1), copy.deepcopy(mol2)]
 
@@ -1185,14 +1193,10 @@ def check_for_structure_changes(mol1, mol2):
     # Can add logic to check the distances in the future if desired
 
     initial_mol_graph = MoleculeGraph.with_local_env_strategy(mol_list[0],
-                                                              OpenBabelNN(),
-                                                              reorder=False,
-                                                              extend_structure=False)
+                                                              OpenBabelNN())
     initial_graph = initial_mol_graph.graph
     last_mol_graph = MoleculeGraph.with_local_env_strategy(mol_list[1],
-                                                           OpenBabelNN(),
-                                                           reorder=False,
-                                                           extend_structure=False)
+                                                           OpenBabelNN())
     last_graph = last_mol_graph.graph
     if initial_mol_graph.isomorphic_to(last_mol_graph):
         return "no_change"

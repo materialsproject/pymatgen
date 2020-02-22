@@ -11,7 +11,7 @@ from pymatgen.io.qchem.outputs import QCOutput
 from pymatgen.util.testing import PymatgenTest
 
 try:
-    import openbabel
+    from openbabel import openbabel
 
     have_babel = True
 except ImportError:

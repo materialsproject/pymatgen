@@ -2,6 +2,10 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+This module provides classes for non-standard space-group settings
+"""
+
 from fractions import Fraction
 import numpy as np
 import re
@@ -22,6 +26,10 @@ __date__ = "Apr 2017"
 
 
 class JonesFaithfulTransformation:
+    """
+    Transformation for space-groups defined in a non-standard setting
+    """
+
     def __init__(self, P, p):
         """
         Transform between settings using matrix P and origin shift vector p,
@@ -68,6 +76,11 @@ class JonesFaithfulTransformation:
 
     @classmethod
     def from_origin_shift(cls, origin_shift="0,0,0"):
+        """
+        Construct SpaceGroupTransformation from its origin shift string.
+        :param p: origin shift vector
+        :return:
+        """
         P = np.identity(3)
         p = [float(Fraction(x)) for x in origin_shift.split(",")]
         return cls(P, p)
@@ -75,6 +88,9 @@ class JonesFaithfulTransformation:
     @staticmethod
     def parse_transformation_string(transformation_string="a,b,c;0,0,0"):
         # type: (str) -> Tuple[List[List[float]], List[float]]
+        """
+        :return: transformation matrix & vector
+        """
         try:
             a = np.array([1, 0, 0])
             b = np.array([0, 1, 0])
@@ -101,7 +117,7 @@ class JonesFaithfulTransformation:
     @property
     def P(self) -> List[List[float]]:
         """
-        :return: transformation matri
+        :return: transformation matrix
         """
         return self._P
 
@@ -148,6 +164,7 @@ class JonesFaithfulTransformation:
         W_ = np.matmul(np.matmul(Q, W), self.P)
         I = np.identity(3)
         w_ = np.matmul(Q, (w + np.matmul(W - I, self.p)))
+        w_ = np.mod(w_, 1.0)
         if isinstance(symmop, MagSymmOp):
             return MagSymmOp.from_rotation_and_translation_and_time_reversal(
                 rotation_matrix=W_, translation_vec=w_,

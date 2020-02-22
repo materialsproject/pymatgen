@@ -2,6 +2,9 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+Module for interfacing with phonopy, see https://atztogo.github.io/phonopy/
+"""
 
 import numpy as np
 from pymatgen.core import Structure, Lattice
@@ -85,7 +88,7 @@ def get_structure_from_dict(d):
 
 
 def eigvec_to_eigdispl(v, q, frac_coords, mass):
-    """
+    r"""
     Converts a single eigenvector to an eigendisplacement in the primitive cell
     according to the formula::
 
@@ -107,7 +110,7 @@ def eigvec_to_eigdispl(v, q, frac_coords, mass):
 
 
 def get_ph_bs_symm_line_from_dict(bands_dict, has_nac=False, labels_dict=None):
-    """
+    r"""
     Creates a pymatgen PhononBandStructure object from the dictionary
     extracted by the band.yaml file produced by phonopy. The labels
     will be extracted from the dictionary, if present. If the 'eigenvector'
@@ -173,7 +176,7 @@ def get_ph_bs_symm_line_from_dict(bands_dict, has_nac=False, labels_dict=None):
 
 
 def get_ph_bs_symm_line(bands_path, has_nac=False, labels_dict=None):
-    """
+    r"""
     Creates a pymatgen PhononBandStructure from a band.yaml file.
     The labels will be extracted from the dictionary, if present.
     If the 'eigenvector'  key is found the eigendisplacements will be
@@ -230,7 +233,7 @@ def get_complete_ph_dos(partial_dos_path, phonopy_yaml_path):
 @requires(Phonopy, "phonopy not installed!")
 def get_displaced_structures(pmg_structure, atom_disp=0.01,
                              supercell_matrix=None, yaml_fname=None, **kwargs):
-    """
+    r"""
     Generate a set of symmetrically inequivalent displaced structures for
     phonon calculations.
 
@@ -264,10 +267,9 @@ def get_displaced_structures(pmg_structure, atom_disp=0.01,
 
     if yaml_fname is not None:
         displacements = phonon.get_displacements()
-        directions = phonon.get_displacement_directions()
         write_disp_yaml(displacements=displacements,
                         supercell=phonon.get_supercell(),
-                        directions=directions, filename=yaml_fname)
+                        filename=yaml_fname)
 
     # Supercell structures with displacement
     disp_supercells = phonon.get_supercells_with_displacements()

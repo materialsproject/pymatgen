@@ -1,4 +1,5 @@
 # Modified version of MPRelaxSet for HSE calculations.
+PARENT: VASPIncarBase
 INCAR:
   ALGO: All
   EDIFF_PER_ATOM: 5.0e-05
