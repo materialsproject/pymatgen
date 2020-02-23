@@ -15,7 +15,7 @@ class Section(MSONable):
     subsections = {}  # Must exist before __init__ is even called
 
     def __init__(self, name, subsections, repeats=False, description=None, keywords=[],
-                 section_parameters=[], location=None, verbose=True, **kwargs):
+                 section_parameters=[], location=None, verbose=True, alias=None, **kwargs):
         """
         Basic object representing a CP2K Section. Sections activate different parts of the calculation.
         For example, FORCE_EVAL section will activate CP2K's ability to calculate forces. Sections are
@@ -48,6 +48,7 @@ class Section(MSONable):
         """
 
         self.name = name
+        self.alias = alias
         self.repeats = repeats
         self.description = description
         self.keywords = keywords
@@ -181,7 +182,7 @@ class Section(MSONable):
         """
         Insert a new section as a subsection of the current one
         """
-        self.subsections[d.name] = d.__deepcopy__()
+        self.subsections[d.alias or d.name] = d.__deepcopy__()
 
     def add(self, d):
         """
@@ -242,7 +243,7 @@ class Section(MSONable):
             string += '\t' * (indent+1) + s.__str__() + '\n'
         for k,v in d.subsections.items():
             string += v._get_string(v, indent + 1)
-        string += '\t' * indent + '&END ' + '\n'
+        string += '\t' * indent + '&END ' + d.name + '\n'
 
         return string
 
@@ -610,9 +611,10 @@ class Kind(Section):
         ]
 
         section_param = alias if alias else specie.__str__()
+        section_alias = 'KIND '+(alias if alias else specie.__str__())
 
-        super(Kind, self).__init__('KIND '+section_param, subsections=subsections, description=description, keywords=keywords,
-                                   section_parameters=[], **kwargs)
+        super(Kind, self).__init__('KIND', subsections=subsections, description=description, keywords=keywords,
+                                   section_parameters=[section_param], alias=section_alias, **kwargs)
 
 
 class Coord(Section):

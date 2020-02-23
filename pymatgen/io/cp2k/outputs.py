@@ -402,7 +402,7 @@ class Cp2kOuput:
 
 
 # TODO Use pymatgen's new "trajectory" object instead of a list of structures
-def parse_structures(trajectory_file, lattice_file):
+def parse_structures(trajectory_file, lattice_file, final=False):
     mols = XYZ.from_file(trajectory_file).all_molecules
     lattice = np.loadtxt(lattice_file)
     structures = []
@@ -411,6 +411,9 @@ def parse_structures(trajectory_file, lattice_file):
                                     coords=[s.coords for s in m.sites],
                                     species=[s.specie for s in m.sites],
                                     coords_are_cartesian=True))
+    if final:
+        return structures[-1]
+    return structures
 
 
 def parse_energies(energy_file):
@@ -418,14 +421,13 @@ def parse_energies(energy_file):
 
 
 def parse_pdos(pdos_file):
-
     with zopen(pdos_file) as f:
         lines = f.readlines()
         efermi = float(lines[0].split()[-2])*_hartree_to_ev_
         header = re.split(r'\s{2,}', lines[1].replace('#','').strip())
 
-        dat = np.loadtxt('test_files/pdos')
-        dat[:,1] = dat[:,1]*_hartree_to_ev_
+        dat = np.loadtxt(pdos_file)
+        dat[:, 1] = dat[:, 1]*_hartree_to_ev_
 
         for i in range(len(header)):
             if header[i] == 'd-2':
@@ -466,6 +468,8 @@ def parse_pdos(pdos_file):
         dos = {}
         for k,v in densities.items():
             dos[k] = Dos(efermi=efermi, energies=energies, densities=v)
+
+        return dos
 
 
 

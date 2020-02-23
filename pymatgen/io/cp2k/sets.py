@@ -406,12 +406,11 @@ class RelaxSet(DftSet):
         geo_opt = Section('GEO_OPT', subsections={}, keywords=geo_opt_params)
         geo_opt.insert(cg)
 
-        if not self.check(['MOTION']):
-            motion = Section('MOTION', subsections={})
+        if not self.check('MOTION'):
+            self.insert(Section('MOTION', subsections={}))
         self['MOTION'].insert(geo_opt)
 
         self.insert(global_section)
-        self.insert(motion)
         self.update(override_default_params)
 
 
@@ -437,4 +436,3 @@ class HybridRelaxSet(RelaxSet):
         self.activate_hybrid(structure, method=method, hf_fraction=hf_fraction,
                              gga_x_fraction=gga_x_fraction, gga_c_fraction=gga_c_fraction)
         self.update(override_default_params)
-
