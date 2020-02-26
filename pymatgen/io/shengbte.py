@@ -202,7 +202,7 @@ class Control(MSONable, dict):
 
         flags_dict = _get_subdict(self, self.flags_keys)
         flags_nml = f90nml.Namelist({"flags": flags_dict})
-        control_str += str(flags_nml)
+        control_str += str(flags_nml) + "\n"
 
         with open(filename, "w") as file:
             file.write(control_str)
@@ -247,7 +247,7 @@ class Control(MSONable, dict):
 
         if reciprocal_density:
             kpoints = Kpoints.automatic_density(structure, reciprocal_density)
-            control_dict["ngrid"]: kpoints.kpts[0]
+            control_dict["ngrid"] = kpoints.kpts[0]
 
         control_dict.update(**kwargs)
 
