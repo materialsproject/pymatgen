@@ -1683,9 +1683,10 @@ class CubicSupercellTransformation(AbstractTransformation):
         """
 
         lat_vecs = structure.lattice.matrix
-        bond_matrix = structure.distance_matrix
-        np.fill_diagonal(bond_matrix, np.Inf)
-        nn_dist = np.amin(bond_matrix)
+        # find minimum nearest neighbor distance taking PBC into account
+        nn_dist = np.min(
+            [s.nn_distance for s in structure.get_all_neighbors(10)[0]]
+        )
 
         # boolean for if a sufficiently large supercell has been created
         sc_not_found = True
