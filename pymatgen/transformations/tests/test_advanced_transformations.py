@@ -641,42 +641,49 @@ class CubicSupercellTransformationTest(PymatgenTest):
         structure = self.get_structure('TlBiSe2')
         min_atoms = 100
         max_atoms = 1000
-        num_nn_dists = 5
 
         # Test the transformation without constraining trans_mat to be diagonal
-        supercell_generator = CubicSupercellTransformation(min_atoms=min_atoms,
-                                                           max_atoms=max_atoms,
-                                                           num_nn_dists=num_nn_dists)
+        supercell_generator = CubicSupercellTransformation(
+            min_atoms=min_atoms, max_atoms=max_atoms, min_length=13.
+        )
         superstructure = supercell_generator.apply_transformation(structure)
 
         num_atoms = superstructure.num_sites
         self.assertTrue(num_atoms >= min_atoms)
         self.assertTrue(num_atoms <= max_atoms)
-        self.assertArrayAlmostEqual(superstructure.lattice.matrix[0],
-                                    [1.49656087e+01, -1.11448000e-03, 9.04924836e+00])
-        self.assertArrayAlmostEqual(superstructure.lattice.matrix[1],
-                                    [-0.95005506, 14.95766342, 10.01819773])
-        self.assertArrayAlmostEqual(superstructure.lattice.matrix[2],
-                                    [3.69130000e-02, 4.09320200e-02, 5.90830153e+01])
+        self.assertArrayAlmostEqual(
+            superstructure.lattice.matrix[0],
+            [1.49656087e+01, -1.11448000e-03, 9.04924836e+00]
+        )
+        self.assertArrayAlmostEqual(
+            superstructure.lattice.matrix[1],
+            [-0.95005506, 14.95766342, 10.01819773]
+        )
+        self.assertArrayAlmostEqual(
+            superstructure.lattice.matrix[2],
+            [3.69130000e-02, 4.09320200e-02, 5.90830153e+01]
+        )
         self.assertEqual(superstructure.num_sites, 448)
-        self.assertArrayEqual(supercell_generator.transformation_matrix,
-                              np.array([[4, 0, 0],
-                                        [1, 4, -4],
-                                        [0, 0, 1]]))
+        self.assertArrayEqual(
+            supercell_generator.transformation_matrix,
+            np.array([[4, 0, 0], [1, 4, -4], [0, 0, 1]])
+        )
 
         # Test the diagonal transformation
         structure2 = self.get_structure('Si')
         sga = SpacegroupAnalyzer(structure2)
         structure2 = sga.get_primitive_standard_structure()
-        diagonal_supercell_generator = CubicSupercellTransformation(min_atoms=min_atoms,
-                                                                    max_atoms=max_atoms,
-                                                                    num_nn_dists=num_nn_dists,
-                                                                    force_diagonal=True)
-        superstructure2 = diagonal_supercell_generator.apply_transformation(structure2)
-        self.assertArrayEqual(diagonal_supercell_generator.transformation_matrix,
-                              np.array([[4, 0, 0],
-                                        [0, 4, 0],
-                                        [0, 0, 4]]))
+        diagonal_supercell_generator = CubicSupercellTransformation(
+            min_atoms=min_atoms,
+            max_atoms=max_atoms,
+            min_length=13.,
+            force_diagonal=True
+        )
+        _ = diagonal_supercell_generator.apply_transformation(structure2)
+        self.assertArrayEqual(
+            diagonal_supercell_generator.transformation_matrix,
+            np.eye(3) * 4
+        )
 
 
 class AddAdsorbateTransformationTest(PymatgenTest):

@@ -1633,37 +1633,30 @@ class CubicSupercellTransformation(AbstractTransformation):
     resulting from this transformation matrix, vector projections are used to
     determine the side length of the largest cube that can fit inside the
     supercell. The algorithm will iteratively increase the size of the supercell
-    until the largest inscribed cube's side length is at least 'num_nn_dists'
-    times the nearest neighbor distance and the number of atoms in the supercell
-    falls in the range ['min_atoms', 'max_atoms'].
+    until the largest inscribed cube's side length is at least 'min_length'
+    and the number of atoms in the supercell falls in the range
+    ``min_atoms < n < max_atoms``.
 
     Args:
         max_atoms: Maximum number of atoms allowed in the supercell.
         min_atoms: Minimum number of atoms allowed in the supercell.
-        num_nn_dists: Number of multiples of atomic nearest neighbor distances
-            to force all directions of the supercell to be at least as large.
-        force_diagonal: If true, return a transformation with a diagonal
-            transformation matrix. Else, do not impose this constraint (leading
-            to a better result).
+        min_length: Minimum length of the smallest supercell lattice vector.
+        force_diagonal: If True, return a transformation with a diagonal
+            transformation matrix.
     """
 
     def __init__(
         self,
-        min_atoms: int = None,
-        max_atoms: int = None,
-        num_nn_dists: float = 5.,
+        min_atoms: Optional[int] = None,
+        max_atoms: Optional[int] = None,
+        min_length: float = 15.,
         force_diagonal: bool = False,
     ):
-        if min_atoms is None:
-            min_atoms = -np.Inf
-        if max_atoms is None:
-            max_atoms = np.Inf
-
-        self.min_atoms = min_atoms
-        self.max_atoms = max_atoms
-        self.num_nn_dists = num_nn_dists
+        self.min_atoms = min_atoms if min_atoms else -np.Inf
+        self.max_atoms = max_atoms if max_atoms else np.Inf
+        self.min_length = min_length
         self.force_diagonal = force_diagonal
-        self.transformation_matrix = None  # transformation matrix
+        self.transformation_matrix = None
 
     def apply_transformation(self, structure: Structure) -> Structure:
         """
@@ -1683,16 +1676,9 @@ class CubicSupercellTransformation(AbstractTransformation):
         """
 
         lat_vecs = structure.lattice.matrix
-        # find minimum nearest neighbor distance taking PBC into account
-        nn_dist = np.min(
-            [s.nn_distance for s in structure.get_all_neighbors(10)[0]]
-        )
 
         # boolean for if a sufficiently large supercell has been created
         sc_not_found = True
-
-        # minimum distance any direction of the supercell
-        hard_sc_size_threshold = nn_dist * self.num_nn_dists
 
         if self.force_diagonal:
             # trans_mat_diagonal holds the diagonal of the trans_mat
@@ -1700,7 +1686,7 @@ class CubicSupercellTransformation(AbstractTransformation):
             trans_mat_diagonal_update = np.array([1, 1, 1])
         else:
             # target_threshold is used as the desired cubic side lengths
-            target_sc_size = hard_sc_size_threshold
+            target_sc_size = self.min_length
 
         while sc_not_found:
             if self.force_diagonal:
@@ -1758,7 +1744,7 @@ class CubicSupercellTransformation(AbstractTransformation):
 
             # Check if constraints are satisfied
             if (
-                smallest_dim >= hard_sc_size_threshold
+                smallest_dim >= self.min_length
                 and self.min_atoms <= num_at <= self.max_atoms
             ):
                 return superstructure
