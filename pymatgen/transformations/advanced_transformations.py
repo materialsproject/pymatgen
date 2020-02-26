@@ -1796,6 +1796,7 @@ class CubicSupercellTransformation(AbstractTransformation):
                         "number of atoms was exceeded. Try lowering the number"
                         "of nearest neighbor distances."
                     )
+        raise AttributeError("Unable to find cubic supercell")
 
     @property
     def inverse(self):
