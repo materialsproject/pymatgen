@@ -232,7 +232,7 @@ class Control(MSONable, dict):
 
         unique_nums = np.unique(structure.atomic_numbers)
         types_dict = dict(zip(unique_nums, range(len(unique_nums))))
-        types = [types_dict[i] for i in structure.atomic_numbers]
+        types = [types_dict[i] + 1 for i in structure.atomic_numbers]
 
         control_dict = {
             "nelements": structure.ntypesp,
