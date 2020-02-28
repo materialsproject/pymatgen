@@ -28,11 +28,6 @@ __email__ = "rc564@cornell.edu, aganose@lbl.gov"
 __date__ = "June 27, 2019"
 
 
-@requires(
-    f90nml,
-    "ShengBTE Control object requires f90nml to be installed. "
-    "Please get it at https://pypi.org/project/f90nml.",
-)
 class Control(MSONable, dict):
     """
     Class for reading, updating, and writing ShengBTE CONTROL files.
@@ -138,6 +133,11 @@ class Control(MSONable, dict):
         self.update(kwargs)
 
     @classmethod
+    @requires(
+        f90nml,
+        "ShengBTE Control object requires f90nml to be installed. "
+        "Please get it at https://pypi.org/project/f90nml.",
+    )
     def from_file(cls, filepath: str):
         """
         Read a CONTROL namelist file and output a 'Control' object
@@ -174,6 +174,11 @@ class Control(MSONable, dict):
         """
         return cls(**control_dict)
 
+    @requires(
+        f90nml,
+        "ShengBTE Control object requires f90nml to be installed. "
+        "Please get it at https://pypi.org/project/f90nml.",
+    )
     def to_file(self, filename: str = "CONTROL"):
         """
         Writes ShengBTE CONTROL file from 'Control' object
