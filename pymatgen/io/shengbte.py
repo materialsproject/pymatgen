@@ -7,7 +7,7 @@ This module implements reading and writing of ShengBTE CONTROL files.
 """
 
 import warnings
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Union, Any
 
 import numpy as np
 from monty.dev import requires
@@ -151,7 +151,7 @@ class Control(MSONable, dict):
         nml = f90nml.read(filepath)
         sdict = nml.todict()
 
-        all_dict = {}
+        all_dict: Dict[str, Any] = {}
         all_dict.update(sdict["allocations"])
         all_dict.update(sdict["crystal"])
         all_dict.update(sdict["parameters"])

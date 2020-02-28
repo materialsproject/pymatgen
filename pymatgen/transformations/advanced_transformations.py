@@ -47,7 +47,7 @@ from pymatgen.analysis.adsorption import AdsorbateSiteFinder
 from pymatgen.command_line.mcsqs_caller import run_mcsqs
 
 try:
-    import hiphive
+    import hiphive  # type: ignore
 except ImportError:
     hiphive = None
 
@@ -2176,7 +2176,9 @@ class MonteCarloRattleTransformation(AbstractTransformation):
         Returns:
             Structure with sites perturbed.
         """
-        from hiphive.structure_generation.rattle import mc_rattle
+        from hiphive.structure_generation.rattle import (  # type: ignore
+            mc_rattle
+        )
 
         atoms = AseAtomsAdaptor.get_atoms(structure)
         seed = self.random_state.randint(1, 1000000000)

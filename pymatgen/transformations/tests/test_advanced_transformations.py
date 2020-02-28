@@ -33,7 +33,7 @@ from pymatgen.core.surface import SlabGenerator
 from pymatgen.io import atat
 
 try:
-    import hiphive
+    import hiphive  # type: ignore
 except ImportError:
     hiphive = None
 
