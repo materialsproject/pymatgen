@@ -25,7 +25,6 @@ except ImportError:
     f90nml = None
 
 
-@unittest.skipIf(not f90nml, "f90nml not present. Skipping...")
 class TestShengBTE(PymatgenTest):
     def setUp(self):
         self.filename = os.path.join(test_dir, "CONTROL-CSLD_Si")
@@ -53,7 +52,7 @@ class TestShengBTE(PymatgenTest):
         }
 
     def test_from_file(self):
-        io = Control().from_file(self.filename)
+        io = Control.from_file(self.filename)
         self.assertEqual(io["nelements"], 1)
         self.assertEqual(io["natoms"], 2)
         self.assertArrayEqual(io["ngrid"], [25, 25, 25])
@@ -95,7 +94,7 @@ class TestShengBTE(PymatgenTest):
         os.remove(os.path.join(test_dir, "test_control"))
 
     def test_from_dict(self):
-        io = Control().from_dict(self.test_dict)
+        io = Control.from_dict(self.test_dict)
         if os.path.exists(os.path.join(test_dir, "test_control")):
             os.remove(os.path.join(test_dir, "test_control"))
         io.to_file(filename=os.path.join(test_dir, "test_control"))
@@ -110,7 +109,7 @@ class TestShengBTE(PymatgenTest):
 
     def test_MSONable_implementation(self):
         # tests as dict and from dict methods
-        Controlinfromfile = Control().from_file(self.filename)
-        newControlin = Control().from_dict(Controlinfromfile.as_dict())
+        Controlinfromfile = Control.from_file(self.filename)
+        newControlin = Control.from_dict(Controlinfromfile.as_dict())
         self.assertDictEqual(newControlin, Controlinfromfile)
         newControlin.to_json()
