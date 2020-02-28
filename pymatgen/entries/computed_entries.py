@@ -2,6 +2,13 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+This module implements equivalents of the basic ComputedEntry objects, which
+is the basic entity that can be used to perform many analyses. ComputedEntries
+contain calculated information, typically from VASP or other electronic
+structure codes. For example, ComputedEntries can be used as inputs for phase
+diagram analysis.
+"""
 
 import json
 
@@ -11,13 +18,6 @@ from pymatgen.core.composition import Composition
 from pymatgen.core.structure import Structure
 from monty.json import MSONable
 
-"""
-This module implements equivalents of the basic ComputedEntry objects, which
-is the basic entity that can be used to perform many analyses. ComputedEntries
-contain calculated information, typically from VASP or other electronic
-structure codes. For example, ComputedEntries can be used as inputs for phase
-diagram analysis.
-"""
 
 __author__ = "Shyue Ping Ong, Anubhav Jain"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -93,17 +93,23 @@ class ComputedEntry(MSONable):
 
     @property
     def is_element(self) -> bool:
+        """
+        :return: Whether composition of entry is an element.
+        """
         return self.composition.is_element
 
     @property
     def energy(self) -> float:
         """
-        Returns the *corrected* energy of the entry.
+        :return: the *corrected* energy of the entry.
         """
         return self.uncorrected_energy + self.correction
 
     @property
     def energy_per_atom(self) -> float:
+        """
+        :return: the *corrected* energy per atom of the entry.
+        """
         return self.energy / self.composition.num_atoms
 
     def __repr__(self):
@@ -123,7 +129,11 @@ class ComputedEntry(MSONable):
         return self.__repr__()
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, d) -> 'ComputedEntry':
+        """
+        :param d: Dict representation.
+        :return: ComputedEntry
+        """
         dec = MontyDecoder()
         return cls(d["composition"], d["energy"], d["correction"],
                    parameters={k: dec.process_decoded(v)
@@ -133,6 +143,9 @@ class ComputedEntry(MSONable):
                    entry_id=d.get("entry_id", None))
 
     def as_dict(self) -> dict:
+        """
+        :return: MSONable dict.
+        """
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "energy": self.uncorrected_energy,
@@ -194,6 +207,9 @@ class ComputedStructureEntry(ComputedEntry):
         return self.__repr__()
 
     def as_dict(self) -> dict:
+        """
+        :return: MSONAble dict.
+        """
         d = super().as_dict()
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
@@ -201,7 +217,11 @@ class ComputedStructureEntry(ComputedEntry):
         return d
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, d) -> 'ComputedStructureEntry':
+        """
+        :param d: Dict representation.
+        :return: ComputedStructureEntry
+        """
         dec = MontyDecoder()
         return cls(dec.process_decoded(d["structure"]),
                    d["energy"], d["correction"],

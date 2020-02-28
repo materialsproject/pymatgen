@@ -1,0 +1,415 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pymatgen.analysis.bond_valence module &mdash; pymatgen 2020.1.28 documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pymatgen.orgpymatgen.analysis.bond_valence.html"/>
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.analysis.diffusion_analyzer module" href="pymatgen.analysis.diffusion_analyzer.html" />
+    <link rel="prev" title="pymatgen.analysis.bond_dissociation module" href="pymatgen.analysis.bond_dissociation.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pymatgen
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2020.1.28
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="team.html">Development Team</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API Docs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pymatgen.html">pymatgen package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="pymatgen.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.alchemy.html">pymatgen.alchemy package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="pymatgen.analysis.html">pymatgen.analysis package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.apps.html">pymatgen.apps package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.cli.html">pymatgen.cli package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.command_line.html">pymatgen.command_line package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html">pymatgen.core package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.electronic_structure.html">pymatgen.electronic_structure package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.entries.html">pymatgen.entries package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html">pymatgen.ext package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html">pymatgen.io package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.plugins.html">pymatgen.plugins package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.vis.html">pymatgen.vis package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#module-pymatgen">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pymatgen</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="modules.html">pymatgen</a> &raquo;</li>
+        
+          <li><a href="pymatgen.html">pymatgen package</a> &raquo;</li>
+        
+          <li><a href="pymatgen.analysis.html">pymatgen.analysis package</a> &raquo;</li>
+        
+      <li>pymatgen.analysis.bond_valence module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.analysis.bond_valence.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-pymatgen.analysis.bond_valence">
+<span id="pymatgen-analysis-bond-valence-module"></span><h1>pymatgen.analysis.bond_valence module<a class="headerlink" href="#module-pymatgen.analysis.bond_valence" title="Permalink to this headline">¶</a></h1>
+<p>This module implements classes to perform bond valence analyses.</p>
+<dl class="class">
+<dt id="pymatgen.analysis.bond_valence.BVAnalyzer">
+<em class="property">class </em><code class="sig-name descname">BVAnalyzer</code><span class="sig-paren">(</span><em class="sig-param">symm_tol=0.1</em>, <em class="sig-param">max_radius=4</em>, <em class="sig-param">max_permutations=100000</em>, <em class="sig-param">distance_scale_factor=1.015</em>, <em class="sig-param">charge_neutrality_tolerance=1e-05</em>, <em class="sig-param">forbidden_species=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/bond_valence.py#L119-L482"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.bond_valence.BVAnalyzer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This class implements a maximum a posteriori (MAP) estimation method to
+determine oxidation states in a structure. The algorithm is as follows:
+1) The bond valence sum of all symmetrically distinct sites in a structure
+is calculated using the element-based parameters in M. O’Keefe, &amp; N. Brese,
+JACS, 1991, 113(9), 3226-3229. doi:10.1021/ja00009a002.
+2) The posterior probabilities of all oxidation states is then calculated
+using: P(oxi_state/BV) = K * P(BV/oxi_state) * P(oxi_state), where K is
+a constant factor for each element. P(BV/oxi_state) is calculated as a
+Gaussian with mean and std deviation determined from an analysis of
+the ICSD. The posterior P(oxi_state) is determined from a frequency
+analysis of the ICSD.
+3) The oxidation states are then ranked in order of decreasing probability
+and the oxidation state combination that result in a charge neutral cell
+is selected.</p>
+<p>Initializes the BV analyzer, with useful defaults.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>symm_tol</strong> – Symmetry tolerance used to determine which sites are
+symmetrically equivalent. Set to 0 to turn off symmetry.</p></li>
+<li><p><strong>max_radius</strong> – Maximum radius in Angstrom used to find nearest neighbors.</p></li>
+<li><p><strong>max_permutations</strong> – The maximum number of permutations of oxidation states to test.</p></li>
+<li><p><strong>distance_scale_factor</strong> – A scale factor to be applied. This is useful for scaling
+distances, esp in the case of calculation-relaxed structures
+which may tend to under (GGA) or over bind (LDA). The default
+of 1.015 works for GGA. For experimental structure, set this to
+1.</p></li>
+<li><p><strong>charge_neutrality_tolerance</strong> – Tolerance on the charge neutrality when unordered structures
+are at stake.</p></li>
+<li><p><strong>forbidden_species</strong> – List of species that are forbidden (example : [“O-“] cannot be
+used) It is used when e.g. someone knows that some oxidation
+state cannot occur for some atom in a structure or list of
+structures.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="pymatgen.analysis.bond_valence.BVAnalyzer.CHARGE_NEUTRALITY_TOLERANCE">
+<code class="sig-name descname">CHARGE_NEUTRALITY_TOLERANCE</code><em class="property"> = 1e-05</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/bond_valence.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.bond_valence.BVAnalyzer.CHARGE_NEUTRALITY_TOLERANCE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.bond_valence.BVAnalyzer.get_oxi_state_decorated_structure">
+<code class="sig-name descname">get_oxi_state_decorated_structure</code><span class="sig-paren">(</span><em class="sig-param">structure</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/bond_valence.py#L461-L482"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.bond_valence.BVAnalyzer.get_oxi_state_decorated_structure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get an oxidation state decorated structure. This currently works only
+for ordered structures only.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>structure</strong> – Structure to analyze</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A modified structure that is oxidation state decorated.</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>ValueError if the valences cannot be determined.</strong> – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.bond_valence.BVAnalyzer.get_valences">
+<code class="sig-name descname">get_valences</code><span class="sig-paren">(</span><em class="sig-param">structure</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/bond_valence.py#L227-L459"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.bond_valence.BVAnalyzer.get_valences" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of valences for the structure. This currently works only
+for ordered structures only.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>structure</strong> – Structure to analyze</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A list of valences for each site in the structure (for an ordered
+structure), e.g., [1, 1, -2] or a list of lists with the
+valences for each fractional element of each site in the
+structure (for an unordered structure),
+e.g., [[2, 4], [3], [-2], [-2], [-2]]</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>A ValueError if the valences cannot be determined.</strong> – </p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.analysis.bond_valence.add_oxidation_state_by_site_fraction">
+<code class="sig-name descname">add_oxidation_state_by_site_fraction</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">oxidation_states</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/bond_valence.py#L501-L520"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.bond_valence.add_oxidation_state_by_site_fraction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add oxidation states to a structure by fractional site.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>oxidation_states</strong> (<em>list</em>) – List of list of oxidation states for each
+site fraction for each site.
+E.g., [[2, 4], [3], [-2], [-2], [-2]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.analysis.bond_valence.calculate_bv_sum">
+<code class="sig-name descname">calculate_bv_sum</code><span class="sig-paren">(</span><em class="sig-param">site</em>, <em class="sig-param">nn_list</em>, <em class="sig-param">scale_factor=1.0</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/bond_valence.py#L53-L78"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.bond_valence.calculate_bv_sum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the BV sum of a site.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>site</strong> (<a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.PeriodicSite" title="pymatgen.core.sites.PeriodicSite"><em>PeriodicSite</em></a>) – The central site to calculate the bond valence</p></li>
+<li><p><strong>nn_list</strong> (<em>[</em><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Neighbor" title="pymatgen.core.structure.Neighbor"><em>Neighbor</em></a><em>]</em>) – A list of namedtuple Neighbors having “distance”
+and “site” attributes</p></li>
+<li><p><strong>scale_factor</strong> (<em>float</em>) – A scale factor to be applied. This is useful for
+scaling distance, esp in the case of calculation-relaxed structures
+which may tend to under (GGA) or over bind (LDA).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.analysis.bond_valence.calculate_bv_sum_unordered">
+<code class="sig-name descname">calculate_bv_sum_unordered</code><span class="sig-paren">(</span><em class="sig-param">site</em>, <em class="sig-param">nn_list</em>, <em class="sig-param">scale_factor=1</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/bond_valence.py#L81-L116"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.bond_valence.calculate_bv_sum_unordered" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the BV sum of a site for unordered structures.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>site</strong> (<a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.PeriodicSite" title="pymatgen.core.sites.PeriodicSite"><em>PeriodicSite</em></a>) – The central site to calculate the bond valence</p></li>
+<li><p><strong>nn_list</strong> (<em>[</em><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Neighbor" title="pymatgen.core.structure.Neighbor"><em>Neighbor</em></a><em>]</em>) – A list of namedtuple Neighbors having “distance”
+and “site” attributes</p></li>
+<li><p><strong>scale_factor</strong> (<em>float</em>) – A scale factor to be applied. This is useful for
+scaling distance, esp in the case of calculation-relaxed structures
+which may tend to under (GGA) or over bind (LDA).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.analysis.bond_valence.get_z_ordered_elmap">
+<code class="sig-name descname">get_z_ordered_elmap</code><span class="sig-paren">(</span><em class="sig-param">comp</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/bond_valence.py#L485-L498"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.bond_valence.get_z_ordered_elmap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Arbitrary ordered elmap on the elements/species of a composition of a
+given site in an unordered structure. Returns a list of tuples (
+element_or_specie: occupation) in the arbitrary order.</p>
+<p>The arbitrary order is based on the Z of the element and the smallest
+fractional occupations first.
+Example : {“Ni3+”: 0.2, “Ni4+”: 0.2, “Cr3+”: 0.15, “Zn2+”: 0.34,
+“Cr4+”: 0.11} will yield the species in the following order :
+Cr4+, Cr3+, Ni3+, Ni4+, Zn2+ … or
+Cr4+, Cr3+, Ni4+, Ni3+, Zn2+</p>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011, Pymatgen Development Team
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+  
+ 
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+
+</body>
+</html>

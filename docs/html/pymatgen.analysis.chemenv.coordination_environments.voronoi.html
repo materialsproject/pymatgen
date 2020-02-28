@@ -1,0 +1,564 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pymatgen.analysis.chemenv.coordination_environments.voronoi module &mdash; pymatgen 2020.1.28 documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pymatgen.orgpymatgen.analysis.chemenv.coordination_environments.voronoi.html"/>
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.analysis.chemenv.utils package" href="pymatgen.analysis.chemenv.utils.html" />
+    <link rel="prev" title="pymatgen.analysis.chemenv.coordination_environments.structure_environments module" href="pymatgen.analysis.chemenv.coordination_environments.structure_environments.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pymatgen
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2020.1.28
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="team.html">Development Team</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API Docs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pymatgen.html">pymatgen package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="pymatgen.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.alchemy.html">pymatgen.alchemy package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="pymatgen.analysis.html">pymatgen.analysis package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.apps.html">pymatgen.apps package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.cli.html">pymatgen.cli package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.command_line.html">pymatgen.command_line package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html">pymatgen.core package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.electronic_structure.html">pymatgen.electronic_structure package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.entries.html">pymatgen.entries package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html">pymatgen.ext package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html">pymatgen.io package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.plugins.html">pymatgen.plugins package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.vis.html">pymatgen.vis package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#module-pymatgen">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pymatgen</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="modules.html">pymatgen</a> &raquo;</li>
+        
+          <li><a href="pymatgen.html">pymatgen package</a> &raquo;</li>
+        
+          <li><a href="pymatgen.analysis.html">pymatgen.analysis package</a> &raquo;</li>
+        
+          <li><a href="pymatgen.analysis.chemenv.html">pymatgen.analysis.chemenv package</a> &raquo;</li>
+        
+          <li><a href="pymatgen.analysis.chemenv.coordination_environments.html">pymatgen.analysis.chemenv.coordination_environments package</a> &raquo;</li>
+        
+      <li>pymatgen.analysis.chemenv.coordination_environments.voronoi module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.analysis.chemenv.coordination_environments.voronoi.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-pymatgen.analysis.chemenv.coordination_environments.voronoi">
+<span id="pymatgen-analysis-chemenv-coordination-environments-voronoi-module"></span><h1>pymatgen.analysis.chemenv.coordination_environments.voronoi module<a class="headerlink" href="#module-pymatgen.analysis.chemenv.coordination_environments.voronoi" title="Permalink to this headline">¶</a></h1>
+<p>This module contains the object used to describe the possible bonded atoms based on a Voronoi analysis.</p>
+<dl class="class">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer">
+<em class="property">class </em><code class="sig-name descname">DetailedVoronoiContainer</code><span class="sig-paren">(</span><em class="sig-param">structure=None</em>, <em class="sig-param">voronoi_list2=None</em>, <em class="sig-param">voronoi_cutoff=10.0</em>, <em class="sig-param">isites=None</em>, <em class="sig-param">normalized_distance_tolerance=1e-05</em>, <em class="sig-param">normalized_angle_tolerance=0.001</em>, <em class="sig-param">additional_conditions=None</em>, <em class="sig-param">valences=None</em>, <em class="sig-param">maximum_distance_factor=None</em>, <em class="sig-param">minimum_angle_factor=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/voronoi.py#L59-L881"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
+<p>Class used to store the full Voronoi of a given structure.</p>
+<p>Constructor for the VoronoiContainer object. Either a structure is given, in which case the Voronoi is
+computed, or the different components of the VoronoiContainer are given (used in the from_dict method).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – Structure for which the Voronoi is computed.</p></li>
+<li><p><strong>voronoi_list2</strong> – List of voronoi polyhedrons for each site.</p></li>
+<li><p><strong>voronoi_cutoff</strong> – cutoff used for the voronoi.</p></li>
+<li><p><strong>isites</strong> – indices of sites for which the Voronoi has to be computed.</p></li>
+<li><p><strong>normalized_distance_tolerance</strong> – Tolerance for two normalized distances to be considered equal.</p></li>
+<li><p><strong>normalized_angle_tolerance</strong> – Tolerance for two normalized angles to be considered equal.</p></li>
+<li><p><strong>additional_conditions</strong> – Additional conditions to be used.</p></li>
+<li><p><strong>valences</strong> – Valences of all the sites in the structure (used when additional conditions require it).</p></li>
+<li><p><strong>maximum_distance_factor</strong> – The maximum distance factor to be considered.</p></li>
+<li><p><strong>minimum_angle_factor</strong> – The minimum angle factor to be considered.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>RuntimeError if the Voronoi cannot be constructed.</strong> – </p>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.AC">
+<code class="sig-name descname">AC</code><em class="property"> = &lt;pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions object&gt;</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/voronoi.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.AC" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.as_dict">
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/voronoi.py#L838-L856"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bson-serializable dict representation of the VoronoiContainer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>dictionary that is BSON-encodable.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.default_normalized_angle_tolerance">
+<code class="sig-name descname">default_normalized_angle_tolerance</code><em class="property"> = 0.001</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/voronoi.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.default_normalized_angle_tolerance" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.default_normalized_distance_tolerance">
+<code class="sig-name descname">default_normalized_distance_tolerance</code><em class="property"> = 1e-05</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/voronoi.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.default_normalized_distance_tolerance" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.default_voronoi_cutoff">
+<code class="sig-name descname">default_voronoi_cutoff</code><em class="property"> = 10.0</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/voronoi.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.default_voronoi_cutoff" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.from_dict">
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/voronoi.py#L858-L881"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reconstructs the VoronoiContainer object from a dict representation of the VoronoiContainer created using
+the as_dict method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>d</strong> – dict representation of the VoronoiContainer object.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>VoronoiContainer object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.get_rdf_figure">
+<code class="sig-name descname">get_rdf_figure</code><span class="sig-paren">(</span><em class="sig-param">isite</em>, <em class="sig-param">normalized=True</em>, <em class="sig-param">figsize=None</em>, <em class="sig-param">step_function=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/voronoi.py#L682-L740"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.get_rdf_figure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the Radial Distribution Figure for a given site.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>isite</strong> – Index of the site.</p></li>
+<li><p><strong>normalized</strong> – Whether to normalize distances.</p></li>
+<li><p><strong>figsize</strong> – Size of the figure.</p></li>
+<li><p><strong>step_function</strong> – Type of step function to be used for the RDF.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Matplotlib figure.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.get_sadf_figure">
+<code class="sig-name descname">get_sadf_figure</code><span class="sig-paren">(</span><em class="sig-param">isite</em>, <em class="sig-param">normalized=True</em>, <em class="sig-param">figsize=None</em>, <em class="sig-param">step_function=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/voronoi.py#L742-L799"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.get_sadf_figure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the Solid Angle Distribution Figure for a given site.
+:param isite: Index of the site.
+:param normalized: Whether to normalize angles.
+:param figsize: Size of the figure.
+:param step_function: Type of step function to be used for the SADF.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Matplotlib figure.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.is_close_to">
+<code class="sig-name descname">is_close_to</code><span class="sig-paren">(</span><em class="sig-param">other</em>, <em class="sig-param">rtol=0.0</em>, <em class="sig-param">atol=1e-08</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/voronoi.py#L625-L680"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.is_close_to" title="Permalink to this definition">¶</a></dt>
+<dd><p>Whether two DetailedVoronoiContainer objects are close to each other.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>other</strong> – Another DetailedVoronoiContainer to be compared with.</p></li>
+<li><p><strong>rtol</strong> – Relative tolerance to compare values.</p></li>
+<li><p><strong>atol</strong> – Absolute tolerance to compare values.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if the two DetailedVoronoiContainer are close to each other.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.maps_and_surfaces">
+<code class="sig-name descname">maps_and_surfaces</code><span class="sig-paren">(</span><em class="sig-param">isite</em>, <em class="sig-param">surface_calculation_type=None</em>, <em class="sig-param">max_dist=2.0</em>, <em class="sig-param">additional_conditions=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/voronoi.py#L477-L506"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.maps_and_surfaces" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the different surfaces and their cn_map corresponding to the different distance-angle cutoffs
+for a given site.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>isite</strong> – Index of the site</p></li>
+<li><p><strong>surface_calculation_type</strong> – How to compute the surface.</p></li>
+<li><p><strong>max_dist</strong> – The maximum distance factor to be considered.</p></li>
+<li><p><strong>additional_conditions</strong> – If additional conditions have to be considered.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Surfaces and cn_map’s for each distance-angle cutoff.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.maps_and_surfaces_bounded">
+<code class="sig-name descname">maps_and_surfaces_bounded</code><span class="sig-paren">(</span><em class="sig-param">isite</em>, <em class="sig-param">surface_calculation_options=None</em>, <em class="sig-param">additional_conditions=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/voronoi.py#L508-L535"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.maps_and_surfaces_bounded" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the different surfaces (using boundaries) and their cn_map corresponding to the different
+distance-angle cutoffs for a given site.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>isite</strong> – Index of the site</p></li>
+<li><p><strong>surface_calculation_options</strong> – Options for the boundaries.</p></li>
+<li><p><strong>additional_conditions</strong> – If additional conditions have to be considered.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Surfaces and cn_map’s for each distance-angle cutoff.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.neighbors">
+<code class="sig-name descname">neighbors</code><span class="sig-paren">(</span><em class="sig-param">isite</em>, <em class="sig-param">distfactor</em>, <em class="sig-param">angfactor</em>, <em class="sig-param">additional_condition=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/voronoi.py#L537-L570"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.neighbors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the neighbors of a given site corresponding to a given distance and angle factor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>isite</strong> – Index of the site.</p></li>
+<li><p><strong>distfactor</strong> – Distance factor.</p></li>
+<li><p><strong>angfactor</strong> – Angle factor.</p></li>
+<li><p><strong>additional_condition</strong> – Additional condition to be used (currently not implemented).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of neighbors of the given site for the given distance and angle factors.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.neighbors_surfaces">
+<code class="sig-name descname">neighbors_surfaces</code><span class="sig-paren">(</span><em class="sig-param">isite</em>, <em class="sig-param">surface_calculation_type=None</em>, <em class="sig-param">max_dist=2.0</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/voronoi.py#L357-L380"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.neighbors_surfaces" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the different surfaces corresponding to the different distance-angle cutoffs for a given site.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>isite</strong> – Index of the site</p></li>
+<li><p><strong>surface_calculation_type</strong> – How to compute the surface.</p></li>
+<li><p><strong>max_dist</strong> – The maximum distance factor to be considered.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Surfaces for each distance-angle cutoff.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.neighbors_surfaces_bounded">
+<code class="sig-name descname">neighbors_surfaces_bounded</code><span class="sig-paren">(</span><em class="sig-param">isite</em>, <em class="sig-param">surface_calculation_options=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/voronoi.py#L382-L451"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.neighbors_surfaces_bounded" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the different surfaces (using boundaries) corresponding to the different distance-angle cutoffs
+for a given site.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>isite</strong> – Index of the site.</p></li>
+<li><p><strong>surface_calculation_options</strong> – Options for the boundaries.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Surfaces for each distance-angle cutoff.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.setup_neighbors_distances_and_angles">
+<code class="sig-name descname">setup_neighbors_distances_and_angles</code><span class="sig-paren">(</span><em class="sig-param">indices</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/voronoi.py#L180-L306"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.setup_neighbors_distances_and_angles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes the angle and distance separations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>indices</strong> – Indices of the sites for which the Voronoi is needed.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.setup_voronoi_list">
+<code class="sig-name descname">setup_voronoi_list</code><span class="sig-paren">(</span><em class="sig-param">indices</em>, <em class="sig-param">voronoi_cutoff</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/voronoi.py#L118-L178"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.setup_voronoi_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set up of the voronoi list of neighbours by calling qhull.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>indices</strong> – indices of the sites for which the Voronoi is needed.</p></li>
+<li><p><strong>voronoi_cutoff</strong> – Voronoi cutoff for the search of neighbours.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>RuntimeError</strong> – If an infinite vertex is found in the voronoi construction.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.to_bson_voronoi_list2">
+<code class="sig-name descname">to_bson_voronoi_list2</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/voronoi.py#L812-L836"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.to_bson_voronoi_list2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transforms the voronoi_list into a vlist + bson_nb_voro_list, that are BSON-encodable.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>[vlist, bson_nb_voro_list], to be used in the as_dict method.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.voronoi_parameters_bounds_and_limits">
+<code class="sig-name descname">voronoi_parameters_bounds_and_limits</code><span class="sig-paren">(</span><em class="sig-param">isite</em>, <em class="sig-param">plot_type</em>, <em class="sig-param">max_dist</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/voronoi.py#L572-L623"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.voronoi_parameters_bounds_and_limits" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the different boundaries and limits of the distance and angle factors for the given site.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>isite</strong> – Index of the site.</p></li>
+<li><p><strong>plot_type</strong> – Types of distance/angle parameters to get.</p></li>
+<li><p><strong>max_dist</strong> – Maximum distance factor.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Distance and angle bounds and limits.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.voronoi.from_bson_voronoi_list2">
+<code class="sig-name descname">from_bson_voronoi_list2</code><span class="sig-paren">(</span><em class="sig-param">bson_nb_voro_list2</em>, <em class="sig-param">structure</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/chemenv/coordination_environments/voronoi.py#L33-L56"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.voronoi.from_bson_voronoi_list2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the voronoi_list needed for the VoronoiContainer object from a bson-encoded voronoi_list.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bson_nb_voro_list2</strong> – List of periodic sites involved in the Voronoi.</p></li>
+<li><p><strong>structure</strong> – Structure object.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The voronoi_list needed for the VoronoiContainer (with PeriodicSites as keys of the dictionary - not
+allowed in the BSON format).</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011, Pymatgen Development Team
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+  
+ 
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+
+</body>
+</html>

@@ -4,7 +4,7 @@
 
 import logging
 from monty.json import MSONable
-from pymatgen.core import PeriodicSite, Structure
+from pymatgen.core import Structure
 from pymatgen.analysis.defects.corrections import FreysoldtCorrection, \
     KumagaiCorrection, BandFillingCorrection, BandEdgeShiftingCorrection
 from pymatgen.analysis.defects.core import Vacancy

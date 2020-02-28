@@ -10,6 +10,7 @@ from io import open
 import warnings
 
 from pymatgen.electronic_structure.bandstructure import Kpoint
+from pymatgen.electronic_structure.plotter import BSPlotterProjected
 from pymatgen import Lattice
 from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.io.vasp import BSVasprun
@@ -286,12 +287,15 @@ class LobsterBandStructureSymmLine_test(PymatgenTest):
         self.assertTrue(bs_p.branches[0]["name"], '\\Gamma-K')
         self.assertAlmostEqual(bs_p.get_band_gap()["energy"], 5.6739999999999995)
         self.assertAlmostEqual(bs_p.get_projection_on_elements()[Spin.up][0][0]["Si"], 3 * (0.001 + 0.064))
-        self.assertAlmostEqual(bs_p.get_projections_on_elements_and_orbitals({"Si": ["3p"]})[Spin.up][0][0]["Si"]["3p"],
-                               0.003)
-        self.assertAlmostEqual(bs_p.get_projections_on_elements_and_orbitals({"O": ["2p"]})[Spin.up][0][0]["O"]["2p"],
-                               0.002 * 3 + 0.003 * 3)
-        dict_here = bs_p.get_projections_on_elements_and_orbitals({"Si": ["3s", "3p"], "O": ["2s", "2p"]})[Spin.up][0][
-            0]
+        self.assertAlmostEqual(
+            bs_p.get_projections_on_elements_and_orbitals({"Si": ["3p"]})[Spin.up][0][0]["Si"]["3p"],
+            0.003)
+        self.assertAlmostEqual(
+            bs_p.get_projections_on_elements_and_orbitals({"O": ["2p"]})[Spin.up][0][0]["O"]["2p"],
+            0.002 * 3 + 0.003 * 3)
+        dict_here = \
+            bs_p.get_projections_on_elements_and_orbitals({"Si": ["3s", "3p"], "O": ["2s", "2p"]})[Spin.up][0][
+                0]
         self.assertAlmostEqual(dict_here["Si"]["3s"], 0.192)
         self.assertAlmostEqual(dict_here["Si"]["3p"], 0.003)
         self.assertAlmostEqual(dict_here["O"]["2s"], 0.792)
@@ -319,11 +323,17 @@ class LobsterBandStructureSymmLine_test(PymatgenTest):
             bs_spin.get_projections_on_elements_and_orbitals({"O": ["2p"]})[Spin.down][0][0]["O"]["2p"],
             0.002 * 3 + 0.003 * 3)
         dict_here = \
-            bs_spin.get_projections_on_elements_and_orbitals({"Si": ["3s", "3p"], "O": ["2s", "2p"]})[Spin.down][0][0]
+            bs_spin.get_projections_on_elements_and_orbitals({"Si": ["3s", "3p"], "O": ["2s", "2p"]})[Spin.down][0][
+                0]
         self.assertAlmostEqual(dict_here["Si"]["3s"], 0.192)
         self.assertAlmostEqual(dict_here["Si"]["3p"], 0.003)
         self.assertAlmostEqual(dict_here["O"]["2s"], 0.792)
         self.assertAlmostEqual(dict_here["O"]["2p"], 0.015)
+
+    def test_proj_bandstructure_plot(self):
+        # make sure that it can be plotted!
+        BSPlotterProjected(self.bs_spin).get_elt_projected_plots()
+        BSPlotterProjected(self.bs_spin).get_projected_plots_dots({"Si": ["3s"]})
 
     def test_get_branch(self):
         branch = self.bs_p.get_branch(0)[0]

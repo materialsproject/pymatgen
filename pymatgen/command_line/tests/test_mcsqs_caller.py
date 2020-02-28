@@ -18,12 +18,13 @@ __date__ = "June 2019"
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files', "mcsqs")
 
+
 @unittest.skipIf(not which('mcsqs'), "mcsqs executable not present")
 class Mcsqs_CallerTest(PymatgenTest):
-	def setUp(self):
-		self.pztstrings = np.load(os.path.join(test_dir, "pztstrings.npy"), allow_pickle=True)
-		self.pztstrings2 = np.load(os.path.join(test_dir, "pztstrings2.npy"), allow_pickle=True)
-		self.struc = self.get_structure('Pb2TiZrO6')
+    def setUp(self):
+        self.pztstrings = np.load(os.path.join(test_dir, "pztstrings.npy"), allow_pickle=True)
+        self.pztstrings2 = np.load(os.path.join(test_dir, "pztstrings2.npy"), allow_pickle=True)
+        self.struc = self.get_structure('Pb2TiZrO6')
 
 	def test_Mcsqs_Caller_supercell(self):
 		struc = self.struc.copy()

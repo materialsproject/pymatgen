@@ -194,7 +194,7 @@ class QChemDictSetTest(PymatgenTest):
             "theory": "cpcm",
             "vdwscale": "1.1"
         }
-        qc_input = QCInput(molecule=test_molecule, rem=rem, pcm=pcm, solvent={"dielectric":"10.0"})
+        qc_input = QCInput(molecule=test_molecule, rem=rem, pcm=pcm, solvent={"dielectric": "10.0"})
         for k, v in qc_input.as_dict().items():
             self.assertEqual(v, test_dict[k])
         os.remove("mol.qin")
@@ -226,7 +226,7 @@ class QChemDictSetTest(PymatgenTest):
             'sym_ignore': 'true',
             'resp_charges': 'true'
         }
-        qc_input = QCInput(molecule=test_molecule, rem=rem, smx={"solvent":"water"})
+        qc_input = QCInput(molecule=test_molecule, rem=rem, smx={"solvent": "water"})
         for k, v in qc_input.as_dict().items():
             self.assertEqual(v, test_dict[k])
         os.remove("mol.qin")
@@ -259,14 +259,15 @@ class QChemDictSetTest(PymatgenTest):
             'sym_ignore': 'true',
             'resp_charges': 'true'
         }
-        qc_input = QCInput(molecule=test_molecule, rem=rem, smx={"solvent":"other"})
+        qc_input = QCInput(molecule=test_molecule, rem=rem, smx={"solvent": "other"})
         for k, v in qc_input.as_dict().items():
             self.assertEqual(v, test_dict[k])
         os.remove("mol.qin")
         with open("solvent_data") as sd:
             lines = sd.readlines()
-            self.assertEqual(lines[0],"90.00,1.415,0.00,0.735,20.2,0.00,0.00")
+            self.assertEqual(lines[0], "90.00,1.415,0.00,0.735,20.2,0.00,0.00")
         os.remove("solvent_data")
+
 
 class OptSetTest(PymatgenTest):
     def test_init(self):
@@ -344,6 +345,7 @@ class OptSetTest(PymatgenTest):
             })
         self.assertEqual(test_OptSet.smx, {'solvent': 'water'})
         self.assertEqual(test_OptSet.molecule, test_molecule)
+
 
 class SinglePointSetTest(PymatgenTest):
     def test_init(self):

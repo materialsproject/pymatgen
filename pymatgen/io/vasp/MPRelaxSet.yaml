@@ -1,6 +1,7 @@
 # Default VASP settings for calculations in the Materials Project.
 # Reasonably robust. Use this if you intend to combine your calculated data
 # with Materials Project data for analysis.
+PARENT: VASPIncarBase
 INCAR:
   ALGO: FAST
   EDIFF_PER_ATOM: 5.0e-05
@@ -79,6 +80,7 @@ INCAR:
   SIGMA: 0.05
 KPOINTS:
   reciprocal_density: 64
+POTCAR_FUNCTIONAL: PBE
 POTCAR:
   Ac: Ac
   Ag: Ag

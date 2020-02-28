@@ -8,8 +8,6 @@ import unittest
 from pymatgen.io.shengbte import Control
 from pymatgen.util.testing import PymatgenTest
 
-
-
 test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                         "..", "..", "..", "test_files", "shengbte")
 
@@ -19,6 +17,7 @@ try:
     import f90nml
 except ImportError:
     f90nml = None
+
 
 @unittest.skipIf(not f90nml, "f90nml not present. Skipping...")
 class TestShengBTE(PymatgenTest):
@@ -73,11 +72,11 @@ class TestShengBTE(PymatgenTest):
         self.assertFalse(io['nonanalytic'])
         self.assertFalse(io['nanowires'])
 
-        if os.path.exists(os.path.join(test_dir,'test_control')):
-            os.remove(os.path.join(test_dir,'test_control'))
-        io.to_file(filename=os.path.join(test_dir,'test_control'))
+        if os.path.exists(os.path.join(test_dir, 'test_control')):
+            os.remove(os.path.join(test_dir, 'test_control'))
+        io.to_file(filename=os.path.join(test_dir, 'test_control'))
 
-        with open(os.path.join(test_dir,'test_control'), 'r') as file:
+        with open(os.path.join(test_dir, 'test_control'), 'r') as file:
             test_string = file.read()
         with open(os.path.join(test_dir, "CONTROL-CSLD_Si"), 'r') as reference_file:
             reference_string = reference_file.read()
@@ -86,10 +85,10 @@ class TestShengBTE(PymatgenTest):
 
     def test_from_dict(self):
         io = Control.from_dict(self.test_dict)
-        if os.path.exists(os.path.join(test_dir,'test_control')):
-            os.remove(os.path.join(test_dir,'test_control'))
-        io.to_file(filename=os.path.join(test_dir,'test_control'))
-        with open(os.path.join(test_dir,'test_control'), 'r') as file:
+        if os.path.exists(os.path.join(test_dir, 'test_control')):
+            os.remove(os.path.join(test_dir, 'test_control'))
+        io.to_file(filename=os.path.join(test_dir, 'test_control'))
+        with open(os.path.join(test_dir, 'test_control'), 'r') as file:
             test_string = file.read()
         with open(os.path.join(test_dir, "CONTROL-CSLD_Si"), 'r') as reference_file:
             reference_string = reference_file.read()
@@ -102,5 +101,3 @@ class TestShengBTE(PymatgenTest):
         newControlin = Control.from_dict(Controlinfromfile.as_dict())
         self.assertDictEqual(newControlin, Controlinfromfile)
         newControlin.to_json()
-
-

@@ -2,18 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-import subprocess
-import logging
-import numpy as np
-import pandas as pd
-import os
-
-from monty.dev import requires
-from monty.os.path import which
-
-from pymatgen.analysis.magnetism.heisenberg import HeisenbergMapper
-from pymatgen.analysis.magnetism.analyzer import CollinearMagneticStructureAnalyzer
-
 """
 This module implements an interface to the VAMPIRE code for atomistic
 simulations of magnetic materials.
@@ -29,6 +17,17 @@ R. F. L. Evans, W. J. Fan, P. Chureemart, T. A. Ostler, M. O. A. Ellis
 and R. W. Chantrell. J. Phys.: Condens. Matter 26, 103202 (2014)
 """
 
+import subprocess
+import logging
+import numpy as np
+import pandas as pd
+
+from monty.dev import requires
+from monty.os.path import which
+
+from pymatgen.analysis.magnetism.heisenberg import HeisenbergMapper
+
+
 __author__ = "ncfrey"
 __version__ = "0.1"
 __maintainer__ = "Nathan C. Frey"
@@ -40,6 +39,10 @@ VAMPEXE = which("vampire-serial")
 
 
 class VampireCaller:
+    """
+    Run Vampire on a material with magnetic ordering and exchange parameter information to compute the critical
+    temperature with classical Monte Carlo.
+    """
     @requires(
         VAMPEXE,
         "VampireCaller requires vampire-serial to be in the path."
@@ -58,9 +61,6 @@ class VampireCaller:
     ):
 
         """
-        Run Vampire on a material with magnetic ordering and exchange parameter information to compute the critical
-        temperature with classical Monte Carlo.
-
         user_input_settings is a dictionary that can contain:
         * start_t (int): Start MC sim at this temp, defaults to 0 K.
         * end_t (int): End MC sim at this temp, defaults to 1500 K.
@@ -326,8 +326,6 @@ class VampireCaller:
 
         structure = self.structure
         mat_name = self.mat_name
-        tol = self.tol
-        dists = self.dists
 
         abc = structure.lattice.abc
         ucx, ucy, ucz = abc[0], abc[1], abc[2]
@@ -393,11 +391,13 @@ class VampireCaller:
 
 
 class VampireOutput:
+    """
+    This class processes results from a Vampire Monte Carlo simulation
+    and returns the critical temperature.
+    """
+
     def __init__(self, vamp_stdout, nmats):
         """
-        This class processes results from a Vampire Monte Carlo simulation
-        and returns the critical temperature.
-
         Args:
             vamp_stdout (txt file): stdout from running vampire-serial.
 

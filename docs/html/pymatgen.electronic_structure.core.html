@@ -1,0 +1,646 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pymatgen.electronic_structure.core module &mdash; pymatgen 2020.1.28 documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pymatgen.orgpymatgen.electronic_structure.core.html"/>
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.electronic_structure.dos module" href="pymatgen.electronic_structure.dos.html" />
+    <link rel="prev" title="pymatgen.electronic_structure.cohp module" href="pymatgen.electronic_structure.cohp.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pymatgen
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2020.1.28
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="team.html">Development Team</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API Docs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pymatgen.html">pymatgen package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="pymatgen.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.alchemy.html">pymatgen.alchemy package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.html">pymatgen.analysis package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.apps.html">pymatgen.apps package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.cli.html">pymatgen.cli package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.command_line.html">pymatgen.command_line package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html">pymatgen.core package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="pymatgen.electronic_structure.html">pymatgen.electronic_structure package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.entries.html">pymatgen.entries package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html">pymatgen.ext package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html">pymatgen.io package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.plugins.html">pymatgen.plugins package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.vis.html">pymatgen.vis package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#module-pymatgen">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pymatgen</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="modules.html">pymatgen</a> &raquo;</li>
+        
+          <li><a href="pymatgen.html">pymatgen package</a> &raquo;</li>
+        
+          <li><a href="pymatgen.electronic_structure.html">pymatgen.electronic_structure package</a> &raquo;</li>
+        
+      <li>pymatgen.electronic_structure.core module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.electronic_structure.core.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-pymatgen.electronic_structure.core">
+<span id="pymatgen-electronic-structure-core-module"></span><h1>pymatgen.electronic_structure.core module<a class="headerlink" href="#module-pymatgen.electronic_structure.core" title="Permalink to this headline">¶</a></h1>
+<p>This module provides core classes needed by all define electronic structure,
+such as the Spin, Orbital, etc.</p>
+<dl class="class">
+<dt id="pymatgen.electronic_structure.core.Magmom">
+<em class="property">class </em><code class="sig-name descname">Magmom</code><span class="sig-paren">(</span><em class="sig-param">moment</em>, <em class="sig-param">saxis=(0</em>, <em class="sig-param">0</em>, <em class="sig-param">1)</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/core.py#L95-L491"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Magmom" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
+<p>New class in active development. Use with caution, feedback is
+appreciated.</p>
+<p>Class to handle magnetic moments. Defines the magnetic moment of a
+site or species relative to a spin quantization axis. Designed for
+use in electronic structure calculations.</p>
+<ul class="simple">
+<li><p>For the general case, Magmom can be specified by a vector,
+e.g. m = Magmom([1.0, 1.0, 2.0]), and subscripts will work as
+expected, e.g. m[0] gives 1.0</p></li>
+<li><p>For collinear calculations, Magmom can assumed to be scalar-like,
+e.g. m = Magmom(5.0) will work as expected, e.g. float(m) gives 5.0</p></li>
+</ul>
+<p>Both of these cases should be safe and shouldn’t give any surprises,
+but more advanced functionality is available if required.</p>
+<p>There also exist useful static methods for lists of magmoms:</p>
+<ul class="simple">
+<li><p>Magmom.are_collinear(magmoms) - if true, a collinear electronic
+structure calculation can be safely initialized, with float(Magmom)
+giving the expected scalar magnetic moment value</p></li>
+<li><p>Magmom.get_consistent_set_and_saxis(magmoms) - for non-collinear
+electronic structure calculations, a global, consistent spin axis
+has to be used. This method returns a list of Magmoms which all
+share a common spin axis, along with the global spin axis.</p></li>
+</ul>
+<p>All methods that take lists of magmoms will accept magmoms either as
+Magmom objects or as scalars/lists and will automatically convert to
+a Magmom representation internally.</p>
+<p>The following methods are also particularly useful in the context of
+VASP calculations:</p>
+<ul class="simple">
+<li><p>Magmom.get_xyz_magmom_with_001_saxis()</p></li>
+<li><p>Magmom.get_00t_magmom_with_xyz_saxis()</p></li>
+</ul>
+<p>See VASP documentation for more information:</p>
+<p><a class="reference external" href="https://cms.mpi.univie.ac.at/wiki/index.php/SAXIS">https://cms.mpi.univie.ac.at/wiki/index.php/SAXIS</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>moment</strong> – magnetic moment, supplied as float or list/np.ndarray</p></li>
+<li><p><strong>saxis</strong> – spin axis, supplied as list/np.ndarray, parameter will
+be converted to unit vector (default is [0, 0, 1])</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Magmom object</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.electronic_structure.core.Magmom.are_collinear">
+<em class="property">static </em><code class="sig-name descname">are_collinear</code><span class="sig-paren">(</span><em class="sig-param">magmoms</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/core.py#L370-L395"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Magmom.are_collinear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method checks to see if a set of magnetic moments are collinear
+with each other.
+:param magmoms: list of magmoms (Magmoms, scalars or vectors)
+:return: bool</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.core.Magmom.from_global_moment_and_saxis">
+<em class="property">classmethod </em><code class="sig-name descname">from_global_moment_and_saxis</code><span class="sig-paren">(</span><em class="sig-param">global_moment</em>, <em class="sig-param">saxis</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/core.py#L162-L177"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Magmom.from_global_moment_and_saxis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenience method to initialize Magmom from a given global
+magnetic moment, i.e. magnetic moment with saxis=(0,0,1), and
+provided saxis.</p>
+<p>Method is useful if you do not know the components of your
+magnetic moment in frame of your desired saxis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>global_moment</strong> – </p></li>
+<li><p><strong>saxis</strong> – desired saxis</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.core.Magmom.from_moment_relative_to_crystal_axes">
+<em class="property">classmethod </em><code class="sig-name descname">from_moment_relative_to_crystal_axes</code><span class="sig-paren">(</span><em class="sig-param">moment</em>, <em class="sig-param">lattice</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/core.py#L397-L413"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Magmom.from_moment_relative_to_crystal_axes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Obtaining a Magmom object from a magnetic moment provided
+relative to crystal axes.</p>
+<p>Used for obtaining moments from magCIF file.
+:param magmom: list of floats specifying vector magmom
+:param lattice: Lattice
+:return: Magmom</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.core.Magmom.get_00t_magmom_with_xyz_saxis">
+<code class="sig-name descname">get_00t_magmom_with_xyz_saxis</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/core.py#L267-L304"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Magmom.get_00t_magmom_with_xyz_saxis" title="Permalink to this definition">¶</a></dt>
+<dd><p>For internal implementation reasons, in non-collinear calculations
+VASP prefers:</p>
+<p>MAGMOM = 0 0 total_magnetic_moment
+SAXIS = x y z</p>
+<p>to an equivalent:</p>
+<p>MAGMOM = x y z
+SAXIS = 0 0 1</p>
+<p>This method returns a Magmom object with magnetic moment [0, 0, t],
+where t is the total magnetic moment, and saxis rotated as required.</p>
+<p>A consistent direction of saxis is applied such that t might be positive
+or negative depending on the direction of the initial moment. This is useful
+in the case of collinear structures, rather than constraining assuming
+t is always positive.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Magmom</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.core.Magmom.get_consistent_set_and_saxis">
+<em class="property">static </em><code class="sig-name descname">get_consistent_set_and_saxis</code><span class="sig-paren">(</span><em class="sig-param">magmoms</em>, <em class="sig-param">saxis=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/core.py#L326-L342"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Magmom.get_consistent_set_and_saxis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to ensure a list of magmoms use the same spin axis.
+Returns a tuple of a list of Magmoms and their global spin axis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>magmoms</strong> – list of magmoms (Magmoms, scalars or vectors)</p></li>
+<li><p><strong>saxis</strong> – can provide a specific global spin axis</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(list of Magmoms, global spin axis) tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.core.Magmom.get_moment">
+<code class="sig-name descname">get_moment</code><span class="sig-paren">(</span><em class="sig-param">saxis=(0</em>, <em class="sig-param">0</em>, <em class="sig-param">1)</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/core.py#L215-L237"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Magmom.get_moment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get magnetic moment relative to a given spin quantization axis.
+If no axis is provided, moment will be given relative to the
+Magmom’s internal spin quantization axis, i.e. equivalent to
+Magmom.moment</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>axis</strong> – (list/numpy array) spin quantization axis</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>np.ndarray of length 3</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.core.Magmom.get_moment_relative_to_crystal_axes">
+<code class="sig-name descname">get_moment_relative_to_crystal_axes</code><span class="sig-paren">(</span><em class="sig-param">lattice</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/core.py#L415-L430"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Magmom.get_moment_relative_to_crystal_axes" title="Permalink to this definition">¶</a></dt>
+<dd><p>If scalar magmoms, moments will be given arbitrarily along z.
+Used for writing moments to magCIF file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>magmom</strong> – Magmom</p></li>
+<li><p><strong>lattice</strong> – Lattice</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>vector as list of floats</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.core.Magmom.get_suggested_saxis">
+<em class="property">static </em><code class="sig-name descname">get_suggested_saxis</code><span class="sig-paren">(</span><em class="sig-param">magmoms</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/core.py#L344-L368"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Magmom.get_suggested_saxis" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method returns a suggested spin axis for a set of magmoms,
+taking the largest magnetic moment as the reference. For calculations
+with collinear spins, this would give a sensible saxis for a ncl
+calculation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>magmoms</strong> – list of magmoms (Magmoms, scalars or vectors)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>np.ndarray of length 3</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.core.Magmom.get_xyz_magmom_with_001_saxis">
+<code class="sig-name descname">get_xyz_magmom_with_001_saxis</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/core.py#L258-L265"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Magmom.get_xyz_magmom_with_001_saxis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a Magmom in the default setting of saxis = [0, 0, 1] and
+the magnetic moment rotated as required.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Magmom</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.core.Magmom.global_moment">
+<em class="property">property </em><code class="sig-name descname">global_moment</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/core.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Magmom.global_moment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the magnetic moment defined in an arbitrary global reference frame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>np.ndarray of length 3</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.core.Magmom.have_consistent_saxis">
+<em class="property">static </em><code class="sig-name descname">have_consistent_saxis</code><span class="sig-paren">(</span><em class="sig-param">magmoms</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/core.py#L306-L324"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Magmom.have_consistent_saxis" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method checks that all Magmom objects in a list have a
+consistent spin quantization axis. To write MAGMOM tags to a
+VASP INCAR, a global SAXIS value for all magmoms has to be used.
+If saxis are inconsistent, can create consistent set with:
+Magmom.get_consistent_set(magmoms)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>magmoms</strong> – list of magmoms (Magmoms, scalars or vectors)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.core.Magmom.projection">
+<em class="property">property </em><code class="sig-name descname">projection</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/core.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Magmom.projection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Projects moment along spin quantisation axis. Useful for obtaining
+collinear approximation for slightly non-collinear magmoms.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.electronic_structure.core.Orbital">
+<em class="property">class </em><code class="sig-name descname">Orbital</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/core.py#L58-L92"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Orbital" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
+<p>Enum type for specific orbitals. The indices are basically the order in
+which the orbitals are reported in VASP and has no special meaning.</p>
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.core.Orbital.dx2">
+<code class="sig-name descname">dx2</code><em class="property"> = 8</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/core.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Orbital.dx2" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.core.Orbital.dxy">
+<code class="sig-name descname">dxy</code><em class="property"> = 4</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/core.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Orbital.dxy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.core.Orbital.dxz">
+<code class="sig-name descname">dxz</code><em class="property"> = 7</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/core.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Orbital.dxz" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.core.Orbital.dyz">
+<code class="sig-name descname">dyz</code><em class="property"> = 5</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/core.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Orbital.dyz" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.core.Orbital.dz2">
+<code class="sig-name descname">dz2</code><em class="property"> = 6</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/core.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Orbital.dz2" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.core.Orbital.f0">
+<code class="sig-name descname">f0</code><em class="property"> = 12</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/core.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Orbital.f0" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.core.Orbital.f1">
+<code class="sig-name descname">f1</code><em class="property"> = 13</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/core.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Orbital.f1" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.core.Orbital.f2">
+<code class="sig-name descname">f2</code><em class="property"> = 14</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/core.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Orbital.f2" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.core.Orbital.f3">
+<code class="sig-name descname">f3</code><em class="property"> = 15</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/core.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Orbital.f3" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.core.Orbital.f_1">
+<code class="sig-name descname">f_1</code><em class="property"> = 11</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/core.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Orbital.f_1" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.core.Orbital.f_2">
+<code class="sig-name descname">f_2</code><em class="property"> = 10</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/core.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Orbital.f_2" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.core.Orbital.f_3">
+<code class="sig-name descname">f_3</code><em class="property"> = 9</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/core.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Orbital.f_3" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.core.Orbital.orbital_type">
+<em class="property">property </em><code class="sig-name descname">orbital_type</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/core.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Orbital.orbital_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns OrbitalType of an orbital.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.core.Orbital.px">
+<code class="sig-name descname">px</code><em class="property"> = 3</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/core.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Orbital.px" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.core.Orbital.py">
+<code class="sig-name descname">py</code><em class="property"> = 1</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/core.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Orbital.py" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.core.Orbital.pz">
+<code class="sig-name descname">pz</code><em class="property"> = 2</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/core.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Orbital.pz" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.core.Orbital.s">
+<code class="sig-name descname">s</code><em class="property"> = 0</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/core.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Orbital.s" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.electronic_structure.core.OrbitalType">
+<em class="property">class </em><code class="sig-name descname">OrbitalType</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/core.py#L42-L54"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.OrbitalType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
+<p>Enum type for orbital type. Indices are basically the azimuthal quantum
+number, l.</p>
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.core.OrbitalType.d">
+<code class="sig-name descname">d</code><em class="property"> = 2</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/core.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.OrbitalType.d" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.core.OrbitalType.f">
+<code class="sig-name descname">f</code><em class="property"> = 3</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/core.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.OrbitalType.f" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.core.OrbitalType.p">
+<code class="sig-name descname">p</code><em class="property"> = 1</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/core.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.OrbitalType.p" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.core.OrbitalType.s">
+<code class="sig-name descname">s</code><em class="property"> = 0</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/core.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.OrbitalType.s" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.electronic_structure.core.Spin">
+<em class="property">class </em><code class="sig-name descname">Spin</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/core.py#L24-L38"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Spin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
+<p>Enum type for Spin.  Only up and down.
+Usage: Spin.up, Spin.down.</p>
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.core.Spin.down">
+<code class="sig-name descname">down</code><em class="property"> = -1</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/core.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Spin.down" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.core.Spin.up">
+<code class="sig-name descname">up</code><em class="property"> = 1</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/electronic_structure/core.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Spin.up" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011, Pymatgen Development Team
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+  
+ 
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+
+</body>
+</html>

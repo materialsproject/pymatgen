@@ -1,5 +1,14 @@
 # coding: utf-8
 
+"""
+This module implements input and output for Fiesta (http://perso.neel.cnrs.fr/xavier.blase/fiesta/index.html).
+
+and
+
+-Nwchem2Fiesta class: to create the input files needed for a Fiesta run
+-Fiesta_run: run gw_fiesta and bse_fiesta
+-Localised Basis set reader
+"""
 
 import re
 import os
@@ -11,16 +20,6 @@ from monty.io import zopen
 from monty.json import MSONable
 
 from pymatgen.core.structure import Molecule
-
-"""
-This module implements input and output for Fiesta (http://perso.neel.cnrs.fr/xavier.blase/fiesta/index.html).
-
-and
-
--Nwchem2Fiesta class: to create the input files needed for a Fiesta run
--Fiesta_run: run gw_fiesta and bse_fiesta
--Localised Basis set reader
-"""
 
 __author__ = 'ndardenne'
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -73,6 +72,9 @@ class Nwchem2Fiesta(MSONable):
         os.chdir(init_folder)
 
     def as_dict(self):
+        """
+        :return: MSONable dict
+        """
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "filename": self.filename,
@@ -80,31 +82,39 @@ class Nwchem2Fiesta(MSONable):
 
     @classmethod
     def from_dict(cls, d):
+        """
+        :param d: Dict representation.
+        :return: Nwchem2Fiesta
+        """
         return Nwchem2Fiesta(folder=d["folder"], filename=d["filename"])
 
 
-class Fiesta_run(MSONable):
+class FiestaRun(MSONable):
     """
     To run FIESTA inside python:
-     if grid is [x,x] then bse runs
-     if grid is [x,x,y] the fiesta(gw) runs
-     otherwise it breaks
+        if grid is [x,x] then bse runs
+        if grid is [x,x,y] the fiesta(gw) runs
+        otherwise it breaks
     """
 
     def __init__(self, folder=os.getcwd(), grid=[2, 2, 2], log_file="log"):
         """
-        folder:
-        logfile: logfile of Fiesta
+        Args:
+            folder: Folder to look for runs.
+            grid:
+            log_file: logfile of Fiesta
         """
-
         self.folder = folder
         self.log_file = log_file
         self.grid = grid
 
     def run(self):
+        """
+        Performs FIESTA (gw) run.
+        """
         if len(self.grid) == 3:
             self.mpi_procs = self.grid[0] * self.grid[1] * self.grid[2]
-            self.gw_run()
+            self._gw_run()
         elif len(self.grid) == 2:
             self.mpi_procs = self.grid[0] * self.grid[1]
             self.bse_run()
@@ -112,7 +122,7 @@ class Fiesta_run(MSONable):
             raise ValueError(
                 "Wrong grid size: must be [nrow, ncolumn, nslice] for gw of [nrow, nslice] for bse")
 
-    def gw_run(self):
+    def _gw_run(self):
         """
         Performs FIESTA (gw) run
         """
@@ -147,6 +157,9 @@ class Fiesta_run(MSONable):
             os.chdir(init_folder)
 
     def as_dict(self):
+        """
+        :return: MSONable dict
+        """
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "log_file": self.log_file,
@@ -155,22 +168,27 @@ class Fiesta_run(MSONable):
 
     @classmethod
     def from_dict(cls, d):
-        return Fiesta_run(folder=d["folder"], grid=d["grid"],
-                          log_file=d['log_file'])
+        """
+        :param d: Dict representation
+        :return: FiestaRun
+        """
+        return FiestaRun(folder=d["folder"], grid=d["grid"],
+                         log_file=d['log_file'])
 
 
-class Basis_set_reader:
+class BasisSetReader:
     """
     A basis set reader.
-    Args:
-        filename: Filename to read.
-
-        Basis set are stored in data as a dict:
-        :key l_zeta_ng for each nl orbitals which contain list of tuple (alpha, coef) for each of the ng gaussians
-        in l_zeta orbital
+    Basis set are stored in data as a dict:
+    :key l_zeta_ng for each nl orbitals which contain list of tuple (alpha, coef) for each of the ng gaussians
+    in l_zeta orbital
     """
 
     def __init__(self, filename):
+        """
+        Args:
+            filename: Filename to read.
+        """
         self.filename = filename
 
         with zopen(filename) as f:
@@ -232,7 +250,7 @@ class Basis_set_reader:
 
     def set_n_nlmo(self):
         """
-                :return: the number of nlm orbitals for the basis set
+        :return: the number of nlm orbitals for the basis set
         """
 
         nnlmo = 0
@@ -510,10 +528,17 @@ $geometry
                             geometry="\n".join(geometry))
 
     def write_file(self, filename):
+        """
+        Write FiestaInput to a file
+        :param filename: Filename
+        """
         with zopen(filename, "w") as f:
             f.write(self.__str__())
 
     def as_dict(self):
+        """
+        :return: MSONable dict
+        """
         return {
             "mol": self._mol.as_dict(),
             "correlation_grid": self.correlation_grid,
@@ -525,6 +550,10 @@ $geometry
 
     @classmethod
     def from_dict(cls, d):
+        """
+        :param d: Dict representation
+        :return: FiestaInput
+        """
         return FiestaInput(Molecule.from_dict(d["mol"]),
                            correlation_grid=d["correlation_grid"],
                            Exc_DFT_option=d["Exc_DFT_option"],
@@ -562,7 +591,6 @@ $geometry
         lines.pop(0)
         l = lines.pop(0).strip()
         toks = l.split()
-        nvbands = toks[0]
 
         # correlation_grid
         # number of points and spacing in eV for correlation grid
@@ -644,7 +672,6 @@ $geometry
         lines.pop(0)
         l = lines.pop(0).strip()
         toks = l.split()
-        scale = toks[0]
         # atoms x,y,z cartesian .. will be multiplied by scale
         lines.pop(0)
         # Parse geometry
@@ -687,12 +714,13 @@ class FiestaOutput:
     A Fiesta output file parser.
 
     All energies are in eV.
-
-    Args:
-        filename: Filename to read.
     """
 
     def __init__(self, filename):
+        """
+        Args:
+            filename: Filename to read.
+        """
         self.filename = filename
 
         with zopen(filename) as f:
@@ -701,7 +729,7 @@ class FiestaOutput:
         chunks = re.split(r"GW Driver iteration", data)
 
         # preamble: everything before the first GW Driver iteration
-        preamble = chunks.pop(0)
+        chunks.pop(0)
 
         # self.job_info = self._parse_preamble(preamble)
         self.data = [self._parse_job(c) for c in chunks]
@@ -721,9 +749,6 @@ class FiestaOutput:
 
         total_time_patt = re.compile(r"\s*total \s+ time: \s+  ([\d.]+) .*",
                                      re.VERBOSE)
-
-        error_defs = {
-            "calculations not reaching convergence": "Bad convergence"}
 
         GW_results = {}
         parse_gw_results = False
@@ -774,12 +799,13 @@ class BSEOutput:
     A bse output file parser. The start...
 
     All energies are in eV.
-
-    Args:
-        filename: Filename to read.
     """
 
     def __init__(self, filename):
+        """
+        Args:
+            filename: Filename to read.
+        """
         self.filename = filename
 
         with zopen(filename) as f:
@@ -798,9 +824,6 @@ class BSEOutput:
 
         total_time_patt = re.compile(r"\s*total \s+ time: \s+  ([\d.]+) .*",
                                      re.VERBOSE)
-
-        error_defs = {
-            "calculations not reaching convergence": "Bad convergence"}
 
         BSE_results = {}
         parse_BSE_results = False

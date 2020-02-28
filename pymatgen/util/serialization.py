@@ -2,6 +2,10 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+Most features of this module has been moved to monty. Please refer to
+monty.json and monty.serialization documentation.
+"""
 
 import json
 import functools
@@ -9,10 +13,6 @@ import pickle
 
 from pymatgen.core.periodic_table import Element
 
-"""
-Most features of this module has been moved to monty. Please refer to
-monty.json and monty.serialization documentation.
-"""
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -81,7 +81,7 @@ class PmgUnpickler(pickle.Unpickler):
         """
         try:
             type_tag, key_id = pid
-        except Exception as exc:
+        except Exception:
             # Sometimes we get a string such as ('Element', u'C') instead
             # of a real tuple. Use ast to evalute the expression (much safer
             # than eval).
@@ -99,12 +99,12 @@ class PmgUnpickler(pickle.Unpickler):
 
 
 def pmg_pickle_load(filobj, **kwargs):
-    """
+    r"""
     Loads a pickle file and deserialize it with PmgUnpickler.
 
     Args:
         filobj: File-like object
-        \\*\\*kwargs: Any of the keyword arguments supported by PmgUnpickler
+        **kwargs: Any of the keyword arguments supported by PmgUnpickler
 
     Returns:
         Deserialized object.
@@ -113,13 +113,13 @@ def pmg_pickle_load(filobj, **kwargs):
 
 
 def pmg_pickle_dump(obj, filobj, **kwargs):
-    """
+    r"""
     Dump an object to a pickle file using PmgPickler.
 
     Args:
         obj : Object to dump.
         fileobj: File-like object
-        \\*\\*kwargs: Any of the keyword arguments supported by PmgPickler
+        **kwargs: Any of the keyword arguments supported by PmgPickler
     """
     return PmgPickler(filobj, **kwargs).dump(obj)
 

@@ -282,11 +282,11 @@ class StructureVis:
                     max_radius = (1 + self.poly_radii_tol_factor) * (max_radius + anion_radius)
                     nn = structure.get_neighbors(site, float(max_radius))
                     nn_sites = []
-                    for nnsite, dist in nn:
-                        if contains_anion(nnsite):
-                            nn_sites.append(nnsite)
-                            if not in_coord_list(inc_coords, nnsite.coords):
-                                self.add_site(nnsite)
+                    for neighbor in nn:
+                        if contains_anion(neighbor):
+                            nn_sites.append(neighbor)
+                            if not in_coord_list(inc_coords, neighbor.coords):
+                                self.add_site(neighbor)
                     if self.show_bonds:
                         self.add_bonds(nn_sites, site)
                     if self.show_polyhedron:

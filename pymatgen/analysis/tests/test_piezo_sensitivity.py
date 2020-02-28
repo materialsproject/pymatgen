@@ -245,44 +245,6 @@ class PiezoSensitivityTest(PymatgenTest):
             self.assertTrue(np.allclose(asum1, np.zeros([3, 3]), atol=1e-05))
             self.assertTrue(np.allclose(asum2, np.zeros([3, 3]), atol=1e-05))
 
-    def test_get_stable_FCM(self):
-        fcm = ForceConstantMatrix(
-            self.piezo_struc, self.FCM, self.pointops, self.sharedops
-        )
-        fcm.get_FCM_operations()
-        rand_FCM = fcm.get_unstable_FCM()
-        rand_FCM1 = fcm.get_stable_FCM(rand_FCM)
-
-        eigs, vecs = np.linalg.eig(rand_FCM1)
-        eigsort = np.argsort(np.abs(eigs))
-        for i in range(3, len(eigs)):
-            self.assertTrue(eigs[eigsort[i]] < 1e-06)
-
-        rand_FCM1 = np.reshape(rand_FCM1, (10, 3, 10, 3)).swapaxes(1, 2)
-
-        for i in range(len(self.FCM_operations)):
-            for j in range(len(self.FCM_operations[i][4])):
-                self.assertTrue(
-                    np.allclose(
-                        self.FCM_operations[i][4][j].transform_tensor(
-                            rand_FCM1[self.FCM_operations[i][2]][
-                                self.FCM_operations[i][3]
-                            ]
-                        ),
-                        rand_FCM1[self.FCM_operations[i][0]][self.FCM_operations[i][1]],
-                        atol=1e-04,
-                    )
-                )
-
-        for i in range(len(rand_FCM1)):
-            asum1 = np.zeros([3, 3])
-            asum2 = np.zeros([3, 3])
-            for j in range(len(rand_FCM1[i])):
-                asum1 += rand_FCM1[i][j]
-                asum2 += rand_FCM1[j][i]
-            self.assertTrue(np.allclose(asum1, np.zeros([3, 3]), atol=1e-05))
-            self.assertTrue(np.allclose(asum2, np.zeros([3, 3]), atol=1e-05))
-
     @unittest.skipIf(Phonopy is None, "Phonopy not present")
     def test_rand_FCM(self):
         fcm = ForceConstantMatrix(

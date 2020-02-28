@@ -3,18 +3,6 @@
 # Distributed under the terms of the MIT License.
 
 
-"""
-Created on Mar 18, 2012
-"""
-
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Mar 18, 2012"
-
 import unittest
 import os
 
@@ -56,13 +44,13 @@ class ComputedEntryTest(unittest.TestCase):
         entry = ComputedEntry("Fe6O9", 6.9, correction=1)
         entry.normalize()
         self.assertEqual(entry.composition.formula, "Fe2 O3")
-        self.assertAlmostEqual(entry.uncorrected_energy, 6.9/3)
-        self.assertAlmostEqual(entry.correction, 1/3)
+        self.assertAlmostEqual(entry.uncorrected_energy, 6.9 / 3)
+        self.assertAlmostEqual(entry.correction, 1 / 3)
         self.assertAlmostEqual(entry.energy * 3, 6.9 + 1)
         entry.normalize("atom")
         self.assertEqual(entry.composition.formula, "Fe0.4 O0.6")
-        self.assertAlmostEqual(entry.uncorrected_energy, 6.9/15)
-        self.assertAlmostEqual(entry.correction, 1/15)
+        self.assertAlmostEqual(entry.uncorrected_energy, 6.9 / 15)
+        self.assertAlmostEqual(entry.correction, 1 / 15)
         self.assertAlmostEqual(entry.energy * 15, 6.9 + 1)
 
     def test_to_from_dict(self):
@@ -85,7 +73,7 @@ class ComputedEntryTest(unittest.TestCase):
         self.assertAlmostEqual(self.entry.energy, -9.21249155)
 
     def test_is_element(self):
-        entry = ComputedEntry("Fe3",2.3)
+        entry = ComputedEntry("Fe3", 2.3)
         self.assertTrue(entry.is_element)
 
 
@@ -93,8 +81,8 @@ class ComputedStructureEntryTest(unittest.TestCase):
 
     def setUp(self):
         self.entry = ComputedStructureEntry(vasprun.final_structure,
-                                   vasprun.final_energy,
-                                   parameters=vasprun.incar)
+                                            vasprun.final_energy,
+                                            parameters=vasprun.incar)
 
     def test_energy(self):
         self.assertAlmostEqual(self.entry.energy, -269.38319884)
@@ -112,6 +100,7 @@ class ComputedStructureEntryTest(unittest.TestCase):
     def test_str(self):
         self.assertIsNotNone(str(self.entry))
 
+
 if __name__ == "__main__":
-    #import sys;sys.argv = ['', 'Test.testName']
+    # import sys;sys.argv = ['', 'Test.testName']
     unittest.main()
