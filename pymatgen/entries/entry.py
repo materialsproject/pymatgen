@@ -13,13 +13,13 @@ from pymatgen.core.composition import Composition
 from monty.json import MSONable
 
 
-# __author__ = "Shyue Ping Ong, Anubhav Jain"
-# __copyright__ = "Copyright 2011, The Materials Project"
-# __version__ = "1.1"
-# __maintainer__ = "Shyue Ping Ong"
-# __email__ = "shyuep@gmail.com"
-# __status__ = "Production"
-# __date__ = "Apr 30, 2012"
+__author__ = "Shyue Ping Ong, Anubhav Jain"
+__copyright__ = "Copyright 2011, The Materials Project"
+__version__ = "1.1"
+__maintainer__ = "Shyue Ping Ong"
+__email__ = "shyuep@gmail.com"
+__status__ = "Production"
+__date__ = "Apr 30, 2012"
 
 
 class Entry(MSONable):
