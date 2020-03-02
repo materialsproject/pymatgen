@@ -58,7 +58,9 @@ class PDEntry(Entry):
 
     .. attribute:: attribute
 
-        A arbitrary attribute.
+        A arbitrary attribute. Can be used to specify that the entry is a newly
+        found compound, or to specify a particular label for the entry, etc.
+        An attribute can be anything but must be MSONable.
     """
 
     def __init__(self, composition: Composition, energy: float,
@@ -67,13 +69,9 @@ class PDEntry(Entry):
         Args:
             composition (Composition): Composition
             energy (float): Energy for composition.
-            name (str): Optional parameter to name the entry. Defaults to the
-                reduced chemical formula.
-            attribute: Optional attribute of the entry. This can be used to
-                specify that the entry is a newly found compound, or to specify a
-                particular label for the entry, or else ... Used for further
-                analysis and plotting purposes. An attribute can be anything
-                but must be MSONable.
+            name (str): Optional parameter to name the entry. Defaults 
+                to the reduced chemical formula.
+            attribute: Optional attribute of the entry. Must be MSONable.
         """
         super().__init__(composition, energy, 0.0)
         self.name = name if name else self.composition.reduced_formula
