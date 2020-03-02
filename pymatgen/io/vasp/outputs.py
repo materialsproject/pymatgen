@@ -4196,6 +4196,8 @@ class Wavecar:
             verbose (bool): determines whether processing information is shown
             precision (str): determines how fine the fft mesh is (normal or
                              accurate), only the first letter matters
+            gamma (bool): determines if WAVECAR is assumed to have been generated
+                             by gamma-point only executable
         """
         self.filename = filename
 
@@ -4410,6 +4412,8 @@ class Wavecar:
 
         Args:
             kpoint (np.array): the array containing the current k-point value
+            gamma (bool): determines if G points for gamma-point only executable
+                          should be generated
 
         Returns:
             a list containing valid G-points
