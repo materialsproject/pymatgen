@@ -4304,7 +4304,7 @@ class Wavecar:
                         self.band_energy.append(enocc)
 
                     if verbose:
-                        print("enocc",enocc[:, [0, 2]])
+                        print("enocc", enocc[:, [0, 2]])
 
                     # padding to end of record that contains nplane, kpoints, evals and occs
                     np.fromfile(f, dtype=np.float64, count=(recl8 - 4 - 3 * self.nb) % recl8)
@@ -4326,15 +4326,15 @@ class Wavecar:
                     if len(self.Gpoints[ink]) != nplane:
                         # failed to match number of plane waves for either gamma or non-gamma
                         if gamma is None:
-                            raise ValueError('failed to generate the correct '
-                                             'number of G points generated non-gamma {} gamma-only {}, read in {}'.format(
+                            raise ValueError('failed to generate the correct number of '
+                                             'G points generated non-gamma {} gamma-only {}, read in {}'.format(
                                                  initial_generated, len(self.Gpoints[ink]), nplane))
                         else:
                             raise ValueError('failed to generate the correct '
                                              'number of G points generated {} read in {}'.format(
                                                  gamma, len(self.Gpoints[ink]), nplane))
                     if verbose:
-                        print("gamma-only input",gamma,"final",self.gamma)
+                        print("gamma-only input", gamma, "final", self.gamma)
 
                     self.Gpoints[ink] = np.array(self.Gpoints[ink] + extra_gpoints, dtype=np.float64)
 
@@ -4442,7 +4442,7 @@ class Wavecar:
                     E = g ** 2 / self._C
                     if E < self.encut:
                         gpoints.append(G)
-                        if gamma and (k1,j2,i3) != (0,0,0):
+                        if gamma and (k1, j2, i3) != (0, 0, 0):
                             extra_gpoints.append(-G)
                             extra_coeff_inds.append(G_ind)
                         G_ind += 1
