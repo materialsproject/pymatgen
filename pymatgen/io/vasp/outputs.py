@@ -4313,16 +4313,16 @@ class Wavecar:
                     if gamma is not None:
                         # use it
                         self.gamma = gamma
-                        (self.Gpoints[ink], extra_gpoints, extra_coeff_inds) = self._generate_G_points(kpoint, gamma)
+                        (self.Gpoints[ink], extra_gpoints, extra_coeff_inds) = self._generate_G_points(kpoint, gamma=self.gamma)
                     else:
                         # try assuming a conventional (non-gamma) calculation
                         self.gamma = False
-                        (self.Gpoints[ink], extra_gpoints, extra_coeff_inds) = self._generate_G_points(kpoint, False)
+                        (self.Gpoints[ink], extra_gpoints, extra_coeff_inds) = self._generate_G_points(kpoint, gamma=self.gamma)
                         initial_generated = len(self.Gpoints[ink])
                     if gamma is None and len(self.Gpoints[ink]) != nplane:
                         # failed with conventional, retry with gamma-only format
                         self.gamma = True
-                        (self.Gpoints[ink], extra_gpoints, extra_coeff_inds) = self._generate_G_points(kpoint, True)
+                        (self.Gpoints[ink], extra_gpoints, extra_coeff_inds) = self._generate_G_points(kpoint, gamma=self.gamma)
                     if len(self.Gpoints[ink]) != nplane:
                         # failed to match number of plane waves for either gamma or non-gamma
                         if gamma is None:
@@ -4331,8 +4331,9 @@ class Wavecar:
                                                  initial_generated, len(self.Gpoints[ink]), nplane))
                         else:
                             raise ValueError('failed to generate the correct '
-                                             'number of G points generated {} read in {}'.format(
-                                                 gamma, len(self.Gpoints[ink]), nplane))
+                                             'number of G points for {} executable '
+                                             'generated {} read in {}'.format(
+                                                 'gamma' if gamma else 'k-points', len(self.Gpoints[ink]), nplane))
                     if verbose:
                         print("gamma-only input", gamma, "final", self.gamma)
 

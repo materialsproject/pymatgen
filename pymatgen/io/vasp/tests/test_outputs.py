@@ -1375,7 +1375,7 @@ class WavecarTest(PymatgenTest):
 
         temp_ggp = Wavecar._generate_G_points
         try:
-            Wavecar._generate_G_points = lambda x, y: []
+            Wavecar._generate_G_points = lambda x, y, gamma: []
             with self.assertRaises(ValueError):
                 Wavecar(self.TEST_FILES_DIR / 'WAVECAR.N2')
         finally:
