@@ -2,10 +2,12 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+Perform fragmentation of molecules.
+"""
 
 import logging
 import copy
-import numpy as np
 from monty.json import MSONable
 from pymatgen.analysis.graphs import MoleculeGraph, MolGraphSplitError
 from pymatgen.analysis.local_env import OpenBabelNN
@@ -23,6 +25,9 @@ logger = logging.getLogger(__name__)
 
 
 class Fragmenter(MSONable):
+    """
+    Molecule fragmenter class.
+    """
 
     def __init__(self, molecule, edges=None, depth=1, open_rings=False, use_metal_edge_extender=False,
                  opt_steps=10000, prev_unique_frag_dict=None, assume_previous_thoroughness=True):
@@ -66,9 +71,7 @@ class Fragmenter(MSONable):
         self.opt_steps = opt_steps
 
         if edges is None:
-            self.mol_graph = MoleculeGraph.with_local_env_strategy(molecule, OpenBabelNN(),
-                                                                   reorder=False,
-                                                                   extend_structure=False)
+            self.mol_graph = MoleculeGraph.with_local_env_strategy(molecule, OpenBabelNN())
         else:
             edges = {(e[0], e[1]): None for e in edges}
             self.mol_graph = MoleculeGraph.with_edges(molecule, edges)
@@ -169,7 +172,6 @@ class Fragmenter(MSONable):
                     try:
                         fragments = old_frag.split_molecule_subgraphs(bond, allow_reverse=True)
                     except MolGraphSplitError:
-                        ring_bond = True
                         if self.open_rings:
                             fragments = [open_ring(old_frag, bond, self.opt_steps)]
                     for fragment in fragments:
@@ -292,8 +294,7 @@ def open_ring(mol_graph, bond, opt_steps):
     obmol = BabelMolAdaptor.from_molecule_graph(mol_graph)
     obmol.remove_bond(bond[0][0] + 1, bond[0][1] + 1)
     obmol.localopt(steps=opt_steps, forcefield='uff')
-    return MoleculeGraph.with_local_env_strategy(obmol.pymatgen_mol, OpenBabelNN(), reorder=False,
-                                                 extend_structure=False)
+    return MoleculeGraph.with_local_env_strategy(obmol.pymatgen_mol, OpenBabelNN())
 
 
 def metal_edge_extender(mol_graph):

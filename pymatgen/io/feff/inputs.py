@@ -2,6 +2,13 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+This module defines classes for reading/manipulating/writing the main sections
+of FEFF input file(feff.inp), namely HEADER, ATOMS, POTENTIAL and the program
+control tags.
+
+XANES and EXAFS input files, are available, for non-spin case at this time.
+"""
 
 import re
 import warnings
@@ -19,15 +26,6 @@ from pymatgen.io.cif import CifParser
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.io_utils import clean_lines
 from pymatgen.util.string import str_delimited
-
-
-"""
-This module defines classes for reading/manipulating/writing the main sections
-of FEFF input file(feff.inp), namely HEADER, ATOMS, POTENTIAL and the program
-control tags.
-
-XANES and EXAFS input files, are available, for non-spin case at this time.
-"""
 
 __author__ = "Alan Dozier, Kiran Mathew"
 __credits__ = "Anubhav Jain, Shyue Ping Ong"
@@ -79,15 +77,16 @@ class Header(MSONable):
         * 2 Co     0.333333     0.666667     0.996324
         * 3 O     0.666666     0.333332     0.878676
         * 4 O     0.333333     0.666667     0.378675
-
-    Args:
-        struct: Structure object, See pymatgen.core.structure.Structure.
-        source: User supplied identifier, i.e. for Materials Project this
-            would be the material ID number
-        comment: Comment for first header line
     """
 
     def __init__(self, struct, source='', comment=''):
+        """
+        Args:
+            struct: Structure object, See pymatgen.core.structure.Structure.
+            source: User supplied identifier, i.e. for Materials Project this
+                would be the material ID number
+            comment: Comment for first header line
+        """
         if struct.is_ordered:
             self.struct = struct
             self.source = source
@@ -224,7 +223,7 @@ class Header(MSONable):
             gamma = float(basis_ang[2])
             angles = [alpha, beta, gamma]
 
-            lattice = Lattice.from_lengths_and_angles(lengths, angles)
+            lattice = Lattice.from_parameters(*lengths, *angles)
 
             natoms = int(lines[8].split(":")[-1].split()[0])
 
@@ -891,12 +890,6 @@ class FeffParserError(Exception):
     Exception class for Structure.
     Raised when the structure has problems, e.g., atoms that are too close.
     """
-
-    def __init__(self, msg):
-        self.msg = msg
-
-    def __str__(self):
-        return "FeffParserError : " + self.msg
 
 
 def get_atom_map(structure):

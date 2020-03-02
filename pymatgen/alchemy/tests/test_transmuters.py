@@ -14,19 +14,6 @@ from pymatgen.transformations.standard_transformations import \
 from pymatgen.transformations.advanced_transformations import \
     SuperTransformation
 
-'''
-Created on Mar 5, 2012
-'''
-
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Mar 5, 2012"
-
-
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 
@@ -75,9 +62,7 @@ class PoscarTransmuterTest(unittest.TestCase):
         tsc.append_transformation(RemoveSpeciesTransformation('O'))
         self.assertEqual(len(tsc[0].final_structure), 8)
 
-        tsc.append_transformation(SubstitutionTransformation({"Fe":
-                                                              {"Fe2+": 0.25,
-                                                               "Mn3+": .75},
+        tsc.append_transformation(SubstitutionTransformation({"Fe": {"Fe2+": 0.25, "Mn3+": .75},
                                                               "P": "P5+"}))
         tsc.append_transformation(OrderDisorderedStructureTransformation(),
                                   extend_collection=50)
@@ -89,9 +74,11 @@ class PoscarTransmuterTest(unittest.TestCase):
         tsc.append_transformation(t, extend_collection=True)
         self.assertEqual(len(tsc), 12)
         for x in tsc:
-            self.assertEqual(len(x), 5, 'something might be wrong with the number of transformations in the history') #should be 4 trans + starting structure
+            # should be 4 trans + starting structure
+            self.assertEqual(len(x), 5,
+                             'something might be wrong with the number of transformations in the history')
 
-        #test the filter
+        # test the filter
         tsc.apply_filter(ContainsSpecieFilter(['Zn2+', 'Be2+', 'Mn4+'],
                                               strict_compare=True, AND=False))
         self.assertEqual(len(tsc), 8)
@@ -101,7 +88,7 @@ class PoscarTransmuterTest(unittest.TestCase):
         tsc.apply_filter(ContainsSpecieFilter(['Be2+']))
         self.assertEqual(len(tsc), 4)
 
-        #Test set_parameter and add_tag.
+        # Test set_parameter and add_tag.
         tsc.set_parameter("para1", "hello")
         self.assertEqual(tsc.transformed_structures[0]
                          .as_dict()['other_parameters']['para1'], 'hello')
@@ -110,6 +97,7 @@ class PoscarTransmuterTest(unittest.TestCase):
                          .as_dict()['other_parameters']['tags'],
                          ["world", "universe"])
 
+
 if __name__ == "__main__":
-    #import sys;sys.argv = ['', 'Test.testName']
+    # import sys;sys.argv = ['', 'Test.testName']
     unittest.main()

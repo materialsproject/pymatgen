@@ -1,0 +1,900 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pymatgen.analysis.defects.utils module &mdash; pymatgen 2020.1.28 documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pymatgen.orgpymatgen.analysis.defects.utils.html"/>
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.analysis.diffraction package" href="pymatgen.analysis.diffraction.html" />
+    <link rel="prev" title="pymatgen.analysis.defects.thermodynamics module" href="pymatgen.analysis.defects.thermodynamics.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pymatgen
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2020.1.28
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="team.html">Development Team</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API Docs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pymatgen.html">pymatgen package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="pymatgen.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.alchemy.html">pymatgen.alchemy package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="pymatgen.analysis.html">pymatgen.analysis package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.apps.html">pymatgen.apps package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.cli.html">pymatgen.cli package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.command_line.html">pymatgen.command_line package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html">pymatgen.core package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.electronic_structure.html">pymatgen.electronic_structure package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.entries.html">pymatgen.entries package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html">pymatgen.ext package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html">pymatgen.io package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.plugins.html">pymatgen.plugins package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.vis.html">pymatgen.vis package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#module-pymatgen">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pymatgen</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="modules.html">pymatgen</a> &raquo;</li>
+        
+          <li><a href="pymatgen.html">pymatgen package</a> &raquo;</li>
+        
+          <li><a href="pymatgen.analysis.html">pymatgen.analysis package</a> &raquo;</li>
+        
+          <li><a href="pymatgen.analysis.defects.html">pymatgen.analysis.defects package</a> &raquo;</li>
+        
+      <li>pymatgen.analysis.defects.utils module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.analysis.defects.utils.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-pymatgen.analysis.defects.utils">
+<span id="pymatgen-analysis-defects-utils-module"></span><h1>pymatgen.analysis.defects.utils module<a class="headerlink" href="#module-pymatgen.analysis.defects.utils" title="Permalink to this headline">¶</a></h1>
+<p>Utilities for defects module.</p>
+<dl class="class">
+<dt id="pymatgen.analysis.defects.utils.ChargeDensityAnalyzer">
+<em class="property">class </em><code class="sig-name descname">ChargeDensityAnalyzer</code><span class="sig-paren">(</span><em class="sig-param">chgcar</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/defects/utils.py#L947-L1301"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.utils.ChargeDensityAnalyzer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Analyzer to find potential interstitial sites based on charge density. The
+<cite>total</cite> charge density is used.</p>
+<p>Initialization.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>chgcar</strong> (<em>pmg.Chgcar</em>) – input Chgcar object.</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.analysis.defects.utils.ChargeDensityAnalyzer.charge_distribution_df">
+<em class="property">property </em><code class="sig-name descname">charge_distribution_df</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/defects/utils.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.utils.ChargeDensityAnalyzer.charge_distribution_df" title="Permalink to this definition">¶</a></dt>
+<dd><p>Charge distribution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.defects.utils.ChargeDensityAnalyzer.cluster_nodes">
+<code class="sig-name descname">cluster_nodes</code><span class="sig-paren">(</span><em class="sig-param">tol=0.2</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/defects/utils.py#L1132-L1183"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.utils.ChargeDensityAnalyzer.cluster_nodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cluster nodes that are too close together using a tol.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>tol</strong> (<em>float</em>) – A distance tolerance. PBC is taken into account.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.defects.utils.ChargeDensityAnalyzer.extrema_df">
+<em class="property">property </em><code class="sig-name descname">extrema_df</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/defects/utils.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.utils.ChargeDensityAnalyzer.extrema_df" title="Permalink to this definition">¶</a></dt>
+<dd><p>The extrema in charge density.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.defects.utils.ChargeDensityAnalyzer.from_file">
+<em class="property">classmethod </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param">chgcar_filename</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/defects/utils.py#L967-L976"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.utils.ChargeDensityAnalyzer.from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Init from a CHGCAR.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>chgcar_filename</strong> – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.defects.utils.ChargeDensityAnalyzer.get_local_extrema">
+<code class="sig-name descname">get_local_extrema</code><span class="sig-paren">(</span><em class="sig-param">find_min=True</em>, <em class="sig-param">threshold_frac=None</em>, <em class="sig-param">threshold_abs=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/../../../miniconda3/envs/py37/lib/python3.7/site-packages/monty-3.0.2-py3.7.egg/monty/dev.py#L1074-L1130"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.utils.ChargeDensityAnalyzer.get_local_extrema" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all local extrema fractional coordinates in charge density,
+searching for local minimum by default. Note that sites are NOT grouped
+symmetrically.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>find_min</strong> (<em>bool</em>) – True to find local minimum else maximum, otherwise
+find local maximum.</p></li>
+<li><p><strong>threshold_frac</strong> (<em>float</em>) – <p>optional fraction of extrema shown, which
+returns <cite>threshold_frac * tot_num_extrema</cite> extrema fractional
+coordinates based on highest/lowest intensity.</p>
+<p>E.g. set 0.2 to show the extrema with 20% highest or lowest
+intensity. Value range: 0 &lt;= threshold_frac &lt;= 1</p>
+<p>Note that threshold_abs and threshold_frac should not set in the
+same time.</p>
+</p></li>
+<li><p><strong>threshold_abs</strong> (<em>float</em>) – <p>optional filter. When searching for local
+minima, intensity &lt;= threshold_abs returns; when searching for
+local maxima, intensity &gt;= threshold_abs returns.</p>
+<p>Note that threshold_abs and threshold_frac should not set in the
+same time.</p>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>list of fractional coordinates corresponding</dt><dd><p>to local extrema.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>extrema_coords (list)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.defects.utils.ChargeDensityAnalyzer.get_structure_with_nodes">
+<code class="sig-name descname">get_structure_with_nodes</code><span class="sig-paren">(</span><em class="sig-param">find_min=True</em>, <em class="sig-param">min_dist=0.5</em>, <em class="sig-param">tol=0.2</em>, <em class="sig-param">threshold_frac=None</em>, <em class="sig-param">threshold_abs=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/defects/utils.py#L1218-L1267"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.utils.ChargeDensityAnalyzer.get_structure_with_nodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the modified structure with the possible interstitial sites added.
+The species is set as a DummySpecie X.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>find_min</strong> (<em>bool</em>) – True to find local minimum else maximum, otherwise
+find local maximum.</p></li>
+<li><p><strong>min_dist</strong> (<em>float</em>) – The minimum distance (in Angstrom) that
+a predicted site needs to be from existing atoms. A min_dist
+with value &lt;= 0 returns all sites without distance checking.</p></li>
+<li><p><strong>tol</strong> (<em>float</em>) – A distance tolerance of nodes clustering that sites too
+closed to other predicted sites will be merged. PBC is taken
+into account.</p></li>
+<li><p><strong>threshold_frac</strong> (<em>float</em>) – <p>optional fraction of extrema, which returns
+<cite>threshold_frac * tot_num_extrema</cite> extrema fractional
+coordinates based on highest/lowest intensity.</p>
+<p>E.g. set 0.2 to insert DummySpecie atom at the extrema with 20%
+highest or lowest intensity.
+Value range: 0 &lt;= threshold_frac &lt;= 1</p>
+<p>Note that threshold_abs and threshold_frac should not set in the
+same time.</p>
+</p></li>
+<li><p><strong>threshold_abs</strong> (<em>float</em>) – <p>optional filter. When searching for local
+minima, intensity &lt;= threshold_abs returns; when searching for
+local maxima, intensity &gt;= threshold_abs returns.</p>
+<p>Note that threshold_abs and threshold_frac should not set in the
+same time.</p>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>structure (Structure)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.defects.utils.ChargeDensityAnalyzer.remove_collisions">
+<code class="sig-name descname">remove_collisions</code><span class="sig-paren">(</span><em class="sig-param">min_dist=0.5</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/defects/utils.py#L1185-L1216"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.utils.ChargeDensityAnalyzer.remove_collisions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove predicted sites that are too close to existing atoms in the
+structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>min_dist</strong> (<em>float</em>) – The minimum distance (in Angstrom) that
+a predicted site needs to be from existing atoms. A min_dist
+with value &lt;= 0 returns all sites without distance checking.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.defects.utils.ChargeDensityAnalyzer.sort_sites_by_integrated_chg">
+<code class="sig-name descname">sort_sites_by_integrated_chg</code><span class="sig-paren">(</span><em class="sig-param">r=0.4</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/defects/utils.py#L1269-L1287"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.utils.ChargeDensityAnalyzer.sort_sites_by_integrated_chg" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the average charge density around each local minima in the charge density
+and store the result in _extrema_df
+:param r: radius of sphere around each site to evaluate the average
+:type r: float</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.analysis.defects.utils.QModel">
+<em class="property">class </em><code class="sig-name descname">QModel</code><span class="sig-paren">(</span><em class="sig-param">beta=1.0</em>, <em class="sig-param">expnorm=0.0</em>, <em class="sig-param">gamma=1.0</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/defects/utils.py#L65-L116"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.utils.QModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
+<p>Model for the defect charge distribution.
+A combination of exponential tail and gaussian distribution is used
+(see Freysoldt (2011), DOI: 10.1002/pssb.201046289 )
+q_model(r) = q [x exp(-r/gamma) + (1-x) exp(-r^2/beta^2)]</p>
+<blockquote>
+<div><p>without normalization constants</p>
+</div></blockquote>
+<p>By default, gaussian distribution with 1 Bohr width is assumed.
+If defect charge is more delocalized, exponential tail is suggested.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>beta</strong> – Gaussian decay constant. Default value is 1 Bohr.
+When delocalized (eg. diamond), 2 Bohr is more appropriate.</p></li>
+<li><p><strong>expnorm</strong> – Weight for the exponential tail in the range of [0-1].
+Default is 0.0 indicating no tail .
+For delocalized charges ideal value is around 0.54-0.6.</p></li>
+<li><p><strong>gamma</strong> – Exponential decay constant</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.analysis.defects.utils.QModel.rho_rec">
+<code class="sig-name descname">rho_rec</code><span class="sig-paren">(</span><em class="sig-param">g2</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/defects/utils.py#L95-L106"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.utils.QModel.rho_rec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reciprocal space model charge value
+for input squared reciprocal vector.
+:param g2: Square of reciprocal vector</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Charge density at the reciprocal vector magnitude</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.defects.utils.QModel.rho_rec_limit0">
+<em class="property">property </em><code class="sig-name descname">rho_rec_limit0</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/defects/utils.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.utils.QModel.rho_rec_limit0" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reciprocal space model charge value
+close to reciprocal vector 0 .
+rho_rec(g-&gt;0) -&gt; 1 + rho_rec_limit0 * g^2</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.analysis.defects.utils.StructureMotifInterstitial">
+<em class="property">class </em><code class="sig-name descname">StructureMotifInterstitial</code><span class="sig-paren">(</span><em class="sig-param">struct</em>, <em class="sig-param">inter_elem</em>, <em class="sig-param">motif_types=('tetrahedral'</em>, <em class="sig-param">'octahedral')</em>, <em class="sig-param">op_threshs=(0.3</em>, <em class="sig-param">0.5)</em>, <em class="sig-param">dl=0.2</em>, <em class="sig-param">doverlap=1</em>, <em class="sig-param">facmaxdl=1.01</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/defects/utils.py#L205-L551"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.utils.StructureMotifInterstitial" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Generate interstitial sites at positions
+where the interstitialcy is coordinated by nearest neighbors
+in a way that resembles basic structure motifs
+(e.g., tetrahedra, octahedra).  The algorithm is called InFiT
+(Interstitialcy Finding Tool), it was introducted by
+Nils E. R. Zimmermann, Matthew K. Horton, Anubhav Jain,
+and Maciej Haranczyk (Front. Mater., 4, 34, 2017),
+and it is used by the Python Charged Defect Toolkit
+(PyCDT: D. Broberg et al., Comput. Phys. Commun., in press, 2018).</p>
+<p>Generates symmetrically distinct interstitial sites at positions
+where the interstitial is coordinated by nearest neighbors
+in a pattern that resembles a supported structure motif
+(e.g., tetrahedra, octahedra).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>struct</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – input structure for which symmetrically
+distinct interstitial sites are to be found.</p></li>
+<li><p><strong>inter_elem</strong> (<em>string</em>) – element symbol of desired interstitial.</p></li>
+<li><p><strong>motif_types</strong> (<em>[</em><em>string</em><em>]</em>) – list of structure motif types that are
+to be considered.  Permissible types are:
+tet (tetrahedron), oct (octahedron).</p></li>
+<li><p><strong>op_threshs</strong> (<em>[</em><em>float</em><em>]</em>) – threshold values for the underlying order
+parameters to still recognize a given structural motif
+(i.e., for an OP value &gt;= threshold the coordination pattern
+match is positive, for OP &lt; threshold the match is
+negative.</p></li>
+<li><p><strong>dl</strong> (<em>float</em>) – grid fineness in Angstrom.  The input
+structure is divided into a grid of dimension
+a/dl x b/dl x c/dl along the three crystallographic
+directions, with a, b, and c being the lengths of
+the three lattice vectors of the input unit cell.</p></li>
+<li><p><strong>doverlap</strong> (<em>float</em>) – distance that is considered
+to flag an overlap between any trial interstitial site
+and a host atom.</p></li>
+<li><p><strong>facmaxdl</strong> (<em>float</em>) – factor to be multiplied with the maximum grid
+width that is then used as a cutoff distance for the
+clustering prune step.</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – flag indicating whether (True) or not (False;
+default) to print additional information to screen.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.analysis.defects.utils.StructureMotifInterstitial.enumerate_defectsites">
+<code class="sig-name descname">enumerate_defectsites</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/defects/utils.py#L475-L483"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.utils.StructureMotifInterstitial.enumerate_defectsites" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all defect sites.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>list of periodic sites</dt><dd><p>representing the interstitials.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>defect_sites ([<a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.PeriodicSite" title="pymatgen.core.sites.PeriodicSite">PeriodicSite</a>])</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.defects.utils.StructureMotifInterstitial.get_coordinating_elements_cns">
+<code class="sig-name descname">get_coordinating_elements_cns</code><span class="sig-paren">(</span><em class="sig-param">i</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/defects/utils.py#L500-L509"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.utils.StructureMotifInterstitial.get_coordinating_elements_cns" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get element-specific coordination numbers of defect with index i.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>dictionary storing the coordination numbers (int)</dt><dd><p>with string representation of elements as keys.
+(i.e., {elem1 (string): cn1 (int), …}).</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>elem_cn (dict)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.defects.utils.StructureMotifInterstitial.get_defectsite_multiplicity">
+<code class="sig-name descname">get_defectsite_multiplicity</code><span class="sig-paren">(</span><em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/defects/utils.py#L494-L498"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.utils.StructureMotifInterstitial.get_defectsite_multiplicity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the symmtric multiplicity of the defect site at the index.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.defects.utils.StructureMotifInterstitial.get_motif_type">
+<code class="sig-name descname">get_motif_type</code><span class="sig-paren">(</span><em class="sig-param">i</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/defects/utils.py#L485-L492"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.utils.StructureMotifInterstitial.get_motif_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the motif type of defect with index i (e.g., “tet”).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>motif type.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>motif (string)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.defects.utils.StructureMotifInterstitial.get_op_value">
+<code class="sig-name descname">get_op_value</code><span class="sig-paren">(</span><em class="sig-param">i</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/defects/utils.py#L511-L518"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.utils.StructureMotifInterstitial.get_op_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get order-parameter value of defect with index i.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>OP value.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>opval (float)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.defects.utils.StructureMotifInterstitial.make_supercells_with_defects">
+<code class="sig-name descname">make_supercells_with_defects</code><span class="sig-paren">(</span><em class="sig-param">scaling_matrix</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/defects/utils.py#L520-L551"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.utils.StructureMotifInterstitial.make_supercells_with_defects" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a sequence of supercells
+in which each supercell contains a single interstitial,
+except for the first supercell in the sequence
+which is a copy of the defect-free input structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>scaling_matrix</strong> (<em>3x3 integer array</em>) – scaling matrix
+to transform the lattice vectors.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>sequence of supercells.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>scs ([<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure">Structure</a>])</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.analysis.defects.utils.TopographyAnalyzer">
+<em class="property">class </em><code class="sig-name descname">TopographyAnalyzer</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">framework_ions</em>, <em class="sig-param">cations</em>, <em class="sig-param">tol=0.0001</em>, <em class="sig-param">max_cell_range=1</em>, <em class="sig-param">check_volume=True</em>, <em class="sig-param">constrained_c_frac=0.5</em>, <em class="sig-param">thickness=0.5</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/defects/utils.py#L554-L885"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.utils.TopographyAnalyzer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This is a generalized module to perform topological analyses of a crystal
+structure using Voronoi tessellations. It can be used for finding potential
+interstitial sites. Applications including using these sites for
+inserting additional atoms or for analyzing diffusion pathways.</p>
+<p>Note that you typically want to do some preliminary postprocessing after
+the initial construction. The initial construction will create a lot of
+points, especially for determining potential insertion sites. Some helper
+methods are available to perform aggregation and elimination of nodes. A
+typical use is something like:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">a</span> <span class="o">=</span> <span class="n">TopographyAnalyzer</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;O&quot;</span><span class="p">],</span> <span class="p">[</span><span class="s2">&quot;P&quot;</span><span class="p">])</span>
+<span class="n">a</span><span class="o">.</span><span class="n">cluster_nodes</span><span class="p">()</span>
+<span class="n">a</span><span class="o">.</span><span class="n">remove_collisions</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Init.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – An initial structure.</p></li>
+<li><p><strong>framework_ions</strong> (<em>[</em><em>str</em><em>]</em>) – A list of ions to be considered as a
+framework. Typically, this would be all anion species. E.g.,
+[“O”, “S”].</p></li>
+<li><p><strong>cations</strong> (<em>[</em><em>str</em><em>]</em>) – A list of ions to be considered as non-migrating
+cations. E.g., if you are looking at Li3PS4 as a Li
+conductor, Li is a mobile species. Your cations should be [
+“P”]. The cations are used to exclude polyhedra from
+diffusion analysis since those polyhedra are already occupied.</p></li>
+<li><p><strong>tol</strong> (<em>float</em>) – A tolerance distance for the analysis, used to
+determine if something are actually periodic boundary images of
+each other. Default is usually fine.</p></li>
+<li><p><strong>max_cell_range</strong> (<em>int</em>) – This is the range of periodic images to
+construct the Voronoi tesselation. A value of 1 means that we
+include all points from (x +- 1, y +- 1, z+- 1) in the
+voronoi construction. This is because the Voronoi poly
+extends beyond the standard unit cell because of PBC.
+Typically, the default value of 1 works fine for most
+structures and is fast. But for really small unit
+cells with high symmetry, you may need to increase this to 2
+or higher.</p></li>
+<li><p><strong>check_volume</strong> (<em>bool</em>) – Set False when ValueError always happen after
+tuning tolerance.</p></li>
+<li><p><strong>constrained_c_frac</strong> (<em>float</em>) – Constraint the region where users want
+to do Topology analysis the default value is 0.5, which is the
+fractional coordinate of the cell</p></li>
+<li><p><strong>thickness</strong> (<em>float</em>) – Along with constrained_c_frac, limit the
+thickness of the regions where we want to explore. Default is
+0.5, which is mapping all the site of the unit cell.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.analysis.defects.utils.TopographyAnalyzer.analyze_symmetry">
+<code class="sig-name descname">analyze_symmetry</code><span class="sig-paren">(</span><em class="sig-param">tol</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/defects/utils.py#L846-L865"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.utils.TopographyAnalyzer.analyze_symmetry" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>tol</strong> – Tolerance for SpaceGroupAnalyzer</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.defects.utils.TopographyAnalyzer.check_volume">
+<code class="sig-name descname">check_volume</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/defects/utils.py#L725-L737"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.utils.TopographyAnalyzer.check_volume" title="Permalink to this definition">¶</a></dt>
+<dd><p>Basic check for volume of all voronoi poly sum to unit cell volume
+Note that this does not apply after poly combination.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.defects.utils.TopographyAnalyzer.cluster_nodes">
+<code class="sig-name descname">cluster_nodes</code><span class="sig-paren">(</span><em class="sig-param">tol=0.2</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/defects/utils.py#L739-L777"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.utils.TopographyAnalyzer.cluster_nodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cluster nodes that are too close together using a tol.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>tol</strong> (<em>float</em>) – A distance tolerance. PBC is taken into account.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.defects.utils.TopographyAnalyzer.get_structure_with_nodes">
+<code class="sig-name descname">get_structure_with_nodes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/defects/utils.py#L798-L806"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.utils.TopographyAnalyzer.get_structure_with_nodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the modified structure with the voronoi nodes inserted. The
+species is set as a DummySpecie X.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.defects.utils.TopographyAnalyzer.print_stats">
+<code class="sig-name descname">print_stats</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/defects/utils.py#L808-L833"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.utils.TopographyAnalyzer.print_stats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print stats such as the MSE dist.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.defects.utils.TopographyAnalyzer.remove_collisions">
+<code class="sig-name descname">remove_collisions</code><span class="sig-paren">(</span><em class="sig-param">min_dist=0.5</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/defects/utils.py#L779-L796"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.utils.TopographyAnalyzer.remove_collisions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove vnodes that are too close to existing atoms in the structure</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>min_dist</strong> (<em>float</em>) – The minimum distance that a vertex needs to be
+from existing atoms.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.defects.utils.TopographyAnalyzer.vtk">
+<code class="sig-name descname">vtk</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/defects/utils.py#L867-L885"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.utils.TopographyAnalyzer.vtk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show VTK visualization.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.defects.utils.TopographyAnalyzer.write_topology">
+<code class="sig-name descname">write_topology</code><span class="sig-paren">(</span><em class="sig-param">fname='Topo.cif'</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/defects/utils.py#L835-L844"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.utils.TopographyAnalyzer.write_topology" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write topology to a file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>fname</strong> – Filename</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.analysis.defects.utils.VoronoiPolyhedron">
+<em class="property">class </em><code class="sig-name descname">VoronoiPolyhedron</code><span class="sig-paren">(</span><em class="sig-param">lattice</em>, <em class="sig-param">frac_coords</em>, <em class="sig-param">polyhedron_indices</em>, <em class="sig-param">all_coords</em>, <em class="sig-param">name=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/defects/utils.py#L888-L944"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.utils.VoronoiPolyhedron" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Convenience container for a voronoi point in PBC and its associated polyhedron.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lattice</strong> – </p></li>
+<li><p><strong>frac_coords</strong> – </p></li>
+<li><p><strong>polyhedron_indices</strong> – </p></li>
+<li><p><strong>all_coords</strong> – </p></li>
+<li><p><strong>name</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.analysis.defects.utils.VoronoiPolyhedron.coordination">
+<em class="property">property </em><code class="sig-name descname">coordination</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/defects/utils.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.utils.VoronoiPolyhedron.coordination" title="Permalink to this definition">¶</a></dt>
+<dd><p>Coordination number</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.defects.utils.VoronoiPolyhedron.is_image">
+<code class="sig-name descname">is_image</code><span class="sig-paren">(</span><em class="sig-param">poly</em>, <em class="sig-param">tol</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/defects/utils.py#L908-L927"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.utils.VoronoiPolyhedron.is_image" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>poly</strong> – VoronoiPolyhedron</p></li>
+<li><p><strong>tol</strong> – Coordinate tolerance.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Whether a poly is an image of the current one.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.defects.utils.VoronoiPolyhedron.volume">
+<em class="property">property </em><code class="sig-name descname">volume</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/defects/utils.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.utils.VoronoiPolyhedron.volume" title="Permalink to this definition">¶</a></dt>
+<dd><p>Volume</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.analysis.defects.utils.calculate_vol">
+<code class="sig-name descname">calculate_vol</code><span class="sig-paren">(</span><em class="sig-param">coords</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/defects/utils.py#L1304-L1323"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.utils.calculate_vol" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate volume given a set of coords.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>coords</strong> – List of coords.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Volume</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.analysis.defects.utils.closestsites">
+<code class="sig-name descname">closestsites</code><span class="sig-paren">(</span><em class="sig-param">struct_blk</em>, <em class="sig-param">struct_def</em>, <em class="sig-param">pos</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/defects/utils.py#L187-L202"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.utils.closestsites" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns closest site to the input position
+for both bulk and defect structures
+:param struct_blk: Bulk structure
+:param struct_def: Defect structure
+:param pos: Position</p>
+<p>Return: (site object, dist, index)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.analysis.defects.utils.converge">
+<code class="sig-name descname">converge</code><span class="sig-paren">(</span><em class="sig-param">f</em>, <em class="sig-param">step</em>, <em class="sig-param">tol</em>, <em class="sig-param">max_h</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/defects/utils.py#L1326-L1341"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.utils.converge" title="Permalink to this definition">¶</a></dt>
+<dd><p>simple newton iteration based convergence function</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.analysis.defects.utils.eV_to_k">
+<code class="sig-name descname">eV_to_k</code><span class="sig-paren">(</span><em class="sig-param">energy</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/defects/utils.py#L119-L128"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.utils.eV_to_k" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert energy to reciprocal vector magnitude k via hbar*k^2/2m
+:param a: Energy in eV.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>(double) Reciprocal vector magnitude (units of 1/Bohr).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.analysis.defects.utils.generate_R_and_G_vecs">
+<code class="sig-name descname">generate_R_and_G_vecs</code><span class="sig-paren">(</span><em class="sig-param">gamma</em>, <em class="sig-param">prec_set</em>, <em class="sig-param">lattice</em>, <em class="sig-param">epsilon</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/defects/utils.py#L1376-L1446"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.utils.generate_R_and_G_vecs" title="Permalink to this definition">¶</a></dt>
+<dd><p>This returns a set of real and reciprocal lattice vectors
+(and real/recip summation values)
+based on a list of precision values (prec_set)</p>
+<p>gamma (float): Ewald parameter
+prec_set (list or number): for prec values to consider (20, 25, 30 are sensible numbers)
+lattice: Lattice object of supercell in question</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.analysis.defects.utils.generate_reciprocal_vectors_squared">
+<code class="sig-name descname">generate_reciprocal_vectors_squared</code><span class="sig-paren">(</span><em class="sig-param">a1</em>, <em class="sig-param">a2</em>, <em class="sig-param">a3</em>, <em class="sig-param">encut</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/defects/utils.py#L169-L184"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.utils.generate_reciprocal_vectors_squared" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate reciprocal vector magnitudes within the cutoff along the specied
+lattice vectors.
+:param a1: Lattice vector a (in Bohrs)
+:param a2: Lattice vector b (in Bohrs)
+:param a3: Lattice vector c (in Bohrs)
+:param encut: Reciprocal vector energy cutoff</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>[[g1^2], [g2^2], …] Square of reciprocal vectors (1/Bohr)^2
+determined by a1, a2, a3 and whose magntidue is less than gcut^2.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.analysis.defects.utils.genrecip">
+<code class="sig-name descname">genrecip</code><span class="sig-paren">(</span><em class="sig-param">a1</em>, <em class="sig-param">a2</em>, <em class="sig-param">a3</em>, <em class="sig-param">encut</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/defects/utils.py#L131-L166"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.utils.genrecip" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>a2</strong><strong>, </strong><strong>a3</strong> (<em>a1</em><em>,</em>) – lattice vectors in bohr</p></li>
+<li><p><strong>encut</strong> – energy cut off in eV</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>reciprocal lattice vectors with energy less than encut</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.analysis.defects.utils.tune_for_gamma">
+<code class="sig-name descname">tune_for_gamma</code><span class="sig-paren">(</span><em class="sig-param">lattice</em>, <em class="sig-param">epsilon</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/analysis/defects/utils.py#L1344-L1373"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.utils.tune_for_gamma" title="Permalink to this definition">¶</a></dt>
+<dd><p>This tunes the gamma parameter for Kumagai anisotropic
+Ewald calculation. Method is to find a gamma parameter which generates a similar
+number of reciprocal and real lattice vectors,
+given the suggested cut off radii by Kumagai and Oba</p>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011, Pymatgen Development Team
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+  
+ 
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+
+</body>
+</html>

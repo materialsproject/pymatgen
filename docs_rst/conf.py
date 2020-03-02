@@ -22,7 +22,7 @@ sys.path.insert(0, os.path.dirname('..'))
 sys.path.insert(0, os.path.dirname('../pymatgen'))
 sys.path.insert(0, os.path.dirname('../..'))
 
-from pymatgen import __version__, __author__
+from pymatgen import __version__, __author__, __file__
 
 # -- General configuration -----------------------------------------------------
 
@@ -31,7 +31,8 @@ from pymatgen import __version__, __author__
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.napoleon', 'sphinx.ext.viewcode', "sphinx.ext.mathjax"]
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.napoleon', 
+              'sphinx.ext.linkcode', "sphinx.ext.mathjax"]
 exclude_patterns = ['../**/tests*']
 exclude_dirnames = ['../**/tests*']
 autoclass_content = 'both'
@@ -101,7 +102,7 @@ pygments_style = 'sphinx'
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = 'proBlue'
+html_theme = 'sphinx_rtd_theme'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -131,6 +132,10 @@ html_favicon = "favicon.ico"
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+
+html_css_files = [
+    'css/custom.css',
+]
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.
@@ -175,6 +180,28 @@ html_static_path = ['_static']
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'pymatgendoc'
+
+html_theme_options = {
+    'canonical_url': 'https://pymatgen.org',
+    'logo_only': True,
+    'display_version': True,
+    'prev_next_buttons_location': None,
+    'style_external_links': True,
+    'style_nav_header_background': 'linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)',
+    'collapse_navigation': True,
+    'sticky_navigation': True,
+    'navigation_depth': 4,
+    'includehidden': True,
+    'titles_only': False
+}
+
+html_context = {
+    "display_github": True,
+    "github_user": "materialsproject",
+    "github_repo": "pymatgen",
+    "github_version": "master",
+    "conf_py_path": "/docs_rst/",
+}
 
 # -- Options for LaTeX output ------------------------------------------------
 
@@ -291,3 +318,30 @@ epub_copyright = copyright
 
 # Allow duplicate toc entries.
 # epub_tocdup = True
+
+# Resolve function for the linkcode extension.
+# Thanks to https://github.com/Lasagne/Lasagne/blob/master/docs/conf.py
+def linkcode_resolve(domain, info):
+    def find_source():
+        # try to find the file and line number, based on code from numpy:
+        # https://github.com/numpy/numpy/blob/master/doc/source/conf.py#L286
+        obj = sys.modules[info['module']]
+        for part in info['fullname'].split('.'):
+            obj = getattr(obj, part)
+        import inspect
+        import os
+        fn = inspect.getsourcefile(obj)
+        fn = os.path.relpath(fn, start=os.path.dirname(__file__))
+        source, lineno = inspect.getsourcelines(obj)
+        return fn, lineno, lineno + len(source) - 1
+
+    if domain != 'py' or not info['module']:
+        return None
+
+    try:
+        filename = 'pymatgen/%s#L%d-L%d' % find_source()
+    except:
+        filename = info['module'].replace('.', '/') + '.py'
+
+    tag = 'v'+__version__
+    return "https://github.com/materialsproject/pymatgen/blob/%s/%s" % (tag, filename)

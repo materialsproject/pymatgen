@@ -19,20 +19,6 @@ from pymatgen.alchemy.materials import TransformedStructure
 from pymatgen.util.provenance import StructureNL
 from pymatgen.util.testing import PymatgenTest
 
-'''
-Created on Mar 5, 2012
-'''
-
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Mar 5, 2012"
-
-
-
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 
@@ -74,8 +60,8 @@ class TransformedStructureTest(PymatgenTest):
 
     def test_get_vasp_input(self):
         SETTINGS["PMG_VASP_PSP_DIR"] = os.path.abspath(
-                os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                             "test_files"))
+            os.path.join(os.path.dirname(__file__), "..", "..", "..",
+                         "test_files"))
         potcar = self.trans.get_vasp_input(MPRelaxSet)['POTCAR']
         self.assertEqual("Na_pv\nFe_pv\nP\nO",
                          "\n".join([p.symbol for p in potcar]))
@@ -117,7 +103,7 @@ class TransformedStructureTest(PymatgenTest):
         self.assertEqual("NaMnPO4",
                          ts.final_structure.composition.reduced_formula)
         self.assertRaises(IndexError, ts.redo_next_change)
-        #Make sure that this works with filters.
+        # Make sure that this works with filters.
         f3 = ContainsSpecieFilter(['O2-'], strict_compare=True, AND=False)
         ts.append_filter(f3)
         ts.undo_last_change()
@@ -138,19 +124,19 @@ class TransformedStructureTest(PymatgenTest):
             warnings.simplefilter("always")
             snl = self.trans.to_snl([('will', 'will@test.com')])
             self.assertEqual(len(w), 1, 'Warning not raised on type conversion '
-                             'with other_parameters')
+                                        'with other_parameters')
         ts = TransformedStructure.from_snl(snl)
         self.assertEqual(ts.history[-1]['@class'], 'SubstitutionTransformation')
-        
-        h = ('testname', 'testURL', {'test' : 'testing'})
-        snl = StructureNL(ts.final_structure,[('will', 'will@test.com')], 
-                          history = [h])
-        snl = TransformedStructure.from_snl(snl).to_snl([('notwill', 
+
+        h = ('testname', 'testURL', {'test': 'testing'})
+        snl = StructureNL(ts.final_structure, [('will', 'will@test.com')],
+                          history=[h])
+        snl = TransformedStructure.from_snl(snl).to_snl([('notwill',
                                                           'notwill@test.com')])
         self.assertEqual(snl.history, [h])
         self.assertEqual(snl.authors, [('notwill', 'notwill@test.com')])
-        
+
 
 if __name__ == "__main__":
-    #import sys;sys.argv = ['', 'Test.testName']
+    # import sys;sys.argv = ['', 'Test.testName']
     unittest.main()

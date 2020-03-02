@@ -1,0 +1,4 @@
+test_files/* linguist-vendored
+cmd_line/* linguist-vendored
+docs/* linguist-documentation
+docs_rst/* linguist-documentation

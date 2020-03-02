@@ -8,18 +8,6 @@ from pymatgen.command_line.bader_caller import *
 from monty.os.path import which
 import numpy as np
 
-"""
-TODO: Change the module doc.
-"""
-
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Jul 22, 2012"
-
 
 @unittest.skipIf(not which('bader'), "bader executable not present.")
 class BaderAnalysisTest(unittest.TestCase):
@@ -108,7 +96,7 @@ class BaderAnalysisTest(unittest.TestCase):
                                  os.path.join(test_dir, "CHGCAR.Fe3O4_ref"),
                                  parse_atomic_densities=True)
 
-        self.assertEqual(len(analysis.atomic_densities),len(analysis.chgcar.structure))
+        self.assertEqual(len(analysis.atomic_densities), len(analysis.chgcar.structure))
 
         self.assertAlmostEqual(np.sum(analysis.chgcar.data['total']),
                                np.sum([np.sum(d['data']) for d in analysis.atomic_densities]))

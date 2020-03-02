@@ -2,6 +2,10 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+Classes for reading/manipulating/writing VASP input files. All major VASP input
+files.
+"""
 
 import os
 import re
@@ -9,6 +13,7 @@ import itertools
 import warnings
 import logging
 import math
+import json
 import glob
 import subprocess
 
@@ -22,6 +27,7 @@ from monty.io import zopen
 from monty.os.path import zpath
 from monty.json import MontyDecoder
 from monty.os import cd
+from monty.serialization import loadfn
 
 from enum import Enum
 from tabulate import tabulate
@@ -38,18 +44,8 @@ from pymatgen.util.io_utils import clean_lines
 from pymatgen.util.typing import PathLike
 from monty.json import MSONable
 
-"""
-Classes for reading/manipulating/writing VASP input files. All major VASP input
-files.
-"""
-
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, Vincent L Chevrier, Stephen Dacek"
 __copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "1.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__status__ = "Production"
-__date__ = "Jul 16, 2012"
 
 logger = logging.getLogger(__name__)
 
@@ -59,21 +55,6 @@ class Poscar(MSONable):
     Object for representing the data in a POSCAR or CONTCAR file.
     Please note that this current implementation. Most attributes can be set
     directly.
-
-    Args:
-        structure (Structure):  Structure object.
-        comment (str): Optional comment line for POSCAR. Defaults to unit
-            cell formula of structure. Defaults to None.
-        selective_dynamics (Nx3 array): bool values for selective dynamics,
-            where N is number of sites. Defaults to None.
-        true_names (bool): Set to False is the names in the POSCAR are not
-            well-defined and ambiguous. This situation arises commonly in
-            vasp < 5 where the POSCAR sometimes does not contain element
-            symbols. Defaults to True.
-        velocities (Nx3 array): Velocities for the POSCAR. Typically parsed
-            in MD runs or can be used to initialize velocities.
-        predictor_corrector (Nx3 array): Predictor corrector for the POSCAR.
-            Typically parsed in MD runs.
 
     .. attribute:: structure
 
@@ -116,9 +97,37 @@ class Poscar(MSONable):
         to -1 (MB hasn"t been performed).
     """
 
-    def __init__(self, structure, comment=None, selective_dynamics=None,
-                 true_names=True, velocities=None, predictor_corrector=None,
-                 predictor_corrector_preamble=None):
+    def __init__(
+        self,
+        structure: Structure,
+        comment: str = None,
+        selective_dynamics=None,
+        true_names: bool = True,
+        velocities=None,
+        predictor_corrector=None,
+        predictor_corrector_preamble=None,
+        sort_structure: bool = False,
+    ):
+        """
+
+        :param structure: Structure object.
+        :param comment: Optional comment line for POSCAR. Defaults to unit
+            cell formula of structure. Defaults to None.
+        :param selective_dynamics: bool values for selective dynamics,
+            where N is number of sites. Defaults to None.
+        :param true_names: Set to False if the names in the POSCAR are not
+            well-defined and ambiguous. This situation arises commonly in
+            vasp < 5 where the POSCAR sometimes does not contain element
+            symbols. Defaults to True.
+        :param velocities: Velocities for the POSCAR. Typically parsed
+            in MD runs or can be used to initialize velocities.
+        :param predictor_corrector: Predictor corrector for the POSCAR.
+            Typically parsed in MD runs.
+        :param predictor_corrector_preamble: Preamble to the predictor
+            corrector.
+        :param sort_structure: Whether to sort structure. Useful if species
+            are not grouped properly together.
+        """
         if structure.is_ordered:
             site_properties = {}
             if selective_dynamics:
@@ -129,40 +138,47 @@ class Poscar(MSONable):
                 site_properties["predictor_corrector"] = predictor_corrector
             structure = Structure.from_sites(structure)
             self.structure = structure.copy(site_properties=site_properties)
+            if sort_structure:
+                self.structure = self.structure.get_sorted_structure()
             self.true_names = true_names
             self.comment = structure.formula if comment is None else comment
             self.predictor_corrector_preamble = predictor_corrector_preamble
         else:
-            raise ValueError("Structure with partial occupancies cannot be "
-                             "converted into POSCAR!")
+            raise ValueError(
+                "Structure with partial occupancies cannot be " "converted into POSCAR!"
+            )
 
         self.temperature = -1
 
     @property
     def velocities(self):
+        """Velocities in Poscar"""
         return self.structure.site_properties.get("velocities")
 
     @property
     def selective_dynamics(self):
+        """Selective dynamics in Poscar"""
         return self.structure.site_properties.get("selective_dynamics")
 
     @property
     def predictor_corrector(self):
+        """Predictor corrector in Poscar"""
         return self.structure.site_properties.get("predictor_corrector")
 
-    @velocities.setter
+    @velocities.setter  # type: ignore
     def velocities(self, velocities):
+        """Setter for Poscar.velocities"""
         self.structure.add_site_property("velocities", velocities)
 
-    @selective_dynamics.setter
+    @selective_dynamics.setter  # type: ignore
     def selective_dynamics(self, selective_dynamics):
-        self.structure.add_site_property("selective_dynamics",
-                                         selective_dynamics)
+        """Setter for Poscar.selective_dynamics"""
+        self.structure.add_site_property("selective_dynamics", selective_dynamics)
 
-    @predictor_corrector.setter
+    @predictor_corrector.setter  # type: ignore
     def predictor_corrector(self, predictor_corrector):
-        self.structure.add_site_property("predictor_corrector",
-                                         predictor_corrector)
+        """Setter for Poscar.predictor_corrector"""
+        self.structure.add_site_property("predictor_corrector", predictor_corrector)
 
     @property
     def site_symbols(self):
@@ -188,8 +204,9 @@ class Poscar(MSONable):
                 value = np.array(value)
                 dim = value.shape
                 if dim[1] != 3 or dim[0] != len(self.structure):
-                    raise ValueError(name + " array must be same length as" +
-                                     " the structure.")
+                    raise ValueError(
+                        name + " array must be same length as" + " the structure."
+                    )
                 value = value.tolist()
         super().__setattr__(name, value)
 
@@ -238,8 +255,7 @@ class Poscar(MSONable):
                 except Exception:
                     names = None
         with zopen(filename, "rt") as f:
-            return Poscar.from_string(f.read(), names,
-                                      read_velocities=read_velocities)
+            return Poscar.from_string(f.read(), names, read_velocities=read_velocities)
 
     @staticmethod
     def from_string(data, default_names=None, read_velocities=True):
@@ -288,8 +304,7 @@ class Poscar(MSONable):
         lines = tuple(clean_lines(chunks[0].split("\n"), False))
         comment = lines[0]
         scale = float(lines[1])
-        lattice = np.array([[float(i) for i in line.split()]
-                            for line in lines[2:5]])
+        lattice = np.array([[float(i) for i in line.split()] for line in lines[2:5]])
         if scale < 0:
             # In vasp, a negative scale factor is treated as a volume. We need
             # to translate this to a proper lattice vector scaling.
@@ -334,8 +349,9 @@ class Poscar(MSONable):
                 symbols.extend(lines[iline_symbols].split())
             natoms = []
             iline_natoms_start = 5 + nlines_symbols
-            for iline_natoms in range(iline_natoms_start,
-                                      iline_natoms_start + nlines_symbols):
+            for iline_natoms in range(
+                iline_natoms_start, iline_natoms_start + nlines_symbols
+            ):
                 natoms.extend([int(i) for i in lines[iline_natoms].split()])
             atomic_symbols = list()
             for i in range(len(natoms)):
@@ -370,11 +386,11 @@ class Poscar(MSONable):
             ind = 3 if not sdynamics else 6
             try:
                 # Check if names are appended at the end of the coordinates.
-                atomic_symbols = [l.split()[ind]
-                                  for l in lines[ipos + 1:ipos + 1 + nsites]]
+                atomic_symbols = [
+                    l.split()[ind] for l in lines[ipos + 1: ipos + 1 + nsites]
+                ]
                 # Ensure symbols are valid elements
-                if not all([Element.is_valid_symbol(sym)
-                            for sym in atomic_symbols]):
+                if not all([Element.is_valid_symbol(sym) for sym in atomic_symbols]):
                     raise ValueError("Non-valid symbols detected.")
                 vasp5_symbols = True
             except (ValueError, IndexError):
@@ -383,9 +399,10 @@ class Poscar(MSONable):
                 for i in range(len(natoms)):
                     sym = Element.from_Z(i + 1).symbol
                     atomic_symbols.extend([sym] * natoms[i])
-                warnings.warn("Elements in POSCAR cannot be determined. "
-                              "Defaulting to false names %s." %
-                              " ".join(atomic_symbols))
+                warnings.warn(
+                    "Elements in POSCAR cannot be determined. "
+                    "Defaulting to false names %s." % " ".join(atomic_symbols)
+                )
 
         # read the atomic coordinates
         coords = []
@@ -395,12 +412,16 @@ class Poscar(MSONable):
             crd_scale = scale if cart else 1
             coords.append([float(j) * crd_scale for j in toks[:3]])
             if sdynamics:
-                selective_dynamics.append([tok.upper()[0] == "T"
-                                           for tok in toks[3:6]])
+                selective_dynamics.append([tok.upper()[0] == "T" for tok in toks[3:6]])
 
-        struct = Structure(lattice, atomic_symbols, coords,
-                           to_unit_cell=False, validate_proximity=False,
-                           coords_are_cartesian=cart)
+        struct = Structure(
+            lattice,
+            atomic_symbols,
+            coords,
+            to_unit_cell=False,
+            validate_proximity=False,
+            coords_are_cartesian=cart,
+        )
 
         if read_velocities:
             # Parse velocities if any
@@ -421,8 +442,9 @@ class Poscar(MSONable):
                 # First line in chunk is a key in CONTCAR
                 # Second line is POTIM
                 # Third line is the thermostat parameters
-                predictor_corrector_preamble = (lines[0] + "\n" + lines[1]
-                                                + "\n" + lines[2])
+                predictor_corrector_preamble = (
+                    lines[0] + "\n" + lines[1] + "\n" + lines[2]
+                )
                 # Rest is three sets of parameters, each set contains
                 # x, y, z predictor-corrector parameters for every atom in orde
                 lines = lines[3:]
@@ -436,13 +458,17 @@ class Poscar(MSONable):
             predictor_corrector = None
             predictor_corrector_preamble = None
 
-        return Poscar(struct, comment, selective_dynamics, vasp5_symbols,
-                      velocities=velocities,
-                      predictor_corrector=predictor_corrector,
-                      predictor_corrector_preamble=predictor_corrector_preamble)
+        return Poscar(
+            struct,
+            comment,
+            selective_dynamics,
+            vasp5_symbols,
+            velocities=velocities,
+            predictor_corrector=predictor_corrector,
+            predictor_corrector_preamble=predictor_corrector_preamble,
+        )
 
-    def get_string(self, direct=True, vasp4_compatible=False,
-                   significant_figures=6):
+    def get_string(self, direct=True, vasp4_compatible=False, significant_figures=6):
         """
         Returns a string to be written as a POSCAR file. By default, site
         symbols are written, which means compatibility is for vasp >= 5.
@@ -510,7 +536,8 @@ class Poscar(MSONable):
             else:
                 warnings.warn(
                     "Preamble information missing or corrupt. "
-                    "Writing Poscar with no predictor corrector data.")
+                    "Writing Poscar with no predictor corrector data."
+                )
 
         return "\n".join(lines) + "\n"
 
@@ -532,24 +559,34 @@ class Poscar(MSONable):
             f.write(self.get_string(**kwargs))
 
     def as_dict(self):
-        return {"@module": self.__class__.__module__,
-                "@class": self.__class__.__name__,
-                "structure": self.structure.as_dict(),
-                "true_names": self.true_names,
-                "selective_dynamics": np.array(
-                    self.selective_dynamics).tolist(),
-                "velocities": self.velocities,
-                "predictor_corrector": self.predictor_corrector,
-                "comment": self.comment}
+        """
+        :return: MSONable dict.
+        """
+        return {
+            "@module": self.__class__.__module__,
+            "@class": self.__class__.__name__,
+            "structure": self.structure.as_dict(),
+            "true_names": self.true_names,
+            "selective_dynamics": np.array(self.selective_dynamics).tolist(),
+            "velocities": self.velocities,
+            "predictor_corrector": self.predictor_corrector,
+            "comment": self.comment,
+        }
 
     @classmethod
     def from_dict(cls, d):
-        return Poscar(Structure.from_dict(d["structure"]),
-                      comment=d["comment"],
-                      selective_dynamics=d["selective_dynamics"],
-                      true_names=d["true_names"],
-                      velocities=d.get("velocities", None),
-                      predictor_corrector=d.get("predictor_corrector", None))
+        """
+        :param d: Dict representation.
+        :return: Poscar
+        """
+        return Poscar(
+            Structure.from_dict(d["structure"]),
+            comment=d["comment"],
+            selective_dynamics=d["selective_dynamics"],
+            true_names=d["true_names"],
+            velocities=d.get("velocities", None),
+            predictor_corrector=d.get("predictor_corrector", None),
+        )
 
     def set_temperature(self, temperature):
         """
@@ -570,8 +607,9 @@ class Poscar(MSONable):
         velocities = np.random.randn(len(self.structure), 3)
 
         # in AMU, (N,1) array
-        atomic_masses = np.array([site.specie.atomic_mass.to("kg")
-                                  for site in self.structure])
+        atomic_masses = np.array(
+            [site.specie.atomic_mass.to("kg") for site in self.structure]
+        )
         dof = 3 * len(self.structure) - 3
 
         # scale velocities due to atomic masses
@@ -579,12 +617,12 @@ class Poscar(MSONable):
         velocities /= atomic_masses[:, np.newaxis] ** (1 / 2)
 
         # remove linear drift (net momentum)
-        velocities -= np.average(atomic_masses[:, np.newaxis] * velocities,
-                                 axis=0) / np.average(atomic_masses)
+        velocities -= np.average(
+            atomic_masses[:, np.newaxis] * velocities, axis=0
+        ) / np.average(atomic_masses)
 
         # scale velocities to get correct temperature
-        energy = np.sum(1 / 2 * atomic_masses *
-                        np.sum(velocities ** 2, axis=1))
+        energy = np.sum(1 / 2 * atomic_masses * np.sum(velocities ** 2, axis=1))
         scale = (temperature * dof / (2 * energy / const.k)) ** (1 / 2)
 
         velocities *= scale * 1e-5  # these are in A/fs
@@ -605,6 +643,19 @@ class Poscar(MSONable):
         self.structure.add_site_property("velocities", velocities.tolist())
 
 
+cwd = os.path.abspath(os.path.dirname(__file__))
+with open(os.path.join(cwd, "incar_parameters.json")) as incar_params:
+    incar_params = json.loads(incar_params.read())
+
+
+class BadIncarWarning(UserWarning):
+    """
+    Warning class for bad Incar parameters.
+    """
+
+    pass
+
+
 class Incar(dict, MSONable):
     """
     INCAR object for reading and writing INCAR files. Essentially consists of
@@ -623,11 +674,12 @@ class Incar(dict, MSONable):
 
             # if Incar contains vector-like magmoms given as a list
             # of floats, convert to a list of lists
-            if (params.get("MAGMOM") and isinstance(params["MAGMOM"][0], (int, float))) \
-                    and (params.get("LSORBIT") or params.get("LNONCOLLINEAR")):
+            if (
+                params.get("MAGMOM") and isinstance(params["MAGMOM"][0], (int, float))
+            ) and (params.get("LSORBIT") or params.get("LNONCOLLINEAR")):
                 val = []
                 for i in range(len(params["MAGMOM"]) // 3):
-                    val.append(params["MAGMOM"][i * 3:(i + 1) * 3])
+                    val.append(params["MAGMOM"][i * 3: (i + 1) * 3])
                 params["MAGMOM"] = val
 
             self.update(params)
@@ -639,10 +691,14 @@ class Incar(dict, MSONable):
         leading and trailing white spaces.
         """
         super().__setitem__(
-            key.strip(), Incar.proc_val(key.strip(), val.strip())
-            if isinstance(val, str) else val)
+            key.strip(),
+            Incar.proc_val(key.strip(), val.strip()) if isinstance(val, str) else val,
+        )
 
     def as_dict(self):
+        """
+        :return: MSONable dict.
+        """
         d = dict(self)
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
@@ -650,10 +706,13 @@ class Incar(dict, MSONable):
 
     @classmethod
     def from_dict(cls, d):
+        """
+        :param d: Dict representation.
+        :return: Incar
+        """
         if d.get("MAGMOM") and isinstance(d["MAGMOM"][0], dict):
             d["MAGMOM"] = [Magmom.from_dict(m) for m in d["MAGMOM"]]
-        return Incar({k: v for k, v in d.items() if k not in ("@module",
-                                                              "@class")})
+        return Incar({k: v for k, v in d.items() if k not in ("@module", "@class")})
 
     def get_string(self, sort_keys=False, pretty=False):
         """
@@ -675,8 +734,9 @@ class Incar(dict, MSONable):
             if k == "MAGMOM" and isinstance(self[k], list):
                 value = []
 
-                if (isinstance(self[k][0], list) or isinstance(self[k][0], Magmom)) and \
-                        (self.get("LSORBIT") or self.get("LNONCOLLINEAR")):
+                if (
+                    isinstance(self[k][0], list) or isinstance(self[k][0], Magmom)
+                ) and (self.get("LSORBIT") or self.get("LNONCOLLINEAR")):
                     value.append(" ".join(str(i) for j in self[k] for i in j))
                 elif self.get("LSORBIT") or self.get("LNONCOLLINEAR"):
                     for m, g in itertools.groupby(self[k]):
@@ -694,8 +754,7 @@ class Incar(dict, MSONable):
                 lines.append([k, self[k]])
 
         if pretty:
-            return str(tabulate([[l[0], "=", l[1]] for l in lines],
-                                tablefmt="plain"))
+            return str(tabulate([[l[0], "=", l[1]] for l in lines], tablefmt="plain"))
         else:
             return str_delimited(lines, None, " = ") + "\n"
 
@@ -740,8 +799,8 @@ class Incar(dict, MSONable):
         lines = list(clean_lines(string.splitlines()))
         params = {}
         for line in lines:
-            for sline in line.split(';'):
-                m = re.match(r'(\w+)\s*=\s*(.*)', sline.strip())
+            for sline in line.split(";"):
+                m = re.match(r"(\w+)\s*=\s*(.*)", sline.strip())
                 if m:
                     key = m.group(1).strip()
                     val = m.group(2).strip()
@@ -759,16 +818,61 @@ class Incar(dict, MSONable):
             key: INCAR parameter key
             val: Actual value of INCAR parameter.
         """
-        list_keys = ("LDAUU", "LDAUL", "LDAUJ", "MAGMOM", "DIPOL",
-                     "LANGEVIN_GAMMA", "QUAD_EFG", "EINT")
-        bool_keys = ("LDAU", "LWAVE", "LSCALU", "LCHARG", "LPLANE", "LUSE_VDW",
-                     "LHFCALC", "ADDGRID", "LSORBIT", "LNONCOLLINEAR")
-        float_keys = ("EDIFF", "SIGMA", "TIME", "ENCUTFOCK", "HFSCREEN",
-                      "POTIM", "EDIFFG", "AGGAC", "PARAM1", "PARAM2")
-        int_keys = ("NSW", "NBANDS", "NELMIN", "ISIF", "IBRION", "ISPIN",
-                    "ICHARG", "NELM", "ISMEAR", "NPAR", "LDAUPRINT", "LMAXMIX",
-                    "ENCUT", "NSIM", "NKRED", "NUPDOWN", "ISPIND", "LDAUTYPE",
-                    "IVDW")
+        list_keys = (
+            "LDAUU",
+            "LDAUL",
+            "LDAUJ",
+            "MAGMOM",
+            "DIPOL",
+            "LANGEVIN_GAMMA",
+            "QUAD_EFG",
+            "EINT",
+        )
+        bool_keys = (
+            "LDAU",
+            "LWAVE",
+            "LSCALU",
+            "LCHARG",
+            "LPLANE",
+            "LUSE_VDW",
+            "LHFCALC",
+            "ADDGRID",
+            "LSORBIT",
+            "LNONCOLLINEAR",
+        )
+        float_keys = (
+            "EDIFF",
+            "SIGMA",
+            "TIME",
+            "ENCUTFOCK",
+            "HFSCREEN",
+            "POTIM",
+            "EDIFFG",
+            "AGGAC",
+            "PARAM1",
+            "PARAM2",
+        )
+        int_keys = (
+            "NSW",
+            "NBANDS",
+            "NELMIN",
+            "ISIF",
+            "IBRION",
+            "ISPIN",
+            "ICHARG",
+            "NELM",
+            "ISMEAR",
+            "NPAR",
+            "LDAUPRINT",
+            "LMAXMIX",
+            "ENCUT",
+            "NSIM",
+            "NKRED",
+            "NUPDOWN",
+            "ISPIND",
+            "LDAUTYPE",
+            "IVDW",
+        )
 
         def smart_int_or_float(numstr):
             if numstr.find(".") != -1 or numstr.lower().find("e") != -1:
@@ -780,15 +884,15 @@ class Incar(dict, MSONable):
             if key in list_keys:
                 output = []
                 toks = re.findall(
-                    r"(-?\d+\.?\d*)\*?(-?\d+\.?\d*)?\*?(-?\d+\.?\d*)?", val)
+                    r"(-?\d+\.?\d*)\*?(-?\d+\.?\d*)?\*?(-?\d+\.?\d*)?", val
+                )
                 for tok in toks:
                     if tok[2] and "3" in tok[0]:
                         output.extend(
-                            [smart_int_or_float(tok[2])] * int(tok[0])
-                            * int(tok[1]))
+                            [smart_int_or_float(tok[2])] * int(tok[0]) * int(tok[1])
+                        )
                     elif tok[1]:
-                        output.extend([smart_int_or_float(tok[1])] *
-                                      int(tok[0]))
+                        output.extend([smart_int_or_float(tok[1])] * int(tok[0]))
                     else:
                         output.append(smart_int_or_float(tok[0]))
                 return output
@@ -875,8 +979,57 @@ class Incar(dict, MSONable):
                 params[k] = v
         return Incar(params)
 
+    def check_params(self):
+        """
+        Raises a warning for nonsensical or non-existant INCAR tags and
+        parameters. If a keyword doesn't exist (e.g. theres a typo in a
+        keyword), your calculation will still run, however VASP will igore the
+        parameter without letting you know, hence why we have this Incar method.
+        """
+        for k in self.keys():
+
+            # First check if this parameter even exists
+            if k not in incar_params.keys():
+                warnings.warn(
+                    "Cannot find %s in the list of INCAR flags" % (k),
+                    BadIncarWarning,
+                    stacklevel=2,
+                )
+
+            if k in incar_params.keys():
+                if type(incar_params[k]).__name__ == "str":
+                    # Now we check if this is an appropriate parameter type
+                    if incar_params[k] == "float":
+                        if not type(self[k]) not in ["float", "int"]:
+                            warnings.warn(
+                                "%s: %s is not real" % (k, self[k]),
+                                BadIncarWarning,
+                                stacklevel=2,
+                            )
+                    elif type(self[k]).__name__ != incar_params[k]:
+                        warnings.warn(
+                            "%s: %s is not a %s" % (k, self[k], incar_params[k]),
+                            BadIncarWarning,
+                            stacklevel=2,
+                        )
+
+                # if we have a list of possible parameters, check
+                # if the user given parameter is in this list
+                elif type(incar_params[k]).__name__ == "list":
+                    if self[k] not in incar_params[k]:
+                        warnings.warn(
+                            "%s: Cannot find %s in the list of parameters"
+                            % (k, self[k]),
+                            BadIncarWarning,
+                            stacklevel=2,
+                        )
+
 
 class Kpoints_supported_modes(Enum):
+    """
+    Enum type of all supported modes for Kpoint generation.
+    """
+
     Automatic = 0
     Gamma = 1
     Monkhorst = 2
@@ -888,7 +1041,11 @@ class Kpoints_supported_modes(Enum):
         return self.name
 
     @staticmethod
-    def from_string(s):
+    def from_string(s: str) -> "Kpoints_supported_modes":
+        """
+        :param s: String
+        :return: Kpoints_supported_modes
+        """
         c = s.lower()[0]
         for m in Kpoints_supported_modes:
             if m.name.lower()[0] == c:
@@ -900,13 +1057,23 @@ class Kpoints(MSONable):
     """
     KPOINT reader/writer.
     """
+
     supported_modes = Kpoints_supported_modes
 
-    def __init__(self, comment="Default gamma", num_kpts=0,
-                 style=supported_modes.Gamma,
-                 kpts=((1, 1, 1),), kpts_shift=(0, 0, 0),
-                 kpts_weights=None, coord_type=None, labels=None,
-                 tet_number=0, tet_weight=0, tet_connections=None):
+    def __init__(
+        self,
+        comment="Default gamma",
+        num_kpts=0,
+        style=supported_modes.Gamma,
+        kpts=((1, 1, 1),),
+        kpts_shift=(0, 0, 0),
+        kpts_weights=None,
+        coord_type=None,
+        labels=None,
+        tet_number=0,
+        tet_weight=0,
+        tet_connections=None,
+    ):
         """
         Highly flexible constructor for Kpoints object.  The flexibility comes
         at the cost of usability and in general, it is recommended that you use
@@ -948,8 +1115,10 @@ class Kpoints(MSONable):
         1x1x1 KPOINTS with no shift.
         """
         if num_kpts > 0 and (not labels) and (not kpts_weights):
-            raise ValueError("For explicit or line-mode kpoints, either the "
-                             "labels or kpts_weights must be specified.")
+            raise ValueError(
+                "For explicit or line-mode kpoints, either the "
+                "labels or kpts_weights must be specified."
+            )
 
         self.comment = comment
         self.num_kpts = num_kpts
@@ -965,19 +1134,36 @@ class Kpoints(MSONable):
 
     @property
     def style(self):
+        """
+        :return: Style for kpoint generation. One of Kpoints_supported_modes
+            enum.
+        """
         return self._style
 
     @style.setter
     def style(self, style):
+        """
+        :param style: Style
+        :return: Sets the style for the Kpoints. One of Kpoints_supported_modes
+            enum.
+        """
         if isinstance(style, str):
             style = Kpoints.supported_modes.from_string(style)
 
-        if style in (Kpoints.supported_modes.Automatic,
-                     Kpoints.supported_modes.Gamma,
-                     Kpoints.supported_modes.Monkhorst) and len(self.kpts) > 1:
-            raise ValueError("For fully automatic or automatic gamma or monk "
-                             "kpoints, only a single line for the number of "
-                             "divisions is allowed.")
+        if (
+            style
+            in (
+                Kpoints.supported_modes.Automatic,
+                Kpoints.supported_modes.Gamma,
+                Kpoints.supported_modes.Monkhorst,
+            )
+            and len(self.kpts) > 1
+        ):
+            raise ValueError(
+                "For fully automatic or automatic gamma or monk "
+                "kpoints, only a single line for the number of "
+                "divisions is allowed."
+            )
 
         self._style = style
 
@@ -996,9 +1182,12 @@ class Kpoints(MSONable):
         Returns:
             Kpoints object
         """
-        return Kpoints("Fully automatic kpoint scheme", 0,
-                       style=Kpoints.supported_modes.Automatic,
-                       kpts=[[subdivisions]])
+        return Kpoints(
+            "Fully automatic kpoint scheme",
+            0,
+            style=Kpoints.supported_modes.Automatic,
+            kpts=[[subdivisions]],
+        )
 
     @staticmethod
     def gamma_automatic(kpts=(1, 1, 1), shift=(0, 0, 0)):
@@ -1014,9 +1203,13 @@ class Kpoints(MSONable):
         Returns:
             Kpoints object
         """
-        return Kpoints("Automatic kpoint scheme", 0,
-                       Kpoints.supported_modes.Gamma, kpts=[kpts],
-                       kpts_shift=shift)
+        return Kpoints(
+            "Automatic kpoint scheme",
+            0,
+            Kpoints.supported_modes.Gamma,
+            kpts=[kpts],
+            kpts_shift=shift,
+        )
 
     @staticmethod
     def monkhorst_automatic(kpts=(2, 2, 2), shift=(0, 0, 0)):
@@ -1032,9 +1225,13 @@ class Kpoints(MSONable):
         Returns:
             Kpoints object
         """
-        return Kpoints("Automatic kpoint scheme", 0,
-                       Kpoints.supported_modes.Monkhorst, kpts=[kpts],
-                       kpts_shift=shift)
+        return Kpoints(
+            "Automatic kpoint scheme",
+            0,
+            Kpoints.supported_modes.Monkhorst,
+            kpts=[kpts],
+            kpts_shift=shift,
+        )
 
     @staticmethod
     def automatic_density(structure, kppa, force_gamma=False):
@@ -1056,8 +1253,7 @@ class Kpoints(MSONable):
         Returns:
             Kpoints
         """
-        comment = "pymatgen v%s with grid density = %.0f / atom" % (
-            __version__, kppa)
+        comment = "pymatgen v%s with grid density = %.0f / atom" % (__version__, kppa)
         if math.fabs((math.floor(kppa ** (1 / 3) + 0.5)) ** 3 - kppa) < 1:
             kppa += kppa * 0.01
         latt = structure.lattice
@@ -1110,8 +1306,10 @@ class Kpoints(MSONable):
 
         style = Kpoints.supported_modes.Gamma
 
-        comment = "pymatgen 4.7.6+ generated KPOINTS with grid density = " + \
-                  "{} / atom".format(kppa)
+        comment = (
+            "pymatgen 4.7.6+ generated KPOINTS with grid density = "
+            + "{} / atom".format(kppa)
+        )
         num_kpts = 0
         return Kpoints(comment, num_kpts, style, [num_div], [0, 0, 0])
 
@@ -1134,8 +1332,7 @@ class Kpoints(MSONable):
         """
         vol = structure.lattice.reciprocal_lattice.volume
         kppa = kppvol * vol * structure.num_sites
-        return Kpoints.automatic_density(structure, kppa,
-                                         force_gamma=force_gamma)
+        return Kpoints.automatic_density(structure, kppa, force_gamma=force_gamma)
 
     @staticmethod
     def automatic_linemode(divisions, ibz):
@@ -1167,12 +1364,14 @@ class Kpoints(MSONable):
             kpoints.append(ibz.kpath["kpoints"][path[-1]])
             labels.append(path[-1])
 
-        return Kpoints("Line_mode KPOINTS file",
-                       style=Kpoints.supported_modes.Line_mode,
-                       coord_type="Reciprocal",
-                       kpts=kpoints,
-                       labels=labels,
-                       num_kpts=int(divisions))
+        return Kpoints(
+            "Line_mode KPOINTS file",
+            style=Kpoints.supported_modes.Line_mode,
+            coord_type="Reciprocal",
+            kpts=kpoints,
+            labels=labels,
+            num_kpts=int(divisions),
+        )
 
     @staticmethod
     def from_file(filename):
@@ -1209,8 +1408,9 @@ class Kpoints(MSONable):
         if style == "a":
             return Kpoints.automatic(int(lines[3]))
 
-        coord_pattern = re.compile(r'^\s*([\d+.\-Ee]+)\s+([\d+.\-Ee]+)\s+'
-                                   r'([\d+.\-Ee]+)')
+        coord_pattern = re.compile(
+            r"^\s*([\d+.\-Ee]+)\s+([\d+.\-Ee]+)\s+" r"([\d+.\-Ee]+)"
+        )
 
         # Automatic gamma and Monk KPOINTS, with optional shift
         if style == "g" or style == "m":
@@ -1221,40 +1421,61 @@ class Kpoints(MSONable):
                     kpts_shift = [float(i) for i in lines[4].split()]
                 except ValueError:
                     pass
-            return Kpoints.gamma_automatic(kpts, kpts_shift) if style == "g" \
+            return (
+                Kpoints.gamma_automatic(kpts, kpts_shift)
+                if style == "g"
                 else Kpoints.monkhorst_automatic(kpts, kpts_shift)
+            )
 
         # Automatic kpoints with basis
         if num_kpts <= 0:
-            style = Kpoints.supported_modes.Cartesian if style in "ck" \
+            style = (
+                Kpoints.supported_modes.Cartesian
+                if style in "ck"
                 else Kpoints.supported_modes.Reciprocal
+            )
             kpts = [[float(j) for j in lines[i].split()] for i in range(3, 6)]
             kpts_shift = [float(i) for i in lines[6].split()]
-            return Kpoints(comment=comment, num_kpts=num_kpts, style=style,
-                           kpts=kpts, kpts_shift=kpts_shift)
+            return Kpoints(
+                comment=comment,
+                num_kpts=num_kpts,
+                style=style,
+                kpts=kpts,
+                kpts_shift=kpts_shift,
+            )
 
         # Line-mode KPOINTS, usually used with band structures
         if style == "l":
-            coord_type = "Cartesian" if lines[3].lower()[0] in "ck" \
-                else "Reciprocal"
+            coord_type = "Cartesian" if lines[3].lower()[0] in "ck" else "Reciprocal"
             style = Kpoints.supported_modes.Line_mode
             kpts = []
             labels = []
-            patt = re.compile(r'([e0-9.\-]+)\s+([e0-9.\-]+)\s+([e0-9.\-]+)'
-                              r'\s*!*\s*(.*)')
+            patt = re.compile(
+                r"([e0-9.\-]+)\s+([e0-9.\-]+)\s+([e0-9.\-]+)" r"\s*!*\s*(.*)"
+            )
             for i in range(4, len(lines)):
                 line = lines[i]
                 m = patt.match(line)
                 if m:
-                    kpts.append([float(m.group(1)), float(m.group(2)),
-                                 float(m.group(3))])
+                    kpts.append(
+                        [float(m.group(1)), float(m.group(2)), float(m.group(3))]
+                    )
                     labels.append(m.group(4).strip())
-            return Kpoints(comment=comment, num_kpts=num_kpts, style=style,
-                           kpts=kpts, coord_type=coord_type, labels=labels)
+            return Kpoints(
+                comment=comment,
+                num_kpts=num_kpts,
+                style=style,
+                kpts=kpts,
+                coord_type=coord_type,
+                labels=labels,
+            )
 
         # Assume explicit KPOINTS if all else fails.
-        style = Kpoints.supported_modes.Cartesian if style in "ck" \
+        style = (
+            Kpoints.supported_modes.Cartesian
+            if style in "ck"
             else Kpoints.supported_modes.Reciprocal
+        )
         kpts = []
         kpts_weights = []
         labels = []
@@ -1279,17 +1500,23 @@ class Kpoints(MSONable):
                 tet_connections = []
                 for i in range(5 + num_kpts, 5 + num_kpts + tet_number):
                     toks = lines[i].split()
-                    tet_connections.append((int(toks[0]),
-                                            [int(toks[j])
-                                             for j in range(1, 5)]))
+                    tet_connections.append(
+                        (int(toks[0]), [int(toks[j]) for j in range(1, 5)])
+                    )
         except IndexError:
             pass
 
-        return Kpoints(comment=comment, num_kpts=num_kpts,
-                       style=Kpoints.supported_modes[str(style)],
-                       kpts=kpts, kpts_weights=kpts_weights,
-                       tet_number=tet_number, tet_weight=tet_weight,
-                       tet_connections=tet_connections, labels=labels)
+        return Kpoints(
+            comment=comment,
+            num_kpts=num_kpts,
+            style=Kpoints.supported_modes[str(style)],
+            kpts=kpts,
+            kpts_weights=kpts_weights,
+            tet_number=tet_number,
+            tet_weight=tet_weight,
+            tet_connections=tet_connections,
+            labels=labels,
+        )
 
     def write_file(self, filename):
         """
@@ -1317,8 +1544,7 @@ class Kpoints(MSONable):
                     lines[-1] += "\n"
             elif self.num_kpts > 0:
                 if self.labels is not None:
-                    lines[-1] += " %i %s" % (self.kpts_weights[i],
-                                             self.labels[i])
+                    lines[-1] += " %i %s" % (self.kpts_weights[i], self.labels[i])
                 else:
                     lines[-1] += " %i" % (self.kpts_weights[i])
 
@@ -1327,9 +1553,10 @@ class Kpoints(MSONable):
             lines.append("Tetrahedron")
             lines.append("%d %f" % (self.tet_number, self.tet_weight))
             for sym_weight, vertices in self.tet_connections:
-                lines.append("%d %d %d %d %d" % (sym_weight, vertices[0],
-                                                 vertices[1], vertices[2],
-                                                 vertices[3]))
+                lines.append(
+                    "%d %d %d %d %d"
+                    % (sym_weight, vertices[0], vertices[1], vertices[2], vertices[3])
+                )
 
         # Print shifts for automatic kpoints types if not zero.
         if self.num_kpts <= 0 and tuple(self.kpts_shift) != (0, 0, 0):
@@ -1337,14 +1564,22 @@ class Kpoints(MSONable):
         return "\n".join(lines) + "\n"
 
     def as_dict(self):
-        """json friendly dict representation of Kpoints"""
-        d = {"comment": self.comment, "nkpoints": self.num_kpts,
-             "generation_style": self.style.name, "kpoints": self.kpts,
-             "usershift": self.kpts_shift,
-             "kpts_weights": self.kpts_weights, "coord_type": self.coord_type,
-             "labels": self.labels, "tet_number": self.tet_number,
-             "tet_weight": self.tet_weight,
-             "tet_connections": self.tet_connections}
+        """
+        :return: MSONable dict.
+        """
+        d = {
+            "comment": self.comment,
+            "nkpoints": self.num_kpts,
+            "generation_style": self.style.name,
+            "kpoints": self.kpts,
+            "usershift": self.kpts_shift,
+            "kpts_weights": self.kpts_weights,
+            "coord_type": self.coord_type,
+            "labels": self.labels,
+            "tet_number": self.tet_number,
+            "tet_weight": self.tet_weight,
+            "tet_connections": self.tet_connections,
+        }
 
         optional_paras = ["genvec1", "genvec2", "genvec3", "shift"]
         for para in optional_paras:
@@ -1356,25 +1591,35 @@ class Kpoints(MSONable):
 
     @classmethod
     def from_dict(cls, d):
+        """
+        :param d: Dict representation.
+        :return: Kpoints
+        """
         comment = d.get("comment", "")
         generation_style = d.get("generation_style")
         kpts = d.get("kpoints", [[1, 1, 1]])
         kpts_shift = d.get("usershift", [0, 0, 0])
         num_kpts = d.get("nkpoints", 0)
-        return cls(comment=comment, kpts=kpts, style=generation_style,
-                   kpts_shift=kpts_shift, num_kpts=num_kpts,
-                   kpts_weights=d.get("kpts_weights"),
-                   coord_type=d.get("coord_type"),
-                   labels=d.get("labels"), tet_number=d.get("tet_number", 0),
-                   tet_weight=d.get("tet_weight", 0),
-                   tet_connections=d.get("tet_connections"))
+        return cls(
+            comment=comment,
+            kpts=kpts,
+            style=generation_style,
+            kpts_shift=kpts_shift,
+            num_kpts=num_kpts,
+            kpts_weights=d.get("kpts_weights"),
+            coord_type=d.get("coord_type"),
+            labels=d.get("labels"),
+            tet_number=d.get("tet_number", 0),
+            tet_weight=d.get("tet_weight", 0),
+            tet_connections=d.get("tet_connections"),
+        )
 
 
-def parse_string(s):
+def _parse_string(s):
     return "{}".format(s.strip())
 
 
-def parse_bool(s):
+def _parse_bool(s):
     m = re.match(r"^\.?([TFtf])[A-Za-z]*\.?", s)
     if m:
         if m.group(1) == "T" or m.group(1) == "t":
@@ -1384,32 +1629,36 @@ def parse_bool(s):
     raise ValueError(s + " should be a boolean type!")
 
 
-def parse_float(s):
+def _parse_float(s):
     return float(re.search(r"^-?\d*\.?\d*[eE]?-?\d*", s).group(0))
 
 
-def parse_int(s):
+def _parse_int(s):
     return int(re.match(r"^-?[0-9]+", s).group(0))
 
 
-def parse_list(s):
+def _parse_list(s):
     return [float(y) for y in re.split(r"\s+", s.strip()) if not y.isalpha()]
 
 
-Orbital = namedtuple('Orbital', ['n', 'l', 'j', 'E', 'occ'])
-OrbitalDescription = namedtuple('OrbitalDescription',
-                                ['l', 'E', 'Type', "Rcut", "Type2", "Rcut2"])
+Orbital = namedtuple("Orbital", ["n", "l", "j", "E", "occ"])
+OrbitalDescription = namedtuple(
+    "OrbitalDescription", ["l", "E", "Type", "Rcut", "Type2", "Rcut2"]
+)
+
+
+class BadPotcarWarning(UserWarning):
+    """
+    Warning raised when POTCAR hashes do not pass validation
+    """
+
+    pass
 
 
 class PotcarSingle:
     """
-    Object for a **single** POTCAR. The builder assumes the complete string is
-    the POTCAR contains the complete untouched data in "data" as a string and
-    a dict of keywords.
-
-    Args:
-        data:
-            Complete and single potcar file as a string.
+    Object for a **single** POTCAR. The builder assumes the POTCAR contains
+    the complete untouched data in "data" as a string and a dict of keywords.
 
     .. attribute:: data
 
@@ -1420,74 +1669,98 @@ class PotcarSingle:
         Keywords parsed from the POTCAR as a dict. All keywords are also
         accessible as attributes in themselves. E.g., potcar.enmax,
         potcar.encut, etc.
+
+    md5 hashes of the entire POTCAR file and the actual data are validated
+    against a database of known good hashes. Appropriate warnings or errors
+    are raised if a POTCAR hash fails validation.
     """
-    functional_dir = {"PBE": "POT_GGA_PAW_PBE",
-                      "PBE_52": "POT_GGA_PAW_PBE_52",
-                      "PBE_54": "POT_GGA_PAW_PBE_54",
-                      "LDA": "POT_LDA_PAW",
-                      "LDA_52": "POT_LDA_PAW_52",
-                      "LDA_54": "POT_LDA_PAW_54",
-                      "PW91": "POT_GGA_PAW_PW91",
-                      "LDA_US": "POT_LDA_US",
-                      "PW91_US": "POT_GGA_US_PW91"}
 
-    functional_tags = {"pe": {"name": "PBE", "class": "GGA"},
-                       "91": {"name": "PW91", "class": "GGA"},
-                       "rp": {"name": "revPBE", "class": "GGA"},
-                       "am": {"name": "AM05", "class": "GGA"},
-                       "ps": {"name": "PBEsol", "class": "GGA"},
-                       "pw": {"name": "PW86", "class": "GGA"},
-                       "lm": {"name": "Langreth-Mehl-Hu", "class": "GGA"},
-                       "pb": {"name": "Perdew-Becke", "class": "GGA"},
-                       "ca": {"name": "Perdew-Zunger81", "class": "LDA"},
-                       "hl": {"name": "Hedin-Lundquist", "class": "LDA"},
-                       "wi": {"name": "Wigner Interpoloation", "class": "LDA"}}
+    functional_dir = {
+        "PBE": "POT_GGA_PAW_PBE",
+        "PBE_52": "POT_GGA_PAW_PBE_52",
+        "PBE_54": "POT_GGA_PAW_PBE_54",
+        "LDA": "POT_LDA_PAW",
+        "LDA_52": "POT_LDA_PAW_52",
+        "LDA_54": "POT_LDA_PAW_54",
+        "PW91": "POT_GGA_PAW_PW91",
+        "LDA_US": "POT_LDA_US",
+        "PW91_US": "POT_GGA_US_PW91",
+        "Perdew-Zunger81": "POT_LDA_PAW",
+    }
 
-    parse_functions = {"LULTRA": parse_bool,
-                       "LUNSCR": parse_bool,
-                       "LCOR": parse_bool,
-                       "LPAW": parse_bool,
-                       "EATOM": parse_float,
-                       "RPACOR": parse_float,
-                       "POMASS": parse_float,
-                       "ZVAL": parse_float,
-                       "RCORE": parse_float,
-                       "RWIGS": parse_float,
-                       "ENMAX": parse_float,
-                       "ENMIN": parse_float,
-                       "EMMIN": parse_float,
-                       "EAUG": parse_float,
-                       "DEXC": parse_float,
-                       "RMAX": parse_float,
-                       "RAUG": parse_float,
-                       "RDEP": parse_float,
-                       "RDEPT": parse_float,
-                       "QCUT": parse_float,
-                       "QGAM": parse_float,
-                       "RCLOC": parse_float,
-                       "IUNSCR": parse_int,
-                       "ICORE": parse_int,
-                       "NDATA": parse_int,
-                       "VRHFIN": parse_string,
-                       "LEXCH": parse_string,
-                       "TITEL": parse_string,
-                       "STEP": parse_list,
-                       "RRKJ": parse_list,
-                       "GGA": parse_list}
+    functional_tags = {
+        "pe": {"name": "PBE", "class": "GGA"},
+        "91": {"name": "PW91", "class": "GGA"},
+        "rp": {"name": "revPBE", "class": "GGA"},
+        "am": {"name": "AM05", "class": "GGA"},
+        "ps": {"name": "PBEsol", "class": "GGA"},
+        "pw": {"name": "PW86", "class": "GGA"},
+        "lm": {"name": "Langreth-Mehl-Hu", "class": "GGA"},
+        "pb": {"name": "Perdew-Becke", "class": "GGA"},
+        "ca": {"name": "Perdew-Zunger81", "class": "LDA"},
+        "hl": {"name": "Hedin-Lundquist", "class": "LDA"},
+        "wi": {"name": "Wigner Interpoloation", "class": "LDA"},
+    }
 
-    def __init__(self, data):
+    parse_functions = {
+        "LULTRA": _parse_bool,
+        "LUNSCR": _parse_bool,
+        "LCOR": _parse_bool,
+        "LPAW": _parse_bool,
+        "EATOM": _parse_float,
+        "RPACOR": _parse_float,
+        "POMASS": _parse_float,
+        "ZVAL": _parse_float,
+        "RCORE": _parse_float,
+        "RWIGS": _parse_float,
+        "ENMAX": _parse_float,
+        "ENMIN": _parse_float,
+        "EMMIN": _parse_float,
+        "EAUG": _parse_float,
+        "DEXC": _parse_float,
+        "RMAX": _parse_float,
+        "RAUG": _parse_float,
+        "RDEP": _parse_float,
+        "RDEPT": _parse_float,
+        "QCUT": _parse_float,
+        "QGAM": _parse_float,
+        "RCLOC": _parse_float,
+        "IUNSCR": _parse_int,
+        "ICORE": _parse_int,
+        "NDATA": _parse_int,
+        "VRHFIN": _parse_string,
+        "LEXCH": _parse_string,
+        "TITEL": _parse_string,
+        "STEP": _parse_list,
+        "RRKJ": _parse_list,
+        "GGA": _parse_list,
+    }
+
+    def __init__(self, data, symbol=None):
+        """
+        Args:
+            data:
+                Complete and single potcar file as a string.
+            symbol:
+                POTCAR symbol corresponding to the filename suffix
+                e.g. "Tm_3" for POTCAR.TM_3". If not given, pymatgen
+                will attempt to extract the symbol from the file itself.
+                However, this is not always reliable!
+        """
         self.data = data  # raw POTCAR as a string
 
         # Vasp parses header in vasprun.xml and this differs from the titel
         self.header = data.split("\n")[0].strip()
 
-        search_lines = re.search(r"(?s)(parameters from PSCTR are:"
-                                 r".*?END of PSCTR-controll parameters)",
-                                 data).group(1)
+        search_lines = re.search(
+            r"(?s)(parameters from PSCTR are:" r".*?END of PSCTR-controll parameters)",
+            data,
+        ).group(1)
 
         self.keywords = {}
-        for key, val in re.findall(r"(\S+)\s*=\s*(.*?)(?=;|$)",
-                                   search_lines, flags=re.MULTILINE):
+        for key, val in re.findall(
+            r"(\S+)\s*=\s*(.*?)(?=;|$)", search_lines, flags=re.MULTILINE
+        ):
             try:
                 self.keywords[key] = self.parse_functions[key](val)
             except KeyError:
@@ -1498,65 +1771,106 @@ class PotcarSingle:
         array_search = re.compile(r"(-*[0-9.]+)")
         orbitals = []
         descriptions = []
-        atomic_configuration = re.search(r"Atomic configuration\s*\n?"
-                                         r"(.*?)Description", search_lines)
+        atomic_configuration = re.search(
+            r"Atomic configuration\s*\n?" r"(.*?)Description", search_lines
+        )
         if atomic_configuration:
             lines = atomic_configuration.group(1).splitlines()
             num_entries = re.search(r"([0-9]+)", lines[0]).group(1)
             num_entries = int(num_entries)
-            PSCTR['nentries'] = num_entries
+            PSCTR["nentries"] = num_entries
             for line in lines[1:]:
                 orbit = array_search.findall(line)
                 if orbit:
-                    orbitals.append(self.Orbital(int(orbit[0]),
-                                                 int(orbit[1]),
-                                                 float(orbit[2]),
-                                                 float(orbit[3]),
-                                                 float(orbit[4])))
-            PSCTR['Orbitals'] = tuple(orbitals)
+                    orbitals.append(
+                        self.Orbital(
+                            int(orbit[0]),
+                            int(orbit[1]),
+                            float(orbit[2]),
+                            float(orbit[3]),
+                            float(orbit[4]),
+                        )
+                    )
+            PSCTR["Orbitals"] = tuple(orbitals)
 
-        description_string = re.search(r"(?s)Description\s*\n"
-                                       r"(.*?)Error from kinetic"
-                                       r" energy argument \(eV\)",
-                                       search_lines)
+        description_string = re.search(
+            r"(?s)Description\s*\n"
+            r"(.*?)Error from kinetic"
+            r" energy argument \(eV\)",
+            search_lines,
+        )
         if description_string:
             for line in description_string.group(1).splitlines():
                 description = array_search.findall(line)
                 if description:
                     descriptions.append(
                         OrbitalDescription(
-                            int(description[0]), float(description[1]),
-                            int(description[2]), float(description[3]),
+                            int(description[0]),
+                            float(description[1]),
+                            int(description[2]),
+                            float(description[3]),
                             int(description[4]) if len(description) > 4 else None,
-                            float(description[5]) if len(description) > 4 else None))
+                            float(description[5]) if len(description) > 4 else None,
+                        )
+                    )
 
         if descriptions:
-            PSCTR['OrbitalDescriptions'] = tuple(descriptions)
+            PSCTR["OrbitalDescriptions"] = tuple(descriptions)
 
         rrkj_kinetic_energy_string = re.search(
             r"(?s)Error from kinetic energy argument \(eV\)\s*\n"
             r"(.*?)END of PSCTR-controll parameters",
-            search_lines)
+            search_lines,
+        )
         rrkj_array = []
         if rrkj_kinetic_energy_string:
             for line in rrkj_kinetic_energy_string.group(1).splitlines():
                 if "=" not in line:
-                    rrkj_array += parse_list(line.strip('\n'))
+                    rrkj_array += _parse_list(line.strip("\n"))
             if rrkj_array:
-                PSCTR['RRKJ'] = tuple(rrkj_array)
+                PSCTR["RRKJ"] = tuple(rrkj_array)
 
         PSCTR.update(self.keywords)
         self.PSCTR = OrderedDict(sorted(PSCTR.items(), key=lambda x: x[0]))
+
+        if symbol:
+            self._symbol = symbol
+        else:
+            try:
+                self._symbol = self.keywords["TITEL"].split(" ")[1].strip()
+            except IndexError:
+                self._symbol = self.keywords["TITEL"].strip()
+
+        # Compute the POTCAR hashes and check them against the database of known
+        # VASP POTCARs
         self.hash = self.get_potcar_hash()
+        self.file_hash = self.get_potcar_file_hash()
+
+        if self.identify_potcar(mode='data')[0] == []:
+            warnings.warn("POTCAR data with symbol {} does not match any VASP\
+                          POTCAR known to pymatgen. We advise verifying the\
+                          integrity of your POTCAR files.".format(self.symbol),
+                          BadPotcarWarning)
+        elif self.identify_potcar(mode='file')[0] == []:
+            warnings.warn("POTCAR with symbol {} has metadata that does not match\
+                          any VASP POTCAR known to pymatgen. The data in this\
+                          POTCAR is known to match the following functionals:\
+                          {}".format(self.symbol, self.identify_potcar(mode='data')[0]),
+                          BadPotcarWarning)
 
     def __str__(self):
         return self.data + "\n"
 
     @property
     def electron_configuration(self):
+        """
+        :return: Electronic configuration of the PotcarSingle.
+        """
         if not self.nelectrons.is_integer():
-            warnings.warn("POTCAR has non-integer charge, "
-                          "electron configuration not well-defined.")
+            warnings.warn(
+                "POTCAR has non-integer charge, "
+                "electron configuration not well-defined."
+            )
             return None
         el = Element.from_Z(self.atomic_no)
         full_config = el.full_electronic_structure
@@ -1568,25 +1882,50 @@ class PotcarSingle:
             nelect -= e[-1]
         return config
 
-    def write_file(self, filename):
+    def write_file(self, filename: str) -> None:
+        """
+        Writes PotcarSingle to a file.
+        :param filename: Filename
+        """
         with zopen(filename, "wt") as f:
             f.write(self.__str__())
 
     @staticmethod
-    def from_file(filename):
+    def from_file(filename: str) -> "PotcarSingle":
+        """
+        Reads PotcarSingle from file.
+
+        :param filename: Filename.
+        :return: PotcarSingle.
+        """
+        match = re.search(r"(?<=POTCAR\.)(.*)(?=.gz)", str(filename))
+        if match:
+            symbol = match.group(0)
+        else:
+            symbol = ""
+
         try:
             with zopen(filename, "rt") as f:
-                return PotcarSingle(f.read())
+                return PotcarSingle(f.read(), symbol=symbol or None)
         except UnicodeDecodeError:
-            warnings.warn("POTCAR contains invalid unicode errors. "
-                          "We will attempt to read it by ignoring errors.")
+            warnings.warn(
+                "POTCAR contains invalid unicode errors. "
+                "We will attempt to read it by ignoring errors."
+            )
             import codecs
-            with codecs.open(filename, "r", encoding="utf-8",
-                             errors="ignore") as f:
-                return PotcarSingle(f.read())
+
+            with codecs.open(filename, "r", encoding="utf-8", errors="ignore") as f:
+                return PotcarSingle(f.read(), symbol=symbol or None)
 
     @staticmethod
-    def from_symbol_and_functional(symbol, functional=None):
+    def from_symbol_and_functional(symbol: str, functional: str = None):
+        """
+        Makes a PotcarSingle from a symbol and functional.
+
+        :param symbol: Symbol, e.g., Li_sv
+        :param functional: E.g., PBE
+        :return: PotcarSingle
+        """
         if functional is None:
             functional = SETTINGS.get("PMG_DEFAULT_FUNCTIONAL", "PBE")
         funcdir = PotcarSingle.functional_dir[functional]
@@ -1597,24 +1936,22 @@ class PotcarSingle:
                 "Please set the PMG_VASP_PSP_DIR environment in "
                 ".pmgrc.yaml, or you may need to set "
                 "PMG_DEFAULT_FUNCTIONAL to PBE_52 or PBE_54 if you "
-                "are using newer psps from VASP." % (symbol, functional))
-        paths_to_try = [os.path.join(d, funcdir, "POTCAR.{}".format(symbol)),
-                        os.path.join(d, funcdir, symbol, "POTCAR")]
+                "are using newer psps from VASP." % (symbol, functional)
+            )
+        paths_to_try = [
+            os.path.join(d, funcdir, "POTCAR.{}".format(symbol)),
+            os.path.join(d, funcdir, symbol, "POTCAR"),
+        ]
         for p in paths_to_try:
             p = os.path.expanduser(p)
             p = zpath(p)
             if os.path.exists(p):
-                return PotcarSingle.from_file(p)
-        raise IOError("You do not have the right POTCAR with functional " +
-                      "{} and label {} in your VASP_PSP_DIR".format(functional,
-                                                                    symbol))
-
-    @property
-    def symbol(self):
-        """
-        Symbol of POTCAR, e.g., Fe_pv
-        """
-        return self.keywords["TITEL"].split(" ")[1].strip()
+                psingle = PotcarSingle.from_file(p)
+                return psingle
+        raise IOError(
+            "You do not have the right POTCAR with functional "
+            + "{} and label {} in your VASP_PSP_DIR".format(functional, symbol)
+        )
 
     @property
     def element(self):
@@ -1632,7 +1969,7 @@ class PotcarSingle:
             return Element(self.symbol.split("_")[0]).symbol
 
     @property
-    def atomic_no(self):
+    def atomic_no(self) -> int:
         """
         Attempt to return the atomic number based on the VRHFIN keyword.
         """
@@ -1640,10 +1977,23 @@ class PotcarSingle:
 
     @property
     def nelectrons(self):
+        """
+        :return: Number of electrons
+        """
         return self.zval
 
     @property
-    def potential_type(self):
+    def symbol(self):
+        """
+        :return: The POTCAR symbol, e.g. W_pv
+        """
+        return self._symbol
+
+    @property
+    def potential_type(self) -> str:
+        """
+        :return: Type of PSP. E.g., US, PAW, etc.
+        """
         if self.lultra:
             return "US"
         elif self.lpaw:
@@ -1653,13 +2003,142 @@ class PotcarSingle:
 
     @property
     def functional(self):
-        return self.functional_tags.get(self.LEXCH.lower(), {}).get('name')
+        """
+        :return: Functional associated with PotcarSingle.
+        """
+        return self.functional_tags.get(self.LEXCH.lower(), {}).get("name")
 
     @property
     def functional_class(self):
-        return self.functional_tags.get(self.LEXCH.lower(), {}).get('class')
+        """
+        :return: Functional class associated with PotcarSingle.
+        """
+        return self.functional_tags.get(self.LEXCH.lower(), {}).get("class")
+
+    def identify_potcar(self, mode: str = 'data'):
+        """
+        Identify the symbol and compatible functionals associated with this PotcarSingle.
+
+        This method checks the md5 hash of either the POTCAR data (PotcarSingle.hash)
+        or the entire POTCAR file (PotcarSingle.file_hash) against a database
+        of hashes for POTCARs distributed with VASP 5.4.4.
+
+        Args:
+            mode (str): 'data' or 'file'. 'data' mode checks the hash of the POTCAR
+                        data itself, while 'file' mode checks the hash of the entire
+                        POTCAR file, including metadata.
+
+        Returns:
+            symbol (List): List of symbols associated with the PotcarSingle
+            potcar_functionals (List): List of potcar functionals associated with
+                                       the PotcarSingle
+        """
+        # Dict to translate the sets in the .json file to the keys used in
+        # DictSet
+        mapping_dict = {'potUSPP_GGA': {"pymatgen_key": "PW91_US",
+                                        "vasp_description": "Ultrasoft pseudo potentials\
+                                         for LDA and PW91 (dated 2002-08-20 and 2002-04-08,\
+                                         respectively). These files are outdated, not\
+                                         supported and only distributed as is."},
+                        'potUSPP_LDA': {"pymatgen_key": "LDA_US",
+                                        "vasp_description": "Ultrasoft pseudo potentials\
+                                         for LDA and PW91 (dated 2002-08-20 and 2002-04-08,\
+                                         respectively). These files are outdated, not\
+                                         supported and only distributed as is."},
+                        'potpaw_GGA': {"pymatgen_key": "PW91",
+                                       "vasp_description": "The LDA, PW91 and PBE PAW datasets\
+                                        (snapshot: 05-05-2010, 19-09-2006 and 06-05-2010,\
+                                        respectively). These files are outdated, not\
+                                        supported and only distributed as is."},
+                        'potpaw_LDA': {"pymatgen_key": "Perdew-Zunger81",
+                                       "vasp_description": "The LDA, PW91 and PBE PAW datasets\
+                                        (snapshot: 05-05-2010, 19-09-2006 and 06-05-2010,\
+                                        respectively). These files are outdated, not\
+                                        supported and only distributed as is."},
+                        'potpaw_LDA.52': {"pymatgen_key": "LDA_52",
+                                          "vasp_description": "LDA PAW datasets version 52,\
+                                           including the early GW variety (snapshot 19-04-2012).\
+                                           When read by VASP these files yield identical results\
+                                           as the files distributed in 2012 ('unvie' release)."},
+                        'potpaw_LDA.54': {"pymatgen_key": "LDA_54",
+                                          "vasp_description": "LDA PAW datasets version 54,\
+                                           including the GW variety (original release 2015-09-04).\
+                                           When read by VASP these files yield identical results as\
+                                           the files distributed before."},
+                        'potpaw_PBE': {"pymatgen_key": "PBE",
+                                       "vasp_description": "The LDA, PW91 and PBE PAW datasets\
+                                        (snapshot: 05-05-2010, 19-09-2006 and 06-05-2010,\
+                                        respectively). These files are outdated, not\
+                                        supported and only distributed as is."},
+                        'potpaw_PBE.52': {"pymatgen_key": "PBE_52",
+                                          "vasp_description": "PBE PAW datasets version 52,\
+                                           including early GW variety (snapshot 19-04-2012).\
+                                           When read by VASP these files yield identical\
+                                           results as the files distributed in 2012."},
+                        'potpaw_PBE.54': {"pymatgen_key": "PBE_54",
+                                          "vasp_description": "PBE PAW datasets version 54,\
+                                           including the GW variety (original release 2015-09-04).\
+                                           When read by VASP these files yield identical results as\
+                                           the files distributed before."},
+                        'unvie_potpaw.52': {"pymatgen_key": "unvie_LDA_52",
+                                            "vasp_description": "files released previously\
+                                             for vasp.5.2 (2012-04) and vasp.5.4 (2015-09-04)\
+                                             by univie."},
+                        'unvie_potpaw.54': {"pymatgen_key": "unvie_LDA_54",
+                                            "vasp_description": "files released previously\
+                                             for vasp.5.2 (2012-04) and vasp.5.4 (2015-09-04)\
+                                             by univie."},
+                        'unvie_potpaw_PBE.52': {"pymatgen_key": "unvie_PBE_52",
+                                                "vasp_description": "files released previously\
+                                                for vasp.5.2 (2012-04) and vasp.5.4 (2015-09-04)\
+                                                by univie."},
+                        'unvie_potpaw_PBE.54': {"pymatgen_key": "unvie_PBE_52",
+                                                "vasp_description": "files released previously\
+                                                for vasp.5.2 (2012-04) and vasp.5.4 (2015-09-04)\
+                                                by univie."}
+                        }
+
+        cwd = os.path.abspath(os.path.dirname(__file__))
+
+        if mode == 'data':
+            hash_db = loadfn(os.path.join(cwd, "vasp_potcar_pymatgen_hashes.json"))
+            potcar_hash = self.hash
+        elif mode == 'file':
+            hash_db = loadfn(os.path.join(cwd, "vasp_potcar_file_hashes.json"))
+            potcar_hash = self.file_hash
+        else:
+            raise ValueError("Bad 'mode' argument. Specify 'data' or 'file'.")
+
+        identity = hash_db.get(potcar_hash)
+
+        if identity:
+            # convert the potcar_functionals from the .json dict into the functional
+            # keys that pymatgen uses
+            potcar_functionals = []
+            for i in identity["potcar_functionals"]:
+                potcar_functionals.append(mapping_dict[i]["pymatgen_key"])
+            potcar_functionals = list(set(potcar_functionals))
+
+            return potcar_functionals, identity["potcar_symbols"]
+        else:
+            return [], []
+
+    def get_potcar_file_hash(self):
+        """
+        Computes a hash of the entire PotcarSingle.
+
+        This hash corresponds to the md5 hash of the POTCAR file itself.
+
+        :return: Hash value.
+        """
+        return md5(self.data.encode("utf-8")).hexdigest()
 
     def get_potcar_hash(self):
+        """
+        Computes a md5 hash of the data defining the PotcarSingle.
+
+        :return: Hash value.
+        """
         hash_str = ""
         for k, v in self.PSCTR.items():
             hash_str += "{}".format(k)
@@ -1685,7 +2164,7 @@ class PotcarSingle:
                 hash_str += v.replace(" ", "")
 
         self.hash_str = hash_str
-        return md5(hash_str.lower().encode('utf-8')).hexdigest()
+        return md5(hash_str.lower().encode("utf-8")).hexdigest()
 
     def __getattr__(self, a):
         """
@@ -1706,25 +2185,26 @@ class Potcar(list, MSONable):
     """
     Object for reading and writing POTCAR files for calculations. Consists of a
     list of PotcarSingle.
-
-    Args:
-        symbols ([str]): Element symbols for POTCAR. This should correspond
-            to the symbols used by VASP. E.g., "Mg", "Fe_pv", etc.
-        functional (str): Functional used. To know what functional options
-            there are, use Potcar.FUNCTIONAL_CHOICES. Note that VASP has
-            different versions of the same functional. By default, the old
-            PBE functional is used. If you want the newer ones, use PBE_52 or
-            PBE_54. Note that if you intend to compare your results with the
-            Materials Project, you should use the default setting. You can also
-            override the default by setting PMG_DEFAULT_FUNCTIONAL in your
-            .pmgrc.yaml.
-        sym_potcar_map (dict): Allows a user to specify a specific element
-            symbol to raw POTCAR mapping.
     """
 
     FUNCTIONAL_CHOICES = list(PotcarSingle.functional_dir.keys())
 
     def __init__(self, symbols=None, functional=None, sym_potcar_map=None):
+        """
+        Args:
+            symbols ([str]): Element symbols for POTCAR. This should correspond
+                to the symbols used by VASP. E.g., "Mg", "Fe_pv", etc.
+            functional (str): Functional used. To know what functional options
+                there are, use Potcar.FUNCTIONAL_CHOICES. Note that VASP has
+                different versions of the same functional. By default, the old
+                PBE functional is used. If you want the newer ones, use PBE_52 or
+                PBE_54. Note that if you intend to compare your results with the
+                Materials Project, you should use the default setting. You can also
+                override the default by setting PMG_DEFAULT_FUNCTIONAL in your
+                .pmgrc.yaml.
+            sym_potcar_map (dict): Allows a user to specify a specific element
+                symbol to raw POTCAR mapping.
+        """
         if functional is None:
             functional = SETTINGS.get("PMG_DEFAULT_FUNCTIONAL", "PBE")
         super().__init__()
@@ -1733,30 +2213,47 @@ class Potcar(list, MSONable):
             self.set_symbols(symbols, functional, sym_potcar_map)
 
     def as_dict(self):
-        return {"functional": self.functional, "symbols": self.symbols,
-                "@module": self.__class__.__module__,
-                "@class": self.__class__.__name__}
+        """
+        :return: MSONable dict representation
+        """
+        return {
+            "functional": self.functional,
+            "symbols": self.symbols,
+            "@module": self.__class__.__module__,
+            "@class": self.__class__.__name__,
+        }
 
     @classmethod
     def from_dict(cls, d):
+        """
+        :param d: Dict representation
+        :return: Potcar
+        """
         return Potcar(symbols=d["symbols"], functional=d["functional"])
 
     @staticmethod
-    def from_file(filename):
+    def from_file(filename: str):
+        """
+        Reads Potcar from file.
+
+        :param filename: Filename
+        :return: Potcar
+        """
         try:
             with zopen(filename, "rt") as f:
                 fdata = f.read()
         except UnicodeDecodeError:
-            warnings.warn("POTCAR contains invalid unicode errors. "
-                          "We will attempt to read it by ignoring errors.")
+            warnings.warn(
+                "POTCAR contains invalid unicode errors. "
+                "We will attempt to read it by ignoring errors."
+            )
             import codecs
-            with codecs.open(filename, "r", encoding="utf-8",
-                             errors="ignore") as f:
+
+            with codecs.open(filename, "r", encoding="utf-8", errors="ignore") as f:
                 fdata = f.read()
 
         potcar = Potcar()
-        potcar_strings = re.compile(r"\n?(\s*.*?End of Dataset)",
-                                    re.S).findall(fdata)
+        potcar_strings = re.compile(r"\n?(\s*.*?End of Dataset)", re.S).findall(fdata)
         functionals = []
         for p in potcar_strings:
             single = PotcarSingle(p)
@@ -1799,8 +2296,7 @@ class Potcar(list, MSONable):
         """
         return [{"symbol": p.symbol, "hash": p.get_potcar_hash()} for p in self]
 
-    def set_symbols(self, symbols, functional=None,
-                    sym_potcar_map=None):
+    def set_symbols(self, symbols, functional=None, sym_potcar_map=None):
         """
         Initialize the POTCAR from a set of symbols. Currently, the POTCARs can
         be fetched from a location specified in .pmgrc.yaml. Use pmg config
@@ -1828,24 +2324,23 @@ class Potcar(list, MSONable):
 class VaspInput(dict, MSONable):
     """
     Class to contain a set of vasp input objects corresponding to a run.
-
-    Args:
-        incar: Incar object.
-        kpoints: Kpoints object.
-        poscar: Poscar object.
-        potcar: Potcar object.
-        optional_files: Other input files supplied as a dict of {
-            filename: object}. The object should follow standard pymatgen
-            conventions in implementing a as_dict() and from_dict method.
     """
 
-    def __init__(self, incar, kpoints, poscar, potcar, optional_files=None,
-                 **kwargs):
+    def __init__(self, incar, kpoints, poscar, potcar, optional_files=None, **kwargs):
+        """
+        Args:
+            incar: Incar object.
+            kpoints: Kpoints object.
+            poscar: Poscar object.
+            potcar: Potcar object.
+            optional_files: Other input files supplied as a dict of {
+                filename: object}. The object should follow standard pymatgen
+                conventions in implementing a as_dict() and from_dict method.
+        """
         super().__init__(**kwargs)
-        self.update({'INCAR': incar,
-                     'KPOINTS': kpoints,
-                     'POSCAR': poscar,
-                     'POTCAR': potcar})
+        self.update(
+            {"INCAR": incar, "KPOINTS": kpoints, "POSCAR": poscar, "POTCAR": potcar}
+        )
         if optional_files is not None:
             self.update(optional_files)
 
@@ -1858,6 +2353,9 @@ class VaspInput(dict, MSONable):
         return "\n".join(output)
 
     def as_dict(self):
+        """
+        :return: MSONable dict.
+        """
         d = {k: v.as_dict() for k, v in self.items()}
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
@@ -1865,6 +2363,10 @@ class VaspInput(dict, MSONable):
 
     @classmethod
     def from_dict(cls, d):
+        """
+        :param d: Dict representation.
+        :return: VaspInput
+        """
         dec = MontyDecoder()
         sub_d = {"optional_files": {}}
         for k, v in d.items():
@@ -1887,8 +2389,9 @@ class VaspInput(dict, MSONable):
         if make_dir_if_not_present and not os.path.exists(output_dir):
             os.makedirs(output_dir)
         for k, v in self.items():
-            with zopen(os.path.join(output_dir, k), "wt") as f:
-                f.write(v.__str__())
+            if v is not None:
+                with zopen(os.path.join(output_dir, k), "wt") as f:
+                    f.write(v.__str__())
 
     @staticmethod
     def from_directory(input_dir, optional_files=None):
@@ -1904,21 +2407,34 @@ class VaspInput(dict, MSONable):
                 static method from_file.
         """
         sub_d = {}
-        for fname, ftype in [("INCAR", Incar), ("KPOINTS", Kpoints),
-                             ("POSCAR", Poscar), ("POTCAR", Potcar)]:
-            fullzpath = zpath(os.path.join(input_dir, fname))
-            sub_d[fname.lower()] = ftype.from_file(fullzpath)
+        for fname, ftype in [
+            ("INCAR", Incar),
+            ("KPOINTS", Kpoints),
+            ("POSCAR", Poscar),
+            ("POTCAR", Potcar),
+        ]:
+            try:
+                fullzpath = zpath(os.path.join(input_dir, fname))
+                sub_d[fname.lower()] = ftype.from_file(fullzpath)
+            except FileNotFoundError:  # handle the case where there is no KPOINTS file
+                sub_d[fname.lower()] = None
+                pass
+
         sub_d["optional_files"] = {}
         if optional_files is not None:
             for fname, ftype in optional_files.items():
-                sub_d["optional_files"][fname] = \
-                    ftype.from_file(os.path.join(input_dir, fname))
+                sub_d["optional_files"][fname] = ftype.from_file(
+                    os.path.join(input_dir, fname)
+                )
         return VaspInput(**sub_d)
 
-    def run_vasp(self, run_dir: PathLike = ".",
-                 vasp_cmd: list = None,
-                 output_file: PathLike = "vasp.out",
-                 err_file: PathLike = "vasp.err"):
+    def run_vasp(
+        self,
+        run_dir: PathLike = ".",
+        vasp_cmd: list = None,
+        output_file: PathLike = "vasp.out",
+        err_file: PathLike = "vasp.err",
+    ):
         """
         Write input files and run VASP.
 
@@ -1932,8 +2448,11 @@ class VaspInput(dict, MSONable):
         vasp_cmd = vasp_cmd or SETTINGS.get("PMG_VASP_EXE")
         vasp_cmd = [os.path.expanduser(os.path.expandvars(t)) for t in vasp_cmd]
         if not vasp_cmd:
-            raise RuntimeError("You need to supply vasp_cmd or set the PMG_VASP_EXE in .pmgrc.yaml to run VASP.")
+            raise RuntimeError(
+                "You need to supply vasp_cmd or set the PMG_VASP_EXE in .pmgrc.yaml to run VASP."
+            )
         with cd(run_dir):
-            with open(output_file, 'w') as f_std, \
-                    open(err_file, "w", buffering=1) as f_err:
+            with open(output_file, "w") as f_std, open(
+                err_file, "w", buffering=1
+            ) as f_err:
                 subprocess.check_call(vasp_cmd, stdout=f_std, stderr=f_err)

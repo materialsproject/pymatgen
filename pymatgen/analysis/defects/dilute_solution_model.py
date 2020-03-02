@@ -2,15 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-import math
-import copy
-import numpy as np
-
-from monty.fractions import gcd
-from sympy import Symbol, nsolve, Integer, Float, Matrix, exp, solve, Eq
-
-from monty.dev import deprecated
-
 """
 Evaluate the defect concentration based on composition, temperature,
 and defect energies using "Dilute Solution Model"
@@ -19,6 +10,16 @@ Reference: Phys Rev B, 63, 094103, 2001,
 C. Woodward, M. Asta, G. Kresse and J. Hafner.
 Manual and citation for the code, DOI: 10.1016/j.cpc.2015.03.015
 """
+
+import math
+import copy
+import numpy as np
+
+from monty.fractions import gcd
+from sympy import Symbol, nsolve, Integer, Float, Matrix, exp, solve
+
+from monty.dev import deprecated
+
 
 __author__ = 'Bharat Medasani'
 __version__ = "0.2"
@@ -32,7 +33,7 @@ k_B = 8.6173324e-5  # eV/K
 
 
 # Check the inputs
-def check_input(def_list):
+def _check_input(def_list):
     flag = True
     for defect in def_list:
         if not defect:
@@ -76,9 +77,9 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T, trial_chem_
         potentials are returned.
     """
 
-    if not check_input(vac_defs):
+    if not _check_input(vac_defs):
         raise ValueError('Vacancy energy is not defined')
-    if not check_input(antisite_defs):
+    if not _check_input(antisite_defs):
         raise ValueError('Antisite energy is not defined')
 
     formation_energies = {}
@@ -339,10 +340,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T, trial_chem_
         if not trial_chem_pot:
             mu_vals = compute_mus_by_search()
         else:
-            try:
-                mu_vals = [trial_chem_pot[element] for element in specie_order]
-            except Exception:
-                mu_vals = compute_mus()
+            mu_vals = [trial_chem_pot[element] for element in specie_order]
 
         formation_energies = compute_def_formation_energies()
         mu_dict = dict(zip(specie_order, mu_vals))
@@ -407,7 +405,6 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T, trial_chem_
     # +/- 1% from the stoichiometry
     result = {}
     i = 0
-    len_y = len(yvals)
     failed_y, failed_i = [], []
     for y in yvals:
         vector_func = [y - c_ratio[0]]
@@ -507,7 +504,6 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T, trial_chem_
         # Concentration of first element/over total concen
         res1.append(float(total_c_val[0] / sum(total_c_val)))
         new_mu_dict[res1[0]] = mu_val
-        sum_c0 = sum([c0[i, i] for i in range(n)])
         for i in range(n):
             for j in range(n):
                 if i == j:  # Vacancy
@@ -634,8 +630,6 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T, trial_chem_
         data = [data[i] for data in en_res]
         site_specie = as_def['site_specie']
         sub_specie = as_def['substitution_specie']
-        ind1 = specie_order.index(site_specie)
-        ind2 = specie_order.index(sub_specie)
         specie_ind = site_mu_map[i]
         indices = specie_site_index_map[specie_ind]
         specie_ind_del = indices[1] - indices[0]
@@ -784,9 +778,9 @@ def solute_site_preference_finder(structure,
         plot_data: The data for plotting the solute defect concentration.
     """
 
-    if not check_input(vac_defs):
+    if not _check_input(vac_defs):
         raise ValueError('Vacancy energy is not defined')
-    if not check_input(antisite_defs):
+    if not _check_input(antisite_defs):
         raise ValueError('Antisite energy is not defined')
 
     formation_energies = {}
@@ -1012,8 +1006,6 @@ def solute_site_preference_finder(structure,
 
     def compute_solute_mu_by_lin_search(host_mu_vals):
         # Compute trial mu
-        mu_red = reduce_mu()
-
         mult = multiplicity
         specie_concen = [sum(mult[ind[0]:ind[1]]) for ind in specie_site_index_map]
         max_host_specie_concen = 1 - solute_concen
@@ -1022,9 +1014,7 @@ def solute_site_preference_finder(structure,
         y_vect = host_specie_concen_ratio
         vector_func = [y_vect[i] - c_ratio[i] for i in range(m)]
         vector_func.append(omega)
-        min_diff = 1e10
         mu_vals = None
-        c_val = None
         m1_min = -20.0
         if e0 > 0:
             m1_max = 10  # Search space needs to be modified
@@ -1057,7 +1047,6 @@ def solute_site_preference_finder(structure,
         vector_func = [y_vect[i] - c_ratio[i] for i in range(m)]
         vector_func.append(omega)
         mu_vals = None
-        c_val = None
         m_min = -15.0
         if e0 > 0:
             m_max = 10  # Search space needs to be modified
@@ -1166,7 +1155,6 @@ def solute_site_preference_finder(structure,
         res1 = []
         res1.append(float(total_c_val[0] / sum(total_c_val)))
 
-        sum_c0 = sum([c0[i, i] for i in range(n)])
         for i in range(n + 1):
             for j in range(n):
                 if i == j:  # Vacancy

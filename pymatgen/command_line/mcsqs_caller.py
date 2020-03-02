@@ -1,3 +1,7 @@
+"""
+Missing module doc.
+"""
+
 import subprocess
 import os
 import numpy as np
@@ -7,8 +11,14 @@ from pymatgen.io import atat
 from monty.tempfile import ScratchDir
 
 
-def run_mcsqs(structure, clusters, supercell=None, total_atoms=None, search_time=0.01,
-              keep_artifacts=False):
+def run_mcsqs(
+    structure,
+    clusters,
+    supercell=None,
+    total_atoms=None,
+    search_time=0.01,
+    keep_artifacts=False,
+):
     """
     Helper function for calling mcsqs with different arguments
 
@@ -30,10 +40,7 @@ def run_mcsqs(structure, clusters, supercell=None, total_atoms=None, search_time
     if supercell and total_atoms != num_atoms:
         raise ValueError("Pick supercell OR number of atoms")
 
-
-
-
-    with ScratchDir('.', copy_to_current_on_exit=keep_artifacts):
+    with ScratchDir(".", copy_to_current_on_exit=keep_artifacts):
         # Set supercell
         cell = np.eye(3)
         text_file = open("sqscell.out", "w")

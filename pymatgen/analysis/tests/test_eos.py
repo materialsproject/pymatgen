@@ -138,27 +138,27 @@ class EOSTest(PymatgenTest):
         ]
 
         mp153_known_energies_vinet = [
-           -1.270038831,
-           -1.339366487,
-           -1.398683238,
-           -1.424556061,
-           -1.448746649,
-           -1.453000456,
-           -1.479614511,
-           -1.490266797,
-           -1.504163502,
-           -1.523910268,
-           -1.526395734,
-           -1.546038792,
-           -1.550298657,
-           -1.562800797,
-           -1.570015274,
-           -1.576368392,
-           -1.583605186,
-           -1.586404575,
-           -1.591578378,
-           -1.592547954,
-           -1.594410995
+            -1.270038831,
+            -1.339366487,
+            -1.398683238,
+            -1.424556061,
+            -1.448746649,
+            -1.453000456,
+            -1.479614511,
+            -1.490266797,
+            -1.504163502,
+            -1.523910268,
+            -1.526395734,
+            -1.546038792,
+            -1.550298657,
+            -1.562800797,
+            -1.570015274,
+            -1.576368392,
+            -1.583605186,
+            -1.586404575,
+            -1.591578378,
+            -1.592547954,
+            -1.594410995
         ]
 
         # C: 4.590843262
@@ -178,7 +178,7 @@ class EOSTest(PymatgenTest):
         self.assertAlmostEqual(mp153_known_v0_vinet, fit.v0, places=4)
 
         # expt. value 35.5, known fit 36.16
-        self.assertAlmostEqual(fit.b0_GPa, 36.16258657649159)
+        self.assertAlmostEqual(fit.b0_GPa, 36.16258687442761, 4)
 
         # Si
 
@@ -271,7 +271,7 @@ class EOSTest(PymatgenTest):
         self.assertAlmostEqual(mp149_known_v0_vinet, fit.v0, places=4)
 
         # expt. value 97.9, known fit 88.39
-        self.assertAlmostEqual(fit.b0_GPa, 88.38629264585195)
+        self.assertAlmostEqual(fit.b0_GPa, 88.38629337404822, 4)
 
         # Ti
 
@@ -364,7 +364,7 @@ class EOSTest(PymatgenTest):
         self.assertAlmostEqual(mp72_known_v0_vinet, fit.v0, places=4)
 
         # expt. value 107.3, known fit 112.63
-        self.assertAlmostEqual(fit.b0_GPa, 112.62927094503254)
+        self.assertAlmostEqual(fit.b0_GPa, 112.62927187296167, 4)
 
     def test_numerical_eoswrapper(self):
         # using numerical eos directly vs via EOS wrapper
@@ -382,13 +382,13 @@ class EOSTest(PymatgenTest):
         np.testing.assert_almost_equal(self.num_eos_fit.v0, 40.857201, decimal=1)
         np.testing.assert_almost_equal(self.num_eos_fit.b0, 0.55, decimal=2)
         # TODO: why were these tests commented out?
-        #np.testing.assert_almost_equal(self.num_eos_fit.b0_GPa, 89.0370727, decimal=1)
-        #np.testing.assert_almost_equal(self.num_eos_fit.b1, 4.344039, decimal=2)
+        # np.testing.assert_almost_equal(self.num_eos_fit.b0_GPa, 89.0370727, decimal=1)
+        # np.testing.assert_almost_equal(self.num_eos_fit.b1, 4.344039, decimal=2)
 
     def test_eos_func(self):
         # list vs np.array arguments
-        np.testing.assert_almost_equal(self.num_eos_fit.func([0,1,2]),
-                                       self.num_eos_fit.func(np.array([0,1,2])),
+        np.testing.assert_almost_equal(self.num_eos_fit.func([0, 1, 2]),
+                                       self.num_eos_fit.func(np.array([0, 1, 2])),
                                        decimal=10)
         # func vs _func
         np.testing.assert_almost_equal(self.num_eos_fit.func(0.),
@@ -406,8 +406,8 @@ class EOSTest(PymatgenTest):
                                        birch_eos_fit.e0, decimal=6)
 
         # TODO: Reactivate
-        #fig = birch_eos_fit.plot_ax(ax=None, show=False, fontsize=8, title="birch eos")
-        #self.assertTrue(hasattr(fig, "savefig"))
+        # fig = birch_eos_fit.plot_ax(ax=None, show=False, fontsize=8, title="birch eos")
+        # self.assertTrue(hasattr(fig, "savefig"))
 
     def test_eos_func_call(self):
         # eos_fit_obj.func(volume) == eos_fit_obj(volume)
@@ -418,6 +418,7 @@ class EOSTest(PymatgenTest):
         d = {"e0": self.num_eos_fit.e0, "b0": self.num_eos_fit.b0,
              "b1": self.num_eos_fit.b1, "v0": self.num_eos_fit.v0}
         self.assertDictEqual(self.num_eos_fit.results, d)
+
 
 if __name__ == "__main__":
     unittest.main()

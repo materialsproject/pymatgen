@@ -2,14 +2,14 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from monty.json import MSONable
-from enum import Enum, unique
-import numpy as np
-
 """
 This module provides core classes needed by all define electronic structure,
 such as the Spin, Orbital, etc.
 """
+
+from monty.json import MSONable
+from enum import Enum, unique
+import numpy as np
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -485,7 +485,7 @@ class Magmom(MSONable):
 
     def __repr__(self):
         if np.allclose(self.saxis, (0, 0, 1)):
-            return 'Magnetic moment {0}'.format(self.moment, self.saxis)
+            return 'Magnetic moment {0}'.format(self.moment)
         else:
             return 'Magnetic moment {0} (spin axis = {1})'.format(self.moment,
                                                                   self.saxis)

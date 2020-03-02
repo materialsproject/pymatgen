@@ -2,6 +2,10 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+This module defines classes to represent the density of states, etc.
+"""
+
 import numpy as np
 import warnings
 import functools
@@ -12,10 +16,6 @@ from pymatgen.core.structure import Structure
 from pymatgen.core.spectrum import Spectrum
 from pymatgen.util.coord import get_linear_interpolated_value
 from scipy.constants.codata import value as _cd
-
-"""
-This module defines classes to represent the density of states, etc.
-"""
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -29,14 +29,6 @@ class DOS(Spectrum):
     """
     Replacement basic DOS object. All other DOS objects are extended versions
     of this object. Work in progress.
-
-    Args:
-        energies: A sequence of energies
-        densities (ndarray): Either a Nx1 or a Nx2 array. If former, it is
-            interpreted as a Spin.up only density. Otherwise, the first column
-            is interpreted as Spin.up and the other is Spin.down.
-        efermi: Fermi level energy.
-
 
     .. attribute: energies
 
@@ -54,6 +46,14 @@ class DOS(Spectrum):
     YLABEL = "Density"
 
     def __init__(self, energies, densities, efermi):
+        """
+        Args:
+            energies: A sequence of energies
+            densities (ndarray): Either a Nx1 or a Nx2 array. If former, it is
+                interpreted as a Spin.up only density. Otherwise, the first column
+                is interpreted as Spin.up and the other is Spin.down.
+            efermi: Fermi level energy.
+        """
         super().__init__(energies, densities, efermi)
         self.efermi = efermi
 
@@ -182,12 +182,6 @@ class Dos(MSONable):
     Basic DOS object. All other DOS objects are extended versions of this
     object.
 
-    Args:
-        efermi: Fermi level energy
-        energies: A sequences of energies
-        densities ({Spin: np.array}): representing the density of states
-            for each Spin.
-
     .. attribute: energies
 
         The sequence of energies
@@ -202,6 +196,13 @@ class Dos(MSONable):
     """
 
     def __init__(self, efermi, energies, densities):
+        """
+        Args:
+            efermi: Fermi level energy
+            energies: A sequences of energies
+            densities ({Spin: np.array}): representing the density of states
+                for each Spin.
+        """
         self.efermi = efermi
         self.energies = np.array(energies)
         self.densities = {k: np.array(d) for k, d in densities.items()}
@@ -420,21 +421,22 @@ class FermiDos(Dos, MSONable):
     doping concentration indicates the majority carriers are electrons
     (n-type doping); a positive doping concentration indicates holes are the
     majority carriers (p-type doping).
-
-    Args:
-        dos: Pymatgen Dos object.
-        structure: A structure. If not provided, the structure
-            of the dos object will be used. If the dos does not have an
-            associated structure object, an error will be thrown.
-        nelecs: The number of electrons included in the energy range of
-            dos. It is used for normalizing the densities. Default is the total
-            number of electrons in the structure.
-        bandgap: If set, the energy values are scissored so that the electronic
-            band gap matches this value.
     """
 
     def __init__(self, dos: Dos, structure: Structure = None,
                  nelecs: float = None, bandgap: float = None):
+        """
+        Args:
+            dos: Pymatgen Dos object.
+            structure: A structure. If not provided, the structure
+                of the dos object will be used. If the dos does not have an
+                associated structure object, an error will be thrown.
+            nelecs: The number of electrons included in the energy range of
+                dos. It is used for normalizing the densities. Default is the total
+                number of electrons in the structure.
+            bandgap: If set, the energy values are scissored so that the electronic
+                band gap matches this value.
+        """
         super().__init__(dos.efermi, energies=dos.energies,
                          densities={k: np.array(d) for k, d in
                                     dos.densities.items()})
@@ -590,12 +592,12 @@ class FermiDos(Dos, MSONable):
             dos.efermi.
         """
         fermi = self.efermi  # initialize target fermi
-        relative_error = float("inf")
+        relative_error = [float("inf")]
         for _ in range(precision):
             frange = np.arange(-nstep, nstep + 1) * step + fermi
             calc_doping = np.array([self.get_doping(f, temperature)
                                     for f in frange])
-            relative_error = abs(calc_doping / concentration - 1.0)
+            relative_error = np.abs(calc_doping / concentration - 1.0)
             fermi = frange[np.argmin(relative_error)]
             step /= 10.0
 
@@ -634,12 +636,6 @@ class CompleteDos(Dos):
     a vasprun.xml file. You are unlikely to try to generate this object
     manually.
 
-    Args:
-        structure: Structure associated with this particular DOS.
-        total_dos: total Dos for structure
-        pdoss: The pdoss are supplied as an {Site:{Orbital:{
-            Spin:Densities}}}
-
     .. attribute:: structure
 
         Structure associated with the CompleteDos.
@@ -650,6 +646,13 @@ class CompleteDos(Dos):
     """
 
     def __init__(self, structure, total_dos, pdoss):
+        """
+        Args:
+            structure: Structure associated with this particular DOS.
+            total_dos: total Dos for structure
+            pdoss: The pdoss are supplied as an {Site:{Orbital:{
+                Spin:Densities}}}
+        """
         super().__init__(
             total_dos.efermi, energies=total_dos.energies,
             densities={k: np.array(d) for k, d in total_dos.densities.items()})

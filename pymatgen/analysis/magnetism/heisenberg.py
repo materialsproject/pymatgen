@@ -2,10 +2,15 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+This module implements a simple algorithm for extracting nearest neighbor
+exchange parameters by mapping low energy magnetic orderings to a Heisenberg
+model.
+"""
+
 from pymatgen.analysis.magnetism import CollinearMagneticStructureAnalyzer, Ordering
 from pymatgen.analysis.graphs import StructureGraph
 from pymatgen.analysis.local_env import MinimumDistanceNN
-from pymatgen.analysis.structure_matcher import ElementComparator, StructureMatcher
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 from monty.serialization import dumpfn
@@ -16,12 +21,7 @@ import copy
 
 import logging
 import sys
-
-"""
-This module implements a simple algorithm for extracting nearest neighbor
-exchange parameters by mapping low energy magnetic orderings to a Heisenberg
-model.
-"""
+import warnings
 
 __author__ = "ncfrey"
 __version__ = "0.1"
@@ -32,9 +32,11 @@ __date__ = "June 2019"
 
 
 class HeisenbergMapper:
+    """
+    Class to compute exchange parameters from low energy magnetic orderings.
+    """
     def __init__(self, ordered_structures, energies, cutoff=0.0, tol=0.02):
-        """Compute exchange parameters from low energy magnetic orderings.
-
+        """
         Exchange parameters are computed by mapping to a classical Heisenberg
         model. Strategy is the scheme for generating neighbors. Currently only
         MinimumDistanceNN is implemented.
@@ -373,7 +375,6 @@ class HeisenbergMapper:
             zeros = [b for b in (ex_mat == 0).all(axis=0)]
             if True in zeros:
                 c = ex_mat.columns[zeros.index(True)]
-                len_zeros = len(c)
                 ex_mat = ex_mat.drop(columns=[c], axis=1)
                 # ex_mat = ex_mat.drop(ex_mat.tail(len_zeros).index)
 
@@ -437,7 +438,6 @@ class HeisenbergMapper:
         mag_max = 0.001
         fm_e_min = 0
         afm_e_min = 0
-        afm_threshold = 1  # total magnetization < threshold -> AFM, not FiM
 
         for s, e in zip(self.ordered_structures, self.energies):
 
@@ -515,10 +515,8 @@ class HeisenbergMapper:
         # afm_e *= n
 
         magmoms = fm_struct.site_properties["magmom"]
-        afm_magmoms = afm_struct.site_properties["magmom"]
 
         m_avg = np.mean([np.sqrt(m ** 2) for m in magmoms])
-        afm_m_avg = np.mean([np.sqrt(m ** 2) for m in afm_magmoms])
 
         # If m_avg for FM config is < 1 we won't get sensibile results.
         if m_avg < 1:
@@ -595,9 +593,6 @@ class HeisenbergMapper:
 
         structure = self.ordered_structures[0]
         sgraph = self.sgraphs[0]
-        unique_site_ids = self.unique_site_ids
-        dists = self.dists
-        tol = self.tol
 
         igraph = StructureGraph.with_empty_graph(
             structure, edge_weight_name="exchange_constant", edge_weight_units="meV"
@@ -615,9 +610,6 @@ class HeisenbergMapper:
             connections = sgraph.get_connected_sites(i)
             for c in connections:
                 jimage = c[1]  # relative integer coordinates of atom j
-                dx = jimage[0]
-                dy = jimage[1]
-                dz = jimage[2]
                 j = c[2]  # index of neighbor
                 dist = c[-1]  # i <-> j distance
 
@@ -686,11 +678,14 @@ class HeisenbergMapper:
 
 
 class HeisenbergScreener:
+    """
+    Class to clean and screen magnetic orderings.
+    """
     def __init__(self, structures, energies):
-        """Clean and screen magnetic orderings.
-
-        This class pre-processes magnetic orderings and energies for HeisenbergMapper. It prioritizes low-energy
-        orderings with large and localized magnetic moments.
+        """
+        This class pre-processes magnetic orderings and energies for
+        HeisenbergMapper. It prioritizes low-energy orderings with large and
+        localized magnetic moments.
 
         Args:
             structures (list): Structure objects with magnetic moments.
@@ -699,7 +694,6 @@ class HeisenbergScreener:
         Attributes:
             screened_structures (list): Sorted structures.
             screened_energies (list): Sorted energies.
-
         """
 
         # Cleanup
@@ -796,9 +790,6 @@ class HeisenbergScreener:
         """
 
         magmoms = [s.site_properties["magmom"] for s in structures]
-        mean_mm = [np.mean([abs(m) for m in ms]) for ms in magmoms]
-        max_mm = [np.max([abs(m) for m in ms]) for ms in magmoms]
-        min_mm = [np.min([abs(m) for m in ms]) for ms in magmoms]
         n_below_1ub = [len([m for m in ms if abs(m) < 1]) for ms in magmoms]
 
         df = pd.DataFrame(

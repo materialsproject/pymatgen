@@ -3,6 +3,11 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+A master convenience script with many tools for vasp and structure analysis.
+"""
+
+
 import os
 import sys
 import glob
@@ -13,21 +18,13 @@ from monty.serialization import loadfn, dumpfn
 from pymatgen import SETTINGS_FILE
 from urllib.request import urlretrieve
 
-"""
-A master convenience script with many tools for vasp and structure analysis.
-"""
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "4.0"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "ongsp@ucsd.edu"
-__date__ = "Aug 13 2016"
-
-SAVE_FILE = "vasp_data.gz"
-
 
 def setup_potcars(args):
+    """
+    Setup POTCAR directirt,
+
+    :param args: args from command.
+    """
     pspdir, targetdir = [os.path.abspath(d) for d in args.potcar_dirs]
     try:
         os.makedirs(targetdir)
@@ -90,14 +87,17 @@ def setup_potcars(args):
 
 
 def build_enum(fortran_command="gfortran"):
+    """
+    Build enum.
+
+    :param fortran_command:
+    """
     currdir = os.getcwd()
     state = True
     try:
-        subprocess.call(["git", "clone",
+        subprocess.call(["git", "clone", "--recursive",
                          "https://github.com/msg-byu/enumlib.git"])
-        subprocess.call(["git", "clone",
-                         "https://github.com/msg-byu/symlib.git"])
-        os.chdir(os.path.join(currdir, "symlib", "src"))
+        os.chdir(os.path.join(currdir, "enumlib", "symlib", "src"))
         os.environ["F90"] = fortran_command
         subprocess.call(["make"])
         enumpath = os.path.join(currdir, "enumlib", "src")
@@ -112,11 +112,15 @@ def build_enum(fortran_command="gfortran"):
     finally:
         os.chdir(currdir)
         shutil.rmtree("enumlib")
-        shutil.rmtree("symlib")
     return state
 
 
 def build_bader(fortran_command="gfortran"):
+    """
+    Build bader package.
+
+    :param fortran_command:
+    """
     bader_url = "http://theory.cm.utexas.edu/henkelman/code/bader/download/bader.tar.gz"
     currdir = os.getcwd()
     state = True
@@ -141,6 +145,11 @@ def build_bader(fortran_command="gfortran"):
 
 
 def install_software(args):
+    """
+    Install all optional external software.
+
+    :param args:
+    """
     try:
         subprocess.call(["ifort", "--version"])
         print("Found ifort")
@@ -173,6 +182,11 @@ def install_software(args):
 
 
 def add_config_var(args):
+    """
+    Add configuration args.
+
+    :param args:
+    """
     d = {}
     if os.path.exists(SETTINGS_FILE):
         shutil.copy(SETTINGS_FILE, SETTINGS_FILE + ".bak")
@@ -190,6 +204,11 @@ def add_config_var(args):
 
 
 def configure_pmg(args):
+    """
+    Handle configure command.
+
+    :param args:
+    """
     if args.potcar_dirs:
         setup_potcars(args)
     elif args.install:

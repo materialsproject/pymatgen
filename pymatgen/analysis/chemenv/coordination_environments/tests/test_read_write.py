@@ -25,7 +25,7 @@ import numpy as np
 json_files_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "..",
                               'test_files', "chemenv", "json_test_files")
 se_files_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "..",
-                              'test_files', "chemenv", "structure_environments_files")
+                            'test_files', "chemenv", "structure_environments_files")
 
 
 class ReadWriteChemenvTest(unittest.TestCase):
@@ -153,18 +153,18 @@ class ReadWriteChemenvTest(unittest.TestCase):
                               'distance_bounds': {'lower': 1.1, 'upper': 1.9},
                               'angle_bounds': {'lower': 0.1, 'upper': 0.9}}
         surface_definition_2 = {'type': 'standard_elliptic',
-                              'distance_bounds': {'lower': 1.1, 'upper': 1.9},
-                              'angle_bounds': {'lower': 0.1, 'upper': 0.95}}
+                                'distance_bounds': {'lower': 1.1, 'upper': 1.9},
+                                'angle_bounds': {'lower': 0.1, 'upper': 0.95}}
         da_area_weight = DistanceAngleAreaNbSetWeight(weight_type='has_intersection',
                                                       surface_definition=surface_definition,
                                                       nb_sets_from_hints='fallback_to_source',
                                                       other_nb_sets='0_weight',
                                                       additional_condition=DistanceAngleAreaNbSetWeight.AC.ONLY_ACB)
         da_area_weight_2 = DistanceAngleAreaNbSetWeight(weight_type='has_intersection',
-                                                      surface_definition=surface_definition_2,
-                                                      nb_sets_from_hints='fallback_to_source',
-                                                      other_nb_sets='0_weight',
-                                                      additional_condition=DistanceAngleAreaNbSetWeight.AC.ONLY_ACB)
+                                                        surface_definition=surface_definition_2,
+                                                        nb_sets_from_hints='fallback_to_source',
+                                                        other_nb_sets='0_weight',
+                                                        additional_condition=DistanceAngleAreaNbSetWeight.AC.ONLY_ACB)
         weight_estimator = {'function': 'smootherstep',
                             'options': {'delta_csm_min': 0.5,
                                         'delta_csm_max': 3.0}}
@@ -230,7 +230,7 @@ class ReadWriteChemenvTest(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        #Remove the directory in which the temporary files have been created
+        # Remove the directory in which the temporary files have been created
         shutil.rmtree('tmp_dir')
 
 

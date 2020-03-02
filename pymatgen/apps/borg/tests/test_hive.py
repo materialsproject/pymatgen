@@ -3,18 +3,6 @@
 # Distributed under the terms of the MIT License.
 
 
-"""
-Created on Mar 18, 2012
-"""
-
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyue@mit.edu"
-__date__ = "Mar 18, 2012"
-
 import unittest
 import os
 import warnings
@@ -126,6 +114,7 @@ class GaussianToComputedEntryDroneTest(unittest.TestCase):
         drone = GaussianToComputedEntryDrone.from_dict(d)
         self.assertEqual(type(drone), GaussianToComputedEntryDrone)
 
+
 if __name__ == "__main__":
-    #import sys;sys.argv = ['', 'Test.testName']
+    # import sys;sys.argv = ['', 'Test.testName']
     unittest.main()

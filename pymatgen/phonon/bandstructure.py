@@ -2,6 +2,9 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+This module provides classes to define a phonon band structure.
+"""
 
 import collections
 import numpy as np
@@ -10,10 +13,6 @@ from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.electronic_structure.bandstructure import Kpoint
 from monty.json import MSONable
-
-"""
-This module provides classes to define a phonon band structure.
-"""
 
 
 def get_reasonable_repetitions(natoms):
@@ -239,6 +238,9 @@ class PhononBandStructure(MSONable):
         return None
 
     def as_dict(self):
+        """
+        :return: MSONable dict
+        """
         d = {"@module": self.__class__.__module__,
              "@class": self.__class__.__name__,
              "lattice_rec": self.lattice_rec.as_dict(),
@@ -265,6 +267,10 @@ class PhononBandStructure(MSONable):
 
     @classmethod
     def from_dict(cls, d):
+        """
+        :param d: Dict representation
+        :return: PhononBandStructure
+        """
         lattice_rec = Lattice(d['lattice_rec']['matrix'])
         eigendisplacements = np.array(d['eigendisplacements']['real']) + np.array(d['eigendisplacements']['imag']) * 1j
         nac_eigendisplacements = [(direction, np.array(e['real']) + np.array(e['imag']) * 1j)
@@ -276,7 +282,7 @@ class PhononBandStructure(MSONable):
 
 
 class PhononBandStructureSymmLine(PhononBandStructure):
-    """
+    r"""
     This object stores phonon band structures along selected (symmetry) lines in the
     Brillouin zone. We call the different symmetry lines (ex: \\Gamma to Z)
     "branches".
@@ -399,7 +405,7 @@ class PhononBandStructureSymmLine(PhononBandStructure):
         return list_index_qpoints
 
     def get_branch(self, index):
-        """
+        r"""
         Returns in what branch(es) is the qpoint. There can be several
         branches.
 
@@ -429,7 +435,7 @@ class PhononBandStructureSymmLine(PhononBandStructure):
         """
         import json
         with open(filename, 'w') as f:
-            phononwebsite_json = json.dump(self.as_phononwebsite(), f)
+            json.dump(self.as_phononwebsite(), f)
 
     def as_phononwebsite(self):
         """
@@ -541,6 +547,9 @@ class PhononBandStructureSymmLine(PhononBandStructure):
             eig[:, nq] = eigq[order[nq]]
 
     def as_dict(self):
+        """
+        :return: MSONable dict
+        """
         d = super().as_dict()
         # remove nac_frequencies and nac_eigendisplacements as they are reconstructed
         # in the __init__ when the dict is deserialized
@@ -551,6 +560,10 @@ class PhononBandStructureSymmLine(PhononBandStructure):
 
     @classmethod
     def from_dict(cls, d):
+        """
+        :param d: Dict representation
+        :return: PhononBandStructureSummLine
+        """
         lattice_rec = Lattice(d['lattice_rec']['matrix'])
         eigendisplacements = np.array(d['eigendisplacements']['real']) + np.array(d['eigendisplacements']['imag']) * 1j
         structure = Structure.from_dict(d['structure']) if 'structure' in d else None

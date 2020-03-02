@@ -36,9 +36,9 @@ class ChemicalShielding(SquareTensor):
     Authors: Shyam Dwaraknath, Xiaohui Qu
     """
 
-    HaeberlenNotation = namedtuple(typename="HaeberlenNotion", field_names="sigma_iso, delta_sigma_iso, zeta, eta")
-    MehringNotation = namedtuple(typename="MehringNotation", field_names="sigma_iso, sigma_11, sigma_22, sigma_33")
-    MarylandNotation = namedtuple(typename="MarylandNotation", field_names="sigma_iso, omega, kappa")
+    HaeberlenNotation = namedtuple("HaeberlenNotion", "sigma_iso, delta_sigma_iso, zeta, eta")
+    MehringNotation = namedtuple("MehringNotation", "sigma_iso, sigma_11, sigma_22, sigma_33")
+    MarylandNotation = namedtuple("MarylandNotation", "sigma_iso, omega, kappa")
 
     def __new__(cls, cs_matrix, vscale=None):
         """

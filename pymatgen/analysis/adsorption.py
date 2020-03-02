@@ -9,7 +9,7 @@ and to find adsorption sites on slabs
 """
 
 import numpy as np
-from pymatgen import Structure, Lattice, vis
+from pymatgen import Structure, vis
 import itertools
 import os
 from monty.serialization import loadfn
@@ -280,7 +280,6 @@ class AdsorbateSiteFinder:
                     if 'hollow' in positions and not obtuse:
                         ads_sites['hollow'].append(
                             self.ensemble_center(mesh, v))
-        ads_sites['all'] = sum(ads_sites.values(), [])
         for key, sites in ads_sites.items():
             # Pare off outer sites for bridge/hollow
             if key in ['bridge', 'hollow']:
@@ -301,6 +300,7 @@ class AdsorbateSiteFinder:
             sites = [site + distance * self.mvec for site in sites]
 
             ads_sites[key] = sites
+        ads_sites['all'] = sum(ads_sites.values(), [])
         return ads_sites
 
     def symm_reduce(self, coords_set, threshold=1e-6):
@@ -493,7 +493,7 @@ class AdsorbateSiteFinder:
         for adslab in adslabs:
 
             # Find the adsorbate sites and indices in each slab
-            symmetric, adsorbates, indices = False, [], []
+            _, adsorbates, indices = False, [], []
             for i, site in enumerate(adslab.sites):
                 if site.surface_properties == "adsorbate":
                     adsorbates.append(site)

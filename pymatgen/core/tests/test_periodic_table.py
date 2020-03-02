@@ -390,11 +390,6 @@ class DummySpecieTestCase(unittest.TestCase):
         self.assertEqual(r, [DummySpecie("X"), Element.Fe])
         self.assertTrue(DummySpecie("X", 3) < DummySpecie("X", 4))
 
-    def test_safe_from_composition(self):
-        c = Composition({'Xa': 1, 'Fe': 1})
-        self.assertEqual(DummySpecie.safe_from_composition(c).symbol, 'Xb')
-        self.assertEqual(DummySpecie.safe_from_composition(c, 1).symbol, 'Xb')
-
 
 class FuncTest(unittest.TestCase):
 

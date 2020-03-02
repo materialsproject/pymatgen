@@ -1,0 +1,388 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pymatgen.core.xcfunc module &mdash; pymatgen 2020.1.28 documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pymatgen.orgpymatgen.core.xcfunc.html"/>
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.electronic_structure package" href="pymatgen.electronic_structure.html" />
+    <link rel="prev" title="pymatgen.core.units module" href="pymatgen.core.units.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pymatgen
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2020.1.28
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="team.html">Development Team</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API Docs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pymatgen.html">pymatgen package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="pymatgen.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.alchemy.html">pymatgen.alchemy package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.html">pymatgen.analysis package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.apps.html">pymatgen.apps package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.cli.html">pymatgen.cli package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.command_line.html">pymatgen.command_line package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="pymatgen.core.html">pymatgen.core package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.electronic_structure.html">pymatgen.electronic_structure package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.entries.html">pymatgen.entries package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html">pymatgen.ext package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html">pymatgen.io package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.plugins.html">pymatgen.plugins package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.vis.html">pymatgen.vis package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#module-pymatgen">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pymatgen</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="modules.html">pymatgen</a> &raquo;</li>
+        
+          <li><a href="pymatgen.html">pymatgen package</a> &raquo;</li>
+        
+          <li><a href="pymatgen.core.html">pymatgen.core package</a> &raquo;</li>
+        
+      <li>pymatgen.core.xcfunc module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.core.xcfunc.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-pymatgen.core.xcfunc">
+<span id="pymatgen-core-xcfunc-module"></span><h1>pymatgen.core.xcfunc module<a class="headerlink" href="#module-pymatgen.core.xcfunc" title="Permalink to this headline">¶</a></h1>
+<p>This module provides</p>
+<dl class="class">
+<dt id="pymatgen.core.xcfunc.XcFunc">
+<em class="property">class </em><code class="sig-name descname">XcFunc</code><span class="sig-paren">(</span><em class="sig-param">xc=None</em>, <em class="sig-param">x=None</em>, <em class="sig-param">c=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/xcfunc.py#L23-L267"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.xcfunc.XcFunc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
+<p>This object stores information about the XC correlation functional.
+Client code usually creates the object by calling the class methods:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>from_name</p></li>
+<li><p>from_type_name</p></li>
+</ul>
+</div></blockquote>
+<p>or code-specific methods such as:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>from_abinit_ixc</p></li>
+</ul>
+</div></blockquote>
+<p>Ax XcFunc instance is hashable and can therefore be used as key in dictionaries.</p>
+<p>The implementation is based on the libxc conventions
+and is inspired to the XML specification for atomic PAW datasets documented at:</p>
+<blockquote>
+<div><p><a class="reference external" href="https://wiki.fysik.dtu.dk/gpaw/setups/pawxml.html">https://wiki.fysik.dtu.dk/gpaw/setups/pawxml.html</a></p>
+</div></blockquote>
+<p>For convenience, part of the pawxml documentation is reported here.</p>
+<p>The xc_functional element defines the exchange-correlation functional used for
+generating the dataset. It has the two attributes type and name.</p>
+<p>The type attribute can be LDA, GGA, MGGA or HYB.
+The name attribute designates the exchange-correlation functional
+and can be specified in the following ways:</p>
+<dl>
+<dt>[1] Taking the names from the LibXC library. The correlation and exchange names</dt><dd><p>are stripped from their <a href="#id1"><span class="problematic" id="id2">XC_</span></a> part and combined with a + sign.
+Here is an example for an LDA functional:</p>
+<p>&lt;xc_functional type=”LDA”, name=”LDA_X+LDA_C_PW”/&gt;</p>
+<p>and this is what PBE will look like:</p>
+<p>&lt;xc_functional type=”GGA”, name=”GGA_X_PBE+GGA_C_PBE”/&gt;</p>
+</dd>
+</dl>
+<p>[2] Using one of the following pre-defined aliases:</p>
+<p>type    name    LibXC equivalent             Reference
+LDA     PW      LDA_X+LDA_C_PW               LDA exchange; Perdew, Wang, PRB 45, 13244 (1992)
+GGA     PW91    GGA_X_PW91+GGA_C_PW91        Perdew et al PRB 46, 6671 (1992)
+GGA     PBE     GGA_X_PBE+GGA_C_PBE          Perdew, Burke, Ernzerhof, PRL 77, 3865 (1996)
+GGA     RPBE    GGA_X_RPBE+GGA_C_PBE         Hammer, Hansen, Nørskov, PRB 59, 7413 (1999)
+GGA     revPBE  GGA_X_PBE_R+GGA_C_PBE        Zhang, Yang, PRL 80, 890 (1998)
+GGA     PBEsol  GGA_X_PBE_SOL+GGA_C_PBE_SOL  Perdew et al, PRL 100, 136406 (2008)
+GGA     AM05    GGA_X_AM05+GGA_C_AM05        Armiento, Mattsson, PRB 72, 085108 (2005)
+GGA     BLYP    GGA_X_B88+GGA_C_LYP          Becke, PRA 38, 3098 (1988); Lee, Yang, Parr, PRB 37, 785</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xc</strong> – LibxcFunc for XC functional.</p></li>
+<li><p><strong>c</strong> (<em>x</em><em>,</em>) – LibxcFunc for exchange and correlation part. Mutually exclusive with xc.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="pymatgen.core.xcfunc.XcFunc.abinitixc_to_libxc">
+<code class="sig-name descname">abinitixc_to_libxc</code><em class="property"> = {1: {'xc': &lt;LibxcFunc.LDA_XC_TETER93: 20&gt;}, 2: {'c': &lt;LibxcFunc.LDA_C_PZ: 9&gt;, 'x': &lt;LibxcFunc.LDA_X: 1&gt;}, 4: {'c': &lt;LibxcFunc.LDA_C_WIGNER: 2&gt;, 'x': &lt;LibxcFunc.LDA_X: 1&gt;}, 5: {'c': &lt;LibxcFunc.LDA_C_HL: 4&gt;, 'x': &lt;LibxcFunc.LDA_X: 1&gt;}, 7: {'c': &lt;LibxcFunc.LDA_C_PW: 12&gt;, 'x': &lt;LibxcFunc.LDA_X: 1&gt;}, 11: {'c': &lt;LibxcFunc.GGA_C_PBE: 130&gt;, 'x': &lt;LibxcFunc.GGA_X_PBE: 101&gt;}, 14: {'c': &lt;LibxcFunc.GGA_C_PBE: 130&gt;, 'x': &lt;LibxcFunc.GGA_X_PBE_R: 102&gt;}, 15: {'c': &lt;LibxcFunc.GGA_C_PBE: 130&gt;, 'x': &lt;LibxcFunc.GGA_X_RPBE: 117&gt;}}</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/xcfunc.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.xcfunc.XcFunc.abinitixc_to_libxc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.xcfunc.XcFunc.aliases">
+<em class="property">classmethod </em><code class="sig-name descname">aliases</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/xcfunc.py#L112-L115"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.xcfunc.XcFunc.aliases" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of registered names.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.xcfunc.XcFunc.as_dict">
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/xcfunc.py#L186-L199"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.xcfunc.XcFunc.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Makes XcFunc obey the general json interface used in pymatgen for easier serialization.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.xcfunc.XcFunc.asxc">
+<em class="property">classmethod </em><code class="sig-name descname">asxc</code><span class="sig-paren">(</span><em class="sig-param">obj</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/xcfunc.py#L117-L124"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.xcfunc.XcFunc.asxc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert object into Xcfunc.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.xcfunc.XcFunc.defined_aliases">
+<code class="sig-name descname">defined_aliases</code><em class="property"> = OrderedDict([((&lt;LibxcFunc.LDA_X: 1&gt;, &lt;LibxcFunc.LDA_C_PW: 12&gt;), type_name(type='LDA', name='PW')), ((&lt;LibxcFunc.LDA_X: 1&gt;, &lt;LibxcFunc.LDA_C_PW_MOD: 13&gt;), type_name(type='LDA', name='PW_MOD')), ((&lt;LibxcFunc.LDA_X: 1&gt;, &lt;LibxcFunc.LDA_C_PZ: 9&gt;), type_name(type='LDA', name='PZ')), ((&lt;LibxcFunc.LDA_X: 1&gt;, &lt;LibxcFunc.LDA_C_WIGNER: 2&gt;), type_name(type='LDA', name='W')), ((&lt;LibxcFunc.LDA_X: 1&gt;, &lt;LibxcFunc.LDA_C_HL: 4&gt;), type_name(type='LDA', name='HL')), ((&lt;LibxcFunc.LDA_X: 1&gt;, &lt;LibxcFunc.LDA_C_GL: 5&gt;), type_name(type='LDA', name='GL')), ((&lt;LibxcFunc.LDA_X: 1&gt;, &lt;LibxcFunc.LDA_C_VWN: 7&gt;), type_name(type='LDA', name='VWN')), ((&lt;LibxcFunc.GGA_X_PW91: 109&gt;, &lt;LibxcFunc.GGA_C_PW91: 134&gt;), type_name(type='GGA', name='PW91')), ((&lt;LibxcFunc.GGA_X_PBE: 101&gt;, &lt;LibxcFunc.GGA_C_PBE: 130&gt;), type_name(type='GGA', name='PBE')), ((&lt;LibxcFunc.GGA_X_RPBE: 117&gt;, &lt;LibxcFunc.GGA_C_PBE: 130&gt;), type_name(type='GGA', name='RPBE')), ((&lt;LibxcFunc.GGA_X_PBE_R: 102&gt;, &lt;LibxcFunc.GGA_C_PBE: 130&gt;), type_name(type='GGA', name='revPBE')), ((&lt;LibxcFunc.GGA_X_PBE_SOL: 116&gt;, &lt;LibxcFunc.GGA_C_PBE_SOL: 133&gt;), type_name(type='GGA', name='PBEsol')), ((&lt;LibxcFunc.GGA_X_AM05: 120&gt;, &lt;LibxcFunc.GGA_C_AM05: 135&gt;), type_name(type='GGA', name='AM05')), ((&lt;LibxcFunc.GGA_X_B88: 106&gt;, &lt;LibxcFunc.GGA_C_LYP: 131&gt;), type_name(type='GGA', name='BLYP'))])</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/xcfunc.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.xcfunc.XcFunc.defined_aliases" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.xcfunc.XcFunc.from_abinit_ixc">
+<em class="property">classmethod </em><code class="sig-name descname">from_abinit_ixc</code><span class="sig-paren">(</span><em class="sig-param">ixc</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/xcfunc.py#L126-L146"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.xcfunc.XcFunc.from_abinit_ixc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the object from Abinit ixc (integer)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.xcfunc.XcFunc.from_dict">
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/xcfunc.py#L179-L184"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.xcfunc.XcFunc.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Makes XcFunc obey the general json interface used in pymatgen for easier serialization.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.xcfunc.XcFunc.from_name">
+<em class="property">classmethod </em><code class="sig-name descname">from_name</code><span class="sig-paren">(</span><em class="sig-param">name</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/xcfunc.py#L148-L151"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.xcfunc.XcFunc.from_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the object from one of the registered names</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.xcfunc.XcFunc.from_type_name">
+<em class="property">classmethod </em><code class="sig-name descname">from_type_name</code><span class="sig-paren">(</span><em class="sig-param">typ</em>, <em class="sig-param">name</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/xcfunc.py#L153-L177"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.xcfunc.XcFunc.from_type_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the object from (type, name).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.xcfunc.XcFunc.name">
+<code class="sig-name descname">name</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/xcfunc.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.xcfunc.XcFunc.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name of the functional. If the functional is not found in the aliases,
+the string has the form X_NAME+C_NAME</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.xcfunc.XcFunc.type">
+<code class="sig-name descname">type</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.28/pymatgen/core/xcfunc.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.xcfunc.XcFunc.type" title="Permalink to this definition">¶</a></dt>
+<dd><p>The type of the functional.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011, Pymatgen Development Team
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+  
+ 
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+
+</body>
+</html>

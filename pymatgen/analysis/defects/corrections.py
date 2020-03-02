@@ -313,7 +313,7 @@ class FreysoldtCorrection(DefectCorrection):
         ymin = min(min(v_R), min(dft_diff), min(final_shift))
         ymax = max(max(v_R), max(dft_diff), max(final_shift))
         plt.ylim(-0.2 + ymin, 0.2 + ymax)
-        plt.xlabel("distance along axis ($\AA$)", fontsize=15)
+        plt.xlabel(r"distance along axis ($\AA$)", fontsize=15)
         plt.ylabel("Potential (V)", fontsize=15)
         plt.legend(loc=9)
         plt.axhline(y=0, linewidth=0.2, color="black")
@@ -673,7 +673,7 @@ class KumagaiCorrection(DefectCorrection):
         plt.ylim([y_min, y_max])
         plt.xlim([0, max(distances) * 1.1])
 
-        plt.xlabel('Distance from defect ($\AA$)', fontsize=20)
+        plt.xlabel(r'Distance from defect ($\AA$)', fontsize=20)
         plt.ylabel('Potential (V)', fontsize=20)
         plt.title(str(title) + " atomic site potential plot", fontsize=20)
 

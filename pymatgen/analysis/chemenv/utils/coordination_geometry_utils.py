@@ -167,7 +167,7 @@ def spline_functions(lower_points, upper_points, degree=3):
 
 
 def diamond_functions(xx, yy, y_x0, x_y0):
-    """
+    r"""
     Method that creates two upper and lower functions based on points xx and yy
     as well as intercepts defined by y_x0 and x_y0. The resulting functions
     form kind of a distorted diamond-like structure aligned from
