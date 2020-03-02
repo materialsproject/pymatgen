@@ -4313,16 +4313,16 @@ class Wavecar:
                     if gamma is not None:
                         # use it
                         self.gamma = gamma
-                        (self.Gpoints[ink], extra_gpoints, extra_coeff_inds) = self._generate_G_points(kpoint, gamma=self.gamma)
+                        (self.Gpoints[ink], extra_gpoints, extra_coeff_inds) = self._generate_G_points(kpoint, gamma)
                     else:
                         # try assuming a conventional (non-gamma) calculation
                         self.gamma = False
-                        (self.Gpoints[ink], extra_gpoints, extra_coeff_inds) = self._generate_G_points(kpoint, gamma=self.gamma)
+                        (self.Gpoints[ink], extra_gpoints, extra_coeff_inds) = self._generate_G_points(kpoint, False)
                         initial_generated = len(self.Gpoints[ink])
                     if gamma is None and len(self.Gpoints[ink]) != nplane:
                         # failed with conventional, retry with gamma-only format
                         self.gamma = True
-                        (self.Gpoints[ink], extra_gpoints, extra_coeff_inds) = self._generate_G_points(kpoint, gamma=self.gamma)
+                        (self.Gpoints[ink], extra_gpoints, extra_coeff_inds) = self._generate_G_points(kpoint, True)
                     if len(self.Gpoints[ink]) != nplane:
                         # failed to match number of plane waves for either gamma or non-gamma
                         if gamma is None:
