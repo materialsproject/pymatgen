@@ -1301,6 +1301,8 @@ class WavecarTest(PymatgenTest):
         self.b = 2 * np.pi * b / self.vol
         self.a = a
         self.w = Wavecar(self.TEST_FILES_DIR / 'WAVECAR.N2')
+        self.wH2 = Wavecar(self.TEST_FILES_DIR / 'WAVECAR.H2_low_symm', verbose=True)
+        self.wH2_gamma = Wavecar(self.TEST_FILES_DIR / 'WAVECAR.H2_low_symm.gamma', verbose=True)
 
     def test_standard(self):
         w = self.w
@@ -1407,6 +1409,46 @@ class WavecarTest(PymatgenTest):
         ind = np.argmax(np.abs(mesh))
         self.assertEqual(np.unravel_index(ind, mesh.shape), (6, 8, 8))
         self.assertEqual(mesh[0, 0, 0], 0j)
+
+    def test_fft_mesh_gamma(self):
+        ik=0
+        ib=0
+        mesh = self.wH2.fft_mesh(ik, ib)
+        mesh_gamma = self.wH2_gamma.fft_mesh(ik, ib)
+
+        # check equality of plane-wave coefficients
+        ind_max = np.unravel_index( np.argmax(np.abs(mesh)), mesh.shape)
+        phase = mesh[ind_max]/mesh_gamma[ind_max]
+        self.assertLessEqual(np.max(np.abs(mesh-phase*mesh_gamma)), 1.0e-6)
+
+        # transform to real space for further checking
+        mesh = np.fft.ifftn(mesh)
+        mesh_gamma = np.fft.ifftn(mesh_gamma)
+
+        # check equality in real space for regular vs. gamma only
+        ind_max = np.unravel_index( np.argmax(np.abs(mesh)), mesh.shape)
+        phase = mesh[ind_max]/mesh_gamma[ind_max]
+        self.assertLessEqual(np.max(np.abs(mesh-phase*mesh_gamma)), 1.0e-6)
+
+        # spot check some points in real space
+        p1 = (int(mesh.shape[0]/2), int(mesh.shape[1]/2)-1, int(mesh.shape[2]/2)-2)
+        p2 = (p1[0]+1, p1[1], p1[2])
+        c = np.array([[5,0,0],[0,4,0],[0,0,6]]) # this needs to match POSCAR, which we don't have
+        r1 = np.dot(np.array(p1)/mesh.shape,c)
+        r2 = np.dot(np.array(p2)/mesh.shape,c)
+
+        # check equality of FFT and slow FT for regular mesh (ratio, to account for normalization)
+        v1 = self.wH2.evaluate_wavefunc(ik, ib, r1)
+        v2 = self.wH2.evaluate_wavefunc(ik, ib, r2)
+        self.assertAlmostEqual( np.abs(mesh[p1])/np.abs(mesh[p2]), np.abs(v1)/np.abs(v2), places=6)
+
+        # spot check one value that we happen to know from reference run
+        self.assertAlmostEqual( v1, -0.01947068011502887+0.23340228099620275j, places=8)
+
+        # check equality of FFT and slow FT for gamma-only mesh (ratio again)
+        v1_gamma = self.wH2_gamma.evaluate_wavefunc(ik, ib, r1)
+        v2_gamma = self.wH2_gamma.evaluate_wavefunc(ik, ib, r2)
+        self.assertAlmostEqual(np.abs(mesh_gamma[p1])/np.abs(mesh_gamma[p2]), np.abs(v1)/np.abs(v2), places=6)
 
     def test_get_parchg(self):
         poscar = Poscar.from_file(self.TEST_FILES_DIR / 'POSCAR')
