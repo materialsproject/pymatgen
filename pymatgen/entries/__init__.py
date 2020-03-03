@@ -22,6 +22,7 @@ __email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Mar 03, 2020"
 
+
 class Entry(MSONable, metaclass=ABCMeta):
     """
     A lightweight object containing the energy associated with 
