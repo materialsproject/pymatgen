@@ -73,9 +73,16 @@ class PDEntry(Entry):
                 to the reduced chemical formula.
             attribute: Optional attribute of the entry. Must be MSONable.
         """
-        super().__init__(composition, energy, 0.0)
+        super().__init__(composition, energy)
         self.name = name if name else self.composition.reduced_formula
         self.attribute = attribute
+
+    @property
+    def energy(self) -> float:
+        """
+        :return: the energy of the entry.
+        """
+        return self._energy
 
     def __repr__(self):
         return "PDEntry : {} with energy = {:.4f}".format(self.composition,

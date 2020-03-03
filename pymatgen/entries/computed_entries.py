@@ -63,16 +63,31 @@ class ComputedEntry(Entry):
                 with the entry. Defaults to None.
             entry_id (obj): An optional id to uniquely identify the entry.
         """
-        super().__init__(composition, energy, correction)
+        super().__init__(composition, energy)
+        self.uncorrected_energy = self._energy
+        self.correction = correction
         self.parameters = parameters if parameters else {}
         self.data = data if data else {}
         self.entry_id = entry_id
         self.name = self.composition.reduced_formula
 
+    @property
+    def energy(self) -> float:
+        """
+        :return: the *corrected* energy of the entry.
+        """
+        return self._energy + self.correction
+
+    def normalize(self, mode: str = "formula_unit") -> None:
+        factor = self.normalization_factor(mode)
+        self.correction /= factor
+        self.uncorrected_energy /= factor
+        super().normalize(mode)
+
     def __repr__(self):
         output = ["ComputedEntry {} - {}".format(self.entry_id,
                                                  self.composition.formula),
-                  "Energy = {:.4f}".format(self.uncorrected_energy),
+                  "Energy = {:.4f}".format(self._energy),
                   "Correction = {:.4f}".format(self.correction),
                   "Parameters:"]
         for k, v in self.parameters.items():
@@ -103,7 +118,8 @@ class ComputedEntry(Entry):
         return_dict = super().as_dict()
         return_dict.update({"parameters": json.loads(json.dumps(self.parameters, cls=MontyEncoder)),
                             "data": json.loads(json.dumps(self.data, cls=MontyEncoder)),
-                            "entry_id": self.entry_id})
+                            "entry_id": self.entry_id,
+                            "correction": self.correction})
         return return_dict
 
 
