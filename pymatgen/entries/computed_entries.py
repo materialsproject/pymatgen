@@ -85,7 +85,7 @@ class ComputedEntry(Entry):
                 composition.reduced_formula. The other option is "atom", which
                 normalizes such that the composition amounts sum to 1.
         """
-        factor = self.normalization_factor(mode)
+        factor = self._normalization_factor(mode)
         self.correction /= factor
         self.uncorrected_energy /= factor
         super().normalize(mode)

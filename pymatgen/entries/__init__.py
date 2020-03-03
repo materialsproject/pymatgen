@@ -81,11 +81,11 @@ class Entry(MSONable, metaclass=ABCMeta):
                 composition.reduced_formula. The other option is "atom", which
                 normalizes such that the composition amounts sum to 1.
         """
-        factor = self.normalization_factor(mode)
+        factor = self._normalization_factor(mode)
         self.composition /= factor
         self._energy /= factor
 
-    def normalization_factor(self, mode: str = "formula_unit") -> float:
+    def _normalization_factor(self, mode: str = "formula_unit") -> float:
         if mode == "atom":
             factor = self.composition.num_atoms
         else:
