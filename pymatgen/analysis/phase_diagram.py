@@ -25,7 +25,7 @@ from pymatgen.util.string import latexify
 from pymatgen.util.plotting import pretty_plot
 from pymatgen.analysis.reaction_calculator import Reaction, \
     ReactionError
-from pymatgen.entries.entry import Entry
+from pymatgen.entries import Entry
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"

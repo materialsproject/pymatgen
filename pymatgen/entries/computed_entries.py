@@ -16,7 +16,7 @@ from monty.json import MontyEncoder, MontyDecoder
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.structure import Structure
-from pymatgen.entries.entry import Entry
+from pymatgen.entries import Entry
 
 __author__ = "Shyue Ping Ong, Anubhav Jain"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -29,11 +29,9 @@ __date__ = "Apr 30, 2012"
 
 class ComputedEntry(Entry):
     """
-    An lightweight ComputedEntry object containing key computed data
-    for many purposes. Extends a PDEntry so that it can be used for phase
-    diagram generation. The difference between a ComputedEntry and a standard
-    PDEntry is that it includes additional parameters like a correction and
-    run_parameters.
+    Lightweight Entry object for computed data. Contains facilities 
+    for applying corrections to the .energy attribute and for storing 
+    calculation parameters.
 
     """
 
@@ -79,6 +77,14 @@ class ComputedEntry(Entry):
         return self._energy + self.correction
 
     def normalize(self, mode: str = "formula_unit") -> None:
+        """
+        Normalize the entry's composition and energy.
+
+        Args:
+            mode: "formula_unit" is the default, which normalizes to
+                composition.reduced_formula. The other option is "atom", which
+                normalizes such that the composition amounts sum to 1.
+        """
         factor = self.normalization_factor(mode)
         self.correction /= factor
         self.uncorrected_energy /= factor
