@@ -1239,7 +1239,9 @@ class CombinedData(LammpsData):
 
         """
 
-        self.box = list_of_molecules[0].box
+        max_xyz = coordinates[['x', 'y', 'z']].max().max()
+        min_xyz = coordinates[['x', 'y', 'z']].min().min()
+        self.box = LammpsBox(np.array(3*[[min_xyz - 0.1, max_xyz + 0.1]]))
         self.atom_style = atom_style
         self.n = sum(list_of_numbers)
         self.names = list_of_names
