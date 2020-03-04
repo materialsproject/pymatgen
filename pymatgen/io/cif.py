@@ -1208,7 +1208,7 @@ class CifWriter:
     """
     A wrapper around CifFile to write CIF files from pymatgen structures.
     """
-    def __init__(self, struct, symprec=None, write_magmoms=False, float_prec=8):
+    def __init__(self, struct, symprec=None, write_magmoms=False, significant_figures=8):
         """
         Args:
             struct (Structure): structure to write
@@ -1217,7 +1217,7 @@ class CifWriter:
                 to the SpacegroupAnalyzer
             write_magmoms (bool): If True, will write magCIF file. Incompatible
                 with symprec
-            float_prec (int): Specifies precision for formatting of floats.
+            significant_figures (int): Specifies precision for formatting of floats.
                 Defaults to 8.
         """
 
@@ -1227,7 +1227,7 @@ class CifWriter:
                 "disabling symmetry detection.")
             symprec = None
 
-        format_str = "{:.%df}" % float_prec
+        format_str = "{:.%df}" % significant_figures
 
         block = OrderedDict()
         loops = []
