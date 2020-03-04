@@ -24,7 +24,6 @@ from monty.json import MontyDecoder, MontyEncoder
 
 from enum import Enum, unique
 from collections import defaultdict
-from copy import deepcopy
 
 from pymatgen import SETTINGS, __version__ as pmg_version
 
