@@ -36,7 +36,6 @@ class Critic2CallerTest(unittest.TestCase):
         self.assertEqual(sg.get_coordination_of_site(0), 4)
 
         # check yt integration
-        # TODO: check that these values are sane
         self.assertAlmostEqual(c2o.structure.site_properties["bader_volume"][0], 66.0148355)
         self.assertAlmostEqual(c2o.structure.site_properties["bader_charge"][0], 12.2229131)
 
@@ -46,8 +45,19 @@ class Critic2CallerTest(unittest.TestCase):
         c2o_dict = c2o.as_dict()
         c2o_dict["zpsp"] = {"Fe": 8.0, "O": 6.0}
         c2o = Critic2Analysis.from_dict(c2o_dict)
-        # TODO: as above, check that these values are sane
-        self.assertAlmostEqual(c2o.structure.site_properties["bader_charge_transfer"][0], 4.2229130999999995)
+        # note: these values don't seem sensible physically, but seem to be correct with
+        # respect to the input files (possibly bad/underconverged source data)
+        self.assertAlmostEqual(c2o.structure.site_properties["bader_charge_transfer"][0], 4.2229131)
+
+        # alternatively, can also set when we do the analysis, but note that this will change
+        # the analysis performed since augmentation charges are added in core regions
+        c2c = Critic2Caller.from_path(test_dir, zpsp={"Fe": 8.0, "O": 6.0})
+
+        # check yt integration
+        self.assertAlmostEqual(c2o.structure.site_properties["bader_volume"][0], 66.0148355)
+        self.assertAlmostEqual(c2o.structure.site_properties["bader_charge"][0], 12.2229131)
+        self.assertAlmostEqual(c2o.structure.site_properties["bader_charge_transfer"][0], 4.2229131)
+
 
     def test_from_structure(self):
         # uses promolecular density
