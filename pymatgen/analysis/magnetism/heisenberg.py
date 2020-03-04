@@ -1015,8 +1015,8 @@ class HeisenbergModel(MSONable):
             ex_mat = eval(d["ex_mat"])
             ex_mat = pd.DataFrame.from_dict(ex_mat)
         except SyntaxError:  # if ex_mat is empty
-            ex_mat = pd.DataFrame(columns=['E', 'E0'])
-            
+            ex_mat = pd.DataFrame(columns=["E", "E0"])
+
         hmodel = HeisenbergModel(
             formula=d["formula"],
             structures=structures,
