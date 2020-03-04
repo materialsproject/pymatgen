@@ -245,7 +245,7 @@ class Critic2Caller:
             )
 
     @classmethod
-    def from_path(cls, path, suffix=""):
+    def from_path(cls, path, suffix="", zpsp=None):
         """
         Convenience method to run critic2 analysis on a folder containing
         typical VASP output files.
@@ -263,6 +263,7 @@ class Critic2Caller:
         :param path: path to folder to search in
         :param suffix: specific suffix to look for (e.g. '.relax1' for
             'CHGCAR.relax1.gz')
+        :param zpsp: manually specify ZPSP if POTCAR not present
         :return:
         """
 
@@ -285,28 +286,35 @@ class Critic2Caller:
 
         chgcar_path = _get_filepath("CHGCAR", "Could not find CHGCAR!")
         chgcar = Chgcar.from_file(chgcar_path)
+        chgcar_ref = None
 
-        aeccar0_path = _get_filepath(
-            "AECCAR0", "Could not find AECCAR0, interpret Bader results with caution."
-        )
-        aeccar0 = Chgcar.from_file(aeccar0_path) if aeccar0_path else None
+        if not zpsp:
 
-        aeccar2_path = _get_filepath(
-            "AECCAR2", "Could not find AECCAR2, interpret Bader results with caution."
-        )
-        aeccar2 = Chgcar.from_file(aeccar2_path) if aeccar2_path else None
+            potcar_path = _get_filepath(
+                "POTCAR",
+                "Could not find POTCAR, will not be able to calculate charge transfer.",
+            )
 
-        chgcar_ref = aeccar0.linear_add(aeccar2) if (aeccar0 and aeccar2) else None
+            if potcar_path:
+                potcar = Potcar.from_file(potcar_path)
+                zpsp = {p.symbol: p.zval for p in potcar}
 
-        potcar_path = _get_filepath(
-            "POTCAR",
-            "Could not find POTCAR, will not be able to calculate charge transfer.",
-        )
-        if potcar_path:
-            potcar = Potcar.from_file(potcar_path)
-            zpsp = {p.symbol: p.zval for p in potcar}
-        else:
-            zpsp = None
+        if not zpsp:
+
+            # try and get reference "all-electron-like" charge density if zpsp not present
+            aeccar0_path = _get_filepath(
+                "AECCAR0",
+                "Could not find AECCAR0, interpret Bader results with caution.",
+            )
+            aeccar0 = Chgcar.from_file(aeccar0_path) if aeccar0_path else None
+
+            aeccar2_path = _get_filepath(
+                "AECCAR2",
+                "Could not find AECCAR2, interpret Bader results with caution.",
+            )
+            aeccar2 = Chgcar.from_file(aeccar2_path) if aeccar2_path else None
+
+            chgcar_ref = aeccar0.linear_add(aeccar2) if (aeccar0 and aeccar2) else None
 
         return cls(chgcar.structure, chgcar, chgcar_ref, zpsp=zpsp)
 
@@ -454,7 +462,7 @@ class Critic2Analysis(MSONable):
         self.edges = {}
 
         if yt:
-            self.structure = self._annotate_structure_with_yt(yt, structure)
+            self.structure = self._annotate_structure_with_yt(yt, structure, zpsp)
 
         if cpreport:
             self._parse_cpreport(cpreport)
@@ -647,7 +655,7 @@ class Critic2Analysis(MSONable):
                 )
 
     @staticmethod
-    def _annotate_structure_with_yt(yt, structure):
+    def _annotate_structure_with_yt(yt, structure, zpsp):
 
         volume_idx = None
         charge_idx = None
@@ -673,6 +681,7 @@ class Critic2Analysis(MSONable):
 
         volumes = []
         charges = []
+        charge_transfer = []
 
         for idx, site in enumerate(yt["structure"]["cell_atoms"]):
             if not np.allclose(
@@ -686,14 +695,38 @@ class Critic2Analysis(MSONable):
             volume, charge = get_volume_and_charge(site["nonequivalent_id"])
             volumes.append(volume)
             charges.append(charge)
+            if zpsp:
+                if structure[idx].species_string in zpsp:
+                    charge_transfer.append(charge - zpsp[structure[idx].species_string])
+                else:
+                    raise ValueError(
+                        "ZPSP argument does not seem compatible with species in structure ({}): {}".format(
+                            structure[idx].species_string, zpsp
+                        )
+                    )
 
         structure = structure.copy()
         structure.add_site_property("bader_volume", volumes)
         structure.add_site_property("bader_charge", charges)
 
+        if zpsp:
+            if len(charge_transfer) != len(charges):
+                warnings.warn(
+                    "Something went wrong calculating charge transfer: {}".format(
+                        charge_transfer
+                    )
+                )
+            else:
+                structure.add_site_property("bader_charge_transfer", charge_transfer)
+
         return structure
 
     def _parse_stdout(self, stdout):
+
+        warnings.warn(
+            "Parsing critic2 standard output is deprecated and will not be maintained, "
+            "please use the native JSON output in future."
+        )
 
         stdout = stdout.split("\n")
 

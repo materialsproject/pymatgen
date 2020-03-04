@@ -40,6 +40,15 @@ class Critic2CallerTest(unittest.TestCase):
         self.assertAlmostEqual(c2o.structure.site_properties["bader_volume"][0], 66.0148355)
         self.assertAlmostEqual(c2o.structure.site_properties["bader_charge"][0], 12.2229131)
 
+        # test zpsp functionality
+        # this is normally picked up from POTCARs, but since POTCARs not checked in with the
+        # test suite, setting manually here
+        c2o_dict = c2o.as_dict()
+        c2o_dict["zpsp"] = {"Fe": 8.0, "O": 6.0}
+        c2o = Critic2Analysis.from_dict(c2o_dict)
+        # TODO: as above, check that these values are sane
+        self.assertAlmostEqual(c2o.structure.site_properties["bader_charge_transfer"][0], 4.2229130999999995)
+
     def test_from_structure(self):
         # uses promolecular density
         structure = Structure.from_file(os.path.join(os.path.dirname(__file__), "..", "..", "..",
