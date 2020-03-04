@@ -521,12 +521,9 @@ class MPRester:
             # Ensure no OH chemsys or extraneous elements from ion references
             if not (entry_elts <= {Element('H'), Element('O')} or
                     extra_elts.intersection(entry_elts)):
-                # replace energy with formation energy, use dict to
-                # avoid messing with the ion_ref_pd and to keep all old params
+                # Create new computed entry
                 form_e = ion_ref_pd.get_form_energy(entry)
-                new_entry = deepcopy(entry)
-                new_entry.uncorrected_energy = form_e
-                new_entry.correction = 0.0
+                new_entry = ComputedEntry(entry.composition, form_e, entry_id=entry.entry_id)
                 pbx_entry = PourbaixEntry(new_entry)
                 pbx_entries.append(pbx_entry)
 
