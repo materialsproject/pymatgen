@@ -722,11 +722,13 @@ class PourbaixDiagram(MSONable):
             # their charge state.
             entry_comps = [e.composition for e in entry_list]
             rxn = Reaction(entry_comps + dummy_oh, [prod_comp])
-            coeffs = -np.array([rxn.get_coeff(comp) for comp in entry_comps])
+            react_coeffs = [-rxn.get_coeff(comp) for comp in entry_comps]
+            all_coeffs = react_coeffs + [rxn.get_coeff(prod_comp)]
 
-            # Return None if reaction coeff threshold is not met
-            if (coeffs > coeff_threshold).all():
-                return MultiEntry(entry_list, weights=coeffs.tolist())
+            # Check if reaction coeff threshold met for pourbaix compounds
+            # All reactant/product coefficients must be positive nonzero
+            if all([coeff > coeff_threshold for coeff in all_coeffs]):
+                return MultiEntry(entry_list, weights=react_coeffs)
             else:
                 return None
         except ReactionError:
