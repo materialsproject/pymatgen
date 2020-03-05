@@ -8,7 +8,30 @@ import collections
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.units import (Energy, Time, Length, unitized, Mass, Memory,
                                  EnergyArray, TimeArray, LengthArray, Unit,
-                                 FloatWithUnit, ArrayWithUnit, UnitError)
+                                 FloatWithUnit, ArrayWithUnit, UnitError, CompatibleQuantity)
+from pint.errors import DimensionalityError
+
+
+class CompatibleQuantityTest(PymatgenTest):
+    def test_inherited_functionality(self):
+        e0 = CompatibleQuantity(5.0, 'eV')
+        e1 = CompatibleQuantity(3.0, 'eV')
+        self.assertEqual(e0 + e1, CompatibleQuantity(8.0, 'eV'))
+        self.assertEqual(e0 - e1, CompatibleQuantity(2.0, 'eV'))
+        self.assertEqual(3 * e0, CompatibleQuantity(15.0, 'eV'))
+        self.assertEqual(e1 / 3, CompatibleQuantity(1.0, 'eV'))
+
+    def test_units_inference(self):
+        e0 = CompatibleQuantity(5.0, 'eV')
+        self.assertEqual(e0 + 2, CompatibleQuantity(7.0, 'eV'))
+        self.assertEqual(e0 - 6, CompatibleQuantity(-1.0, 'eV'))
+        e1 = e0 + 5
+        self.assertEqual(2 * e1, CompatibleQuantity(20.0, 'eV'))
+
+    def test_dimensionality_checking(self):
+        e0 = CompatibleQuantity(5.0, 'eV')
+        d1 = CompatibleQuantity(1.7, 'angstroms')
+        self.assertRaises(DimensionalityError, lambda: e0 + d1)
 
 
 class UnitTest(PymatgenTest):
