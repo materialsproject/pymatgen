@@ -386,9 +386,8 @@ class Slab(Structure):
         """
         Calculates the center of mass of the slab
         """
-        weights = [s.species.weight for s in self]
-        center_of_mass = np.average(self.frac_coords,
-                                    weights=weights, axis=0)
+        weights = [s.species.weight.magnitude for s in self]
+        center_of_mass = np.average(self.frac_coords, weights=weights, axis=0)
         return center_of_mass
 
     def add_adsorbate_atom(self, indices, specie, distance):
@@ -1218,10 +1217,8 @@ class SlabGenerator:
         slab_ratio = nlayers_slab / nlayers
 
         # Sort the index of sites based on which side they are on
-        top_site_index = [i for i in index_of_sites if
-                          slab[i].frac_coords[2] > slab.center_of_mass[2]]
-        bottom_site_index = [i for i in index_of_sites if
-                             slab[i].frac_coords[2] < slab.center_of_mass[2]]
+        top_site_index = [i for i in index_of_sites if slab[i].frac_coords[2] > slab.center_of_mass[2]]
+        bottom_site_index = [i for i in index_of_sites if slab[i].frac_coords[2] < slab.center_of_mass[2]]
 
         # Translate sites to the opposite surfaces
         slab.translate_sites(top_site_index, [0, 0, slab_ratio])

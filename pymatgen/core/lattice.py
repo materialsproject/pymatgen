@@ -719,7 +719,7 @@ class Lattice(MSONable):
         a = self._matrix.copy().T
 
         b = np.zeros((3, 3))  # Vectors after the Gram-Schmidt process
-        u = np.zeros((3, 3))  # Gram-Schmidt coeffieicnts
+        u = np.zeros((3, 3))  # Gram-Schmidt coefficients
         m = np.zeros(3)  # These are the norm squared of each vec.
 
         b[:, 0] = a[:, 0]

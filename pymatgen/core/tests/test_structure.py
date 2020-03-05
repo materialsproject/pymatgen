@@ -57,7 +57,7 @@ class IStructureTest(PymatgenTest):
 
     def test_volume_and_density(self):
         self.assertAlmostEqual(self.struct.volume, 40.04, 2, "Volume wrong!")
-        self.assertAlmostEqual(self.struct.density, 2.33, 2,
+        self.assertAlmostEqual(self.struct.density.magnitude, 2.33, 2,
                                "Incorrect density")
 
     def test_specie_init(self):
@@ -1262,7 +1262,7 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         self.assertEqual(self.mol.charge, 0)
         self.assertEqual(self.mol.spin_multiplicity, 1)
         self.assertEqual(self.mol.nelectrons, 10)
-        self.assertArrayAlmostEqual(self.mol.center_of_mass, [0, 0, 0])
+        self.assertArrayAlmostEqual(self.mol.center_of_mass.magnitude, [0, 0, 0])
         self.assertRaises(ValueError, Molecule, ["C", "H", "H", "H", "H"],
                           self.coords, charge=1, spin_multiplicity=1)
         mol = Molecule(["C", "H", "H", "H", "H"], self.coords, charge=1)
@@ -1282,7 +1282,7 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         mol = IMolecule(["O"] * 2, [[0, 0, 0], [0, 0, 1.2]],
                         spin_multiplicity=3)
         centered = mol.get_centered_molecule()
-        self.assertArrayAlmostEqual(centered.center_of_mass, [0, 0, 0])
+        self.assertArrayAlmostEqual(centered.center_of_mass.magnitude, [0, 0, 0])
 
     def test_to_from_dict(self):
         d = self.mol.as_dict()

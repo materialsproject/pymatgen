@@ -13,6 +13,7 @@ from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.periodic_table import Element, Specie, DummySpecie, get_el_sp
 from pymatgen.core.composition import Composition
 from copy import deepcopy
+from pymatgen.core.units import CompatibleQuantity
 
 
 class ElementTestCase(PymatgenTest):
@@ -35,7 +36,11 @@ class ElementTestCase(PymatgenTest):
             self.assertFalse(Element(non_metal).is_metal)
 
     def test_nan_X(self):
-        self.assertTrue(math.isnan(Element.He.X))
+        # self.assertTrue(math.isnan(Element.He.X))
+        val = Element.He.X
+        tester = CompatibleQuantity(float("NaN"), 'dimensionless')
+        self.assertTrue(math.isnan(val.magnitude))
+        self.assertTrue(val.units == tester.units)
         els = sorted([Element.He, Element.H, Element.F])
         self.assertEqual(els, [Element.H, Element.F, Element.He])
 
@@ -132,22 +137,36 @@ class ElementTestCase(PymatgenTest):
             for sym in k:
                 self.assertTrue(getattr(Element(sym), v), sym + " is false")
 
-        keys = ["mendeleev_no", "atomic_mass",
-                "electronic_structure", "atomic_radius",
-                "min_oxidation_state", "max_oxidation_state",
-                "electrical_resistivity", "velocity_of_sound", "reflectivity",
+        # keys = ["mendeleev_no", "atomic_mass",
+        #         "electronic_structure", "atomic_radius",
+        #         "min_oxidation_state", "max_oxidation_state",
+        #         "electrical_resistivity", "velocity_of_sound", "reflectivity",
+        #         "refractive_index", "poissons_ratio", "molar_volume",
+        #         "thermal_conductivity", "melting_point", "boiling_point",
+        #         "liquid_range", "critical_temperature",
+        #         "superconduction_temperature",
+        #         "bulk_modulus", "youngs_modulus", "brinell_hardness",
+        #         "rigidity_modulus", "mineral_hardness",
+        #         "vickers_hardness", "density_of_solid",
+        #         "atomic_orbitals", "coefficient_of_linear_thermal_expansion",
+        #         "oxidation_states",
+        #         "common_oxidation_states", "average_ionic_radius",
+        #         "average_cationic_radius", "average_anionic_radius",
+        #         "ionic_radii", "long_name", "metallic_radius", "iupac_ordering"]
+
+        keys = ["mendeleev_no", "atomic_no", "electrical_resistivity",
+                "velocity_of_sound", "reflectivity",
                 "refractive_index", "poissons_ratio", "molar_volume",
-                "thermal_conductivity", "melting_point", "boiling_point",
-                "liquid_range", "critical_temperature",
-                "superconduction_temperature",
-                "bulk_modulus", "youngs_modulus", "brinell_hardness",
-                "rigidity_modulus", "mineral_hardness",
-                "vickers_hardness", "density_of_solid",
-                "atomic_orbitals", "coefficient_of_linear_thermal_expansion",
-                "oxidation_states",
-                "common_oxidation_states", "average_ionic_radius",
-                "average_cationic_radius", "average_anionic_radius",
-                "ionic_radii", "long_name", "metallic_radius", "iupac_ordering"]
+                "electronic_structure", "thermal_conductivity",
+                "boiling_point", "melting_point",
+                "critical_temperature", "superconduction_temperature",                    
+                "liquid_range", "bulk_modulus", "youngs_modulus",
+                "brinell_hardness", "rigidity_modulus",
+                "mineral_hardness", "vickers_hardness",
+                "density_of_solid", "atomic_radius_calculated",
+                "van_der_waals_radius", "atomic_orbitals",
+                "coefficient_of_linear_thermal_expansion",
+                "ground_state_term_symbol", "valence"]
 
         # Test all elements up to Uranium
         for i in range(1, 104):
@@ -170,7 +189,8 @@ class ElementTestCase(PymatgenTest):
                                  el.min_oxidation_state)
 
             if el.symbol not in ["He", "Ne", "Ar"]:
-                self.assertTrue(el.X > 0, "No electroneg for %s" % el)
+                # self.assertTrue(el.X > 0, "No electroneg for %s" % el)
+                self.assertTrue(el.X.magnitude > 0, "No electroneg for %s" % el)
 
         self.assertRaises(ValueError, Element.from_Z, 1000)
 
@@ -189,19 +209,21 @@ class ElementTestCase(PymatgenTest):
 
     def test_radii(self):
         el = Element.Pd
-        self.assertEqual(el.atomic_radius, 1.40)
-        self.assertEqual(el.atomic_radius_calculated, 1.69)
-        self.assertEqual(el.van_der_waals_radius, 1.63)
+        self.assertEqual(el.atomic_radius.magnitude, 1.40)
+        self.assertEqual(el.atomic_radius_calculated.magnitude, 1.69)
+        self.assertEqual(el.van_der_waals_radius.magnitude, 1.63)
 
     def test_data(self):
         self.assertEqual(Element.Pd.data["Atomic radius"], 1.4)
         al = Element.Al
         val = al.thermal_conductivity
-        self.assertEqual(val, 235)
-        self.assertEqual(str(val.unit), "W K^-1 m^-1")
+        self.assertEqual(val.magnitude, 235)
+        # self.assertEqual(str(val.units), "W K^-1 m^-1")
+        self.assertEqual(str(val.units), "watt / kelvin / meter")
         val = al.electrical_resistivity
-        self.assertEqual(val, 2.7e-08)
-        self.assertEqual(str(val.unit), "m ohm")
+        self.assertEqual(val.magnitude, 2.7e-08)
+        # self.assertEqual(str(val.units), "m ohm")
+        self.assertEqual(str(val.units), "meter * ohm")
 
     def test_sort(self):
         els = [Element.Se, Element.C]
@@ -235,9 +257,9 @@ class SpecieTestCase(PymatgenTest):
         self.assertRaises(ValueError, Specie, "Fe", 2, {"magmom": 5})
 
     def test_ionic_radius(self):
-        self.assertEqual(self.specie2.ionic_radius, 78.5 / 100)
-        self.assertEqual(self.specie3.ionic_radius, 92 / 100)
-        self.assertAlmostEqual(Specie("Mn", 4).ionic_radius, 0.67)
+        self.assertEqual(self.specie2.ionic_radius.magnitude, 78.5 / 100)
+        self.assertEqual(self.specie3.ionic_radius.magnitude, 92 / 100)
+        self.assertAlmostEqual(Specie("Mn", 4).ionic_radius.magnitude, 0.67)
 
     def test_eq(self):
         self.assertEqual(self.specie1, self.specie3,
@@ -309,12 +331,11 @@ class SpecieTestCase(PymatgenTest):
         self.assertEqual(s, 2)
 
     def test_get_nmr_mom(self):
-        self.assertEqual(Specie("H").get_nmr_quadrupole_moment(), 2.860)
-        self.assertEqual(Specie("Li").get_nmr_quadrupole_moment(), -0.808)
-        self.assertEqual(Specie("Li").get_nmr_quadrupole_moment("Li-7"), -40.1)
-        self.assertEqual(Specie("Si").get_nmr_quadrupole_moment(), 0.0)
-        self.assertRaises(ValueError, Specie("Li").get_nmr_quadrupole_moment,
-                          "Li-109")
+        self.assertEqual(Specie("H").get_nmr_quadrupole_moment().magnitude, 2.860)
+        self.assertEqual(Specie("Li").get_nmr_quadrupole_moment().magnitude, -0.808)
+        self.assertEqual(Specie("Li").get_nmr_quadrupole_moment("Li-7").magnitude, -40.1)
+        self.assertEqual(Specie("Si").get_nmr_quadrupole_moment().magnitude, 0.0)
+        self.assertRaises(ValueError, Specie("Li").get_nmr_quadrupole_moment, "Li-109")
 
     def test_get_shannon_radius(self):
         self.assertEqual(Specie("Li", 1).get_shannon_radius("IV"), 0.59)

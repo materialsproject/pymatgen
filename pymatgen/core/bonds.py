@@ -13,6 +13,7 @@ import collections
 import warnings
 
 from pymatgen.core.periodic_table import Element
+from pymatgen.core.units import CompatibleQuantity
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -211,7 +212,8 @@ def get_bond_length(sp1, sp2, bond_order=1):
     sp2 = Element(sp2) if isinstance(sp2, str) else sp2
     try:
         all_lengths = obtain_all_bond_lengths(sp1, sp2)
-        return all_lengths[bond_order]
+        # return all_lengths[bond_order]
+        return CompatibleQuantity(all_lengths[bond_order], 'angstrom')
     # The ValueError is raised in `obtain_all_bond_lengths` where no bond
     # data for both elements is found. The KeyError is raised in
     # `__getitem__` method of `dict` builtin class where although bond data

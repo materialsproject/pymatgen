@@ -17,10 +17,9 @@ from collections import Counter
 
 import numpy as np
 
-from pymatgen.core.units import Mass, Length, FloatWithUnit, Unit, \
-    SUPPORTED_UNIT_NAMES
 from pymatgen.util.string import formula_double_format
 from monty.json import MSONable
+from pymatgen.core.units import CompatibleQuantity
 
 # Loads element data from json file
 with open(str(Path(__file__).absolute().parent / "periodic_table.json"), "rt") as f:
@@ -407,8 +406,8 @@ class Element(Enum):
         if str(at_r).startswith("no data"):
             self._atomic_radius = None
         else:
-            self._atomic_radius = Length(at_r, "ang")
-        self._atomic_mass = Mass(d["Atomic mass"], "amu")
+            self._atomic_radius = CompatibleQuantity(at_r, "angstrom")
+        self._atomic_mass = CompatibleQuantity(d["Atomic mass"], 'amu')
         self.long_name = d["Name"]
         self._data = d
 
@@ -418,30 +417,31 @@ class Element(Enum):
         :return: Electronegativity of element. Note that if an element does not
             have an electronegativity, a NaN float is returned.
         """
+        # Need to change to quantity later on
         if "X" in self._data:
-            return self._data["X"]
+            return CompatibleQuantity(self._data["X"], 'dimensionless')
         warnings.warn("No electronegativity for %s. Setting to NaN. "
                       "This has no physical meaning, and is mainly done to "
                       "avoid errors caused by the code expecting a float."
                       % self.symbol)
-        return float("NaN")
+        return CompatibleQuantity(float("NaN"), 'dimensionless')
 
     @property
     def atomic_radius(self):
         """
-        Returns: The atomic radius of the element in Ångstroms.
+        Returns: The atomic radius of the element in Ångstroms (CompatibleQuantity).
         """
         return self._atomic_radius
 
     @property
     def atomic_mass(self):
         """
-        Returns: The atomic mass of the element in amu.
+        Returns: The atomic mass of the element in amu (CompatibleQuantity).
         """
         return self._atomic_mass
 
     def __getattr__(self, item):
-        if item in ["mendeleev_no", "electrical_resistivity",
+        if item in ["mendeleev_no", "atomic_no", "electrical_resistivity",
                     "velocity_of_sound", "reflectivity",
                     "refractive_index", "poissons_ratio", "molar_volume",
                     "electronic_structure", "thermal_conductivity",
@@ -456,6 +456,7 @@ class Element(Enum):
                     "ground_state_term_symbol", "valence"]:
             kstr = item.capitalize().replace("_", " ")
             val = self._data.get(kstr, None)
+            unit = 'dimensionless'
             if str(val).startswith("no data"):
                 val = None
             elif isinstance(val, dict):
@@ -480,19 +481,29 @@ class Element(Enum):
                                     unit = "K^-1"
                                 else:
                                     unit = toks[1]
-                                val = FloatWithUnit(toks[0], unit)
+                                val = float(toks[0])
                             else:
                                 unit = toks[1].replace("<sup>", "^").replace(
                                     "</sup>", "").replace("&Omega;",
                                                           "ohm")
-                                units = Unit(unit)
-                                if set(units.keys()).issubset(
-                                        SUPPORTED_UNIT_NAMES):
-                                    val = FloatWithUnit(toks[0], unit)
+                                unit = "dimensionless" if unit in ['%'] else unit
+                                val = float(toks[0])
                         except ValueError:
                             # Ignore error. val will just remain a string.
                             pass
-            return val
+
+            if item == "melting_point" and self.Z in [87]:
+                warnings.warn("Melting point for %s is approximate." % self.symbol)
+
+            if item in ["mendeleev_no", "atomic_no"]:
+                return int(val)
+            elif item in ["electronic_structure", "mineral_hardness", "atomic_orbitals", "ground_state_term_symbol"]:
+                return val
+            elif item in ["atomic_radius_calculated", "van_der_waals_radius"]:
+                return CompatibleQuantity(val, 'angstrom')
+            elif val is None:
+                return None
+            return CompatibleQuantity(val, unit)
         raise AttributeError("Element has no attribute %s!" % item)
 
     @property
@@ -513,7 +524,7 @@ class Element(Enum):
             radius = sum(radii.values()) / len(radii)
         else:
             radius = 0.0
-        return FloatWithUnit(radius, "ang")
+        return CompatibleQuantity(radius, "angstrom")
 
     @property
     def average_cationic_radius(self):
@@ -526,8 +537,8 @@ class Element(Enum):
             radii = [v for k, v in self._data["Ionic radii"].items()
                      if int(k) > 0]
             if radii:
-                return FloatWithUnit(sum(radii) / len(radii), "ang")
-        return FloatWithUnit(0.0, "ang")
+                return CompatibleQuantity(sum(radii) / len(radii), "angstrom")
+        return CompatibleQuantity(0.0, "angstrom")
 
     @property
     def average_anionic_radius(self):
@@ -540,8 +551,8 @@ class Element(Enum):
             radii = [v for k, v in self._data["Ionic radii"].items()
                      if int(k) < 0]
             if radii:
-                return FloatWithUnit(sum(radii) / len(radii), "ang")
-        return FloatWithUnit(0.0, "ang")
+                return CompatibleQuantity(sum(radii) / len(radii), "angstrom")
+        return CompatibleQuantity(0.0, "angstrom")
 
     @property
     def ionic_radii(self):
@@ -550,7 +561,7 @@ class Element(Enum):
         {oxidation state: ionic radii}. Radii are given in ang.
         """
         if "Ionic radii" in self._data:
-            return {int(k): FloatWithUnit(v, "ang") for k, v in self._data["Ionic radii"].items()}
+            return {int(k): CompatibleQuantity(v, "ang") for k, v in self._data["Ionic radii"].items()}
         return {}
 
     @property
@@ -593,7 +604,7 @@ class Element(Enum):
         """
         Metallic radius of the element. Radius is given in ang.
         """
-        return FloatWithUnit(self._data["Metallic radius"], "ang")
+        return CompatibleQuantity(self._data["Metallic radius"], "angstrom")
 
     @property
     def full_electronic_structure(self):
@@ -972,8 +983,7 @@ class Element(Enum):
         Get a dictionary the nuclear electric quadrupole moment in units of
         e*millibarns for various isotopes
         """
-        return {k: FloatWithUnit(v, "mbarn")
-                for k, v in self.data.get("NMR Quadrupole Moment", {}).items()}
+        return {k: CompatibleQuantity(v, "mbarn") for k, v in self.data.get("NMR Quadrupole Moment", {}).items()}
 
     @property
     def iupac_ordering(self):
@@ -1214,7 +1224,7 @@ class Specie(MSONable):
         quad_mom = self._el.nmr_quadrupole_moment
 
         if not quad_mom:
-            return 0.0
+            return CompatibleQuantity(0.0, 'millibarn')
 
         if isotope is None:
             isotopes = list(quad_mom.keys())

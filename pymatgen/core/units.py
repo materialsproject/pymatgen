@@ -19,12 +19,49 @@ import numpy as np
 
 import scipy.constants as const
 
+from pint import UnitRegistry
+from pint.errors import DimensionalityError
+
 __author__ = "Shyue Ping Ong, Matteo Giantomassi"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong, Matteo Giantomassi"
 __status__ = "Production"
 __date__ = "Aug 30, 2013"
+
+
+ureg = UnitRegistry()
+# ureg.setup_matplotlib()
+ureg.define('@alias angstrom = ang')  # Need a more permanent solution - create own registry.txt
+ureg.define('@alias hartree = Ha')
+ureg.define('@alias hour = h')
+Quantity = ureg.Quantity
+UREG_WRAP_STRICT = False
+
+
+class CompatibleQuantity(Quantity):
+    """
+    Pint Quantity class with less stringent units enforcement for arithmetic.
+
+    Same as Pint Quantity except when adding a float or int to a CompatibleQuantity,
+    no DimensionalityError will be raised. Float or int will be assigned the same 
+    units as CompatibleQuantity.
+    """
+
+    def __add__(self, other):
+        return self._tryfunc(super().__add__, other)
+
+    def __sub__(self, other):
+        return self._tryfunc(super().__sub__, other)
+
+    def _tryfunc(self, func, other):
+        try:
+            return func(other)
+        except DimensionalityError as e:
+            if isinstance(other, float) or isinstance(other, int):
+                return func(Quantity(other, self.units))
+            raise e
+
 
 """
 Some conversion factors
@@ -374,6 +411,7 @@ class FloatWithUnit(float):
             unit (Unit): A unit. E.g., "C".
             unit_type (str): A type of unit. E.g., "charge"
         """
+
         if unit_type is not None and str(unit) not in ALL_UNITS[unit_type]:
             raise UnitError(
                 "{} is not a supported unit for {}".format(unit, unit_type))

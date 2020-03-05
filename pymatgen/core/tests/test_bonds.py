@@ -9,6 +9,7 @@ from pymatgen.core.bonds import CovalentBond, get_bond_length, \
     obtain_all_bond_lengths, get_bond_order
 from pymatgen.core.sites import Site
 from pymatgen.core.periodic_table import Element
+from pymatgen.core.units import CompatibleQuantity
 
 
 __author__ = "Shyue Ping Ong"
@@ -61,11 +62,11 @@ class CovalentBondTest(unittest.TestCase):
 class FuncTest(unittest.TestCase):
 
     def test_get_bond_length(self):
-        self.assertAlmostEqual(get_bond_length("C", "C", 1), 1.54)
-        self.assertAlmostEqual(get_bond_length("C", "C", 2), 1.34)
-        self.assertAlmostEqual(get_bond_length("C", "H", 1), 1.08)
-        self.assertEqual(get_bond_length("C", "H", 2), 0.95)
-        self.assertAlmostEqual(get_bond_length("C", "Br", 1), 1.85)
+        self.assertAlmostEqual(get_bond_length("C", "C", 1), CompatibleQuantity(1.54, 'angstrom'))
+        self.assertAlmostEqual(get_bond_length("C", "C", 2), CompatibleQuantity(1.34, 'angstrom'))
+        self.assertAlmostEqual(get_bond_length("C", "H", 1), CompatibleQuantity(1.08, 'angstrom'))
+        self.assertEqual(get_bond_length("C", "H", 2), CompatibleQuantity(0.95, 'angstrom'))
+        self.assertAlmostEqual(get_bond_length("C", "Br", 1), CompatibleQuantity(1.85, 'angstrom'))
 
     def test_obtain_all_bond_lengths(self):
         self.assertDictEqual(obtain_all_bond_lengths('C', 'C'),

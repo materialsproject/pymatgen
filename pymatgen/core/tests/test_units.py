@@ -66,7 +66,7 @@ class FloatWithUnitTest(PymatgenTest):
 
     def test_memory(self):
         mega = Memory(1, "Mb")
-        self.assertEqual(mega.to("byte"), 1024 ** 2)
+        self.assertEqual(mega.to("byte"), 1024 ** 2)  # test is wrong???
         self.assertEqual(mega, Memory(1, "mb"))
 
         same_mega = Memory.from_string("1Mb")

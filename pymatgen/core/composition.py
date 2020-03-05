@@ -22,7 +22,6 @@ from monty.json import MSONable
 
 from pymatgen.core.periodic_table import get_el_sp, Element, Specie, DummySpecie
 from pymatgen.util.string import formula_double_format
-from pymatgen.core.units import Mass
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -486,7 +485,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
         """
         Total molecular weight of Composition
         """
-        return Mass(sum([amount * el.atomic_mass for el, amount in self.items()]), "amu")
+        return sum([amount * el.atomic_mass.to('amu') for el, amount in self.items()])
 
     def get_atomic_fraction(self, el):
         """

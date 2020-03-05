@@ -35,8 +35,7 @@ from pymatgen.core.bonds import CovalentBond, get_bond_length
 from pymatgen.core.composition import Composition
 from pymatgen.util.coord import get_angle, all_distances, \
     lattice_points_in_supercell
-from pymatgen.core.units import Mass, Length
-
+from pymatgen.core.units import CompatibleQuantity
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -980,8 +979,9 @@ class IStructure(SiteCollection, MSONable):
         """
         Returns the density in units of g/cc
         """
-        m = Mass(self.composition.weight, "amu")
-        return m.to("g") / (self.volume * Length(1, "ang").to("cm") ** 3)
+        m = self.composition.weight.to('g')
+        v = CompatibleQuantity(float(self.volume), 'angstrom ^ 3').to('cm ^ 3')
+        return m / v
 
     def get_space_group_info(self, symprec=1e-2, angle_tolerance=5.0):
         """
@@ -3163,8 +3163,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
             # Check that the nn has neighbors within a sensible distance but
             # is not the site being substituted.
             for inn, dist2, _, _ in self.get_neighbors(nn, 3):
-                if inn != self[index] and \
-                        dist2 < 1.2 * get_bond_length(nn.specie, inn.specie):
+                if inn != self[index] and dist2 < 1.2 * get_bond_length(nn.specie, inn.specie).magnitude:
                     all_non_terminal_nn.append((nn, dist))
                     break
 
@@ -3202,7 +3201,8 @@ class Structure(IStructure, collections.abc.MutableSequence):
             func_grp = func_grp.copy()
             vec = func_grp[0].coords - func_grp[1].coords
             vec /= np.linalg.norm(vec)
-            func_grp[0] = "X", func_grp[1].coords + float(bl) * vec
+            # func_grp[0] = "X", func_grp[1].coords + float(bl) * vec
+            func_grp[0] = "X", func_grp[1].coords + bl.magnitude * vec
 
         # Align X to the origin.
         x = func_grp[0]
@@ -3856,7 +3856,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             # Check that the nn has neighbors within a sensible distance but
             # is not the site being substituted.
             for nn2 in self.get_neighbors(nn, 3):
-                if nn2 != self[index] and nn2.nn_distance < 1.2 * get_bond_length(nn.specie, nn2.specie):
+                if nn2 != self[index] and nn2.nn_distance < 1.2 * get_bond_length(nn.specie, nn2.specie).magnitude:
                     all_non_terminal_nn.append(nn)
                     break
 
@@ -3889,7 +3889,8 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             func_grp = func_grp.copy()
             vec = func_grp[0].coords - func_grp[1].coords
             vec /= np.linalg.norm(vec)
-            func_grp[0] = "X", func_grp[1].coords + float(bl) * vec
+            # func_grp[0] = "X", func_grp[1].coords + float(bl) * vec
+            func_grp[0] = "X", func_grp[1].coords + bl.magnitude * vec
 
         # Align X to the origin.
         x = func_grp[0]
