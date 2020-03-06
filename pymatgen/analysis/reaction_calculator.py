@@ -16,6 +16,7 @@ from pymatgen.entries.computed_entries import ComputedEntry
 from monty.json import MontyDecoder
 from monty.fractions import gcd_float
 from math import sqrt
+from uncertainties import ufloat
 
 from itertools import combinations, chain
 
@@ -507,23 +508,16 @@ class ComputedReaction(Reaction):
         energies of the products and reactants
         """
 
-        error = 0
+        calc_energies = {}
 
         for entry in self._reactant_entries + self._product_entries:
             (comp, factor) = entry.composition.get_reduced_composition_and_factor()
-            try:
-                e = entry.data["correction_uncertainty"]
-                if not np.isnan(e):
-                    e = e / factor
+            energy_ufloat = ufloat(entry.energy, entry.data.get("correction_uncertainty", 0))
+            calc_energies[comp] = min(
+                calc_energies.get(comp, float("inf")), energy_ufloat / factor
+            )
 
-                    coeff = self._coeffs[self._all_comp.index(comp)]
-                    if abs(coeff) <= self.TOLERANCE:
-                        coeff = 0
-                    error = sqrt((e * coeff) ** 2 + error ** 2)
-            except KeyError:
-                pass
-
-        return error
+        return self.calculate_energy(calc_energies).std_dev
 
     def as_dict(self):
         """

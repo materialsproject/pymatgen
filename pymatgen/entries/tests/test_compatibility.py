@@ -1971,6 +1971,26 @@ class CorrectionErrorsCompatibility2020Test(unittest.TestCase):
             },
         )
 
+        self.entry_hydride = ComputedEntry(
+            "LiH",
+            -2,
+            0.0,
+            parameters = {
+                "is_hubbard": False,
+                "run_type": "GGA",
+                "potcar_spec" : [ 
+                    {
+                        "titel" : "PAW_PBE Li_sv 10Sep2004",
+                        "hash" : "8245d7383d7556214082aa40a887cd96"
+                    }, 
+                    {
+                        "titel" : "PAW_PBE H 15Jun2001",
+                        "hash" : "bb43c666e3d36577264afe07669e9582"
+                    }
+                ]
+            }
+        )
+
     def tearDown(self):
         warnings.simplefilter("default")
 
@@ -1996,6 +2016,11 @@ class CorrectionErrorsCompatibility2020Test(unittest.TestCase):
         self.assertAlmostEqual(
             entry_fluoride_corrected.data["correction_uncertainty"],
             sqrt((3 * 0.0025) ** 2 + 0.0079 ** 2),
+        )
+
+        entry_hydride_corrected = self.compat.process_entry(self.entry_hydride)
+        self.assertAlmostEqual(
+            entry_hydride_corrected.data["correction_uncertainty"], 0.0013
         )
 
 
