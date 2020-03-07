@@ -2,25 +2,25 @@ Name: MP
 Advanced:
   UCorrections:
     O:
-      V: -1.701
-      Cr: -1.977
-      Mn: -1.606
-      Fe: -2.24
-      Co: -1.535
-      Ni: -2.587
-      W: -4.532
-      Mo: -3.085
+      V: -1.602
+      Cr: -1.962
+      Mn: -1.594
+      Fe: -2.231
+      Co: -1.522
+      Ni: -2.585
+      W: -4.507
+      Mo: -3.072
     F:
-      V: -1.701
-      Cr: -1.977
-      Mn: -1.606
-      Fe: -2.24
-      Co: -1.535
-      Ni: -2.587
-      W: -4.532
-      Mo: -3.085
+      V: -1.602
+      Cr: -1.962
+      Mn: -1.594
+      Fe: -2.231
+      Co: -1.522
+      Ni: -2.585
+      W: -4.507
+      Mo: -3.072
 CompositionCorrections:
-  oxide: -0.716
+  oxide: -0.721
   peroxide: -0.469
   superoxide: -0.156
   ozonide: 0
