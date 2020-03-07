@@ -380,7 +380,6 @@ class CorrectionCalculator:
         compatibility["Name"] = name
         compatibility["Advanced"] = advanced
         compatibility["CompositionCorrections"] = comp_corr
-        compatibility["AqueousCompoundEnergies"] = aqueous
 
         u_corr_error["O"] = o_error
         u_corr_error["F"] = f_error
@@ -388,6 +387,38 @@ class CorrectionCalculator:
         compatibility_error["Name"] = name
         compatibility_error["Advanced"] = advanced_error
         compatibility_error["CompositionCorrections"] = comp_corr_error
+
+        # Aqueous Corrections
+        # NOTE: these corrections depend on the energies of the stable DFT
+        # entries for O2 and H2O, which must be entered manually below.
+
+        # Standard state entropy of molecular-like compounds at 298K (T delta S)
+        # from Kubaschewski Tables (eV/atom)
+        aqueous: OrderedDict[str, float] = OrderedDict()
+        aqueous["O2"] = -0.316732
+        aqueous["N2"] = -0.295730
+        aqueous["F2"] = -0.313026
+        aqueous["Cl2"] = -0.344375
+        aqueous["Br"] = -0.235040
+        aqueous["Hg"] = -0.234422
+
+        # Chemical potential of H2, fitted using Eq. 40 of Persson et al.
+        # PRB 2012 85(23)
+
+        # corrected DFT energy of H2O = -15.969 eV/H2O (mp-697111)
+        # T delta S for H2O = -0.215891 eV/H2O
+        # corrected DFT energy of O2 = -4.9276 eV/atom (mp-12957)
+        # T delta S for O2 = -0.316732 eV/atom as shown above
+        # chemical potential of H2O is -2.4583 eV/H2O from experiments (import
+        # MU_H2O from pourbaix module)
+        from pymatgen.analysis.pourbaix_diagram import MU_H2O
+        aqueous["H2"] = round(0.5 * (-15.969 - -0.215891 - -4.9276 - aqueous["O2"] - MU_H2O), 6)
+
+        # Chemical potential of H2O
+        # pin to MU_H2O (which is in eV/H2O)
+        aqueous["H2O"] = round(MU_H2O / 3, 6)
+
+        compatibility["AqueousCompoundEnergies"] = aqueous
 
         fn = name + "Compatibility2020.yaml"
 
