@@ -13,7 +13,6 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.analysis.piezo module" href="pymatgen.analysis.piezo.html" />
@@ -241,7 +240,7 @@ the the entries themselves.</p></li>
 <dl class="class">
 <dt id="pymatgen.analysis.phase_diagram.PDEntry">
 <em class="property">class </em><code class="sig-name descname">PDEntry</code><span class="sig-paren">(</span><em class="sig-param">composition: pymatgen.core.composition.Composition</em>, <em class="sig-param">energy: float</em>, <em class="sig-param">name: str = None</em>, <em class="sig-param">attribute: object = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PDEntry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PDEntry" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.entries.html#pymatgen.entries.Entry" title="pymatgen.entries.Entry"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.entries.Entry</span></code></a></p>
 <p>An object encompassing all relevant data for phase diagrams.</p>
 <dl class="attribute">
 <dt id="pymatgen.analysis.phase_diagram.PDEntry.composition">
@@ -266,7 +265,9 @@ set to some other string for display purposes.</p>
 <dl class="attribute">
 <dt id="pymatgen.analysis.phase_diagram.PDEntry.attribute">
 <code class="sig-name descname">attribute</code><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PDEntry.attribute" title="Permalink to this definition">¶</a></dt>
-<dd><p>A arbitrary attribute.</p>
+<dd><p>A arbitrary attribute. Can be used to specify that the entry is a newly
+found compound, or to specify a particular label for the entry, etc.
+An attribute can be anything but must be MSONable.</p>
 </dd></dl>
 
 <dl class="field-list simple">
@@ -274,13 +275,9 @@ set to some other string for display purposes.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>composition</strong> (<a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><em>Composition</em></a>) – Composition</p></li>
 <li><p><strong>energy</strong> (<em>float</em>) – Energy for composition.</p></li>
-<li><p><strong>name</strong> (<em>str</em>) – Optional parameter to name the entry. Defaults to the
-reduced chemical formula.</p></li>
-<li><p><strong>attribute</strong> – Optional attribute of the entry. This can be used to
-specify that the entry is a newly found compound, or to specify a
-particular label for the entry, or else … Used for further
-analysis and plotting purposes. An attribute can be anything
-but must be MSONable.</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – Optional parameter to name the entry. Defaults
+to the reduced chemical formula.</p></li>
+<li><p><strong>attribute</strong> – Optional attribute of the entry. Must be MSONable.</p></li>
 </ul>
 </dd>
 </dl>
@@ -295,9 +292,14 @@ but must be MSONable.</p></li>
 </dd></dl>
 
 <dl class="method">
-<dt id="pymatgen.analysis.phase_diagram.PDEntry.energy_per_atom">
-<em class="property">property </em><code class="sig-name descname">energy_per_atom</code><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PDEntry.energy_per_atom" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the final energy per atom.</p>
+<dt>
+<em class="property">property </em><code class="sig-name descname">energy</code></dt>
+<dd><p>the energy of the entry.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -311,12 +313,6 @@ but must be MSONable.</p></li>
 <dd class="field-even"><p>PDEntry</p>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.analysis.phase_diagram.PDEntry.is_element">
-<em class="property">property </em><code class="sig-name descname">is_element</code><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PDEntry.is_element" title="Permalink to this definition">¶</a></dt>
-<dd><p>True if the entry is an element.</p>
 </dd></dl>
 
 </dd></dl>
@@ -1162,7 +1158,7 @@ used for converting convex hull facets into line pairs of coordinates.</p>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

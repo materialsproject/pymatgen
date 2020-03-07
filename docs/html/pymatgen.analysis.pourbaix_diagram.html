@@ -13,7 +13,6 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.analysis.quasiharmonic module" href="pymatgen.analysis.quasiharmonic.html" />
@@ -90,6 +89,14 @@ By default, this is the reduced formula for the composition, but can be
 set to some other string for display purposes.</p>
 </dd></dl>
 
+<p>Args:
+composition (Composition): Composition
+energy (float): Energy for composition.
+name (str): Optional parameter to name the entry. Defaults</p>
+<blockquote>
+<div><p>to the reduced chemical formula.</p>
+</div></blockquote>
+<p>attribute: Optional attribute of the entry. Must be MSONable.</p>
 <dl class="method">
 <dt id="pymatgen.analysis.pourbaix_diagram.IonEntry.as_dict">
 <code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#IonEntry.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.IonEntry.as_dict" title="Permalink to this definition">¶</a></dt>
@@ -191,7 +198,15 @@ in parallel.  Defaults to None (serial processing)</p></li>
 <dl class="method">
 <dt id="pymatgen.analysis.pourbaix_diagram.PourbaixDiagram.from_dict">
 <em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#PourbaixDiagram.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixDiagram.from_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>d</strong> – Dict representation.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>MSONable class.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.pourbaix_diagram.PourbaixDiagram.get_decomposition_energy">
@@ -305,7 +320,7 @@ with weights according to the coefficients if so.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>entry_list</strong> (<em>[</em><em>Entry</em><em>]</em>) – list of entries from which to
+<li><p><strong>entry_list</strong> (<em>[</em><a class="reference internal" href="pymatgen.entries.html#pymatgen.entries.Entry" title="pymatgen.entries.Entry"><em>Entry</em></a><em>]</em>) – list of entries from which to
 create a MultiEntry</p></li>
 <li><p><strong>prod_comp</strong> (<a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><em>Composition</em></a>) – composition constraint for setting
 weights of MultiEntry</p></li>
@@ -650,7 +665,7 @@ Eg. of solid: Fe2O3(s), Fe(s), Na2O</p>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -13,7 +13,6 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.core.xcfunc module" href="pymatgen.core.xcfunc.html" />
@@ -71,7 +70,7 @@ LengthArray, etc. instead of using ArrayWithFloatWithUnit directly.</p>
 <p>Supports conversion, addition and subtraction of the same unit type. E.g.,
 1 m + 20 cm will be automatically converted to 1.2 m (units follow the
 leftmost quantity).</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">EnergyArray</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="s2">&quot;Ha&quot;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">EnergyArray</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="s2">&quot;Ha&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <span class="n">EnergyArray</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="s2">&quot;eV&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">c</span> <span class="o">=</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
@@ -195,7 +194,7 @@ leftmost quantity). Note that FloatWithUnit does not override the eq
 method for float, i.e., units are not checked when testing for equality.
 The reason is to allow this class to be used transparently wherever floats
 are expected.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">e</span> <span class="o">=</span> <span class="n">Energy</span><span class="p">(</span><span class="mf">1.1</span><span class="p">,</span> <span class="s2">&quot;Ha&quot;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">e</span> <span class="o">=</span> <span class="n">Energy</span><span class="p">(</span><span class="mf">1.1</span><span class="p">,</span> <span class="s2">&quot;Ha&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">Energy</span><span class="p">(</span><span class="mf">1.1</span><span class="p">,</span> <span class="s2">&quot;Ha&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <span class="n">Energy</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;eV&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">c</span> <span class="o">=</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span>
@@ -420,7 +419,7 @@ unit type.</p>
 
 <dl class="data">
 <dt id="pymatgen.core.units.ang_to_bohr">
-<code class="sig-name descname">ang_to_bohr</code><em class="property"> = 1.8897261254578281</em><a class="headerlink" href="#pymatgen.core.units.ang_to_bohr" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">ang_to_bohr</code><em class="property"> = 1.8897261246257702</em><a class="headerlink" href="#pymatgen.core.units.ang_to_bohr" title="Permalink to this definition">¶</a></dt>
 <dd><p>Definitions of supported units. Values below are essentially scaling and
 conversion factors. What matters is the relative values, not the absolute.
 The SI units must have factor 1.</p>
@@ -520,7 +519,7 @@ are assigned units.</p>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

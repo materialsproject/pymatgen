@@ -13,7 +13,6 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.entries.compatibility module" href="pymatgen.entries.compatibility.html" />
@@ -72,8 +71,89 @@
 </div>
 <div class="section" id="module-pymatgen.entries">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pymatgen.entries" title="Permalink to this headline">¶</a></h2>
-<p>This module contains entry related tools. Essentially, entries are containers
-for calculated information, which is used in many analyses.</p>
+<p>Entries are containers for calculated information, which is used in
+many analyses. This module contains entry related tools and implements
+the base Entry class, which is the basic entity that can be used to
+store calculated information. Other Entry classes such as ComputedEntry
+and PDEntry inherit from this class.</p>
+<dl class="class">
+<dt id="pymatgen.entries.Entry">
+<em class="property">class </em><code class="sig-name descname">Entry</code><span class="sig-paren">(</span><em class="sig-param">composition: pymatgen.core.composition.Composition</em>, <em class="sig-param">energy: float</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/entries.html#Entry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.Entry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
+<p>A lightweight object containing the energy associated with
+a specific chemical composition. This base class is not
+intended to be instantiated directly. Note that classes
+which inherit from Entry must define a .energy property.</p>
+<p>Initializes an Entry.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>composition</strong> (<a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><em>Composition</em></a>) – Composition of the entry. For
+flexibility, this can take the form of all the typical input
+taken by a Composition, including a {symbol: amt} dict,
+a string formula, and others.</p></li>
+<li><p><strong>energy</strong> (<em>float</em>) – Energy of the entry.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.entries.Entry.as_dict">
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; dict<a class="reference internal" href="_modules/pymatgen/entries.html#Entry.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.Entry.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>MSONable dict.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.entries.Entry.energy">
+<em class="property">abstract property </em><code class="sig-name descname">energy</code><a class="headerlink" href="#pymatgen.entries.Entry.energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>the energy of the entry.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.entries.Entry.energy_per_atom">
+<em class="property">property </em><code class="sig-name descname">energy_per_atom</code><a class="headerlink" href="#pymatgen.entries.Entry.energy_per_atom" title="Permalink to this definition">¶</a></dt>
+<dd><p>the energy per atom of the entry.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.entries.Entry.is_element">
+<em class="property">property </em><code class="sig-name descname">is_element</code><a class="headerlink" href="#pymatgen.entries.Entry.is_element" title="Permalink to this definition">¶</a></dt>
+<dd><p>Whether composition of entry is an element.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.entries.Entry.normalize">
+<code class="sig-name descname">normalize</code><span class="sig-paren">(</span><em class="sig-param">mode: str = 'formula_unit'</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/pymatgen/entries.html#Entry.normalize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.Entry.normalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalize the entry’s composition and energy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>mode</strong> – “formula_unit” is the default, which normalizes to
+composition.reduced_formula. The other option is “atom”, which
+normalizes such that the composition amounts sum to 1.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 </div>
 
@@ -143,7 +223,7 @@ for calculated information, which is used in many analyses.</p>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

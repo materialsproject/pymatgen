@@ -13,7 +13,6 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.io.vasp.sets module" href="pymatgen.io.vasp.sets.html" />
@@ -1645,7 +1644,7 @@ f[“lattice”]: Lattice in the pymatgen.core.lattice.Lattice matrix</p>
 
 <dl class="class">
 <dt id="pymatgen.io.vasp.outputs.Wavecar">
-<em class="property">class </em><code class="sig-name descname">Wavecar</code><span class="sig-paren">(</span><em class="sig-param">filename='WAVECAR'</em>, <em class="sig-param">verbose=False</em>, <em class="sig-param">precision='normal'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Wavecar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Wavecar" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Wavecar</code><span class="sig-paren">(</span><em class="sig-param">filename='WAVECAR'</em>, <em class="sig-param">verbose=False</em>, <em class="sig-param">precision='normal'</em>, <em class="sig-param">gamma=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Wavecar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Wavecar" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>This is a class that contains the (pseudo-) wavefunctions from VASP.</p>
 <p>Coefficients are read from the given WAVECAR file and the corresponding
@@ -1760,6 +1759,8 @@ Mellon University. To see the original work, please visit:
 <li><p><strong>verbose</strong> (<em>bool</em>) – determines whether processing information is shown</p></li>
 <li><p><strong>precision</strong> (<em>str</em>) – determines how fine the fft mesh is (normal or
 accurate), only the first letter matters</p></li>
+<li><p><strong>gamma</strong> (<em>bool</em>) – determines if WAVECAR is assumed to have been generated
+by gamma-point only executable</p></li>
 </ul>
 </dd>
 </dl>
@@ -2206,7 +2207,7 @@ any. Note that this is sometimes very large</p></li>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

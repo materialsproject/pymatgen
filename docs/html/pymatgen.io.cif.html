@@ -13,7 +13,6 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.io.cssr module" href="pymatgen.io.cssr.html" />
@@ -266,7 +265,7 @@ group symbol is parsed, and symops are generated.</p>
 
 <dl class="class">
 <dt id="pymatgen.io.cif.CifWriter">
-<em class="property">class </em><code class="sig-name descname">CifWriter</code><span class="sig-paren">(</span><em class="sig-param">struct</em>, <em class="sig-param">symprec=None</em>, <em class="sig-param">write_magmoms=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/cif.html#CifWriter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cif.CifWriter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">CifWriter</code><span class="sig-paren">(</span><em class="sig-param">struct</em>, <em class="sig-param">symprec=None</em>, <em class="sig-param">write_magmoms=False</em>, <em class="sig-param">significant_figures=8</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/cif.html#CifWriter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cif.CifWriter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A wrapper around CifFile to write CIF files from pymatgen structures.</p>
 <dl class="field-list simple">
@@ -278,6 +277,8 @@ and writes the cif with symmetry information. Passes symprec
 to the SpacegroupAnalyzer</p></li>
 <li><p><strong>write_magmoms</strong> (<em>bool</em>) – If True, will write magCIF file. Incompatible
 with symprec</p></li>
+<li><p><strong>significant_figures</strong> (<em>int</em>) – Specifies precision for formatting of floats.
+Defaults to 8.</p></li>
 </ul>
 </dd>
 </dl>
@@ -365,7 +366,7 @@ a replacement string to be used.</p>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

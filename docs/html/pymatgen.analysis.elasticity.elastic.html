@@ -13,7 +13,6 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.analysis.elasticity.strain module" href="pymatgen.analysis.elasticity.strain.html" />
@@ -63,6 +62,19 @@
 <p>This class represents the compliance tensor, and exists
 primarily to keep the voigt-conversion scheme consistent
 since the compliance tensor has a unique vscale</p>
+<p>Create a Tensor object.  Note that the constructor uses __new__
+rather than __init__ according to the standard method of
+subclassing numpy ndarrays.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_array</strong> – (array-like with shape 3^N): array-like representing
+a tensor quantity in standard (i. e. non-voigt) notation</p></li>
+<li><p><strong>vscale</strong> – (N x M array-like): a matrix corresponding
+to the coefficients of the voigt-notation tensor</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="class">
@@ -550,9 +562,22 @@ current supported modes are ‘debye’ and ‘dulong-petit’</p></li>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.core.tensors.html#pymatgen.core.tensors.Tensor" title="pymatgen.core.tensors.Tensor"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.tensors.Tensor</span></code></a></p>
 <p>An object representing an nth-order tensor expansion
 of the stress-strain constitutive equations</p>
+<p>Create a Tensor object.  Note that the constructor uses __new__
+rather than __init__ according to the standard method of
+subclassing numpy ndarrays.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_array</strong> – (array-like with shape 3^N): array-like representing
+a tensor quantity in standard (i. e. non-voigt) notation</p></li>
+<li><p><strong>vscale</strong> – (N x M array-like): a matrix corresponding
+to the coefficients of the voigt-notation tensor</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor.GPa_to_eV_A3">
-<code class="sig-name descname">GPa_to_eV_A3</code><em class="property"> = 0.006241509125883258</em><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor.GPa_to_eV_A3" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">GPa_to_eV_A3</code><em class="property"> = 0.006241509074460764</em><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor.GPa_to_eV_A3" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -838,7 +863,7 @@ of numpy vectorization</p>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking
