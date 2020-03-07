@@ -24,12 +24,11 @@ jobs:
             mypy pymatgen
             echo "--- Done ---"
             # Docstyle checks are enforced for files that have been modified since the v2020.1.28 tagged release.
-            export MODIFIED_FILES=`git diff --diff-filter=ACMRTUXB --name-only HEAD v2020.1.28 | grep -E 'pymatgen.*\.(py)$' | sed '/test_/d' | tr '\n' ' '`
-            echo "pydocstyle checks for $MODIFIED_FILES..."
-            pydocstyle --count pymatgen/core $MODIFIED_FILES
-            echo "--- Done ---"
             echo "pylint checks..."
             pylint --exit-zero pymatgen
+            echo "--- Done ---"
+            echo "pydocstyle checks for $MODIFIED_FILES..."
+            pydocstyle --count pymatgen
             echo "--- Done ---"
   py3test:
     working_directory: ~/pymatgen
