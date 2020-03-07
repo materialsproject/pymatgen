@@ -22,13 +22,13 @@ install:
   - 'conda config --system --add channels conda-forge'
   # Install the build dependencies of the project via conda and pip
   - 'conda install --yes --quiet numpy scipy matplotlib sympy cython pandas pip python-igraph'
-  # - 'conda update --yes --all'
+  - 'conda update --yes --all'
   - 'pip install --upgrade numpy'
   - 'pip install -r requirements.txt'
   - 'pip install pybtex pytest pytest-cov ase coveralls fdint ase twine networkx'
   # Note that pyhull is excluded because it does not work on Windows.
   # Run develop to install in dev mode and build C extension.
-  - "python setup.py develop"
+  - "python setup.py develop --single-version-externally-managed --record=record.txt"
 
 build: false
 
