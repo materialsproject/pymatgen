@@ -28,7 +28,7 @@ install:
   - 'pip install pybtex pytest pytest-cov ase coveralls fdint ase twine networkx'
   # Note that pyhull is excluded because it does not work on Windows.
   # Run develop to install in dev mode and build C extension.
-  - "python setup.py develop --single-version-externally-managed --record=record.txt"
+  - "python setup.py develop"
 
 build: false
 
