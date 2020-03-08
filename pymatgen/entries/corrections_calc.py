@@ -405,6 +405,7 @@ class CorrectionCalculator:
         # Chemical potential of H2, fitted using Eq. 40 of Persson et al.
         # PRB 2012 85(23)
 
+        # uncorrected DFT energy of H2O = -14.885 eV/H2O (mp-697111)
         # corrected DFT energy of H2O = -15.969 eV/H2O (mp-697111)
         # T delta S for H2O = -0.215891 eV/H2O
         # corrected DFT energy of O2 = -4.9276 eV/atom (mp-12957)
@@ -414,9 +415,10 @@ class CorrectionCalculator:
         from pymatgen.analysis.pourbaix_diagram import MU_H2O
         aqueous["H2"] = round(0.5 * (-15.969 - -0.215891 - -4.9276 - aqueous["O2"] - MU_H2O), 6)
 
-        # Chemical potential of H2O
-        # pin to MU_H2O (which is in eV/H2O)
-        aqueous["H2O"] = round(MU_H2O / 3, 6)
+        # Ensure that the H2O energy is corrected to produce a gibbs formation
+        # energy to MU_H2O. Make sure to add entropy to the DFT energy for O2
+        correction = MU_H2O + 2 * aqueous["H2"] + -4.9276 + aqueous["O2"]
+        aqueous["H2O"] = round(correction / 3, 6)
 
         compatibility["AqueousCompoundEnergies"] = aqueous
 
