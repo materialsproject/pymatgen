@@ -574,7 +574,7 @@ class MaterialsProjectCompatibility2020Test(unittest.TestCase):
     def test_correction_values(self):
         # test_corrections
         self.assertAlmostEqual(
-            self.compat.process_entry(self.entry1).correction, -2.24 * 2 - 0.716 * 3
+            self.compat.process_entry(self.entry1).correction, -2.231 * 2 - 0.721 * 3
         )
 
         entry = ComputedEntry(
@@ -601,7 +601,7 @@ class MaterialsProjectCompatibility2020Test(unittest.TestCase):
 
         # Check actual correction
         self.assertAlmostEqual(
-            self.compat.process_entry(entry).correction, -0.46 * 3 + -2.24
+            self.compat.process_entry(entry).correction, -0.46 * 3 + -2.231
         )
 
         self.assertAlmostEqual(
@@ -798,8 +798,8 @@ class MaterialsProjectCompatibility2020Test(unittest.TestCase):
             },
         )
         c, e = compat.get_corrections_dict(entry)
-        self.assertAlmostEqual(c["MP Composition Correction"], -0.716 * 3)
-        self.assertAlmostEqual(c["MP Advanced Correction"], -2.24 * 2)
+        self.assertAlmostEqual(c["MP Composition Correction"], -0.721 * 3)
+        self.assertAlmostEqual(c["MP Advanced Correction"], -2.231 * 2)
         self.assertAlmostEqual(e["MP Composition Correction"], 0.0016 * 3)
         self.assertAlmostEqual(e["MP Advanced Correction"], 0.0079 * 2)
 
@@ -1659,22 +1659,22 @@ class MPAqueousCorrection2020Test(unittest.TestCase):
     def test_compound_energy(self):
 
         O2_entry = self.corr.correct_entry(
-            ComputedEntry(Composition("O2"), -4.9355 * 2)
+            ComputedEntry(Composition("O2"), -4.9276 * 2)  # mp-12957
         )
         H2_entry = self.corr.correct_entry(ComputedEntry(Composition("H2"), 3))
         H2O_entry = self.corr.correct_entry(ComputedEntry(Composition("H2O"), 3))
         H2O_formation_energy = H2O_entry.energy - (
             H2_entry.energy + O2_entry.energy / 2.0
         )
-        self.assertAlmostEqual(H2O_formation_energy, -2.46, 2)
+        self.assertAlmostEqual(H2O_formation_energy, -2.4583, 2)
 
         entry = ComputedEntry(Composition("H2O"), -16)
         entry = self.corr.correct_entry(entry)
-        self.assertAlmostEqual(entry.energy, -14.916, 4)
+        self.assertAlmostEqual(entry.energy, -15.7531, 4)
 
         entry = ComputedEntry(Composition("H2O"), -24)
         entry = self.corr.correct_entry(entry)
-        self.assertAlmostEqual(entry.energy, -14.916, 4)
+        self.assertAlmostEqual(entry.energy, -15.7531, 4)
 
         entry = ComputedEntry(Composition("Cl"), -24)
         entry = self.corr.correct_entry(entry)
