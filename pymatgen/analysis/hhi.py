@@ -31,8 +31,14 @@ csv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
 
 @singleton
 class HHIModel:
+    """
+    HHI calculator.
+    """
 
     def __init__(self):
+        """
+        Init for HHIModel.
+        """
         self.symbol_hhip_hhir = {}  # symbol->(HHI_production, HHI reserve)
 
         with open(csv_path) as f:

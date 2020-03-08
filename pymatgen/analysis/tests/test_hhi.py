@@ -3,7 +3,7 @@
 # Distributed under the terms of the MIT License.
 
 import unittest
-from pymatgen.analysis.hhi.hhi import HHIModel
+from pymatgen.analysis.hhi import HHIModel
 
 
 class HHIModelTest(unittest.TestCase):
