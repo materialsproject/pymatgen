@@ -96,6 +96,15 @@ functions used in the fitting procedure, with initial guesses
 
 
 def print_and_raise_error(xs, ys, name):
+    """
+    Args:
+        xs ():
+        ys ():
+        name ():
+
+    Returns:
+
+    """
     print('Index error in', name)
     print('ys: ', ys)
     print('xs: ', xs)
@@ -152,6 +161,15 @@ def exponential(x, a, b, n):
 
 
 def p0_exponential(xs, ys):
+    """
+
+    Args:
+        xs ():
+        ys ():
+
+    Returns:
+
+    """
     n0 = 1.005
     b0 = (n0 ** -xs[-1] - n0 ** -xs[1]) / (ys[-1] - ys[1])
     a0 = ys[1] - b0 * n0 ** -xs[1]
@@ -175,6 +193,15 @@ def single_reciprocal(x, a, b, c):
 
 
 def p0_single_reciprocal(xs, ys):
+    """
+
+    Args:
+        xs ():
+        ys ():
+
+    Returns:
+
+    """
     c = 1
     b = (1 / (xs[-1] - c) - 1 / (xs[1] - c)) / (ys[-1] - ys[1])
     a = ys[1] - b / (xs[1] - c)
@@ -196,6 +223,15 @@ def simple_reciprocal(x, a, b):
 
 
 def p0_simple_reciprocal(xs, ys):
+    """
+
+    Args:
+        xs ():
+        ys ():
+
+    Returns:
+
+    """
     # b = (ys[-1] - ys[1]) / (1/xs[-1] - 1/xs[1])
     # a = ys[1] - b / xs[1]
     b = (ys[-1] - ys[-2]) / (1 / (xs[-1]) - 1 / (xs[-2]))
@@ -219,6 +255,15 @@ def simple_2reciprocal(x, a, b):
 
 
 def p0_simple_2reciprocal(xs, ys):
+    """
+
+    Args:
+        xs ():
+        ys ():
+
+    Returns:
+
+    """
     c = 2
     b = (ys[-1] - ys[1]) / (1 / xs[-1] ** c - 1 / xs[1] ** c)
     a = ys[1] - b / xs[1] ** c
@@ -241,6 +286,15 @@ def simple_4reciprocal(x, a, b):
 
 
 def p0_simple_4reciprocal(xs, ys):
+    """
+
+    Args:
+        xs ():
+        ys ():
+
+    Returns:
+
+    """
     c = 4
     b = (ys[-1] - ys[1]) / (1 / xs[-1] ** c - 1 / xs[1] ** c)
     a = ys[1] - b / xs[1] ** c
@@ -263,6 +317,14 @@ def simple_5reciprocal(x, a, b):
 
 
 def p0_simple_5reciprocal(xs, ys):
+    """
+    Args:
+        xs ():
+        ys ():
+
+    Returns:
+
+    """
     c = 0.5
     b = (ys[-1] - ys[1]) / (1 / xs[-1] ** c - 1 / xs[1] ** c)
     a = ys[1] - b / xs[1] ** c
@@ -270,6 +332,15 @@ def p0_simple_5reciprocal(xs, ys):
 
 
 def extrapolate_simple_reciprocal(xs, ys):
+    """
+
+    Args:
+        xs ():
+        ys ():
+
+    Returns:
+
+    """
     b = (ys[-2] - ys[-1]) / (1 / (xs[-2]) - 1 / (xs[-1]))
     a = ys[-1] - b / (xs[-1])
     return [a, b]
@@ -320,6 +391,15 @@ def measure(function, xs, ys, popt, weights):
 
 
 def get_weights(xs, ys, mode=2):
+    """
+    Args:
+        xs ():
+        ys ():
+        mode ():
+
+    Returns:
+
+    """
     ds = get_derivatives(xs, ys, fd=True)
     if mode == 1:
         mind = np.inf
