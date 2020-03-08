@@ -93,6 +93,10 @@ class CostDBCSV(CostDB):
     """
 
     def __init__(self, filename):
+        """
+        Args:
+            filename (str): Filename of cost database.
+        """
         # read in data from file
         self._chemsys_entries = defaultdict(list)
         filename = os.path.join(os.path.dirname(__file__), filename)
@@ -107,6 +111,16 @@ class CostDBCSV(CostDB):
                 self._chemsys_entries[chemsys].append(pde)
 
     def get_entries(self, chemsys):
+        """
+        For a given chemical system, return an array of CostEntries
+
+        Args:
+            chemsys:
+                array of Elements defining the chemical system.
+
+        Returns:
+            array of CostEntries
+        """
         chemsys = "-".join(sorted([el.symbol for el in chemsys]))
         return self._chemsys_entries[chemsys]
 
@@ -118,6 +132,9 @@ class CostDBElements(CostDBCSV):
     """
 
     def __init__(self):
+        """
+        Init
+        """
         CostDBCSV.__init__(
             self, os.path.join(module_dir, "costdb_elements.csv"))
 
@@ -128,6 +145,10 @@ class CostAnalyzer:
     """
 
     def __init__(self, costdb):
+        """
+        Args:
+            costdb (): Cost database.
+        """
         self.costdb = costdb
 
     def get_lowest_decomposition(self, composition):
