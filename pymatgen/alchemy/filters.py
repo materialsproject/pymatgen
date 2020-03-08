@@ -45,17 +45,6 @@ class AbstractStructureFilter(MSONable, metaclass=abc.ABCMeta):
         """
         return
 
-    @classmethod
-    def from_dict(cls, d):
-        """
-        Args:
-            d (dict): Dict representation
-
-        Returns:
-            Filter
-        """
-        return cls(**d["init_args"])
-
 
 class ContainsSpecieFilter(AbstractStructureFilter):
     """
@@ -122,6 +111,17 @@ class ContainsSpecieFilter(AbstractStructureFilter):
                               "AND": self._AND,
                               "exclude": self._exclude}}
 
+    @classmethod
+    def from_dict(cls, d):
+        """
+        Args:
+            d (dict): Dict representation
+
+        Returns:
+            Filter
+        """
+        return cls(**d["init_args"])
+
 
 class SpecieProximityFilter(AbstractStructureFilter):
     """
@@ -176,6 +176,17 @@ class SpecieProximityFilter(AbstractStructureFilter):
                 "@class": self.__class__.__name__,
                 "init_args": {"specie_and_min_dist_dict": {str(sp): v
                                                            for sp, v in self.specie_and_min_dist.items()}}}
+
+    @classmethod
+    def from_dict(cls, d):
+        """
+        Args:
+            d (dict): Dict representation
+
+        Returns:
+            Filter
+        """
+        return cls(**d["init_args"])
 
 
 class RemoveDuplicatesFilter(AbstractStructureFilter):
