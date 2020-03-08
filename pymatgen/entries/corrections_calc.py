@@ -325,17 +325,6 @@ class CorrectionCalculator:
         if len(self.corrections) == 0:
             self.compute_corrections()
 
-        # from old mpcompatibility
-        aqueous: OrderedDict[str, float] = OrderedDict()
-        aqueous["O2"] = -0.316731
-        aqueous["N2"] = -0.295729
-        aqueous["F2"] = -0.313025
-        aqueous["Cl2"] = -0.344373
-        aqueous["Br"] = -0.235039
-        aqueous["Hg"] = -0.234421
-        aqueous["H2"] = -3.6018845
-        aqueous["H2O"] = -4.972
-
         compatibility: OrderedDict = OrderedDict()
         comp_corr: OrderedDict[str, float] = OrderedDict()
         advanced: OrderedDict[str, OrderedDict] = OrderedDict()
