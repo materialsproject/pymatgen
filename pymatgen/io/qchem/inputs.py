@@ -2,14 +2,15 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+Classes for reading/manipulating/writing QChem input files.
+"""
 
 import logging
 from monty.json import MSONable
 from monty.io import zopen
 from pymatgen.core import Molecule
 from .utils import read_table_pattern, read_pattern, lower_and_check_unique
-
-# Classes for reading/manipulating/writing QChem ouput files.
 
 
 __author__ = "Brandon Wood, Samuel Blau, Shyam Dwaraknath, Julian Self"
@@ -28,23 +29,24 @@ class QCInput(MSONable):
     to read and write the new section i.e. section_template and read_section. By design, there is very little (or no)
     checking that input parameters conform to the appropriate QChem format, this responsible lands on the user or a
     separate error handling software.
-
-    Args:
-        molecule (pymatgen Molecule object or "read"):
-            Input molecule. molecule can be set as either a pymatgen Molecule object or as the str "read".
-            "read" can be used in multi_job QChem input files where the molecule is read in from the
-            previous calculation.
-        rem (dict):
-            A dictionary of all the input parameters for the rem section of QChem input file.
-            Ex. rem = {'method': 'rimp2', 'basis': '6-31*G++' ... }
-        opt (dict of lists):
-            A dictionary of opt sections, where each opt section is a key and the corresponding
-            values are a list of strings. Stings must be formatted as instructed by the QChem manual.
-            The different opt sections are: CONSTRAINT, FIXED, DUMMY, and CONNECT
-            Ex. opt = {"CONSTRAINT": ["tors 2 3 4 5 25.0", "tors 2 5 7 9 80.0"], "FIXED": ["2 XY"]}
     """
 
     def __init__(self, molecule, rem, opt=None, pcm=None, solvent=None, smx=None):
+        """
+        Args:
+            molecule (pymatgen Molecule object or "read"):
+                Input molecule. molecule can be set as either a pymatgen Molecule object or as the str "read".
+                "read" can be used in multi_job QChem input files where the molecule is read in from the
+                previous calculation.
+            rem (dict):
+                A dictionary of all the input parameters for the rem section of QChem input file.
+                Ex. rem = {'method': 'rimp2', 'basis': '6-31*G++' ... }
+            opt (dict of lists):
+                A dictionary of opt sections, where each opt section is a key and the corresponding
+                values are a list of strings. Stings must be formatted as instructed by the QChem manual.
+                The different opt sections are: CONSTRAINT, FIXED, DUMMY, and CONNECT
+                Ex. opt = {"CONSTRAINT": ["tors 2 3 4 5 25.0", "tors 2 5 7 9 80.0"], "FIXED": ["2 XY"]}
+        """
         self.molecule = molecule
         self.rem = lower_and_check_unique(rem)
         self.opt = opt

@@ -3,10 +3,6 @@
 # Distributed under the terms of the MIT License.import string
 
 
-import string
-import random
-import numpy as np
-
 """
 function for calculating the convergence of an x, y data set
 main api:
@@ -23,6 +19,11 @@ returns the x_value for which dy(x)/dx < tol for all x >= x_value, conv is true 
 for the best fit a gnuplot line is printed plotting the data, the function and the assymthotic value
 """
 
+import string
+import random
+import numpy as np
+
+
 __author__ = "Michiel van Setten"
 __copyright__ = " "
 __version__ = "0.9"
@@ -32,11 +33,26 @@ __date__ = "June 2014"
 
 
 def id_generator(size=8, chars=string.ascii_uppercase + string.digits):
+    """
+    Args:
+        size ():
+        chars ():
+
+    Returns:
+
+    """
     return ''.join(random.choice(chars) for _ in range(size))
 
 
 class SplineInputError(Exception):
+    """
+    Error for Spline input
+    """
     def __init__(self, msg):
+        """
+        Args:
+            msg (str): Message
+        """
         self.msg = msg
 
 
