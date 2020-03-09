@@ -361,8 +361,10 @@ class CompositionCorrection(Correction):
             elif hasattr(entry, "structure"):
                 sf_type = sulfide_type(entry.structure)
             if sf_type in self.comp_correction:
-                correction += ufloat(self.comp_correction[sf_type], self.comp_errors[sf_type]) * comp["S"]
-
+                correction += (
+                    ufloat(self.comp_correction[sf_type], self.comp_errors[sf_type])
+                    * comp["S"]
+                )
 
         # Check for oxide, peroxide, superoxide, and ozonide corrections.
         if Element("O") in comp:
@@ -382,9 +384,19 @@ class CompositionCorrection(Correction):
                         entry.structure, 1.05, return_nbonds=True
                     )
                     if ox_type in self.comp_correction:
-                        correction += ufloat(self.comp_correction[ox_type], self.comp_errors[ox_type]) * nbonds
+                        correction += (
+                            ufloat(
+                                self.comp_correction[ox_type], self.comp_errors[ox_type]
+                            )
+                            * nbonds
+                        )
                     elif ox_type == "hydroxide":
-                        correction += ufloat(self.comp_correction["oxide"], self.comp_errors["oxide"]) * comp["O"]
+                        correction += (
+                            ufloat(
+                                self.comp_correction["oxide"], self.comp_errors["oxide"]
+                            )
+                            * comp["O"]
+                        )
                 else:
                     warnings.warn(
                         "No structure or oxide_type parameter present. Note "
@@ -394,25 +406,57 @@ class CompositionCorrection(Correction):
                     )
                     rform = entry.composition.reduced_formula
                     if rform in UCorrection.common_peroxides:
-                        correction += ufloat(self.comp_correction["peroxide"], self.comp_errors["peroxide"]) * comp["O"]
+                        correction += (
+                            ufloat(
+                                self.comp_correction["peroxide"],
+                                self.comp_errors["peroxide"],
+                            )
+                            * comp["O"]
+                        )
                     elif rform in UCorrection.common_superoxides:
-                        correction += ufloat(self.comp_correction["superoxide"], self.comp_errors["superoxide"]) * comp["O"]
+                        correction += (
+                            ufloat(
+                                self.comp_correction["superoxide"],
+                                self.comp_errors["superoxide"],
+                            )
+                            * comp["O"]
+                        )
                     elif rform in UCorrection.ozonides:
-                        correction += ufloat(self.comp_correction["ozonide"], self.comp_errors["ozonide"]) * comp["O"]
+                        correction += (
+                            ufloat(
+                                self.comp_correction["ozonide"],
+                                self.comp_errors["ozonide"],
+                            )
+                            * comp["O"]
+                        )
                     elif Element("O") in comp.elements and len(comp.elements) > 1:
-                        correction += ufloat(self.comp_correction["oxide"], self.comp_errors["oxide"]) * comp["O"]
+                        correction += (
+                            ufloat(
+                                self.comp_correction["oxide"], self.comp_errors["oxide"]
+                            )
+                            * comp["O"]
+                        )
             else:
-                correction += ufloat(self.comp_correction["oxide"], self.comp_errors["oxide"]) * comp["O"]
-                
+                correction += (
+                    ufloat(self.comp_correction["oxide"], self.comp_errors["oxide"])
+                    * comp["O"]
+                )
+
         for anion in ["Br", "I", "Se", "Si", "Sb", "Te"]:
             if Element(anion) in comp and anion in self.comp_correction:
-                correction += ufloat(self.comp_correction[anion], self.comp_errors[anion]) * comp[anion]
-                
+                correction += (
+                    ufloat(self.comp_correction[anion], self.comp_errors[anion])
+                    * comp[anion]
+                )
+
         if self.name != "MIT":  # the MIT compatibility set still uses MITGasCorrection
             for gas in ["H", "N", "F", "Cl"]:
                 if Element(gas) in comp and gas in self.comp_correction:
-                    correction += ufloat(self.comp_correction[gas], self.comp_errors[gas]) * comp[gas]
-                    
+                    correction += (
+                        ufloat(self.comp_correction[gas], self.comp_errors[gas])
+                        * comp[gas]
+                    )
+
         return correction
 
     def __str__(self):
@@ -457,9 +501,7 @@ class AqueousCorrection(Correction):
                     - entry.uncorrected_energy
                     - entry.correction
                 )
-                err = (
-                    self.cpd_errors[rform] * comp.num_atoms
-                )
+                err = self.cpd_errors[rform] * comp.num_atoms
 
                 correction += ufloat(corr, err)
             else:
@@ -614,7 +656,9 @@ class Compatibility(MSONable):
             print("CompatibilityError: " + str(error))
             return None
         # adds to ufloat(0.0, 0.0) to ensure that no corrections still result in ufloat object
-        correction_ufloat = ufloat(0.0, 0.0) + sum([ufloat(x, y) for x, y in zip(corrections.values(), uncertainties.values())])
+        correction_ufloat = ufloat(0.0, 0.0) + sum(
+            [ufloat(x, y) for x, y in zip(corrections.values(), uncertainties.values())]
+        )
 
         entry.correction = correction_ufloat.nominal_value
         if correction_ufloat.nominal_value != 0 and correction_ufloat.std_dev == 0:
@@ -689,7 +733,7 @@ class Compatibility(MSONable):
             "compatibility": self.__class__.__name__,
             "uncorrected_energy": uncorrected_energy,
             "corrected_energy": corrected_energy,
-            "correction_uncertainty": correction_uncertainty
+            "correction_uncertainty": correction_uncertainty,
         }
         corrections = []
         corr_dict, uncer_dict = self.get_corrections_dict(entry)
@@ -698,7 +742,7 @@ class Compatibility(MSONable):
                 "name": str(c),
                 "description": c.__doc__.split("Args")[0].strip(),
                 "value": corr_dict.get(str(c), 0),
-                "uncertainty": uncer_dict.get(str(c), 0)
+                "uncertainty": uncer_dict.get(str(c), 0),
             }
             corrections.append(cd)
         d["corrections"] = corrections

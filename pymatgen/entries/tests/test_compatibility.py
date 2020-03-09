@@ -1975,20 +1975,20 @@ class CorrectionErrorsCompatibility2020Test(unittest.TestCase):
             "LiH",
             -2,
             0.0,
-            parameters = {
+            parameters={
                 "is_hubbard": False,
                 "run_type": "GGA",
-                "potcar_spec" : [ 
+                "potcar_spec": [
                     {
-                        "titel" : "PAW_PBE Li_sv 10Sep2004",
-                        "hash" : "8245d7383d7556214082aa40a887cd96"
-                    }, 
+                        "titel": "PAW_PBE Li_sv 10Sep2004",
+                        "hash": "8245d7383d7556214082aa40a887cd96",
+                    },
                     {
-                        "titel" : "PAW_PBE H 15Jun2001",
-                        "hash" : "bb43c666e3d36577264afe07669e9582"
-                    }
-                ]
-            }
+                        "titel": "PAW_PBE H 15Jun2001",
+                        "hash": "bb43c666e3d36577264afe07669e9582",
+                    },
+                ],
+            },
         )
 
     def tearDown(self):
