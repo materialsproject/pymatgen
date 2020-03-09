@@ -123,6 +123,13 @@ class QCInput(MSONable):
 
     @staticmethod
     def multi_job_string(job_list):
+        """
+        Args:
+            job_list (): List of jobs
+
+        Returns:
+            (str) String representation of multi job input file.
+        """
         multi_job_string = str()
         for i, job_i in enumerate(job_list):
             if i < len(job_list) - 1:
@@ -133,6 +140,15 @@ class QCInput(MSONable):
 
     @classmethod
     def from_string(cls, string):
+        """
+        Read QcInput from string.
+
+        Args:
+            string (str): String input.
+
+        Returns:
+            QcInput
+        """
         sections = cls.find_sections(string)
         molecule = cls.read_molecule(string)
         rem = cls.read_rem(string)
@@ -152,22 +168,50 @@ class QCInput(MSONable):
         return cls(molecule, rem, opt=opt, pcm=pcm, solvent=solvent, smx=smx)
 
     def write_file(self, filename):
+        """
+        Write QcInput to file.
+
+        Args:
+            filename (str): Filename
+        """
         with zopen(filename, 'wt') as f:
             f.write(self.__str__())
 
     @staticmethod
     def write_multi_job_file(job_list, filename):
+        """
+        Write a multijob file.
+
+        Args:
+            job_list (): List of jobs.
+            filename (): Filename
+        """
         with zopen(filename, 'wt') as f:
             f.write(QCInput.multi_job_string(job_list))
 
     @staticmethod
     def from_file(filename):
+        """
+        Create QcInput from file.
+        Args:
+            filename (str): Filename
+
+        Returns:
+            QcInput
+        """
         with zopen(filename, 'rt') as f:
             return QCInput.from_string(f.read())
 
     @classmethod
     def from_multi_jobs_file(cls, filename):
-        # returns a list of QCInput objects
+        """
+        Create list of QcInput from a file.
+        Args:
+            filename (str): Filename
+
+        Returns:
+            List of QCInput objects
+        """
         with zopen(filename, 'rt') as f:
             # the delimiter between QChem jobs is @@@
             multi_job_strings = f.read().split("@@@")
@@ -177,6 +221,13 @@ class QCInput(MSONable):
 
     @staticmethod
     def molecule_template(molecule):
+        """
+        Args:
+            molecule (Molecule): molecule
+
+        Returns:
+            (str) Molecule template.
+        """
         # todo: add ghost atoms
         mol_list = []
         mol_list.append("$molecule")
@@ -199,6 +250,13 @@ class QCInput(MSONable):
 
     @staticmethod
     def rem_template(rem):
+        """
+        Args:
+            rem ():
+
+        Returns:
+            (str)
+        """
         rem_list = []
         rem_list.append("$rem")
         for key, value in rem.items():
@@ -208,6 +266,15 @@ class QCInput(MSONable):
 
     @staticmethod
     def opt_template(opt):
+        """
+        Optimization template.
+
+        Args:
+            opt ():
+
+        Returns:
+            (str)
+        """
         opt_list = []
         opt_list.append("$opt")
         # loops over all opt sections
@@ -225,6 +292,15 @@ class QCInput(MSONable):
 
     @staticmethod
     def pcm_template(pcm):
+        """
+        Pcm run template.
+
+        Args:
+            pcm ():
+
+        Returns:
+            (str)
+        """
         pcm_list = []
         pcm_list.append("$pcm")
         for key, value in pcm.items():
@@ -234,6 +310,15 @@ class QCInput(MSONable):
 
     @staticmethod
     def solvent_template(solvent):
+        """
+        Solvent template.
+
+        Args:
+            solvent ():
+
+        Returns:
+            (str)
+        """
         solvent_list = []
         solvent_list.append("$solvent")
         for key, value in solvent.items():
@@ -244,6 +329,13 @@ class QCInput(MSONable):
 
     @staticmethod
     def smx_template(smx):
+        """
+        Args:
+            smx ():
+
+        Returns:
+            (str)
+        """
         smx_list = []
         smx_list.append("$smx")
         for key, value in smx.items():
@@ -258,6 +350,15 @@ class QCInput(MSONable):
 
     @staticmethod
     def find_sections(string):
+        """
+        Find sections in the string.
+
+        Args:
+            string (str): String
+
+        Returns:
+            List of sections.
+        """
         patterns = {"sections": r"^\s*?\$([a-z]+)", "multiple_jobs": r"(@@@)"}
         matches = read_pattern(string, patterns)
         # list of the sections present
@@ -277,6 +378,15 @@ class QCInput(MSONable):
 
     @staticmethod
     def read_molecule(string):
+        """
+        Read molecule from string.
+
+        Args:
+            string (str): String
+
+        Returns:
+            Molecule
+        """
         charge = None
         spin_mult = None
         patterns = {
@@ -311,6 +421,15 @@ class QCInput(MSONable):
 
     @staticmethod
     def read_rem(string):
+        """
+        Parse rem from string.
+
+        Args:
+            string (str): String
+
+        Returns:
+            (dict) rem
+        """
         header = r"^\s*\$rem"
         row = r"\s*([a-zA-Z\_]+)\s*=?\s*(\S+)"
         footer = r"^\s*\$end"
@@ -324,6 +443,15 @@ class QCInput(MSONable):
 
     @staticmethod
     def read_opt(string):
+        """
+        Read opt section from string.
+
+        Args:
+            string (str): String
+
+        Returns:
+            (dict) Opt section
+        """
         patterns = {
             "CONSTRAINT": r"^\s*CONSTRAINT",
             "FIXED": r"^\s*FIXED",
@@ -377,6 +505,15 @@ class QCInput(MSONable):
 
     @staticmethod
     def read_pcm(string):
+        """
+        Read pcm parameters from string.
+
+        Args:
+            string (str): String
+
+        Returns:
+            (dict) PCM parameters
+        """
         header = r"^\s*\$pcm"
         row = r"\s*([a-zA-Z\_]+)\s+(\S+)"
         footer = r"^\s*\$end"
@@ -396,6 +533,15 @@ class QCInput(MSONable):
 
     @staticmethod
     def read_solvent(string):
+        """
+        Read solvent parameters from string.
+
+        Args:
+            string (str): String
+
+        Returns:
+            (dict) Solvent parameters
+        """
         header = r"^\s*\$solvent"
         row = r"\s*([a-zA-Z\_]+)\s+(\S+)"
         footer = r"^\s*\$end"
@@ -415,6 +561,15 @@ class QCInput(MSONable):
 
     @staticmethod
     def read_smx(string):
+        """
+        Read smx parameters from string.
+
+        Args:
+            string (str): String
+
+        Returns:
+            (dict) SMX parameters.
+        """
         header = r"^\s*\$smx"
         row = r"\s*([a-zA-Z\_]+)\s+(\S+)"
         footer = r"^\s*\$end"
