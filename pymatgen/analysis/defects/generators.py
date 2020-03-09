@@ -2,6 +2,10 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+This module defines classes to generate point defect structures
+"""
+
 import logging
 from abc import ABCMeta, abstractmethod
 
@@ -21,9 +25,7 @@ __maintainer__ = "Shyam Dwaraknath"
 __email__ = "shyamd@lbl.gov"
 __status__ = "Development"
 __date__ = "Mar 15, 2018"
-"""
-This module defines classes to generate point defect structures
-"""
+
 
 logger = logging.getLogger(__name__)
 
