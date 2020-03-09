@@ -25,6 +25,9 @@ from pymatgen.electronic_structure.plotter import DosPlotter
 
 
 def main():
+    """
+    Main function.
+    """
     parser = argparse.ArgumentParser(description='''Convenient DOS Plotter for Feff runs.
     Author: Alan Dozier
     Version: 1.0
