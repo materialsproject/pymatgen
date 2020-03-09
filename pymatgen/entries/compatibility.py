@@ -11,11 +11,11 @@ import abc
 import warnings
 
 from collections import defaultdict
-from math import sqrt, isnan
+from math import isnan
 import numpy as np
 from uncertainties import ufloat
 
-from typing import Sequence, Tuple
+from typing import Sequence
 from monty.design_patterns import cached_class
 from monty.serialization import loadfn
 from monty.json import MSONable

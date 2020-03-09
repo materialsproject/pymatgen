@@ -15,7 +15,6 @@ from pymatgen.core.composition import Composition
 from pymatgen.entries.computed_entries import ComputedEntry
 from monty.json import MontyDecoder
 from monty.fractions import gcd_float
-from math import sqrt
 from uncertainties import ufloat
 
 from itertools import combinations, chain
