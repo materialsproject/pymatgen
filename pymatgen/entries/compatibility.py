@@ -642,10 +642,7 @@ class Compatibility(MSONable):
             val = c.get_correction(entry)
             if val != 0:
                 corrections[str(c)] = val.nominal_value
-                if val.std_dev != 0:
-                    uncertainties[str(c)] = val.std_dev
-                else:
-                    uncertainties[str(c)] = np.nan
+                uncertainties[str(c)] = val.std_dev
         return corrections, uncertainties
 
     def process_entries(self, entries):
@@ -687,7 +684,7 @@ class Compatibility(MSONable):
         else:
             uncorrected_energy = centry.uncorrected_energy
             corrected_energy = centry.energy
-            correction_uncertainty = centry.data.get("correction_uncertainty", np.nan)
+            correction_uncertainty = centry.data["correction_uncertainty"]
         d = {
             "compatibility": self.__class__.__name__,
             "uncorrected_energy": uncorrected_energy,
@@ -727,11 +724,11 @@ class Compatibility(MSONable):
         )
         for c in d["corrections"]:
             print("%s correction: %s\n" % (c["name"], c["description"]))
-            print("For the entry, this correction has the value %f eV." % c["value"].nominal_value)
-            if c["value"].std_dev:
+            print("For the entry, this correction has the value %f eV." % c["value"])
+            if c["uncertainty"] != 0 or c["value"] == 0:
                 print(
                     "This correction has an uncertainty value of %f eV."
-                    % c["value"].std_dev
+                    % c["uncertainty"]
                 )
             else:
                 print("This correction does not have uncertainty data available")
