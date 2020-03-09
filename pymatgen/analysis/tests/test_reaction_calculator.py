@@ -5,6 +5,8 @@
 
 import unittest
 import warnings
+import numpy as np
+from math import isnan
 from pymatgen import Composition
 from pymatgen.analysis.reaction_calculator import (
     Reaction,
@@ -451,6 +453,54 @@ class ComputedReactionTest(unittest.TestCase):
         # test that reaction_energy_uncertainty property doesn't cause errors
         # when products/reactants have no uncertainties
         self.assertAlmostEqual(self.rxn.calculated_reaction_energy_uncertainty, 0)
+
+    def test_calculated_reaction_energy_uncertainty_for_nan(self):
+        # test that reaction_energy_uncertainty property is nan when the uncertainty
+        # for any product/reactant is nan
+        d = [
+            {
+                "correction": 0.0,
+                "data": {},
+                "energy": -108.56492362,
+                "parameters": {},
+                "composition": {"Li": 54},
+            },
+            {
+                "correction": 0.0,
+                "data": {"correction_uncertainty": np.nan},
+                "energy": -577.94689128,
+                "parameters": {},
+                "composition": {"O": 32, "Li": 64},
+            },
+            {
+                "correction": 0.0,
+                "data": {},
+                "energy": -17.02844794,
+                "parameters": {},
+                "composition": {"O": 2},
+            },
+            {
+                "correction": 0.0,
+                "data": {"correction_uncertainty": np.nan},
+                "energy": -959.64693323,
+                "parameters": {},
+                "composition": {"O": 72, "Li": 72},
+            },
+        ]
+        entries = []
+        for e in d:
+            entries.append(ComputedEntry.from_dict(e))
+        rcts = list(
+            filter(lambda e: e.composition.reduced_formula in ["Li", "O2"], entries)
+        )
+        prods = list(
+            filter(lambda e: e.composition.reduced_formula == "Li2O2", entries)
+        )
+
+        rxn_with_uncertainty = ComputedReaction(rcts, prods)
+        self.assertTrue(
+            isnan(rxn_with_uncertainty.calculated_reaction_energy_uncertainty)
+        )
 
     def test_init(self):
         self.assertEqual(str(self.rxn), "O2 + 2 Li -> Li2O2")
