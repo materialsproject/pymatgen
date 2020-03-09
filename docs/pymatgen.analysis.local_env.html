@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.local_env module &#8212; pymatgen 2019.6.5 documentation</title>
+    <title>pymatgen.analysis.local_env module &#8212; pymatgen 2020.3.2 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,9 +13,10 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.analysis.molecule_matcher module" href="pymatgen.analysis.molecule_matcher.html" />
+    <link rel="prev" title="pymatgen.analysis.interface_reactions module" href="pymatgen.analysis.interface_reactions.html" />
  
 <script type="text/javascript">
   var _gaq = _gaq || [];
@@ -33,7 +34,16 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="right" >
+          <a href="pymatgen.analysis.molecule_matcher.html" title="pymatgen.analysis.molecule_matcher module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pymatgen.analysis.interface_reactions.html" title="pymatgen.analysis.interface_reactions module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >pymatgen</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="pymatgen.html" >pymatgen package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="pymatgen.analysis.html" accesskey="U">pymatgen.analysis package</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,6 +54,9 @@
             
   <div class="section" id="module-pymatgen.analysis.local_env">
 <span id="pymatgen-analysis-local-env-module"></span><h1>pymatgen.analysis.local_env module<a class="headerlink" href="#module-pymatgen.analysis.local_env" title="Permalink to this headline">¶</a></h1>
+<p>This module provides classes to perform analyses of
+the local environments (e.g., finding near neighbors)
+of single sites in molecules and structures.</p>
 <dl class="class">
 <dt id="pymatgen.analysis.local_env.BrunnerNN_real">
 <em class="property">class </em><code class="sig-name descname">BrunnerNN_real</code><span class="sig-paren">(</span><em class="sig-param">tol=0.0001</em>, <em class="sig-param">cutoff=8.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#BrunnerNN_real"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.BrunnerNN_real" title="Permalink to this definition">¶</a></dt>
@@ -66,30 +79,49 @@ atoms. Defaults to 8.0.</p></li>
 <dt id="pymatgen.analysis.local_env.BrunnerNN_real.get_nn_info">
 <code class="sig-name descname">get_nn_info</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#BrunnerNN_real.get_nn_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.BrunnerNN_real.get_nn_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get all near-neighbor sites as well as the associated image locations
-and weights of the site with index n.</p>
+and weights of the site with index n in structure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – input structure.</p></li>
 <li><p><strong>n</strong> (<em>integer</em>) – index of site for which to determine near-neighbor
-information.</p></li>
+sites.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><dl class="simple">
-<dt>each dictionary provides information</dt><dd><p>about a single near neighbor, where key ‘site’ gives
-access to the corresponding Site object, ‘image’ gives
-the image location, and ‘weight’ provides the weight
-that a given near-neighbor site contributes
-to the coordination number (1 or smaller), ‘site_index’
-gives index of the corresponding site in
-the original structure.</p>
+<dt>tuples, each one</dt><dd><p>of which represents a coordinated site, its image location,
+and its weight.</p>
 </dd>
 </dl>
 </p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>siw (list of dicts)</p>
+<dd class="field-odd"><p>siw (list of tuples (<a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.Site" title="pymatgen.core.sites.Site">Site</a>, array, float))</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.local_env.BrunnerNN_real.molecules_allowed">
+<em class="property">property </em><code class="sig-name descname">molecules_allowed</code><a class="headerlink" href="#pymatgen.analysis.local_env.BrunnerNN_real.molecules_allowed" title="Permalink to this definition">¶</a></dt>
+<dd><p>can this NearNeighbors class be used with Molecule
+objects?</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Boolean property</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.local_env.BrunnerNN_real.structures_allowed">
+<em class="property">property </em><code class="sig-name descname">structures_allowed</code><a class="headerlink" href="#pymatgen.analysis.local_env.BrunnerNN_real.structures_allowed" title="Permalink to this definition">¶</a></dt>
+<dd><p>can this NearNeighbors class be used with Structure
+objects?</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Boolean property</p>
 </dd>
 </dl>
 </dd></dl>
@@ -118,30 +150,49 @@ atoms. Defaults to 8.0.</p></li>
 <dt id="pymatgen.analysis.local_env.BrunnerNN_reciprocal.get_nn_info">
 <code class="sig-name descname">get_nn_info</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#BrunnerNN_reciprocal.get_nn_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.BrunnerNN_reciprocal.get_nn_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get all near-neighbor sites as well as the associated image locations
-and weights of the site with index n.</p>
+and weights of the site with index n in structure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – input structure.</p></li>
 <li><p><strong>n</strong> (<em>integer</em>) – index of site for which to determine near-neighbor
-information.</p></li>
+sites.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><dl class="simple">
-<dt>each dictionary provides information</dt><dd><p>about a single near neighbor, where key ‘site’ gives
-access to the corresponding Site object, ‘image’ gives
-the image location, and ‘weight’ provides the weight
-that a given near-neighbor site contributes
-to the coordination number (1 or smaller), ‘site_index’
-gives index of the corresponding site in
-the original structure.</p>
+<dt>tuples, each one</dt><dd><p>of which represents a coordinated site, its image location,
+and its weight.</p>
 </dd>
 </dl>
 </p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>siw (list of dicts)</p>
+<dd class="field-odd"><p>siw (list of tuples (<a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.Site" title="pymatgen.core.sites.Site">Site</a>, array, float))</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.local_env.BrunnerNN_reciprocal.molecules_allowed">
+<em class="property">property </em><code class="sig-name descname">molecules_allowed</code><a class="headerlink" href="#pymatgen.analysis.local_env.BrunnerNN_reciprocal.molecules_allowed" title="Permalink to this definition">¶</a></dt>
+<dd><p>can this NearNeighbors class be used with Molecule
+objects?</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Boolean property</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.local_env.BrunnerNN_reciprocal.structures_allowed">
+<em class="property">property </em><code class="sig-name descname">structures_allowed</code><a class="headerlink" href="#pymatgen.analysis.local_env.BrunnerNN_reciprocal.structures_allowed" title="Permalink to this definition">¶</a></dt>
+<dd><p>can this NearNeighbors class be used with Structure
+objects?</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Boolean property</p>
 </dd>
 </dl>
 </dd></dl>
@@ -170,30 +221,49 @@ atoms. Defaults to 8.0.</p></li>
 <dt id="pymatgen.analysis.local_env.BrunnerNN_relative.get_nn_info">
 <code class="sig-name descname">get_nn_info</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#BrunnerNN_relative.get_nn_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.BrunnerNN_relative.get_nn_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get all near-neighbor sites as well as the associated image locations
-and weights of the site with index n.</p>
+and weights of the site with index n in structure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – input structure.</p></li>
 <li><p><strong>n</strong> (<em>integer</em>) – index of site for which to determine near-neighbor
-information.</p></li>
+sites.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><dl class="simple">
-<dt>each dictionary provides information</dt><dd><p>about a single near neighbor, where key ‘site’ gives
-access to the corresponding Site object, ‘image’ gives
-the image location, and ‘weight’ provides the weight
-that a given near-neighbor site contributes
-to the coordination number (1 or smaller), ‘site_index’
-gives index of the corresponding site in
-the original structure.</p>
+<dt>tuples, each one</dt><dd><p>of which represents a coordinated site, its image location,
+and its weight.</p>
 </dd>
 </dl>
 </p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>siw (list of dicts)</p>
+<dd class="field-odd"><p>siw (list of tuples (<a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.Site" title="pymatgen.core.sites.Site">Site</a>, array, float))</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.local_env.BrunnerNN_relative.molecules_allowed">
+<em class="property">property </em><code class="sig-name descname">molecules_allowed</code><a class="headerlink" href="#pymatgen.analysis.local_env.BrunnerNN_relative.molecules_allowed" title="Permalink to this definition">¶</a></dt>
+<dd><p>can this NearNeighbors class be used with Molecule
+objects?</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Boolean property</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.local_env.BrunnerNN_relative.structures_allowed">
+<em class="property">property </em><code class="sig-name descname">structures_allowed</code><a class="headerlink" href="#pymatgen.analysis.local_env.BrunnerNN_relative.structures_allowed" title="Permalink to this definition">¶</a></dt>
+<dd><p>can this NearNeighbors class be used with Structure
+objects?</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Boolean property</p>
 </dd>
 </dl>
 </dd></dl>
@@ -212,11 +282,24 @@ structures.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>tol</strong> (<em>float</em>) – Tolerance for covalent bond checking.</p></li>
-<li><p><strong>order</strong> (<em>bool</em>) – If True (default), this class will compute bond orders. If</p></li>
-<li><p><strong>bond lengths will be computed</strong> (<em>False</em><em>,</em>) – </p></li>
+<li><p><strong>order</strong> (<em>bool</em>) – If True (default), this class will compute bond
+orders. If False, bond lengths will be computed</p></li>
 </ul>
 </dd>
 </dl>
+<dl class="method">
+<dt id="pymatgen.analysis.local_env.CovalentBondNN.extend_structure_molecules">
+<em class="property">property </em><code class="sig-name descname">extend_structure_molecules</code><a class="headerlink" href="#pymatgen.analysis.local_env.CovalentBondNN.extend_structure_molecules" title="Permalink to this definition">¶</a></dt>
+<dd><p>Do Molecules need to be converted to Structures to use
+this NearNeighbors class? Note: this property is not defined for classes
+for which molecules_allowed == False.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Boolean property</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="method">
 <dt id="pymatgen.analysis.local_env.CovalentBondNN.get_bonded_structure">
 <code class="sig-name descname">get_bonded_structure</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">decorate=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#CovalentBondNN.get_bonded_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.CovalentBondNN.get_bonded_structure" title="Permalink to this definition">¶</a></dt>
@@ -248,10 +331,10 @@ atom.</p>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>[dict] representing a neighboring site and the type of</p>
+<dd class="field-even"><p>[dict] representing a neighboring site and the type of
+bond present between site n and the neighboring site.</p>
 </dd>
 </dl>
-<p>bond present between site n and the neighboring site.</p>
 </dd></dl>
 
 <dl class="method">
@@ -289,6 +372,30 @@ information.</p></li>
 </dl>
 </dd></dl>
 
+<dl class="method">
+<dt id="pymatgen.analysis.local_env.CovalentBondNN.molecules_allowed">
+<em class="property">property </em><code class="sig-name descname">molecules_allowed</code><a class="headerlink" href="#pymatgen.analysis.local_env.CovalentBondNN.molecules_allowed" title="Permalink to this definition">¶</a></dt>
+<dd><p>can this NearNeighbors class be used with Molecule
+objects?</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Boolean property</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.local_env.CovalentBondNN.structures_allowed">
+<em class="property">property </em><code class="sig-name descname">structures_allowed</code><a class="headerlink" href="#pymatgen.analysis.local_env.CovalentBondNN.structures_allowed" title="Permalink to this definition">¶</a></dt>
+<dd><p>can this NearNeighbors class be used with Structure
+objects?</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Boolean property</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -300,53 +407,83 @@ neighbor information, using a sum of atomic charge
 densities. If an actual charge density is available
 (e.g. from a VASP CHGCAR), see Critic2Caller directly
 instead.</p>
+<p>Init for Critic2NN.</p>
+<dl class="method">
+<dt id="pymatgen.analysis.local_env.Critic2NN.extend_structure_molecules">
+<em class="property">property </em><code class="sig-name descname">extend_structure_molecules</code><a class="headerlink" href="#pymatgen.analysis.local_env.Critic2NN.extend_structure_molecules" title="Permalink to this definition">¶</a></dt>
+<dd><p>Do Molecules need to be converted to Structures to use
+this NearNeighbors class? Note: this property is not defined for classes
+for which molecules_allowed == False.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Boolean property</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="method">
 <dt id="pymatgen.analysis.local_env.Critic2NN.get_bonded_structure">
 <code class="sig-name descname">get_bonded_structure</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">decorate=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#Critic2NN.get_bonded_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.Critic2NN.get_bonded_structure" title="Permalink to this definition">¶</a></dt>
-<dd><p>Obtain a StructureGraph object using this NearNeighbor
-class. Requires the optional dependency networkx
-(pip install networkx).</p>
-<dl class="field-list simple">
+<dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>structure</strong> – Structure object.</p></li>
-<li><p><strong>decorate</strong> (<em>bool</em>) – whether to annotate site properties</p></li>
-<li><p><strong>order parameters using neighbors determined by</strong> (<em>with</em>) – </p></li>
-<li><p><strong>NearNeighbor class</strong> (<em>this</em>) – </p></li>
+<li><p><strong>structure</strong> – Input structure</p></li>
+<li><p><strong>decorate</strong> – Whether to decorate the structure</p></li>
 </ul>
 </dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Bonded structure</p>
+</dd>
 </dl>
-<p>Returns: a pymatgen.analysis.graphs.BondedStructure object</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.local_env.Critic2NN.get_nn_info">
 <code class="sig-name descname">get_nn_info</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#Critic2NN.get_nn_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.Critic2NN.get_nn_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get all near-neighbor sites as well as the associated image locations
-and weights of the site with index n.</p>
+and weights of the site with index n in structure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – input structure.</p></li>
 <li><p><strong>n</strong> (<em>integer</em>) – index of site for which to determine near-neighbor
-information.</p></li>
+sites.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><dl class="simple">
-<dt>each dictionary provides information</dt><dd><p>about a single near neighbor, where key ‘site’ gives
-access to the corresponding Site object, ‘image’ gives
-the image location, and ‘weight’ provides the weight
-that a given near-neighbor site contributes
-to the coordination number (1 or smaller), ‘site_index’
-gives index of the corresponding site in
-the original structure.</p>
+<dt>tuples, each one</dt><dd><p>of which represents a coordinated site, its image location,
+and its weight.</p>
 </dd>
 </dl>
 </p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>siw (list of dicts)</p>
+<dd class="field-odd"><p>siw (list of tuples (<a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.Site" title="pymatgen.core.sites.Site">Site</a>, array, float))</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.local_env.Critic2NN.molecules_allowed">
+<em class="property">property </em><code class="sig-name descname">molecules_allowed</code><a class="headerlink" href="#pymatgen.analysis.local_env.Critic2NN.molecules_allowed" title="Permalink to this definition">¶</a></dt>
+<dd><p>can this NearNeighbors class be used with Molecule
+objects?</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Boolean property</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.local_env.Critic2NN.structures_allowed">
+<em class="property">property </em><code class="sig-name descname">structures_allowed</code><a class="headerlink" href="#pymatgen.analysis.local_env.Critic2NN.structures_allowed" title="Permalink to this definition">¶</a></dt>
+<dd><p>can this NearNeighbors class be used with Structure
+objects?</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Boolean property</p>
 </dd>
 </dl>
 </dd></dl>
@@ -501,6 +638,30 @@ the original structure.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="pymatgen.analysis.local_env.CrystalNN.molecules_allowed">
+<em class="property">property </em><code class="sig-name descname">molecules_allowed</code><a class="headerlink" href="#pymatgen.analysis.local_env.CrystalNN.molecules_allowed" title="Permalink to this definition">¶</a></dt>
+<dd><p>can this NearNeighbors class be used with Molecule
+objects?</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Boolean property</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.local_env.CrystalNN.structures_allowed">
+<em class="property">property </em><code class="sig-name descname">structures_allowed</code><a class="headerlink" href="#pymatgen.analysis.local_env.CrystalNN.structures_allowed" title="Permalink to this definition">¶</a></dt>
+<dd><p>can this NearNeighbors class be used with Structure
+objects?</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Boolean property</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="pymatgen.analysis.local_env.CrystalNN.transform_to_length">
 <em class="property">static </em><code class="sig-name descname">transform_to_length</code><span class="sig-paren">(</span><em class="sig-param">nndata</em>, <em class="sig-param">length</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#CrystalNN.transform_to_length"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.CrystalNN.transform_to_length" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given NNData, transforms data to the specified fingerprint length
@@ -531,6 +692,19 @@ defined for a Null/Empty NN class.</p>
 </dd>
 </dl>
 <dl class="method">
+<dt id="pymatgen.analysis.local_env.CutOffDictNN.extend_structure_molecules">
+<em class="property">property </em><code class="sig-name descname">extend_structure_molecules</code><a class="headerlink" href="#pymatgen.analysis.local_env.CutOffDictNN.extend_structure_molecules" title="Permalink to this definition">¶</a></dt>
+<dd><p>Do Molecules need to be converted to Structures to use
+this NearNeighbors class? Note: this property is not defined for classes
+for which molecules_allowed == False.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Boolean property</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="pymatgen.analysis.local_env.CutOffDictNN.from_preset">
 <em class="property">static </em><code class="sig-name descname">from_preset</code><span class="sig-paren">(</span><em class="sig-param">preset</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#CutOffDictNN.from_preset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.CutOffDictNN.from_preset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialise a CutOffDictNN according to a preset set of cut-offs.</p>
@@ -553,30 +727,49 @@ visualisation program.</p></li>
 <dt id="pymatgen.analysis.local_env.CutOffDictNN.get_nn_info">
 <code class="sig-name descname">get_nn_info</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#CutOffDictNN.get_nn_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.CutOffDictNN.get_nn_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get all near-neighbor sites as well as the associated image locations
-and weights of the site with index n.</p>
+and weights of the site with index n in structure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – input structure.</p></li>
 <li><p><strong>n</strong> (<em>integer</em>) – index of site for which to determine near-neighbor
-information.</p></li>
+sites.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><dl class="simple">
-<dt>each dictionary provides information</dt><dd><p>about a single near neighbor, where key ‘site’ gives
-access to the corresponding Site object, ‘image’ gives
-the image location, and ‘weight’ provides the weight
-that a given near-neighbor site contributes
-to the coordination number (1 or smaller), ‘site_index’
-gives index of the corresponding site in
-the original structure.</p>
+<dt>tuples, each one</dt><dd><p>of which represents a coordinated site, its image location,
+and its weight.</p>
 </dd>
 </dl>
 </p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>siw (list of dicts)</p>
+<dd class="field-odd"><p>siw (list of tuples (<a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.Site" title="pymatgen.core.sites.Site">Site</a>, array, float))</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.local_env.CutOffDictNN.molecules_allowed">
+<em class="property">property </em><code class="sig-name descname">molecules_allowed</code><a class="headerlink" href="#pymatgen.analysis.local_env.CutOffDictNN.molecules_allowed" title="Permalink to this definition">¶</a></dt>
+<dd><p>can this NearNeighbors class be used with Molecule
+objects?</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Boolean property</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.local_env.CutOffDictNN.structures_allowed">
+<em class="property">property </em><code class="sig-name descname">structures_allowed</code><a class="headerlink" href="#pymatgen.analysis.local_env.CutOffDictNN.structures_allowed" title="Permalink to this definition">¶</a></dt>
+<dd><p>can this NearNeighbors class be used with Structure
+objects?</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Boolean property</p>
 </dd>
 </dl>
 </dd></dl>
@@ -605,33 +798,65 @@ atoms. Defaults to 10.0.</p></li>
 </dd>
 </dl>
 <dl class="method">
+<dt id="pymatgen.analysis.local_env.EconNN.extend_structure_molecules">
+<em class="property">property </em><code class="sig-name descname">extend_structure_molecules</code><a class="headerlink" href="#pymatgen.analysis.local_env.EconNN.extend_structure_molecules" title="Permalink to this definition">¶</a></dt>
+<dd><p>Do Molecules need to be converted to Structures to use
+this NearNeighbors class? Note: this property is not defined for classes
+for which molecules_allowed == False.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Boolean property</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="pymatgen.analysis.local_env.EconNN.get_nn_info">
 <code class="sig-name descname">get_nn_info</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#EconNN.get_nn_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.EconNN.get_nn_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get all near-neighbor sites as well as the associated image locations
-and weights of the site with index n.</p>
+and weights of the site with index n in structure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – input structure.</p></li>
 <li><p><strong>n</strong> (<em>integer</em>) – index of site for which to determine near-neighbor
-information.</p></li>
+sites.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><dl class="simple">
-<dt>each dictionary provides information</dt><dd><p>about a single near neighbor, where key ‘site’ gives
-access to the corresponding Site object, ‘image’ gives
-the image location, and ‘weight’ provides the weight
-that a given near-neighbor site contributes
-to the coordination number (1 or smaller), ‘site_index’
-gives index of the corresponding site in
-the original structure.</p>
+<dt>tuples, each one</dt><dd><p>of which represents a coordinated site, its image location,
+and its weight.</p>
 </dd>
 </dl>
 </p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>siw (list of dicts)</p>
+<dd class="field-odd"><p>siw (list of tuples (<a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.Site" title="pymatgen.core.sites.Site">Site</a>, array, float))</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.local_env.EconNN.molecules_allowed">
+<em class="property">property </em><code class="sig-name descname">molecules_allowed</code><a class="headerlink" href="#pymatgen.analysis.local_env.EconNN.molecules_allowed" title="Permalink to this definition">¶</a></dt>
+<dd><p>can this NearNeighbors class be used with Molecule
+objects?</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Boolean property</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.local_env.EconNN.structures_allowed">
+<em class="property">property </em><code class="sig-name descname">structures_allowed</code><a class="headerlink" href="#pymatgen.analysis.local_env.EconNN.structures_allowed" title="Permalink to this definition">¶</a></dt>
+<dd><p>can this NearNeighbors class be used with Structure
+objects?</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Boolean property</p>
 </dd>
 </dl>
 </dd></dl>
@@ -656,6 +881,19 @@ radii table values</p></li>
 </ul>
 </dd>
 </dl>
+<dl class="method">
+<dt id="pymatgen.analysis.local_env.JmolNN.extend_structure_molecules">
+<em class="property">property </em><code class="sig-name descname">extend_structure_molecules</code><a class="headerlink" href="#pymatgen.analysis.local_env.JmolNN.extend_structure_molecules" title="Permalink to this definition">¶</a></dt>
+<dd><p>Do Molecules need to be converted to Structures to use
+this NearNeighbors class? Note: this property is not defined for classes
+for which molecules_allowed == False.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Boolean property</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="method">
 <dt id="pymatgen.analysis.local_env.JmolNN.get_max_bond_distance">
 <code class="sig-name descname">get_max_bond_distance</code><span class="sig-paren">(</span><em class="sig-param">el1_sym</em>, <em class="sig-param">el2_sym</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#JmolNN.get_max_bond_distance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.JmolNN.get_max_bond_distance" title="Permalink to this definition">¶</a></dt>
@@ -689,6 +927,30 @@ and its weight.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>siw (list of tuples (<a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.Site" title="pymatgen.core.sites.Site">Site</a>, array, float))</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.local_env.JmolNN.molecules_allowed">
+<em class="property">property </em><code class="sig-name descname">molecules_allowed</code><a class="headerlink" href="#pymatgen.analysis.local_env.JmolNN.molecules_allowed" title="Permalink to this definition">¶</a></dt>
+<dd><p>can this NearNeighbors class be used with Molecule
+objects?</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Boolean property</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.local_env.JmolNN.structures_allowed">
+<em class="property">property </em><code class="sig-name descname">structures_allowed</code><a class="headerlink" href="#pymatgen.analysis.local_env.JmolNN.structures_allowed" title="Permalink to this definition">¶</a></dt>
+<dd><p>can this NearNeighbors class be used with Structure
+objects?</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Boolean property</p>
 </dd>
 </dl>
 </dd></dl>
@@ -835,8 +1097,7 @@ VoronoiNN class.</p></li>
 <dl class="method">
 <dt id="pymatgen.analysis.local_env.LocalStructOrderParams.compute_trigonometric_terms">
 <code class="sig-name descname">compute_trigonometric_terms</code><span class="sig-paren">(</span><em class="sig-param">thetas</em>, <em class="sig-param">phis</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#LocalStructOrderParams.compute_trigonometric_terms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.LocalStructOrderParams.compute_trigonometric_terms" title="Permalink to this definition">¶</a></dt>
-<dd><p>”
-Computes trigonometric terms that are required to
+<dd><p>Computes trigonometric terms that are required to
 calculate bond orientational order parameters using
 internal variables.</p>
 <dl class="field-list simple">
@@ -1043,39 +1304,23 @@ to be returned.</p>
 <dl class="method">
 <dt id="pymatgen.analysis.local_env.LocalStructOrderParams.last_nneigh">
 <em class="property">property </em><code class="sig-name descname">last_nneigh</code><a class="headerlink" href="#pymatgen.analysis.local_env.LocalStructOrderParams.last_nneigh" title="Permalink to this definition">¶</a></dt>
-<dd><p>”
-:returns:</p>
+<dd><p>Returns:
+int: the number of neighbors encountered during the most</p>
 <blockquote>
-<div><dl class="simple">
-<dt>the number of neighbors encountered during the most</dt><dd><p>recent order parameter calculation. A value of -1 indicates
+<div><p>recent order parameter calculation. A value of -1 indicates
 that no such calculation has yet been performed for this
 instance.</p>
-</dd>
-</dl>
 </div></blockquote>
-<dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>int</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.local_env.LocalStructOrderParams.num_ops">
 <em class="property">property </em><code class="sig-name descname">num_ops</code><a class="headerlink" href="#pymatgen.analysis.local_env.LocalStructOrderParams.num_ops" title="Permalink to this definition">¶</a></dt>
-<dd><p>”
-:returns:</p>
+<dd><p>Returns:
+int: the number of different order parameters that are targeted</p>
 <blockquote>
-<div><dl class="simple">
-<dt>the number of different order parameters that are targeted</dt><dd><p>to be calculated.</p>
-</dd>
-</dl>
+<div><p>to be calculated.</p>
 </div></blockquote>
-<dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>int</p>
-</dd>
-</dl>
 </dd></dl>
 
 </dd></dl>
@@ -1100,6 +1345,19 @@ sites are only determined by the cutoff radius, tol is ignored</p></li>
 </ul>
 </dd>
 </dl>
+<dl class="method">
+<dt id="pymatgen.analysis.local_env.MinimumDistanceNN.extend_structure_molecules">
+<em class="property">property </em><code class="sig-name descname">extend_structure_molecules</code><a class="headerlink" href="#pymatgen.analysis.local_env.MinimumDistanceNN.extend_structure_molecules" title="Permalink to this definition">¶</a></dt>
+<dd><p>Do Molecules need to be converted to Structures to use
+this NearNeighbors class? Note: this property is not defined for classes
+for which molecules_allowed == False.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Boolean property</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="method">
 <dt id="pymatgen.analysis.local_env.MinimumDistanceNN.get_nn_info">
 <code class="sig-name descname">get_nn_info</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#MinimumDistanceNN.get_nn_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.MinimumDistanceNN.get_nn_info" title="Permalink to this definition">¶</a></dt>
@@ -1128,6 +1386,30 @@ and its weight.</p>
 </dl>
 </dd></dl>
 
+<dl class="method">
+<dt id="pymatgen.analysis.local_env.MinimumDistanceNN.molecules_allowed">
+<em class="property">property </em><code class="sig-name descname">molecules_allowed</code><a class="headerlink" href="#pymatgen.analysis.local_env.MinimumDistanceNN.molecules_allowed" title="Permalink to this definition">¶</a></dt>
+<dd><p>can this NearNeighbors class be used with Molecule
+objects?</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Boolean property</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.local_env.MinimumDistanceNN.structures_allowed">
+<em class="property">property </em><code class="sig-name descname">structures_allowed</code><a class="headerlink" href="#pymatgen.analysis.local_env.MinimumDistanceNN.structures_allowed" title="Permalink to this definition">¶</a></dt>
+<dd><p>can this NearNeighbors class be used with Structure
+objects?</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Boolean property</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -1149,6 +1431,19 @@ near-neighbor sites (default: 10.0).</p></li>
 </ul>
 </dd>
 </dl>
+<dl class="method">
+<dt id="pymatgen.analysis.local_env.MinimumOKeeffeNN.extend_structure_molecules">
+<em class="property">property </em><code class="sig-name descname">extend_structure_molecules</code><a class="headerlink" href="#pymatgen.analysis.local_env.MinimumOKeeffeNN.extend_structure_molecules" title="Permalink to this definition">¶</a></dt>
+<dd><p>Do Molecules need to be converted to Structures to use
+this NearNeighbors class? Note: this property is not defined for classes
+for which molecules_allowed == False.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Boolean property</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="method">
 <dt id="pymatgen.analysis.local_env.MinimumOKeeffeNN.get_nn_info">
 <code class="sig-name descname">get_nn_info</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#MinimumOKeeffeNN.get_nn_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.MinimumOKeeffeNN.get_nn_info" title="Permalink to this definition">¶</a></dt>
@@ -1173,6 +1468,30 @@ and its weight.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>siw (list of tuples (<a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.Site" title="pymatgen.core.sites.Site">Site</a>, array, float))</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.local_env.MinimumOKeeffeNN.molecules_allowed">
+<em class="property">property </em><code class="sig-name descname">molecules_allowed</code><a class="headerlink" href="#pymatgen.analysis.local_env.MinimumOKeeffeNN.molecules_allowed" title="Permalink to this definition">¶</a></dt>
+<dd><p>can this NearNeighbors class be used with Molecule
+objects?</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Boolean property</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.local_env.MinimumOKeeffeNN.structures_allowed">
+<em class="property">property </em><code class="sig-name descname">structures_allowed</code><a class="headerlink" href="#pymatgen.analysis.local_env.MinimumOKeeffeNN.structures_allowed" title="Permalink to this definition">¶</a></dt>
+<dd><p>can this NearNeighbors class be used with Structure
+objects?</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Boolean property</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1226,6 +1545,30 @@ and its weight.</p>
 </dl>
 </dd></dl>
 
+<dl class="method">
+<dt id="pymatgen.analysis.local_env.MinimumVIRENN.molecules_allowed">
+<em class="property">property </em><code class="sig-name descname">molecules_allowed</code><a class="headerlink" href="#pymatgen.analysis.local_env.MinimumVIRENN.molecules_allowed" title="Permalink to this definition">¶</a></dt>
+<dd><p>can this NearNeighbors class be used with Molecule
+objects?</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Boolean property</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.local_env.MinimumVIRENN.structures_allowed">
+<em class="property">property </em><code class="sig-name descname">structures_allowed</code><a class="headerlink" href="#pymatgen.analysis.local_env.MinimumVIRENN.structures_allowed" title="Permalink to this definition">¶</a></dt>
+<dd><p>can this NearNeighbors class be used with Structure
+objects?</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Boolean property</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -1234,6 +1577,19 @@ and its weight.</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Base class to determine near neighbors that typically include nearest
 neighbors and others that are within some tolerable distance.</p>
+<dl class="method">
+<dt id="pymatgen.analysis.local_env.NearNeighbors.extend_structure_molecules">
+<em class="property">property </em><code class="sig-name descname">extend_structure_molecules</code><a class="headerlink" href="#pymatgen.analysis.local_env.NearNeighbors.extend_structure_molecules" title="Permalink to this definition">¶</a></dt>
+<dd><p>Do Molecules need to be converted to Structures to use
+this NearNeighbors class? Note: this property is not defined for classes
+for which molecules_allowed == False.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Boolean property</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="method">
 <dt id="pymatgen.analysis.local_env.NearNeighbors.get_all_nn_info">
 <code class="sig-name descname">get_all_nn_info</code><span class="sig-paren">(</span><em class="sig-param">structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#NearNeighbors.get_all_nn_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.NearNeighbors.get_all_nn_info" title="Permalink to this definition">¶</a></dt>
@@ -1254,7 +1610,7 @@ neighbors and others that are within some tolerable distance.</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.local_env.NearNeighbors.get_bonded_structure">
-<code class="sig-name descname">get_bonded_structure</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">decorate=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#NearNeighbors.get_bonded_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.NearNeighbors.get_bonded_structure" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_bonded_structure</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">decorate=False</em>, <em class="sig-param">weights=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#NearNeighbors.get_bonded_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.NearNeighbors.get_bonded_structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Obtain a StructureGraph object using this NearNeighbor
 class. Requires the optional dependency networkx
 (pip install networkx).</p>
@@ -1265,10 +1621,12 @@ class. Requires the optional dependency networkx
 <li><p><strong>decorate</strong> (<em>bool</em>) – whether to annotate site properties</p></li>
 <li><p><strong>order parameters using neighbors determined by</strong> (<em>with</em>) – </p></li>
 <li><p><strong>NearNeighbor class</strong> (<em>this</em>) – </p></li>
+<li><p><strong>weights</strong> (<em>bool</em>) – whether to include edge weights from</p></li>
+<li><p><strong>class in StructureGraph</strong> (<em>NearNeighbor</em>) – </p></li>
 </ul>
 </dd>
 </dl>
-<p>Returns: a pymatgen.analysis.graphs.BondedStructure object</p>
+<p>Returns: a pymatgen.analysis.graphs.StructureGraph object</p>
 </dd></dl>
 
 <dl class="method">
@@ -1477,6 +1835,30 @@ index n in structure.</p>
 </dl>
 </dd></dl>
 
+<dl class="method">
+<dt id="pymatgen.analysis.local_env.NearNeighbors.molecules_allowed">
+<em class="property">property </em><code class="sig-name descname">molecules_allowed</code><a class="headerlink" href="#pymatgen.analysis.local_env.NearNeighbors.molecules_allowed" title="Permalink to this definition">¶</a></dt>
+<dd><p>can this NearNeighbors class be used with Molecule
+objects?</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Boolean property</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.local_env.NearNeighbors.structures_allowed">
+<em class="property">property </em><code class="sig-name descname">structures_allowed</code><a class="headerlink" href="#pymatgen.analysis.local_env.NearNeighbors.structures_allowed" title="Permalink to this definition">¶</a></dt>
+<dd><p>can this NearNeighbors class be used with Structure
+objects?</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Boolean property</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -1494,6 +1876,19 @@ structures.</p>
 </ul>
 </dd>
 </dl>
+<dl class="method">
+<dt id="pymatgen.analysis.local_env.OpenBabelNN.extend_structure_molecules">
+<em class="property">property </em><code class="sig-name descname">extend_structure_molecules</code><a class="headerlink" href="#pymatgen.analysis.local_env.OpenBabelNN.extend_structure_molecules" title="Permalink to this definition">¶</a></dt>
+<dd><p>Do Molecules need to be converted to Structures to use
+this NearNeighbors class? Note: this property is not defined for classes
+for which molecules_allowed == False.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Boolean property</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="method">
 <dt id="pymatgen.analysis.local_env.OpenBabelNN.get_bonded_structure">
 <code class="sig-name descname">get_bonded_structure</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">decorate=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#OpenBabelNN.get_bonded_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.OpenBabelNN.get_bonded_structure" title="Permalink to this definition">¶</a></dt>
@@ -1526,10 +1921,10 @@ atom.</p>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>[dict] representing a neighboring site and the type of</p>
+<dd class="field-even"><p>[dict] representing a neighboring site and the type of
+bond present between site n and the neighboring site.</p>
 </dd>
 </dl>
-<p>bond present between site n and the neighboring site.</p>
 </dd></dl>
 
 <dl class="method">
@@ -1563,6 +1958,30 @@ information.</p></li>
 </dd>
 </dl>
 </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.local_env.OpenBabelNN.molecules_allowed">
+<em class="property">property </em><code class="sig-name descname">molecules_allowed</code><a class="headerlink" href="#pymatgen.analysis.local_env.OpenBabelNN.molecules_allowed" title="Permalink to this definition">¶</a></dt>
+<dd><p>can this NearNeighbors class be used with Molecule
+objects?</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Boolean property</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.local_env.OpenBabelNN.structures_allowed">
+<em class="property">property </em><code class="sig-name descname">structures_allowed</code><a class="headerlink" href="#pymatgen.analysis.local_env.OpenBabelNN.structures_allowed" title="Permalink to this definition">¶</a></dt>
+<dd><p>can this NearNeighbors class be used with Structure
+objects?</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Boolean property</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1626,17 +2045,12 @@ determination of Voronoi coordination.</p></li>
 <dl class="method">
 <dt id="pymatgen.analysis.local_env.VoronoiNN.get_all_nn_info">
 <code class="sig-name descname">get_all_nn_info</code><span class="sig-paren">(</span><em class="sig-param">structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#VoronoiNN.get_all_nn_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.VoronoiNN.get_all_nn_info" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get a listing of all neighbors for all sites in a structure</p>
-<dl class="field-list simple">
+<dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Input structure</p>
+<dd class="field-odd"><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – input structure.</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><dl class="simple">
-<dt>List of NN site information for each site in the structure. Each</dt><dd><p>entry has the same format as <cite>get_nn_info</cite></p>
-</dd>
-</dl>
-</p>
+<dd class="field-even"><p>All nn info for all sites.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1674,8 +2088,7 @@ n mapped to a directory containing statistics about the facet:</p>
 <dl class="method">
 <dt id="pymatgen.analysis.local_env.VoronoiNN.get_nn_info">
 <code class="sig-name descname">get_nn_info</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#VoronoiNN.get_nn_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.VoronoiNN.get_nn_info" title="Permalink to this definition">¶</a></dt>
-<dd><p>”
-Get all near-neighbor sites as well as the associated image locations
+<dd><p>Get all near-neighbor sites as well as the associated image locations
 and weights of the site with index n in structure
 using Voronoi decomposition.</p>
 <dl class="field-list simple">
@@ -1736,12 +2149,31 @@ n mapped to a directory containing statistics about the facet:</p>
 </dl>
 </dd></dl>
 
+<dl class="method">
+<dt id="pymatgen.analysis.local_env.VoronoiNN.molecules_allowed">
+<em class="property">property </em><code class="sig-name descname">molecules_allowed</code><a class="headerlink" href="#pymatgen.analysis.local_env.VoronoiNN.molecules_allowed" title="Permalink to this definition">¶</a></dt>
+<dd><p>can this NearNeighbors class be used with Molecule
+objects?</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Boolean property</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="function">
-<dt id="pymatgen.analysis.local_env.VoronoiNN_modified">
-<code class="sig-name descname">VoronoiNN_modified</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pymatgen.analysis.local_env.VoronoiNN_modified" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dl class="method">
+<dt id="pymatgen.analysis.local_env.VoronoiNN.structures_allowed">
+<em class="property">property </em><code class="sig-name descname">structures_allowed</code><a class="headerlink" href="#pymatgen.analysis.local_env.VoronoiNN.structures_allowed" title="Permalink to this definition">¶</a></dt>
+<dd><p>can this NearNeighbors class be used with Structure
+objects?</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Boolean property</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.analysis.local_env.calculate_weighted_avg">
@@ -1758,16 +2190,6 @@ Hoppe’s effective coordination number formula.</p>
 </dd>
 </dl>
 </dd></dl>
-
-<dl class="data">
-<dt id="pymatgen.analysis.local_env.cn_opt_params">
-<code class="sig-name descname">cn_opt_params</code><em class="property"> = {2: {'L-shaped': ['bent', {'TA': 0.5, 'IGW_TA': 15.15}], 'bent 120 degrees': ['bent', {'TA': 0.666666666667, 'IGW_TA': 13.25}], 'bent 150 degrees': ['bent', {'TA': 0.833333333333333, 'IGW_TA': 12.45}], 'linear': ['bent', {'TA': 1, 'IGW_TA': 8.667}], 'water-like': ['bent', {'TA': 0.5802777777777778, 'IGW_TA': 13.95}]}, 3: {'T-shaped': ['T'], 'trigonal non-coplanar': ['tet_max', {'TA': 0.6081734479693927, 'IGW_TA': 18.33, 'fac_AA': 1.5, 'exp_cos_AA': 2}], 'trigonal planar': ['tri_plan_max']}, 4: {'rectangular see-saw-like': ['see_saw_rect'], 'see-saw-like': ['tri_bipyr', {'min_SPP': 2.356194490192345, 'IGW_EP': 15.75, 'IGW_SPP': 12.75, 'fac_AA': 1.5, 'exp_cos_AA': 2, 'w_SPP': 1}], 'square co-planar': ['sq_plan_max'], 'tetrahedral': ['tet_max'], 'trigonal pyramidal': ['tri_pyr']}, 5: {'pentagonal planar': ['pent_plan_max'], 'square pyramidal': ['sq_pyr'], 'trigonal bipyramidal': ['tri_bipyr']}, 6: {'hexagonal planar': ['hex_plan_max'], 'octahedral': ['oct_max'], 'pentagonal pyramidal': ['pent_pyr']}, 7: {'hexagonal pyramidal': ['hex_pyr'], 'pentagonal bipyramidal': ['pent_bipyr']}, 8: {'body-centered cubic': ['bcc'], 'hexagonal bipyramidal': ['hex_bipyr']}, 12: {'cuboctahedral': ['cuboct_max']}}</em><a class="headerlink" href="#pymatgen.analysis.local_env.cn_opt_params" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="data">
-<dt id="pymatgen.analysis.local_env.default_op_params">
-<code class="sig-name descname">default_op_params</code><em class="property"> = {'T': {'IGW_EP': 15.5, 'exp_cos_AA': 2, 'fac_AA': 1}, 'bcc': {'IGW_SPP': 15, 'min_SPP': 2.5261129449194057, 'w_SPP': 6}, 'bent': {'IGW_TA': 8.667, 'TA': 1}, 'cn': {'norm': 1}, 'cuboct': {'min_SPP': 2.792526803190927, 'IGW_SPP': 15, 2: 1.8325957145940461, 'w_SPP': 1.8, 4: 1.3089969389957472, 5: 18, 6: 18}, 'cuboct_max': {'min_SPP': 2.792526803190927, 'IGW_SPP': 28.75, 2: 1.8325957145940461, 'w_SPP': 1.8, 4: 1.3089969389957472, 5: 25.5, 6: 31.25}, 'hex_bipyr': {'IGW_EP': 13.6, 'IGW_SPP': 14.1, 'exp_cos_AA': 2, 'fac_AA': 3, 'min_SPP': 2.356194490192345, 'w_SPP': 1}, 'hex_plan_max': {'IGW_SPP': 7.5, 'IGW_TA': 25, 'TA': 0.16666667, 'exp_cos_AA': 2, 'fac_AA': 1, 'min_SPP': 2.6179938779914944, 'w_SPP': 1}, 'hex_pyr': {'IGW_EP': 12.5, 'exp_cos_AA': 2, 'fac_AA': 3}, 'oct': {'IGW_EP': 18, 'IGW_SPP': 15, 'exp_cos_AA': 2, 'fac_AA': 2, 'min_SPP': 2.792526803190927, 'w_SPP': 3}, 'oct_legacy': {'min_SPP': 2.792526803190927, 'IGW_SPP': 15, 'IGW_EP': 18, 'w_SPP': 3, 'fac_AA': 2, 'exp_cos_AA': 2, 6: 0.25, 7: 1.33333333}, 'oct_max': {'IGW_EP': 18, 'IGW_SPP': 15, 'exp_cos_AA': 2, 'fac_AA': 2, 'min_SPP': 2.356194490192345, 'w_SPP': 1}, 'pent_bipyr': {'IGW_EP': 14.75, 'IGW_SPP': 12.5, 'exp_cos_AA': 2, 'fac_AA': 2.5, 'min_SPP': 2.356194490192345, 'w_SPP': 1}, 'pent_plan': {'IGW_TA': 18, 'TA': 0.6}, 'pent_plan_max': {'IGW_TA': 19.333, 'TA': 0.6}, 'pent_pyr': {'IGW_EP': 13.8, 'exp_cos_AA': 2, 'fac_AA': 2.5}, 'q2': None, 'q4': None, 'q6': None, 'reg_tri': {0: 45}, 'see_saw_rect': {'IGW_EP': 27, 'IGW_SPP': 11.5, 'exp_cos_AA': 2, 'fac_AA': 2, 'min_SPP': 2.356194490192345}, 'sgl_bd': None, 'sq': {0: 30}, 'sq_bipyr': {'IGW_EP': 18, 'IGW_SPP': 15, 'exp_cos_AA': 2, 'fac_AA': 2, 'min_SPP': 2.356194490192345, 'w_SPP': 1}, 'sq_face_cap_trig_pris': {'IGW_TA1': 15.5, 'IGW_TA2': 13, 'TA1': 0.37662414278557504, 'TA2': 0.7728144741714951, 'TA3': 1.8055339573923717, 'exp_cos_AA1': 2, 'exp_cos_AA2': 2, 'fac_AA1': 2, 'fac_AA2': 1, 'shift_AA2': -0.7853981633974483}, 'sq_plan': {'IGW_EP': 18, 'IGW_SPP': 15, 'exp_cos_AA': 2, 'fac_AA': 1, 'min_SPP': 2.792526803190927, 'w_SPP': 1}, 'sq_plan_max': {'IGW_EP': 17.7, 'IGW_SPP': 13.5, 'exp_cos_AA': 2, 'fac_AA': 1, 'min_SPP': 2.356194490192345, 'w_SPP': 1}, 'sq_pyr': {'IGW_EP': 14.9, 'exp_cos_AA': 2, 'fac_AA': 2}, 'sq_pyr_legacy': {'TA': 0.5, 'IGW_TA': 30, 2: 10}, 'tet': {'IGW_TA': 15, 'TA': 0.6081734479693927, 'exp_cos_AA': 2, 'fac_AA': 1.5}, 'tet_max': {'IGW_TA': 18.5, 'TA': 0.6081734479693927, 'exp_cos_AA': 2, 'fac_AA': 1.5}, 'tri_bipyr': {'IGW_EP': 16.6, 'IGW_SPP': 12, 'exp_cos_AA': 2, 'fac_AA': 1.5, 'min_SPP': 2.356194490192345, 'w_SPP': 1}, 'tri_plan': {'IGW_TA': 13.5, 'TA': 0.66666666667, 'exp_cos_AA': 2, 'fac_AA': 1}, 'tri_plan_max': {'IGW_TA': 17.5, 'TA': 0.66666666667, 'exp_cos_AA': 2, 'fac_AA': 1}, 'tri_pyr': {'IGW_EP': 15.5, 'exp_cos_AA': 2, 'fac_AA': 1.5}}</em><a class="headerlink" href="#pymatgen.analysis.local_env.default_op_params" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.analysis.local_env.get_neighbors_of_site_with_index">
@@ -1853,16 +2275,6 @@ The output vector is not normalized.</p>
 </dl>
 </dd></dl>
 
-<dl class="data">
-<dt id="pymatgen.analysis.local_env.ob">
-<code class="sig-name descname">ob</code><em class="property"> = None</em><a class="headerlink" href="#pymatgen.analysis.local_env.ob" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="data">
-<dt id="pymatgen.analysis.local_env.pb">
-<code class="sig-name descname">pb</code><em class="property"> = None</em><a class="headerlink" href="#pymatgen.analysis.local_env.pb" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 <dl class="function">
 <dt id="pymatgen.analysis.local_env.site_is_of_motif_type">
 <code class="sig-name descname">site_is_of_motif_type</code><span class="sig-paren">(</span><em class="sig-param">struct</em>, <em class="sig-param">n</em>, <em class="sig-param">approach='min_dist'</em>, <em class="sig-param">delta=0.1</em>, <em class="sig-param">cutoff=10.0</em>, <em class="sig-param">thresh=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#site_is_of_motif_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.site_is_of_motif_type" title="Permalink to this definition">¶</a></dt>
@@ -1942,6 +2354,12 @@ vt2, vt3 and vt4.
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pymatgen.analysis.interface_reactions.html"
+                        title="previous chapter">pymatgen.analysis.interface_reactions module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pymatgen.analysis.molecule_matcher.html"
+                        title="next chapter">pymatgen.analysis.molecule_matcher module</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -1972,13 +2390,22 @@ vt2, vt3 and vt4.
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="right" >
+          <a href="pymatgen.analysis.molecule_matcher.html" title="pymatgen.analysis.molecule_matcher module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pymatgen.analysis.interface_reactions.html" title="pymatgen.analysis.interface_reactions module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >pymatgen</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="pymatgen.html" >pymatgen package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="pymatgen.analysis.html" >pymatgen.analysis package</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

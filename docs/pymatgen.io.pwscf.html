@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.pwscf module &#8212; pymatgen 2019.6.5 documentation</title>
+    <title>pymatgen.io.pwscf module &#8212; pymatgen 2020.3.2 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,9 +13,10 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.io.shengbte module" href="pymatgen.io.shengbte.html" />
+    <link rel="prev" title="pymatgen.io.prismatic module" href="pymatgen.io.prismatic.html" />
  
 <script type="text/javascript">
   var _gaq = _gaq || [];
@@ -33,7 +34,16 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="right" >
+          <a href="pymatgen.io.shengbte.html" title="pymatgen.io.shengbte module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pymatgen.io.prismatic.html" title="pymatgen.io.prismatic module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >pymatgen</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="pymatgen.html" >pymatgen package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="pymatgen.io.html" accesskey="U">pymatgen.io package</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,6 +54,7 @@
             
   <div class="section" id="module-pymatgen.io.pwscf">
 <span id="pymatgen-io-pwscf-module"></span><h1>pymatgen.io.pwscf module<a class="headerlink" href="#module-pymatgen.io.pwscf" title="Permalink to this headline">¶</a></h1>
+<p>This module implements input and output processing from PWSCF.</p>
 <dl class="class">
 <dt id="pymatgen.io.pwscf.PWInput">
 <em class="property">class </em><code class="sig-name descname">PWInput</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">pseudo=None</em>, <em class="sig-param">control=None</em>, <em class="sig-param">system=None</em>, <em class="sig-param">electrons=None</em>, <em class="sig-param">ions=None</em>, <em class="sig-param">cell=None</em>, <em class="sig-param">kpoints_mode='automatic'</em>, <em class="sig-param">kpoints_grid=(1</em>, <em class="sig-param">1</em>, <em class="sig-param">1)</em>, <em class="sig-param">kpoints_shift=(0</em>, <em class="sig-param">0</em>, <em class="sig-param">0)</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/pwscf.html#PWInput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.pwscf.PWInput" title="Permalink to this definition">¶</a></dt>
@@ -161,26 +172,53 @@ integers, floats, etc.</p>
 <dt id="pymatgen.io.pwscf.PWInputError">
 <em class="property">exception </em><code class="sig-name descname">PWInputError</code><a class="reference internal" href="_modules/pymatgen/io/pwscf.html#PWInputError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.pwscf.PWInputError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseException</span></code></p>
+<p>Error for PWInput</p>
 </dd></dl>
 
 <dl class="class">
 <dt id="pymatgen.io.pwscf.PWOutput">
 <em class="property">class </em><code class="sig-name descname">PWOutput</code><span class="sig-paren">(</span><em class="sig-param">filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/pwscf.html#PWOutput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.pwscf.PWOutput" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Parser for PWSCF output file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – Filename</p>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.io.pwscf.PWOutput.final_energy">
 <em class="property">property </em><code class="sig-name descname">final_energy</code><a class="headerlink" href="#pymatgen.io.pwscf.PWOutput.final_energy" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Final energy</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.pwscf.PWOutput.get_celldm">
 <code class="sig-name descname">get_celldm</code><span class="sig-paren">(</span><em class="sig-param">i</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/pwscf.html#PWOutput.get_celldm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.pwscf.PWOutput.get_celldm" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>i</strong> (<em>int</em>) – index</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Cell dimension along index</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.pwscf.PWOutput.lattice_type">
 <em class="property">property </em><code class="sig-name descname">lattice_type</code><a class="headerlink" href="#pymatgen.io.pwscf.PWOutput.lattice_type" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Lattice type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.pwscf.PWOutput.patterns">
@@ -196,7 +234,7 @@ arguments.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>patterns</strong> (<em>dict</em>) – A dict of patterns, e.g.,
-{“energy”: r”energy(sigma-&gt;0)s+=s+([d-.]+)”}.</p></li>
+{“energy”: r”energy\(sigma-&gt;0\)\s+=\s+([\d-.]+)”}.</p></li>
 <li><p><strong>reverse</strong> (<em>bool</em>) – Read files in reverse. Defaults to false. Useful for
 large files, esp OUTCARs, especially when used with
 terminate_on_match.</p></li>
@@ -209,7 +247,7 @@ matches. Defaults to str, i.e., no change.</p></li>
 </dl>
 <dl class="simple">
 <dt>Renders accessible:</dt><dd><p>Any attribute in patterns. For example,
-{“energy”: r”energy(sigma-&gt;0)s+=s+([d-.]+)”} will set the
+{“energy”: r”energy\(sigma-&gt;0\)\s+=\s+([\d-.]+)”} will set the
 value of self.data[“energy”] = [[-1234], [-3453], …], to the
 results from regex and postprocess. Note that the returned
 values are lists of lists, because you can grep multiple
@@ -228,6 +266,12 @@ items on one line.</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pymatgen.io.prismatic.html"
+                        title="previous chapter">pymatgen.io.prismatic module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pymatgen.io.shengbte.html"
+                        title="next chapter">pymatgen.io.shengbte module</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -258,13 +302,22 @@ items on one line.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="right" >
+          <a href="pymatgen.io.shengbte.html" title="pymatgen.io.shengbte module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pymatgen.io.prismatic.html" title="pymatgen.io.prismatic module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >pymatgen</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="pymatgen.html" >pymatgen package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="pymatgen.io.html" >pymatgen.io package</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

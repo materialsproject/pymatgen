@@ -1,16 +1,13 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-
+"""
+Utilities for generating nicer plots.
+"""
 import math
 import numpy as np
 
 from pymatgen.core.periodic_table import Element
-from itertools import combinations
-
-"""
-Utilities for generating nicer plots.
-"""
 
 
 __author__ = "Shyue Ping Ong"
@@ -75,7 +72,7 @@ def pretty_plot(width=8, height=None, plt=None, dpi=None,
 
 
 def pretty_plot_two_axis(x, y1, y2, xlabel=None, y1label=None, y2label=None,
-                         width=8, height=None, dpi=300):
+                         width=8, height=None, dpi=300, **plot_kwargs):
     """
     Variant of pretty_plot that does a dual axis plot. Adapted from matplotlib
     examples. Makes it easier to create plots with different axes.
@@ -93,6 +90,8 @@ def pretty_plot_two_axis(x, y1, y2, xlabel=None, y1label=None, y2label=None,
         height (float): Height of plot in inches. Defaults to width * golden
             ratio.
         dpi (int): Sets dot per inch for figure. Defaults to 300.
+        plot_kwargs: Passthrough kwargs to matplotlib's plot method. E.g.,
+            linewidth, etc.
 
     Returns:
         matplotlib.pyplot
@@ -122,10 +121,10 @@ def pretty_plot_two_axis(x, y1, y2, xlabel=None, y1label=None, y2label=None,
     if isinstance(y1, dict):
         for i, (k, v) in enumerate(y1.items()):
             ax1.plot(x, v, c=c1, marker='s', ls=styles[i % len(styles)],
-                     label=k)
+                     label=k, **plot_kwargs)
         ax1.legend(fontsize=labelsize)
     else:
-        ax1.plot(x, y1, c=c1, marker='s', ls='-')
+        ax1.plot(x, y1, c=c1, marker='s', ls='-', **plot_kwargs)
 
     if xlabel:
         ax1.set_xlabel(xlabel, fontsize=labelsize)
@@ -155,7 +154,7 @@ def pretty_plot_two_axis(x, y1, y2, xlabel=None, y1label=None, y2label=None,
 
 
 def pretty_polyfit_plot(x, y, deg=1, xlabel=None, ylabel=None, **kwargs):
-    """
+    r"""
     Convenience method to plot data with trend lines based on polynomial fit.
 
     Args:
@@ -180,11 +179,11 @@ def pretty_polyfit_plot(x, y, deg=1, xlabel=None, ylabel=None, **kwargs):
     return plt
 
 
-def periodic_table_heatmap(elemental_data, cbar_label="",
-                           show_plot=False, cmap="YlOrRd", blank_color="grey",
+def periodic_table_heatmap(elemental_data, cbar_label="", cbar_label_size=14,
+                           show_plot=False, cmap="YlOrRd", cmap_range=None, blank_color="grey",
                            value_format=None, max_row=9):
     """
-    A static method that generates a heat map overlapped on a periodic table.
+    A static method that generates a heat map overlayed on a periodic table.
 
     Args:
          elemental_data (dict): A dictionary with the element as a key and a
@@ -192,12 +191,15 @@ def periodic_table_heatmap(elemental_data, cbar_label="",
             Elements missing in the elemental_data will be grey by default
             in the final table elemental_data={"Fe": 4.2, "O": 5.0}.
          cbar_label (string): Label of the colorbar. Default is "".
-         figure_name (string): Name of the plot (absolute path) being saved
-            if not None.
+         cbar_label_size (float): Font size for the colorbar label. Default is 14.
+         cmap_range (tuple): Minimum and maximum value of the colormap scale.
+            If None, the colormap will autotmatically scale to the range of the
+            data.
          show_plot (bool): Whether to show the heatmap. Default is False.
          value_format (str): Formatting string to show values. If None, no value
             is shown. Example: "%.4f" shows float to four decimals.
-         cmap (string): Color scheme of the heatmap. Default is 'coolwarm'.
+         cmap (string): Color scheme of the heatmap. Default is 'YlOrRd'.
+            Refer to the matplotlib documentation for other options.
          blank_color (string): Color assigned for the missing elements in
             elemental_data. Default is "grey".
          max_row (integer): Maximum number of rows of the periodic table to be
@@ -206,8 +208,13 @@ def periodic_table_heatmap(elemental_data, cbar_label="",
     """
 
     # Convert primitive_elemental data in the form of numpy array for plotting.
-    max_val = max(elemental_data.values())
-    min_val = min(elemental_data.values())
+    if cmap_range is not None:
+        max_val = cmap_range[1]
+        min_val = cmap_range[0]
+    else:
+        max_val = max(elemental_data.values())
+        min_val = min(elemental_data.values())
+
     max_row = min(max_row, 9)
 
     if max_row <= 0:
@@ -217,7 +224,8 @@ def periodic_table_heatmap(elemental_data, cbar_label="",
     blank_value = min_val - 0.01
 
     for el in Element:
-        if el.row > max_row: continue
+        if el.row > max_row:
+            continue
         value = elemental_data.get(el.symbol, blank_value)
         value_table[el.row - 1, el.group - 1] = value
 
@@ -229,13 +237,15 @@ def periodic_table_heatmap(elemental_data, cbar_label="",
     # We set nan type values to masked values (ie blank spaces)
     data_mask = np.ma.masked_invalid(value_table.tolist())
     heatmap = ax.pcolor(data_mask, cmap=cmap, edgecolors='w', linewidths=1,
-                        vmin=min_val-0.001, vmax=max_val+0.001)
+                        vmin=min_val - 0.001, vmax=max_val + 0.001)
     cbar = fig.colorbar(heatmap)
 
     # Grey out missing elements in input data
     cbar.cmap.set_under(blank_color)
-    cbar.set_label(cbar_label, rotation=270, labelpad=15)
-    cbar.ax.tick_params(labelsize=14)
+
+    # Set the colorbar label and tick marks
+    cbar.set_label(cbar_label, rotation=270, labelpad=25, size=cbar_label_size)
+    cbar.ax.tick_params(labelsize=cbar_label_size)
 
     # Refine and make the table look nice
     ax.axis('off')
@@ -245,7 +255,7 @@ def periodic_table_heatmap(elemental_data, cbar_label="",
     for i, row in enumerate(value_table):
         for j, el in enumerate(row):
             if not np.isnan(el):
-                symbol = Element.from_row_and_group(i+1, j+1).symbol
+                symbol = Element.from_row_and_group(i + 1, j + 1).symbol
                 plt.text(j + 0.5, i + 0.25, symbol,
                          horizontalalignment='center',
                          verticalalignment='center', fontsize=14)
@@ -497,6 +507,7 @@ def add_fig_kwargs(func):
         tight_layout = kwargs.pop("tight_layout", False)
         ax_grid = kwargs.pop("ax_grid", None)
         ax_annotate = kwargs.pop("ax_annotate", None)
+        fig_close = kwargs.pop("fig_close", False)
 
         # Call func and return immediately if None is returned.
         fig = func(*args, **kwargs)
@@ -534,9 +545,11 @@ def add_fig_kwargs(func):
         if savefig:
             fig.savefig(savefig)
 
+        import matplotlib.pyplot as plt
         if show:
-            import matplotlib.pyplot as plt
             plt.show()
+        if fig_close:
+            plt.close(fig=fig)
 
         return fig
 
@@ -557,6 +570,7 @@ def add_fig_kwargs(func):
                           Default: None i.e. fig is left unchanged.
         ax_annotate       Add labels to  subplots e.g. (a), (b).
                           Default: False
+        fig_close         Close figure. Default: False.
         ================  ====================================================
 
 """

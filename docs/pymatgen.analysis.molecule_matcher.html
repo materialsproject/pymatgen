@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.molecule_matcher module &#8212; pymatgen 2019.6.5 documentation</title>
+    <title>pymatgen.analysis.molecule_matcher module &#8212; pymatgen 2020.3.2 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,9 +13,10 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.analysis.molecule_structure_comparator module" href="pymatgen.analysis.molecule_structure_comparator.html" />
+    <link rel="prev" title="pymatgen.analysis.local_env module" href="pymatgen.analysis.local_env.html" />
  
 <script type="text/javascript">
   var _gaq = _gaq || [];
@@ -33,7 +34,16 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="right" >
+          <a href="pymatgen.analysis.molecule_structure_comparator.html" title="pymatgen.analysis.molecule_structure_comparator module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pymatgen.analysis.local_env.html" title="pymatgen.analysis.local_env module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >pymatgen</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="pymatgen.html" >pymatgen package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="pymatgen.analysis.html" accesskey="U">pymatgen.analysis package</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -59,7 +69,15 @@ geometrically equivalent atoms.</p>
 <dl class="method">
 <dt id="pymatgen.analysis.molecule_matcher.AbstractMolAtomMapper.from_dict">
 <em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/molecule_matcher.html#AbstractMolAtomMapper.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.AbstractMolAtomMapper.from_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>d</em>) – Dict</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>AbstractMolAtomMapper</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.molecule_matcher.AbstractMolAtomMapper.get_molecule_hash">
@@ -108,19 +126,31 @@ order.
 <p>Pair atoms by inchi labels.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>angle_tolerance</strong> – Angle threshold to assume linear molecule. In degrees.</p>
+<dd class="field-odd"><p><strong>angle_tolerance</strong> (<em>float</em>) – Angle threshold to assume linear molecule. In degrees.</p>
 </dd>
 </dl>
 <dl class="method">
 <dt id="pymatgen.analysis.molecule_matcher.InchiMolAtomMapper.as_dict">
 <code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/molecule_matcher.html#InchiMolAtomMapper.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.InchiMolAtomMapper.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>A JSON serializable dict representation of an object.</p>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>MSONAble dict.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.molecule_matcher.InchiMolAtomMapper.from_dict">
 <em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/molecule_matcher.html#InchiMolAtomMapper.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.InchiMolAtomMapper.from_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>d</strong> (<em>dict</em>) – Dict Representation</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>InchiMolAtomMapper</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.molecule_matcher.InchiMolAtomMapper.get_molecule_hash">
@@ -131,22 +161,15 @@ order.
 <dl class="method">
 <dt id="pymatgen.analysis.molecule_matcher.InchiMolAtomMapper.uniform_labels">
 <code class="sig-name descname">uniform_labels</code><span class="sig-paren">(</span><em class="sig-param">mol1</em>, <em class="sig-param">mol2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/molecule_matcher.html#InchiMolAtomMapper.uniform_labels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.InchiMolAtomMapper.uniform_labels" title="Permalink to this definition">¶</a></dt>
-<dd><p>Pair the geometrically equivalent atoms of the molecules.</p>
-<dl class="field-list simple">
+<dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>mol1</strong> – First molecule. OpenBabel OBMol or pymatgen Molecule object.</p></li>
-<li><p><strong>mol2</strong> – Second molecule. OpenBabel OBMol or pymatgen Molecule object.</p></li>
+<li><p><strong>mol1</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><em>Molecule</em></a>) – Molecule 1</p></li>
+<li><p><strong>mol2</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><em>Molecule</em></a>) – Molecule 2</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>(list1, list2) if uniform atom order is found. list1 and list2
-are for mol1 and mol2, respectively. Their length equal
-to the number of atoms. They represents the uniform atom order
-of the two molecules. The value of each element is the original
-atom index in mol1 or mol2 of the current atom in uniform atom
-order.
-(None, None) if unform atom is not available.</p>
+<dd class="field-even"><p>Labels</p>
 </dd>
 </dl>
 </dd></dl>
@@ -161,13 +184,25 @@ order.
 <dl class="method">
 <dt id="pymatgen.analysis.molecule_matcher.IsomorphismMolAtomMapper.as_dict">
 <code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/molecule_matcher.html#IsomorphismMolAtomMapper.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.IsomorphismMolAtomMapper.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>A JSON serializable dict representation of an object.</p>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Jsonable dict.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.molecule_matcher.IsomorphismMolAtomMapper.from_dict">
 <em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/molecule_matcher.html#IsomorphismMolAtomMapper.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.IsomorphismMolAtomMapper.from_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>d</strong> (<em>dict</em>) – Dict representation</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>IsomorphismMolAtomMapper</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.molecule_matcher.IsomorphismMolAtomMapper.get_molecule_hash">
@@ -210,9 +245,9 @@ order.
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>tolerance</strong> – RMSD difference threshold whether two molecules are
+<li><p><strong>tolerance</strong> (<em>float</em>) – RMSD difference threshold whether two molecules are
 different</p></li>
-<li><p><strong>mapper</strong> – MolAtomMapper object that is able to map the atoms of two
+<li><p><strong>mapper</strong> (<a class="reference internal" href="#pymatgen.analysis.molecule_matcher.AbstractMolAtomMapper" title="pymatgen.analysis.molecule_matcher.AbstractMolAtomMapper"><em>AbstractMolAtomMapper</em></a>) – MolAtomMapper object that is able to map the atoms of two
 molecule to uniform order</p></li>
 </ul>
 </dd>
@@ -220,7 +255,11 @@ molecule to uniform order</p></li>
 <dl class="method">
 <dt id="pymatgen.analysis.molecule_matcher.MoleculeMatcher.as_dict">
 <code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/molecule_matcher.html#MoleculeMatcher.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.MoleculeMatcher.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>A JSON serializable dict representation of an object.</p>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>MSONAble dict.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -243,7 +282,15 @@ molecule to uniform order</p></li>
 <dl class="method">
 <dt id="pymatgen.analysis.molecule_matcher.MoleculeMatcher.from_dict">
 <em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/molecule_matcher.html#MoleculeMatcher.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.MoleculeMatcher.from_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>d</strong> (<em>dict</em>) – Dict representation</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>MoleculeMatcher</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.molecule_matcher.MoleculeMatcher.get_rmsd">
@@ -275,11 +322,6 @@ This may not be true for small tolerances.</p>
 
 </dd></dl>
 
-<dl class="data">
-<dt id="pymatgen.analysis.molecule_matcher.ob">
-<code class="sig-name descname">ob</code><em class="property"> = None</em><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.ob" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 </div>
 
 
@@ -288,6 +330,12 @@ This may not be true for small tolerances.</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pymatgen.analysis.local_env.html"
+                        title="previous chapter">pymatgen.analysis.local_env module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pymatgen.analysis.molecule_structure_comparator.html"
+                        title="next chapter">pymatgen.analysis.molecule_structure_comparator module</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -318,13 +366,22 @@ This may not be true for small tolerances.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="right" >
+          <a href="pymatgen.analysis.molecule_structure_comparator.html" title="pymatgen.analysis.molecule_structure_comparator module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pymatgen.analysis.local_env.html" title="pymatgen.analysis.local_env module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >pymatgen</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="pymatgen.html" >pymatgen package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="pymatgen.analysis.html" >pymatgen.analysis package</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

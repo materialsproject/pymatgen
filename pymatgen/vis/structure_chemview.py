@@ -1,3 +1,6 @@
+"""
+Visualization for structures using chemview.
+"""
 
 import numpy as np
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -7,13 +10,15 @@ from monty.dev import requires
 try:
     from chemview import MolecularViewer
     from chemview.utils import get_atom_color
+
     chemview_loaded = True
 except ImportError:
     chemview_loaded = False
 
-@requires(chemview_loaded, "To use quick_view, you need to have "
-                            "chemview installed.")
-def quick_view(structure, bonds=True, conventional=False, transform=None, show_box=True, bond_tol=0.2, stick_radius=0.1):
+
+@requires(chemview_loaded, "To use quick_view, you need to have chemview installed.")
+def quick_view(structure, bonds=True, conventional=False, transform=None, show_box=True, bond_tol=0.2,
+               stick_radius=0.1):
     """
     A function to visualize pymatgen Structure objects in jupyter notebook using chemview package.
 
@@ -45,7 +50,7 @@ def quick_view(structure, bonds=True, conventional=False, transform=None, show_b
             for j in range(i + 1, s.num_sites):
                 sym_j = s[j].specie.symbol
                 max_d = CovalentRadius.radius[sym_i] + CovalentRadius.radius[sym_j] + bond_tol
-                if s.get_distance(i, j, np.array([0,0,0])) < max_d:
+                if s.get_distance(i, j, np.array([0, 0, 0])) < max_d:
                     bonds.append((i, j))
     bonds = bonds if bonds else None
 

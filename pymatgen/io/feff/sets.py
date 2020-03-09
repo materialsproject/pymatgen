@@ -2,6 +2,13 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+This module defines the FeffInputSet abstract base class and a concrete
+implementation for the Materials Project.  The basic concept behind an input
+set is to specify a scheme to generate a consistent set of Feff inputs from a
+structure without further user intervention. This ensures comparability across
+runs.
+"""
 
 import sys
 import os
@@ -14,16 +21,7 @@ from monty.json import MSONable
 from monty.os.path import zpath
 
 from pymatgen.io.feff.inputs import Atoms, Tags, Potential, Header
-from pymatgen import Structure
 import numpy as np
-
-"""
-This module defines the FeffInputSet abstract base class and a concrete
-implementation for the Materials Project.  The basic concept behind an input
-set is to specify a scheme to generate a consistent set of Feff inputs from a
-structure without further user intervention. This ensures comparability across
-runs.
-"""
 
 __author__ = "Kiran Mathew"
 __credits__ = "Alan Dozier, Anubhav Jain, Shyue Ping Ong"
@@ -170,8 +168,7 @@ class FEFFDictSet(AbstractFeffInputSet):
             del self.config_dict["_del"]
         # k-space feff only for small systems. The hardcoded system size in
         # feff is around 14 atoms.
-        self.small_system = True if (len(self.structure) < 14 and \
-                                     'EXAFS' not in self.config_dict) else False
+        self.small_system = True if (len(self.structure) < 14 and 'EXAFS' not in self.config_dict) else False
 
     def header(self, source='', comment=''):
         """

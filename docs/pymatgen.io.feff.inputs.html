@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.feff.inputs module &#8212; pymatgen 2019.6.5 documentation</title>
+    <title>pymatgen.io.feff.inputs module &#8212; pymatgen 2020.3.2 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,9 +13,10 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.io.feff.outputs module" href="pymatgen.io.feff.outputs.html" />
+    <link rel="prev" title="pymatgen.io.feff package" href="pymatgen.io.feff.html" />
  
 <script type="text/javascript">
   var _gaq = _gaq || [];
@@ -33,7 +34,17 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="right" >
+          <a href="pymatgen.io.feff.outputs.html" title="pymatgen.io.feff.outputs module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pymatgen.io.feff.html" title="pymatgen.io.feff package"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >pymatgen</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="pymatgen.html" >pymatgen package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="pymatgen.io.html" >pymatgen.io package</a> &#187;</li>
+          <li class="nav-item nav-item-4"><a href="pymatgen.io.feff.html" accesskey="U">pymatgen.io.feff package</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,6 +55,10 @@
             
   <div class="section" id="module-pymatgen.io.feff.inputs">
 <span id="pymatgen-io-feff-inputs-module"></span><h1>pymatgen.io.feff.inputs module<a class="headerlink" href="#module-pymatgen.io.feff.inputs" title="Permalink to this headline">¶</a></h1>
+<p>This module defines classes for reading/manipulating/writing the main sections
+of FEFF input file(feff.inp), namely HEADER, ATOMS, POTENTIAL and the program
+control tags.</p>
+<p>XANES and EXAFS input files, are available, for non-spin case at this time.</p>
 <dl class="class">
 <dt id="pymatgen.io.feff.inputs.Atoms">
 <em class="property">class </em><code class="sig-name descname">Atoms</code><span class="sig-paren">(</span><em class="sig-param">struct</em>, <em class="sig-param">absorbing_atom</em>, <em class="sig-param">radius</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/feff/inputs.html#Atoms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.Atoms" title="Permalink to this definition">¶</a></dt>
@@ -138,7 +153,7 @@ information(x, y, z, ipot, atom_symbol, distance, id).</p>
 
 <dl class="exception">
 <dt id="pymatgen.io.feff.inputs.FeffParserError">
-<em class="property">exception </em><code class="sig-name descname">FeffParserError</code><span class="sig-paren">(</span><em class="sig-param">msg</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/feff/inputs.html#FeffParserError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.FeffParserError" title="Permalink to this definition">¶</a></dt>
+<em class="property">exception </em><code class="sig-name descname">FeffParserError</code><a class="reference internal" href="_modules/pymatgen/io/feff/inputs.html#FeffParserError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.FeffParserError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
 <p>Exception class for Structure.
 Raised when the structure has problems, e.g., atoms that are too close.</p>
@@ -467,11 +482,6 @@ integers, floats, lists, etc.</p>
 
 </dd></dl>
 
-<dl class="data">
-<dt id="pymatgen.io.feff.inputs.VALID_FEFF_TAGS">
-<code class="sig-name descname">VALID_FEFF_TAGS</code><em class="property"> = ('CONTROL', 'PRINT', 'ATOMS', 'POTENTIALS', 'RECIPROCAL', 'REAL', 'MARKER', 'LATTICE', 'TITLE', 'RMULTIPLIER', 'SGROUP', 'COORDINATES', 'EQUIVALENCE', 'CIF', 'CGRID', 'CFAVERAGE', 'OVERLAP', 'EXAFS', 'XANES', 'ELNES', 'EXELFS', 'LDOS', 'ELLIPTICITY', 'MULTIPOLE', 'POLARIZATION', 'RHOZZP', 'DANES', 'FPRIME', 'NRIXS', 'XES', 'XNCD', 'XMCD', 'XNCDCONTROL', 'END', 'KMESH', 'PRINT', 'EGRID', 'DIMS', 'AFOLP', 'EDGE', 'COMPTON', 'DANES', 'FPRIMEMDFF', 'HOLE', 'COREHOLE', 'S02', 'CHBROAD', 'EXCHANGE', 'FOLP', 'NOHOLE', 'RGRID', 'SCF', 'UNFREEZEF', 'CHSHIFT', 'DEBYE', 'INTERSTITIAL', 'CHWIDTH', 'EGAP', 'EPS0', 'EXTPOT', 'ION', 'JUMPRM', 'EXPOT', 'SPIN', 'LJMAX', 'LDEC', 'MPSE', 'PLASMON', 'RPHASES', 'RSIGMA', 'PMBSE', 'TDLDA', 'FMS', 'DEBYA', 'OPCONS', 'PREP', 'RESTART', 'SCREEN', 'SETE', 'STRFACTORS', 'BANDSTRUCTURE', 'RPATH', 'NLEG', 'PCRITERIA', 'SYMMETRY', 'SS', 'CRITERIA', 'IORDER', 'NSTAR', 'ABSOLUTE', 'CORRECTIONS', 'SIG2', 'SIG3', 'MBCONV', 'SFCONV', 'RCONV', 'SELF', 'SFSE', 'MAGIC', 'TARGET', 'STRFAC')</em><a class="headerlink" href="#pymatgen.io.feff.inputs.VALID_FEFF_TAGS" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 <dl class="function">
 <dt id="pymatgen.io.feff.inputs.get_absorbing_atom_symbol_index">
 <code class="sig-name descname">get_absorbing_atom_symbol_index</code><span class="sig-paren">(</span><em class="sig-param">absorbing_atom</em>, <em class="sig-param">structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/feff/inputs.html#get_absorbing_atom_symbol_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.inputs.get_absorbing_atom_symbol_index" title="Permalink to this definition">¶</a></dt>
@@ -515,6 +525,12 @@ from 1.</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pymatgen.io.feff.html"
+                        title="previous chapter">pymatgen.io.feff package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pymatgen.io.feff.outputs.html"
+                        title="next chapter">pymatgen.io.feff.outputs module</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -545,13 +561,23 @@ from 1.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="right" >
+          <a href="pymatgen.io.feff.outputs.html" title="pymatgen.io.feff.outputs module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pymatgen.io.feff.html" title="pymatgen.io.feff package"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >pymatgen</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="pymatgen.html" >pymatgen package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="pymatgen.io.html" >pymatgen.io package</a> &#187;</li>
+          <li class="nav-item nav-item-4"><a href="pymatgen.io.feff.html" >pymatgen.io.feff package</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

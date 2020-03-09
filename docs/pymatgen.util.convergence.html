@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.util.convergence module &#8212; pymatgen 2019.6.5 documentation</title>
+    <title>pymatgen.util.convergence module &#8212; pymatgen 2020.3.2 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,9 +13,10 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.util.coord module" href="pymatgen.util.coord.html" />
+    <link rel="prev" title="pymatgen.util package" href="pymatgen.util.html" />
  
 <script type="text/javascript">
   var _gaq = _gaq || [];
@@ -33,7 +34,16 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="right" >
+          <a href="pymatgen.util.coord.html" title="pymatgen.util.coord module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pymatgen.util.html" title="pymatgen.util package"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >pymatgen</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="pymatgen.html" >pymatgen package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="pymatgen.util.html" accesskey="U">pymatgen.util package</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,10 +54,26 @@
             
   <div class="section" id="module-pymatgen.util.convergence">
 <span id="pymatgen-util-convergence-module"></span><h1>pymatgen.util.convergence module<a class="headerlink" href="#module-pymatgen.util.convergence" title="Permalink to this headline">¶</a></h1>
+<p>function for calculating the convergence of an x, y data set
+main api:</p>
+<p>test_conv(xs, ys, name, tol)</p>
+<p>tries to fit multiple functions to the x, y data</p>
+<p>calculates which function fits best
+for tol &lt; 0
+returns the x value for which y is converged within tol of the assymtotic value
+for tol &gt; 0
+returns the x_value for which dy(x)/dx &lt; tol for all x &gt;= x_value, conv is true is such a x_value exists
+for the best fit a gnuplot line is printed plotting the data, the function and the assymthotic value</p>
 <dl class="exception">
 <dt id="pymatgen.util.convergence.SplineInputError">
 <em class="property">exception </em><code class="sig-name descname">SplineInputError</code><span class="sig-paren">(</span><em class="sig-param">msg</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/convergence.html#SplineInputError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.SplineInputError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Error for Spline input</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>msg</strong> (<em>str</em>) – Message</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -71,7 +97,16 @@
 <dl class="function">
 <dt id="pymatgen.util.convergence.extrapolate_simple_reciprocal">
 <code class="sig-name descname">extrapolate_simple_reciprocal</code><span class="sig-paren">(</span><em class="sig-param">xs</em>, <em class="sig-param">ys</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/convergence.html#extrapolate_simple_reciprocal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.extrapolate_simple_reciprocal" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>(</strong><strong>)</strong> (<em>ys</em>) – </p></li>
+<li><p><strong>(</strong><strong>)</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns:</p>
+</dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.util.convergence.get_derivatives">
@@ -85,12 +120,31 @@ putting fd to zero always returns the finite difference slopes</p>
 <dl class="function">
 <dt id="pymatgen.util.convergence.get_weights">
 <code class="sig-name descname">get_weights</code><span class="sig-paren">(</span><em class="sig-param">xs</em>, <em class="sig-param">ys</em>, <em class="sig-param">mode=2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/convergence.html#get_weights"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.get_weights" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>(</strong><strong>)</strong> (<em>mode</em>) – </p></li>
+<li><p><strong>(</strong><strong>)</strong> – </p></li>
+<li><p><strong>(</strong><strong>)</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns:</p>
+</dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.util.convergence.id_generator">
 <code class="sig-name descname">id_generator</code><span class="sig-paren">(</span><em class="sig-param">size=8</em>, <em class="sig-param">chars='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/convergence.html#id_generator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.id_generator" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>(</strong><strong>)</strong> (<em>chars</em>) – </p></li>
+<li><p><strong>(</strong><strong>)</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns:</p>
+</dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.util.convergence.measure">
@@ -115,7 +169,16 @@ return the best fit.</p>
 <dl class="function">
 <dt id="pymatgen.util.convergence.p0_exponential">
 <code class="sig-name descname">p0_exponential</code><span class="sig-paren">(</span><em class="sig-param">xs</em>, <em class="sig-param">ys</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/convergence.html#p0_exponential"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.p0_exponential" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>(</strong><strong>)</strong> (<em>ys</em>) – </p></li>
+<li><p><strong>(</strong><strong>)</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns:</p>
+</dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.util.convergence.p0_reciprocal">
@@ -126,32 +189,87 @@ return the best fit.</p>
 <dl class="function">
 <dt id="pymatgen.util.convergence.p0_simple_2reciprocal">
 <code class="sig-name descname">p0_simple_2reciprocal</code><span class="sig-paren">(</span><em class="sig-param">xs</em>, <em class="sig-param">ys</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/convergence.html#p0_simple_2reciprocal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.p0_simple_2reciprocal" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>(</strong><strong>)</strong> (<em>ys</em>) – </p></li>
+<li><p><strong>(</strong><strong>)</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns:</p>
+</dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.util.convergence.p0_simple_4reciprocal">
 <code class="sig-name descname">p0_simple_4reciprocal</code><span class="sig-paren">(</span><em class="sig-param">xs</em>, <em class="sig-param">ys</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/convergence.html#p0_simple_4reciprocal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.p0_simple_4reciprocal" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>(</strong><strong>)</strong> (<em>ys</em>) – </p></li>
+<li><p><strong>(</strong><strong>)</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns:</p>
+</dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.util.convergence.p0_simple_5reciprocal">
 <code class="sig-name descname">p0_simple_5reciprocal</code><span class="sig-paren">(</span><em class="sig-param">xs</em>, <em class="sig-param">ys</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/convergence.html#p0_simple_5reciprocal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.p0_simple_5reciprocal" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>(</strong><strong>)</strong> (<em>ys</em>) – </p></li>
+<li><p><strong>(</strong><strong>)</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns:</p>
+</dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.util.convergence.p0_simple_reciprocal">
 <code class="sig-name descname">p0_simple_reciprocal</code><span class="sig-paren">(</span><em class="sig-param">xs</em>, <em class="sig-param">ys</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/convergence.html#p0_simple_reciprocal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.p0_simple_reciprocal" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>(</strong><strong>)</strong> (<em>ys</em>) – </p></li>
+<li><p><strong>(</strong><strong>)</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns:</p>
+</dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.util.convergence.p0_single_reciprocal">
 <code class="sig-name descname">p0_single_reciprocal</code><span class="sig-paren">(</span><em class="sig-param">xs</em>, <em class="sig-param">ys</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/convergence.html#p0_single_reciprocal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.p0_single_reciprocal" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>(</strong><strong>)</strong> (<em>ys</em>) – </p></li>
+<li><p><strong>(</strong><strong>)</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns:</p>
+</dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.util.convergence.print_and_raise_error">
 <code class="sig-name descname">print_and_raise_error</code><span class="sig-paren">(</span><em class="sig-param">xs</em>, <em class="sig-param">ys</em>, <em class="sig-param">name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/convergence.html#print_and_raise_error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.convergence.print_and_raise_error" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>(</strong><strong>)</strong> (<em>name</em>) – </p></li>
+<li><p><strong>(</strong><strong>)</strong> – </p></li>
+<li><p><strong>(</strong><strong>)</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns:</p>
+</dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.util.convergence.print_plot_line">
@@ -203,6 +321,12 @@ return the best fit.</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pymatgen.util.html"
+                        title="previous chapter">pymatgen.util package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pymatgen.util.coord.html"
+                        title="next chapter">pymatgen.util.coord module</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -233,13 +357,22 @@ return the best fit.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="right" >
+          <a href="pymatgen.util.coord.html" title="pymatgen.util.coord module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pymatgen.util.html" title="pymatgen.util package"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >pymatgen</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="pymatgen.html" >pymatgen package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="pymatgen.util.html" >pymatgen.util package</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.wulff module &#8212; pymatgen 2019.6.5 documentation</title>
+    <title>pymatgen.analysis.wulff module &#8212; pymatgen 2020.3.2 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,9 +13,10 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.apps package" href="pymatgen.apps.html" />
+    <link rel="prev" title="pymatgen.analysis.transition_state module" href="pymatgen.analysis.transition_state.html" />
  
 <script type="text/javascript">
   var _gaq = _gaq || [];
@@ -33,7 +34,16 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="right" >
+          <a href="pymatgen.apps.html" title="pymatgen.apps package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pymatgen.analysis.transition_state.html" title="pymatgen.analysis.transition_state module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >pymatgen</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="pymatgen.html" >pymatgen package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="pymatgen.analysis.html" accesskey="U">pymatgen.analysis package</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -59,6 +69,19 @@ lattices.</p>
 <em class="property">class </em><code class="sig-name descname">WulffFacet</code><span class="sig-paren">(</span><em class="sig-param">normal</em>, <em class="sig-param">e_surf</em>, <em class="sig-param">normal_pt</em>, <em class="sig-param">dual_pt</em>, <em class="sig-param">index</em>, <em class="sig-param">m_ind_orig</em>, <em class="sig-param">miller</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/wulff.html#WulffFacet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffFacet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Helper container for each Wulff plane.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>normal</strong> – </p></li>
+<li><p><strong>e_surf</strong> – </p></li>
+<li><p><strong>normal_pt</strong> – </p></li>
+<li><p><strong>dual_pt</strong> – </p></li>
+<li><p><strong>index</strong> – </p></li>
+<li><p><strong>m_ind_orig</strong> – </p></li>
+<li><p><strong>miller</strong> – </p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="class">
@@ -213,25 +236,16 @@ Based on:
 <dl class="method">
 <dt id="pymatgen.analysis.wulff.WulffShape.anisotropy">
 <em class="property">property </em><code class="sig-name descname">anisotropy</code><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.anisotropy" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>(float) Coefficient of Variation from weighted surface energy
+<dd><p>Returns:
+(float) Coefficient of Variation from weighted surface energy
 The ideal sphere is 0.</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.wulff.WulffShape.area_fraction_dict">
 <em class="property">property </em><code class="sig-name descname">area_fraction_dict</code><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.area_fraction_dict" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>{hkl: area_hkl/total area on wulff}</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>(dict)</p>
-</dd>
-</dl>
+<dd><p>Returns:
+(dict): {hkl: area_hkl/total area on wulff}</p>
 </dd></dl>
 
 <dl class="method">
@@ -286,13 +300,23 @@ probably won’t make any sense to have the color bar on.</p></li>
 <dl class="method">
 <dt id="pymatgen.analysis.wulff.WulffShape.miller_area_dict">
 <em class="property">property </em><code class="sig-name descname">miller_area_dict</code><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.miller_area_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns {hkl: area_hkl on wulff}</p>
+<dd><p>area_hkl on wulff}</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns {hkl</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.wulff.WulffShape.miller_energy_dict">
 <em class="property">property </em><code class="sig-name descname">miller_energy_dict</code><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.miller_energy_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns {hkl: surface energy_hkl}</p>
+<dd><p>surface energy_hkl}</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns {hkl</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -334,19 +358,15 @@ See Ballufi, R. W., Allen, S. M. &amp; Carter, W. C. Kinetics</p>
 <dl class="method">
 <dt id="pymatgen.analysis.wulff.WulffShape.tot_corner_sites">
 <em class="property">property </em><code class="sig-name descname">tot_corner_sites</code><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.tot_corner_sites" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="simple">
-<dt>Returns the number of vertices in the convex hull.</dt><dd><p>Useful for identifying catalytically active sites.</p>
-</dd>
-</dl>
+<dd><p>Returns the number of vertices in the convex hull.
+Useful for identifying catalytically active sites.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.wulff.WulffShape.tot_edges">
 <em class="property">property </em><code class="sig-name descname">tot_edges</code><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.tot_edges" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="simple">
-<dt>Returns the number of edges in the convex hull.</dt><dd><p>Useful for identifying catalytically active sites.</p>
-</dd>
-</dl>
+<dd><p>Returns the number of edges in the convex hull.
+Useful for identifying catalytically active sites.</p>
 </dd></dl>
 
 <dl class="method">
@@ -369,11 +389,8 @@ See Ballufi, R. W., Allen, S. M. &amp; Carter, W. C. Kinetics</p>
 <dl class="method">
 <dt id="pymatgen.analysis.wulff.WulffShape.weighted_surface_energy">
 <em class="property">property </em><code class="sig-name descname">weighted_surface_energy</code><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.weighted_surface_energy" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>sum(surface_energy_hkl * area_hkl)/ sum(area_hkl)</p>
-</dd>
-</dl>
+<dd><p>Returns:
+sum(surface_energy_hkl * area_hkl)/ sum(area_hkl)</p>
 </dd></dl>
 
 </dd></dl>
@@ -401,11 +418,6 @@ Agrs:</p>
 </div></blockquote>
 </dd></dl>
 
-<dl class="data">
-<dt id="pymatgen.analysis.wulff.logger">
-<code class="sig-name descname">logger</code><em class="property"> = &lt;Logger pymatgen.analysis.wulff (WARNING)&gt;</em><a class="headerlink" href="#pymatgen.analysis.wulff.logger" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 </div>
 
 
@@ -414,6 +426,12 @@ Agrs:</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pymatgen.analysis.transition_state.html"
+                        title="previous chapter">pymatgen.analysis.transition_state module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pymatgen.apps.html"
+                        title="next chapter">pymatgen.apps package</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -444,13 +462,22 @@ Agrs:</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="right" >
+          <a href="pymatgen.apps.html" title="pymatgen.apps package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pymatgen.analysis.transition_state.html" title="pymatgen.analysis.transition_state module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >pymatgen</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="pymatgen.html" >pymatgen package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="pymatgen.analysis.html" >pymatgen.analysis package</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

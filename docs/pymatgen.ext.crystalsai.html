@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.ext.crystalsai module &#8212; pymatgen 2019.6.5 documentation</title>
+    <title>pymatgen.ext.crystalsai module &#8212; pymatgen 2020.3.2 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,9 +13,10 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.ext.jhu module" href="pymatgen.ext.jhu.html" />
+    <link rel="prev" title="pymatgen.ext.cod module" href="pymatgen.ext.cod.html" />
  
 <script type="text/javascript">
   var _gaq = _gaq || [];
@@ -33,7 +34,16 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="right" >
+          <a href="pymatgen.ext.jhu.html" title="pymatgen.ext.jhu module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pymatgen.ext.cod.html" title="pymatgen.ext.cod module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >pymatgen</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="pymatgen.html" >pymatgen package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="pymatgen.ext.html" accesskey="U">pymatgen.ext package</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,6 +54,8 @@
             
   <div class="section" id="module-pymatgen.ext.crystalsai">
 <span id="pymatgen-ext-crystalsai-module"></span><h1>pymatgen.ext.crystalsai module<a class="headerlink" href="#module-pymatgen.ext.crystalsai" title="Permalink to this headline">¶</a></h1>
+<p>This module provides an interface to the MaterialsVirtualLab’s MEGNet REST API
+for rapid property prediction.</p>
 <dl class="class">
 <dt id="pymatgen.ext.crystalsai.CrystalAIRester">
 <em class="property">class </em><code class="sig-name descname">CrystalAIRester</code><a class="reference internal" href="_modules/pymatgen/ext/crystalsai.html#CrystalAIRester"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.crystalsai.CrystalAIRester" title="Permalink to this definition">¶</a></dt>
@@ -63,6 +75,7 @@ Chen, C.; Ye, W.; Zuo, Y.; Zheng, C.; Ong, S. P. &lt;i&gt;Graph Networks as a Un
 </div></blockquote>
 <p>DOI: &lt;a href=”<a class="reference external" href="http://dx.doi.org/10.1021/acs.chemmater.9b01294">http://dx.doi.org/10.1021/acs.chemmater.9b01294</a>”&gt;10.1021/acs.chemmater.9b01294&lt;/a&gt;.&lt;/p&gt;</p>
 </div></blockquote>
+<p>Init for Rester.</p>
 <dl class="method">
 <dt id="pymatgen.ext.crystalsai.CrystalAIRester.get_available_models">
 <code class="sig-name descname">get_available_models</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/crystalsai.html#CrystalAIRester.get_available_models"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.crystalsai.CrystalAIRester.get_available_models" title="Permalink to this definition">¶</a></dt>
@@ -126,6 +139,12 @@ with log10 are for the log10 of that quantity and you should apply
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pymatgen.ext.cod.html"
+                        title="previous chapter">pymatgen.ext.cod module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pymatgen.ext.jhu.html"
+                        title="next chapter">pymatgen.ext.jhu module</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -156,13 +175,22 @@ with log10 are for the log10 of that quantity and you should apply
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="right" >
+          <a href="pymatgen.ext.jhu.html" title="pymatgen.ext.jhu module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pymatgen.ext.cod.html" title="pymatgen.ext.cod module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >pymatgen</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="pymatgen.html" >pymatgen package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="pymatgen.ext.html" >pymatgen.ext package</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.adf &#8212; pymatgen 2019.6.5 documentation</title>
+    <title>pymatgen.io.adf &#8212; pymatgen 2020.3.2 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.6.5 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -45,14 +44,17 @@
           <div class="body" role="main">
             
   <h1>Source code for pymatgen.io.adf</h1><div class="highlight"><pre>
-<span></span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Molecule</span>
-<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">IO for ADF files.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">Molecule</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">MSONable</span>
 
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">monty.itertools</span> <span class="k">import</span> <span class="n">chunks</span>
-<span class="kn">from</span> <span class="nn">monty.io</span> <span class="k">import</span> <span class="n">reverse_readline</span>
+<span class="kn">from</span> <span class="nn">monty.itertools</span> <span class="kn">import</span> <span class="n">chunks</span>
+<span class="kn">from</span> <span class="nn">monty.io</span> <span class="kn">import</span> <span class="n">reverse_readline</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;Xin Chen, chenxin13@mails.tsinghua.edu.cn&#39;</span>
 
@@ -82,7 +84,7 @@
 
 
 <div class="viewcode-block" id="iterlines"><a class="viewcode-back" href="../../../pymatgen.io.adf.html#pymatgen.io.adf.iterlines">[docs]</a><span class="k">def</span> <span class="nf">iterlines</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A generator form of s.split(&#39;\n&#39;) for reducing memory overhead.</span>
 
 <span class="sd">    Parameters</span>
@@ -137,7 +139,7 @@
     <span class="c1"># Full blocks are blocks that must have an &#39;END&#39;.</span>
     <span class="n">_full_blocks</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;GEOMETRY&quot;</span><span class="p">,</span> <span class="s2">&quot;SCF&quot;</span><span class="p">,</span> <span class="s2">&quot;UNITS&quot;</span><span class="p">,</span> <span class="s2">&quot;BASIS&quot;</span><span class="p">,</span> <span class="s2">&quot;ANALYTICALFREQ&quot;</span><span class="p">}</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">subkeys</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">subkeys</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialization method.</span>
 
@@ -201,7 +203,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
 
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return the string representation of this ``AdfKey``.</span>
 
@@ -231,7 +233,7 @@
             <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;END</span><span class="se">\n</span><span class="s2">&quot;</span>
         <span class="k">return</span> <span class="n">s</span>
 
-    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">AdfKey</span><span class="p">):</span>
             <span class="k">return</span> <span class="kc">False</span>
         <span class="k">else</span><span class="p">:</span>
@@ -507,7 +509,7 @@
                   <span class="s2">&quot;numerical_frequencies&quot;</span><span class="p">:</span> <span class="s2">&quot;Compute molecular frequencies using&quot;</span>
                                            <span class="s2">&quot; numerical method.&quot;</span><span class="p">}</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operation</span><span class="o">=</span><span class="s2">&quot;energy&quot;</span><span class="p">,</span> <span class="n">basis_set</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">xc</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operation</span><span class="o">=</span><span class="s2">&quot;energy&quot;</span><span class="p">,</span> <span class="n">basis_set</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">xc</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">title</span><span class="o">=</span><span class="s2">&quot;ADF_RUN&quot;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">geo_subkeys</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">scf</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">other_directives</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -548,22 +550,37 @@
 
 <div class="viewcode-block" id="AdfTask.get_default_basis_set"><a class="viewcode-back" href="../../../pymatgen.io.adf.html#pymatgen.io.adf.AdfTask.get_default_basis_set">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">get_default_basis_set</span><span class="p">():</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: Default basis set</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">AdfKey</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;Basis</span><span class="se">\n</span><span class="s2">type DZ</span><span class="se">\n</span><span class="s2">core small</span><span class="se">\n</span><span class="s2">END&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="AdfTask.get_default_scf"><a class="viewcode-back" href="../../../pymatgen.io.adf.html#pymatgen.io.adf.AdfTask.get_default_scf">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">get_default_scf</span><span class="p">():</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: ADF using default SCF.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">AdfKey</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;SCF</span><span class="se">\n</span><span class="s2">iterations 300</span><span class="se">\n</span><span class="s2">END&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="AdfTask.get_default_geo"><a class="viewcode-back" href="../../../pymatgen.io.adf.html#pymatgen.io.adf.AdfTask.get_default_geo">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">get_default_geo</span><span class="p">():</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: ADFKey using default geometry.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">AdfKey</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;GEOMETRY SinglePoint</span><span class="se">\n</span><span class="s2">END&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="AdfTask.get_default_xc"><a class="viewcode-back" href="../../../pymatgen.io.adf.html#pymatgen.io.adf.AdfTask.get_default_xc">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">get_default_xc</span><span class="p">():</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: ADFKey using default XC.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">AdfKey</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;XC</span><span class="se">\n</span><span class="s2">GGA PBE</span><span class="se">\n</span><span class="s2">END&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="AdfTask.get_default_units"><a class="viewcode-back" href="../../../pymatgen.io.adf.html#pymatgen.io.adf.AdfTask.get_default_units">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">get_default_units</span><span class="p">():</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: Default units.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">AdfKey</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;Units</span><span class="se">\n</span><span class="s2">length angstrom</span><span class="se">\n</span><span class="s2">angle degree</span><span class="se">\n</span><span class="s2">End&quot;</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">_setup_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">geo_subkeys</span><span class="p">):</span>
@@ -597,7 +614,7 @@
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">geo</span><span class="o">.</span><span class="n">has_subkey</span><span class="p">(</span><span class="s2">&quot;Frequencies&quot;</span><span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">geo</span><span class="o">.</span><span class="n">remove_subkey</span><span class="p">(</span><span class="s2">&quot;Frequencies&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;TITLE </span><span class="si">{title}</span><span class="se">\n</span><span class="s2"></span>
 <span class="si">{units}</span><span class="s2"></span>
 <span class="si">{xc}</span><span class="s2"></span>
@@ -669,7 +686,7 @@
 <span class="sd">    A basic ADF input file writer.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialization method.</span>
 
@@ -749,7 +766,7 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialization method.</span>
 
@@ -1042,7 +1059,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.6.5 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1050,7 +1067,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

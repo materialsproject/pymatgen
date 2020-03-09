@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Change log &#8212; pymatgen 2019.6.5 documentation</title>
+    <title>Change log &#8212; pymatgen 2020.3.2 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,9 +13,10 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Usage" href="usage.html" />
+    <link rel="prev" title="Installation" href="installation.html" />
  
 <script type="text/javascript">
   var _gaq = _gaq || [];
@@ -33,7 +34,13 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="right" >
+          <a href="usage.html" title="Usage"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="installation.html" title="Installation"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2020.3.2 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,6 +51,191 @@
             
   <div class="section" id="change-log">
 <h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="v2020-3-2">
+<h2>v2020.3.2<a class="headerlink" href="#v2020-3-2" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>New MonteCarloRattleTransformation and phonopy integration (&#64;utf)</p></li>
+<li><p>New structure connectivity features in Chemenv analysis (&#64;davidwaroquiers)</p></li>
+<li><p>Bug fixes (&#64;richardtran415, &#64;chc273, &#64;JaGeo, &#64;dskoda, &#64;rkingsbury,
+&#64;jmmshn, &#64;espottesmith, &#64;gVallverdu, &#64;yimingchen95, &#64;fraricci)</p></li>
+</ul>
+</div>
+<div class="section" id="v2020-1-28">
+<h2>v2020.1.28<a class="headerlink" href="#v2020-1-28" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Plugin architecture for pymatgen.</p></li>
+<li><p>Improvements to pymatgen.analysis.xas.spectrum.XAS class. (&#64;yiming)</p></li>
+<li><p>Fixes for ISYM uniform bug and auto-NEDSO (&#64;fraricci)</p></li>
+<li><p>Improvements to ReactionDiagram.</p></li>
+<li><p>Chemenv improvements (&#64;davidwaroquiers)</p></li>
+<li><p>Misc bug fixes.</p></li>
+</ul>
+</div>
+<div class="section" id="v2020-1-10">
+<h2>v2020.1.10<a class="headerlink" href="#v2020-1-10" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>New connectivity analysis in Chemenv (&#64;davidwaroquiers)</p></li>
+<li><p>Improvements to DOSPlotter (&#64;uthpalah)</p></li>
+<li><p>Improvements to writing VASP input sets (&#64;rkingsbury)</p></li>
+<li><p>Bug fix for PhaseDiagram (&#64;montoyjh)</p></li>
+</ul>
+</div>
+<div class="section" id="v2019-12-22">
+<h2>v2019.12.22<a class="headerlink" href="#v2019-12-22" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Improvements to reaction calculator (&#64;mattmcdermott)</p></li>
+<li><p>VASP input set for SCAN from Materials Project, MPScanSet (&#64;rkingsbury)</p></li>
+<li><p>Bug fixes and documentation improvements (&#64;LindaHung-TRI, &#64;rkingsbury, &#64;kwaters4, &#64;rwoodsrobinson, &#64;JaGeo, &#64;nishiyamat, &#64;smheidrich)</p></li>
+</ul>
+</div>
+<div class="section" id="v2019-12-3">
+<h2>v2019.12.3<a class="headerlink" href="#v2019-12-3" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Respect KSPACING in INCAR.</p></li>
+<li><p>Bug fixes.</p></li>
+</ul>
+</div>
+<div class="section" id="v2019-11-11">
+<h2>v2019.11.11<a class="headerlink" href="#v2019-11-11" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Extend grosspop class (&#64;Jageo)</p></li>
+<li><p>Add option to VaspInputSet to write output with POTCAR.spec</p></li>
+<li><p>Add sort_structure option to Poscar.</p></li>
+<li><p>Added ability to make gaussian input file without a geometry (&#64;WardLT)</p></li>
+<li><p>Misc big fixes.</p></li>
+</ul>
+</div>
+<div class="section" id="v2019-10-16">
+<h2>v2019.10.16<a class="headerlink" href="#v2019-10-16" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic simple">
+<li><p>Major refactoring of ABINIT IO to remove workflow-based packages (&#64;gmatteo)</p></li>
+<li><p>Use caching in MinimumVIRENN class. (Alex Ganose)</p></li>
+<li><p>Changes to Lobster module and lobsterset (&#64;jageo)</p></li>
+<li><p>Eigenval object for EIGENVAL output file (&#64;mturiansky)</p></li>
+</ol>
+</div>
+<div class="section" id="v2019-10-4">
+<h2>v2019.10.4<a class="headerlink" href="#v2019-10-4" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic simple">
+<li><p>Fix compile args.</p></li>
+</ol>
+</div>
+<div class="section" id="v2019-10-3">
+<h2>v2019.10.3<a class="headerlink" href="#v2019-10-3" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Faster get_all_neighbors based on &#64;chc273’s improvements. get_all_neighbors
+now returns a Site-like object with nn_distance, image and index attrbutes.
+Much easier to use.</p></li>
+<li><p>Bug fix for XCrySDen parser (&#64;stevetorr)</p></li>
+<li><p>Added optional mid_struct to direct interpolation (&#64;jmmshn)</p></li>
+</ul>
+</div>
+<div class="section" id="v2019-10-2">
+<h2>v2019.10.2<a class="headerlink" href="#v2019-10-2" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>IRSpectra class (&#64;henriquemiranda)</p></li>
+<li><p>Much faster get_neighbors written in Cython (&#64;chc273).</p></li>
+<li><p>VolumetricData allows for sum or substraction of data with different
+structures, with warnings.</p></li>
+</ul>
+</div>
+<div class="section" id="v2019-9-16">
+<h2>v2019.9.16<a class="headerlink" href="#v2019-9-16" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Updates to annotation, docstrings, etc. Linting service now provided on Github
+Actions as well as CircleCI.</p></li>
+</ul>
+</div>
+<div class="section" id="v2019-9-12">
+<h2>v2019.9.12<a class="headerlink" href="#v2019-9-12" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Massive updates to type annotations, especially for core classes.</p></li>
+<li><p>pycodestyle, pydocstyle and mypy will henchforth be enforced for all new PRs.</p></li>
+</ul>
+</div>
+<div class="section" id="v2019-9-8">
+<h2>v2019.9.8<a class="headerlink" href="#v2019-9-8" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Supplemental release to address missing incar_parameters.json</p></li>
+</ul>
+</div>
+<div class="section" id="v2019-9-7">
+<h2>v2019.9.7<a class="headerlink" href="#v2019-9-7" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>New fast Pourbaix algorithm (&#64;montoyjh)</p></li>
+<li><p>VASP Incar parameter checking (&#64;richardtran415)</p></li>
+<li><p>New VASP input set for Lobster, read support for GROSSPOP file (&#64;JaGeo)</p></li>
+<li><p>New CombinedData class  for LAMMPS (&#64;htz1992213)</p></li>
+<li><p>Improvements to molecule fragmenter (&#64;samblau)</p></li>
+<li><p>Various bug fixes and improvements (&#64;dongsenfo, &#64;shyuep, &#64;ardunn, &#64;nathan-diodan, &#64;rkingsbury, &#64;kmu)</p></li>
+</ul>
+</div>
+<div class="section" id="v2019-8-23">
+<h2>v2019.8.23<a class="headerlink" href="#v2019-8-23" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>pycodestyle now enforced, except on tests. Developers should install
+pycodestyle and the pre-commit hook (copy pre-commit to .git/hooks)
+provided in the repo to check before commits. CI now checks for code style
+and PRs must pass pycodestyle.</p></li>
+<li><p>chemsys str input now allowed in get_entries_in_chemsys (&#64;rkingsbury)</p></li>
+<li><p>ComputedEntry and subclasses now support a normalize().</p></li>
+<li><p>Speed improvements in fragmeter using igraph. (&#64;samblau)</p></li>
+</ul>
+</div>
+<div class="section" id="v2019-8-14">
+<h2>v2019.8.14<a class="headerlink" href="#v2019-8-14" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Update DOSCAR from lobster (&#64;JaGEO)</p></li>
+<li><p>PerturbStructureTransformation (&#64;rees-c)</p></li>
+<li><p>Misc bug fixes.</p></li>
+</ul>
+</div>
+<div class="section" id="v2019-7-30">
+<h2>v2019.7.30<a class="headerlink" href="#v2019-7-30" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Bug fixes (&#64;shyuep, &#64;mfherbst)</p></li>
+<li><p>More type hint annotations (&#64;shyuep)</p></li>
+<li><p>Improvements to BabelMolAdaptor (&#64;smheidrich)</p></li>
+<li><p>Convenience Transformations for AdsorbateSiteFinder (&#64;mkhorton)</p></li>
+</ul>
+</div>
+<div class="section" id="v2019-7-21">
+<h2>v2019.7.21<a class="headerlink" href="#v2019-7-21" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Add CubicSupercellTransformation and PerturbedSupercellsTransformation (&#64;rees-c, &#64;utf)</p></li>
+<li><p>Add interface for ShengBTE (&#64;rees-c, &#64;utf)</p></li>
+<li><p>Add interface for Vampire (&#64;ncfrey)</p></li>
+<li><p>Improved Lobster interface (&#64;JaGeo)</p></li>
+<li><p>Bug fixes (&#64;sthartman, &#64;dwinston, &#64;utf)</p></li>
+<li><p>New functionality for calculation of Heisenberg exchange parameters (&#64;ncfrey)</p></li>
+<li><p>Improvements to Miller indices handling and Lattice (&#64;richardtran415)</p></li>
+</ul>
+</div>
+<div class="section" id="v2019-7-2">
+<h2>v2019.7.2<a class="headerlink" href="#v2019-7-2" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Improvements to grain boundary transformations and Rester (&#64;Tinaatucsd)</p></li>
+<li><p>Improvements to AdsorbateSiteFinder (&#64;oxana-a)</p></li>
+<li><p>Improvements to Waveder support (&#64;JRSuckert)</p></li>
+<li><p>Improvements to run type detection (&#64;darnoceloc)</p></li>
+<li><p>Add XAS data to Rester (&#64;yimingchen95)</p></li>
+<li><p>Fix to ATAT input/output (&#64;dongsenfo)</p></li>
+<li><p>Initial support for Prismatic input (&#64;mkhorton)</p></li>
+</ul>
+</div>
+<div class="section" id="v2019-6-20">
+<h2>v2019.6.20<a class="headerlink" href="#v2019-6-20" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>New interface class (&#64;sivonxay, &#64;kylebystrom, &#64;shyamd)</p></li>
+<li><p>Updates to SlabGenerator (&#64;richardtran415)</p></li>
+<li><p>Updates to PiezoTensor (&#64;dongsenfo)</p></li>
+<li><p>Add support for parsing on-site density matrix to Outcar (&#64;mkhorton, &#64;mhsiron, &#64;clegaspi)</p></li>
+<li><p>Fixes for magnetic space groups (&#64;simonward86)</p></li>
+<li><p>Fixes for Lobster class (&#64;JaGeo)</p></li>
+<li><p>Fix for FEFF (&#64;stevetorr)</p></li>
+<li><p>Fix for Waveder (&#64;JRSuckert)</p></li>
+</ul>
+</div>
 <div class="section" id="v2019-6-5">
 <h2>v2019.6.5<a class="headerlink" href="#v2019-6-5" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
@@ -1668,7 +1860,7 @@ json and had bad hash function.</p></li>
 <h2>v2.9.1<a class="headerlink" href="#v2-9-1" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>Structure/Molecule now supports Pythonic list-like API for replacing and
-removing sites. See <a class="reference internal" href="index.html#quick-start"><span class="std std-ref">Quick start</span></a> for examples.</p></li>
+removing sites. See <a class="reference internal" href="introduction.html#quick-start"><span class="std std-ref">Quick start</span></a> for examples.</p></li>
 </ul>
 </div>
 <div class="section" id="v2-9-0">
@@ -2212,6 +2404,26 @@ environment variable.</p></li>
   <h3><a href="index.html">Table of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Change log</a><ul>
+<li><a class="reference internal" href="#v2020-3-2">v2020.3.2</a></li>
+<li><a class="reference internal" href="#v2020-1-28">v2020.1.28</a></li>
+<li><a class="reference internal" href="#v2020-1-10">v2020.1.10</a></li>
+<li><a class="reference internal" href="#v2019-12-22">v2019.12.22</a></li>
+<li><a class="reference internal" href="#v2019-12-3">v2019.12.3</a></li>
+<li><a class="reference internal" href="#v2019-11-11">v2019.11.11</a></li>
+<li><a class="reference internal" href="#v2019-10-16">v2019.10.16</a></li>
+<li><a class="reference internal" href="#v2019-10-4">v2019.10.4</a></li>
+<li><a class="reference internal" href="#v2019-10-3">v2019.10.3</a></li>
+<li><a class="reference internal" href="#v2019-10-2">v2019.10.2</a></li>
+<li><a class="reference internal" href="#v2019-9-16">v2019.9.16</a></li>
+<li><a class="reference internal" href="#v2019-9-12">v2019.9.12</a></li>
+<li><a class="reference internal" href="#v2019-9-8">v2019.9.8</a></li>
+<li><a class="reference internal" href="#v2019-9-7">v2019.9.7</a></li>
+<li><a class="reference internal" href="#v2019-8-23">v2019.8.23</a></li>
+<li><a class="reference internal" href="#v2019-8-14">v2019.8.14</a></li>
+<li><a class="reference internal" href="#v2019-7-30">v2019.7.30</a></li>
+<li><a class="reference internal" href="#v2019-7-21">v2019.7.21</a></li>
+<li><a class="reference internal" href="#v2019-7-2">v2019.7.2</a></li>
+<li><a class="reference internal" href="#v2019-6-20">v2019.6.20</a></li>
 <li><a class="reference internal" href="#v2019-6-5">v2019.6.5</a></li>
 <li><a class="reference internal" href="#v2019-5-28">v2019.5.28</a></li>
 <li><a class="reference internal" href="#v2019-5-8">v2019.5.8</a></li>
@@ -2441,6 +2653,12 @@ environment variable.</p></li>
 </li>
 </ul>
 
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="installation.html"
+                        title="previous chapter">Installation</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="usage.html"
+                        title="next chapter">Usage</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -2471,13 +2689,19 @@ environment variable.</p></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="right" >
+          <a href="usage.html" title="Usage"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="installation.html" title="Installation"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2020.3.2 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

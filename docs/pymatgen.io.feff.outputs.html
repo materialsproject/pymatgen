@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.feff.outputs module &#8212; pymatgen 2019.6.5 documentation</title>
+    <title>pymatgen.io.feff.outputs module &#8212; pymatgen 2020.3.2 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,9 +13,10 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.io.feff.sets module" href="pymatgen.io.feff.sets.html" />
+    <link rel="prev" title="pymatgen.io.feff.inputs module" href="pymatgen.io.feff.inputs.html" />
  
 <script type="text/javascript">
   var _gaq = _gaq || [];
@@ -33,7 +34,17 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="right" >
+          <a href="pymatgen.io.feff.sets.html" title="pymatgen.io.feff.sets module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pymatgen.io.feff.inputs.html" title="pymatgen.io.feff.inputs module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >pymatgen</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="pymatgen.html" >pymatgen package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="pymatgen.io.html" >pymatgen.io package</a> &#187;</li>
+          <li class="nav-item nav-item-4"><a href="pymatgen.io.feff.html" accesskey="U">pymatgen.io.feff package</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,11 +55,18 @@
             
   <div class="section" id="module-pymatgen.io.feff.outputs">
 <span id="pymatgen-io-feff-outputs-module"></span><h1>pymatgen.io.feff.outputs module<a class="headerlink" href="#module-pymatgen.io.feff.outputs" title="Permalink to this headline">¶</a></h1>
+<p>This module defines classes for parsing the FEFF output files.</p>
+<p>Currently supports the xmu.dat, ldos.dat output files are for non-spin case.</p>
 <dl class="class">
 <dt id="pymatgen.io.feff.outputs.Eels">
 <em class="property">class </em><code class="sig-name descname">Eels</code><span class="sig-paren">(</span><em class="sig-param">data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/feff/outputs.html#Eels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.outputs.Eels" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Parse’eels.dat’ file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>data</em>) – Eels data.</p>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.io.feff.outputs.Eels.as_dict">
 <code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/feff/outputs.html#Eels.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.outputs.Eels.as_dict" title="Permalink to this definition">¶</a></dt>
@@ -58,7 +76,13 @@
 <dl class="method">
 <dt id="pymatgen.io.feff.outputs.Eels.atomic_background">
 <em class="property">property </em><code class="sig-name descname">atomic_background</code><a class="headerlink" href="#pymatgen.io.feff.outputs.Eels.atomic_background" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>atomic background.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.feff.outputs.Eels.energies">
@@ -69,7 +93,13 @@
 <dl class="method">
 <dt id="pymatgen.io.feff.outputs.Eels.fine_structure">
 <em class="property">property </em><code class="sig-name descname">fine_structure</code><a class="headerlink" href="#pymatgen.io.feff.outputs.Eels.fine_structure" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Fine structure of EELS.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.feff.outputs.Eels.from_file">
@@ -135,8 +165,7 @@ i.e., ldos01.dat, ldos02.dat….</p></li>
 <dl class="method">
 <dt id="pymatgen.io.feff.outputs.LDos.from_file">
 <em class="property">static </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param">feff_inp_file='feff.inp'</em>, <em class="sig-param">ldos_file='ldos'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/feff/outputs.html#LDos.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.outputs.LDos.from_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>”
-Creates LDos object from raw Feff ldos files by
+<dd><p>Creates LDos object from raw Feff ldos files by
 by assuming they are numbered consecutively, i.e. ldos01.dat
 ldos02.dat…</p>
 <dl class="field-list simple">
@@ -157,23 +186,13 @@ ldos02.dat…</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Parser for data in ‘xmu.dat’ file.
 The file ‘xmu.dat’ contains XANES, EXAFS or NRIXS data depending on the
-situation; mu, mu_0, and chi = chi * mu_0/ mu_0/(edge+50eV) as
+situation; \mu, \mu_0, and \chi = \chi * \mu_0/ \mu_0/(edge+50eV) as
 functions of absolute energy E, relative energy E − E_f and wave number k.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>header</strong> – Header object</p></li>
-<li><p><strong>parameters</strong> – Tags object</p></li>
-<li><p><strong>absorbing_atom</strong> (<em>str/int</em>) – absorbing atom symbol or index</p></li>
-<li><p><strong>data</strong> (<em>numpy.ndarray</em><em>, </em><em>Nx6</em>) – cross_sections</p></li>
-</ul>
-</dd>
-</dl>
 <dl class="simple">
 <dt>Default attributes:</dt><dd><p>xmu: Photon absorption cross section of absorbing atom in material
 Energies: Energies of data point
 relative_energies: E - E_fermi
-wavenumber: k=sqrt(E −E_fermi)
+wavenumber: k=\sqrt(E −E_fermi)
 mu: The total absorption cross-section.
 mu0: The embedded atomic background absorption.
 chi: fine structure.
@@ -182,6 +201,16 @@ Absorbing atom: Species of absorbing atom
 Material: Formula of material
 Source: Source of structure
 Calculation: Type of Feff calculation performed</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>header</strong> – Header object</p></li>
+<li><p><strong>parameters</strong> – Tags object</p></li>
+<li><p><strong>absorbing_atom</strong> (<em>str/int</em>) – absorbing atom symbol or index</p></li>
+<li><p><strong>data</strong> (<em>numpy.ndarray</em><em>, </em><em>Nx6</em>) – cross_sections</p></li>
+</ul>
 </dd>
 </dl>
 <dl class="method">
@@ -271,7 +300,7 @@ E - E_f</p>
 <dl class="method">
 <dt id="pymatgen.io.feff.outputs.Xmu.wavenumber">
 <em class="property">property </em><code class="sig-name descname">wavenumber</code><a class="headerlink" href="#pymatgen.io.feff.outputs.Xmu.wavenumber" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns The wave number in units of AA^-1. k=sqrt(E −E_f) where E is
+<dd><p>Returns The wave number in units of \AA^-1. k=\sqrt(E −E_f) where E is
 the energy and E_f is the Fermi level computed from electron gas theory
 at the average interstitial charge density.</p>
 </dd></dl>
@@ -286,6 +315,12 @@ at the average interstitial charge density.</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pymatgen.io.feff.inputs.html"
+                        title="previous chapter">pymatgen.io.feff.inputs module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pymatgen.io.feff.sets.html"
+                        title="next chapter">pymatgen.io.feff.sets module</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -316,13 +351,23 @@ at the average interstitial charge density.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="right" >
+          <a href="pymatgen.io.feff.sets.html" title="pymatgen.io.feff.sets module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pymatgen.io.feff.inputs.html" title="pymatgen.io.feff.inputs module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >pymatgen</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="pymatgen.html" >pymatgen package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="pymatgen.io.html" >pymatgen.io package</a> &#187;</li>
+          <li class="nav-item nav-item-4"><a href="pymatgen.io.feff.html" >pymatgen.io.feff package</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

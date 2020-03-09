@@ -3,6 +3,7 @@
 # Distributed under the terms of the MIT License.
 
 import unittest
+import pytest  # type: ignore
 import pickle
 import os
 import numpy as np
@@ -13,27 +14,16 @@ from pathlib import Path
 from monty.tempfile import ScratchDir
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.vasp.inputs import Incar, Poscar, Kpoints, Potcar, \
-    PotcarSingle, VaspInput
+    PotcarSingle, VaspInput, BadIncarWarning, BadPotcarWarning
 from pymatgen import Composition, Structure
 from pymatgen.electronic_structure.core import Magmom
 from monty.io import zopen
-
-"""
-Created on Jul 16, 2012
-"""
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyue@mit.edu"
-__date__ = "Jul 16, 2012"
 
 
 class PoscarTest(PymatgenTest):
     def test_init(self):
         filepath = self.TEST_FILES_DIR / 'POSCAR'
-        poscar = Poscar.from_file(filepath,check_for_POTCAR=False)
+        poscar = Poscar.from_file(filepath, check_for_POTCAR=False)
         comp = poscar.structure.composition
         self.assertEqual(comp, Composition("Fe4P4O16"))
 
@@ -249,7 +239,7 @@ direct
 
     def test_setattr(self):
         filepath = self.TEST_FILES_DIR / 'POSCAR'
-        poscar = Poscar.from_file(filepath,check_for_POTCAR=False)
+        poscar = Poscar.from_file(filepath, check_for_POTCAR=False)
         self.assertRaises(ValueError, setattr, poscar, 'velocities',
                           [[0, 0, 0]])
         poscar.selective_dynamics = np.array([[True, False, False]] * 24)
@@ -308,8 +298,7 @@ direct
         for x in np.sum(v, axis=0):
             self.assertAlmostEqual(x, 0, 7)
 
-        temperature = struct[0].specie.atomic_mass.to("kg") * \
-                      np.sum(v ** 2) / (3 * const.k) * 1e10
+        temperature = struct[0].specie.atomic_mass.to("kg") * np.sum(v ** 2) / (3 * const.k) * 1e10
         self.assertAlmostEqual(temperature, 900, 4,
                                'Temperature instantiated incorrectly')
 
@@ -319,8 +308,7 @@ direct
             self.assertAlmostEqual(
                 x, 0, 7, 'Velocities initialized with a net momentum')
 
-        temperature = struct[0].specie.atomic_mass.to("kg") * \
-                      np.sum(v ** 2) / (3 * const.k) * 1e10
+        temperature = struct[0].specie.atomic_mass.to("kg") * np.sum(v ** 2) / (3 * const.k) * 1e10
         self.assertAlmostEqual(temperature, 700, 4,
                                'Temperature instantiated incorrectly')
 
@@ -383,7 +371,8 @@ class IncarTest(PymatgenTest):
                 'NPAR': {'INCAR1': 8, 'INCAR2': 1},
                 'SYSTEM': {
                     'INCAR1': 'Id=[0] dblock_code=[97763-icsd] formula=[li mn (p o4)] sg_name=[p n m a]',
-                    'INCAR2': 'Id=[91090] dblock_code=[20070929235612linio-59.53134651-vasp] formula=[li3 ni3 o6] sg_name=[r-3m]'},
+                    'INCAR2': 'Id=[91090] dblock_code=[20070929235612linio-59.53134651-vasp] formula=[li3 ni3 o6] '
+                              'sg_name=[r-3m]'},
                 'ALGO': {'INCAR1': 'Damped', 'INCAR2': 'Fast'},
                 'LHFCALC': {'INCAR1': True, 'INCAR2': None},
                 'TIME': {'INCAR1': 0.4, 'INCAR2': None}},
@@ -420,7 +409,8 @@ class IncarTest(PymatgenTest):
                 'NPAR': {'INCAR1': 8, 'INCAR2': 1},
                 'SYSTEM': {
                     'INCAR1': 'Id=[0] dblock_code=[97763-icsd] formula=[li mn (p o4)] sg_name=[p n m a]',
-                    'INCAR2': 'Id=[91090] dblock_code=[20070929235612linio-59.53134651-vasp] formula=[li3 ni3 o6] sg_name=[r-3m]'},
+                    'INCAR2': 'Id=[91090] dblock_code=[20070929235612linio-59.53134651-vasp] formula=[li3 ni3 o6] '
+                              'sg_name=[r-3m]'},
                 'ALGO': {'INCAR1': 'Damped', 'INCAR2': 'Fast'},
                 'LHFCALC': {'INCAR1': True, 'INCAR2': None},
                 'TIME': {'INCAR1': 0.4, 'INCAR2': None}},
@@ -559,6 +549,41 @@ SIGMA = 0.1"""
     def test_proc_types(self):
         self.assertEqual(Incar.proc_val("HELLO", "-0.85 0.85"), "-0.85 0.85")
 
+    def test_check_params(self):
+        # Triggers warnings when running into nonsensical parameters
+        with self.assertWarns(BadIncarWarning) as cm:
+            incar = Incar({
+                'ADDGRID': True,
+                'ALGO': 'Normal',
+                'AMIN': 0.01,
+                'AMIX': 0.2,
+                'BMIX': 0.001,
+                'EDIFF': 5 + 1j,  # EDIFF needs to be real
+                'EDIFFG': -0.01,
+                'ENCUT': 520,
+                'IBRION': 2,
+                'ICHARG': 1,
+                'ISIF': 3,
+                'ISMEAR': 1,
+                'ISPIN': 2,
+                'LASPH': 5,  # Should be a bool
+                'LORBIT': 11,
+                'LREAL': 'Auto',
+                'LWAVE': False,
+                'MAGMOM': [1, 2, 4, 5],
+                'METAGGA': 'SCAM',  # spelling mistake
+                'NELM': 200,
+                'NPAR': 4,
+                'NSW': 99,
+                'PREC': 'Accurate',
+                'SIGMA': 0.2,
+                'NBAND': 250,  # spelling mistake
+                'PHON_TLIST': 'is_a_str',  # this parameter should be a list
+                'LATTICE_CONSTRAINTS': [True, False, 'f'],  # Should be a list of bools
+                'M_CONSTR': [True, 1, 'string']  # Should be a list of real numbers
+            })
+            incar.check_params()
+
 
 class KpointsTest(PymatgenTest):
     def test_init(self):
@@ -633,7 +658,7 @@ Cartesian
         kpoints = Kpoints.automatic_density(s, 500)
         self.assertEqual(kpoints.kpts, [[1, 1, 1]])
         self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
-        kpoints = Kpoints.from_string("""k-point mesh 
+        kpoints = Kpoints.from_string("""k-point mesh
 0
 G
 10 10 10
@@ -742,13 +767,34 @@ class PotcarSingleTest(PymatgenTest):
 
         self.assertEqual(self.psingle.potential_type, 'PAW')
 
-        psingle = PotcarSingle.from_file(self.TEST_FILES_DIR/ "POT_LDA_PAW"/ "POTCAR.Fe.gz")
+        psingle = PotcarSingle.from_file(self.TEST_FILES_DIR / "POT_LDA_PAW" / "POTCAR.Fe.gz")
 
         self.assertEqual(psingle.functional, 'Perdew-Zunger81')
 
         self.assertEqual(psingle.functional_class, 'LDA')
 
         self.assertEqual(psingle.potential_type, 'PAW')
+
+    def test_identify_potcar(self):
+        filename = (self.TEST_FILES_DIR / "POT_GGA_PAW_PBE_54" / "POTCAR.Fe.gz")
+
+        with pytest.warns(None) as warning:
+            psingle = PotcarSingle.from_file(filename)
+        assert "PBE_54" in psingle.identify_potcar()[0]
+        assert not warning
+        assert "Fe" in psingle.identify_potcar()[1]
+
+    def test_potcar_hash_warning(self):
+        filename = (self.TEST_FILES_DIR / "modified_potcars_data" /
+                    "POT_GGA_PAW_PBE" / "POTCAR.Fe_pv")
+        with pytest.warns(BadPotcarWarning, match="integrity"):
+            PotcarSingle.from_file(filename)
+
+    def test_potcar_file_hash_warning(self):
+        filename = (self.TEST_FILES_DIR / "modified_potcars_header" /
+                    "POT_GGA_PAW_PBE" / "POTCAR.Fe_pv")
+        with pytest.warns(BadPotcarWarning, match="following"):
+            PotcarSingle.from_file(filename)
 
     # def test_default_functional(self):
     #     p = PotcarSingle.from_symbol_and_functional("Fe")
@@ -822,7 +868,7 @@ class VaspInputTest(PymatgenTest):
         filepath = self.TEST_FILES_DIR / 'INCAR'
         incar = Incar.from_file(filepath)
         filepath = self.TEST_FILES_DIR / 'POSCAR'
-        poscar = Poscar.from_file(filepath,check_for_POTCAR=False)
+        poscar = Poscar.from_file(filepath, check_for_POTCAR=False)
         if "PMG_VASP_PSP_DIR" not in os.environ:
             os.environ["PMG_VASP_PSP_DIR"] = str(self.TEST_FILES_DIR)
         filepath = self.TEST_FILES_DIR / 'POTCAR'

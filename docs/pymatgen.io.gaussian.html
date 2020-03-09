@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.gaussian module &#8212; pymatgen 2019.6.5 documentation</title>
+    <title>pymatgen.io.gaussian module &#8212; pymatgen 2020.3.2 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,9 +13,10 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.io.lmto module" href="pymatgen.io.lmto.html" />
+    <link rel="prev" title="pymatgen.io.fiesta module" href="pymatgen.io.fiesta.html" />
  
 <script type="text/javascript">
   var _gaq = _gaq || [];
@@ -33,7 +34,16 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="right" >
+          <a href="pymatgen.io.lmto.html" title="pymatgen.io.lmto module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pymatgen.io.fiesta.html" title="pymatgen.io.fiesta module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >pymatgen</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="pymatgen.html" >pymatgen package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="pymatgen.io.html" accesskey="U">pymatgen.io package</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,6 +54,7 @@
             
   <div class="section" id="module-pymatgen.io.gaussian">
 <span id="pymatgen-io-gaussian-module"></span><h1>pymatgen.io.gaussian module<a class="headerlink" href="#module-pymatgen.io.gaussian" title="Permalink to this headline">¶</a></h1>
+<p>This module implements input and output processing from Gaussian.</p>
 <dl class="class">
 <dt id="pymatgen.io.gaussian.GaussianInput">
 <em class="property">class </em><code class="sig-name descname">GaussianInput</code><span class="sig-paren">(</span><em class="sig-param">mol</em>, <em class="sig-param">charge=None</em>, <em class="sig-param">spin_multiplicity=None</em>, <em class="sig-param">title=None</em>, <em class="sig-param">functional='HF'</em>, <em class="sig-param">basis_set='6-31G(d)'</em>, <em class="sig-param">route_parameters=None</em>, <em class="sig-param">input_parameters=None</em>, <em class="sig-param">link0_parameters=None</em>, <em class="sig-param">dieze_tag='#P'</em>, <em class="sig-param">gen_basis=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/gaussian.html#GaussianInput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.gaussian.GaussianInput" title="Permalink to this definition">¶</a></dt>
@@ -52,21 +63,28 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>mol</strong> – Input molecule. If molecule is a single string, it is used as a
-direct input to the geometry section of the Gaussian input
-file.</p></li>
+<li><p><strong>mol</strong> – Input molecule. It can either be a Molecule object,
+a string giving the geometry in a format supported by Guassian,
+or <code class="docutils literal notranslate"><span class="pre">None</span></code>. If the molecule is <code class="docutils literal notranslate"><span class="pre">None</span></code>, you will need to use
+read it in from a checkpoint. Consider adding <code class="docutils literal notranslate"><span class="pre">CHK</span></code> to the
+<code class="docutils literal notranslate"><span class="pre">link0_parameters</span></code>.</p></li>
 <li><p><strong>charge</strong> – Charge of the molecule. If None, charge on molecule is used.
 Defaults to None. This allows the input file to be set a
-charge independently from the molecule itself.</p></li>
-<li><p><strong>spin_multiplicity</strong> – Spin multiplicity of molecule. Defaults to None,
+charge independently from the molecule itself.
+If <code class="docutils literal notranslate"><span class="pre">mol</span></code> is not a Molecule object, then you must specify a charge.</p></li>
+<li><p><strong>spin_multiplicity</strong> – <p>Spin multiplicity of molecule. Defaults to None,
 which means that the spin multiplicity is set to 1 if the
 molecule has no unpaired electrons and to 2 if there are
-unpaired electrons.</p></li>
+unpaired electrons. If <code class="docutils literal notranslate"><span class="pre">mol</span></code> is not a Molecule object, then you</p>
+<blockquote>
+<div><p>must specify the multiplicity</p>
+</div></blockquote>
+</p></li>
 <li><p><strong>title</strong> – Title for run. Defaults to formula of molecule if None.</p></li>
 <li><p><strong>functional</strong> – Functional for run.</p></li>
 <li><p><strong>basis_set</strong> – Basis set for run.</p></li>
 <li><p><strong>route_parameters</strong> – Additional route parameters as a dict. For example,
-{‘SP’:”“, “SCF”:”Tight”}</p></li>
+{‘SP’:””, “SCF”:”Tight”}</p></li>
 <li><p><strong>input_parameters</strong> – Additional input parameters for run as a dict. Used
 for example, in PCM calculations.  E.g., {“EPS”:12}</p></li>
 <li><p><strong>link0_parameters</strong> – Link0 parameters as a dict. E.g., {“%mem”: “1000MW”}</p></li>
@@ -80,12 +98,25 @@ be set to “Gen”.</p></li>
 <dl class="method">
 <dt id="pymatgen.io.gaussian.GaussianInput.as_dict">
 <code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/gaussian.html#GaussianInput.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.gaussian.GaussianInput.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>MSONable dict</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.gaussian.GaussianInput.from_dict">
 <em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/gaussian.html#GaussianInput.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.gaussian.GaussianInput.from_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>d</strong> – dict</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>GaussianInput</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.gaussian.GaussianInput.from_file">
@@ -157,11 +188,6 @@ be set to “Gen”.</p></li>
 <em class="property">class </em><code class="sig-name descname">GaussianOutput</code><span class="sig-paren">(</span><em class="sig-param">filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/gaussian.html#GaussianOutput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.gaussian.GaussianOutput" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Parser for Gaussian output files.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>filename</strong> – Filename of Gaussian output file.</p>
-</dd>
-</dl>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Still in early beta.</p>
@@ -281,7 +307,7 @@ are “Zero-point”, “Thermal”, “Enthalpy” and “Gibbs Free Energy”<
 <dt id="pymatgen.io.gaussian.GaussianOutput.route">
 <code class="sig-name descname">route</code><a class="headerlink" href="#pymatgen.io.gaussian.GaussianOutput.route" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
-<dt>Additional route parameters as a dict. For example,</dt><dd><p>{‘SP’:”“, “SCF”:”Tight”}</p>
+<dt>Additional route parameters as a dict. For example,</dt><dd><p>{‘SP’:””, “SCF”:”Tight”}</p>
 </dd>
 </dl>
 </dd></dl>
@@ -420,6 +446,11 @@ calculation parameters.</p>
 <dd><p>Save a matplotlib plot of the potential energy surface to a file</p>
 </dd></dl>
 
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> – Filename of Gaussian output file.</p>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.io.gaussian.GaussianOutput.as_dict">
 <code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/gaussian.html#GaussianOutput.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.gaussian.GaussianOutput.as_dict" title="Permalink to this definition">¶</a></dt>
@@ -429,12 +460,24 @@ calculation parameters.</p>
 <dl class="method">
 <dt id="pymatgen.io.gaussian.GaussianOutput.final_energy">
 <em class="property">property </em><code class="sig-name descname">final_energy</code><a class="headerlink" href="#pymatgen.io.gaussian.GaussianOutput.final_energy" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Final energy in Gaussian output.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.gaussian.GaussianOutput.final_structure">
 <em class="property">property </em><code class="sig-name descname">final_structure</code><a class="headerlink" href="#pymatgen.io.gaussian.GaussianOutput.final_structure" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Final structure in Gaussian output.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt>
@@ -561,11 +604,6 @@ are the same as GaussianInput class.</p>
 
 </dd></dl>
 
-<dl class="data">
-<dt id="pymatgen.io.gaussian.float_patt">
-<code class="sig-name descname">float_patt</code><em class="property"> = re.compile('\\s*([+-]?\\d+\\.\\d+)')</em><a class="headerlink" href="#pymatgen.io.gaussian.float_patt" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 <dl class="function">
 <dt id="pymatgen.io.gaussian.read_route_line">
 <code class="sig-name descname">read_route_line</code><span class="sig-paren">(</span><em class="sig-param">route</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/gaussian.html#read_route_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.gaussian.read_route_line" title="Permalink to this definition">¶</a></dt>
@@ -592,6 +630,12 @@ route (dict) : dictionary of parameters</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pymatgen.io.fiesta.html"
+                        title="previous chapter">pymatgen.io.fiesta module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pymatgen.io.lmto.html"
+                        title="next chapter">pymatgen.io.lmto module</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -622,13 +666,22 @@ route (dict) : dictionary of parameters</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="right" >
+          <a href="pymatgen.io.lmto.html" title="pymatgen.io.lmto module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pymatgen.io.fiesta.html" title="pymatgen.io.fiesta module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >pymatgen</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="pymatgen.html" >pymatgen package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="pymatgen.io.html" >pymatgen.io package</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

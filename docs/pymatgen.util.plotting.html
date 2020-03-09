@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.util.plotting module &#8212; pymatgen 2019.6.5 documentation</title>
+    <title>pymatgen.util.plotting module &#8212; pymatgen 2020.3.2 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,9 +13,10 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.util.provenance module" href="pymatgen.util.provenance.html" />
+    <link rel="prev" title="pymatgen.util.num module" href="pymatgen.util.num.html" />
  
 <script type="text/javascript">
   var _gaq = _gaq || [];
@@ -33,7 +34,16 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="right" >
+          <a href="pymatgen.util.provenance.html" title="pymatgen.util.provenance module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pymatgen.util.num.html" title="pymatgen.util.num module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >pymatgen</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="pymatgen.html" >pymatgen package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="pymatgen.util.html" accesskey="U">pymatgen.util package</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,6 +54,7 @@
             
   <div class="section" id="module-pymatgen.util.plotting">
 <span id="pymatgen-util-plotting-module"></span><h1>pymatgen.util.plotting module<a class="headerlink" href="#module-pymatgen.util.plotting" title="Permalink to this headline">¶</a></h1>
+<p>Utilities for generating nicer plots.</p>
 <dl class="function">
 <dt id="pymatgen.util.plotting.add_fig_kwargs">
 <code class="sig-name descname">add_fig_kwargs</code><span class="sig-paren">(</span><em class="sig-param">func</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/plotting.html#add_fig_kwargs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.plotting.add_fig_kwargs" title="Permalink to this definition">¶</a></dt>
@@ -129,8 +140,8 @@ plt: matplotlib pyplot module.</p>
 
 <dl class="function">
 <dt id="pymatgen.util.plotting.periodic_table_heatmap">
-<code class="sig-name descname">periodic_table_heatmap</code><span class="sig-paren">(</span><em class="sig-param">elemental_data</em>, <em class="sig-param">cbar_label=''</em>, <em class="sig-param">show_plot=False</em>, <em class="sig-param">cmap='YlOrRd'</em>, <em class="sig-param">blank_color='grey'</em>, <em class="sig-param">value_format=None</em>, <em class="sig-param">max_row=9</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/plotting.html#periodic_table_heatmap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.plotting.periodic_table_heatmap" title="Permalink to this definition">¶</a></dt>
-<dd><p>A static method that generates a heat map overlapped on a periodic table.</p>
+<code class="sig-name descname">periodic_table_heatmap</code><span class="sig-paren">(</span><em class="sig-param">elemental_data</em>, <em class="sig-param">cbar_label=''</em>, <em class="sig-param">cbar_label_size=14</em>, <em class="sig-param">show_plot=False</em>, <em class="sig-param">cmap='YlOrRd'</em>, <em class="sig-param">cmap_range=None</em>, <em class="sig-param">blank_color='grey'</em>, <em class="sig-param">value_format=None</em>, <em class="sig-param">max_row=9</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/plotting.html#periodic_table_heatmap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.plotting.periodic_table_heatmap" title="Permalink to this definition">¶</a></dt>
+<dd><p>A static method that generates a heat map overlayed on a periodic table.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -139,12 +150,15 @@ value assigned to it, e.g. surface energy and frequency, etc.
 Elements missing in the elemental_data will be grey by default
 in the final table elemental_data={“Fe”: 4.2, “O”: 5.0}.</p></li>
 <li><p><strong>cbar_label</strong> (<em>string</em>) – Label of the colorbar. Default is “”.</p></li>
-<li><p><strong>figure_name</strong> (<em>string</em>) – Name of the plot (absolute path) being saved
-if not None.</p></li>
+<li><p><strong>cbar_label_size</strong> (<em>float</em>) – Font size for the colorbar label. Default is 14.</p></li>
+<li><p><strong>cmap_range</strong> (<em>tuple</em>) – Minimum and maximum value of the colormap scale.
+If None, the colormap will autotmatically scale to the range of the
+data.</p></li>
 <li><p><strong>show_plot</strong> (<em>bool</em>) – Whether to show the heatmap. Default is False.</p></li>
 <li><p><strong>value_format</strong> (<em>str</em>) – Formatting string to show values. If None, no value
 is shown. Example: “%.4f” shows float to four decimals.</p></li>
-<li><p><strong>cmap</strong> (<em>string</em>) – Color scheme of the heatmap. Default is ‘coolwarm’.</p></li>
+<li><p><strong>cmap</strong> (<em>string</em>) – Color scheme of the heatmap. Default is ‘YlOrRd’.
+Refer to the matplotlib documentation for other options.</p></li>
 <li><p><strong>blank_color</strong> (<em>string</em>) – Color assigned for the missing elements in
 elemental_data. Default is “grey”.</p></li>
 <li><p><strong>max_row</strong> (<em>integer</em>) – Maximum number of rows of the periodic table to be
@@ -180,7 +194,7 @@ color sets in palettable. Defaults to a qualitative Set1_9.</p></li>
 
 <dl class="function">
 <dt id="pymatgen.util.plotting.pretty_plot_two_axis">
-<code class="sig-name descname">pretty_plot_two_axis</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">y1</em>, <em class="sig-param">y2</em>, <em class="sig-param">xlabel=None</em>, <em class="sig-param">y1label=None</em>, <em class="sig-param">y2label=None</em>, <em class="sig-param">width=8</em>, <em class="sig-param">height=None</em>, <em class="sig-param">dpi=300</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/plotting.html#pretty_plot_two_axis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.plotting.pretty_plot_two_axis" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">pretty_plot_two_axis</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">y1</em>, <em class="sig-param">y2</em>, <em class="sig-param">xlabel=None</em>, <em class="sig-param">y1label=None</em>, <em class="sig-param">y2label=None</em>, <em class="sig-param">width=8</em>, <em class="sig-param">height=None</em>, <em class="sig-param">dpi=300</em>, <em class="sig-param">**plot_kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/plotting.html#pretty_plot_two_axis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.plotting.pretty_plot_two_axis" title="Permalink to this definition">¶</a></dt>
 <dd><p>Variant of pretty_plot that does a dual axis plot. Adapted from matplotlib
 examples. Makes it easier to create plots with different axes.</p>
 <dl class="field-list simple">
@@ -198,6 +212,8 @@ be interpreted as a {label: sequence}.</p></li>
 <li><p><strong>height</strong> (<em>float</em>) – Height of plot in inches. Defaults to width * golden
 ratio.</p></li>
 <li><p><strong>dpi</strong> (<em>int</em>) – Sets dot per inch for figure. Defaults to 300.</p></li>
+<li><p><strong>plot_kwargs</strong> – Passthrough kwargs to matplotlib’s plot method. E.g.,
+linewidth, etc.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -218,7 +234,7 @@ ratio.</p></li>
 <li><p><strong>deg</strong> (<em>int</em>) – Degree of polynomial. Defaults to 1.</p></li>
 <li><p><strong>xlabel</strong> (<em>str</em>) – Label for x-axis.</p></li>
 <li><p><strong>ylabel</strong> (<em>str</em>) – Label for y-axis.</p></li>
-<li><p><strong>**kwargs</strong> – Keyword args passed to pretty_plot.</p></li>
+<li><p><strong>\*\*kwargs</strong> – Keyword args passed to pretty_plot.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -270,6 +286,12 @@ of elements (if list of list of str).</p></li>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pymatgen.util.num.html"
+                        title="previous chapter">pymatgen.util.num module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pymatgen.util.provenance.html"
+                        title="next chapter">pymatgen.util.provenance module</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -300,13 +322,22 @@ of elements (if list of list of str).</p></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="right" >
+          <a href="pymatgen.util.provenance.html" title="pymatgen.util.provenance module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pymatgen.util.num.html" title="pymatgen.util.num module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >pymatgen</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="pymatgen.html" >pymatgen package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="pymatgen.util.html" >pymatgen.util package</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

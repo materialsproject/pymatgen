@@ -3,18 +3,6 @@
 # Distributed under the terms of the MIT License.
 
 
-"""
-FIXME: Proper module docstring
-"""
-
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Nov 9, 2012"
-
 import unittest
 from pathlib import Path
 from monty.serialization import loadfn, dumpfn
@@ -28,7 +16,6 @@ test_dir = Path(__file__).absolute().parent / ".." / ".." / ".." / 'test_files'
 class FuncTest(unittest.TestCase):
 
     def test_group_entries_by_structure(self):
-
         entries = loadfn(str(test_dir / "TiO2_entries.json"))
         groups = group_entries_by_structure(entries)
         self.assertEqual(sorted([len(g) for g in groups]),
@@ -64,6 +51,7 @@ class EntrySetTest(unittest.TestCase):
         self.assertEqual(len(entry_set), len(self.entry_set))
         os.remove("temp_entry_set.json")
 
+
 if __name__ == "__main__":
-    #import sys;sys.argv = ['', 'Test.testName']
+    # import sys;sys.argv = ['', 'Test.testName']
     unittest.main()

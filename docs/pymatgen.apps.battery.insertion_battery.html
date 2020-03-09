@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.apps.battery.insertion_battery module &#8212; pymatgen 2019.6.5 documentation</title>
+    <title>pymatgen.apps.battery.insertion_battery module &#8212; pymatgen 2020.3.2 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,9 +13,10 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.apps.battery.plotter module" href="pymatgen.apps.battery.plotter.html" />
+    <link rel="prev" title="pymatgen.apps.battery.conversion_battery module" href="pymatgen.apps.battery.conversion_battery.html" />
  
 <script type="text/javascript">
   var _gaq = _gaq || [];
@@ -33,7 +34,17 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="right" >
+          <a href="pymatgen.apps.battery.plotter.html" title="pymatgen.apps.battery.plotter module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pymatgen.apps.battery.conversion_battery.html" title="pymatgen.apps.battery.conversion_battery module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >pymatgen</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="pymatgen.html" >pymatgen package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="pymatgen.apps.html" >pymatgen.apps package</a> &#187;</li>
+          <li class="nav-item nav-item-4"><a href="pymatgen.apps.battery.html" accesskey="U">pymatgen.apps.battery package</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -69,7 +80,7 @@ battery, e.g. Li.</p></li>
 <dl class="method">
 <dt id="pymatgen.apps.battery.insertion_battery.InsertionElectrode.as_dict">
 <code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/apps/battery/insertion_battery.html#InsertionElectrode.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionElectrode.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>A JSON serializable dict representation of an object.</p>
+<dd><p>Returns: MSONAble dict</p>
 </dd></dl>
 
 <dl class="method">
@@ -90,7 +101,15 @@ subelectrodes.</p>
 <dl class="method">
 <dt id="pymatgen.apps.battery.insertion_battery.InsertionElectrode.from_dict">
 <em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/apps/battery/insertion_battery.html#InsertionElectrode.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionElectrode.from_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>d</strong> (<em>dict</em>) – Dict representation</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>InsertionElectrode</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.apps.battery.insertion_battery.InsertionElectrode.fully_charged_entry">
@@ -255,7 +274,12 @@ the working ion.</p>
 <dl class="method">
 <dt id="pymatgen.apps.battery.insertion_battery.InsertionElectrode.voltage_pairs">
 <em class="property">property </em><code class="sig-name descname">voltage_pairs</code><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionElectrode.voltage_pairs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns all the VoltagePairs</p>
+<dd><p>All InsertionVoltagePairs in electrode.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -267,7 +291,12 @@ the working ion.</p>
 <dl class="method">
 <dt id="pymatgen.apps.battery.insertion_battery.InsertionElectrode.working_ion_entry">
 <em class="property">property </em><code class="sig-name descname">working_ion_entry</code><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionElectrode.working_ion_entry" title="Permalink to this definition">¶</a></dt>
-<dd><p>The working ion as an Entry object</p>
+<dd><p>Working ion entry</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -290,47 +319,112 @@ the element that carries charge across the battery, e.g. Li.</p></li>
 <dl class="method">
 <dt id="pymatgen.apps.battery.insertion_battery.InsertionVoltagePair.frac_charge">
 <em class="property">property </em><code class="sig-name descname">frac_charge</code><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionVoltagePair.frac_charge" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Amount of working ion at charge</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.apps.battery.insertion_battery.InsertionVoltagePair.frac_discharge">
 <em class="property">property </em><code class="sig-name descname">frac_discharge</code><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionVoltagePair.frac_discharge" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Amount of working ion at discharge</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.apps.battery.insertion_battery.InsertionVoltagePair.mAh">
 <em class="property">property </em><code class="sig-name descname">mAh</code><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionVoltagePair.mAh" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Energy in mAh.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.apps.battery.insertion_battery.InsertionVoltagePair.mass_charge">
 <em class="property">property </em><code class="sig-name descname">mass_charge</code><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionVoltagePair.mass_charge" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Mass of charged electrode.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.apps.battery.insertion_battery.InsertionVoltagePair.mass_discharge">
 <em class="property">property </em><code class="sig-name descname">mass_discharge</code><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionVoltagePair.mass_discharge" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Mass of discharged electrode.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.apps.battery.insertion_battery.InsertionVoltagePair.vol_charge">
 <em class="property">property </em><code class="sig-name descname">vol_charge</code><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionVoltagePair.vol_charge" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Volume of charged electrode.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.apps.battery.insertion_battery.InsertionVoltagePair.vol_discharge">
 <em class="property">property </em><code class="sig-name descname">vol_discharge</code><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionVoltagePair.vol_discharge" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Volume of discharged electrode.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.apps.battery.insertion_battery.InsertionVoltagePair.voltage">
 <em class="property">property </em><code class="sig-name descname">voltage</code><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionVoltagePair.voltage" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Voltage of electrode</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.apps.battery.insertion_battery.InsertionVoltagePair.working_ion">
+<em class="property">property </em><code class="sig-name descname">working_ion</code><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionVoltagePair.working_ion" title="Permalink to this definition">¶</a></dt>
+<dd><p>working ion</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.apps.battery.insertion_battery.InsertionVoltagePair.working_ion_entry">
 <em class="property">property </em><code class="sig-name descname">working_ion_entry</code><a class="headerlink" href="#pymatgen.apps.battery.insertion_battery.InsertionVoltagePair.working_ion_entry" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Working ion entry</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -342,6 +436,12 @@ the element that carries charge across the battery, e.g. Li.</p></li>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pymatgen.apps.battery.conversion_battery.html"
+                        title="previous chapter">pymatgen.apps.battery.conversion_battery module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pymatgen.apps.battery.plotter.html"
+                        title="next chapter">pymatgen.apps.battery.plotter module</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -372,13 +472,23 @@ the element that carries charge across the battery, e.g. Li.</p></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="right" >
+          <a href="pymatgen.apps.battery.plotter.html" title="pymatgen.apps.battery.plotter module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pymatgen.apps.battery.conversion_battery.html" title="pymatgen.apps.battery.conversion_battery module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >pymatgen</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="pymatgen.html" >pymatgen package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="pymatgen.apps.html" >pymatgen.apps package</a> &#187;</li>
+          <li class="nav-item nav-item-4"><a href="pymatgen.apps.battery.html" >pymatgen.apps.battery package</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

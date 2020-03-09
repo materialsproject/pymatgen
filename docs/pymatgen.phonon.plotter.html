@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.phonon.plotter module &#8212; pymatgen 2019.6.5 documentation</title>
+    <title>pymatgen.phonon.plotter module &#8212; pymatgen 2020.3.2 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,9 +13,10 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.plugins package" href="pymatgen.plugins.html" />
+    <link rel="prev" title="pymatgen.phonon.ir_spectra module" href="pymatgen.phonon.ir_spectra.html" />
  
 <script type="text/javascript">
   var _gaq = _gaq || [];
@@ -33,7 +34,16 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="right" >
+          <a href="pymatgen.plugins.html" title="pymatgen.plugins package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pymatgen.phonon.ir_spectra.html" title="pymatgen.phonon.ir_spectra module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >pymatgen</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="pymatgen.html" >pymatgen package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="pymatgen.phonon.html" accesskey="U">pymatgen.phonon package</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,6 +54,7 @@
             
   <div class="section" id="module-pymatgen.phonon.plotter">
 <span id="pymatgen-phonon-plotter-module"></span><h1>pymatgen.phonon.plotter module<a class="headerlink" href="#module-pymatgen.phonon.plotter" title="Permalink to this headline">¶</a></h1>
+<p>This module implements plotter for DOS and band structure.</p>
 <dl class="class">
 <dt id="pymatgen.phonon.plotter.FreqUnits">
 <em class="property">class </em><code class="sig-name descname">FreqUnits</code><span class="sig-paren">(</span><em class="sig-param">factor</em>, <em class="sig-param">label</em><span class="sig-paren">)</span><a class="headerlink" href="#pymatgen.phonon.plotter.FreqUnits" title="Permalink to this definition">¶</a></dt>
@@ -70,7 +81,7 @@
 <p>Class to plot or get data to facilitate the plot of band structure objects.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>bs</strong> – A BandStructureSymmLine object.</p>
+<dd class="field-odd"><p><strong>bs</strong> – A PhononBandStructureSymmLine object.</p>
 </dd>
 </dl>
 <dl class="method">
@@ -200,10 +211,9 @@ DOS. The typical usage is:</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>stack</strong> – Whether to plot the DOS as a stacked area graph</p></li>
-<li><p><strong>key_sort_func</strong> – function used to sort the dos_dict keys.</p></li>
-<li><p><strong>sigma</strong> – A float specifying a standard deviation for Gaussian smearing
-the DOS for nicer looking plots. Defaults to None for no
-smearing.</p></li>
+<li><p><strong>sigma</strong> – A float specifying a standard deviation for Gaussian smearing</p></li>
+<li><p><strong>DOS for nicer looking plots. Defaults to None for no</strong> (<em>the</em>) – </p></li>
+<li><p><strong>smearing.</strong> – </p></li>
 </ul>
 </dd>
 </dl>
@@ -374,6 +384,9 @@ Default: None i.e. fig is left unchanged.</p></td>
 <td><p>Add labels to  subplots e.g. (a), (b).
 Default: False</p></td>
 </tr>
+<tr class="row-odd"><td><p>fig_close</p></td>
+<td><p>Close figure. Default: False.</p></td>
+</tr>
 </tbody>
 </table>
 </dd></dl>
@@ -431,6 +444,9 @@ Default: None i.e. fig is left unchanged.</p></td>
 <tr class="row-even"><td><p>ax_annotate</p></td>
 <td><p>Add labels to  subplots e.g. (a), (b).
 Default: False</p></td>
+</tr>
+<tr class="row-odd"><td><p>fig_close</p></td>
+<td><p>Close figure. Default: False.</p></td>
 </tr>
 </tbody>
 </table>
@@ -490,6 +506,9 @@ Default: None i.e. fig is left unchanged.</p></td>
 <td><p>Add labels to  subplots e.g. (a), (b).
 Default: False</p></td>
 </tr>
+<tr class="row-odd"><td><p>fig_close</p></td>
+<td><p>Close figure. Default: False.</p></td>
+</tr>
 </tbody>
 </table>
 </dd></dl>
@@ -547,6 +566,9 @@ Default: None i.e. fig is left unchanged.</p></td>
 <tr class="row-even"><td><p>ax_annotate</p></td>
 <td><p>Add labels to  subplots e.g. (a), (b).
 Default: False</p></td>
+</tr>
+<tr class="row-odd"><td><p>fig_close</p></td>
+<td><p>Close figure. Default: False.</p></td>
 </tr>
 </tbody>
 </table>
@@ -606,6 +628,9 @@ Default: None i.e. fig is left unchanged.</p></td>
 <td><p>Add labels to  subplots e.g. (a), (b).
 Default: False</p></td>
 </tr>
+<tr class="row-odd"><td><p>fig_close</p></td>
+<td><p>Close figure. Default: False.</p></td>
+</tr>
 </tbody>
 </table>
 </dd></dl>
@@ -615,14 +640,15 @@ Default: False</p></td>
 <dl class="function">
 <dt id="pymatgen.phonon.plotter.freq_units">
 <code class="sig-name descname">freq_units</code><span class="sig-paren">(</span><em class="sig-param">units</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#freq_units"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.freq_units" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns conversion factor from THz to the requred units and the label in the form of a namedtuple
-Accepted values: thz, ev, mev, ha, cm-1, cm^-1</p>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>units</strong> – str, accepted values: thz, ev, mev, ha, cm-1, cm^-1</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Returns conversion factor from THz to the requred units and the label in the form of a namedtuple</p>
+</dd>
+</dl>
 </dd></dl>
-
-<dl class="data">
-<dt id="pymatgen.phonon.plotter.logger">
-<code class="sig-name descname">logger</code><em class="property"> = &lt;Logger pymatgen.phonon.plotter (INFO)&gt;</em><a class="headerlink" href="#pymatgen.phonon.plotter.logger" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 </div>
 
@@ -632,6 +658,12 @@ Accepted values: thz, ev, mev, ha, cm-1, cm^-1</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pymatgen.phonon.ir_spectra.html"
+                        title="previous chapter">pymatgen.phonon.ir_spectra module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pymatgen.plugins.html"
+                        title="next chapter">pymatgen.plugins package</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -662,13 +694,22 @@ Accepted values: thz, ev, mev, ha, cm-1, cm^-1</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="right" >
+          <a href="pymatgen.plugins.html" title="pymatgen.plugins package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pymatgen.phonon.ir_spectra.html" title="pymatgen.phonon.ir_spectra module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >pymatgen</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="pymatgen.html" >pymatgen package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="pymatgen.phonon.html" >pymatgen.phonon package</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

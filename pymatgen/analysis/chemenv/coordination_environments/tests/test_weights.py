@@ -29,6 +29,7 @@ class FakeNbSet:
 
     def __len__(self):
         return self.cn
+
     pass
 
 
@@ -151,7 +152,7 @@ class StrategyWeightsTest(PymatgenTest):
         fake_nb_set = FakeNbSet()
         dummy_se = DummyStructureEnvironments()
         bias_weight1 = CNBiasNbSetWeight.linearly_equidistant(weight_cn1=1.0, weight_cn13=13.0)
-        bias_weight2 = CNBiasNbSetWeight.geometrically_equidistant(weight_cn1=1.0, weight_cn13=1.1**12)
+        bias_weight2 = CNBiasNbSetWeight.geometrically_equidistant(weight_cn1=1.0, weight_cn13=1.1 ** 12)
         bias_weight3 = CNBiasNbSetWeight.explicit(cn_weights={1: 1.0, 2: 3.0, 3: 3.2, 4: 4.0,
                                                               5: 4.1, 6: 4.2, 7: 4.3, 8: 4.4,
                                                               9: 4.5, 10: 4.6, 11: 4.6, 12: 4.7,
@@ -170,14 +171,14 @@ class StrategyWeightsTest(PymatgenTest):
         w1 = bias_weight1.weight(nb_set=fake_nb_set, structure_environments=dummy_se)
         self.assertAlmostEqual(w1, 7.0, delta=1e-8)
         w2 = bias_weight2.weight(nb_set=fake_nb_set, structure_environments=dummy_se)
-        self.assertAlmostEqual(w2, 1.1**6, delta=1e-8)
+        self.assertAlmostEqual(w2, 1.1 ** 6, delta=1e-8)
         w3 = bias_weight3.weight(nb_set=fake_nb_set, structure_environments=dummy_se)
         self.assertAlmostEqual(w3, 4.3, delta=1e-8)
         fake_nb_set.cn = 13
         w1 = bias_weight1.weight(nb_set=fake_nb_set, structure_environments=dummy_se)
         self.assertAlmostEqual(w1, 13.0, delta=1e-8)
         w2 = bias_weight2.weight(nb_set=fake_nb_set, structure_environments=dummy_se)
-        self.assertAlmostEqual(w2, 1.1**12, delta=1e-8)
+        self.assertAlmostEqual(w2, 1.1 ** 12, delta=1e-8)
         w3 = bias_weight3.weight(nb_set=fake_nb_set, structure_environments=dummy_se)
         self.assertAlmostEqual(w3, 4.8, delta=1e-8)
 
@@ -185,7 +186,7 @@ class StrategyWeightsTest(PymatgenTest):
                                                            'weight_cn1': 2.0,
                                                            'weight_cn13': 26.0})
         for cn in range(1, 14):
-            self.assertAlmostEqual(bias_weight4.cn_weights[cn], 2.0*cn)
+            self.assertAlmostEqual(bias_weight4.cn_weights[cn], 2.0 * cn)
 
         bias_weight5 = CNBiasNbSetWeight.from_description({'type': 'geometrically_equidistant',
                                                            'weight_cn1': 1.0,
@@ -482,15 +483,15 @@ class StrategyWeightsTest(PymatgenTest):
         dummy_voronoi = DummyVoronoiContainer()
         dummy_voronoi.voronoi_list2 = []
         dummy_voronoi.voronoi_list2.append([])
-        dummy_voronoi.voronoi_list2[0].append({'normalized_distance': 1.0})    # 0
-        dummy_voronoi.voronoi_list2[0].append({'normalized_distance': 1.2})    # 1
+        dummy_voronoi.voronoi_list2[0].append({'normalized_distance': 1.0})  # 0
+        dummy_voronoi.voronoi_list2[0].append({'normalized_distance': 1.2})  # 1
         dummy_voronoi.voronoi_list2[0].append({'normalized_distance': 1.225})  # 2
-        dummy_voronoi.voronoi_list2[0].append({'normalized_distance': 1.25})   # 3
+        dummy_voronoi.voronoi_list2[0].append({'normalized_distance': 1.25})  # 3
         dummy_voronoi.voronoi_list2[0].append({'normalized_distance': 1.275})  # 4
-        dummy_voronoi.voronoi_list2[0].append({'normalized_distance': 1.3})    # 5
-        dummy_voronoi.voronoi_list2[0].append({'normalized_distance': 1.8})    # 6
+        dummy_voronoi.voronoi_list2[0].append({'normalized_distance': 1.3})  # 5
+        dummy_voronoi.voronoi_list2[0].append({'normalized_distance': 1.8})  # 6
         # Following fake neighbor dict is not in the neighbors sets
-        dummy_voronoi.voronoi_list2[0].append({'normalized_distance': 1.55})   # 7
+        dummy_voronoi.voronoi_list2[0].append({'normalized_distance': 1.55})  # 7
 
         for fake_nb_set in [fake_nb_set1, fake_nb_set2, fake_nb_set3, fake_nb_set4, fake_nb_set5, fake_nb_set5_m2,
                             fake_nb_set6, fake_nb_set7]:

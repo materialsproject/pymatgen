@@ -2,8 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
-
 """
 Development script of the ChemEnv utility to get the explicit permutations for coordination environments identified
 with the separation plane algorithms (typically with coordination numbers >= 6)
@@ -14,18 +12,16 @@ from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_f
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
 from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import Plane, collinear
 
-
 import numpy as np
 import itertools
 import json
-
 
 if __name__ == '__main__':
 
     # Choose the geometry
     allcg = AllCoordinationGeometries()
     while True:
-        cg_symbol = raw_input('Enter symbol of the geometry for which you want to get the explicit permutations : ')
+        cg_symbol = input('Enter symbol of the geometry for which you want to get the explicit permutations : ')
         try:
             cg = allcg[cg_symbol]
             break
@@ -60,19 +56,16 @@ if __name__ == '__main__':
 
         lgf = LocalGeometryFinder()
         lgf.setup_parameters(structure_refinement=lgf.STRUCTURE_REFINEMENT_NONE)
-        lgf.setup_test_perfect_environment(cg_symbol, randomness=True, indices=range(cg.coordination_number), max_random_dist=0.05)
+        lgf.setup_test_perfect_environment(cg_symbol, randomness=True, indices=range(cg.coordination_number),
+                                           max_random_dist=0.05)
 
         lgf.perfect_geometry = AbstractGeometry.from_cg(cg=cg)
-
-        # (csms, perms, sep_perms) = lgf.coordination_geometry_symmetry_measures_separation_plane_newpmg(coordination_geometry=cg,
-        #                                                                                                separation_plane_algo=sepplanealgo,
-        #                                                                                                testing=True)
 
         # Setting up the plane of separation
         local_plane = None
         found = False
         for npoints in range(sepplanealgo.minimum_number_of_points,
-                             min(sepplanealgo.maximum_number_of_points, 4)+1):
+                             min(sepplanealgo.maximum_number_of_points, 4) + 1):
             if found:
                 break
             for ipoints in itertools.combinations(sepplanealgo.plane_points, npoints):
@@ -82,13 +75,14 @@ if __name__ == '__main__':
                                  lgf.local_geometry.central_site, tolerance=0.25):
                         continue
                     local_plane = Plane.from_3points(points_combination[0], points_combination[1],
-                                               lgf.local_geometry.central_site)
+                                                     lgf.local_geometry.central_site)
                     found = True
                     break
                 elif npoints == 3:
                     if collinear(points_combination[0], points_combination[1], points_combination[2], tolerance=0.25):
                         continue
-                    local_plane = Plane.from_3points(points_combination[0], points_combination[1], points_combination[2])
+                    local_plane = Plane.from_3points(points_combination[0], points_combination[1],
+                                                     points_combination[2])
                     found = True
                     break
                 elif npoints > 3:
@@ -111,7 +105,7 @@ if __name__ == '__main__':
         print(cgsm)
         if cgsm[0] is None:
             print('IS NONE !')
-            raw_input()
+            input()
             continue
 
         csms, perms, algos, sep_perms = cgsm[0], cgsm[1], cgsm[2], cgsm[3]
@@ -138,9 +132,8 @@ if __name__ == '__main__':
         newalgos.append(sepplanealgo)
 
     # Write update geometry file ?
-    test = raw_input('Save it ? ("y" to confirm)')
+    test = input('Save it ? ("y" to confirm)')
     if test == 'y':
-
         cg._algorithms = newalgos
         cg_dict = cg.as_dict()
         f = open('../coordination_geometries_files_new/{}.json'.format(cg_symbol), 'w')

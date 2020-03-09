@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.defects.defect_compatibility module &#8212; pymatgen 2019.6.5 documentation</title>
+    <title>pymatgen.analysis.defects.defect_compatibility module &#8212; pymatgen 2020.3.2 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,9 +13,10 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.analysis.defects.dilute_solution_model module" href="pymatgen.analysis.defects.dilute_solution_model.html" />
+    <link rel="prev" title="pymatgen.analysis.defects.corrections module" href="pymatgen.analysis.defects.corrections.html" />
  
 <script type="text/javascript">
   var _gaq = _gaq || [];
@@ -33,7 +34,17 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="right" >
+          <a href="pymatgen.analysis.defects.dilute_solution_model.html" title="pymatgen.analysis.defects.dilute_solution_model module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pymatgen.analysis.defects.corrections.html" title="pymatgen.analysis.defects.corrections module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >pymatgen</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="pymatgen.html" >pymatgen package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="pymatgen.analysis.html" >pymatgen.analysis package</a> &#187;</li>
+          <li class="nav-item nav-item-4"><a href="pymatgen.analysis.defects.html" accesskey="U">pymatgen.analysis.defects package</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,6 +55,8 @@
             
   <div class="section" id="module-pymatgen.analysis.defects.defect_compatibility">
 <span id="pymatgen-analysis-defects-defect-compatibility-module"></span><h1>pymatgen.analysis.defects.defect_compatibility module<a class="headerlink" href="#module-pymatgen.analysis.defects.defect_compatibility" title="Permalink to this headline">¶</a></h1>
+<p>This module implements DefectCompatibility analysis for consideration of
+defects</p>
 <dl class="class">
 <dt id="pymatgen.analysis.defects.defect_compatibility.DefectCompatibility">
 <em class="property">class </em><code class="sig-name descname">DefectCompatibility</code><span class="sig-paren">(</span><em class="sig-param">plnr_avg_var_tol=0.0001</em>, <em class="sig-param">plnr_avg_minmax_tol=0.1</em>, <em class="sig-param">atomic_site_var_tol=0.005</em>, <em class="sig-param">atomic_site_minmax_tol=0.1</em>, <em class="sig-param">tot_relax_tol=1.0</em>, <em class="sig-param">perc_relax_tol=50.0</em>, <em class="sig-param">defect_tot_relax_tol=2.0</em>, <em class="sig-param">preferred_cc='freysoldt'</em>, <em class="sig-param">free_chg_cutoff=2.1</em>, <em class="sig-param">use_bandfilling=True</em>, <em class="sig-param">use_bandedgeshift=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/defect_compatibility.html#DefectCompatibility"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.defect_compatibility.DefectCompatibility" title="Permalink to this definition">¶</a></dt>
@@ -121,23 +134,42 @@ sufficient metadata is supplied to perform BandEdgeShiftingCorrection).</p></li>
 <dl class="method">
 <dt id="pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.check_freysoldt_delocalized">
 <code class="sig-name descname">check_freysoldt_delocalized</code><span class="sig-paren">(</span><em class="sig-param">defect_entry</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/defect_compatibility.html#DefectCompatibility.check_freysoldt_delocalized"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.check_freysoldt_delocalized" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Check for Freysoldt delocalization.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>defect_entry</strong> (<a class="reference internal" href="pymatgen.analysis.defects.core.html#pymatgen.analysis.defects.core.DefectEntry" title="pymatgen.analysis.defects.core.DefectEntry"><em>DefectEntry</em></a>) – Defect to correct.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Corrected DefectEntry</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.check_kumagai_delocalized">
 <code class="sig-name descname">check_kumagai_delocalized</code><span class="sig-paren">(</span><em class="sig-param">defect_entry</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/defect_compatibility.html#DefectCompatibility.check_kumagai_delocalized"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.check_kumagai_delocalized" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Check for Kumagai delocalization.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>defect_entry</strong> (<a class="reference internal" href="pymatgen.analysis.defects.core.html#pymatgen.analysis.defects.core.DefectEntry" title="pymatgen.analysis.defects.core.DefectEntry"><em>DefectEntry</em></a>) – Defect to correct.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Corrected DefectEntry</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.delocalization_analysis">
 <code class="sig-name descname">delocalization_analysis</code><span class="sig-paren">(</span><em class="sig-param">defect_entry</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/defect_compatibility.html#DefectCompatibility.delocalization_analysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.delocalization_analysis" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="simple">
+<dd><dl>
 <dt>Do delocalization analysis. To do this, one considers:</dt><dd><ol class="lowerroman simple">
 <li><p>sampling region of planar averaged electrostatic potential (freysoldt approach)</p></li>
 <li><p>sampling region of atomic site averaged potentials (kumagai approach)</p></li>
-<li><p>structural relaxation amount outside of radius considered in kumagai approach (default is wigner seitz radius)</p></li>
-<li><p>if defect is not a vacancy type -&gt; track to see how much the defect has moved</p></li>
 </ol>
+<p>iii) structural relaxation amount outside of radius considered in kumagai approach (default is wigner seitz
+radius)
+iv) if defect is not a vacancy type -&gt; track to see how much the defect has moved</p>
 </dd>
 </dl>
 <p>calculations that fail delocalization get “is_compatibile” set to False in parameters
@@ -153,27 +185,72 @@ defectsite_relax = {‘is_compatible’: True/False, ‘metadata’: metadata us
 <dl class="method">
 <dt id="pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.perform_all_corrections">
 <code class="sig-name descname">perform_all_corrections</code><span class="sig-paren">(</span><em class="sig-param">defect_entry</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/defect_compatibility.html#DefectCompatibility.perform_all_corrections"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.perform_all_corrections" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Perform all corrections for a defect.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>defect_entry</strong> (<a class="reference internal" href="pymatgen.analysis.defects.core.html#pymatgen.analysis.defects.core.DefectEntry" title="pymatgen.analysis.defects.core.DefectEntry"><em>DefectEntry</em></a>) – Defect to correct.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Corrected DefectEntry</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.perform_band_edge_shifting">
 <code class="sig-name descname">perform_band_edge_shifting</code><span class="sig-paren">(</span><em class="sig-param">defect_entry</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/defect_compatibility.html#DefectCompatibility.perform_band_edge_shifting"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.perform_band_edge_shifting" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Perform band edge shifting correction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>defect_entry</strong> (<a class="reference internal" href="pymatgen.analysis.defects.core.html#pymatgen.analysis.defects.core.DefectEntry" title="pymatgen.analysis.defects.core.DefectEntry"><em>DefectEntry</em></a>) – Defect to correct.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Corrected DefectEntry</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.perform_bandfilling">
 <code class="sig-name descname">perform_bandfilling</code><span class="sig-paren">(</span><em class="sig-param">defect_entry</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/defect_compatibility.html#DefectCompatibility.perform_bandfilling"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.perform_bandfilling" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Perform bandfilling correction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>defect_entry</strong> (<a class="reference internal" href="pymatgen.analysis.defects.core.html#pymatgen.analysis.defects.core.DefectEntry" title="pymatgen.analysis.defects.core.DefectEntry"><em>DefectEntry</em></a>) – Defect to correct.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Corrected DefectEntry</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.perform_freysoldt">
 <code class="sig-name descname">perform_freysoldt</code><span class="sig-paren">(</span><em class="sig-param">defect_entry</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/defect_compatibility.html#DefectCompatibility.perform_freysoldt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.perform_freysoldt" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Perform Freysoldt correction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>defect_entry</strong> (<a class="reference internal" href="pymatgen.analysis.defects.core.html#pymatgen.analysis.defects.core.DefectEntry" title="pymatgen.analysis.defects.core.DefectEntry"><em>DefectEntry</em></a>) – Defect to correct.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Corrected DefectEntry</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.perform_kumagai">
 <code class="sig-name descname">perform_kumagai</code><span class="sig-paren">(</span><em class="sig-param">defect_entry</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/defect_compatibility.html#DefectCompatibility.perform_kumagai"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.perform_kumagai" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Perform Kumagai correction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>defect_entry</strong> (<a class="reference internal" href="pymatgen.analysis.defects.core.html#pymatgen.analysis.defects.core.DefectEntry" title="pymatgen.analysis.defects.core.DefectEntry"><em>DefectEntry</em></a>) – Defect to correct.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Corrected DefectEntry</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.process_entry">
@@ -205,11 +282,6 @@ given initialization of class. If delocalized, flag entry as delocalized
 
 </dd></dl>
 
-<dl class="data">
-<dt id="pymatgen.analysis.defects.defect_compatibility.logger">
-<code class="sig-name descname">logger</code><em class="property"> = &lt;Logger pymatgen.analysis.defects.defect_compatibility (WARNING)&gt;</em><a class="headerlink" href="#pymatgen.analysis.defects.defect_compatibility.logger" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 </div>
 
 
@@ -218,6 +290,12 @@ given initialization of class. If delocalized, flag entry as delocalized
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pymatgen.analysis.defects.corrections.html"
+                        title="previous chapter">pymatgen.analysis.defects.corrections module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pymatgen.analysis.defects.dilute_solution_model.html"
+                        title="next chapter">pymatgen.analysis.defects.dilute_solution_model module</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -248,13 +326,23 @@ given initialization of class. If delocalized, flag entry as delocalized
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="right" >
+          <a href="pymatgen.analysis.defects.dilute_solution_model.html" title="pymatgen.analysis.defects.dilute_solution_model module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pymatgen.analysis.defects.corrections.html" title="pymatgen.analysis.defects.corrections module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >pymatgen</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="pymatgen.html" >pymatgen package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="pymatgen.analysis.html" >pymatgen.analysis package</a> &#187;</li>
+          <li class="nav-item nav-item-4"><a href="pymatgen.analysis.defects.html" >pymatgen.analysis.defects package</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -1,7 +1,7 @@
-
 import os
 import unittest
 import sys
+from pathlib import Path
 
 from pymatgen.core.periodic_table import Element
 from pymatgen.util.testing import PymatgenTest
@@ -13,7 +13,7 @@ if sys.version_info >= (3, 0):
     try:
         from phonopy import Phonopy
         from phonopy.structure.atoms import PhonopyAtoms
-        from phonopy.file_IO import write_disp_yaml
+        from phonopy.file_IO import write_disp_yaml, parse_FORCE_CONSTANTS
     except ImportError:
         Phonopy = None
 else:
@@ -126,7 +126,7 @@ class GetDisplacedStructuresTest(PymatgenTest):
         self.assertEqual(structures[10].num_sites, 128)
         self.assertArrayAlmostEqual(structures[0].lattice._matrix,
                                     structures[8].lattice._matrix, 8)
-        
+
         # test writing output
         with ScratchDir("."):
             structures = get_displaced_structures(pmg_structure=pmg_s,
@@ -134,6 +134,57 @@ class GetDisplacedStructuresTest(PymatgenTest):
                                                   supercell_matrix=supercell_matrix,
                                                   yaml_fname="test.yaml")
             self.assertTrue(os.path.exists("test.yaml"))
+
+
+class TestPhonopyFromForceConstants(unittest.TestCase):
+
+    def setUp(self) -> None:
+        test_path = Path(test_dir)
+        structure_file = test_path / "POSCAR-NaCl"
+        fc_file = test_path / "FORCE_CONSTANTS"
+
+        self.structure = Structure.from_file(structure_file)
+        self.supercell_matrix = np.eye(3) * 2
+        self.force_constants = parse_FORCE_CONSTANTS(fc_file)
+
+    def test_get_phonon_dos_from_fc(self):
+        dos = get_phonon_dos_from_fc(
+            self.structure,
+            self.supercell_matrix,
+            self.force_constants,
+            mesh_density=10.
+        )
+
+        self.assertTrue(dos, CompletePhononDos)
+        self.assertEqual(len(dos.frequencies), 201)
+        self.assertIn(Element.Na, dos.get_element_dos())
+        self.assertIn(Element.Cl, dos.get_element_dos())
+
+    def test_get_phonon_band_structure_from_fc(self):
+        bs = get_phonon_band_structure_from_fc(
+            self.structure,
+            self.supercell_matrix,
+            self.force_constants,
+            mesh_density=10.
+        )
+
+        self.assertTrue(bs, PhononBandStructure)
+        self.assertEqual(bs.nb_bands, 8)
+        self.assertEqual(bs.nb_qpoints, 8)
+        self.assertAlmostEqual(bs.bands[2][10], 3.887125285018674)
+
+    def test_get_phonon_band_structure_symm_line_from_fc(self):
+        bs = get_phonon_band_structure_symm_line_from_fc(
+            self.structure,
+            self.supercell_matrix,
+            self.force_constants,
+            line_density=5.
+        )
+
+        self.assertTrue(bs, PhononBandStructureSymmLine)
+        self.assertEqual(bs.nb_bands, 24)
+        self.assertEqual(bs.nb_qpoints, 48)
+        self.assertAlmostEqual(bs.bands[2][10], 2.869229797603161)
 
 
 if __name__ == '__main__':

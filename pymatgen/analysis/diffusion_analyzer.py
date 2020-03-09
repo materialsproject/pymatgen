@@ -2,19 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-import numpy as np
-import warnings
-import scipy.constants as const
-
-from monty.json import MSONable
-
-from pymatgen.analysis.structure_matcher import StructureMatcher, \
-    OrderDisorderElementComparator
-from pymatgen.core.periodic_table import get_el_sp
-from pymatgen.core.structure import Structure
-from pymatgen.io.vasp.outputs import Vasprun
-from pymatgen.util.coord import pbc_diff
-
 """
 A module to perform diffusion analyses (e.g. calculating diffusivity from
 mean square displacements etc.). If you use this module, please consider
@@ -30,6 +17,20 @@ citing the following papers::
     Li10GeP2S12 Lithium Super Ionic Conductor Material. Chemistry of Materials,
     24(1), 15-17. doi:10.1021/cm203303y
 """
+
+import numpy as np
+import warnings
+import scipy.constants as const
+
+from monty.json import MSONable
+
+from pymatgen.analysis.structure_matcher import StructureMatcher, \
+    OrderDisorderElementComparator
+from pymatgen.core.periodic_table import get_el_sp
+from pymatgen.core.structure import Structure
+from pymatgen.io.vasp.outputs import Vasprun
+from pymatgen.util.coord import pbc_diff
+
 
 __author__ = "Will Richards, Shyue Ping Ong"
 __version__ = "0.2"
@@ -251,8 +252,7 @@ class DiffusionAnalyzer(MSONable):
                     dcomponents = dc[:, i:i + 1, :]
                 elif smoothed == "constant":
                     dx = dc[:, i:i + avg_nsteps, :] - dc[:, 0:avg_nsteps, :]
-                    dcomponents = dc[:, i:i + avg_nsteps, :] \
-                        - dc[:, 0:avg_nsteps, :]
+                    dcomponents = dc[:, i:i + avg_nsteps, :] - dc[:, 0:avg_nsteps, :]
                 else:
                     dx = dc[:, n:, :] - dc[:, :-n, :]
                     dcomponents = dc[:, n:, :] - dc[:, :-n, :]
@@ -314,7 +314,7 @@ class DiffusionAnalyzer(MSONable):
             # We divide dt by 1000 to avoid overflow errors in some systems (
             # e.g., win). This is subsequently corrected where denom is used.
             denom = (n * np.sum((dt / 1000) ** 2) - np.sum(dt / 1000) ** 2) * (
-                n - 2)
+                    n - 2)
             self.diffusivity_std_dev = np.sqrt(n * res[0] / denom) / 60 / 1000
             self.chg_diffusivity_std_dev = np.sqrt(n * res_chg[0] / denom) / 60 / 1000
             self.conductivity = self.diffusivity * conv_factor
@@ -324,10 +324,8 @@ class DiffusionAnalyzer(MSONable):
             self.diffusivity_components = m_components / 20
             self.diffusivity_components_std_dev = np.sqrt(
                 n * m_components_res / denom) / 20 / 1000
-            self.conductivity_components = self.diffusivity_components * \
-                conv_factor
-            self.conductivity_components_std_dev = \
-                self.diffusivity_components_std_dev * conv_factor
+            self.conductivity_components = self.diffusivity_components * conv_factor
+            self.conductivity_components_std_dev = self.diffusivity_components_std_dev * conv_factor
 
             # Drift and displacement information.
             self.drift = drift
@@ -417,7 +415,7 @@ class DiffusionAnalyzer(MSONable):
         but doesn't constitute melting).
 
         Args:
-            plt (matplotlib.pyplot): If plt is supplied, changes will be made 
+            plt (matplotlib.pyplot): If plt is supplied, changes will be made
                 to an existing plot. Otherwise, a new plot will be created.
             granularity (int): Number of structures to match
             matching_s (Structure): Optionally match to a disordered structure
@@ -556,7 +554,7 @@ class DiffusionAnalyzer(MSONable):
     def from_structures(cls, structures, specie, temperature,
                         time_step, step_skip, initial_disp=None,
                         initial_structure=None, **kwargs):
-        """
+        r"""
         Convenient constructor that takes in a list of Structure objects to
         perform diffusion analysis.
 
@@ -581,7 +579,7 @@ class DiffusionAnalyzer(MSONable):
                 typically need to supply both variables. This stipulates the
                 initial structure from which the current set of displacements
                 are computed.
-            \\*\\*kwargs: kwargs supported by the :class:`DiffusionAnalyzer`_. 
+            \\*\\*kwargs: kwargs supported by the :class:`DiffusionAnalyzer`_.
                 Examples include smoothed, min_obs, avg_nsteps.
         """
         p, l = [], []
@@ -603,7 +601,7 @@ class DiffusionAnalyzer(MSONable):
         f_disp = np.cumsum(dp, axis=1)
         c_disp = []
         for i in f_disp:
-            c_disp.append( [ np.dot(d, m) for d, m in zip(i, l[1:]) ] )
+            c_disp.append([np.dot(d, m) for d, m in zip(i, l[1:])])
         disp = np.array(c_disp)
 
         # If is NVT-AIMD, clear lattice data.
@@ -620,7 +618,7 @@ class DiffusionAnalyzer(MSONable):
     @classmethod
     def from_vaspruns(cls, vaspruns, specie, initial_disp=None,
                       initial_structure=None, **kwargs):
-        """
+        r"""
         Convenient constructor that takes in a list of Vasprun objects to
         perform diffusion analysis.
 
@@ -640,7 +638,7 @@ class DiffusionAnalyzer(MSONable):
                 typically need to supply both variables. This stipulates the
                 initial stricture from which the current set of displacements
                 are computed.
-            \\*\\*kwargs: kwargs supported by the :class:`DiffusionAnalyzer`_. 
+            \\*\\*kwargs: kwargs supported by the :class:`DiffusionAnalyzer`_.
                 Examples include smoothed, min_obs, avg_nsteps.
         """
 
@@ -676,7 +674,7 @@ class DiffusionAnalyzer(MSONable):
     @classmethod
     def from_files(cls, filepaths, specie, step_skip=10, ncores=None,
                    initial_disp=None, initial_structure=None, **kwargs):
-        """
+        r"""
         Convenient constructor that takes in a list of vasprun.xml paths to
         perform diffusion analysis.
 
@@ -708,7 +706,7 @@ class DiffusionAnalyzer(MSONable):
                 typically need to supply both variables. This stipulates the
                 initial structure from which the current set of displacements
                 are computed.
-            \\*\\*kwargs: kwargs supported by the :class:`DiffusionAnalyzer`_. 
+            \\*\\*kwargs: kwargs supported by the :class:`DiffusionAnalyzer`_.
                 Examples include smoothed, min_obs, avg_nsteps.
         """
         if ncores is not None and len(filepaths) > 1:
@@ -737,6 +735,9 @@ class DiffusionAnalyzer(MSONable):
                 initial_structure=initial_structure, **kwargs)
 
     def as_dict(self):
+        """
+        Returns: MSONable dict
+        """
         return {
             "@module": self.__class__.__module__,
             "@class": self.__class__.__name__,
@@ -754,6 +755,12 @@ class DiffusionAnalyzer(MSONable):
 
     @classmethod
     def from_dict(cls, d):
+        """
+        Args:
+            d (dict): Dict representation
+
+        Returns: DiffusionAnalyzer
+        """
         structure = Structure.from_dict(d["structure"])
         return cls(structure, np.array(d["displacements"]), specie=d["specie"],
                    temperature=d["temperature"], time_step=d["time_step"],
@@ -791,8 +798,7 @@ def get_conversion_factor(structure, species, temperature):
     n = structure.composition[species]
 
     vol = structure.volume * 1e-24  # units cm^3
-    return 1000 * n / (vol * const.N_A) * z ** 2 * (const.N_A * const.e) ** 2 \
-        / (const.R * temperature)
+    return 1000 * n / (vol * const.N_A) * z ** 2 * (const.N_A * const.e) ** 2 / (const.R * temperature)
 
 
 def _get_vasprun(args):
@@ -822,7 +828,7 @@ def fit_arrhenius(temps, diffusivities):
     n = len(temps)
     if n > 2:
         std_Ea = (res[0] / (n - 2) / (
-        n * np.var(t_1))) ** 0.5 * const.k / const.e
+                n * np.var(t_1))) ** 0.5 * const.k / const.e
     else:
         std_Ea = None
     return -w[0] * const.k / const.e, np.exp(w[1]), std_Ea
@@ -867,7 +873,7 @@ def get_extrapolated_conductivity(temps, diffusivities, new_temp, structure,
 
 def get_arrhenius_plot(temps, diffusivities, diffusivity_errors=None,
                        **kwargs):
-    """
+    r"""
     Returns an Arrhenius plot.
 
     Args:

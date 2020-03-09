@@ -16,6 +16,7 @@ from pymatgen.util.testing import PymatgenTest
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
 
+
 class DefectsCoreTest(PymatgenTest):
     def test_vacancy(self):
         struc = PymatgenTest.get_structure("VO2")
@@ -62,12 +63,12 @@ class DefectsCoreTest(PymatgenTest):
         # test lattice value error occurs for different lattices
         sc_scaled_struc = struc.copy()
         sc_scaled_struc.make_supercell(2)
-        self.assertRaises( ValueError, Vacancy, struc, sc_scaled_struc[V_index])
-        self.assertRaises( ValueError, Vacancy, sc_scaled_struc, struc[V_index])
+        self.assertRaises(ValueError, Vacancy, struc, sc_scaled_struc[V_index])
+        self.assertRaises(ValueError, Vacancy, sc_scaled_struc, struc[V_index])
 
         # test value error raised for site not in the structure
-        non_site = PeriodicSite( "V", struc[V_index].frac_coords + [0., 0., .1], struc.lattice)
-        self.assertRaises( ValueError, Vacancy, struc, non_site)
+        non_site = PeriodicSite("V", struc[V_index].frac_coords + [0., 0., .1], struc.lattice)
+        self.assertRaises(ValueError, Vacancy, struc, non_site)
 
     def test_interstitial(self):
         struc = PymatgenTest.get_structure("VO2")
@@ -117,11 +118,11 @@ class DefectsCoreTest(PymatgenTest):
 
         # test that structure generation doesn't break if velocities existed previously
         # (previously caused failures for structure printing)
-        vel_struc = Structure( struc.lattice, struc.species, struc.frac_coords,
-                               site_properties= {'velocities': [[0., 0., 0.]]*len(struc) } )
+        vel_struc = Structure(struc.lattice, struc.species, struc.frac_coords,
+                              site_properties={'velocities': [[0., 0., 0.]] * len(struc)})
         interstitial = Interstitial(vel_struc, int_site, charge=-1.0)
         int_struc = interstitial.generate_defect_structure(1)
-        self.assertTrue( 'velocities' not in int_struc.site_properties)
+        self.assertTrue('velocities' not in int_struc.site_properties)
 
     def test_substitution(self):
         struc = PymatgenTest.get_structure("VO2")
@@ -170,17 +171,16 @@ class DefectsCoreTest(PymatgenTest):
 
         # test that structure generation doesn't break if velocities existed previously
         # (previously caused failures for structure printing)
-        vel_struc = Structure( struc.lattice, struc.species, struc.frac_coords,
-                               site_properties= {'velocities': [[0., 0., 0.]]*len(struc) } )
+        vel_struc = Structure(struc.lattice, struc.species, struc.frac_coords,
+                              site_properties={'velocities': [[0., 0., 0.]] * len(struc)})
         substitution = Substitution(vel_struc, sub_site)
         sub_struc = substitution.generate_defect_structure(1)
 
-        self.assertTrue( 'velocities' not in sub_struc.site_properties)
+        self.assertTrue('velocities' not in sub_struc.site_properties)
 
         # test value error raised for site not in the structure
-        non_site = PeriodicSite( "Sr", struc[V_index].frac_coords - [0., 0., .1], struc.lattice)
-        self.assertRaises( ValueError, Substitution, struc, non_site)
-
+        non_site = PeriodicSite("Sr", struc[V_index].frac_coords - [0., 0., .1], struc.lattice)
+        self.assertRaises(ValueError, Substitution, struc, non_site)
 
 
 class create_saturated_interstitial_structureTest(PymatgenTest):

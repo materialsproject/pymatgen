@@ -2,10 +2,13 @@
 
 
 """
-This module provides functions for finding the dimensions of connected subunits in a crystal structure.
-This method finds the dimensionality of the material even when the material is not layered along low-index planes, or does not have flat layers/molecular wires.
-See details at : Cheon, G.; Duerloo, K.-A. N.; Sendek, A. D.; Porter, C.; Chen, Y.; Reed, E. J. Data Mining for New Two- and One-Dimensional Weakly Bonded Solids and Lattice-Commensurate Heterostructures. Nano Lett. 2017.
-
+This module provides functions for finding the dimensions of connected subunits
+in a crystal structure.
+This method finds the dimensionality of the material even when the material is
+not layered along low-index planes, or does not have flat layers/molecular wires.
+See details at : Cheon, G.; Duerloo, K.-A. N.; Sendek, A. D.; Porter, C.;
+Chen, Y.; Reed, E. J. Data Mining for New Two- and One-Dimensional Weakly
+Bonded Solids and Lattice-Commensurate Heterostructures. Nano Lett. 2017.
 """
 
 __author__ = "Gowoon Cheon"
@@ -31,23 +34,26 @@ def find_connected_atoms(struct, tolerance=0.45, ldict=JmolNN().el_radius):
 
     Args:
         struct (Structure): Input structure
-        tolerance: length in angstroms used in finding bonded atoms. Two atoms are considered bonded if (radius of atom 1) + (radius of atom 2) + (tolerance) < (distance between atoms 1 and 2). Default value = 0.45, the value used by JMol and Cheon et al.
+        tolerance: length in angstroms used in finding bonded atoms. Two atoms are considered bonded if (radius of
+            atom 1) + (radius of atom 2) + (tolerance) < (distance between atoms 1 and 2). Default value = 0.45, the
+            value used by JMol and Cheon et al.
         ldict: dictionary of bond lengths used in finding bonded atoms. Values from JMol are used as default
         standardize: works with conventional standard structures if True. It is recommended to keep this as True.
 
     Returns:
         connected_list: A numpy array of shape (number of bonded pairs, 2); each row of is of the form [atomi, atomj].
         atomi and atomj are the indices of the atoms in the input structure.
-        If any image of atomj is bonded to atomi with periodic boundary conditions, [atomi, atomj] is included in the list.
+        If any image of atomj is bonded to atomi with periodic boundary conditions, [atomi, atomj] is included in the
+        list.
         If atomi is bonded to multiple images of atomj, it is only counted once.
     """
     n_atoms = len(struct.species)
     fc = np.array(struct.frac_coords)
     species = list(map(str, struct.species))
-    #in case of charged species
-    for i,item in enumerate(species):
-        if not item in ldict.keys():
-            species[i]=str(Specie.from_string(item).element)
+    # in case of charged species
+    for i, item in enumerate(species):
+        if item not in ldict.keys():
+            species[i] = str(Specie.from_string(item).element)
     latmat = struct.lattice.matrix
     connected_list = []
 
@@ -127,17 +133,22 @@ def find_clusters(struct, connected_list):
 def find_dimension(structure_raw, tolerance=0.45, ldict=JmolNN().el_radius, standardize=True):
     """
     Algorithm for finding the dimensions of connected subunits in a crystal structure.
-    This method finds the dimensionality of the material even when the material is not layered along low-index planes, or does not have flat layers/molecular wires.
-    See details at : Cheon, G.; Duerloo, K.-A. N.; Sendek, A. D.; Porter, C.; Chen, Y.; Reed, E. J. Data Mining for New Two- and One-Dimensional Weakly Bonded Solids and Lattice-Commensurate Heterostructures. Nano Lett. 2017.
+    This method finds the dimensionality of the material even when the material is not layered along low-index planes,
+    or does not have flat layers/molecular wires.
+    See details at : Cheon, G.; Duerloo, K.-A. N.; Sendek, A. D.; Porter, C.; Chen, Y.; Reed, E. J. Data Mining for
+    New Two- and One-Dimensional Weakly Bonded Solids and Lattice-Commensurate Heterostructures. Nano Lett. 2017.
 
     Args:
         structure (Structure): Input structure
-        tolerance: length in angstroms used in finding bonded atoms. Two atoms are considered bonded if (radius of atom 1) + (radius of atom 2) + (tolerance) < (distance between atoms 1 and 2). Default value = 0.45, the value used by JMol and Cheon et al.
+        tolerance: length in angstroms used in finding bonded atoms. Two atoms are considered bonded if (radius of
+            atom 1) + (radius of atom 2) + (tolerance) < (distance between atoms 1 and 2). Default value = 0.45, the
+            value used by JMol and Cheon et al.
         ldict: dictionary of bond lengths used in finding bonded atoms. Values from JMol are used as default
         standardize: works with conventional standard structures if True. It is recommended to keep this as True.
 
     Returns:
-        dim: dimension of the largest cluster as a string. If there are ions or molecules it returns 'intercalated ion/molecule'
+        dim: dimension of the largest cluster as a string. If there are ions or molecules it returns 'intercalated
+        ion/molecule'
     """
     if standardize:
         structure = SpacegroupAnalyzer(structure_raw).get_conventional_standard_structure()
@@ -159,7 +170,7 @@ def find_dimension(structure_raw, tolerance=0.45, ldict=JmolNN().el_radius, stan
         if dim == int(dim):
             dim = str(int(dim)) + 'D'
         else:
-            structure=copy.copy(structure_save)
+            structure = copy.copy(structure_save)
             structure.make_supercell([[3, 0, 0], [0, 3, 0], [0, 0, 3]])
             connected_list3 = find_connected_atoms(structure, tolerance=tolerance, ldict=ldict)
             max3, min3, clusters3 = find_clusters(structure, connected_list3)

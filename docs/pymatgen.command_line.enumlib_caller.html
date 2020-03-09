@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.command_line.enumlib_caller module &#8212; pymatgen 2019.6.5 documentation</title>
+    <title>pymatgen.command_line.enumlib_caller module &#8212; pymatgen 2020.3.2 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,9 +13,10 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.command_line.gulp_caller module" href="pymatgen.command_line.gulp_caller.html" />
+    <link rel="prev" title="pymatgen.command_line.critic2_caller module" href="pymatgen.command_line.critic2_caller.html" />
  
 <script type="text/javascript">
   var _gaq = _gaq || [];
@@ -33,7 +34,16 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="right" >
+          <a href="pymatgen.command_line.gulp_caller.html" title="pymatgen.command_line.gulp_caller module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pymatgen.command_line.critic2_caller.html" title="pymatgen.command_line.critic2_caller module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >pymatgen</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="pymatgen.html" >pymatgen package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="pymatgen.command_line.html" accesskey="U">pymatgen.command_line package</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,10 +54,25 @@
             
   <div class="section" id="module-pymatgen.command_line.enumlib_caller">
 <span id="pymatgen-command-line-enumlib-caller-module"></span><h1>pymatgen.command_line.enumlib_caller module<a class="headerlink" href="#module-pymatgen.command_line.enumlib_caller" title="Permalink to this headline">¶</a></h1>
+<p>This module implements an interface to enumlib, Gus Hart”s excellent Fortran
+code for enumerating derivative structures.</p>
+<p>This module depends on a compiled enumlib with the executables enum.x and
+makestr.x available in the path. Please download the library at
+<a class="reference external" href="http://enum.sourceforge.net/">http://enum.sourceforge.net/</a> and follow the instructions in the README to
+compile these two executables accordingly.</p>
+<p>If you use this module, please cite the following:</p>
+<p>Gus L. W. Hart and Rodney W. Forcade, “Algorithm for generating derivative
+structures,” Phys. Rev. B 77 224115 (26 June 2008)</p>
+<p>Gus L. W. Hart and Rodney W. Forcade, “Generating derivative structures from
+multilattices: Application to hcp alloys,” Phys. Rev. B 80 014120 (July 2009)</p>
+<p>Gus L. W. Hart, Lance J. Nelson, and Rodney W. Forcade, “Generating
+derivative structures at a fixed concentration,” Comp. Mat. Sci. 59
+101-107 (March 2012)</p>
 <dl class="exception">
 <dt id="pymatgen.command_line.enumlib_caller.EnumError">
 <em class="property">exception </em><code class="sig-name descname">EnumError</code><a class="reference internal" href="_modules/pymatgen/command_line/enumlib_caller.html#EnumError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.enumlib_caller.EnumError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseException</span></code></p>
+<p>Error subclass for enumeration errors.</p>
 </dd></dl>
 
 <dl class="function">
@@ -62,21 +87,6 @@
 
 </dd></dl>
 
-<dl class="data">
-<dt id="pymatgen.command_line.enumlib_caller.enum_cmd">
-<code class="sig-name descname">enum_cmd</code><em class="property"> = '/Users/shyuepingong/Dropbox/scripts/enum.x'</em><a class="headerlink" href="#pymatgen.command_line.enumlib_caller.enum_cmd" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="data">
-<dt id="pymatgen.command_line.enumlib_caller.logger">
-<code class="sig-name descname">logger</code><em class="property"> = &lt;Logger pymatgen.command_line.enumlib_caller (INFO)&gt;</em><a class="headerlink" href="#pymatgen.command_line.enumlib_caller.logger" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="data">
-<dt id="pymatgen.command_line.enumlib_caller.makestr_cmd">
-<code class="sig-name descname">makestr_cmd</code><em class="property"> = '/Users/shyuepingong/Dropbox/scripts/makestr.x'</em><a class="headerlink" href="#pymatgen.command_line.enumlib_caller.makestr_cmd" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 </div>
 
 
@@ -85,6 +95,12 @@
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pymatgen.command_line.critic2_caller.html"
+                        title="previous chapter">pymatgen.command_line.critic2_caller module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pymatgen.command_line.gulp_caller.html"
+                        title="next chapter">pymatgen.command_line.gulp_caller module</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -115,13 +131,22 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="right" >
+          <a href="pymatgen.command_line.gulp_caller.html" title="pymatgen.command_line.gulp_caller module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pymatgen.command_line.critic2_caller.html" title="pymatgen.command_line.critic2_caller module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >pymatgen</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="pymatgen.html" >pymatgen package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="pymatgen.command_line.html" >pymatgen.command_line package</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

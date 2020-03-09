@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.structure_prediction.substitutor module &#8212; pymatgen 2019.6.5 documentation</title>
+    <title>pymatgen.analysis.structure_prediction.substitutor module &#8212; pymatgen 2020.3.2 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,9 +13,10 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.analysis.structure_prediction.volume_predictor module" href="pymatgen.analysis.structure_prediction.volume_predictor.html" />
+    <link rel="prev" title="pymatgen.analysis.structure_prediction.substitution_probability module" href="pymatgen.analysis.structure_prediction.substitution_probability.html" />
  
 <script type="text/javascript">
   var _gaq = _gaq || [];
@@ -33,7 +34,17 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="right" >
+          <a href="pymatgen.analysis.structure_prediction.volume_predictor.html" title="pymatgen.analysis.structure_prediction.volume_predictor module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pymatgen.analysis.structure_prediction.substitution_probability.html" title="pymatgen.analysis.structure_prediction.substitution_probability module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >pymatgen</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="pymatgen.html" >pymatgen package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="pymatgen.analysis.html" >pymatgen.analysis package</a> &#187;</li>
+          <li class="nav-item nav-item-4"><a href="pymatgen.analysis.structure_prediction.html" accesskey="U">pymatgen.analysis.structure_prediction package</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,6 +55,7 @@
             
   <div class="section" id="module-pymatgen.analysis.structure_prediction.substitutor">
 <span id="pymatgen-analysis-structure-prediction-substitutor-module"></span><h1>pymatgen.analysis.structure_prediction.substitutor module<a class="headerlink" href="#module-pymatgen.analysis.structure_prediction.substitutor" title="Permalink to this headline">¶</a></h1>
+<p>This module provides classes for predicting new structures from existing ones.</p>
 <dl class="class">
 <dt id="pymatgen.analysis.structure_prediction.substitutor.Substitutor">
 <em class="property">class </em><code class="sig-name descname">Substitutor</code><span class="sig-paren">(</span><em class="sig-param">threshold=0.001</em>, <em class="sig-param">symprec=0.1</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_prediction/substitutor.html#Substitutor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitutor.Substitutor" title="Permalink to this definition">¶</a></dt>
@@ -69,13 +81,21 @@ lambda_table, alpha</p></li>
 <dl class="method">
 <dt id="pymatgen.analysis.structure_prediction.substitutor.Substitutor.as_dict">
 <code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_prediction/substitutor.html#Substitutor.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitutor.Substitutor.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>A JSON serializable dict representation of an object.</p>
+<dd><p>Returns: MSONable dict</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.structure_prediction.substitutor.Substitutor.from_dict">
 <em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_prediction/substitutor.html#Substitutor.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitutor.Substitutor.from_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>d</strong> (<em>dict</em>) – Dict representation</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Class</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.structure_prediction.substitutor.Substitutor.get_allowed_species">
@@ -163,6 +183,12 @@ structures_list will be removed</p></li>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pymatgen.analysis.structure_prediction.substitution_probability.html"
+                        title="previous chapter">pymatgen.analysis.structure_prediction.substitution_probability module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pymatgen.analysis.structure_prediction.volume_predictor.html"
+                        title="next chapter">pymatgen.analysis.structure_prediction.volume_predictor module</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -193,13 +219,23 @@ structures_list will be removed</p></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="right" >
+          <a href="pymatgen.analysis.structure_prediction.volume_predictor.html" title="pymatgen.analysis.structure_prediction.volume_predictor module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pymatgen.analysis.structure_prediction.substitution_probability.html" title="pymatgen.analysis.structure_prediction.substitution_probability module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >pymatgen</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="pymatgen.html" >pymatgen package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="pymatgen.analysis.html" >pymatgen.analysis package</a> &#187;</li>
+          <li class="nav-item nav-item-4"><a href="pymatgen.analysis.structure_prediction.html" >pymatgen.analysis.structure_prediction package</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.eos module &#8212; pymatgen 2019.6.5 documentation</title>
+    <title>pymatgen.analysis.eos module &#8212; pymatgen 2020.3.2 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,9 +13,10 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.analysis.ewald module" href="pymatgen.analysis.ewald.html" />
+    <link rel="prev" title="pymatgen.analysis.energy_models module" href="pymatgen.analysis.energy_models.html" />
  
 <script type="text/javascript">
   var _gaq = _gaq || [];
@@ -33,7 +34,16 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="right" >
+          <a href="pymatgen.analysis.ewald.html" title="pymatgen.analysis.ewald module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pymatgen.analysis.energy_models.html" title="pymatgen.analysis.energy_models module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >pymatgen</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="pymatgen.html" >pymatgen package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="pymatgen.analysis.html" accesskey="U">pymatgen.analysis package</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -51,6 +61,7 @@
 <dt id="pymatgen.analysis.eos.Birch">
 <em class="property">class </em><code class="sig-name descname">Birch</code><span class="sig-paren">(</span><em class="sig-param">volumes</em>, <em class="sig-param">energies</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/eos.html#Birch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.eos.Birch" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.eos.EOSBase" title="pymatgen.analysis.eos.EOSBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.eos.EOSBase</span></code></a></p>
+<p>Birch EOS.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -65,6 +76,7 @@
 <dt id="pymatgen.analysis.eos.BirchMurnaghan">
 <em class="property">class </em><code class="sig-name descname">BirchMurnaghan</code><span class="sig-paren">(</span><em class="sig-param">volumes</em>, <em class="sig-param">energies</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/eos.html#BirchMurnaghan"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.eos.BirchMurnaghan" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.eos.EOSBase" title="pymatgen.analysis.eos.EOSBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.eos.EOSBase</span></code></a></p>
+<p>BirchMurnaghan EOS</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -79,6 +91,7 @@
 <dt id="pymatgen.analysis.eos.DeltaFactor">
 <em class="property">class </em><code class="sig-name descname">DeltaFactor</code><span class="sig-paren">(</span><em class="sig-param">volumes</em>, <em class="sig-param">energies</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/eos.html#DeltaFactor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.eos.DeltaFactor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.eos.PolynomialEOS" title="pymatgen.analysis.eos.PolynomialEOS"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.eos.PolynomialEOS</span></code></a></p>
+<p>Fitting a polynomial EOS using delta factor.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -125,6 +138,11 @@ compatibility.</p>
 <span class="n">eos_fit</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
 </pre></div>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>eos_name</strong> (<em>str</em>) – Type of EOS to fit.</p>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="pymatgen.analysis.eos.EOS.MODELS">
 <code class="sig-name descname">MODELS</code><em class="property"> = {'birch': &lt;class 'pymatgen.analysis.eos.Birch'&gt;, 'birch_murnaghan': &lt;class 'pymatgen.analysis.eos.BirchMurnaghan'&gt;, 'deltafactor': &lt;class 'pymatgen.analysis.eos.DeltaFactor'&gt;, 'murnaghan': &lt;class 'pymatgen.analysis.eos.Murnaghan'&gt;, 'numerical_eos': &lt;class 'pymatgen.analysis.eos.NumericalEOS'&gt;, 'pourier_tarantola': &lt;class 'pymatgen.analysis.eos.PourierTarantola'&gt;, 'vinet': &lt;class 'pymatgen.analysis.eos.Vinet'&gt;}</em><a class="headerlink" href="#pymatgen.analysis.eos.EOS.MODELS" title="Permalink to this definition">¶</a></dt>
@@ -294,6 +312,9 @@ Default: None i.e. fig is left unchanged.</p></td>
 <td><p>Add labels to  subplots e.g. (a), (b).
 Default: False</p></td>
 </tr>
+<tr class="row-odd"><td><p>fig_close</p></td>
+<td><p>Close figure. Default: False.</p></td>
+</tr>
 </tbody>
 </table>
 </dd></dl>
@@ -321,12 +342,14 @@ Default: False</p></td>
 <dt id="pymatgen.analysis.eos.EOSError">
 <em class="property">exception </em><code class="sig-name descname">EOSError</code><a class="reference internal" href="_modules/pymatgen/analysis/eos.html#EOSError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.eos.EOSError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Error class for EOS fitting.</p>
 </dd></dl>
 
 <dl class="class">
 <dt id="pymatgen.analysis.eos.Murnaghan">
 <em class="property">class </em><code class="sig-name descname">Murnaghan</code><span class="sig-paren">(</span><em class="sig-param">volumes</em>, <em class="sig-param">energies</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/eos.html#Murnaghan"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.eos.Murnaghan" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.eos.EOSBase" title="pymatgen.analysis.eos.EOSBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.eos.EOSBase</span></code></a></p>
+<p>Murnaghan EOS.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -341,6 +364,7 @@ Default: False</p></td>
 <dt id="pymatgen.analysis.eos.NumericalEOS">
 <em class="property">class </em><code class="sig-name descname">NumericalEOS</code><span class="sig-paren">(</span><em class="sig-param">volumes</em>, <em class="sig-param">energies</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/eos.html#NumericalEOS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.eos.NumericalEOS" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.eos.PolynomialEOS" title="pymatgen.analysis.eos.PolynomialEOS"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.eos.PolynomialEOS</span></code></a></p>
+<p>A numerical EOS.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -413,6 +437,7 @@ this.</p>
 <dt id="pymatgen.analysis.eos.PourierTarantola">
 <em class="property">class </em><code class="sig-name descname">PourierTarantola</code><span class="sig-paren">(</span><em class="sig-param">volumes</em>, <em class="sig-param">energies</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/eos.html#PourierTarantola"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.eos.PourierTarantola" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.eos.EOSBase" title="pymatgen.analysis.eos.EOSBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.eos.EOSBase</span></code></a></p>
+<p>PourierTarantola EOS</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -427,6 +452,7 @@ this.</p>
 <dt id="pymatgen.analysis.eos.Vinet">
 <em class="property">class </em><code class="sig-name descname">Vinet</code><span class="sig-paren">(</span><em class="sig-param">volumes</em>, <em class="sig-param">energies</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/eos.html#Vinet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.eos.Vinet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.eos.EOSBase" title="pymatgen.analysis.eos.EOSBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.eos.EOSBase</span></code></a></p>
+<p>Vinet EOS.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -437,11 +463,6 @@ this.</p>
 </dl>
 </dd></dl>
 
-<dl class="data">
-<dt id="pymatgen.analysis.eos.logger">
-<code class="sig-name descname">logger</code><em class="property"> = &lt;Logger ../pymatgen/analysis/eos.py (WARNING)&gt;</em><a class="headerlink" href="#pymatgen.analysis.eos.logger" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 </div>
 
 
@@ -450,6 +471,12 @@ this.</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pymatgen.analysis.energy_models.html"
+                        title="previous chapter">pymatgen.analysis.energy_models module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pymatgen.analysis.ewald.html"
+                        title="next chapter">pymatgen.analysis.ewald module</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -480,13 +507,22 @@ this.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="right" >
+          <a href="pymatgen.analysis.ewald.html" title="pymatgen.analysis.ewald module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pymatgen.analysis.energy_models.html" title="pymatgen.analysis.energy_models module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >pymatgen</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="pymatgen.html" >pymatgen package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="pymatgen.analysis.html" >pymatgen.analysis package</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

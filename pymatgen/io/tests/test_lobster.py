@@ -2,23 +2,25 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-import unittest
-import os
 import json
-import warnings
-import numpy as np
+import os
 import tempfile
-from pymatgen import Structure
-from pymatgen.io.lobster import Cohpcar, Icohplist, Doscar, Charge, Lobsterout, Fatband, Lobsterin
-from pymatgen.io.vasp import Vasprun
-from pymatgen.electronic_structure.core import Spin, Orbital
-from pymatgen.util.testing import PymatgenTest
-from pymatgen.io.vasp.inputs import Incar, Kpoints
+import unittest
+import warnings
 
-__author__ = "Marco Esters, Janine George"
+import numpy as np
+from pymatgen import Structure
+from pymatgen.electronic_structure.core import Spin, Orbital
+from pymatgen.io.lobster import Cohpcar, Icohplist, Doscar, Charge, Lobsterout, Fatband, Lobsterin, Bandoverlaps, \
+    Grosspop
+from pymatgen.io.vasp import Vasprun
+from pymatgen.io.vasp.inputs import Incar, Kpoints, Potcar
+from pymatgen.util.testing import PymatgenTest
+
+__author__ = "Janine George, Marco Esters"
 __copyright__ = "Copyright 2017, The Materials Project"
 __version__ = "0.2"
-__email__ = "esters@uoregon.edu, janine.george@uclouvain.be"
+__email__ = "janine.george@uclouvain.be, esters@uoregon.edu"
 __date__ = "Dec 10, 2017"
 
 test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -186,7 +188,6 @@ class CohpcarTest(PymatgenTest):
         self.assertIsNone(self.orb_notot.cohp_data["1"]["ICOHP"])
         for orbs in self.orb.orb_res_cohp["1"]:
             orb_set = self.orb.orb_res_cohp["1"][orbs]["orbitals"]
-            # print(orb_set[0][0])
             self.assertEqual(orb_set[0][0], 4)
             self.assertEqual(orb_set[1][0], 4)
             self.assertIn(tuple((orb_set[0][1], orb_set[1][1])), orbitals)
@@ -244,6 +245,8 @@ class IcohplistTest(unittest.TestCase):
         self.icoop_bise = Icohplist(filename=os.path.join(test_dir, "ICOOPLIST.lobster.BiSe"),
                                     are_coops=True)
         self.icohp_fe = Icohplist(filename=os.path.join(test_dir, "ICOHPLIST.lobster"))
+        # allow gzipped files
+        self.icohp_gzipped = Icohplist(filename=os.path.join(test_dir, "ICOHPLIST.lobster.gz"))
         self.icoop_fe = Icohplist(filename=os.path.join(test_dir, "ICOHPLIST.lobster"), are_coops=True)
 
     def test_attributes(self):
@@ -326,12 +329,12 @@ class DoscarTest(unittest.TestCase):
     def setUp(self):
         # first for spin polarized version
         doscar = os.path.join(test_dir_doscar, "DOSCAR.lobster.spin")
-        vasprun = os.path.join(test_dir_doscar, "vasprun.xml.lobster.spin")
+        poscar = os.path.join(test_dir_doscar, "POSCAR.lobster.spin_DOS")
+        # not spin polarized
         doscar2 = os.path.join(test_dir_doscar, "DOSCAR.lobster.nonspin")
-        vasprun2 = os.path.join(test_dir_doscar, "vasprun.xml.lobster.nonspin")
-
-        self.DOSCAR_spin_pol = Doscar(doscar=doscar, vasprun=vasprun)
-        self.DOSCAR_nonspin_pol = Doscar(doscar=doscar2, vasprun=vasprun2)
+        poscar2 = os.path.join(test_dir_doscar, "POSCAR.lobster.nonspin_DOS")
+        self.DOSCAR_spin_pol = Doscar(doscar=doscar, structure_file=poscar)
+        self.DOSCAR_nonspin_pol = Doscar(doscar=doscar2, structure_file=poscar2)
 
         with open(os.path.join(test_dir_doscar, 'structure_KF.json'), 'r') as f:
             data = json.load(f)
@@ -479,6 +482,16 @@ class DoscarTest(unittest.TestCase):
         tdos_nonspin = [0.00000, 1.60000, 0.00000, 1.60000, 0.00000, 0.02418]
         self.assertListEqual(tdos_nonspin, self.DOSCAR_nonspin_pol.tdensities[Spin.up].tolist())
 
+    def test_itdensities(self):
+        pass
+        itdos_up = [1.99997, 4.99992, 4.99992, 7.99987, 7.99987, 8.09650]
+        itdos_down = [1.99997, 4.99992, 4.99992, 7.99987, 7.99987, 8.09685]
+        self.assertListEqual(itdos_up, self.DOSCAR_spin_pol.itdensities[Spin.up].tolist())
+        self.assertListEqual(itdos_down, self.DOSCAR_spin_pol.itdensities[Spin.down].tolist())
+
+        itdos_nonspin = [4.00000, 10.00000, 10.00000, 16.00000, 16.00000, 16.09067]
+        self.assertListEqual(itdos_nonspin, self.DOSCAR_nonspin_pol.itdensities[Spin.up].tolist())
+
     def test_is_spin_polarized(self):
         # first for spin polarized version
         self.assertTrue(self.DOSCAR_spin_pol.is_spin_polarized)
@@ -489,6 +502,8 @@ class DoscarTest(unittest.TestCase):
 class ChargeTest(PymatgenTest):
     def setUp(self):
         self.charge2 = Charge(filename=os.path.join(test_dir, "CHARGE.lobster.MnO"))
+        # gzipped file
+        self.charge = Charge(filename=os.path.join(test_dir, "CHARGE.lobster.MnO2.gz"))
 
     def testattributes(self):
         charge_Loewdin = [-1.25, 1.25]
@@ -527,6 +542,8 @@ class LobsteroutTest(PymatgenTest):
     def setUp(self):
         warnings.simplefilter("ignore")
         self.lobsterout_normal = Lobsterout(filename=os.path.join(test_dir, "lobsterout.normal"))
+        # make sure .gz files are also read correctly
+        self.lobsterout_normal = Lobsterout(filename=os.path.join(test_dir, "lobsterout.normal2.gz"))
         self.lobsterout_fatband_grosspop_densityofenergies = Lobsterout(
             filename=os.path.join(test_dir, "lobsterout.fatband_grosspop_densityofenergy"))
         self.lobsterout_saveprojection = Lobsterout(filename=os.path.join(test_dir, "lobsterout.saveprojection"))
@@ -534,6 +551,7 @@ class LobsteroutTest(PymatgenTest):
         self.lobsterout_twospins = Lobsterout(filename=os.path.join(test_dir, "lobsterout.twospins"))
         self.lobsterout_GaAs = Lobsterout(filename=os.path.join(test_dir, "lobsterout.GaAs"))
         self.lobsterout_from_projection = Lobsterout(filename=os.path.join(test_dir, "lobsterout_from_projection"))
+        self.lobsterout_onethread = Lobsterout(filename=os.path.join(test_dir, "lobsterout.onethread"))
 
     def tearDown(self):
         warnings.simplefilter("default")
@@ -789,11 +807,14 @@ class LobsteroutTest(PymatgenTest):
                                                            'sys_time': {'h': '0', 'min': '0', 's': '0', 'ms': '180'}})
         self.assertAlmostEqual(self.lobsterout_GaAs.totalspilling[0], [0.0859][0])
 
+        self.assertEqual(self.lobsterout_onethread.number_of_threads, 1)
+
     def test_get_doc(self):
         comparedict = {'restart_from_projection': False, 'lobster_version': 'v3.1.0', 'threads': 8,
                        'Dftprogram': 'VASP', 'chargespilling': [0.0268], 'totalspilling': [0.044000000000000004],
-                       'elements': ['Ti'], 'basistype': ['pbeVaspFit2015'], 'basisfunctions': [
-                ['3s', '4s', '3p_y', '3p_z', '3p_x', '3d_xy', '3d_yz', '3d_z^2', '3d_xz', '3d_x^2-y^2']],
+                       'elements': ['Ti'], 'basistype': ['pbeVaspFit2015'],
+                       'basisfunctions': [[
+                           '3s', '4s', '3p_y', '3p_z', '3p_x', '3d_xy', '3d_yz', '3d_z^2', '3d_xz', '3d_x^2-y^2']],
                        'timing': {'walltime': {'h': '0', 'min': '0', 's': '2', 'ms': '702'},
                                   'usertime': {'h': '0', 'min': '0', 's': '20', 'ms': '330'},
                                   'sys_time': {'h': '0', 'min': '0', 's': '0', 'ms': '310'}},
@@ -801,8 +822,9 @@ class LobsteroutTest(PymatgenTest):
                                     'Generally, this is not a critical error. But to help you analyze it,',
                                     'I dumped the band overlap matrices to the file bandOverlaps.lobster.',
                                     'Please check how much they deviate from the identity matrix and decide to',
-                                    'use your results only, if you are sure that this is ok.'], 'orthonormalization': [
-                '3 of 147 k-points could not be orthonormalized with an accuracy of 1.0E-5.'],
+                                    'use your results only, if you are sure that this is ok.'],
+                       'orthonormalization': [
+                           '3 of 147 k-points could not be orthonormalized with an accuracy of 1.0E-5.'],
                        'infos': ['There are more PAW bands than local basis functions available.',
                                  'To prevent trouble in orthonormalization and Hamiltonian reconstruction',
                                  'the PAW bands from 21 and upwards will be ignored.'], 'hasDOSCAR': True,
@@ -810,15 +832,15 @@ class LobsteroutTest(PymatgenTest):
                        'hasbandoverlaps': True, 'hasfatband': False, 'hasGrossPopuliation': False,
                        'hasDensityOfEnergies': False}
         for key, item in self.lobsterout_normal.get_doc().items():
-            if type(item) == type(''):
+            if isinstance(item, str):
                 self.assertTrue(comparedict[key], item)
-            elif type(item) == type(0):
+            elif isinstance(item, int):
                 self.assertEqual(comparedict[key], item)
-            elif key == 'chargespilling' or key == 'totalspilling':
+            elif key in ('chargespilling', 'totalspilling'):
                 self.assertAlmostEqual(item[0], comparedict[key][0])
-            elif type(item) == type(['']):
+            elif isinstance(item, list):
                 self.assertListEqual(item, comparedict[key])
-            elif type(item) == type({}):
+            elif isinstance(item, dict):
                 self.assertDictEqual(item, comparedict[key])
 
 
@@ -1002,12 +1024,14 @@ class FatbandTest(PymatgenTest):
         self.assertAlmostEqual(bs_p.kpoints[50].cart_coords[2], self.bs_symmline2.kpoints[50].cart_coords[2])
         self.assertAlmostEqual(bs_p.get_band_gap()["energy"], self.bs_symmline2.get_band_gap()["energy"], places=2)
         self.assertAlmostEqual(bs_p.get_projection_on_elements()[Spin.up][0][0]["Si"], 3 * (0.001 + 0.064))
-        self.assertAlmostEqual(bs_p.get_projections_on_elements_and_orbitals({"Si": ["3p"]})[Spin.up][0][0]["Si"]["3p"],
-                               0.003)
-        self.assertAlmostEqual(bs_p.get_projections_on_elements_and_orbitals({"O": ["2p"]})[Spin.up][0][0]["O"]["2p"],
-                               0.002 * 3 + 0.003 * 3)
-        dict_here = bs_p.get_projections_on_elements_and_orbitals({"Si": ["3s", "3p"], "O": ["2s", "2p"]})[Spin.up][0][
-            0]
+        self.assertAlmostEqual(
+            bs_p.get_projections_on_elements_and_orbitals({"Si": ["3p"]})[Spin.up][0][0]["Si"]["3p"],
+            0.003)
+        self.assertAlmostEqual(
+            bs_p.get_projections_on_elements_and_orbitals({"O": ["2p"]})[Spin.up][0][0]["O"]["2p"],
+            0.002 * 3 + 0.003 * 3)
+        dict_here = bs_p.get_projections_on_elements_and_orbitals({
+            "Si": ["3s", "3p"], "O": ["2s", "2p"]})[Spin.up][0][0]
         self.assertAlmostEqual(dict_here["Si"]["3s"], 0.192)
         self.assertAlmostEqual(dict_here["Si"]["3p"], 0.003)
         self.assertAlmostEqual(dict_here["O"]["2s"], 0.792)
@@ -1036,7 +1060,8 @@ class FatbandTest(PymatgenTest):
             bs_spin.get_projections_on_elements_and_orbitals({"O": ["2p"]})[Spin.down][0][0]["O"]["2p"],
             0.002 * 3 + 0.003 * 3)
         dict_here = \
-            bs_spin.get_projections_on_elements_and_orbitals({"Si": ["3s", "3p"], "O": ["2s", "2p"]})[Spin.down][0][0]
+            bs_spin.get_projections_on_elements_and_orbitals({"Si": ["3s", "3p"], "O": ["2s", "2p"]})[Spin.down][0][
+                0]
         self.assertAlmostEqual(dict_here["Si"]["3s"], 0.192)
         self.assertAlmostEqual(dict_here["Si"]["3p"], 0.003)
         self.assertAlmostEqual(dict_here["O"]["2s"], 0.792)
@@ -1051,6 +1076,7 @@ class LobsterinTest(unittest.TestCase):
         self.Lobsterinfromfile = Lobsterin.from_file(os.path.join(test_dir, "lobsterin.1"))
         self.Lobsterinfromfile2 = Lobsterin.from_file(os.path.join(test_dir, "lobsterin.2"))
         self.Lobsterinfromfile3 = Lobsterin.from_file(os.path.join(test_dir, "lobsterin.3"))
+        self.Lobsterinfromfile4 = Lobsterin.from_file(os.path.join(test_dir, "lobsterin.4.gz"))
 
     def test_from_file(self):
         # test read from file
@@ -1100,7 +1126,7 @@ class LobsterinTest(unittest.TestCase):
         lobsterin2 = Lobsterin({'cohpstartenergy': -15.0})
         # can only calculate nbands if basis functions are provided
         with self.assertRaises(IOError):
-            lobsterin2._get_nbands()
+            lobsterin2._get_nbands(structure=Structure.from_file(os.path.join(test_dir_doscar, "POSCAR.Fe3O4")))
 
     def test_standard_settings(self):
         # test standard settings
@@ -1194,12 +1220,22 @@ class LobsterinTest(unittest.TestCase):
     def test_get_basis(self):
         # get basis functions
         lobsterin1 = Lobsterin({})
+        potcar = Potcar.from_file(os.path.join(test_dir_doscar, "POTCAR.Fe3O4"))
+        Potcar_names = [name["symbol"] for name in potcar.spec]
+
         self.assertListEqual(lobsterin1._get_basis(Structure.from_file(os.path.join(test_dir_doscar, "Fe3O4.cif")),
-                                                   POTCAR=os.path.join(test_dir_doscar, "POTCAR.Fe3O4")),
+                                                   potcar_symbols=Potcar_names),
                              ['Fe 3d 4p 4s ', 'O 2p 2s '])
+        potcar = Potcar.from_file(os.path.join(test_dir, "POTCAR.GaAs"))
+        Potcar_names = [name["symbol"] for name in potcar.spec]
         self.assertListEqual(lobsterin1._get_basis(Structure.from_file(os.path.join(test_dir, "POSCAR.GaAs")),
-                                                   POTCAR=os.path.join(test_dir, "POTCAR.GaAs")),
+                                                   potcar_symbols=Potcar_names),
                              ['Ga 3d 4p 4s ', 'As 4p 4s '])
+
+    def test_get_potcar_symbols(self):
+        lobsterin1 = Lobsterin({})
+        self.assertListEqual(lobsterin1._get_potcar_symbols(os.path.join(test_dir_doscar, "POTCAR.Fe3O4")), ['Fe', 'O'])
+        self.assertListEqual(lobsterin1._get_potcar_symbols(os.path.join(test_dir, "POTCAR.GaAs")), ['Ga_d', 'As'])
 
     def test_write_lobsterin(self):
         # write lobsterin, read it and compare it
@@ -1219,14 +1255,15 @@ class LobsterinTest(unittest.TestCase):
                                                                      os.path.join(test_dir_doscar, "INCAR.lobster"),
                                                                      os.path.join(test_dir_doscar, "POTCAR.Fe3O4"),
                                                                      option='standard')
-        lobsterin1.write_INCAR(os.path.join(test_dir_doscar, "INCAR.lobster3"), outfile_path)
+        lobsterin1.write_INCAR(os.path.join(test_dir_doscar, "INCAR.lobster3"), outfile_path,
+                               os.path.join(test_dir_doscar, "POSCAR.Fe3O4"))
 
         incar1 = Incar.from_file(os.path.join(test_dir_doscar, "INCAR.lobster3"))
         incar2 = Incar.from_file(outfile_path)
 
         self.assertDictEqual(incar1.diff(incar2)["Different"],
-                             {'ISYM': {'INCAR1': 2, 'INCAR2': -1}, 'NBANDS': {'INCAR1': None, 'INCAR2': 13},
-                              'NSW': {'INCAR1': 500, 'INCAR2': 0}})
+                             {'ISYM': {'INCAR1': 2, 'INCAR2': -1}, 'NBANDS': {'INCAR1': None, 'INCAR2': 86},
+                              'NSW': {'INCAR1': 500, 'INCAR2': 0}, "LWAVE": {"INCAR1": False, "INCAR2": True}})
 
     def test_write_KPOINTS(self):
 
@@ -1297,6 +1334,50 @@ class LobsterinTest(unittest.TestCase):
 
         self.assertEqual(kpoint.num_kpts, 108)
 
+        #
+        # #without line mode, using a certain grid, isym=0 instead of -1
+        lobsterin1.write_KPOINTS(POSCAR_input=os.path.join(test_dir, "POSCAR.Li"), KPOINTS_output=outfile_path,
+                                 line_mode=False,
+                                 from_grid=True, input_grid=[3, 3, 3], isym=0)
+
+        kpoint1 = Kpoints.from_file(outfile_path)
+        kpoint2 = Kpoints.from_file(os.path.join(test_dir, "IBZKPT_3_3_3_Li"))
+        for ikpoint, kpoint in enumerate(kpoint1.kpts):
+            self.assertTrue(
+                self.is_kpoint_in_list(kpoint, kpoint2.kpts, kpoint1.kpts_weights[ikpoint], kpoint2.kpts_weights))
+        for ikpoint, kpoint in enumerate(kpoint2.kpts):
+            self.assertTrue(
+                self.is_kpoint_in_list(kpoint, kpoint1.kpts, kpoint2.kpts_weights[ikpoint], kpoint1.kpts_weights))
+
+        lobsterin1.write_KPOINTS(POSCAR_input=os.path.join(test_dir, "POSCAR.Li"), KPOINTS_output=outfile_path,
+                                 line_mode=False,
+                                 from_grid=True, input_grid=[2, 2, 2], isym=0)
+
+        kpoint1 = Kpoints.from_file(outfile_path)
+        kpoint2 = Kpoints.from_file(os.path.join(test_dir, "IBZKPT_2_2_2_Li"))
+        for ikpoint, kpoint in enumerate(kpoint1.kpts):
+            self.assertTrue(
+                self.is_kpoint_in_list(kpoint, kpoint2.kpts, kpoint1.kpts_weights[ikpoint], kpoint2.kpts_weights))
+        for ikpoint, kpoint in enumerate(kpoint2.kpts):
+            self.assertTrue(
+                self.is_kpoint_in_list(kpoint, kpoint1.kpts, kpoint2.kpts_weights[ikpoint], kpoint1.kpts_weights))
+
+    def is_kpoint_in_list(self, kpoint, kpointlist, weight, weightlist):
+        found = 0
+        for ikpoint2, kpoint2 in enumerate(kpointlist):
+            if np.isclose(kpoint[0], kpoint2[0]) and np.isclose(kpoint[1], kpoint2[1]) and np.isclose(kpoint[2],
+                                                                                                      kpoint2[2]):
+                if weight == weightlist[ikpoint2]:
+                    found += 1
+            elif np.isclose(-kpoint[0], kpoint2[0]) and np.isclose(-kpoint[1], kpoint2[1]) and np.isclose(-kpoint[2],
+                                                                                                          kpoint2[2]):
+                if weight == weightlist[ikpoint2]:
+                    found += 1
+        if found == 1:
+            return True
+        else:
+            return False
+
     def test_MSONable_implementation(self):
         # tests as dict and from dict methods
         newLobsterin = Lobsterin.from_dict(self.Lobsterinfromfile.as_dict())
@@ -1305,6 +1386,142 @@ class LobsterinTest(unittest.TestCase):
 
     def tearDown(self):
         warnings.simplefilter("default")
+
+
+class BandoverlapsTest(unittest.TestCase):
+    def setUp(self):
+        warnings.simplefilter("ignore")
+        # test spin polarlized calc and non spinpolarized calc
+
+        self.bandoverlaps1 = Bandoverlaps(os.path.join(test_dir, "bandOverlaps.lobster.1"))
+        self.bandoverlaps2 = Bandoverlaps(os.path.join(test_dir, "bandOverlaps.lobster.2"))
+
+    def test_attributes(self):
+        # bandoverlapsdict
+        self.assertAlmostEqual(self.bandoverlaps1.bandoverlapsdict[Spin.up]["0.5 0 0"]["maxDeviation"], 0.000278953)
+        self.assertAlmostEqual(self.bandoverlaps1.bandoverlapsdict[Spin.up]["0.5 0 0"]["matrix"][-1][-1], 0.0188058)
+        self.assertAlmostEqual(self.bandoverlaps1.bandoverlapsdict[Spin.up]["0.5 0 0"]["matrix"][0][0], 1)
+
+        self.assertAlmostEqual(
+            self.bandoverlaps1.bandoverlapsdict[Spin.down]["0.0261194 0.0261194 0.473881"]["maxDeviation"], 4.31567e-05)
+        self.assertAlmostEqual(
+            self.bandoverlaps1.bandoverlapsdict[Spin.down]["0.0261194 0.0261194 0.473881"]["matrix"][0][-1], 4.0066e-07)
+
+        # maxDeviation
+        self.assertAlmostEqual(self.bandoverlaps1.max_deviation[0], 0.000278953)
+        self.assertAlmostEqual(self.bandoverlaps1.max_deviation[-1], 4.31567e-05)
+
+        self.assertAlmostEqual(self.bandoverlaps2.max_deviation[0], 0.000473319)
+        self.assertAlmostEqual(self.bandoverlaps2.max_deviation[-1], 1.48451e-05)
+
+    def test_has_good_quality(self):
+        self.assertFalse(self.bandoverlaps1.has_good_quality_maxDeviation(limit_maxDeviation=0.1))
+        self.assertFalse(self.bandoverlaps1.has_good_quality_check_occupied_bands(number_occ_bands_spin_up=9,
+                                                                                  number_occ_bands_spin_down=5,
+                                                                                  limit_deviation=0.1,
+                                                                                  spin_polarized=True))
+        self.assertTrue(self.bandoverlaps1.has_good_quality_check_occupied_bands(number_occ_bands_spin_up=3,
+                                                                                 number_occ_bands_spin_down=0,
+                                                                                 limit_deviation=0.001,
+                                                                                 spin_polarized=True))
+        self.assertFalse(self.bandoverlaps1.has_good_quality_check_occupied_bands(number_occ_bands_spin_up=1,
+                                                                                  number_occ_bands_spin_down=1,
+                                                                                  limit_deviation=0.000001,
+                                                                                  spin_polarized=True))
+        self.assertFalse(self.bandoverlaps1.has_good_quality_check_occupied_bands(number_occ_bands_spin_up=1,
+                                                                                  number_occ_bands_spin_down=0,
+                                                                                  limit_deviation=0.000001,
+                                                                                  spin_polarized=True))
+        self.assertFalse(self.bandoverlaps1.has_good_quality_check_occupied_bands(number_occ_bands_spin_up=0,
+                                                                                  number_occ_bands_spin_down=1,
+                                                                                  limit_deviation=0.000001,
+                                                                                  spin_polarized=True))
+        self.assertFalse(self.bandoverlaps1.has_good_quality_check_occupied_bands(number_occ_bands_spin_up=4,
+                                                                                  number_occ_bands_spin_down=4,
+                                                                                  limit_deviation=0.001,
+                                                                                  spin_polarized=True))
+
+        self.assertTrue(self.bandoverlaps1.has_good_quality_maxDeviation(limit_maxDeviation=100))
+        self.assertTrue(self.bandoverlaps2.has_good_quality_maxDeviation())
+        self.assertFalse(self.bandoverlaps2.has_good_quality_maxDeviation(limit_maxDeviation=0.0000001))
+        self.assertFalse(self.bandoverlaps2.has_good_quality_check_occupied_bands(number_occ_bands_spin_up=10,
+                                                                                  limit_deviation=0.0000001))
+        self.assertTrue(
+            self.bandoverlaps2.has_good_quality_check_occupied_bands(number_occ_bands_spin_up=1, limit_deviation=0.1))
+
+        self.assertFalse(
+            self.bandoverlaps2.has_good_quality_check_occupied_bands(number_occ_bands_spin_up=1, limit_deviation=1e-8))
+        self.assertTrue(
+            self.bandoverlaps2.has_good_quality_check_occupied_bands(number_occ_bands_spin_up=10, limit_deviation=0.1))
+
+        self.assertTrue(
+            self.bandoverlaps2.has_good_quality_check_occupied_bands(number_occ_bands_spin_up=1, limit_deviation=0.1))
+
+
+class GrosspopTest(unittest.TestCase):
+    def setUp(self):
+        self.grosspop1 = Grosspop(os.path.join(test_dir, "GROSSPOP.lobster"))
+
+    def testattributes(self):
+        self.assertAlmostEqual(self.grosspop1.list_dict_grosspop[0]["Mulliken GP"]["3s"], 0.52)
+        self.assertAlmostEqual(self.grosspop1.list_dict_grosspop[0]["Mulliken GP"]["3p_y"], 0.38)
+        self.assertAlmostEqual(self.grosspop1.list_dict_grosspop[0]["Mulliken GP"]["3p_z"], 0.37)
+        self.assertAlmostEqual(self.grosspop1.list_dict_grosspop[0]["Mulliken GP"]["3p_x"], 0.37)
+        self.assertAlmostEqual(self.grosspop1.list_dict_grosspop[0]["Mulliken GP"]["total"], 1.64)
+        self.assertEqual(self.grosspop1.list_dict_grosspop[0]["element"], 'Si')
+        self.assertAlmostEqual(self.grosspop1.list_dict_grosspop[0]["Loewdin GP"]["3s"], 0.61)
+        self.assertAlmostEqual(self.grosspop1.list_dict_grosspop[0]["Loewdin GP"]["3p_y"], 0.52)
+        self.assertAlmostEqual(self.grosspop1.list_dict_grosspop[0]["Loewdin GP"]["3p_z"], 0.52)
+        self.assertAlmostEqual(self.grosspop1.list_dict_grosspop[0]["Loewdin GP"]["3p_x"], 0.52)
+        self.assertAlmostEqual(self.grosspop1.list_dict_grosspop[0]["Loewdin GP"]["total"], 2.16)
+        self.assertAlmostEqual(self.grosspop1.list_dict_grosspop[5]["Mulliken GP"]["2s"], 1.80)
+        self.assertAlmostEqual(self.grosspop1.list_dict_grosspop[5]["Loewdin GP"]["2s"], 1.60)
+        self.assertEqual(self.grosspop1.list_dict_grosspop[5]["element"], 'O')
+        self.assertAlmostEqual(self.grosspop1.list_dict_grosspop[8]["Mulliken GP"]["2s"], 1.80)
+        self.assertAlmostEqual(self.grosspop1.list_dict_grosspop[8]["Loewdin GP"]["2s"], 1.60)
+        self.assertEqual(self.grosspop1.list_dict_grosspop[8]["element"], 'O')
+
+    def test_structure_with_grosspop(self):
+        struct_dict = {'@module': 'pymatgen.core.structure', '@class': 'Structure', 'charge': None, 'lattice': {
+            'matrix': [[5.021897888834907, 4.53806e-11, 0.0], [-2.5109484443388332, 4.349090983701526, 0.0],
+                       [0.0, 0.0, 5.511929408565514]], 'a': 5.021897888834907, 'b': 5.0218974974248045,
+            'c': 5.511929408565514, 'alpha': 90.0, 'beta': 90.0, 'gamma': 119.99999598960493,
+            'volume': 120.38434608659402}, 'sites': [
+            {'species': [{'element': 'Si', 'occu': 1}], 'abc': [-3e-16, 0.4763431475490085, 0.6666669999999968],
+             'xyz': [-1.1960730853096477, 2.0716596881533986, 3.674621443020128], 'label': 'Si',
+             'properties': {'Total Mulliken GP': 1.64, 'Total Loewdin GP': 2.16}},
+            {'species': [{'element': 'Si', 'occu': 1}], 'abc': [0.5236568524509936, 0.5236568524509926, 0.0],
+             'xyz': [1.3148758827683875, 2.277431295571896, 0.0], 'label': 'Si',
+             'properties': {'Total Mulliken GP': 1.64, 'Total Loewdin GP': 2.16}},
+            {'species': [{'element': 'Si', 'occu': 1}], 'abc': [0.4763431475490066, -1.2e-15, 0.3333330000000032],
+             'xyz': [2.392146647037334, 2.1611518932482004e-11, 1.8373079655453863], 'label': 'Si',
+             'properties': {'Total Mulliken GP': 1.64, 'Total Loewdin GP': 2.16}},
+            {'species': [{'element': 'O', 'occu': 1}],
+             'abc': [0.1589037798059321, 0.7440031622164922, 0.4613477252144715],
+             'xyz': [-1.0701550264153763, 3.235737444648381, 2.5429160941844473], 'label': 'O',
+             'properties': {'Total Mulliken GP': 7.18, 'Total Loewdin GP': 6.92}},
+            {'species': [{'element': 'O', 'occu': 1}],
+             'abc': [0.2559968377835071, 0.4149006175894398, 0.7946807252144676],
+             'xyz': [0.2437959189219816, 1.8044405351020447, 4.380224059729795], 'label': 'O',
+             'properties': {'Total Mulliken GP': 7.18, 'Total Loewdin GP': 6.92}},
+            {'species': [{'element': 'O', 'occu': 1}],
+             'abc': [0.5850993824105679, 0.8410962201940679, 0.1280147252144683],
+             'xyz': [0.8263601076506712, 3.6580039876980064, 0.7056081286390611], 'label': 'O',
+             'properties': {'Total Mulliken GP': 7.18, 'Total Loewdin GP': 6.92}},
+            {'species': [{'element': 'O', 'occu': 1}],
+             'abc': [0.7440031622164928, 0.1589037798059326, 0.5386522747855285],
+             'xyz': [3.337308710918233, 0.6910869960638374, 2.969013314381067], 'label': 'O',
+             'properties': {'Total Mulliken GP': 7.18, 'Total Loewdin GP': 6.92}},
+            {'species': [{'element': 'O', 'occu': 1}], 'abc': [0.4149006175894392, 0.2559968377835, 0.2053192747855324],
+             'xyz': [1.4407936739605638, 1.1133535390791505, 1.13170534883572], 'label': 'O',
+             'properties': {'Total Mulliken GP': 7.18, 'Total Loewdin GP': 6.92}},
+            {'species': [{'element': 'O', 'occu': 1}],
+             'abc': [0.841096220194068, 0.5850993824105675, 0.8719852747855317],
+             'xyz': [2.754744948452184, 2.5446504486493, 4.806321279926453], 'label': 'O',
+             'properties': {'Total Mulliken GP': 7.18, 'Total Loewdin GP': 6.92}}]}
+        newstructure = self.grosspop1.get_structure_with_total_grosspop(os.path.join(test_dir, "POSCAR.SiO2"))
+
+        self.assertDictEqual(newstructure.as_dict(), struct_dict)
 
 
 if __name__ == "__main__":

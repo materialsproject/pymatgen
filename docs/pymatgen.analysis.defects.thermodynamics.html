@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.defects.thermodynamics module &#8212; pymatgen 2019.6.5 documentation</title>
+    <title>pymatgen.analysis.defects.thermodynamics module &#8212; pymatgen 2020.3.2 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,9 +13,10 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.analysis.defects.utils module" href="pymatgen.analysis.defects.utils.html" />
+    <link rel="prev" title="pymatgen.analysis.defects.generators module" href="pymatgen.analysis.defects.generators.html" />
  
 <script type="text/javascript">
   var _gaq = _gaq || [];
@@ -33,7 +34,17 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="right" >
+          <a href="pymatgen.analysis.defects.utils.html" title="pymatgen.analysis.defects.utils module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pymatgen.analysis.defects.generators.html" title="pymatgen.analysis.defects.generators module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >pymatgen</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="pymatgen.html" >pymatgen package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="pymatgen.analysis.html" >pymatgen.analysis package</a> &#187;</li>
+          <li class="nav-item nav-item-4"><a href="pymatgen.analysis.defects.html" accesskey="U">pymatgen.analysis.defects package</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,9 +55,10 @@
             
   <div class="section" id="module-pymatgen.analysis.defects.thermodynamics">
 <span id="pymatgen-analysis-defects-thermodynamics-module"></span><h1>pymatgen.analysis.defects.thermodynamics module<a class="headerlink" href="#module-pymatgen.analysis.defects.thermodynamics" title="Permalink to this headline">¶</a></h1>
+<p>Defect thermodynamics, such as defect phase diagrams, etc.</p>
 <dl class="class">
 <dt id="pymatgen.analysis.defects.thermodynamics.DefectPhaseDiagram">
-<em class="property">class </em><code class="sig-name descname">DefectPhaseDiagram</code><span class="sig-paren">(</span><em class="sig-param">entries</em>, <em class="sig-param">vbm</em>, <em class="sig-param">band_gap</em>, <em class="sig-param">filter_compatible=True</em>, <em class="sig-param">metadata={}</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/thermodynamics.html#DefectPhaseDiagram"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.thermodynamics.DefectPhaseDiagram" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">DefectPhaseDiagram</code><span class="sig-paren">(</span><em class="sig-param">entries</em>, <em class="sig-param">vbm</em>, <em class="sig-param">band_gap</em>, <em class="sig-param">filter_compatible=True</em>, <em class="sig-param">metadata=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/thermodynamics.html#DefectPhaseDiagram"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.thermodynamics.DefectPhaseDiagram" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>This is similar to a PhaseDiagram object in pymatgen,
 but has ability to do quick analysis of defect formation energies
@@ -81,7 +93,7 @@ Default is True (to omit calculations which have “is_compatible”=False in</p
 </div></blockquote>
 </p></li>
 <li><p><strong>metadata</strong> (<em>dict</em>) – Dictionary of metadata to store with the PhaseDiagram. Has
-no impact on calculations.</p></li>
+no impact on calculations</p></li>
 </ul>
 </dd>
 </dl>
@@ -100,14 +112,18 @@ no impact on calculations.</p></li>
 <dl class="method">
 <dt id="pymatgen.analysis.defects.thermodynamics.DefectPhaseDiagram.as_dict">
 <code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/thermodynamics.html#DefectPhaseDiagram.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.thermodynamics.DefectPhaseDiagram.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>Json-serializable dict representation of DefectPhaseDiagram</p>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Json-serializable dict representation of DefectPhaseDiagram</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.defects.thermodynamics.DefectPhaseDiagram.defect_concentrations">
 <code class="sig-name descname">defect_concentrations</code><span class="sig-paren">(</span><em class="sig-param">chemical_potentials</em>, <em class="sig-param">temperature=300</em>, <em class="sig-param">fermi_level=0.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/thermodynamics.html#DefectPhaseDiagram.defect_concentrations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.thermodynamics.DefectPhaseDiagram.defect_concentrations" title="Permalink to this definition">¶</a></dt>
 <dd><p>Give list of all concentrations at specified efermi in the DefectPhaseDiagram
-:param chemical_potentials = {Element: number} is dictionary of chemical potentials to provide formation energies for
+:param chemical_potentials = {Element: number} is dict of chemical potentials to provide formation energies for
 :param temperature = temperature to produce concentrations from:
 :param fermi_level: (float) is fermi level relative to valence band maximum</p>
 <blockquote>
@@ -278,11 +294,6 @@ and the defect+chg formation energy is stable at fermi levels within the band ga
 
 </dd></dl>
 
-<dl class="data">
-<dt id="pymatgen.analysis.defects.thermodynamics.logger">
-<code class="sig-name descname">logger</code><em class="property"> = &lt;Logger pymatgen.analysis.defects.thermodynamics (WARNING)&gt;</em><a class="headerlink" href="#pymatgen.analysis.defects.thermodynamics.logger" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 </div>
 
 
@@ -291,6 +302,12 @@ and the defect+chg formation energy is stable at fermi levels within the band ga
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pymatgen.analysis.defects.generators.html"
+                        title="previous chapter">pymatgen.analysis.defects.generators module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pymatgen.analysis.defects.utils.html"
+                        title="next chapter">pymatgen.analysis.defects.utils module</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -321,13 +338,23 @@ and the defect+chg formation energy is stable at fermi levels within the band ga
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="right" >
+          <a href="pymatgen.analysis.defects.utils.html" title="pymatgen.analysis.defects.utils module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pymatgen.analysis.defects.generators.html" title="pymatgen.analysis.defects.generators module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >pymatgen</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="pymatgen.html" >pymatgen package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="pymatgen.analysis.html" >pymatgen.analysis package</a> &#187;</li>
+          <li class="nav-item nav-item-4"><a href="pymatgen.analysis.defects.html" >pymatgen.analysis.defects package</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

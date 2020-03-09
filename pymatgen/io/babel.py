@@ -2,6 +2,12 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+OpenBabel interface module, which opens up access to the hundreds of file
+formats supported by OpenBabel. Requires openbabel with python bindings to be
+installed. Please consult the
+`openbabel documentation <http://openbabel.org/wiki/Main_Page>`_.
+"""
 
 import warnings
 import copy
@@ -10,18 +16,11 @@ from pymatgen.analysis.graphs import MoleculeGraph
 from monty.dev import requires
 
 try:
-    import openbabel as ob
-    import pybel as pb
-except:
-    pb = None
+    from openbabel import openbabel as ob
+    from openbabel import pybel as pb
+except Exception:
     ob = None
 
-"""
-OpenBabel interface module, which opens up access to the hundreds of file
-formats supported by OpenBabel. Requires openbabel with python bindings to be
-installed. Please consult the
-`openbabel documentation <http://openbabel.org/wiki/Main_Page>`_.
-"""
 
 __author__ = "Shyue Ping Ong, Qi Wang"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -37,9 +36,10 @@ class BabelMolAdaptor:
     Molecule.
     """
 
-    @requires(pb and ob,
+    @requires(ob,
               "BabelMolAdaptor requires openbabel to be installed with "
-              "Python bindings. Please get it at http://openbabel.org.")
+              "Python bindings. Please get it at http://openbabel.org "
+              "(version >=3.0.0).")
     def __init__(self, mol):
         """
         Initializes with pymatgen Molecule or OpenBabel"s OBMol.
@@ -70,9 +70,8 @@ class BabelMolAdaptor:
             obmol.ConnectTheDots()
             obmol.PerceiveBondOrders()
             obmol.SetTotalSpinMultiplicity(mol.spin_multiplicity)
-            obmol.SetTotalCharge(mol.charge)
+            obmol.SetTotalCharge(int(mol.charge))
             obmol.Center()
-            obmol.Kekulize()
             obmol.EndModify()
             self._obmol = obmol
         elif isinstance(mol, ob.OBMol):
@@ -145,10 +144,11 @@ class BabelMolAdaptor:
 
         Args:
             idx1: The atom index of one of the atoms participating the in bond
-            idx2: The atom index of the other atom participating in the bond 
+            idx2: The atom index of the other atom participating in the bond
         """
         for obbond in ob.OBMolBondIter(self._obmol):
-            if (obbond.GetBeginAtomIdx() == idx1 and obbond.GetEndAtomIdx() == idx2) or (obbond.GetBeginAtomIdx() == idx2 and obbond.GetEndAtomIdx() == idx1):
+            if (obbond.GetBeginAtomIdx() == idx1 and obbond.GetEndAtomIdx() == idx2) or (
+                    obbond.GetBeginAtomIdx() == idx2 and obbond.GetEndAtomIdx() == idx1):
                 self._obmol.DeleteBond(obbond)
 
     def rotor_conformer(self, *rotor_args, algo="WeightedRotorSearch",
@@ -202,6 +202,7 @@ class BabelMolAdaptor:
         """
         A combined method to first generate 3D structures from 0D or 2D
         structures and then find the minimum energy conformer:
+
         1. Use OBBuilder to create a 3D structure using rules and ring templates
         2. Do 250 steps of a steepest descent geometry optimization with the
            MMFF94 forcefield
@@ -300,19 +301,25 @@ class BabelMolAdaptor:
         return mol.write(file_format, filename, overwrite=True)
 
     @staticmethod
-    def from_file(filename, file_format="xyz"):
+    def from_file(filename, file_format="xyz", return_all_molecules=False):
         """
         Uses OpenBabel to read a molecule from a file in all supported formats.
 
         Args:
             filename: Filename of input file
             file_format: String specifying any OpenBabel supported formats.
+            return_all_molecules: If ``True``, will return a list of
+                ``BabelMolAdaptor`` instances, one for each molecule found in
+                the file. If ``False``, will return only the first molecule.
 
         Returns:
-            BabelMolAdaptor object
+            BabelMolAdaptor object or list thereof
         """
-        mols = list(pb.readfile(str(file_format), str(filename)))
-        return BabelMolAdaptor(mols[0].OBMol)
+        mols = pb.readfile(str(file_format), str(filename))
+        if return_all_molecules:
+            return [BabelMolAdaptor(mol.OBMol) for mol in mols]
+        else:
+            return BabelMolAdaptor(next(mols).OBMol)
 
     @staticmethod
     def from_molecule_graph(mol):

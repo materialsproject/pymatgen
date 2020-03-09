@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.util.provenance module &#8212; pymatgen 2019.6.5 documentation</title>
+    <title>pymatgen.util.provenance module &#8212; pymatgen 2020.3.2 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,9 +13,10 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.util.sequence module" href="pymatgen.util.sequence.html" />
+    <link rel="prev" title="pymatgen.util.plotting module" href="pymatgen.util.plotting.html" />
  
 <script type="text/javascript">
   var _gaq = _gaq || [];
@@ -33,7 +34,16 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="right" >
+          <a href="pymatgen.util.sequence.html" title="pymatgen.util.sequence module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pymatgen.util.plotting.html" title="pymatgen.util.plotting module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >pymatgen</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="pymatgen.html" >pymatgen package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="pymatgen.util.html" accesskey="U">pymatgen.util package</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,6 +54,7 @@
             
   <div class="section" id="module-pymatgen.util.provenance">
 <span id="pymatgen-util-provenance-module"></span><h1>pymatgen.util.provenance module<a class="headerlink" href="#module-pymatgen.util.provenance" title="Permalink to this headline">¶</a></h1>
+<p>Classes and methods related to the Structure Notation Language (SNL)</p>
 <dl class="class">
 <dt id="pymatgen.util.provenance.Author">
 <em class="property">class </em><code class="sig-name descname">Author</code><a class="reference internal" href="_modules/pymatgen/util/provenance.html#Author"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.provenance.Author" title="Permalink to this definition">¶</a></dt>
@@ -65,12 +76,21 @@
 <dl class="method">
 <dt id="pymatgen.util.provenance.Author.as_dict">
 <code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/provenance.html#Author.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.provenance.Author.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Returns: MSONable dict.</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.util.provenance.Author.from_dict">
 <em class="property">static </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/provenance.html#Author.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.provenance.Author.from_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>d</strong> (<em>dict</em>) – Dict representation</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Author</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.util.provenance.Author.parse_author">
@@ -125,12 +145,21 @@ Structure (dict).</p>
 <dl class="method">
 <dt id="pymatgen.util.provenance.HistoryNode.as_dict">
 <code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/provenance.html#HistoryNode.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.provenance.HistoryNode.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Returns: Dict</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.util.provenance.HistoryNode.from_dict">
 <em class="property">static </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">h_node</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/provenance.html#HistoryNode.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.provenance.HistoryNode.from_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>d</strong> (<em>dict</em>) – Dict representation</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>HistoryNode</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.util.provenance.HistoryNode.parse_history_node">
@@ -148,26 +177,6 @@ tuple.</p>
 </dd></dl>
 
 </dd></dl>
-
-<dl class="data">
-<dt id="pymatgen.util.provenance.MAX_BIBTEX_CHARS">
-<code class="sig-name descname">MAX_BIBTEX_CHARS</code><em class="property"> = 20000</em><a class="headerlink" href="#pymatgen.util.provenance.MAX_BIBTEX_CHARS" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="data">
-<dt id="pymatgen.util.provenance.MAX_DATA_SIZE">
-<code class="sig-name descname">MAX_DATA_SIZE</code><em class="property"> = 256000</em><a class="headerlink" href="#pymatgen.util.provenance.MAX_DATA_SIZE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="data">
-<dt id="pymatgen.util.provenance.MAX_HNODES">
-<code class="sig-name descname">MAX_HNODES</code><em class="property"> = 100</em><a class="headerlink" href="#pymatgen.util.provenance.MAX_HNODES" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="data">
-<dt id="pymatgen.util.provenance.MAX_HNODE_SIZE">
-<code class="sig-name descname">MAX_HNODE_SIZE</code><em class="property"> = 64000</em><a class="headerlink" href="#pymatgen.util.provenance.MAX_HNODE_SIZE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 <dl class="class">
 <dt id="pymatgen.util.provenance.StructureNL">
@@ -198,7 +207,7 @@ format with the following structure:</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>struct_or_mol</strong> – A pymatgen.core.structure Structure/Molecule object</p></li>
-<li><p><strong>authors</strong> – <em>List</em> of {“name”:’‘, “email”:’‘} dicts,
+<li><p><strong>authors</strong> – <em>List</em> of {“name”:’’, “email”:’’} dicts,
 <em>list</em> of Strings as ‘John Doe &lt;<a class="reference external" href="mailto:johndoe&#37;&#52;&#48;gmail&#46;com">johndoe<span>&#64;</span>gmail<span>&#46;</span>com</a>&gt;’,
 or a single String with commas separating authors</p></li>
 <li><p><strong>projects</strong> – List of Strings [‘Project A’, ‘Project B’]</p></li>
@@ -206,7 +215,7 @@ or a single String with commas separating authors</p></li>
 <li><p><strong>remarks</strong> – List of Strings [‘Remark A’, ‘Remark B’]</p></li>
 <li><p><strong>data</strong> – A free form dict. Namespaced at the root level with an
 underscore, e.g. {“_materialsproject”: &lt;custom data&gt;}</p></li>
-<li><p><strong>history</strong> – List of dicts - [{‘name’:’‘, ‘url’:’‘, ‘description’:{}}]</p></li>
+<li><p><strong>history</strong> – List of dicts - [{‘name’:’’, ‘url’:’’, ‘description’:{}}]</p></li>
 <li><p><strong>created_at</strong> – A datetime object</p></li>
 </ul>
 </dd>
@@ -214,12 +223,21 @@ underscore, e.g. {“_materialsproject”: &lt;custom data&gt;}</p></li>
 <dl class="method">
 <dt id="pymatgen.util.provenance.StructureNL.as_dict">
 <code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/provenance.html#StructureNL.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.provenance.StructureNL.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Returns: MSONable dict</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.util.provenance.StructureNL.from_dict">
 <em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/provenance.html#StructureNL.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.provenance.StructureNL.from_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>d</strong> (<em>dict</em>) – Dict representation</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Class</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.util.provenance.StructureNL.from_structures">
@@ -231,7 +249,7 @@ is applied to all of the structures for ease of use.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>structures</strong> – A list of Structure objects</p></li>
-<li><p><strong>authors</strong> – <em>List</em> of {“name”:’‘, “email”:’‘} dicts,
+<li><p><strong>authors</strong> – <em>List</em> of {“name”:’’, “email”:’’} dicts,
 <em>list</em> of Strings as ‘John Doe &lt;<a class="reference external" href="mailto:johndoe&#37;&#52;&#48;gmail&#46;com">johndoe<span>&#64;</span>gmail<span>&#46;</span>com</a>&gt;’,
 or a single String with commas separating authors</p></li>
 <li><p><strong>projects</strong> – List of Strings [‘Project A’, ‘Project B’]. This
@@ -243,7 +261,7 @@ structures.</p></li>
 with an underscore, e.g. {“_materialsproject”:&lt;custom data&gt;}
 . The length of data should be the same as the list of
 structures if not None.</p></li>
-<li><p><strong>histories</strong> – List of list of dicts - [[{‘name’:’‘, ‘url’:’‘,
+<li><p><strong>histories</strong> – List of list of dicts - [[{‘name’:’’, ‘url’:’’,
 ‘description’:{}}], …] The length of histories should be the
 same as the list of structures if not None.</p></li>
 <li><p><strong>created_at</strong> – A datetime object</p></li>
@@ -276,6 +294,12 @@ same as the list of structures if not None.</p></li>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pymatgen.util.plotting.html"
+                        title="previous chapter">pymatgen.util.plotting module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pymatgen.util.sequence.html"
+                        title="next chapter">pymatgen.util.sequence module</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -306,13 +330,22 @@ same as the list of structures if not None.</p></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="right" >
+          <a href="pymatgen.util.sequence.html" title="pymatgen.util.sequence module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pymatgen.util.plotting.html" title="pymatgen.util.plotting module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >pymatgen</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="pymatgen.html" >pymatgen package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="pymatgen.util.html" >pymatgen.util package</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

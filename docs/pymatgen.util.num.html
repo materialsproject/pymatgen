@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.util.num module &#8212; pymatgen 2019.6.5 documentation</title>
+    <title>pymatgen.util.num module &#8212; pymatgen 2020.3.2 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,9 +13,10 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.util.plotting module" href="pymatgen.util.plotting.html" />
+    <link rel="prev" title="pymatgen.util.io_utils module" href="pymatgen.util.io_utils.html" />
  
 <script type="text/javascript">
   var _gaq = _gaq || [];
@@ -33,7 +34,16 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="right" >
+          <a href="pymatgen.util.plotting.html" title="pymatgen.util.plotting module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pymatgen.util.io_utils.html" title="pymatgen.util.io_utils module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >pymatgen</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="pymatgen.html" >pymatgen package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="pymatgen.util.html" accesskey="U">pymatgen.util package</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -77,7 +87,7 @@ This will generate the full matrix:
 <dt id="pymatgen.util.num.maxloc">
 <code class="sig-name descname">maxloc</code><span class="sig-paren">(</span><em class="sig-param">seq</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/num.html#maxloc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.num.maxloc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the index of the (first) maximum in seq</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="n">maxloc</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span> <span class="o">==</span> <span class="mi">1</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="n">maxloc</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span> <span class="o">==</span> <span class="mi">1</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -93,7 +103,7 @@ in a list with the maximum and minimum value:</p>
 <dt id="pymatgen.util.num.minloc">
 <code class="sig-name descname">minloc</code><span class="sig-paren">(</span><em class="sig-param">seq</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/num.html#minloc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.num.minloc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the index of the (first) minimum in seq</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="n">minloc</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span> <span class="o">==</span> <span class="mi">0</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="n">minloc</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span> <span class="o">==</span> <span class="mi">0</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -104,7 +114,7 @@ in a list with the maximum and minimum value:</p>
 <dd><p>Returns False if values are not monotonic (decreasing|increasing).
 mode is “&lt;” for a decreasing sequence, “&gt;” for an increasing sequence.
 Two numbers are considered equal if they differ less that atol.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.2</span><span class="p">,</span> <span class="mf">1.3</span><span class="p">,</span> <span class="mf">1.4</span><span class="p">]</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.2</span><span class="p">,</span> <span class="mf">1.3</span><span class="p">,</span> <span class="mf">1.4</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">monotonic</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;&lt;&quot;</span><span class="p">)</span>
 <span class="go">False</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">monotonic</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;&gt;&quot;</span><span class="p">)</span>
@@ -172,6 +182,12 @@ of the dict i.e. key = lambda t : t[1]</p></li>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pymatgen.util.io_utils.html"
+                        title="previous chapter">pymatgen.util.io_utils module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pymatgen.util.plotting.html"
+                        title="next chapter">pymatgen.util.plotting module</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -202,13 +218,22 @@ of the dict i.e. key = lambda t : t[1]</p></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="right" >
+          <a href="pymatgen.util.plotting.html" title="pymatgen.util.plotting module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pymatgen.util.io_utils.html" title="pymatgen.util.io_utils module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >pymatgen</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="pymatgen.html" >pymatgen package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="pymatgen.util.html" >pymatgen.util package</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

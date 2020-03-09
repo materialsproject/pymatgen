@@ -2,6 +2,9 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+Utilities for defects module.
+"""
 
 import math
 
@@ -37,8 +40,6 @@ try:
 except ImportError:
     peak_local_max_found = False
 
-
-
 __author__ = "Danny Broberg, Shyam Dwaraknath, Bharat Medasani, Nils Zimmermann, Geoffroy Hautier"
 __copyright__ = "Copyright 2014, The Materials Project"
 __version__ = "1.0"
@@ -55,7 +56,7 @@ kb = 8.6173324e-5  # eV / K
 kumagai_to_V = 1.809512739e2  # = Electron charge * 1e10 / VacuumPermittivity Constant
 
 motif_cn_op = {}
-for cn, di in cn_opt_params.items():
+for cn, di in cn_opt_params.items():  # type: ignore
     for mot, li in di.items():
         motif_cn_op[mot] = {'cn': int(cn), 'optype': li[0]}
         motif_cn_op[mot]['params'] = deepcopy(li[1]) if len(li) > 1 else None
@@ -102,7 +103,7 @@ class QModel(MSONable):
             Charge density at the reciprocal vector magnitude
         """
         return (self.expnorm / np.sqrt(1 + self.gamma2 * g2) + (
-            1 - self.expnorm) * np.exp(-0.25 * self.beta2 * g2))
+                1 - self.expnorm) * np.exp(-0.25 * self.beta2 * g2))
 
     @property
     def rho_rec_limit0(self):
@@ -112,7 +113,7 @@ class QModel(MSONable):
         rho_rec(g->0) -> 1 + rho_rec_limit0 * g^2
         """
         return -2 * self.gamma2 * self.expnorm - 0.25 * self.beta2 * (
-            1 - self.expnorm)
+                1 - self.expnorm)
 
 
 def eV_to_k(energy):
@@ -426,7 +427,7 @@ class StructureMotifInterstitial:
             discard_motif = []
             for indi, i in enumerate(include):
                 if trialsites[i]["mtype"] != motif or \
-                                i in discard_motif:
+                        i in discard_motif:
                     continue
                 multiplicity[i] = 1
                 symposlist = [
@@ -437,7 +438,7 @@ class StructureMotifInterstitial:
                 for indj in range(indi + 1, len(include)):
                     j = include[indj]
                     if trialsites[j]["mtype"] != motif or \
-                                    j in discard_motif:
+                            j in discard_motif:
                         continue
                     for sympos in symposlist:
                         dist, image = struct.lattice.get_distance_and_image(
@@ -628,8 +629,8 @@ class TopographyAnalyzer:
         constrained_sites = []
         for i, site in enumerate(s):
             if site.frac_coords[2] >= constrained_c_frac - thickness and \
-                            site.frac_coords[
-                                2] <= constrained_c_frac + thickness:
+                    site.frac_coords[
+                        2] <= constrained_c_frac + thickness:
                 constrained_sites.append(site)
         structure = Structure.from_sites(sites=constrained_sites)
         lattice = structure.lattice
@@ -722,8 +723,10 @@ class TopographyAnalyzer:
             self.check_volume()
 
     def check_volume(self):
-        # Basic check for volume of all voronoi poly sum to unit cell volume
-        # Note that this does not apply after poly combination.
+        """
+        Basic check for volume of all voronoi poly sum to unit cell volume
+        Note that this does not apply after poly combination.
+        """
         vol = sum((v.volume for v in self.vnodes)) + sum(
             (v.volume for v in self.cation_vnodes))
         if abs(vol - self.structure.volume) > 1e-8:
@@ -803,7 +806,9 @@ class TopographyAnalyzer:
         return new_s
 
     def print_stats(self):
-
+        """
+        Print stats such as the MSE dist.
+        """
         latt = self.structure.lattice
 
         def get_min_dist(fcoords):
@@ -828,12 +833,21 @@ class TopographyAnalyzer:
         print("MSE dist voro = %s" % str(get_non_framework_dist(voro)))
 
     def write_topology(self, fname="Topo.cif"):
+        """
+        Write topology to a file.
+
+        :param fname: Filename
+        """
         new_s = Structure.from_sites(self.structure)
         for v in self.vnodes:
             new_s.append("Mg", v.frac_coords)
         new_s.to(filename=fname)
 
     def analyze_symmetry(self, tol):
+        """
+        :param tol: Tolerance for SpaceGroupAnalyzer
+        :return: List
+        """
         s = Structure.from_sites(self.framework)
         site_to_vindex = {}
         for i, v in enumerate(self.vnodes):
@@ -851,6 +865,9 @@ class TopographyAnalyzer:
                 if sites[0].specie.symbol == "Li"]
 
     def vtk(self):
+        """
+        Show VTK visualization.
+        """
         if StructureVis is None:
             raise NotImplementedError("vtk must be present to view.")
         lattice = self.structure.lattice
@@ -875,14 +892,25 @@ class VoronoiPolyhedron:
 
     def __init__(self, lattice, frac_coords, polyhedron_indices, all_coords,
                  name=None):
+        """
+        :param lattice:
+        :param frac_coords:
+        :param polyhedron_indices:
+        :param all_coords:
+        :param name:
+        """
         self.lattice = lattice
         self.frac_coords = frac_coords
         self.polyhedron_indices = polyhedron_indices
-        self.polyhedron_coords = np.array(all_coords)[list(polyhedron_indices),
-                                 :]
+        self.polyhedron_coords = np.array(all_coords)[list(polyhedron_indices), :]
         self.name = name
 
     def is_image(self, poly, tol):
+        """
+        :param poly: VoronoiPolyhedron
+        :param tol: Coordinate tolerance.
+        :return: Whether a poly is an image of the current one.
+        """
         frac_diff = pbc_diff(poly.frac_coords, self.frac_coords)
         if not np.allclose(frac_diff, [0, 0, 0], atol=tol):
             return False
@@ -900,10 +928,16 @@ class VoronoiPolyhedron:
 
     @property
     def coordination(self):
+        """
+        :return: Coordination number
+        """
         return len(self.polyhedron_indices)
 
     @property
     def volume(self):
+        """
+        :return: Volume
+        """
         return calculate_vol(self.polyhedron_coords)
 
     def __str__(self):
@@ -932,11 +966,20 @@ class ChargeDensityAnalyzer:
 
     @classmethod
     def from_file(cls, chgcar_filename):
+        """
+        Init from a CHGCAR.
+
+        :param chgcar_filename:
+        :return:
+        """
         chgcar = Chgcar.from_file(chgcar_filename)
         return cls(chgcar=chgcar)
 
     @property
     def charge_distribution_df(self):
+        """
+        :return: Charge distribution.
+        """
         if self._charge_distribution_df is None:
             return self._get_charge_distribution_df()
         else:
@@ -944,6 +987,9 @@ class ChargeDensityAnalyzer:
 
     @property
     def extrema_df(self):
+        """
+        :return: The extrema in charge density.
+        """
         if self.extrema_type is None:
             logger.warning(
                 "Please run ChargeDensityAnalyzer.get_local_extrema first!")
@@ -1129,7 +1175,7 @@ class ChargeDensityAnalyzer:
 
         merged_fcoords = [f - np.floor(f) for f in merged_fcoords]
         merged_fcoords = [f * (np.abs(f - 1) > 1E-15) for f in merged_fcoords]
-        # the second line for fringe cases like 
+        # the second line for fringe cases like
         # np.array([ 5.0000000e-01 -4.4408921e-17  5.0000000e-01])
         # where the shift to [0,1) does not work due to float precision
         self._update_extrema(merged_fcoords, extrema_type=self.extrema_type)
@@ -1233,7 +1279,7 @@ class ChargeDensityAnalyzer:
         int_den = []
         for isite in self.extrema_coords:
             mask = self._dist_mat(isite) < r
-            vol_sphere = self.chgcar.structure.volume * (mask.sum()/self.chgcar.ngridpts)
+            vol_sphere = self.chgcar.structure.volume * (mask.sum() / self.chgcar.ngridpts)
             chg_in_sphere = np.sum(self.chgcar.data['total'] * mask) / mask.size / vol_sphere
             int_den.append(chg_in_sphere)
         self._extrema_df['avg_charge_den'] = int_den
@@ -1256,6 +1302,12 @@ class ChargeDensityAnalyzer:
 
 
 def calculate_vol(coords):
+    """
+    Calculate volume given a set of coords.
+
+    :param coords: List of coords.
+    :return: Volume
+    """
     if len(coords) == 4:
         coords_affine = np.ones((4, 4))
         coords_affine[:, 0:3] = np.array(coords)
@@ -1289,7 +1341,7 @@ def converge(f, step, tol, max_h):
     return g
 
 
-def tune_for_gamma( lattice, epsilon):
+def tune_for_gamma(lattice, epsilon):
     """
     This tunes the gamma parameter for Kumagai anisotropic
     Ewald calculation. Method is to find a gamma parameter which generates a similar
@@ -1297,9 +1349,9 @@ def tune_for_gamma( lattice, epsilon):
     given the suggested cut off radii by Kumagai and Oba
     """
     logger.debug("Converging for ewald parameter...")
-    prec = 25 #a reasonable precision to tune gamma for
+    prec = 25  # a reasonable precision to tune gamma for
 
-    gamma = (2 * np.average(lattice.abc)) ** (-1/2.)
+    gamma = (2 * np.average(lattice.abc)) ** (-1 / 2.)
     recip_set, _, real_set, _ = generate_R_and_G_vecs(gamma, prec, lattice, epsilon)
     recip_set = recip_set[0]
     real_set = real_set[0]
@@ -1308,8 +1360,8 @@ def tune_for_gamma( lattice, epsilon):
                  "vecs.".format(gamma, len(real_set), len(recip_set)))
 
     while float(len(real_set)) / len(recip_set) > 1.05 or \
-          float(len(recip_set)) / len(real_set) > 1.05:
-        gamma *= (float(len(real_set)) / float(len(recip_set)))  ** 0.17
+            float(len(recip_set)) / len(real_set) > 1.05:
+        gamma *= (float(len(real_set)) / float(len(recip_set))) ** 0.17
         logger.debug("\tNot converged...Try modifying gamma to {}.".format(gamma))
         recip_set, _, real_set, _ = generate_R_and_G_vecs(gamma, prec, lattice, epsilon)
         recip_set = recip_set[0]
@@ -1337,11 +1389,11 @@ def generate_R_and_G_vecs(gamma, prec_set, lattice, epsilon):
 
     [a1, a2, a3] = lattice.matrix  # Angstrom
     volume = lattice.volume
-    [b1, b2, b3] = lattice.reciprocal_lattice.matrix # 1/ Angstrom
+    [b1, b2, b3] = lattice.reciprocal_lattice.matrix  # 1/ Angstrom
     invepsilon = np.linalg.inv(epsilon)
     rd_epsilon = np.sqrt(np.linalg.det(epsilon))
 
-    #generate reciprocal vector set (for each prec_set)
+    # generate reciprocal vector set (for each prec_set)
     recip_set = [[] for prec in prec_set]
     recip_summation_values = [0. for prec in prec_set]
     recip_cut_set = [(2 * gamma * prec) for prec in prec_set]
@@ -1358,19 +1410,19 @@ def generate_R_and_G_vecs(gamma, prec_set, lattice, epsilon):
                 normgvec = np.linalg.norm(gvec)
                 for recip_cut_ind, recip_cut in enumerate(recip_cut_set):
                     if normgvec <= recip_cut:
-                        recip_set[recip_cut_ind].append( gvec)
+                        recip_set[recip_cut_ind].append(gvec)
 
                         Gdotdiel = np.dot(gvec, np.dot(epsilon, gvec))
-                        summand = math.exp(-Gdotdiel / (4 * (gamma**2))) / Gdotdiel
+                        summand = math.exp(-Gdotdiel / (4 * (gamma ** 2))) / Gdotdiel
                         recip_summation_values[recip_cut_ind] += summand
 
     recip_summation_values = np.array(recip_summation_values)
     recip_summation_values /= volume
 
-    #generate real vector set (for each prec_set)
+    # generate real vector set (for each prec_set)
     real_set = [[] for prec in prec_set]
     real_summation_values = [0. for prec in prec_set]
-    real_cut_set = [( prec / gamma) for prec in prec_set]
+    real_cut_set = [(prec / gamma) for prec in prec_set]
 
     i_max = int(math.ceil(max(real_cut_set) / np.linalg.norm(a1)))
     j_max = int(math.ceil(max(real_cut_set) / np.linalg.norm(a2)))
@@ -1382,14 +1434,13 @@ def generate_R_and_G_vecs(gamma, prec_set, lattice, epsilon):
                 normrvec = np.linalg.norm(rvec)
                 for real_cut_ind, real_cut in enumerate(real_cut_set):
                     if normrvec <= real_cut:
-                        real_set[real_cut_ind].append( rvec)
+                        real_set[real_cut_ind].append(rvec)
                         if normrvec > 1e-8:
-                            sqrt_loc_res = np.sqrt( np.dot(rvec, np.dot(invepsilon, rvec)))
+                            sqrt_loc_res = np.sqrt(np.dot(rvec, np.dot(invepsilon, rvec)))
                             nmr = math.erfc(gamma * sqrt_loc_res)
                             real_summation_values[real_cut_ind] += nmr / sqrt_loc_res
 
-    real_summation_values = np.array( real_summation_values)
+    real_summation_values = np.array(real_summation_values)
     real_summation_values /= (4 * np.pi * rd_epsilon)
 
     return recip_set, recip_summation_values, real_set, real_summation_values
-

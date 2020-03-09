@@ -5,24 +5,14 @@
 
 import numpy as np
 import pickle
+import timeit
 
 from pymatgen.util.testing import PymatgenTest
+from pymatgen.electronic_structure.core import Magmom
 from pymatgen.core.periodic_table import Element, Specie
 from pymatgen.core.sites import Site, PeriodicSite
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.composition import Composition
-
-"""
-Created on Jul 17, 2012
-"""
-
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Jul 17, 2012"
 
 
 class SiteTest(PymatgenTest):
@@ -33,6 +23,8 @@ class SiteTest(PymatgenTest):
                                     [0.25, 0.35, 0.45])
         self.propertied_site = Site("Fe2+", [0.25, 0.35, 0.45],
                                     {'magmom': 5.1, 'charge': 4.2})
+        self.propertied_magmomvector_site = Site("Fe2+", [0.25, 0.35, 0.45],
+                                                 {'magmom': Magmom([2.6, 2.6, 3.5]), 'charge': 4.2})
         self.dummy_site = Site("X", [0, 0, 0])
 
     def test_properties(self):
@@ -50,6 +42,10 @@ class SiteTest(PymatgenTest):
         d = self.propertied_site.as_dict()
         site = Site.from_dict(d)
         self.assertEqual(site.properties["magmom"], 5.1)
+        self.assertEqual(site.properties["charge"], 4.2)
+        d = self.propertied_magmomvector_site.as_dict()
+        site = Site.from_dict(d)
+        self.assertEqual(site.properties["magmom"], Magmom([2.6, 2.6, 3.5]))
         self.assertEqual(site.properties["charge"], 4.2)
         d = self.dummy_site.as_dict()
         site = Site.from_dict(d)
@@ -82,6 +78,7 @@ class SiteTest(PymatgenTest):
 
         def set_bad_species():
             self.disordered_site.species = {"Cu": 0.5, "Gd": 0.6}
+
         self.assertRaises(ValueError, set_bad_species)
 
 
@@ -121,7 +118,7 @@ class PeriodicSiteTest(PymatgenTest):
     def test_distance(self):
         other_site = PeriodicSite("Fe", np.array([0, 0, 0]), self.lattice)
         self.assertAlmostEqual(self.site.distance(other_site), 6.22494979899,
-                                5)
+                               5)
 
     def test_distance_from_point(self):
         self.assertNotAlmostEqual(self.site.distance_from_point([0.1, 0.1,
@@ -219,6 +216,7 @@ class PeriodicSiteTest(PymatgenTest):
 
         def set_bad_species():
             site.species = {"Cu": 0.5, "Gd": 0.6}
+
         self.assertRaises(ValueError, set_bad_species)
 
         site.frac_coords = [0, 0, 0.1]
@@ -227,7 +225,8 @@ class PeriodicSiteTest(PymatgenTest):
         self.assertArrayAlmostEqual(site.frac_coords, [0.015, 0.0325, 0.05])
 
     def test_repr(self):
-        self.assertEqual(self.propertied_site.__repr__(), "PeriodicSite: Fe2+ (2.5000, 3.5000, 4.5000) [0.2500, 0.3500, 0.4500]")
+        self.assertEqual(self.propertied_site.__repr__(),
+                         "PeriodicSite: Fe2+ (2.5000, 3.5000, 4.5000) [0.2500, 0.3500, 0.4500]")
 
 
 def get_distance_and_image_old(site1, site2, jimage=None):
@@ -255,11 +254,11 @@ def get_distance_and_image_old(site1, site2, jimage=None):
 
     .. note::
         Assumes the primitive cell vectors are sufficiently not skewed such
-        that the condition \|a\|cos(ab_angle) < \|b\| for all possible cell
+        that the condition \\|a\\|cos(ab_angle) < \\|b\\| for all possible cell
         vector pairs. ** this method does not check this condition **
     """
     if jimage is None:
-        #Old algorithm
+        # Old algorithm
         jimage = -np.array(np.around(site2.frac_coords - site1.frac_coords),
                            int)
     mapped_vec = site1.lattice.get_cartesian_coords(jimage
@@ -268,7 +267,7 @@ def get_distance_and_image_old(site1, site2, jimage=None):
     dist = np.linalg.norm(mapped_vec)
     return dist, jimage
 
+
 if __name__ == "__main__":
-    #import sys;sys.argv = ['', 'Test.testName']
     import unittest
     unittest.main()

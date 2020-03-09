@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.defects.corrections module &#8212; pymatgen 2019.6.5 documentation</title>
+    <title>pymatgen.analysis.defects.corrections module &#8212; pymatgen 2020.3.2 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,9 +13,10 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.analysis.defects.defect_compatibility module" href="pymatgen.analysis.defects.defect_compatibility.html" />
+    <link rel="prev" title="pymatgen.analysis.defects.core module" href="pymatgen.analysis.defects.core.html" />
  
 <script type="text/javascript">
   var _gaq = _gaq || [];
@@ -33,7 +34,17 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="right" >
+          <a href="pymatgen.analysis.defects.defect_compatibility.html" title="pymatgen.analysis.defects.defect_compatibility module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pymatgen.analysis.defects.core.html" title="pymatgen.analysis.defects.core module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >pymatgen</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="pymatgen.html" >pymatgen package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="pymatgen.analysis.html" >pymatgen.analysis package</a> &#187;</li>
+          <li class="nav-item nav-item-4"><a href="pymatgen.analysis.defects.html" accesskey="U">pymatgen.analysis.defects package</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,6 +55,7 @@
             
   <div class="section" id="module-pymatgen.analysis.defects.corrections">
 <span id="pymatgen-analysis-defects-corrections-module"></span><h1>pymatgen.analysis.defects.corrections module<a class="headerlink" href="#module-pymatgen.analysis.defects.corrections" title="Permalink to this headline">¶</a></h1>
+<p>Implementation of defect correction methods.</p>
 <dl class="class">
 <dt id="pymatgen.analysis.defects.corrections.BandEdgeShiftingCorrection">
 <em class="property">class </em><code class="sig-name descname">BandEdgeShiftingCorrection</code><a class="reference internal" href="_modules/pymatgen/analysis/defects/corrections.html#BandEdgeShiftingCorrection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.corrections.BandEdgeShiftingCorrection" title="Permalink to this definition">¶</a></dt>
@@ -332,9 +344,8 @@ note this is list given by VASP’s OUTCAR (so it is multiplied by a test charge
 <dt>site_matching_indices (list):  list of corresponding site index values for</dt><dd><p>bulk and defect site structures EXCLUDING the defect site itself
 (ex. [[bulk structure site index, defect structure”s corresponding site index], … ]</p>
 </dd>
-</dl>
-<p>initial_defect_structure (Structure): Pymatgen Structure object representing un-relaxed defect structure</p>
-<dl class="simple">
+<dt>initial_defect_structure (Structure): Pymatgen Structure object representing un-relaxed defect</dt><dd><p>structure</p>
+</dd>
 <dt>defect_frac_sc_coords (array): Defect Position in fractional coordinates of the supercell</dt><dd><p>given in bulk_structure</p>
 </dd>
 </dl>
@@ -350,7 +361,18 @@ note this is list given by VASP’s OUTCAR (so it is multiplied by a test charge
 <dl class="method">
 <dt id="pymatgen.analysis.defects.corrections.KumagaiCorrection.get_potential_shift">
 <code class="sig-name descname">get_potential_shift</code><span class="sig-paren">(</span><em class="sig-param">gamma</em>, <em class="sig-param">volume</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/corrections.html#KumagaiCorrection.get_potential_shift"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.corrections.KumagaiCorrection.get_potential_shift" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>gamma</strong> (<em>float</em>) – Gamma</p></li>
+<li><p><strong>volume</strong> (<em>float</em>) – Volume.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Potential shift for defect.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.defects.corrections.KumagaiCorrection.get_real_summation">
@@ -367,7 +389,15 @@ note this is list given by VASP’s OUTCAR (so it is multiplied by a test charge
 <dl class="method">
 <dt id="pymatgen.analysis.defects.corrections.KumagaiCorrection.get_self_interaction">
 <code class="sig-name descname">get_self_interaction</code><span class="sig-paren">(</span><em class="sig-param">gamma</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/corrections.html#KumagaiCorrection.get_self_interaction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.corrections.KumagaiCorrection.get_self_interaction" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>gamma</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Self-interaction energy of defect.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.defects.corrections.KumagaiCorrection.perform_es_corr">
@@ -426,11 +456,6 @@ from Kumagai and Oba (doi: 10.1103/PhysRevB.89.195205)</p>
 
 </dd></dl>
 
-<dl class="data">
-<dt id="pymatgen.analysis.defects.corrections.logger">
-<code class="sig-name descname">logger</code><em class="property"> = &lt;Logger pymatgen.analysis.defects.corrections (WARNING)&gt;</em><a class="headerlink" href="#pymatgen.analysis.defects.corrections.logger" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 </div>
 
 
@@ -439,6 +464,12 @@ from Kumagai and Oba (doi: 10.1103/PhysRevB.89.195205)</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pymatgen.analysis.defects.core.html"
+                        title="previous chapter">pymatgen.analysis.defects.core module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pymatgen.analysis.defects.defect_compatibility.html"
+                        title="next chapter">pymatgen.analysis.defects.defect_compatibility module</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -469,13 +500,23 @@ from Kumagai and Oba (doi: 10.1103/PhysRevB.89.195205)</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="right" >
+          <a href="pymatgen.analysis.defects.defect_compatibility.html" title="pymatgen.analysis.defects.defect_compatibility module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pymatgen.analysis.defects.core.html" title="pymatgen.analysis.defects.core module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >pymatgen</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="pymatgen.html" >pymatgen package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="pymatgen.analysis.html" >pymatgen.analysis package</a> &#187;</li>
+          <li class="nav-item nav-item-4"><a href="pymatgen.analysis.defects.html" >pymatgen.analysis.defects package</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

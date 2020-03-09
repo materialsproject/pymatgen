@@ -2,6 +2,21 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+This module implements an interface to the VAMPIRE code for atomistic
+simulations of magnetic materials.
+
+This module depends on a compiled vampire executable available in the path.
+Please download at https://vampire.york.ac.uk/download/ and
+follow the instructions to compile the executable.
+
+If you use this module, please cite the following:
+
+"Atomistic spin model simulations of magnetic nanomaterials."
+R. F. L. Evans, W. J. Fan, P. Chureemart, T. A. Ostler, M. O. A. Ellis
+and R. W. Chantrell. J. Phys.: Condens. Matter 26, 103202 (2014)
+"""
+
 import subprocess
 import logging
 import numpy as np
@@ -17,20 +32,6 @@ from pymatgen.analysis.magnetism.analyzer import CollinearMagneticStructureAnaly
 from pymatgen import Structure
 from pymatgen.analysis.graphs import StructureGraph
 
-"""
-This module implements an interface to the VAMPIRE code for atomistic
-simulations of magnetic materials.
-
-This module depends on a compiled vampire executable available in the path.
-Please download at https://vampire.york.ac.uk/download/ and
-follow the instructions to compile the executable.
-
-If you use this module, please cite the following:
-    
-"Atomistic spin model simulations of magnetic nanomaterials."
-R. F. L. Evans, W. J. Fan, P. Chureemart, T. A. Ostler, M. O. A. Ellis 
-and R. W. Chantrell. J. Phys.: Condens. Matter 26, 103202 (2014)
-"""
 
 __author__ = "ncfrey"
 __version__ = "0.1"
@@ -43,34 +44,34 @@ VAMPEXE = which("vampire-serial")
 
 
 class VampireCaller:
+    """
+    Run Vampire on a material with magnetic ordering and exchange parameter information to compute the critical
+    temperature with classical Monte Carlo.
+    """
     @requires(
         VAMPEXE,
         "VampireCaller requires vampire-serial to be in the path."
         "Please follow the instructions at https://vampire.york.ac.uk/download/.",
     )
     def __init__(
-        self,
-        ordered_structures=None,
-        energies=None,
-        mc_box_size=4.0,
-        equil_timesteps=2000,
-        mc_timesteps=4000,
-        save_inputs=False,
-        hm=None,
-        avg=True,
-        user_input_settings=None,
+            self,
+            ordered_structures=None,
+            energies=None,
+            mc_box_size=4.0,
+            equil_timesteps=2000,
+            mc_timesteps=4000,
+            save_inputs=False,
+            hm=None,
+            avg=True,
+            user_input_settings=None,
     ):
 
         """
-        Run Vampire on a material with magnetic ordering and exchange parameter information to compute the critical temperature with classical Monte Carlo.
-
-        Either ordered_structures and energies are required, or a HeisenbergModel object.
-
         user_input_settings is a dictionary that can contain:
         * start_t (int): Start MC sim at this temp, defaults to 0 K.
         * end_t (int): End MC sim at this temp, defaults to 1500 K.
         * temp_increment (int): Temp step size, defaults to 25 K.
-        
+
         Args:
             ordered_structures (list): Structure objects with magmoms.
             energies (list): Energies of each relaxed magnetic structure.
@@ -133,8 +134,8 @@ class VampireCaller:
         self.mat_name = hm.formula
 
         # Switch to scratch dir which automatically cleans up vampire inputs files unless user specifies to save them
-        # with ScratchDir('/scratch', copy_from_current_on_enter=self.save_inputs, copy_to_current_on_exit=self.save_inputs) as temp_dir:
-
+        # with ScratchDir('/scratch', copy_from_current_on_enter=self.save_inputs,
+        #                 copy_to_current_on_exit=self.save_inputs) as temp_dir:
         #     os.chdir(temp_dir)
 
         # Create input files
@@ -333,8 +334,6 @@ class VampireCaller:
 
         structure = self.structure
         mat_name = self.mat_name
-        tol = self.tol
-        dists = self.dists
 
         abc = structure.lattice.abc
         ucx, ucy, ucz = abc[0], abc[1], abc[2]

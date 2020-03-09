@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.adf module &#8212; pymatgen 2019.6.5 documentation</title>
+    <title>pymatgen.io.adf module &#8212; pymatgen 2020.3.2 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,9 +13,10 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.io.aiida module" href="pymatgen.io.aiida.html" />
+    <link rel="prev" title="pymatgen.io.vasp.sets module" href="pymatgen.io.vasp.sets.html" />
  
 <script type="text/javascript">
   var _gaq = _gaq || [];
@@ -33,7 +34,16 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="right" >
+          <a href="pymatgen.io.aiida.html" title="pymatgen.io.aiida module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pymatgen.io.vasp.sets.html" title="pymatgen.io.vasp.sets module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >pymatgen</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="pymatgen.html" >pymatgen package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="pymatgen.io.html" accesskey="U">pymatgen.io package</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,6 +54,7 @@
             
   <div class="section" id="module-pymatgen.io.adf">
 <span id="pymatgen-io-adf-module"></span><h1>pymatgen.io.adf module<a class="headerlink" href="#module-pymatgen.io.adf" title="Permalink to this headline">¶</a></h1>
+<p>IO for ADF files.</p>
 <dl class="class">
 <dt id="pymatgen.io.adf.AdfInput">
 <em class="property">class </em><code class="sig-name descname">AdfInput</code><span class="sig-paren">(</span><em class="sig-param">task</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/adf.html#AdfInput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.adf.AdfInput" title="Permalink to this definition">¶</a></dt>
@@ -456,27 +467,32 @@ not support calculating force/gradient.</p>
 <dl class="method">
 <dt id="pymatgen.io.adf.AdfTask.get_default_basis_set">
 <em class="property">static </em><code class="sig-name descname">get_default_basis_set</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/adf.html#AdfTask.get_default_basis_set"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.adf.AdfTask.get_default_basis_set" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Returns: Default basis set</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.adf.AdfTask.get_default_geo">
 <em class="property">static </em><code class="sig-name descname">get_default_geo</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/adf.html#AdfTask.get_default_geo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.adf.AdfTask.get_default_geo" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Returns: ADFKey using default geometry.</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.adf.AdfTask.get_default_scf">
 <em class="property">static </em><code class="sig-name descname">get_default_scf</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/adf.html#AdfTask.get_default_scf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.adf.AdfTask.get_default_scf" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Returns: ADF using default SCF.</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.adf.AdfTask.get_default_units">
 <em class="property">static </em><code class="sig-name descname">get_default_units</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/adf.html#AdfTask.get_default_units"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.adf.AdfTask.get_default_units" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Returns: Default units.</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.adf.AdfTask.get_default_xc">
 <em class="property">static </em><code class="sig-name descname">get_default_xc</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/adf.html#AdfTask.get_default_xc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.adf.AdfTask.get_default_xc" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Returns: ADFKey using default XC.</p>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.adf.AdfTask.operations">
@@ -512,20 +528,15 @@ float. Otherwise False will be returned.</p>
 <dl class="function">
 <dt id="pymatgen.io.adf.iterlines">
 <code class="sig-name descname">iterlines</code><span class="sig-paren">(</span><em class="sig-param">s</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/adf.html#iterlines"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.adf.iterlines" title="Permalink to this definition">¶</a></dt>
-<dd><blockquote>
-<div><p>A generator form of s.split(‘</p>
-</div></blockquote>
-<p>‘) for reducing memory overhead.</p>
-<blockquote>
-<div><dl class="simple">
-<dt>s<span class="classifier">str</span></dt><dd><p>A multi-line string.</p>
+<dd><p>A generator form of s.split(‘n’) for reducing memory overhead.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>s</strong> (<em>str</em>) – A multi-line string.</p>
+</dd>
+<dt class="field-even">Yields</dt>
+<dd class="field-even"><p><strong>line</strong> (<em>str</em>) – A string.</p>
 </dd>
 </dl>
-<dl class="simple">
-<dt>line<span class="classifier">str</span></dt><dd><p>A string.</p>
-</dd>
-</dl>
-</div></blockquote>
 </dd></dl>
 
 </div>
@@ -536,6 +547,12 @@ float. Otherwise False will be returned.</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pymatgen.io.vasp.sets.html"
+                        title="previous chapter">pymatgen.io.vasp.sets module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pymatgen.io.aiida.html"
+                        title="next chapter">pymatgen.io.aiida module</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -566,13 +583,22 @@ float. Otherwise False will be returned.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="right" >
+          <a href="pymatgen.io.aiida.html" title="pymatgen.io.aiida module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pymatgen.io.vasp.sets.html" title="pymatgen.io.vasp.sets module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >pymatgen</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="pymatgen.html" >pymatgen package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="pymatgen.io.html" >pymatgen.io package</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

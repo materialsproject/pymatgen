@@ -3,6 +3,13 @@
 # Distributed under the terms of the MIT License
 
 
+"""
+Module for implementing a CTRL file object class for the Stuttgart
+LMTO-ASA code. It will primarily be used to generate a pymatgen
+Structure object in the pymatgen.electronic_structure.cohp.py module.
+"""
+
+
 import re
 import numpy as np
 
@@ -13,11 +20,6 @@ from pymatgen.electronic_structure.core import Spin
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.num import round_to_sigfigs
 
-"""
-Module for implementing a CTRL file object class for the Stuttgart
-LMTO-ASA code. It will primarily be used to generate a pymatgen
-Structure object in the pymatgen.electronic_structure.cohp.py module.
-"""
 
 __author__ = "Marco Esters"
 __copyright__ = "Copyright 2017, The Materials Project"
@@ -31,17 +33,18 @@ class LMTOCtrl:
     """
     Class for parsing CTRL files from the Stuttgart LMTO-ASA code.
     Currently, only HEADER, VERS and the structure can be used.
-
-    Args/attributes:
-        structure: The structure as a pymatgen Structure object.
-
-        header: The header for the CTRL file .
-                Defaults to None.
-
-        version: The LMTO version that is used for the VERS category.
-                 Defaults to the newest version (4.7).
     """
     def __init__(self, structure, header=None, version="LMASA-47"):
+        """
+        Args:
+            structure: The structure as a pymatgen Structure object.
+
+            header: The header for the CTRL file .
+                    Defaults to None.
+
+            version: The LMTO version that is used for the VERS category.
+                     Defaults to the newest version (4.7).
+        """
         self.structure = structure
         self.header = header
         self.version = version
@@ -245,11 +248,11 @@ class LMTOCtrl:
             pass
 
         for token in ["HEADER", "VERS"]:
-                try:
-                    value = re.split(token + r"\s*", struc_lines[token])[1]
-                    structure_tokens[token] = value.strip()
-                except IndexError:
-                    pass
+            try:
+                value = re.split(token + r"\s*", struc_lines[token])[1]
+                structure_tokens[token] = value.strip()
+            except IndexError:
+                pass
         return LMTOCtrl.from_dict(structure_tokens)
 
     @classmethod
@@ -311,13 +314,6 @@ class LMTOCopl:
     """
     Class for reading COPL files, which contain COHP data.
 
-    Args:
-        filename: filename of the COPL file. Defaults to "COPL".
-
-        to_eV: LMTO-ASA gives energies in Ry. To convert energies into
-          eV, set to True. Defaults to False for energies in Ry.
-
-
     .. attribute: cohp_data
 
          Dict that contains the COHP data of the form:
@@ -339,6 +335,12 @@ class LMTOCopl:
     """
 
     def __init__(self, filename="COPL", to_eV=False):
+        """
+        Args:
+            filename: filename of the COPL file. Defaults to "COPL".
+            to_eV: LMTO-ASA gives energies in Ry. To convert energies into
+              eV, set to True. Defaults to False for energies in Ry.
+        """
 
         # COPL files have an extra trailing blank line
         with zopen(filename, "rt") as f:

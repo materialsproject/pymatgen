@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.defects.core module &#8212; pymatgen 2019.6.5 documentation</title>
+    <title>pymatgen.analysis.defects.core module &#8212; pymatgen 2020.3.2 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,9 +13,10 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.analysis.defects.corrections module" href="pymatgen.analysis.defects.corrections.html" />
+    <link rel="prev" title="pymatgen.analysis.defects package" href="pymatgen.analysis.defects.html" />
  
 <script type="text/javascript">
   var _gaq = _gaq || [];
@@ -33,7 +34,17 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="right" >
+          <a href="pymatgen.analysis.defects.corrections.html" title="pymatgen.analysis.defects.corrections module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pymatgen.analysis.defects.html" title="pymatgen.analysis.defects package"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >pymatgen</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="pymatgen.html" >pymatgen package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="pymatgen.analysis.html" >pymatgen.analysis package</a> &#187;</li>
+          <li class="nav-item nav-item-4"><a href="pymatgen.analysis.defects.html" accesskey="U">pymatgen.analysis.defects package</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,6 +55,7 @@
             
   <div class="section" id="module-pymatgen.analysis.defects.core">
 <span id="pymatgen-analysis-defects-core-module"></span><h1>pymatgen.analysis.defects.core module<a class="headerlink" href="#module-pymatgen.analysis.defects.core" title="Permalink to this headline">¶</a></h1>
+<p>Base classes representing defects.</p>
 <dl class="class">
 <dt id="pymatgen.analysis.defects.core.Defect">
 <em class="property">class </em><code class="sig-name descname">Defect</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">defect_site</em>, <em class="sig-param">charge=0.0</em>, <em class="sig-param">multiplicity=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/core.html#Defect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.core.Defect" title="Permalink to this definition">¶</a></dt>
@@ -213,12 +225,24 @@ type</p></li>
 <dl class="method">
 <dt id="pymatgen.analysis.defects.core.DefectEntry.bulk_structure">
 <em class="property">property </em><code class="sig-name descname">bulk_structure</code><a class="headerlink" href="#pymatgen.analysis.defects.core.DefectEntry.bulk_structure" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Structure object of bulk.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.defects.core.DefectEntry.charge">
 <em class="property">property </em><code class="sig-name descname">charge</code><a class="headerlink" href="#pymatgen.analysis.defects.core.DefectEntry.charge" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Charge of defect.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.defects.core.DefectEntry.copy">
@@ -247,7 +271,12 @@ type</p></li>
 <dl class="method">
 <dt id="pymatgen.analysis.defects.core.DefectEntry.energy">
 <em class="property">property </em><code class="sig-name descname">energy</code><a class="headerlink" href="#pymatgen.analysis.defects.core.DefectEntry.energy" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the <em>corrected</em> energy of the entry</p>
+<dd><p><em>Corrected</em> energy of the entry</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -298,18 +327,35 @@ as_dict().</p>
 <dl class="method">
 <dt id="pymatgen.analysis.defects.core.DefectEntry.multiplicity">
 <em class="property">property </em><code class="sig-name descname">multiplicity</code><a class="headerlink" href="#pymatgen.analysis.defects.core.DefectEntry.multiplicity" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Multiplicity of defect.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.defects.core.DefectEntry.name">
 <em class="property">property </em><code class="sig-name descname">name</code><a class="headerlink" href="#pymatgen.analysis.defects.core.DefectEntry.name" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returms the defect name</p>
+<dd><p>Defect name</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.defects.core.DefectEntry.site">
 <em class="property">property </em><code class="sig-name descname">site</code><a class="headerlink" href="#pymatgen.analysis.defects.core.DefectEntry.site" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Site of defect.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -352,7 +398,12 @@ significant relaxation.</p>
 <dl class="method">
 <dt id="pymatgen.analysis.defects.core.Interstitial.defect_composition">
 <em class="property">property </em><code class="sig-name descname">defect_composition</code><a class="headerlink" href="#pymatgen.analysis.defects.core.Interstitial.defect_composition" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the defect composition as a Composition object</p>
+<dd><p>Defect composition.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -407,7 +458,12 @@ used to generate multiplicity.</p></li>
 <dl class="method">
 <dt id="pymatgen.analysis.defects.core.Substitution.defect_composition">
 <em class="property">property </em><code class="sig-name descname">defect_composition</code><a class="headerlink" href="#pymatgen.analysis.defects.core.Substitution.defect_composition" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the defect composition as a Composition object</p>
+<dd><p>Composition of defect.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -463,7 +519,12 @@ used to generate multiplicity.</p></li>
 <dl class="method">
 <dt id="pymatgen.analysis.defects.core.Vacancy.defect_composition">
 <em class="property">property </em><code class="sig-name descname">defect_composition</code><a class="headerlink" href="#pymatgen.analysis.defects.core.Vacancy.defect_composition" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the defect composition as a Composition object</p>
+<dd><p>Composition of defect.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -514,11 +575,6 @@ but ensuring space group is maintained</p>
 </dl>
 </dd></dl>
 
-<dl class="data">
-<dt id="pymatgen.analysis.defects.core.logger">
-<code class="sig-name descname">logger</code><em class="property"> = &lt;Logger pymatgen.analysis.defects.core (WARNING)&gt;</em><a class="headerlink" href="#pymatgen.analysis.defects.core.logger" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 </div>
 
 
@@ -527,6 +583,12 @@ but ensuring space group is maintained</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pymatgen.analysis.defects.html"
+                        title="previous chapter">pymatgen.analysis.defects package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pymatgen.analysis.defects.corrections.html"
+                        title="next chapter">pymatgen.analysis.defects.corrections module</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -557,13 +619,23 @@ but ensuring space group is maintained</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="right" >
+          <a href="pymatgen.analysis.defects.corrections.html" title="pymatgen.analysis.defects.corrections module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pymatgen.analysis.defects.html" title="pymatgen.analysis.defects package"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >pymatgen</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="pymatgen.html" >pymatgen package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="pymatgen.analysis.html" >pymatgen.analysis package</a> &#187;</li>
+          <li class="nav-item nav-item-4"><a href="pymatgen.analysis.defects.html" >pymatgen.analysis.defects package</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

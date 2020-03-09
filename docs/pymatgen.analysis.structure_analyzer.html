@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.structure_analyzer module &#8212; pymatgen 2019.6.5 documentation</title>
+    <title>pymatgen.analysis.structure_analyzer module &#8212; pymatgen 2020.3.2 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,9 +13,10 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.analysis.structure_matcher module" href="pymatgen.analysis.structure_matcher.html" />
+    <link rel="prev" title="pymatgen.analysis.reaction_calculator module" href="pymatgen.analysis.reaction_calculator.html" />
  
 <script type="text/javascript">
   var _gaq = _gaq || [];
@@ -33,7 +34,16 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="right" >
+          <a href="pymatgen.analysis.structure_matcher.html" title="pymatgen.analysis.structure_matcher module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pymatgen.analysis.reaction_calculator.html" title="pymatgen.analysis.reaction_calculator module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >pymatgen</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="pymatgen.html" >pymatgen package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="pymatgen.analysis.html" accesskey="U">pymatgen.analysis package</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,6 +54,7 @@
             
   <div class="section" id="module-pymatgen.analysis.structure_analyzer">
 <span id="pymatgen-analysis-structure-analyzer-module"></span><h1>pymatgen.analysis.structure_analyzer module<a class="headerlink" href="#module-pymatgen.analysis.structure_analyzer" title="Permalink to this headline">¶</a></h1>
+<p>This module provides classes to perform topological analyses of structures.</p>
 <dl class="class">
 <dt id="pymatgen.analysis.structure_analyzer.OxideType">
 <em class="property">class </em><code class="sig-name descname">OxideType</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">relative_cutoff=1.1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#OxideType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.OxideType" title="Permalink to this definition">¶</a></dt>
@@ -222,7 +233,16 @@ highest frequences is stored.</p></li>
 <dl class="method">
 <dt id="pymatgen.analysis.structure_analyzer.VoronoiAnalyzer.plot_vor_analysis">
 <em class="property">static </em><code class="sig-name descname">plot_vor_analysis</code><span class="sig-paren">(</span><em class="sig-param">voronoi_ensemble</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#VoronoiAnalyzer.plot_vor_analysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.VoronoiAnalyzer.plot_vor_analysis" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Plot the Voronoi analysis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>voronoi_ensemble</strong> – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>matplotlib.pyplot</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -296,14 +316,16 @@ image of site j</p>
 <code class="sig-name descname">average_coordination_number</code><span class="sig-paren">(</span><em class="sig-param">structures</em>, <em class="sig-param">freq=10</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#average_coordination_number"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.average_coordination_number" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the ensemble averaged Voronoi coordination numbers
 of a list of Structures using VoronoiNN.
-Typically used for analyzing the output of a Molecular Dynamics run.
-:param structures: list of Structures.
-:type structures: list
-:param freq: sampling frequency of coordination number [every freq steps].
-:type freq: int</p>
+Typically used for analyzing the output of a Molecular Dynamics run.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Dictionary of elements as keys and average coordination numbers as values.</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structures</strong> (<em>list</em>) – list of Structures.</p></li>
+<li><p><strong>freq</strong> (<em>int</em>) – sampling frequency of coordination number [every freq steps].</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dictionary of elements as keys and average coordination numbers as values.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -326,11 +348,6 @@ atoms must be to each other to be considered a peroxide.</p></li>
 </dd>
 </dl>
 </dd></dl>
-
-<dl class="function">
-<dt id="pymatgen.analysis.structure_analyzer.get_dimensionality">
-<code class="sig-name descname">get_dimensionality</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.get_dimensionality" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.analysis.structure_analyzer.get_max_bond_lengths">
@@ -407,6 +424,12 @@ center.</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pymatgen.analysis.reaction_calculator.html"
+                        title="previous chapter">pymatgen.analysis.reaction_calculator module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pymatgen.analysis.structure_matcher.html"
+                        title="next chapter">pymatgen.analysis.structure_matcher module</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -437,13 +460,22 @@ center.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="right" >
+          <a href="pymatgen.analysis.structure_matcher.html" title="pymatgen.analysis.structure_matcher module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pymatgen.analysis.reaction_calculator.html" title="pymatgen.analysis.reaction_calculator module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >pymatgen</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="pymatgen.html" >pymatgen package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="pymatgen.analysis.html" >pymatgen.analysis package</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

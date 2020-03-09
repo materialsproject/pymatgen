@@ -4,6 +4,10 @@
 # Distributed under the terms of the MIT License.
 
 
+"""
+Implementation for `pmg structure` CLI.
+"""
+
 import sys
 
 from tabulate import tabulate
@@ -12,11 +16,7 @@ from pymatgen import Structure
 
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.analysis.structure_matcher import StructureMatcher, \
-        ElementComparator
-
-"""
-A master convenience script with many tools for vasp and structure analysis.
-"""
+    ElementComparator
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -27,6 +27,12 @@ __date__ = "Aug 13 2016"
 
 
 def convert_fmt(args):
+    """
+    Convert files from one format to another
+
+    Args:
+        args (dict): Args from argparse.
+    """
     if len(args.filenames) != 2:
         print("File format conversion takes in only two filenames.")
     s = Structure.from_file(args.filenames[0],
@@ -35,6 +41,12 @@ def convert_fmt(args):
 
 
 def analyze_symmetry(args):
+    """
+    Analyze symmetry of structures in files.
+
+    Args:
+        args (dict): Args from argparse.
+    """
     tolerance = args.symmetry
     t = []
     for filename in args.filenames:
@@ -47,6 +59,12 @@ def analyze_symmetry(args):
 
 
 def analyze_localenv(args):
+    """
+    Analyze local env of structures in files.
+
+    Args:
+        args (dict): Args for argparse.
+    """
     bonds = {}
     for bond in args.localenv:
         toks = bond.split("=")
@@ -69,6 +87,12 @@ def analyze_localenv(args):
 
 
 def compare_structures(args):
+    """
+    Compare structures in files for similarity using structure matcher.
+
+    Args:
+        args (dict): Args from argparse.
+    """
     filenames = args.filenames
     if len(filenames) < 2:
         print("You need more than one structure to compare!")
@@ -91,6 +115,12 @@ def compare_structures(args):
 
 
 def analyze_structures(args):
+    """
+    Master function to handle which operation to perform.
+
+    Args:
+        args (dict): Args from argparse.
+    """
     if args.convert:
         convert_fmt(args)
     elif args.symmetry:

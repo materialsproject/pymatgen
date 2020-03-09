@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.structure_matcher module &#8212; pymatgen 2019.6.5 documentation</title>
+    <title>pymatgen.analysis.structure_matcher module &#8212; pymatgen 2020.3.2 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,9 +13,10 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.analysis.substrate_analyzer module" href="pymatgen.analysis.substrate_analyzer.html" />
+    <link rel="prev" title="pymatgen.analysis.structure_analyzer module" href="pymatgen.analysis.structure_analyzer.html" />
  
 <script type="text/javascript">
   var _gaq = _gaq || [];
@@ -33,7 +34,16 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="right" >
+          <a href="pymatgen.analysis.substrate_analyzer.html" title="pymatgen.analysis.substrate_analyzer module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pymatgen.analysis.structure_analyzer.html" title="pymatgen.analysis.structure_analyzer module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >pymatgen</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="pymatgen.html" >pymatgen package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="pymatgen.analysis.html" accesskey="U">pymatgen.analysis package</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -77,13 +87,25 @@ definition in Site and PeriodicSite.</p></li>
 <dl class="method">
 <dt id="pymatgen.analysis.structure_matcher.AbstractComparator.as_dict">
 <code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_matcher.html#AbstractComparator.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.AbstractComparator.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>A JSON serializable dict representation of an object.</p>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>MSONable dict</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.structure_matcher.AbstractComparator.from_dict">
 <em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_matcher.html#AbstractComparator.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.AbstractComparator.from_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>d</strong> – Dict representation</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Comparator.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.structure_matcher.AbstractComparator.get_hash">
@@ -202,20 +224,15 @@ definition in Site and PeriodicSite.</p></li>
 <dl class="method">
 <dt id="pymatgen.analysis.structure_matcher.OccupancyComparator.get_hash">
 <code class="sig-name descname">get_hash</code><span class="sig-paren">(</span><em class="sig-param">composition</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_matcher.html#OccupancyComparator.get_hash"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.OccupancyComparator.get_hash" title="Permalink to this definition">¶</a></dt>
-<dd><p>Defines a hash to group structures. This allows structures to be
-grouped efficiently for comparison. The hash must be invariant under
-supercell creation. (e.g. composition is not a good hash, but
-fractional_composition might be). Reduced formula is not a good formula,
-due to weird behavior with fractional occupancy.</p>
-<p>Composition is used here instead of structure because for anonymous
-matches it is much quicker to apply a substitution to a composition
-object than a structure object.</p>
-<dl class="field-list simple">
+<dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>composition</strong> (<a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><em>Composition</em></a>) – composition of the structure</p>
+<dd class="field-odd"><p><strong>composition</strong> – Composition.</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A hashable object. Examples can be string formulas, integers etc.</p>
+<dd class="field-even"><p><ol class="arabic simple">
+<li><p>Difficult to define sensible hash</p></li>
+</ol>
+</p>
 </dd>
 </dl>
 </dd></dl>
@@ -449,32 +466,40 @@ supplying a comparison function is that it is not possible to
 pickle a function, which makes it otherwise difficult to use
 StructureMatcher with Python’s multiprocessing.</p>
 </p></li>
-<li><p><strong>supercell_size</strong> (<em>str</em>) – Method to use for determining the size of a
-supercell (if applicable). Possible values are num_sites,
-num_atoms, volume, or an element present in both structures.</p></li>
-<li><p><strong>ignored_species</strong> (<em>list</em>) – A list of ions to be ignored in matching. Useful
-for matching structures that have similar frameworks except for
-certain ions, e.g., Li-ion intercalation frameworks. This is more
-useful than allow_subset because it allows better control over
-what species are ignored in the matching.</p></li>
+<li><p><strong>supercell_size</strong> (<em>str</em><em> or </em><em>list</em>) – Method to use for determining the
+size of a supercell (if applicable). Possible values are
+num_sites, num_atoms, volume, or an element or list of elements
+present in both structures.</p></li>
+<li><p><strong>ignored_species</strong> (<em>list</em>) – A list of ions to be ignored in matching.
+Useful for matching structures that have similar frameworks
+except for certain ions, e.g., Li-ion intercalation frameworks.
+This is more useful than allow_subset because it allows better
+control over what species are ignored in the matching.</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="method">
 <dt id="pymatgen.analysis.structure_matcher.StructureMatcher.as_dict">
 <code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_matcher.html#StructureMatcher.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.StructureMatcher.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>A JSON serializable dict representation of an object.</p>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>MSONable dict</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.structure_matcher.StructureMatcher.fit">
-<code class="sig-name descname">fit</code><span class="sig-paren">(</span><em class="sig-param">struct1</em>, <em class="sig-param">struct2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_matcher.html#StructureMatcher.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.StructureMatcher.fit" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">fit</code><span class="sig-paren">(</span><em class="sig-param">struct1</em>, <em class="sig-param">struct2</em>, <em class="sig-param">symmetric=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_matcher.html#StructureMatcher.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.StructureMatcher.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit two structures.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>struct1</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – 1st structure</p></li>
 <li><p><strong>struct2</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – 2nd structure</p></li>
+<li><p><strong>symmetric</strong> (<em>Bool</em>) – Defaults to False
+If True, check the equality both ways.
+This only impacts a small percentage of structures</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -508,7 +533,15 @@ structures are similar.</p>
 <dl class="method">
 <dt id="pymatgen.analysis.structure_matcher.StructureMatcher.from_dict">
 <em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/structure_matcher.html#StructureMatcher.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.StructureMatcher.from_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>d</strong> – Dict representation</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>StructureMatcher</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.structure_matcher.StructureMatcher.get_all_anonymous_mappings">
@@ -708,6 +741,12 @@ in different groups without comparison.</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pymatgen.analysis.structure_analyzer.html"
+                        title="previous chapter">pymatgen.analysis.structure_analyzer module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pymatgen.analysis.substrate_analyzer.html"
+                        title="next chapter">pymatgen.analysis.substrate_analyzer module</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -738,13 +777,22 @@ in different groups without comparison.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="right" >
+          <a href="pymatgen.analysis.substrate_analyzer.html" title="pymatgen.analysis.substrate_analyzer module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pymatgen.analysis.structure_analyzer.html" title="pymatgen.analysis.structure_analyzer module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >pymatgen</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="pymatgen.html" >pymatgen package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="pymatgen.analysis.html" >pymatgen.analysis package</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

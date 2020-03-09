@@ -36,6 +36,7 @@ class Polymer:
     Generate polymer chain via Random walk. At each position there are
     a total of 5 possible moves(excluding the previous direction).
     """
+
     def __init__(self, start_monomer, s_head, s_tail,
                  monomer, head, tail,
                  end_monomer, e_head, e_tail,
@@ -85,8 +86,7 @@ class Polymer:
         self._create(self.monomer, self.mon_vector)
         # terminate the chain with the end_monomer
         self.n_units += 1
-        end_mon_vector = end_monomer.cart_coords[e_tail] - \
-                         end_monomer.cart_coords[e_head]
+        end_mon_vector = end_monomer.cart_coords[e_tail] - end_monomer.cart_coords[e_head]
         self._create(end_monomer, end_mon_vector)
         self.molecule = Molecule.from_sites(self.molecule.sites)
 
@@ -99,7 +99,7 @@ class Polymer:
             mon_vector (numpy.array): molecule vector that starts from the
                 start atom index to the end atom index
         """
-        while self.length != (self.n_units-1):
+        while self.length != (self.n_units - 1):
             if self.linear_chain:
                 move_direction = np.array(mon_vector) / np.linalg.norm(mon_vector)
             else:
@@ -111,9 +111,9 @@ class Polymer:
         pick a move at random from the list of moves
         """
         nmoves = len(self.moves)
-        move = np.random.randint(1, nmoves+1)
+        move = np.random.randint(1, nmoves + 1)
         while self.prev_move == (move + 3) % nmoves:
-            move = np.random.randint(1, nmoves+1)
+            move = np.random.randint(1, nmoves + 1)
         self.prev_move = move
         return np.array(self.moves[move])
 
@@ -144,8 +144,7 @@ class Polymer:
             move_direction (numpy.array): direction along which the monomer
                 will be positioned
         """
-        translate_by = self.molecule.cart_coords[self.end] + \
-                       self.link_distance * move_direction
+        translate_by = self.molecule.cart_coords[self.end] + self.link_distance * move_direction
         monomer.translate_sites(range(len(monomer)), translate_by)
         if not self.linear_chain:
             self._align_monomer(monomer, mon_vector, move_direction)
@@ -153,9 +152,8 @@ class Polymer:
         does_cross = False
         for i, site in enumerate(monomer):
             try:
-                self.molecule.append(site.specie, site.coords,
-                                     properties=site.properties)
-            except:
+                self.molecule.append(site.specie, site.coords, properties=site.properties)
+            except Exception:
                 does_cross = True
                 polymer_length = len(self.molecule)
                 self.molecule.remove_sites(
@@ -216,8 +214,7 @@ class PackmolRunner:
         if not self.control_params.get("filetype"):
             self.control_params["filetype"] = filetype
         if not self.control_params.get("output"):
-            self.control_params["output"] = "{}.{}".format(
-                output_file.split(".")[0], self.control_params["filetype"])
+            self.control_params["output"] = "{}.{}".format(output_file.split(".")[0], self.control_params["filetype"])
         if self.boxit:
             self._set_box()
 
@@ -243,10 +240,10 @@ class PackmolRunner:
         """
         net_volume = 0.0
         for idx, mol in enumerate(self.mols):
-            length = max([np.max(mol.cart_coords[:, i])-np.min(mol.cart_coords[:, i])
-                           for i in range(3)]) + 2.0
-            net_volume += (length**3.0) * float(self.param_list[idx]['number'])
-        length = net_volume**(1.0/3.0)
+            length = max([np.max(mol.cart_coords[:, i]) - np.min(mol.cart_coords[:, i])
+                          for i in range(3)]) + 2.0
+            net_volume += (length ** 3.0) * float(self.param_list[idx]['number'])
+        length = net_volume ** (1.0 / 3.0)
         for idx, mol in enumerate(self.mols):
             self.param_list[idx]['inside box'] = '0.0 0.0 0.0 {} {} {}'.format(
                 length, length, length)
@@ -270,7 +267,7 @@ class PackmolRunner:
                         idx, self.control_params["filetype"])).encode("ascii")
                 # pdb
                 if self.control_params["filetype"] == "pdb":
-                    self.write_pdb(mol, filename, num=idx+1)
+                    self.write_pdb(mol, filename, num=idx + 1)
                 # all other filetypes
                 else:
                     a = BabelMolAdaptor(mol)
@@ -353,7 +350,7 @@ class PackmolRunner:
         self.map_residue_to_mol = {}
         lookup = {}
         for idx, mol in enumerate(self.mols):
-            if not mol.formula in lookup:
+            if mol.formula not in lookup:
                 mol.translate_sites(indices=range(len(mol)),
                                     vector=-mol.center_of_mass)
                 lookup[mol.formula] = mol.copy()
@@ -444,10 +441,11 @@ class PackmolRunner:
 
 
 class LammpsRunner:
+    """
+    LAMMPS wrapper
+    """
     def __init__(self, input_filename="lammps.in", bin="lammps"):
         """
-        LAMMPS wrapper
-
         Args:
             input_filename (string): input file name
             bin (string): command to run, excluding the input file name
@@ -456,7 +454,7 @@ class LammpsRunner:
         if not which(self.lammps_bin[-1]):
             raise RuntimeError(
                 "LammpsRunner requires the executable {} to be in the path. "
-                "Please download and install LAMMPS from " \
+                "Please download and install LAMMPS from "
                 "http://lammps.sandia.gov. "
                 "Don't forget to add the binary to your path".format(self.lammps_bin[-1]))
         self.input_filename = input_filename

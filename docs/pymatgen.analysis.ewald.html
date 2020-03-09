@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.ewald module &#8212; pymatgen 2019.6.5 documentation</title>
+    <title>pymatgen.analysis.ewald module &#8212; pymatgen 2020.3.2 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,9 +13,10 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.analysis.excitation module" href="pymatgen.analysis.excitation.html" />
+    <link rel="prev" title="pymatgen.analysis.eos module" href="pymatgen.analysis.eos.html" />
  
 <script type="text/javascript">
   var _gaq = _gaq || [];
@@ -33,7 +34,16 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="right" >
+          <a href="pymatgen.analysis.excitation.html" title="pymatgen.analysis.excitation module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pymatgen.analysis.eos.html" title="pymatgen.analysis.eos module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >pymatgen</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="pymatgen.html" >pymatgen package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="pymatgen.analysis.html" accesskey="U">pymatgen.analysis package</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,6 +54,7 @@
             
   <div class="section" id="module-pymatgen.analysis.ewald">
 <span id="pymatgen-analysis-ewald-module"></span><h1>pymatgen.analysis.ewald module<a class="headerlink" href="#module-pymatgen.analysis.ewald" title="Permalink to this headline">¶</a></h1>
+<p>This module provides classes for calculating the ewald sum of a structure.</p>
 <dl class="class">
 <dt id="pymatgen.analysis.ewald.EwaldMinimizer">
 <em class="property">class </em><code class="sig-name descname">EwaldMinimizer</code><span class="sig-paren">(</span><em class="sig-param">matrix</em>, <em class="sig-param">m_list</em>, <em class="sig-param">num_to_return=1</em>, <em class="sig-param">algo=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/ewald.html#EwaldMinimizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer" title="Permalink to this definition">¶</a></dt>
@@ -135,7 +146,13 @@ performed on them.</p></li>
 <dl class="method">
 <dt id="pymatgen.analysis.ewald.EwaldMinimizer.best_m_list">
 <em class="property">property </em><code class="sig-name descname">best_m_list</code><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer.best_m_list" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Best m_list found.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.ewald.EwaldMinimizer.get_next_index">
@@ -154,12 +171,24 @@ ewald sum calls recursive function to iterate through permutations</p>
 <dl class="method">
 <dt id="pymatgen.analysis.ewald.EwaldMinimizer.minimized_sum">
 <em class="property">property </em><code class="sig-name descname">minimized_sum</code><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer.minimized_sum" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Minimized sum</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.ewald.EwaldMinimizer.output_lists">
 <em class="property">property </em><code class="sig-name descname">output_lists</code><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer.output_lists" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>output lists.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -207,7 +236,7 @@ default since it is usually not needed.</p></li>
 </dl>
 <dl class="attribute">
 <dt id="pymatgen.analysis.ewald.EwaldSummation.CONV_FACT">
-<code class="sig-name descname">CONV_FACT</code><em class="property"> = 14.399645351950547</em><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.CONV_FACT" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">CONV_FACT</code><em class="property"> = 14.39964547058623</em><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.CONV_FACT" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -239,7 +268,13 @@ structure, with possible different charges.</p>
 <dl class="method">
 <dt id="pymatgen.analysis.ewald.EwaldSummation.eta">
 <em class="property">property </em><code class="sig-name descname">eta</code><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.eta" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>eta value used in Ewald summation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.ewald.EwaldSummation.forces">
@@ -341,6 +376,12 @@ when the simulation cell is not charge balanced.</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pymatgen.analysis.eos.html"
+                        title="previous chapter">pymatgen.analysis.eos module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pymatgen.analysis.excitation.html"
+                        title="next chapter">pymatgen.analysis.excitation module</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -371,13 +412,22 @@ when the simulation cell is not charge balanced.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.6.5 documentation</a> &#187;</li> 
+        <li class="right" >
+          <a href="pymatgen.analysis.excitation.html" title="pymatgen.analysis.excitation module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pymatgen.analysis.eos.html" title="pymatgen.analysis.eos module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >pymatgen</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="pymatgen.html" >pymatgen package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="pymatgen.analysis.html" >pymatgen.analysis package</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking
