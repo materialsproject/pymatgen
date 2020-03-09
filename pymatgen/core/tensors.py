@@ -1,27 +1,30 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-from scipy.linalg import polar
-import numpy as np
-import itertools
-import warnings
-import collections
-import string
-import os
-from monty.json import MSONable
-from monty.serialization import loadfn
-from monty.dev import deprecated
-
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.core.operations import SymmOp
-from pymatgen.core.lattice import Lattice
-from pymatgen.analysis.structure_matcher import StructureMatcher
 
 """
 This module provides a base class for tensor-like objects and methods for
 basic tensor manipulation.  It also provides a class, SquareTensor,
 that provides basic methods for creating and manipulating rank 2 tensors
 """
+
+import itertools
+import warnings
+import collections
+import string
+import os
+
+import numpy as np
+
+from scipy.linalg import polar
+
+from monty.json import MSONable
+from monty.serialization import loadfn
+
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.core.operations import SymmOp
+from pymatgen.core.lattice import Lattice
+from pymatgen.analysis.structure_matcher import StructureMatcher
 
 __author__ = "Joseph Montoya"
 __copyright__ = "Copyright 2017, The Materials Project"
@@ -40,6 +43,8 @@ reverse_voigt_map = np.array([[0, 5, 4],
 
 DEFAULT_QUAD = loadfn(os.path.join(os.path.dirname(__file__),
                                    "quad_data.json"))
+
+
 class Tensor(np.ndarray, MSONable):
     """
     Base class for doing useful general operations on Nth order tensors,
@@ -95,8 +100,7 @@ class Tensor(np.ndarray, MSONable):
 
         if len(obj.shape) == 0:
             return obj[()]
-        else:
-            return np.ndarray.__array_wrap__(self, obj)
+        return np.ndarray.__array_wrap__(self, obj)
 
     def __hash__(self):
         """
@@ -592,9 +596,9 @@ class Tensor(np.ndarray, MSONable):
         # TODO: refactor rank inheritance to make this easier
         indices = np.array(indices)
         if voigt_rank:
-            shape = ([3]*(voigt_rank % 2) + [6]*(voigt_rank // 2))
+            shape = ([3] * (voigt_rank % 2) + [6] * (voigt_rank // 2))
         else:
-            shape = np.ceil(np.max(indices+1, axis=0) / 3.) * 3
+            shape = np.ceil(np.max(indices + 1, axis=0) / 3.) * 3
         base = np.zeros(shape.astype(int))
         for v, idx in zip(values, indices):
             base[tuple(idx)] = v
@@ -641,10 +645,11 @@ class Tensor(np.ndarray, MSONable):
             def merge(old, new):
                 gmask = np.abs(old) > prec
                 nmask = np.abs(new) > prec
-                new_mask = np.logical_not(gmask)*nmask
-                avg_mask = gmask*nmask
+                new_mask = np.logical_not(gmask) * nmask
+                avg_mask = gmask * nmask
                 old[avg_mask] = (old[avg_mask] + new[avg_mask]) / 2.
                 old[new_mask] = new[new_mask]
+
             if verbose:
                 print("Preconditioning for {} symmops".format(len(sops)))
             for sop in sops:
@@ -653,7 +658,7 @@ class Tensor(np.ndarray, MSONable):
                 # in the guess in the guess
                 merge(guess, rot)
             if verbose:
-                print("Preconditioning for voigt symmetry".format(len(sops)))
+                print("Preconditioning for voigt symmetry")
             if vsym:
                 v = guess.voigt
                 perms = list(itertools.permutations(range(len(v.shape))))
@@ -666,7 +671,7 @@ class Tensor(np.ndarray, MSONable):
 
         assert guess.shape == self.shape, "Guess must have same shape"
         converged = False
-        test_new, test_old = [guess.copy()]*2
+        test_new, test_old = [guess.copy()] * 2
         for i in range(maxiter):
             test_new = test_old.fit_to_structure(structure)
             if vsym:
@@ -685,7 +690,7 @@ class Tensor(np.ndarray, MSONable):
                           "with max diff of {}".format(max_diff))
         return self.__class__(test_new)
 
-    def as_dict(self, voigt=False):
+    def as_dict(self, voigt: bool = False) -> dict:
         """
         Serializes the tensor object
 
@@ -708,11 +713,11 @@ class Tensor(np.ndarray, MSONable):
 
     @classmethod
     def from_dict(cls, d):
+        """MSONAble from_dict implementation."""
         voigt = d.get('voigt')
         if voigt:
             return cls.from_voigt(d["input_array"])
-        else:
-            return cls(d["input_array"])
+        return cls(d["input_array"])
 
 
 class TensorCollection(collections.abc.Sequence, MSONable):
@@ -720,7 +725,12 @@ class TensorCollection(collections.abc.Sequence, MSONable):
     A sequence of tensors that can be used for fitting data
     or for having a tensor expansion
     """
+
     def __init__(self, tensor_list, base_class=Tensor):
+        """
+        :param tensor_list: List of tensors.
+        :param base_class: Class to be used.
+        """
         self.tensors = [base_class(t) if not isinstance(t, base_class)
                         else t for t in tensor_list]
 
@@ -734,57 +744,132 @@ class TensorCollection(collections.abc.Sequence, MSONable):
         return self.tensors.__iter__()
 
     def zeroed(self, tol=1e-3):
+        """
+        :param tol: Tolerance
+        :return: TensorCollection where small values are set to 0.
+        """
         return self.__class__([t.zeroed(tol) for t in self])
 
     def transform(self, symm_op):
+        """
+        Transforms TensorCollection with a symmetry operation.
+
+        :param symm_op: SymmetryOperation.
+        :return: TensorCollection.
+        """
         return self.__class__([t.transform(symm_op) for t in self])
 
     def rotate(self, matrix, tol=1e-3):
+        """
+        Rotates TensorCollection.
+
+        :param matrix: Rotation matrix.
+        :param tol: tolerance.
+        :return: TensorCollection.
+        """
         return self.__class__([t.rotate(matrix, tol) for t in self])
 
     @property
     def symmetrized(self):
+        """
+        :return: TensorCollection where all tensors are symmetrized.
+        """
         return self.__class__([t.symmetrized for t in self])
 
     def is_symmetric(self, tol=1e-5):
+        """
+        :param tol: tolerance
+        :return: Whether all tensors are symmetric.
+        """
         return all([t.is_symmetric(tol) for t in self])
 
     def fit_to_structure(self, structure, symprec=0.1):
+        """
+        Fits all tensors to a Structure.
+
+        :param structure: Structure
+        :param symprec: symmetry precision.
+        :return: TensorCollection.
+        """
         return self.__class__([t.fit_to_structure(structure, symprec)
                                for t in self])
 
     def is_fit_to_structure(self, structure, tol=1e-2):
+        """
+        :param structure: Structure
+        :param tol: tolerance
+        :return: Whether all tensors are fitted to Structure.
+        """
         return all([t.is_fit_to_structure(structure, tol) for t in self])
 
     @property
     def voigt(self):
+        """
+        :return: TensorCollection where all tensors are in voight form.
+        """
         return [t.voigt for t in self]
 
     @property
     def ranks(self):
+        """
+        :return: Ranks for all tensors.
+        """
         return [t.rank for t in self]
 
     def is_voigt_symmetric(self, tol=1e-6):
+        """
+        :param tol: tolerance
+        :return: Whether all tensors are voigt symmetric.
+        """
         return all([t.is_voigt_symmetric(tol) for t in self])
 
     @classmethod
     def from_voigt(cls, voigt_input_list, base_class=Tensor):
+        """
+        Creates TensorCollection from voigt form.
+
+        :param voigt_input_list: List of voigt tensors
+        :param base_class: Class for tensor.
+        :return: TensorCollection.
+        """
         return cls([base_class.from_voigt(v) for v in voigt_input_list])
 
     def convert_to_ieee(self, structure, initial_fit=True,
                         refine_rotation=True):
+        """
+        Convert all tensors to IEEE.
+
+        :param structure: Structure
+        :param initial_fit: Whether to perform an initial fit.
+        :param refine_rotation: Whether to refine the rotation.
+        :return: TensorCollection.
+        """
         return self.__class__(
             [t.convert_to_ieee(structure, initial_fit, refine_rotation)
              for t in self])
 
     def round(self, *args, **kwargs):
+        """
+        Round all tensors.
+
+        :param args: Passthrough to Tensor.round
+        :param kwargs: Passthrough to Tensor.round
+        :return: TensorCollection.
+        """
         return self.__class__([t.round(*args, **kwargs) for t in self])
 
     @property
     def voigt_symmetrized(self):
+        """
+        :return: TensorCollection where all tensors are voigt symmetrized.
+        """
         return self.__class__([t.voigt_symmetrized for t in self])
 
     def as_dict(self, voigt=False):
+        """
+        :param voigt: Whether to use voight form.
+        :return: Dict representation of TensorCollection.
+        """
         tensor_list = self.voigt if voigt else self
         d = {"@module": self.__class__.__module__,
              "@class": self.__class__.__name__,
@@ -795,11 +880,16 @@ class TensorCollection(collections.abc.Sequence, MSONable):
 
     @classmethod
     def from_dict(cls, d):
+        """
+        Creates TensorCollection from dict.
+
+        :param d: dict
+        :return: TensorCollection
+        """
         voigt = d.get('voigt')
         if voigt:
             return cls.from_voigt(d["tensor_list"])
-        else:
-            return cls(d["tensor_list"])
+        return cls(d["tensor_list"])
 
 
 class SquareTensor(Tensor):
@@ -823,7 +913,7 @@ class SquareTensor(Tensor):
         """
 
         obj = super().__new__(cls, input_array, vscale,
-                                               check_rank=2)
+                              check_rank=2)
         return obj.view(cls)
 
     @property
@@ -866,8 +956,7 @@ class SquareTensor(Tensor):
         det = np.abs(np.linalg.det(self))
         if include_improper:
             det = np.abs(det)
-        return (np.abs(self.inv - self.trans) < tol).all() \
-            and (np.abs(det - 1.) < tol)
+        return (np.abs(self.inv - self.trans) < tol).all() and (np.abs(det - 1.) < tol)
 
     def refine_rotation(self):
         """
@@ -968,6 +1057,7 @@ class TensorMapping(collections.abc.MutableMapping):
     and should be used with care.
 
     """
+
     def __init__(self, tensors=None, values=None, tol=1e-5):
         """
         Initialize a TensorMapping
@@ -1012,9 +1102,15 @@ class TensorMapping(collections.abc.MutableMapping):
             yield item
 
     def values(self):
+        """
+        :return: Values in mapping.
+        """
         return self._value_list
 
     def items(self):
+        """
+        :return: Items in mapping.
+        """
         return zip(self._tensor_list, self._value_list)
 
     def __contains__(self, item):
@@ -1030,44 +1126,6 @@ class TensorMapping(collections.abc.MutableMapping):
         indices = np.where(mask)[0]
         if len(indices) > 1:
             raise ValueError("Tensor key collision.")
-        elif len(indices) == 0:
+        if len(indices) == 0:
             return None
         return indices[0]
-
-
-@deprecated(message="get_tkd_value is deprecated and will be removed in "
-            "pymatgen version 2019.1.1, please use the TensorMapping "
-            "class instead")
-def get_tkd_value(tensor_keyed_dict, tensor, allclose_kwargs=None):
-    """
-    Helper function to find a value in a tensor-keyed-
-    dictionary using an approximation to the key.  This
-    is useful if rounding errors in construction occur
-    or hashing issues arise in tensor-keyed-dictionaries
-    (e. g. from symmetry_reduce).  Resolves most
-    hashing issues, and is preferable to redefining
-    eq methods in the base tensor class.
-
-    Args:
-        tensor_keyed_dict (dict): dict with Tensor keys
-        tensor (Tensor): tensor to find value of in the dict
-        allclose_kwargs (dict): dict of keyword-args
-            to pass to allclose.
-    """
-    if allclose_kwargs is None:
-        allclose_kwargs = {}
-    for tkey, value in tensor_keyed_dict.items():
-        if np.allclose(tensor, tkey, **allclose_kwargs):
-            return value
-
-
-@deprecated(message="set_tkd_value is deprecated and will be removed in "
-            "pymatgen version 2019.1.1, please use the TensorMapping "
-            "class instead")
-def set_tkd_value(tensor_keyed_dict, tensor, set_value, allclose_kwargs=None):
-    if allclose_kwargs is None:
-        allclose_kwargs = {}
-    for tkey in tensor_keyed_dict.keys():
-        if np.allclose(tensor, tkey, **allclose_kwargs):
-            tensor_keyed_dict[tkey] = set_value
-            return

@@ -13,8 +13,6 @@ It also includes the helper function, batch_write_vasp_input to generate an
 entire directory of vasp input files for running.
 """
 
-
-
 __author__ = "Shyue Ping Ong, Will Richards"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "0.1"
@@ -166,7 +164,7 @@ class StandardTransmuter:
             ts.append_filter(structure_filter)
 
     def write_vasp_input(self, **kwargs):
-        """
+        r"""
         Batch write vasp input for a sequence of transformed structures to
         output_dir, following the format output_dir/{formula}_{number}.
 
@@ -309,17 +307,18 @@ class CifTransmuter(StandardTransmuter):
 class PoscarTransmuter(StandardTransmuter):
     """
     Generates a transmuter from a sequence of POSCARs.
-
-    Args:
-        poscar_string: List of POSCAR strings
-        transformations: New transformations to be applied to all
-            structures.
-        extend_collection: Whether to use more than one output structure
-            from one-to-many transformations.
     """
 
     def __init__(self, poscar_string, transformations=None,
                  extend_collection=False):
+        """
+        Args:
+            poscar_string: List of POSCAR strings
+            transformations: New transformations to be applied to all
+                structures.
+            extend_collection: Whether to use more than one output structure
+                from one-to-many transformations.
+        """
         tstruct = TransformedStructure.from_poscar_string(poscar_string, [])
         super().__init__([tstruct], transformations,
                          extend_collection=extend_collection)

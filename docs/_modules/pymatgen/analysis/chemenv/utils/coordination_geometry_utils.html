@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.chemenv.utils.coordination_geometry_utils &#8212; pymatgen 2019.7.2 documentation</title>
+    <title>pymatgen.analysis.chemenv.utils.coordination_geometry_utils &#8212; pymatgen 2020.3.2 documentation</title>
     <link rel="stylesheet" href="../../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../../" src="../../../../../_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="../../../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../../search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="../../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2019.7.2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -62,16 +61,15 @@
 <span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;david.waroquiers@gmail.com&quot;</span>
 <span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Feb 20, 2016&quot;</span>
 
-
 <span class="kn">import</span> <span class="nn">math</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">numpy.linalg</span> <span class="k">import</span> <span class="n">norm</span>
-<span class="kn">from</span> <span class="nn">scipy.spatial</span> <span class="k">import</span> <span class="n">ConvexHull</span>
-<span class="kn">from</span> <span class="nn">scipy.integrate</span> <span class="k">import</span> <span class="n">quad</span>
-<span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="k">import</span> <span class="n">UnivariateSpline</span>
+<span class="kn">from</span> <span class="nn">numpy.linalg</span> <span class="kn">import</span> <span class="n">norm</span>
+<span class="kn">from</span> <span class="nn">scipy.spatial</span> <span class="kn">import</span> <span class="n">ConvexHull</span>
+<span class="kn">from</span> <span class="nn">scipy.integrate</span> <span class="kn">import</span> <span class="n">quad</span>
+<span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="kn">import</span> <span class="n">UnivariateSpline</span>
 
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.utils.chemenv_errors</span> <span class="k">import</span> <span class="n">SolidAngleError</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.utils.chemenv_errors</span> <span class="kn">import</span> <span class="n">SolidAngleError</span>
 
 
 <div class="viewcode-block" id="get_lower_and_upper_f"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.utils.coordination_geometry_utils.html#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.get_lower_and_upper_f">[docs]</a><span class="k">def</span> <span class="nf">get_lower_and_upper_f</span><span class="p">(</span><span class="n">surface_calculation_options</span><span class="p">):</span>
@@ -215,7 +213,7 @@
 
 
 <div class="viewcode-block" id="diamond_functions"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.utils.coordination_geometry_utils.html#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.diamond_functions">[docs]</a><span class="k">def</span> <span class="nf">diamond_functions</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">yy</span><span class="p">,</span> <span class="n">y_x0</span><span class="p">,</span> <span class="n">x_y0</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Method that creates two upper and lower functions based on points xx and yy</span>
 <span class="sd">    as well as intercepts defined by y_x0 and x_y0. The resulting functions</span>
 <span class="sd">    form kind of a distorted diamond-like structure aligned from</span>
@@ -269,15 +267,16 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">p1</span> <span class="o">=</span> <span class="n">npyy</span>
             <span class="n">p2</span> <span class="o">=</span> <span class="n">npxx</span>
-    <span class="n">slope</span> <span class="o">=</span> <span class="p">(</span><span class="n">p2</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">p1</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="n">p2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span> <span class="n">p1</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">slope</span> <span class="o">=</span> <span class="p">(</span><span class="n">p2</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">p1</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="n">p2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">p1</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
     <span class="k">if</span> <span class="n">slope</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
         <span class="n">x_bpoint</span> <span class="o">=</span> <span class="n">p1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">x_y0</span>
         <span class="n">myy</span> <span class="o">=</span> <span class="n">p1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-        <span class="n">bq_intercept</span> <span class="o">=</span> <span class="n">myy</span> <span class="o">-</span> <span class="n">slope</span><span class="o">*</span><span class="n">x_bpoint</span>
+        <span class="n">bq_intercept</span> <span class="o">=</span> <span class="n">myy</span> <span class="o">-</span> <span class="n">slope</span> <span class="o">*</span> <span class="n">x_bpoint</span>
         <span class="n">myx</span> <span class="o">=</span> <span class="n">p1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">myy</span> <span class="o">=</span> <span class="n">p1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">y_x0</span>
-        <span class="n">ap_intercept</span> <span class="o">=</span> <span class="n">myy</span> <span class="o">-</span> <span class="n">slope</span><span class="o">*</span><span class="n">myx</span>
+        <span class="n">ap_intercept</span> <span class="o">=</span> <span class="n">myy</span> <span class="o">-</span> <span class="n">slope</span> <span class="o">*</span> <span class="n">myx</span>
         <span class="n">x_ppoint</span> <span class="o">=</span> <span class="p">(</span><span class="n">p2</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">ap_intercept</span><span class="p">)</span> <span class="o">/</span> <span class="n">slope</span>
+
         <span class="k">def</span> <span class="nf">lower</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">x</span> <span class="o">&lt;=</span> <span class="n">x_bpoint</span><span class="p">,</span> <span class="n">p1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">slope</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="n">bq_intercept</span><span class="p">)</span>
 
@@ -291,6 +290,7 @@
         <span class="n">myy</span> <span class="o">=</span> <span class="n">p1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">y_x0</span>
         <span class="n">ap_intercept</span> <span class="o">=</span> <span class="n">myy</span> <span class="o">-</span> <span class="n">slope</span> <span class="o">*</span> <span class="n">myx</span>
         <span class="n">x_ppoint</span> <span class="o">=</span> <span class="p">(</span><span class="n">p2</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">ap_intercept</span><span class="p">)</span> <span class="o">/</span> <span class="n">slope</span>
+
         <span class="k">def</span> <span class="nf">lower</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">x</span> <span class="o">&gt;=</span> <span class="n">x_ppoint</span><span class="p">,</span> <span class="n">p2</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">slope</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="n">ap_intercept</span><span class="p">)</span>
 
@@ -337,7 +337,7 @@
             <span class="k">if</span> <span class="n">bounds_upper</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">bounds_lower</span><span class="p">)</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">bounds_upper</span><span class="p">)):</span>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Bounds should be identical for both f_lower and f_upper&#39;</span><span class="p">)</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="s1">&#39;&lt;&#39;</span> <span class="ow">in</span> <span class="n">function_comparison</span><span class="p">(</span><span class="n">f1</span><span class="o">=</span><span class="n">f_lower</span><span class="p">,</span> <span class="n">f2</span><span class="o">=</span><span class="n">f_upper</span><span class="p">,</span>
+                <span class="k">if</span> <span class="s1">&#39;&lt;&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">function_comparison</span><span class="p">(</span><span class="n">f1</span><span class="o">=</span><span class="n">f_lower</span><span class="p">,</span> <span class="n">f2</span><span class="o">=</span><span class="n">f_upper</span><span class="p">,</span>
                                                   <span class="n">x1</span><span class="o">=</span><span class="n">bounds_lower</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x2</span><span class="o">=</span><span class="n">bounds_lower</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
                                                   <span class="n">numpoints_check</span><span class="o">=</span><span class="n">numpoints_check</span><span class="p">):</span>
                     <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Function f_lower is not allways lower or equal to function f_upper within &#39;</span>
@@ -348,13 +348,13 @@
             <span class="k">if</span> <span class="n">bounds_lower</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Bounds are given for f_upper but not for f_lower&#39;</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="s1">&#39;&lt;&#39;</span> <span class="ow">in</span> <span class="n">function_comparison</span><span class="p">(</span><span class="n">f1</span><span class="o">=</span><span class="n">f_lower</span><span class="p">,</span> <span class="n">f2</span><span class="o">=</span><span class="n">f_upper</span><span class="p">,</span>
+                <span class="k">if</span> <span class="s1">&#39;&lt;&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">function_comparison</span><span class="p">(</span><span class="n">f1</span><span class="o">=</span><span class="n">f_lower</span><span class="p">,</span> <span class="n">f2</span><span class="o">=</span><span class="n">f_upper</span><span class="p">,</span>
                                                   <span class="n">x1</span><span class="o">=</span><span class="n">bounds_lower</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x2</span><span class="o">=</span><span class="n">bounds_lower</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
                                                   <span class="n">numpoints_check</span><span class="o">=</span><span class="n">numpoints_check</span><span class="p">):</span>
                     <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Function f_lower is not allways lower or equal to function f_upper within &#39;</span>
                                        <span class="s1">&#39;the domain defined by the functions bounds.&#39;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="s1">&#39;&lt;&#39;</span> <span class="ow">in</span> <span class="n">function_comparison</span><span class="p">(</span><span class="n">f1</span><span class="o">=</span><span class="n">f_lower</span><span class="p">,</span> <span class="n">f2</span><span class="o">=</span><span class="n">f_upper</span><span class="p">,</span>
+            <span class="k">if</span> <span class="s1">&#39;&lt;&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">function_comparison</span><span class="p">(</span><span class="n">f1</span><span class="o">=</span><span class="n">f_lower</span><span class="p">,</span> <span class="n">f2</span><span class="o">=</span><span class="n">f_upper</span><span class="p">,</span>
                                               <span class="n">x1</span><span class="o">=</span><span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="o">=</span><span class="n">x2</span><span class="p">,</span> <span class="n">numpoints_check</span><span class="o">=</span><span class="n">numpoints_check</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Function f_lower is not allways lower or equal to function f_upper within &#39;</span>
                                    <span class="s1">&#39;the domain defined by x1 and x2.&#39;</span><span class="p">)</span>
@@ -371,6 +371,7 @@
             <span class="n">xmax</span> <span class="o">=</span> <span class="n">bounds_lower</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">xmax</span> <span class="o">=</span> <span class="n">x2</span>
+
         <span class="k">def</span> <span class="nf">diff</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
             <span class="n">flwx</span> <span class="o">=</span> <span class="n">f_lower</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
             <span class="n">fupx</span> <span class="o">=</span> <span class="n">f_upper</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
@@ -379,8 +380,10 @@
             <span class="n">zeros</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">fupx</span><span class="p">)</span>
             <span class="n">upper</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">y2</span> <span class="o">&gt;=</span> <span class="n">flwx</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">y1</span> <span class="o">&lt;=</span> <span class="n">fupx</span><span class="p">,</span> <span class="n">minup</span><span class="p">,</span> <span class="n">zeros</span><span class="p">),</span> <span class="n">zeros</span><span class="p">)</span>
             <span class="n">lower</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">y1</span> <span class="o">&lt;=</span> <span class="n">fupx</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">y2</span> <span class="o">&gt;=</span> <span class="n">flwx</span><span class="p">,</span> <span class="n">maxlw</span><span class="p">,</span> <span class="n">zeros</span><span class="p">),</span> <span class="n">zeros</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">upper</span><span class="o">-</span><span class="n">lower</span>
+            <span class="k">return</span> <span class="n">upper</span> <span class="o">-</span> <span class="n">lower</span>
+
         <span class="k">return</span> <span class="n">quad</span><span class="p">(</span><span class="n">diff</span><span class="p">,</span> <span class="n">xmin</span><span class="p">,</span> <span class="n">xmax</span><span class="p">)</span></div>
+
 
 <div class="viewcode-block" id="my_solid_angle"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.utils.coordination_geometry_utils.html#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.my_solid_angle">[docs]</a><span class="k">def</span> <span class="nf">my_solid_angle</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">coords</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -610,17 +613,17 @@
                       <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">),</span>
                       <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)]</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coefficients</span><span class="p">,</span> <span class="n">p1</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">p2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">p3</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coefficients</span><span class="p">,</span> <span class="n">p1</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">p2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">p3</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initializes a plane from the 4 coefficients a, b, c and d of ax + by + cz + d = 0</span>
 <span class="sd">        :param coefficients: abcd coefficients of the plane</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1">#Initializes the normal vector</span>
+        <span class="c1"># Initializes the normal vector</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">normal_vector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">coefficients</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">coefficients</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">coefficients</span><span class="p">[</span><span class="mi">2</span><span class="p">]],</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
         <span class="n">normv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">normal_vector</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">normal_vector</span> <span class="o">/=</span> <span class="n">normv</span>
         <span class="n">nonzeros</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">normal_vector</span> <span class="o">!=</span> <span class="mf">0.0</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
-        <span class="n">zeros</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span><span class="o">-</span><span class="nb">set</span><span class="p">(</span><span class="n">nonzeros</span><span class="p">))</span>
+        <span class="n">zeros</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">nonzeros</span><span class="p">))</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">nonzeros</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Normal vector is equal to 0.0&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">normal_vector</span><span class="p">[</span><span class="n">nonzeros</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">:</span>
@@ -636,7 +639,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">p1</span> <span class="o">=</span> <span class="n">p1</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">p2</span> <span class="o">=</span> <span class="n">p2</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">p3</span> <span class="o">=</span> <span class="n">p3</span>
-        <span class="c1">#Initializes 3 points belonging to the plane (useful for some methods)</span>
+        <span class="c1"># Initializes 3 points belonging to the plane (useful for some methods)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">p1</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">init_3points</span><span class="p">(</span><span class="n">nonzeros</span><span class="p">,</span> <span class="n">zeros</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">vector_to_origin</span> <span class="o">=</span> <span class="n">dd</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">normal_vector</span>
@@ -664,7 +667,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">p3</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">p1</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">p3</span><span class="p">[</span><span class="n">zeros</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="mf">1.0</span></div>
 
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        String representation of the Plane object</span>
 <span class="sd">        :return: String representation of the Plane object</span>
@@ -713,9 +716,9 @@
 <span class="sd">        is considered to lie on the plane or not (distance to the plane)</span>
 <span class="sd">        :param points: list of points</span>
 <span class="sd">        :param dist_tolerance: tolerance to which a point is considered to lie on the plane</span>
-<span class="sd">        or not (distance to the plane)</span>
+<span class="sd">            or not (distance to the plane)</span>
 <span class="sd">        :return: The lists of indices of the points on one side of the plane, on the plane and</span>
-<span class="sd">        on the other side of the plane</span>
+<span class="sd">            on the other side of the plane</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">side1</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
         <span class="n">inplane</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
@@ -744,7 +747,7 @@
 <span class="sd">        normal of the plane while negative distances are on the other side</span>
 <span class="sd">        :param points: Points for which distances are computed</span>
 <span class="sd">        :return: Distances from the plane to the points (positive values on the side of the normal to the plane,</span>
-<span class="sd">                 negative values on the other side)</span>
+<span class="sd">            negative values on the other side)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">normal_vector</span><span class="p">,</span> <span class="n">pp</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">d</span> <span class="k">for</span> <span class="n">pp</span> <span class="ow">in</span> <span class="n">points</span><span class="p">]</span></div>
 
@@ -756,9 +759,8 @@
 <span class="sd">        :param points: Points for which distances are computed</span>
 <span class="sd">        :param sign: Whether to add sign information in the indices sorting the points distances</span>
 <span class="sd">        :return: Distances from the plane to the points (positive values on the side of the normal to the plane,</span>
-<span class="sd">                 negative values on the other side), as well as indices of the points from closest to furthest. For</span>
-<span class="sd">                 the latter, when the sign parameter is True, items of the sorting list are given as tuples of</span>
-<span class="sd">                 (index, sign).</span>
+<span class="sd">            negative values on the other side), as well as indices of the points from closest to furthest. For the</span>
+<span class="sd">            latter, when the sign parameter is True, items of the sorting list are given as tuples of (index, sign).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">distances</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">normal_vector</span><span class="p">,</span> <span class="n">pp</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">d</span> <span class="k">for</span> <span class="n">pp</span> <span class="ow">in</span> <span class="n">points</span><span class="p">]</span>
         <span class="n">indices</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">distances</span><span class="p">)),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">k</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">distances</span><span class="p">[</span><span class="n">k</span><span class="p">]))</span>
@@ -776,18 +778,18 @@
 <span class="sd">        :param points: Points for which distances are computed</span>
 <span class="sd">        :param delta: Distance interval for which two points are considered in the same group.</span>
 <span class="sd">        :param delta_factor: If delta is None, the distance interval is taken as delta_factor times the maximal</span>
-<span class="sd">                             point distance.</span>
-<span class="sd">                             :param sign: Whether to add sign information in the indices sorting the points distances</span>
+<span class="sd">            point distance.</span>
+<span class="sd">        :param sign: Whether to add sign information in the indices sorting the points distances</span>
 <span class="sd">        :return: Distances from the plane to the points (positive values on the side of the normal to the plane,</span>
-<span class="sd">                 negative values on the other side), as well as indices of the points from closest to furthest and</span>
-<span class="sd">                 grouped indices of distances separated by less than delta. For the sorting list and the grouped</span>
-<span class="sd">                 indices, when the sign parameter is True, items are given as tuples of (index, sign).</span>
+<span class="sd">            negative values on the other side), as well as indices of the points from closest to furthest and</span>
+<span class="sd">            grouped indices of distances separated by less than delta. For the sorting list and the grouped</span>
+<span class="sd">            indices, when the sign parameter is True, items are given as tuples of (index, sign).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">distances</span><span class="p">,</span> <span class="n">indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">distances_indices_sorted</span><span class="p">(</span><span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">delta</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">delta</span> <span class="o">=</span> <span class="n">delta_factor</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">distances</span><span class="p">[</span><span class="n">indices</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]])</span>
+            <span class="n">delta</span> <span class="o">=</span> <span class="n">delta_factor</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">distances</span><span class="p">[</span><span class="n">indices</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]])</span>
         <span class="n">iends</span> <span class="o">=</span> <span class="p">[</span><span class="n">ii</span> <span class="k">for</span> <span class="n">ii</span><span class="p">,</span> <span class="n">idist</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-                 <span class="k">if</span> <span class="n">ii</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">distances</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">distances</span><span class="p">[</span><span class="n">indices</span><span class="p">[</span><span class="n">ii</span><span class="p">]])</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">distances</span><span class="p">[</span><span class="n">idist</span><span class="p">])</span><span class="o">&gt;</span><span class="n">delta</span><span class="p">)]</span>
+                 <span class="k">if</span> <span class="n">ii</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">distances</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">distances</span><span class="p">[</span><span class="n">indices</span><span class="p">[</span><span class="n">ii</span><span class="p">]])</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">distances</span><span class="p">[</span><span class="n">idist</span><span class="p">])</span> <span class="o">&gt;</span> <span class="n">delta</span><span class="p">)]</span>
         <span class="k">if</span> <span class="n">sign</span><span class="p">:</span>
             <span class="n">indices</span> <span class="o">=</span> <span class="p">[(</span><span class="n">ii</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">distances</span><span class="p">[</span><span class="n">ii</span><span class="p">])))</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">]</span>
         <span class="n">grouped_indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">indices</span><span class="p">[</span><span class="n">iends</span><span class="p">[</span><span class="n">ii</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]:</span><span class="n">iend</span><span class="p">]</span>
@@ -836,7 +838,6 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">e2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">e3</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">e1</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">e1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">e2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">e3</span><span class="p">]</span></div>
 
-
 <div class="viewcode-block" id="Plane.project_and_to2dim_ordered_indices"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.utils.coordination_geometry_utils.html#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.project_and_to2dim_ordered_indices">[docs]</a>    <span class="k">def</span> <span class="nf">project_and_to2dim_ordered_indices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pps</span><span class="p">,</span> <span class="n">plane_center</span><span class="o">=</span><span class="s1">&#39;mean&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Projects each points in the point list pps on plane and returns the indices that would sort the</span>
@@ -881,7 +882,7 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_maximum_distance_error</span><span class="p">(</span><span class="n">points</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Plane.fit_least_square_distance_error"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.utils.coordination_geometry_utils.html#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.fit_least_square_distance_error">[docs]</a>    <span class="k">def</span> <span class="nf">fit_least_square_distance_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">points</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">distance_to_point</span><span class="p">(</span><span class="n">pp</span><span class="p">)</span><span class="o">**</span><span class="mf">2.0</span> <span class="k">for</span> <span class="n">pp</span> <span class="ow">in</span> <span class="n">points</span><span class="p">])</span></div>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">distance_to_point</span><span class="p">(</span><span class="n">pp</span><span class="p">)</span> <span class="o">**</span> <span class="mf">2.0</span> <span class="k">for</span> <span class="n">pp</span> <span class="ow">in</span> <span class="n">points</span><span class="p">])</span></div>
 
 <div class="viewcode-block" id="Plane.fit_maximum_distance_error"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.utils.coordination_geometry_utils.html#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.fit_maximum_distance_error">[docs]</a>    <span class="k">def</span> <span class="nf">fit_maximum_distance_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">points</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">distance_to_point</span><span class="p">(</span><span class="n">pp</span><span class="p">)</span> <span class="k">for</span> <span class="n">pp</span> <span class="ow">in</span> <span class="n">points</span><span class="p">])</span></div>
@@ -970,8 +971,8 @@
 
 <div class="viewcode-block" id="Plane.perpendicular_bisector"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.utils.coordination_geometry_utils.html#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.perpendicular_bisector">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">perpendicular_bisector</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">):</span>
-        <span class="n">middle_point</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="p">(</span><span class="n">p1</span><span class="o">+</span><span class="n">p2</span><span class="p">)</span>
-        <span class="n">normal_vector</span> <span class="o">=</span> <span class="n">p2</span><span class="o">-</span><span class="n">p1</span>
+        <span class="n">middle_point</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">p1</span> <span class="o">+</span> <span class="n">p2</span><span class="p">)</span>
+        <span class="n">normal_vector</span> <span class="o">=</span> <span class="n">p2</span> <span class="o">-</span> <span class="n">p1</span>
         <span class="n">dd</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">normal_vector</span><span class="p">,</span> <span class="n">middle_point</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">normal_vector</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
                              <span class="n">normal_vector</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
@@ -1013,10 +1014,10 @@
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../../../../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -1035,7 +1036,7 @@
         <li class="right" >
           <a href="../../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2019.7.2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1043,7 +1044,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

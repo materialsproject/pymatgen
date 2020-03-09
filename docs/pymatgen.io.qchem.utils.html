@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.qchem.utils module &#8212; pymatgen 2019.7.2 documentation</title>
+    <title>pymatgen.io.qchem.utils module &#8212; pymatgen 2020.3.2 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,9 +13,10 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.io.vasp package" href="pymatgen.io.vasp.html" />
+    <link rel="prev" title="pymatgen.io.qchem.sets module" href="pymatgen.io.qchem.sets.html" />
  
 <script type="text/javascript">
   var _gaq = _gaq || [];
@@ -33,7 +34,17 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.2 documentation</a> &#187;</li> 
+        <li class="right" >
+          <a href="pymatgen.io.vasp.html" title="pymatgen.io.vasp package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pymatgen.io.qchem.sets.html" title="pymatgen.io.qchem.sets module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >pymatgen</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="pymatgen.html" >pymatgen package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="pymatgen.io.html" >pymatgen.io package</a> &#187;</li>
+          <li class="nav-item nav-item-4"><a href="pymatgen.io.qchem.html" accesskey="U">pymatgen.io.qchem package</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,9 +55,10 @@
             
   <div class="section" id="module-pymatgen.io.qchem.utils">
 <span id="pymatgen-io-qchem-utils-module"></span><h1>pymatgen.io.qchem.utils module<a class="headerlink" href="#module-pymatgen.io.qchem.utils" title="Permalink to this headline">¶</a></h1>
+<p>Utilities for Qchem io.</p>
 <dl class="function">
 <dt id="pymatgen.io.qchem.utils.lower_and_check_unique">
-<code class="descname">lower_and_check_unique</code><span class="sig-paren">(</span><em>dict_to_check</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/utils.html#lower_and_check_unique"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.utils.lower_and_check_unique" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">lower_and_check_unique</code><span class="sig-paren">(</span><em class="sig-param">dict_to_check</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/utils.html#lower_and_check_unique"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.utils.lower_and_check_unique" title="Permalink to this definition">¶</a></dt>
 <dd><p>Takes a dictionary and makes all the keys lower case. Also replaces
 “jobtype” with “job_type” just so that key specifically can be called
 elsewhere without ambiguity. Finally, ensures that multiple identical
@@ -71,21 +83,21 @@ present. If there are multiple equivalent keys, an Exception is raised.</p>
 
 <dl class="function">
 <dt id="pymatgen.io.qchem.utils.process_parsed_coords">
-<code class="descname">process_parsed_coords</code><span class="sig-paren">(</span><em>coords</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/utils.html#process_parsed_coords"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.utils.process_parsed_coords" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">process_parsed_coords</code><span class="sig-paren">(</span><em class="sig-param">coords</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/utils.html#process_parsed_coords"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.utils.process_parsed_coords" title="Permalink to this definition">¶</a></dt>
 <dd><p>Takes a set of parsed coordinates, which come as an array of strings,
 and returns a numpy array of floats.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.io.qchem.utils.read_pattern">
-<code class="descname">read_pattern</code><span class="sig-paren">(</span><em>text_str</em>, <em>patterns</em>, <em>terminate_on_match=False</em>, <em>postprocess=&lt;class 'str'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/utils.html#read_pattern"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.utils.read_pattern" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">read_pattern</code><span class="sig-paren">(</span><em class="sig-param">text_str</em>, <em class="sig-param">patterns</em>, <em class="sig-param">terminate_on_match=False</em>, <em class="sig-param">postprocess=&lt;class 'str'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/utils.html#read_pattern"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.utils.read_pattern" title="Permalink to this definition">¶</a></dt>
 <dd><p>General pattern reading on an input string</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>text_str</strong> (<em>str</em>) – the input string to search for patterns</p></li>
 <li><p><strong>patterns</strong> (<em>dict</em>) – A dict of patterns, e.g.,
-{“energy”: r”energy(sigma-&gt;0)s+=s+([d-.]+)”}.</p></li>
+{“energy”: r”energy\(sigma-&gt;0\)\s+=\s+([\d-.]+)”}.</p></li>
 <li><p><strong>terminate_on_match</strong> (<em>bool</em>) – Whether to terminate when there is at
 least one match in each key in pattern.</p></li>
 <li><p><strong>postprocess</strong> (<em>callable</em>) – A post processing function to convert all
@@ -95,7 +107,7 @@ matches. Defaults to str, i.e., no change.</p></li>
 </dl>
 <dl class="simple">
 <dt>Renders accessible:</dt><dd><p>Any attribute in patterns. For example,
-{“energy”: r”energy(sigma-&gt;0)s+=s+([d-.]+)”} will set the
+{“energy”: r”energy\(sigma-&gt;0\)\s+=\s+([\d-.]+)”} will set the
 value of matches[“energy”] = [[-1234], [-3453], …], to the
 results from regex and postprocess. Note that the returned values
 are lists of lists, because you can grep multiple items on one line.</p>
@@ -105,52 +117,41 @@ are lists of lists, because you can grep multiple items on one line.</p>
 
 <dl class="function">
 <dt id="pymatgen.io.qchem.utils.read_table_pattern">
-<code class="descname">read_table_pattern</code><span class="sig-paren">(</span><em>text_str</em>, <em>header_pattern</em>, <em>row_pattern</em>, <em>footer_pattern</em>, <em>postprocess=&lt;class 'str'&gt;</em>, <em>attribute_name=None</em>, <em>last_one_only=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/utils.html#read_table_pattern"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.utils.read_table_pattern" title="Permalink to this definition">¶</a></dt>
-<dd><blockquote>
-<div><p>Parse table-like data. A table composes of three parts: header,
+<code class="sig-name descname">read_table_pattern</code><span class="sig-paren">(</span><em class="sig-param">text_str</em>, <em class="sig-param">header_pattern</em>, <em class="sig-param">row_pattern</em>, <em class="sig-param">footer_pattern</em>, <em class="sig-param">postprocess=&lt;class 'str'&gt;</em>, <em class="sig-param">attribute_name=None</em>, <em class="sig-param">last_one_only=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/utils.html#read_table_pattern"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.utils.read_table_pattern" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse table-like data. A table composes of three parts: header,
 main body, footer. All the data matches “row pattern” in the main body
 will be returned.</p>
-<dl>
-<dt>Args:</dt><dd><p>text_str (str): the input string to search for patterns
-header_pattern (str): The regular expression pattern matches the</p>
-<blockquote>
-<div><p>table header. This pattern should match all the text
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>text_str</strong> (<em>str</em>) – the input string to search for patterns</p></li>
+<li><p><strong>header_pattern</strong> (<em>str</em>) – The regular expression pattern matches the
+table header. This pattern should match all the text
 immediately before the main body of the table. For multiple
 sections table match the text until the section of
 interest. MULTILINE and DOTALL options are enforced, as a
-result, the “.” meta-character will also match “</p>
-</div></blockquote>
-</dd>
-</dl>
-</div></blockquote>
-<dl>
-<dt>” in this</dt><dd><blockquote>
-<div><blockquote>
-<div><p>section.</p>
-</div></blockquote>
-<dl class="simple">
-<dt>row_pattern (str): The regular expression matches a single line in</dt><dd><p>the table. Capture interested field using regular expression
-groups.</p>
-</dd>
-<dt>footer_pattern (str): The regular expression matches the end of the</dt><dd><p>table. E.g. a long dash line.</p>
-</dd>
-<dt>postprocess (callable): A post processing function to convert all</dt><dd><p>matches. Defaults to str, i.e., no change.</p>
-</dd>
-<dt>attribute_name (str): Name of this table. If present the parsed data</dt><dd><p>will be attached to “data. e.g. self.data[“efg”] = […]</p>
-</dd>
-<dt>last_one_only (bool): All the tables will be parsed, if this option</dt><dd><p>is set to True, only the last table will be returned. The
+result, the “.” meta-character will also match “n” in this
+section.</p></li>
+<li><p><strong>row_pattern</strong> (<em>str</em>) – The regular expression matches a single line in
+the table. Capture interested field using regular expression
+groups.</p></li>
+<li><p><strong>footer_pattern</strong> (<em>str</em>) – The regular expression matches the end of the
+table. E.g. a long dash line.</p></li>
+<li><p><strong>postprocess</strong> (<em>callable</em>) – A post processing function to convert all
+matches. Defaults to str, i.e., no change.</p></li>
+<li><p><strong>attribute_name</strong> (<em>str</em>) – Name of this table. If present the parsed data
+will be attached to “data. e.g. self.data[“efg”] = […]</p></li>
+<li><p><strong>last_one_only</strong> (<em>bool</em>) – All the tables will be parsed, if this option
+is set to True, only the last table will be returned. The
 enclosing list will be removed. i.e. Only a single table will
-be returned. Default to be True.</p>
+be returned. Default to be True.</p></li>
+</ul>
 </dd>
-</dl>
-</div></blockquote>
-<dl class="simple">
-<dt>Returns:</dt><dd><p>List of tables. 1) A table is a list of rows. 2) A row if either a list of
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of tables. 1) A table is a list of rows. 2) A row if either a list of
 attribute values in case the the capturing group is defined without name in
 row_pattern, or a dict in case that named capturing groups are defined by
 row_pattern.</p>
-</dd>
-</dl>
 </dd>
 </dl>
 </dd></dl>
@@ -163,6 +164,12 @@ row_pattern.</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pymatgen.io.qchem.sets.html"
+                        title="previous chapter">pymatgen.io.qchem.sets module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pymatgen.io.vasp.html"
+                        title="next chapter">pymatgen.io.vasp package</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -171,10 +178,10 @@ row_pattern.</p>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -193,13 +200,23 @@ row_pattern.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.2 documentation</a> &#187;</li> 
+        <li class="right" >
+          <a href="pymatgen.io.vasp.html" title="pymatgen.io.vasp package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pymatgen.io.qchem.sets.html" title="pymatgen.io.qchem.sets module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >pymatgen</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="pymatgen.html" >pymatgen package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="pymatgen.io.html" >pymatgen.io package</a> &#187;</li>
+          <li class="nav-item nav-item-4"><a href="pymatgen.io.qchem.html" >pymatgen.io.qchem package</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

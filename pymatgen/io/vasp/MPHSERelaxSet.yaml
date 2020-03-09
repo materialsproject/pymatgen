@@ -1,4 +1,5 @@
 # Modified version of MPRelaxSet for HSE calculations.
+PARENT: VASPIncarBase
 INCAR:
   ALGO: All
   EDIFF_PER_ATOM: 5.0e-05
@@ -20,6 +21,7 @@ INCAR:
   SIGMA: 0.05
 KPOINTS:
   reciprocal_density: 50
+POTCAR_FUNCTIONAL: PBE_52
 POTCAR:
   Ac: Ac
   Ag: Ag

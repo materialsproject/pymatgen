@@ -2,30 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
-import os
-import re
-
-from monty.io import zopen
-from monty.dev import requires
-from monty.tempfile import ScratchDir
-
-from pymatgen.core.structure import Structure, Molecule
-from pymatgen.core.lattice import Lattice
-from pymatgen.io.cssr import Cssr
-from pymatgen.io.xyz import XYZ
-
-try:
-    from zeo.netstorage import AtomNetwork, VoronoiNetwork
-    from zeo.area_volume import volume, surface_area
-    from zeo.cluster import get_nearest_largest_diameter_highaccuracy_vornode, \
-        generate_simplified_highaccuracy_voronoi_network, \
-        prune_voronoi_network_close_node
-
-    zeo_found = True
-except ImportError:
-    zeo_found = False
-
 """
 Module implementing classes and functions to use Zeo++.
 
@@ -68,6 +44,27 @@ b) Go to pymatgen/analysis/defects/tests and run
    is not installed. But there should be no errors.
 """
 
+import os
+import re
+
+from monty.io import zopen
+from monty.dev import requires
+from monty.tempfile import ScratchDir
+
+from pymatgen.core.structure import Structure, Molecule
+from pymatgen.core.lattice import Lattice
+from pymatgen.io.cssr import Cssr
+from pymatgen.io.xyz import XYZ
+
+try:
+    from zeo.netstorage import AtomNetwork
+    from zeo.area_volume import volume, surface_area
+    from zeo.cluster import prune_voronoi_network_close_node
+
+    zeo_found = True
+except ImportError:
+    zeo_found = False
+
 __author__ = "Bharat Medasani"
 __copyright = "Copyright 2013, The Materials Project"
 __version__ = "0.1"
@@ -82,12 +79,13 @@ class ZeoCssr(Cssr):
     input CSSR format. The coordinate system is rorated from xyz to zyx.
     This change aligns the pivot axis of pymatgen (z-axis) to pivot axis
     of Zeo++ (x-axis) for structurural modifications.
-
-    Args:
-        structure: A structure to create ZeoCssr object
     """
 
     def __init__(self, structure):
+        """
+        Args:
+            structure: A structure to create ZeoCssr object
+        """
         super().__init__(structure)
 
     def __str__(self):
@@ -98,16 +96,10 @@ class ZeoCssr(Cssr):
         Also coordinate system is rotated from xyz to zxy
         """
         output = [
-            "{:.4f} {:.4f} {:.4f}"
-                # .format(*self.structure.lattice.abc),
-                .format(self.structure.lattice.c,
-                        self.structure.lattice.a,
-                        self.structure.lattice.b),
-            "{:.2f} {:.2f} {:.2f} SPGR =  1 P 1    OPT = 1"
-                # .format(*self.structure.lattice.angles),
-                .format(self.structure.lattice.gamma,
-                        self.structure.lattice.alpha,
-                        self.structure.lattice.beta),
+            "{:.4f} {:.4f} {:.4f}".format(self.structure.lattice.c, self.structure.lattice.a, self.structure.lattice.b),
+            "{:.2f} {:.2f} {:.2f} SPGR =  1 P 1    OPT = 1".format(self.structure.lattice.gamma,
+                                                                   self.structure.lattice.alpha,
+                                                                   self.structure.lattice.beta),
             "{} 0".format(len(self.structure)),
             "0 {}".format(self.structure.formula)
         ]
@@ -120,10 +112,8 @@ class ZeoCssr(Cssr):
             # specie = site.specie.symbol
             specie = site.species_string
             output.append(
-                "{} {} {:.4f} {:.4f} {:.4f} 0 0 0 0 0 0 0 0 {:.4f}"
-                    .format(
+                "{} {} {:.4f} {:.4f} {:.4f} 0 0 0 0 0 0 0 0 {:.4f}".format(
                     i + 1, specie, site.c, site.a, site.b, charge
-                    # i+1, site.specie, site.a, site.b, site.c, site.charge
                 )
             )
 
@@ -150,7 +140,7 @@ class ZeoCssr(Cssr):
         lengths.insert(0, a)
         alpha = angles.pop(-1)
         angles.insert(0, alpha)
-        latt = Lattice.from_lengths_and_angles(lengths, angles)
+        latt = Lattice.from_parameters(*lengths, *angles)
         sp = []
         coords = []
         chrg = []
@@ -187,12 +177,13 @@ class ZeoVoronoiXYZ(XYZ):
     Class to read Voronoi Nodes from XYZ file written by Zeo++.
     The sites have an additional column representing the voronoi node radius.
     The voronoi node radius is represented by the site property voronoi_radius.
-
-    Args:
-        mol: Input molecule holding the voronoi node information
     """
 
     def __init__(self, mol):
+        """
+        Args:
+            mol: Input molecule holding the voronoi node information
+        """
         super().__init__(mol)
 
     @staticmethod
@@ -243,14 +234,13 @@ class ZeoVoronoiXYZ(XYZ):
             return ZeoVoronoiXYZ.from_string(f.read())
 
     def __str__(self):
-        output = [str(len(self._mol)), self._mol.composition.formula]
+        output = [str(len(self._mols[0])), self._mols[0].composition.formula]
         fmtstr = "{{}} {{:.{0}f}} {{:.{0}f}} {{:.{0}f}} {{:.{0}f}}".format(
             self.precision
         )
-        for site in self._mol:
+        for site in self._mols[0]:
             output.append(fmtstr.format(
                 site.specie.symbol, site.z, site.x, site.y,
-                # site.specie, site.x, site.y, site.z,
                 site.properties['voronoi_radius']
             ))
         return "\n".join(output)
@@ -309,8 +299,7 @@ def get_voronoi_nodes(structure, rad_dict=None, probe_rad=0.1):
         coords.append(list(site.coords))
         prop.append(site.properties['voronoi_radius'])
 
-    lattice = Lattice.from_lengths_and_angles(
-        structure.lattice.abc, structure.lattice.angles)
+    lattice = Lattice.from_parameters(*structure.lattice.parameters)
     vor_node_struct = Structure(
         lattice, species, coords, coords_are_cartesian=True,
         to_unit_cell=True, site_properties={"voronoi_radius": prop})
@@ -387,8 +376,7 @@ def get_high_accuracy_voronoi_nodes(structure, rad_dict, probe_rad=0.1):
         coords.append(list(site.coords))
         prop.append(site.properties['voronoi_radius'])
 
-    lattice = Lattice.from_lengths_and_angles(
-        structure.lattice.abc, structure.lattice.angles)
+    lattice = Lattice.from_parameters(*structure.lattice.parameters)
     vor_node_struct = Structure(
         lattice, species, coords, coords_are_cartesian=True,
         to_unit_cell=True, site_properties={"voronoi_radius": prop})

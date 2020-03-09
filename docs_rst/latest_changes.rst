@@ -1,12 +1,9 @@
 Change log
 ==========
 
-v2019.7.2
+v2020.3.2
 ---------
-* Improvements to grain boundary transformations and Rester (@Tinaatucsd)
-* Improvements to AdsorbateSiteFinder (@oxana-a)
-* Improvements to Waveder support (@JRSuckert)
-* Improvements to run type detection (@darnoceloc)
-* Add XAS data to Rester (@yimingchen95)
-* Fix to ATAT input/output (@dongsenfo)
-* Initial support for Prismatic input (@mkhorton)
+* New MonteCarloRattleTransformation and phonopy integration (@utf)
+* New structure connectivity features in Chemenv analysis (@davidwaroquiers)
+* Bug fixes (@richardtran415, @chc273, @JaGeo, @dskoda, @rkingsbury, 
+  @jmmshn, @espottesmith, @gVallverdu, @yimingchen95, @fraricci)

@@ -59,8 +59,8 @@ class EOSBase(metaclass=ABCMeta):
         a, b, c = np.polyfit(self.volumes, self.energies, 2)
         self.eos_params = [a, b, c]
 
-        v0 = -b/(2*a)
-        e0 = a*(v0**2) + b*v0 + c
+        v0 = -b / (2 * a)
+        e0 = a * (v0 ** 2) + b * v0 + c
         b0 = 2 * a * v0
         b1 = 4  # b1 is usually a small number like 4
 
@@ -79,10 +79,9 @@ class EOSBase(metaclass=ABCMeta):
         """
         # the objective function that will be minimized in the least square
         # fitting
-        objective_func = lambda pars, x, y: y - self._func(x, pars)
         self._params = self._initial_guess()
-        self.eos_params, ierr = leastsq(
-            objective_func, self._params, args=(self.volumes, self.energies))
+        self.eos_params, ierr = leastsq(lambda pars, x, y: y - self._func(x, pars),
+                                        self._params, args=(self.volumes, self.energies))
         # e0, b0, b1, v0
         self._params = self.eos_params
         if ierr not in [1, 2, 3, 4]:
@@ -115,6 +114,13 @@ class EOSBase(metaclass=ABCMeta):
         return self._func(np.array(volume), self.eos_params)
 
     def __call__(self, volume):
+        """
+        Args:
+            volume (): Volume
+
+        Returns:
+            Compute EOS with this volume.
+        """
         return self.func(volume)
 
     @property
@@ -260,12 +266,15 @@ class EOSBase(metaclass=ABCMeta):
         ax.legend(loc="best", shadow=True)
         # Add text with fit parameters.
         ax.text(0.5, 0.5, text, fontsize=fontsize, horizontalalignment='center',
-            verticalalignment='center', transform=ax.transAxes)
+                verticalalignment='center', transform=ax.transAxes)
 
         return fig
 
 
 class Murnaghan(EOSBase):
+    """
+    Murnaghan EOS.
+    """
 
     def _func(self, volume, params):
         """
@@ -273,11 +282,14 @@ class Murnaghan(EOSBase):
         """
         e0, b0, b1, v0 = tuple(params)
         return (e0 +
-                b0 * volume / b1 * (((v0 / volume)**b1) / (b1 - 1.0) + 1.0) -
+                b0 * volume / b1 * (((v0 / volume) ** b1) / (b1 - 1.0) + 1.0) -
                 v0 * b0 / (b1 - 1.0))
 
 
 class Birch(EOSBase):
+    """
+    Birch EOS.
+    """
 
     def _func(self, volume, params):
         """
@@ -288,12 +300,15 @@ class Birch(EOSBase):
         """
         e0, b0, b1, v0 = tuple(params)
         return (e0
-                + 9.0 / 8.0 * b0 * v0 * ((v0 / volume)**(2.0/3.0) - 1.0) ** 2
+                + 9.0 / 8.0 * b0 * v0 * ((v0 / volume) ** (2.0 / 3.0) - 1.0) ** 2
                 + 9.0 / 16.0 * b0 * v0 * (b1 - 4.) *
-                ((v0 / volume)**(2.0/3.0) - 1.0) ** 3)
+                ((v0 / volume) ** (2.0 / 3.0) - 1.0) ** 3)
 
 
 class BirchMurnaghan(EOSBase):
+    """
+    BirchMurnaghan EOS
+    """
 
     def _func(self, volume, params):
         """
@@ -302,11 +317,14 @@ class BirchMurnaghan(EOSBase):
         e0, b0, b1, v0 = tuple(params)
         eta = (v0 / volume) ** (1. / 3.)
         return (e0 +
-                9. * b0 * v0 / 16. * (eta ** 2 - 1)**2 *
+                9. * b0 * v0 / 16. * (eta ** 2 - 1) ** 2 *
                 (6 + b1 * (eta ** 2 - 1.) - 4. * eta ** 2))
 
 
 class PourierTarantola(EOSBase):
+    """
+    PourierTarantola EOS
+    """
 
     def _func(self, volume, params):
         """
@@ -314,11 +332,14 @@ class PourierTarantola(EOSBase):
         """
         e0, b0, b1, v0 = tuple(params)
         eta = (volume / v0) ** (1. / 3.)
-        squiggle = -3.*np.log(eta)
+        squiggle = -3. * np.log(eta)
         return e0 + b0 * v0 * squiggle ** 2 / 6. * (3. + squiggle * (b1 - 2))
 
 
 class Vinet(EOSBase):
+    """
+    Vinet EOS.
+    """
 
     def _func(self, volume, params):
         """
@@ -372,16 +393,19 @@ class PolynomialEOS(EOSBase):
 
 
 class DeltaFactor(PolynomialEOS):
+    """
+    Fitting a polynomial EOS using delta factor.
+    """
 
     def _func(self, volume, params):
-        x = volume**(-2. / 3.)
+        x = volume ** (-2. / 3.)
         return np.poly1d(list(params))(x)
 
     def fit(self, order=3):
         """
         Overriden since this eos works with volume**(2/3) instead of volume.
         """
-        x = self.volumes**(-2./3.)
+        x = self.volumes ** (-2. / 3.)
         self.eos_params = np.polyfit(x, self.energies, order)
         self._set_params()
 
@@ -397,22 +421,25 @@ class DeltaFactor(PolynomialEOS):
 
         for x in np.roots(deriv1):
             if x > 0 and deriv2(x) > 0:
-                v0 = x**(-3./2.)
+                v0 = x ** (-3. / 2.)
                 break
         else:
             raise EOSError("No minimum could be found")
 
-        derivV2 = 4./9. * x**5. * deriv2(x)
-        derivV3 = (-20./9. * x**(13./2.) * deriv2(x) - 8./27. *
-                   x**(15./2.) * deriv3(x))
-        b0 = derivV2 / x**(3./2.)
-        b1 = -1 - x**(-3./2.) * derivV3 / derivV2
+        derivV2 = 4. / 9. * x ** 5. * deriv2(x)
+        derivV3 = (-20. / 9. * x ** (13. / 2.) * deriv2(x) - 8. / 27. *
+                   x ** (15. / 2.) * deriv3(x))
+        b0 = derivV2 / x ** (3. / 2.)
+        b1 = -1 - x ** (-3. / 2.) * derivV3 / derivV2
 
         # e0, b0, b1, v0
-        self._params = [deriv0(v0**(-2./3.)), b0, b1, v0]
+        self._params = [deriv0(v0 ** (-2. / 3.)), b0, b1, v0]
 
 
 class NumericalEOS(PolynomialEOS):
+    """
+    A numerical EOS.
+    """
 
     def fit(self, min_ndata_factor=3, max_poly_order_factor=5, min_poly_order=2):
         """
@@ -436,7 +463,8 @@ class NumericalEOS(PolynomialEOS):
         """
         warnings.simplefilter('ignore', np.RankWarning)
 
-        get_rms = lambda x, y: np.sqrt(np.sum((np.array(x)-np.array(y))**2)/len(x))
+        def get_rms(x, y):
+            return np.sqrt(np.sum((np.array(x) - np.array(y)) ** 2) / len(x))
 
         # list of (energy, volume) tuples
         e_v = [(i, j) for i, j in zip(self.energies, self.volumes)]
@@ -504,7 +532,7 @@ class NumericalEOS(PolynomialEOS):
             coeffs = np.array(v[0])
             # pad the coefficient array with zeros
             coeffs = np.lib.pad(coeffs,
-                                (0, max(fit_poly_order-len(coeffs), 0)),
+                                (0, max(fit_poly_order - len(coeffs), 0)),
                                 'constant')
             weighted_avg_coeffs += weight * coeffs
 
@@ -560,10 +588,14 @@ class EOS:
     }
 
     def __init__(self, eos_name='murnaghan'):
+        """
+        Args:
+            eos_name (str): Type of EOS to fit.
+        """
         if eos_name not in self.MODELS:
             raise EOSError("The equation of state '{}' is not supported. "
                            "Please choose one from the following list: {}".
-                format(eos_name, list(self.MODELS.keys())))
+                           format(eos_name, list(self.MODELS.keys())))
         self._eos_name = eos_name
         self.model = self.MODELS[eos_name]
 
@@ -583,4 +615,8 @@ class EOS:
         return eos_fit
 
 
-class EOSError(Exception): pass
+class EOSError(Exception):
+    """
+    Error class for EOS fitting.
+    """
+    pass

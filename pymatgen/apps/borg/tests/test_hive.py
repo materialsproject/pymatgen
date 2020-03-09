@@ -3,18 +3,6 @@
 # Distributed under the terms of the MIT License.
 
 
-"""
-Created on Mar 18, 2012
-"""
-
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyue@mit.edu"
-__date__ = "Mar 18, 2012"
-
 import unittest
 import os
 import warnings
@@ -53,6 +41,9 @@ class VaspToComputedEntryDroneTest(unittest.TestCase):
             self.assertIsNotNone(entry.structure)
             # self.assertEqual(len(entry.parameters["history"]), 2)
 
+    def tearDown(self):
+        warnings.simplefilter("default")
+
     def test_to_from_dict(self):
         d = self.structure_drone.as_dict()
         drone = VaspToComputedEntryDrone.from_dict(d)
@@ -66,6 +57,10 @@ class SimpleVaspToComputedEntryDroneTest(unittest.TestCase):
                                      "..", "..", 'test_files')
         self.drone = SimpleVaspToComputedEntryDrone()
         self.structure_drone = SimpleVaspToComputedEntryDrone(True)
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.simplefilter("default")
 
     def test_get_valid_paths(self):
         for path in os.walk(self.test_dir):
@@ -85,6 +80,10 @@ class GaussianToComputedEntryDroneTest(unittest.TestCase):
                                      "..", "..", 'test_files', "molecules")
         self.drone = GaussianToComputedEntryDrone(data=["corrections"])
         self.structure_drone = GaussianToComputedEntryDrone(True)
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.simplefilter("default")
 
     def test_get_valid_paths(self):
         for path in os.walk(self.test_dir):
@@ -115,6 +114,7 @@ class GaussianToComputedEntryDroneTest(unittest.TestCase):
         drone = GaussianToComputedEntryDrone.from_dict(d)
         self.assertEqual(type(drone), GaussianToComputedEntryDrone)
 
+
 if __name__ == "__main__":
-    #import sys;sys.argv = ['', 'Test.testName']
+    # import sys;sys.argv = ['', 'Test.testName']
     unittest.main()

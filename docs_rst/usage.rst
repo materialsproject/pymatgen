@@ -1,5 +1,6 @@
-Overview
-========
+=====
+Usage
+=====
 
 This page provides new users of the pymatgen code base with a quick overview of
 the pymatgen code base. It should also be pointed out that there is an
@@ -251,8 +252,8 @@ some examples::
     # Make a supercell
     structure.make_supercell([2, 2, 2])
 
-    #Find a primitive version of the Structure
-    structure.find_primitive_structure()
+    # Get a primitive version of the Structure
+    structure.get_primitive_structure()
 
     # Interpolate between two structures to get 10 structures (typically for
     # NEB calculations.

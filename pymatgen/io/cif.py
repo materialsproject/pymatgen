@@ -2,6 +2,9 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+Wrapper classes for Cif input and output from Structures.
+"""
 
 import math
 import re
@@ -29,11 +32,6 @@ from pymatgen.electronic_structure.core import Magmom
 from pymatgen.core.operations import MagSymmOp
 from pymatgen.symmetry.maggroups import MagneticSpaceGroup
 
-
-"""
-Wrapper classes for Cif input and output from Structures.
-"""
-
 __author__ = "Shyue Ping Ong, Will Richards, Matthew Horton"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "4.0"
@@ -44,11 +42,9 @@ __date__ = "Sep 23, 2011"
 
 sub_spgrp = partial(re.sub, r"[\s_]", "")
 
-space_groups = {sub_spgrp(k): k
-                for k in SYMM_DATA['space_group_encoding'].keys()}
+space_groups = {sub_spgrp(k): k for k in SYMM_DATA['space_group_encoding'].keys()}  # type: ignore
 
-space_groups.update({sub_spgrp(k): k
-                     for k in SYMM_DATA['space_group_encoding'].keys()})
+space_groups.update({sub_spgrp(k): k for k in SYMM_DATA['space_group_encoding'].keys()})  # type: ignore
 
 _COD_DATA = None
 
@@ -67,15 +63,16 @@ def _get_cod_data():
 
 
 class CifBlock:
+    """
+    Object for storing cif data. All data is stored in a single dictionary.
+    Data inside loops are stored in lists in the data dictionary, and
+    information on which keys are grouped together are stored in the loops
+    attribute.
+    """
     maxlen = 70  # not quite 80 so we can deal with semicolons and things
 
     def __init__(self, data, loops, header):
         """
-        Object for storing cif data. All data is stored in a single dictionary.
-        Data inside loops are stored in lists in the data dictionary, and
-        information on which keys are grouped together are stored in the loops
-        attribute.
-
         Args:
             data: dict or OrderedDict of data to go into the cif. Values should
                     be convertible to string, or lists of these if the key is
@@ -200,6 +197,12 @@ class CifBlock:
 
     @classmethod
     def from_string(cls, string):
+        """
+        Reads CifBlock from string.
+
+        :param string: String representation.
+        :return: CifBlock
+        """
         q = cls._process_string(string)
         header = q.popleft()[0][5:]
         data = OrderedDict()
@@ -261,6 +264,12 @@ class CifFile:
 
     @classmethod
     def from_string(cls, string):
+        """
+        Reads CifFile from a string.
+
+        :param string: String representation.
+        :return: CifFile
+        """
         d = OrderedDict()
         for x in re.split(r"^\s*data_", "x\n" + string,
                           flags=re.MULTILINE | re.DOTALL)[1:]:
@@ -278,6 +287,12 @@ class CifFile:
 
     @classmethod
     def from_file(cls, filename):
+        """
+        Reads CifFile from a filename.
+
+        :param filename: Filename
+        :return: CifFile
+        """
         with zopen(str(filename), "rt", errors="replace") as f:
             return cls.from_string(f.read())
 
@@ -287,17 +302,18 @@ class CifParser:
     Parses a CIF file. Attempts to fix CIFs that are out-of-spec, but will
     issue warnings if corrections applied. These are also stored in the
     CifParser's errors attribute.
-
-    Args:
-        filename (str): CIF filename, bzipped or gzipped CIF files are fine too.
-        occupancy_tolerance (float): If total occupancy of a site is between 1
-            and occupancy_tolerance, the occupancies will be scaled down to 1.
-        site_tolerance (float): This tolerance is used to determine if two
-            sites are sitting in the same position, in which case they will be
-            combined to a single disordered site. Defaults to 1e-4.
     """
 
     def __init__(self, filename, occupancy_tolerance=1., site_tolerance=1e-4):
+        """
+        Args:
+            filename (str): CIF filename, bzipped or gzipped CIF files are fine too.
+            occupancy_tolerance (float): If total occupancy of a site is between 1
+                and occupancy_tolerance, the occupancies will be scaled down to 1.
+            site_tolerance (float): This tolerance is used to determine if two
+                sites are sitting in the same position, in which case they will be
+                combined to a single disordered site. Defaults to 1e-4.
+        """
         self._occupancy_tolerance = occupancy_tolerance
         self._site_tolerance = site_tolerance
         if isinstance(filename, (str, Path)):
@@ -392,8 +408,8 @@ class CifParser:
                                   if str2float(x) != 0]
             if len(attached_hydrogens) > 0:
                 self.warnings.append("Structure has implicit hydrogens defined, "
-                                   "parsed structure unlikely to be suitable for use "
-                                   "in calculations unless hydrogens added.")
+                                     "parsed structure unlikely to be suitable for use "
+                                     "in calculations unless hydrogens added.")
 
         # Check to see if "_atom_site_type_symbol" exists, as some test CIFs do
         # not contain this key.
@@ -477,7 +493,6 @@ class CifParser:
                         del data.data[original_key][id]
 
             if len(idxs_to_remove) > 0:
-
                 self.warnings.append("Pauling file corrections applied.")
 
                 data.data["_atom_site_label"] += new_atom_site_label
@@ -543,18 +558,18 @@ class CifParser:
 
         # check for finite precision frac co-ordinates (e.g. 0.6667 instead of 0.6666666...7)
         # this can sometimes cause serious issues when applying symmetry operations
-        important_fracs = (1/3., 2/3.)
+        important_fracs = (1 / 3., 2 / 3.)
         fracs_to_change = {}
         for label in ('_atom_site_fract_x', '_atom_site_fract_y', '_atom_site_fract_z'):
             if label in data.data.keys():
                 for idx, frac in enumerate(data.data[label]):
                     try:
                         frac = str2float(frac)
-                    except:
+                    except Exception:
                         # co-ordinate might not be defined e.g. '?'
                         continue
                     for comparison_frac in important_fracs:
-                        if abs(1 - frac/comparison_frac) < 1e-4:
+                        if abs(1 - frac / comparison_frac) < 1e-4:
                             fracs_to_change[(label, idx)] = str(comparison_frac)
         if fracs_to_change:
             self.warnings.append("Some fractional co-ordinates rounded to ideal values to "
@@ -618,7 +633,7 @@ class CifParser:
             angles = [str2float(data["_cell_angle_" + i])
                       for i in angle_strings]
             if not lattice_type:
-                return Lattice.from_lengths_and_angles(lengths, angles)
+                return Lattice.from_parameters(*lengths, *angles)
 
             else:
                 return getattr(Lattice, lattice_type)(*(lengths + angles))
@@ -694,7 +709,7 @@ class CifParser:
                         if spg:
                             symops = SpaceGroup(spg).symmetry_ops
                             msg = "No _symmetry_equiv_pos_as_xyz type key found. " \
-                                    "Spacegroup from %s used." % symmetry_label
+                                  "Spacegroup from %s used." % symmetry_label
                             warnings.warn(msg)
                             self.warnings.append(msg)
                             break
@@ -710,11 +725,11 @@ class CifParser:
                                 symops = [SymmOp.from_xyz_string(s)
                                           for s in xyz]
                                 msg = "No _symmetry_equiv_pos_as_xyz type key found. " \
-                                        "Spacegroup from %s used." % symmetry_label
+                                      "Spacegroup from %s used." % symmetry_label
                                 warnings.warn(msg)
                                 self.warnings.append(msg)
                                 break
-                    except Exception as ex:
+                    except Exception:
                         continue
 
                     if symops:
@@ -790,18 +805,20 @@ class CifParser:
                 # get BNS number for MagneticSpaceGroup()
                 # by converting string to list of ints
                 id = list(map(int, (
-                data.data.get("_space_group_magn.number_BNS").split("."))))
-
-            msg = MagneticSpaceGroup(id)
+                    data.data.get("_space_group_magn.number_BNS").split("."))))
 
             if data.data.get("_space_group_magn.transform_BNS_Pp_abc"):
                 if data.data.get(
                         "_space_group_magn.transform_BNS_Pp_abc") != "a,b,c;0,0,0":
-                    return NotImplementedError(
-                        "Non-standard settings not currently supported.")
+
+                    jf = data.data.get("_space_group_magn.transform_BNS_Pp_abc")
+                    msg = MagneticSpaceGroup(id, jf)
+
             elif data.data.get("_space_group_magn.transform_BNS_Pp"):
                 return NotImplementedError(
                     "Incomplete specification to implement.")
+            else:
+                msg = MagneticSpaceGroup(id)
 
             magsymmops = msg.symmetry_ops
 
@@ -953,7 +970,7 @@ class CifParser:
                     o_s = oxi_states.get(oxi_symbol, o_s)
                 try:
                     el = Specie(symbol, o_s)
-                except:
+                except Exception:
                     el = DummySpecie(symbol, o_s)
             else:
                 el = get_el_sp(symbol)
@@ -976,8 +993,8 @@ class CifParser:
                 if num_h > 0:
                     comp_d["H"] = num_h
                     self.warnings.append("Structure has implicit hydrogens defined, "
-                                       "parsed structure unlikely to be suitable for use "
-                                       "in calculations unless hydrogens added.")
+                                         "parsed structure unlikely to be suitable for use "
+                                         "in calculations unless hydrogens added.")
                 comp = Composition(comp_d)
                 if not match:
                     coord_to_species[coord] = comp
@@ -991,7 +1008,7 @@ class CifParser:
                     if not set(c.elements) == {Element("O"), Element("H")}]
         if any([o > 1 for o in sum_occu]):
             msg = "Some occupancies (%s) sum to > 1! If they are within " \
-                    "the tolerance, they will be rescaled." % str(sum_occu)
+                  "the tolerance, they will be rescaled." % str(sum_occu)
             warnings.warn(msg)
             self.warnings.append(msg)
 
@@ -1163,13 +1180,15 @@ class CifParser:
                 bibtex_entry.pop('page_first', None)  # and remove page_first, page_list if present
                 bibtex_entry.pop('page_last', None)
 
-
             # cite keys are given as cif-reference-idx in order they are found
-            entries['cif-reference-{}'.format(idx)] = Entry('article', list(bibtex_entry.items()))
+            entries['cifref{}'.format(idx)] = Entry('article', list(bibtex_entry.items()))
 
         return BibliographyData(entries).to_string(bib_format='bibtex')
 
     def as_dict(self):
+        """
+        :return: MSONable dict
+        """
         d = OrderedDict()
         for k, v in self._cif.data.items():
             d[k] = {}
@@ -1179,14 +1198,18 @@ class CifParser:
 
     @property
     def has_errors(self):
+        """
+        :return: Whether there are errors/warnings detected in CIF parsing.
+        """
         return len(self.warnings) > 0
 
 
 class CifWriter:
-    def __init__(self, struct, symprec=None, write_magmoms=False):
+    """
+    A wrapper around CifFile to write CIF files from pymatgen structures.
+    """
+    def __init__(self, struct, symprec=None, write_magmoms=False, significant_figures=8):
         """
-        A wrapper around CifFile to write CIF files from pymatgen structures.
-
         Args:
             struct (Structure): structure to write
             symprec (float): If not none, finds the symmetry of the structure
@@ -1194,6 +1217,8 @@ class CifWriter:
                 to the SpacegroupAnalyzer
             write_magmoms (bool): If True, will write magCIF file. Incompatible
                 with symprec
+            significant_figures (int): Specifies precision for formatting of floats.
+                Defaults to 8.
         """
 
         if write_magmoms and symprec:
@@ -1202,7 +1227,7 @@ class CifWriter:
                 "disabling symmetry detection.")
             symprec = None
 
-        format_str = "{:.8f}"
+        format_str = "{:.%df}" % significant_figures
 
         block = OrderedDict()
         loops = []
@@ -1228,7 +1253,7 @@ class CifWriter:
         block["_symmetry_Int_Tables_number"] = spacegroup[1]
         block["_chemical_formula_structural"] = no_oxi_comp.reduced_formula
         block["_chemical_formula_sum"] = no_oxi_comp.formula
-        block["_cell_volume"] = "%.8f" % latt.volume
+        block["_cell_volume"] = format_str.format(latt.volume)
 
         reduced_comp, fu = no_oxi_comp.get_reduced_composition_and_factor()
         block["_cell_formula_units_Z"] = str(int(fu))
@@ -1282,9 +1307,9 @@ class CifWriter:
                 for sp, occu in sorted(site.species.items()):
                     atom_site_type_symbol.append(sp.__str__())
                     atom_site_symmetry_multiplicity.append("1")
-                    atom_site_fract_x.append("{0:f}".format(site.a))
-                    atom_site_fract_y.append("{0:f}".format(site.b))
-                    atom_site_fract_z.append("{0:f}".format(site.c))
+                    atom_site_fract_x.append(format_str.format(site.a))
+                    atom_site_fract_y.append(format_str.format(site.b))
+                    atom_site_fract_z.append(format_str.format(site.c))
                     atom_site_label.append("{}{}".format(sp.symbol, count))
                     atom_site_occupancy.append(occu.__str__())
 
@@ -1295,9 +1320,9 @@ class CifWriter:
                             magmom, latt)
                         atom_site_moment_label.append(
                             "{}{}".format(sp.symbol, count))
-                        atom_site_moment_crystalaxis_x.append("%.5f" % moment[0])
-                        atom_site_moment_crystalaxis_y.append("%.5f" % moment[1])
-                        atom_site_moment_crystalaxis_z.append("%.5f" % moment[2])
+                        atom_site_moment_crystalaxis_x.append(format_str.format(moment[0]))
+                        atom_site_moment_crystalaxis_y.append(format_str.format(moment[1]))
+                        atom_site_moment_crystalaxis_z.append(format_str.format(moment[2]))
 
                     count += 1
         else:
@@ -1315,9 +1340,9 @@ class CifWriter:
                 for sp, occu in site.species.items():
                     atom_site_type_symbol.append(sp.__str__())
                     atom_site_symmetry_multiplicity.append("%d" % mult)
-                    atom_site_fract_x.append("{0:f}".format(site.a))
-                    atom_site_fract_y.append("{0:f}".format(site.b))
-                    atom_site_fract_z.append("{0:f}".format(site.c))
+                    atom_site_fract_x.append(format_str.format(site.a))
+                    atom_site_fract_y.append(format_str.format(site.b))
+                    atom_site_fract_z.append(format_str.format(site.c))
                     atom_site_label.append("{}{}".format(sp.symbol, count))
                     atom_site_occupancy.append(occu.__str__())
                     count += 1

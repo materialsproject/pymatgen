@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.xyz module &#8212; pymatgen 2019.7.2 documentation</title>
+    <title>pymatgen.io.xyz module &#8212; pymatgen 2020.3.2 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,9 +13,10 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.io.zeopp module" href="pymatgen.io.zeopp.html" />
+    <link rel="prev" title="pymatgen.io.xr module" href="pymatgen.io.xr.html" />
  
 <script type="text/javascript">
   var _gaq = _gaq || [];
@@ -33,7 +34,16 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.2 documentation</a> &#187;</li> 
+        <li class="right" >
+          <a href="pymatgen.io.zeopp.html" title="pymatgen.io.zeopp module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pymatgen.io.xr.html" title="pymatgen.io.xr module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >pymatgen</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="pymatgen.html" >pymatgen package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="pymatgen.io.html" accesskey="U">pymatgen.io package</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -44,17 +54,13 @@
             
   <div class="section" id="module-pymatgen.io.xyz">
 <span id="pymatgen-io-xyz-module"></span><h1>pymatgen.io.xyz module<a class="headerlink" href="#module-pymatgen.io.xyz" title="Permalink to this headline">¶</a></h1>
+<p>Module implementing an XYZ file object class.</p>
 <dl class="class">
 <dt id="pymatgen.io.xyz.XYZ">
-<em class="property">class </em><code class="descname">XYZ</code><span class="sig-paren">(</span><em>mol</em>, <em>coord_precision=6</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/xyz.html#XYZ"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.xyz.XYZ" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">XYZ</code><span class="sig-paren">(</span><em class="sig-param">mol: pymatgen.core.structure.Molecule</em>, <em class="sig-param">coord_precision: int = 6</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/xyz.html#XYZ"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.xyz.XYZ" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Basic class for importing and exporting Molecules or Structures in XYZ
 format.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>mol</strong> – Input molecule or list of molecules</p>
-</dd>
-</dl>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Exporting periodic structures in the XYZ format will lose information
@@ -62,15 +68,23 @@ about the periodicity. Essentially, only cartesian coordinates are
 written in this format and no information is retained about the
 lattice.</p>
 </div>
-<dl class="attribute">
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mol</strong> – Input molecule or list of molecules</p></li>
+<li><p><strong>coord_precision</strong> – Precision to be used for coordinates.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
 <dt id="pymatgen.io.xyz.XYZ.all_molecules">
-<code class="descname">all_molecules</code><a class="headerlink" href="#pymatgen.io.xyz.XYZ.all_molecules" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">all_molecules</code><a class="headerlink" href="#pymatgen.io.xyz.XYZ.all_molecules" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns all the frames of molecule associated with this XYZ.</p>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pymatgen.io.xyz.XYZ.from_file">
-<em class="property">static </em><code class="descname">from_file</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/xyz.html#XYZ.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.xyz.XYZ.from_file" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param">filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/xyz.html#XYZ.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.xyz.XYZ.from_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates XYZ object from a file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -82,9 +96,9 @@ lattice.</p>
 </dl>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="pymatgen.io.xyz.XYZ.from_string">
-<em class="property">static </em><code class="descname">from_string</code><span class="sig-paren">(</span><em>contents</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/xyz.html#XYZ.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.xyz.XYZ.from_string" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">from_string</code><span class="sig-paren">(</span><em class="sig-param">contents</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/xyz.html#XYZ.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.xyz.XYZ.from_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates XYZ object from a string.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -96,16 +110,16 @@ lattice.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pymatgen.io.xyz.XYZ.molecule">
-<code class="descname">molecule</code><a class="headerlink" href="#pymatgen.io.xyz.XYZ.molecule" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">molecule</code><a class="headerlink" href="#pymatgen.io.xyz.XYZ.molecule" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns molecule associated with this XYZ. In case multiple frame
 XYZ, returns the last frame.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.xyz.XYZ.write_file">
-<code class="descname">write_file</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/xyz.html#XYZ.write_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.xyz.XYZ.write_file" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">write_file</code><span class="sig-paren">(</span><em class="sig-param">filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/xyz.html#XYZ.write_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.xyz.XYZ.write_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Writes XYZ to file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -124,6 +138,12 @@ XYZ, returns the last frame.</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pymatgen.io.xr.html"
+                        title="previous chapter">pymatgen.io.xr module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pymatgen.io.zeopp.html"
+                        title="next chapter">pymatgen.io.zeopp module</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -132,10 +152,10 @@ XYZ, returns the last frame.</p>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -154,13 +174,22 @@ XYZ, returns the last frame.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.7.2 documentation</a> &#187;</li> 
+        <li class="right" >
+          <a href="pymatgen.io.zeopp.html" title="pymatgen.io.zeopp module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pymatgen.io.xr.html" title="pymatgen.io.xr module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >pymatgen</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="pymatgen.html" >pymatgen package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="pymatgen.io.html" >pymatgen.io package</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

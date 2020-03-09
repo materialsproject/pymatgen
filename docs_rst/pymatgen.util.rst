@@ -14,6 +14,9 @@ Submodules
 
    pymatgen.util.convergence
    pymatgen.util.coord
+   pymatgen.util.coord_cython.cpython-36m-darwin
+   pymatgen.util.coord_cython.cpython-37m-darwin
+   pymatgen.util.coord_cython
    pymatgen.util.coord_cython
    pymatgen.util.io_utils
    pymatgen.util.num
@@ -29,6 +32,6 @@ Module contents
 ---------------
 
 .. automodule:: pymatgen.util
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

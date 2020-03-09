@@ -1,16 +1,25 @@
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
-import sys
+"""
+Pymatgen (Python Materials Genomics) is a robust, open-source Python library
+for materials analysis. This is the root package.
+"""
+
+
+# Useful aliases for commonly used objects and modules.
+# Allows from pymatgen import <class> for quick usage.
 import os
 import warnings
 import ruamel.yaml as yaml
 from fnmatch import fnmatch
 
 __author__ = "Pymatgen Development Team"
-__email__ ="pymatgen@googlegroups.com"
+__email__ = "pymatgen@googlegroups.com"
 __maintainer__ = "Shyue Ping Ong"
-__maintainer_email__ ="shyuep@gmail.com"
-__version__ = "2019.7.2"
-
+__maintainer_email__ = "shyuep@gmail.com"
+__version__ = "2020.3.2"
 
 SETTINGS_FILE = os.path.join(os.path.expanduser("~"), ".pmgrc.yaml")
 
@@ -34,16 +43,13 @@ def _load_pmg_settings():
 SETTINGS = _load_pmg_settings()
 
 
-# Order of imports is important on some systems to avoid
-# failures when loading shared libraries.
-# import spglib
-# from . import optimization, util
-# del(spglib, optimization, util)
-
-# Useful aliases for commonly used objects and modules.
-# Allows from pymatgen import <class> for quick usage.
-
-from pymatgen.core import *
+from .core.periodic_table import Element, Specie, DummySpecie
+from .core.composition import Composition
+from .core.structure import Structure, IStructure, Molecule, IMolecule
+from .core.lattice import Lattice
+from .core.sites import Site, PeriodicSite
+from .core.operations import SymmOp
+from .core.units import Unit, FloatWithUnit, ArrayWithUnit
 from .electronic_structure.core import Spin, Orbital
 from .ext.matproj import MPRester
 from monty.json import MontyEncoder, MontyDecoder, MSONable
@@ -71,12 +77,6 @@ def get_structure_from_mp(formula):
                       "Project. The lowest energy structure will be returned." %
                       (len(entries), formula))
     return min(entries, key=lambda e: e.energy_per_atom).structure
-
-
-if sys.version_info < (3, 5):
-    warnings.warn("""
-Pymatgen will drop Py2k support from v2019.1.1. Pls consult the documentation
-at https://www.pymatgen.org for more details.""")
 
 
 def loadfn(fname):

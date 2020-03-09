@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.feff.outputs &#8212; pymatgen 2019.7.2 documentation</title>
+    <title>pymatgen.io.feff.outputs &#8212; pymatgen 2020.3.2 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -13,7 +13,6 @@
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
  
@@ -33,7 +32,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.7.2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -50,17 +49,24 @@
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
 
-<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">defaultdict</span><span class="p">,</span> <span class="n">OrderedDict</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module defines classes for parsing the FEFF output files.</span>
+
+<span class="sd">Currently supports the xmu.dat, ldos.dat output files are for non-spin case.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span><span class="p">,</span> <span class="n">OrderedDict</span>
 <span class="kn">import</span> <span class="nn">re</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
-<span class="kn">from</span> <span class="nn">monty.io</span> <span class="k">import</span> <span class="n">zopen</span>
-<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
+<span class="kn">from</span> <span class="nn">monty.io</span> <span class="kn">import</span> <span class="n">zopen</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">MSONable</span>
 
-<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="k">import</span> <span class="n">Orbital</span><span class="p">,</span> <span class="n">Spin</span><span class="p">,</span> <span class="n">Element</span>
-<span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.dos</span> <span class="k">import</span> <span class="n">Dos</span><span class="p">,</span> <span class="n">CompleteDos</span>
-<span class="kn">from</span> <span class="nn">pymatgen.io.feff</span> <span class="k">import</span> <span class="n">Header</span><span class="p">,</span> <span class="n">Potential</span><span class="p">,</span> <span class="n">Tags</span>
+<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">Orbital</span><span class="p">,</span> <span class="n">Spin</span><span class="p">,</span> <span class="n">Element</span>
+<span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.dos</span> <span class="kn">import</span> <span class="n">Dos</span><span class="p">,</span> <span class="n">CompleteDos</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.feff</span> <span class="kn">import</span> <span class="n">Header</span><span class="p">,</span> <span class="n">Potential</span><span class="p">,</span> <span class="n">Tags</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Alan Dozier, Kiran Mathew, Chen Zheng&quot;</span>
 <span class="n">__credits__</span> <span class="o">=</span> <span class="s2">&quot;Anubhav Jain, Shyue Ping Ong&quot;</span>
@@ -71,30 +77,25 @@
 <span class="n">__status__</span> <span class="o">=</span> <span class="s2">&quot;Beta&quot;</span>
 <span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;April 7, 2013&quot;</span>
 
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">This module defines classes for parsing the FEFF output files.</span>
-
-<span class="sd">Currently supports the xmu.dat, ldos.dat output files are for non-spin case.</span>
-<span class="sd">&quot;&quot;&quot;</span>
-
 
 <div class="viewcode-block" id="LDos"><a class="viewcode-back" href="../../../../pymatgen.io.feff.outputs.html#pymatgen.io.feff.outputs.LDos">[docs]</a><span class="k">class</span> <span class="nc">LDos</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Parser for ldos files ldos01, ldos02, .....</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        complete_dos (CompleteDos): complete dos object</span>
-<span class="sd">        charge_transfer (dict): computed charge transfer between atoms</span>
-<span class="sd">            dictionary</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">complete_dos</span><span class="p">,</span> <span class="n">charge_transfer</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">complete_dos</span><span class="p">,</span> <span class="n">charge_transfer</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            complete_dos (CompleteDos): complete dos object</span>
+<span class="sd">            charge_transfer (dict): computed charge transfer between atoms</span>
+<span class="sd">                dictionary</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">complete_dos</span> <span class="o">=</span> <span class="n">complete_dos</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">charge_transfer</span> <span class="o">=</span> <span class="n">charge_transfer</span>
 
 <div class="viewcode-block" id="LDos.from_file"><a class="viewcode-back" href="../../../../pymatgen.io.feff.outputs.html#pymatgen.io.feff.outputs.LDos.from_file">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="n">feff_inp_file</span><span class="o">=</span><span class="s1">&#39;feff.inp&#39;</span><span class="p">,</span> <span class="n">ldos_file</span><span class="o">=</span><span class="s1">&#39;ldos&#39;</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Creates LDos object from raw Feff ldos files by</span>
 <span class="sd">        by assuming they are numbered consecutively, i.e. ldos01.dat</span>
 <span class="sd">        ldos02.dat...</span>
@@ -298,17 +299,11 @@
 
 
 <div class="viewcode-block" id="Xmu"><a class="viewcode-back" href="../../../../pymatgen.io.feff.outputs.html#pymatgen.io.feff.outputs.Xmu">[docs]</a><span class="k">class</span> <span class="nc">Xmu</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Parser for data in &#39;xmu.dat&#39; file.</span>
 <span class="sd">    The file &#39;xmu.dat&#39; contains XANES, EXAFS or NRIXS data depending on the</span>
 <span class="sd">    situation; \\mu, \\mu_0, and \\chi = \\chi * \\mu_0/ \\mu_0/(edge+50eV) as</span>
 <span class="sd">    functions of absolute energy E, relative energy E − E_f and wave number k.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        header: Header object</span>
-<span class="sd">        parameters: Tags object</span>
-<span class="sd">        absorbing_atom (str/int): absorbing atom symbol or index</span>
-<span class="sd">        data (numpy.ndarray, Nx6): cross_sections</span>
 
 <span class="sd">    Default attributes:</span>
 <span class="sd">        xmu: Photon absorption cross section of absorbing atom in material</span>
@@ -325,7 +320,14 @@
 <span class="sd">        Calculation: Type of Feff calculation performed</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">header</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">absorbing_atom</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">header</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">absorbing_atom</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            header: Header object</span>
+<span class="sd">            parameters: Tags object</span>
+<span class="sd">            absorbing_atom (str/int): absorbing atom symbol or index</span>
+<span class="sd">            data (numpy.ndarray, Nx6): cross_sections</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">header</span> <span class="o">=</span> <span class="n">header</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span> <span class="o">=</span> <span class="n">parameters</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">absorbing_atom</span> <span class="o">=</span> <span class="n">absorbing_atom</span>
@@ -372,7 +374,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">wavenumber</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns The wave number in units of \\AA^-1. k=\\sqrt(E −E_f) where E is</span>
 <span class="sd">        the energy and E_f is the Fermi level computed from electron gas theory</span>
 <span class="sd">        at the average interstitial charge density.</span>
@@ -453,7 +455,11 @@
 <span class="sd">    Parse&#39;eels.dat&#39; file.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            data (): Eels data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 
     <span class="nd">@property</span>
@@ -472,10 +478,16 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">atomic_background</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: atomic background.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">fine_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: Fine structure of EELS.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[:,</span> <span class="mi">3</span><span class="p">]</span>
 
 <div class="viewcode-block" id="Eels.from_file"><a class="viewcode-back" href="../../../../pymatgen.io.feff.outputs.html#pymatgen.io.feff.outputs.Eels.from_file">[docs]</a>    <span class="nd">@staticmethod</span>
@@ -507,10 +519,10 @@
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../../../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -529,7 +541,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.7.2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -537,7 +549,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

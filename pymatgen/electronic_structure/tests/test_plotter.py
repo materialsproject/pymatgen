@@ -5,8 +5,10 @@
 import unittest
 import os
 import json
-
+import warnings
 from io import open
+
+import scipy
 
 from monty.os.path import which
 from pymatgen.electronic_structure.core import Spin
@@ -21,22 +23,8 @@ from pymatgen.core.structure import Structure
 from pymatgen.io.vasp import Vasprun
 from pymatgen.util.testing import PymatgenTest
 
-"""
-Created on May 1, 2012
-"""
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "May 1, 2012"
-
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
-
-import scipy
-import warnings
 
 
 class DosPlotterTest(unittest.TestCase):
@@ -77,6 +65,7 @@ class DosPlotterTest(unittest.TestCase):
         self.plotter.save_plot("dosplot.png")
         self.assertTrue(os.path.isfile("dosplot.png"))
         os.remove("dosplot.png")
+        plt.close("all")
 
 
 class BSPlotterTest(unittest.TestCase):
@@ -120,6 +109,7 @@ class BSPlotterTest(unittest.TestCase):
         self.plotter.save_plot("bsplot.png")
         self.assertTrue(os.path.isfile("bsplot.png"))
         os.remove("bsplot.png")
+        plt.close("all")
 
 
 class BSPlotterProjectedTest(unittest.TestCase):
@@ -166,7 +156,7 @@ class BSDOSPlotterTest(unittest.TestCase):
         plt = p.get_plot(v.get_band_structure(
             kpoints_filename=os.path.join(test_dir, "KPOINTS_Si_bands")),
             v.complete_dos)
-        plt.close()
+        plt.close("all")
 
 
 class PlotBZTest(unittest.TestCase):
@@ -356,7 +346,7 @@ class CohpPlotterTest(PymatgenTest):
 
         # Cleanup.
         plt_cohp.close()
-        plt_coop.close()
+        plt_coop.close("all")
 
     def test_save_plot(self):
         self.cohp_plot.add_cohp_dict(self.cohp.all_cohps)
@@ -364,7 +354,7 @@ class CohpPlotterTest(PymatgenTest):
         self.cohp_plot.save_plot("cohpplot.png")
         self.assertTrue(os.path.isfile("cohpplot.png"))
         os.remove("cohpplot.png")
-        plt_cohp.close()
+        plt_cohp.close("all")
 
 
 if __name__ == "__main__":

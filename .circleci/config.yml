@@ -1,69 +1,96 @@
 version: 2
 jobs:
+  pmglint:
+    working_directory: ~/pymatgen
+    docker:
+      - image: materialsvirtuallab/circle-ci-pmg-py3:3.7.3
+    steps:
+      - checkout
+      - run:
+          command: |
+            pip install --quiet pycodestyle flake8 mypy pydocstyle pylint
+            echo "Checks will be performed in the order of pycodestyle -> flake8 -> mypy -> pydocstyle "
+            echo "It is highly recommended that you use the pre-commit hook provided in pymatgen."
+            echo "Simply copy pre-commit to .git/hooks to check before pushing your code."
+            echo "pycodestyle checks..."
+            pycodestyle pymatgen
+            echo "--- Done ---"
+            echo "flake8 checks..."
+            flake8 --count --show-source --statistics pymatgen
+            # exit-zero treats all errors as warnings.
+            flake8 --count --exit-zero --max-complexity=20 --statistics pymatgen
+            echo "--- Done ---"
+            echo "mypy checks..."
+            mypy pymatgen
+            echo "--- Done ---"
+            # Docstyle checks are enforced for files that have been modified since the v2020.1.28 tagged release.
+            echo "pylint checks..."
+            pylint --exit-zero pymatgen
+            echo "--- Done ---"
+            echo "pydocstyle checks for $MODIFIED_FILES..."
+            pydocstyle --count pymatgen
+            echo "--- Done ---"
   py3test:
     working_directory: ~/pymatgen
     docker:
-      - image: materialsvirtuallab/circle-ci-pmg-py3:0.0.2
-        environment:
-          PMG_MAPI_ENDPOINT: https://zola.lbl.gov/rest/v2
-    # parallelism: 4
+      - image: materialsvirtuallab/circle-ci-pmg-py3:3.7.3
+    environment:
+      GULP_LIB: "/root/pymatgen/cmd_line/gulp/Libraries"
+      MPLBACKEND: "Agg"
     steps:
       - checkout
-      - restore_cache: # restores saved dependency cache if the Branch key template or requirements.txt files have not changed since the previous run
-          key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-optional.txt" }}
+      - restore_cache:
+          keys:
+            - pmg-v3-deps-{{ checksum "requirements.txt" }}-{{ checksum "requirements-optional.txt" }}
       - run:
           command: |
             export PATH=$HOME/miniconda3/bin:$PATH
-            if [ ! -d "/root/miniconda3/envs/test_env" ]; then conda create --quiet --yes --name test_env python=3.6; fi
-            source activate test_env
-            conda install --quiet --yes numpy scipy matplotlib sympy cython
-            conda install --quiet --yes -c openbabel openbabel
-            conda install --quiet --yes -c clinicalgraphics vtk
-            conda install --quiet --yes cmake
-            # conda update --quiet --all
-            mkdir coverage_reports
-            pip install --upgrade pip
-            pip install --upgrade numpy
+            conda config --set always_yes yes --set changeps1 no
+            conda config --system --add channels conda-forge
+            if [ -e $HOME/miniconda3/envs/test-environment ]; then
+              echo "Conda env already present from the cache."
+            else
+              conda create -q -n test-environment python=3.7 numpy scipy matplotlib sympy cython pandas networkx pytest pip cmake h5py openbabel python-igraph
+            fi
+            source activate test-environment
+            conda update --quiet numpy scipy matplotlib sympy cython pandas networkx pytest pip cmake h5py openbabel python-igraph
+            # conda install --quiet -c clinicalgraphics vtk
             pip install --quiet --ignore-installed -r requirements.txt -r requirements-optional.txt
             export CFLAGS=$CFLAGS" -std=gnu++11"
-            pip install BoltzTraP2
+            pip install --quiet BoltzTraP2
             export CFLAGS=${CFLAGS%% -std=gnu++11}
-            pip install --force-reinstall phonopy==1.11.12.121
-            rm -r coverage_reports
-      - save_cache: # special step to save dependency cache
-          key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-optional.txt" }}
+      - save_cache:
+          key: pmg-v3-deps-{{ checksum "requirements.txt" }}-{{ checksum "requirements-optional.txt" }}
           paths:
-            - "/root/miniconda3/envs/test_env"
+            - /root/miniconda3/envs/test-environment
       - run:
           command: |
+            export PATH=$HOME/miniconda3/bin:$PATH
+            source activate test-environment
             # Add executables and path.
             for EXEPATH in `pwd`/cmd_line/*/Linux_64bit; do export PATH=$PATH:$EXEPATH; done
-            export PATH=$HOME/miniconda3/bin:$PATH
-            export GULP_LIB=`pwd`/cmd_line/gulp/Libraries
-            export MPLBACKEND=Agg
-            export LC_ALL=en_US.UTF-8
-            export LANG=en_US.UTF-8
-            # Only do matproj and other ext API tests once every five random runs or so.
-            # The parallelism is 4. If 1/20 we have to run, that measn the probability of a matproj test running is 1-(1-0.05)**4 = 0.18.
-            if [ "$(( RANDOM % 20 ))" -ne "0" ]; then export EXCLUDE_TESTS="--ignore=pymatgen/ext/tests/test_matproj.py --ignore=pymatgen/analysis/tests/test_pourbaix_diagram.py --ignore=pymatgen/tests/test_init.py"; fi
-            export EXCLUDE_TESTS="--ignore=pymatgen/ext/tests/test_matproj.py --ignore=pymatgen/analysis/tests/test_pourbaix_diagram.py --ignore=pymatgen/tests/test_init.py"
-            source activate test_env
             pip install --quiet -e .
-            pytest --cov=pymatgen --cov-report html:coverage_reports $EXCLUDE_TESTS pymatgen
+            pytest --ignore=pymatgen/analysis/tests/test_pourbaix_diagram.py --cov=pymatgen --cov-report html:coverage_reports pymatgen
             # Command line tests
             pmg structure --convert --filenames test_files/Li2O.cif POSCAR.pmg
             pmg structure --convert --filenames POSCAR.pmg pmg.cif
-            pmg analyze -d test_files
-            if [ "$CI_PULL_REQUEST" == "" ]; then coveralls; fi
+            pmg analyze test_files
+            rm vasp_data.gz
+            rm pmg.cif
+            rm POSCAR.pmg
+            # if [ "$CI_PULL_REQUEST" == "" ]; then coveralls; fi
           no_output_timeout: 3600
       - store_artifacts:
           path: coverage_reports/
           destination: tr1
       - store_test_results:
           path: coverage_reports/
+      - store_test_results:
+          path: test-results
 
 workflows:
   version: 2
   build_and_test:
     jobs:
       - py3test
+      - pmglint

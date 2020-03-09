@@ -28,7 +28,6 @@ from monty.json import MSONable, MontyDecoder
 import json
 import os
 
-
 module_dir = os.path.dirname(os.path.abspath(__file__))
 
 UNKNOWN_ENVIRONMENT_SYMBOL = 'UNKNOWN'
@@ -39,11 +38,17 @@ SEPARATION_PLANE = 'SEPARATION_PLANE'
 
 class AbstractChemenvAlgorithm(MSONable, metaclass=abc.ABCMeta):
     """
-    Class used to define a Chemenv strategy for the neighbors and coordination environment to be applied to a
-    StructureEnvironments object
+    Base class used to define a Chemenv algorithm used to identify the correct permutation for the computation
+    of the Continuous Symmetry Measure.
     """
 
     def __init__(self, algorithm_type):
+        """
+        Base constructor for ChemenvAlgorithm.
+
+        Args:
+            algorithm_type (str): Type of algorithm.
+        """
         self._algorithm_type = algorithm_type
 
     @abc.abstractmethod
@@ -55,6 +60,11 @@ class AbstractChemenvAlgorithm(MSONable, metaclass=abc.ABCMeta):
 
     @property
     def algorithm_type(self):
+        """
+        Return the type of algorithm.
+
+        Returns: Type of the algorithm
+        """
         return self._algorithm_type
 
     @abc.abstractmethod
@@ -63,9 +73,16 @@ class AbstractChemenvAlgorithm(MSONable, metaclass=abc.ABCMeta):
 
 
 class ExplicitPermutationsAlgorithm(AbstractChemenvAlgorithm):
+    """
+    Class representing the algorithm doing the explicit permutations for the calculation of
+    the Continuous Symmetry Measure.
+    """
     def __init__(self, permutations):
         """
-            Initializes a separation plane for a given perfect coordination geometry
+            Initializes a separation plane for a given perfect coordination geometry.
+
+        Args:
+            permutations: Permutations used for this algorithm.
         """
         super().__init__(
             algorithm_type=EXPLICIT_PERMUTATIONS)
@@ -76,24 +93,45 @@ class ExplicitPermutationsAlgorithm(AbstractChemenvAlgorithm):
 
     @property
     def permutations(self):
+        """
+        Return the permutations to be performed for this algorithm.
+
+        Returns: Permutations to be performed.
+        """
         return self._permutations
 
     @property
     def as_dict(self):
+        """
+        Return the JSON serializable dict representation of this ExplicitPermutationsAlgorithm algorithm.
+
+        Returns: a JSON serializable dict representation of this ExplicitPermutationsAlgorithm algorithm.
+        """
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "permutations": self._permutations}
 
     @classmethod
     def from_dict(cls, dd):
+        """
+        Reconstructs the ExplicitPermutationsAlgorithm algorithm from its JSON serializable dict representation.
+
+        Args:
+            dd: a JSON serializable dict representation of an ExplicitPermutationsAlgorithm algorithm.
+
+        Returns: an ExplicitPermutationsAlgorithm algorithm.
+        """
         return cls(dd['permutations'])
 
 
 class SeparationPlane(AbstractChemenvAlgorithm):
+    """
+    Class representing the algorithm using separation planes for the calculation of
+    the Continuous Symmetry Measure.
+    """
     def __init__(self, plane_points, mirror_plane=False, ordered_plane=False,
                  point_groups=None,
                  ordered_point_groups=None,  # include_inverted_plane=False,
-                 point_groups_permutations=None,
                  # do_inverse_pt_gp_permutations=False, plane_type='MIRROR',
                  explicit_permutations=None, minimum_number_of_points=None,
                  explicit_optimized_permutations=None,
@@ -102,22 +140,25 @@ class SeparationPlane(AbstractChemenvAlgorithm):
         """
             Initializes a separation plane for a given perfect coordination geometry
 
-            :param mirror_plane: True if the separation plane is a mirror plane, in which case there is a correspondence
-            of the points in each point_group (can reduce the number of permutations)
-            :param ordered_plane : True if the order of the points in the plane can be taken into account to reduce the
-            number of permutations
-            :param plane_points: Indices of the points that are in the plane in the perfect structure (and should be
-            found in the defective one as well)
-            :param point_groups: The two groups of points separated by the plane
-            :param plane_type: can be "MIRROR", if the plane is a mirror plane going through the central site,
-             'BASAL_THROUGH_CENTER', if the plane is a basal plane (no point on the "left" side) going through the central
-             site, 'BASAL', if the is a basal plane not going through the central site, 'UNEQUILIBRATED_THROUGH_CENTER', if
-             the plane cuts the geometry in two groups of points with different numbers of points on each side, and is going
-             through the centre, 'UNEQUILIBRATED', if the plane cuts the geometry in two groups of points with different
-             numbers of points on each side, and is not going through the centre, 'EQUILIBRATED_THROUGH_CENTER', if the
-             plane cuts the geometry in two groups of points of the same size, is going through the centre but is not a
-             mirror plane, 'EQUILIBRATED', if the plane cuts the geometry in two groups of points of the same size, is not
-             going through the centre but is not a mirror plane.
+        Args:
+            plane_points: Indices of the points that are in the plane in the perfect structure (and should be
+                found in the defective one as well).
+            mirror_plane: True if the separation plane is a mirror plane, in which case there is a correspondence
+                of the points in each point_group (can reduce the number of permutations).
+            ordered_plane: True if the order of the points in the plane can be taken into account to reduce the
+                number of permutations.
+            point_groups: Indices of the points in the two groups of points separated by the plane.
+            ordered_point_groups: Whether the order of the points in each group of points can be taken into account to
+                reduce the number of permutations.
+            explicit_permutations: Explicit permutations to be performed in this separation plane algorithm.
+            minimum_number_of_points: Minimum number of points needed to initialize a separation plane
+                for this algorithm.
+            explicit_optimized_permutations: Optimized set of explicit permutations to be performed in this
+                separation plane algorithm.
+            multiplicity: Number of such planes in the model geometry.
+            other_plane_points: Indices of the points that are in the plane in the perfect structure for the other
+                planes. The multiplicity should be equal to the length of this list + 1 ("main" separation plane +
+                the other ones).
             """
         super().__init__(algorithm_type=SEPARATION_PLANE)
         self.mirror_plane = mirror_plane
@@ -132,11 +173,10 @@ class SeparationPlane(AbstractChemenvAlgorithm):
         self.ordered_plane = ordered_plane
         self.ordered_point_groups = [False,
                                      False] if ordered_point_groups is None else ordered_point_groups
-        self._ordered_indices = list(point_groups[0])
-        self._ordered_indices.extend(plane_points)
-        self._ordered_indices.extend(point_groups[1])
-        self._inv_ordered_indices = np.argsort(self._ordered_indices)
-        self._point_groups_permutations = point_groups_permutations
+        # self._ordered_indices = list(point_groups[0])
+        # self._ordered_indices.extend(plane_points)
+        # self._ordered_indices.extend(point_groups[1])
+        # self._inv_ordered_indices = np.argsort(self._ordered_indices)
         self.explicit_permutations = explicit_permutations
         self.explicit_optimized_permutations = explicit_optimized_permutations
         self._safe_permutations = None
@@ -155,82 +195,85 @@ class SeparationPlane(AbstractChemenvAlgorithm):
             np.argsort(self._ref_separation_perm))
         self.separation = (len(point_groups[0]), len(plane_points), len(point_groups[1]))
 
-    @property
-    def ordered_indices(self):
-        return self._ordered_indices
-
-    @property
-    def inv_ordered_indices(self):
-        return self._inv_ordered_indices
+    # @property
+    # def ordered_indices(self):
+    #     """
+    #     Ordered indices of the separation plane.
+    #
+    #     Examples:
+    #          For a separation plane of type 2|4|3, with plane_points indices [0, 3, 5, 8] and
+    #          point_groups indices [1, 4] and [2, 7, 6], the list of ordered indices is :
+    #          [0, 3, 5, 8, 1, 4, 2, 7, 6].
+    #
+    #     Returns: list of ordered indices of this separation plane.
+    #     """
+    #     return self._ordered_indices
+    #
+    # @property
+    # def inv_ordered_indices(self):
+    #     return self._inv_ordered_indices
 
     @property
     def permutations(self):
+        """
+        Permutations used for this separation plane algorithm.
+
+        Returns: List of permutations to be performed.
+        """
         return self._permutations
 
     @property
     def ref_separation_perm(self):
+        """
+        Ordered indices of the separation plane.
+
+        Examples:
+             For a separation plane of type 2|4|3, with plane_points indices [0, 3, 5, 8] and
+             point_groups indices [1, 4] and [2, 7, 6], the list of ordered indices is :
+             [0, 3, 5, 8, 1, 4, 2, 7, 6].
+
+        Returns: list of ordered indices of this separation plane.
+        """
         return self._ref_separation_perm
 
     @property
     def argsorted_ref_separation_perm(self):
-        return self._argsorted_ref_separation_perm
+        """
+        "Arg sorted" ordered indices of the separation plane.
 
-    # def safe_plane_permutations(self, ordered_plane=False,
-    #                             ordered_point_groups=None):
-    #     ordered_point_groups = [False,
-    #                             False] if ordered_point_groups is None else ordered_point_groups
-    #     rotate = lambda s, n: s[-n:] + s[:-n]
-    #     if ordered_plane and self.ordered_plane:
-    #         plane_perms = [rotate(self.plane_points, ii) for ii in
-    #                        range(len(self.plane_points))]
-    #         invplanepoints = self.plane_points[::-1]
-    #         plane_perms.extend([rotate(invplanepoints, ii) for ii in
-    #                             range(len(self.plane_points) - 1, -1, -1)])
-    #     else:
-    #         plane_perms = list(itertools.permutations(self.plane_points))
-    #     if ordered_point_groups[0] and self.ordered_point_groups[0]:
-    #         s0_perms = [rotate(self.point_groups[0], ii) for ii in
-    #                     range(len(self.point_groups[0]))]
-    #         invpg0 = self.point_groups[0][::-1]
-    #         s0_perms.extend([rotate(invpg0, ii) for ii in range(len(invpg0))])
-    #     else:
-    #         s0_perms = list(itertools.permutations(self.point_groups[0]))
-    #     if ordered_point_groups[1] and self.ordered_point_groups[1]:
-    #         s2_perms = [rotate(self.point_groups[1], ii) for ii in
-    #                     range(len(self.point_groups[1]))]
-    #         invpg2 = self.point_groups[1][::-1]
-    #         s2_perms.extend([rotate(invpg2, ii) for ii in range(len(invpg2))])
-    #     else:
-    #         s2_perms = list(itertools.permutations(self.point_groups[1]))
-    #     add_opposite = False
-    #     if self._safe_permutations is None:
-    #         self._safe_permutations = []
-    #         for perm_side1 in s0_perms:
-    #             for perm_sep_plane in plane_perms:
-    #                 for perm_side2 in s2_perms:
-    #                     perm = list(perm_side1)
-    #                     perm.extend(list(perm_sep_plane))
-    #                     perm.extend(list(perm_side2))
-    #                     self._safe_permutations.append(perm)
-    #                     if add_opposite:
-    #                         perm = list(perm_side2)
-    #                         perm.extend(list(perm_sep_plane))
-    #                         perm.extend(list(perm_side1))
-    #                         self._safe_permutations.append(perm)
-    #     return self._safe_permutations
+        This is used in the identification of the final permutation to be used.
+
+        Returns: list of the "arg sorted" ordered indices of the separation plane.
+        """
+        return self._argsorted_ref_separation_perm
 
     def safe_separation_permutations(self, ordered_plane=False,
                                      ordered_point_groups=None,
                                      add_opposite=False):
-        s0 = range(len(self.point_groups[0]))
-        plane = range(len(self.point_groups[0]),
-                      len(self.point_groups[0]) + len(self.plane_points))
-        s1 = range(len(self.point_groups[0]) + len(self.plane_points),
-                   len(self.point_groups[0]) + len(self.plane_points) + len(
-                       self.point_groups[1]))
+        """
+        Simple and safe permutations for this separation plane.
+
+        This is not meant to be used in production. Default configuration for ChemEnv does not use this method.
+        Args:
+            ordered_plane: Whether the order of the points in the plane can be used to reduce the
+                number of permutations.
+            ordered_point_groups: Whether the order of the points in each point group can be used to reduce the
+                number of permutations.
+            add_opposite: Whether to add the permutations from the second group before the first group as well.
+
+        Returns: List of safe permutations.
+        """
+        s0 = list(range(len(self.point_groups[0])))
+        plane = list(range(len(self.point_groups[0]),
+                           len(self.point_groups[0]) + len(self.plane_points)))
+        s1 = list(range(len(self.point_groups[0]) + len(self.plane_points),
+                        len(self.point_groups[0]) + len(self.plane_points) + len(
+                            self.point_groups[1])))
         ordered_point_groups = [False,
                                 False] if ordered_point_groups is None else ordered_point_groups
-        rotate = lambda s, n: s[-n:] + s[:-n]
+
+        def rotate(s, n):
+            return s[-n:] + s[:-n]
         if ordered_plane and self.ordered_plane:
             plane_perms = [rotate(plane, ii) for ii in range(len(plane))]
             inv_plane = plane[::-1]
@@ -268,6 +311,11 @@ class SeparationPlane(AbstractChemenvAlgorithm):
 
     @property
     def as_dict(self):
+        """
+        Return the JSON serializable dict representation of this SeparationPlane algorithm.
+
+        Returns: a JSON serializable dict representation of this SeparationPlane algorithm.
+        """
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "plane_points": self.plane_points,
@@ -275,7 +323,6 @@ class SeparationPlane(AbstractChemenvAlgorithm):
                 "ordered_plane": self.ordered_plane,
                 "point_groups": self.point_groups,
                 "ordered_point_groups": self.ordered_point_groups,
-                "point_groups_permutations": self._point_groups_permutations,
                 "explicit_permutations": [eperm.tolist() for eperm in self.explicit_permutations]
                 if self.explicit_permutations is not None else None,
                 "explicit_optimized_permutations": [eoperm.tolist()
@@ -287,14 +334,22 @@ class SeparationPlane(AbstractChemenvAlgorithm):
 
     @classmethod
     def from_dict(cls, dd):
+        """
+        Reconstructs the SeparationPlane algorithm from its JSON serializable dict representation.
+
+        Args:
+            dd: a JSON serializable dict representation of an SeparationPlane algorithm.
+
+        Returns: a SeparationPlane algorithm.
+        """
         eop = [np.array(eoperm) for eoperm in dd[
-            'explicit_optimized_permutations']] if 'explicit_optimized_permutations' in dd else None
+            'explicit_optimized_permutations']] if ('explicit_optimized_permutations' in dd and
+                                                    dd['explicit_optimized_permutations'] is not None) else None
         return cls(plane_points=dd['plane_points'],
                    mirror_plane=dd['mirror_plane'],
                    ordered_plane=dd['ordered_plane'],
                    point_groups=dd['point_groups'],
                    ordered_point_groups=dd['ordered_point_groups'],
-                   point_groups_permutations=dd['point_groups_permutations'],
                    explicit_permutations=[np.array(eperm) for eperm in dd['explicit_permutations']],
                    explicit_optimized_permutations=eop,
                    multiplicity=dd[
@@ -315,27 +370,59 @@ class SeparationPlane(AbstractChemenvAlgorithm):
 
 class CoordinationGeometry:
     """
-    Class used to store the ideal representation of a chemical environment or "coordination geometry"
+    Class used to store the ideal representation of a chemical environment or "coordination geometry".
     """
-    CSM_SKIP_SEPARATION_PLANE_ALGO = 10.0 # Default value of continuous symmetry measure below which no further
-                                        #  search is performed for the separation plane algorithms
+    # Default value of continuous symmetry measure beyond which no further
+    # search is performed for the separation plane algorithms
+    CSM_SKIP_SEPARATION_PLANE_ALGO = 10.0
 
     class NeighborsSetsHints:
+        """
+        Class used to describe neighbors sets hints.
+
+        This allows to possibly get a lower coordination from a capped-like model polyhedron.
+        """
 
         ALLOWED_HINTS_TYPES = ['single_cap', 'double_cap', 'triple_cap']
 
         def __init__(self, hints_type, options):
+            """
+            Constructor for this NeighborsSetsHints.
+
+            Args:
+                hints_type: type of hint (single, double or triple cap)
+                options: options for the "hinting", e.g. the maximum csm value beyond which no additional
+                    neighbors set could be found from a "cap hint".
+            """
             if hints_type not in self.ALLOWED_HINTS_TYPES:
                 raise ValueError('Type "{}" for NeighborsSetsHints is not allowed'.format(type))
             self.hints_type = hints_type
             self.options = options
 
         def hints(self, hints_info):
+            """
+            Return hints for an additional neighbors set, i.e. the voronoi indices that constitute this new
+            neighbors set.
+
+            Args:
+                hints_info: Info needed to build new "hinted" neighbors set.
+
+            Returns: Voronoi indices of the new "hinted" neighbors set.
+            """
             if hints_info['csm'] > self.options['csm_max']:
                 return []
             return object.__getattribute__(self, '{}_hints'.format(self.hints_type))(hints_info)
 
         def single_cap_hints(self, hints_info):
+            """
+            Return hints for an additional neighbors set, i.e. the voronoi indices that constitute this new
+            neighbors set, in case of a "Single cap" hint.
+
+            Args:
+                hints_info: Info needed to build new "hinted" neighbors set.
+
+            Returns: Voronoi indices of the new "hinted" neighbors set.
+            """
             cap_index_perfect = self.options['cap_index']
             nb_set = hints_info['nb_set']
             permutation = hints_info['permutation']
@@ -346,6 +433,15 @@ class CoordinationGeometry:
             return [new_site_voronoi_indices]
 
         def double_cap_hints(self, hints_info):
+            """
+            Return hints for an additional neighbors set, i.e. the voronoi indices that constitute this new
+            neighbors set, in case of a "Double cap" hint.
+
+            Args:
+                hints_info: Info needed to build new "hinted" neighbors set.
+
+            Returns: Voronoi indices of the new "hinted" neighbors set.
+            """
             first_cap_index_perfect = self.options['first_cap_index']
             second_cap_index_perfect = self.options['second_cap_index']
             nb_set = hints_info['nb_set']
@@ -363,6 +459,15 @@ class CoordinationGeometry:
             return [new_site_voronoi_indices1, new_site_voronoi_indices2, new_site_voronoi_indices3]
 
         def triple_cap_hints(self, hints_info):
+            """
+            Return hints for an additional neighbors set, i.e. the voronoi indices that constitute this new
+            neighbors set, in case of a "Triple cap" hint.
+
+            Args:
+                hints_info: Info needed to build new "hinted" neighbors set.
+
+            Returns: Voronoi indices of the new "hinted" neighbors set.
+            """
             first_cap_index_perfect = self.options['first_cap_index']
             second_cap_index_perfect = self.options['second_cap_index']
             third_cap_index_perfect = self.options['third_cap_index']
@@ -396,11 +501,22 @@ class CoordinationGeometry:
                     new_site_voronoi_indices7]
 
         def as_dict(self):
+            """
+            A JSON serializable dict representation of this NeighborsSetsHints
+            """
             return {'hints_type': self.hints_type,
                     'options': self.options}
 
         @classmethod
         def from_dict(cls, dd):
+            """
+            Reconstructs the NeighborsSetsHints from its JSON serializable dict representation.
+
+            Args:
+                dd: a JSON serializable dict representation of a NeighborsSetsHints.
+
+            Returns: a NeighborsSetsHints.
+            """
             return cls(hints_type=dd['hints_type'],
                        options=dd['options'])
 
@@ -408,31 +524,35 @@ class CoordinationGeometry:
                  IUPAC_symbol=None, IUCr_symbol=None, coordination=None,
                  central_site=np.zeros(3), points=None, solid_angles=None,
                  permutations_safe_override=False,
-                 plane_ordering_override=True, deactivate=False, faces=None,
+                 deactivate=False, faces=None,
                  edges=None,
-                 plane_safe_permutations=False, algorithms=None,
+                 algorithms=None,
                  equivalent_indices=None,
                  neighbors_sets_hints=None):
         """
         Initializes one "coordination geometry" according to [Pure Appl. Chem., Vol. 79, No. 10, pp. 1779--1799, 2007]
         and [Acta Cryst. A, Vol. 46, No. 1, pp. 1--11, 1990].
-        :param mp_symbol: Symbol used internally for the coordination geometry.
-        :param name: Name of the coordination geometry.
-        :param alternative_names: Alternative names for this coordination geometry.
-        :param IUPAC_symbol: The IUPAC symbol of this coordination geometry.
-        :param IUCr_symbol: The IUCr symbol of this coordination geometry.
-        :param coordination: The coordination number of this coordination geometry (number of neighboring atoms).
-        :param central_site: The coordinates of the central site of this coordination geometry.
-        :param points: The list of the coordinates of all the points of this coordination geometry.
-        :param separation_planes: List of separation facets to help set up the permutations
-        :param permutation_safe_override: Computes all the permutations if set to True (overrides the plane separation
-        algorithms or any other algorithm, for testing purposes)
-        :param plane_ordering_override: Computes all the permutations of the plane separation algorithm if set to False
-        otherwise, uses the anticlockwise ordering of the separation facets (for testing purposes)
-        :param deactivate: deactivates this coordination geometry in the search
-        :param faces : list of the faces with their vertices given in a clockwise or anticlockwise order, for drawing
-        purposes
-        :param : list of edges, for drawing purposes
+
+        Args:
+            mp_symbol: Symbol used internally for the coordination geometry.
+            name: Name of the coordination geometry.
+            alternative_names: Alternative names for this coordination geometry.
+            IUPAC_symbol: The IUPAC symbol of this coordination geometry.
+            IUCr_symbol: The IUCr symbol of this coordination geometry.
+            coordination: The coordination number of this coordination geometry (number of neighboring atoms).
+            central_site: The coordinates of the central site of this coordination geometry.
+            points: The list of the coordinates of all the points of this coordination geometry.
+            solid_angles: The list of solid angles for each neighbor in this coordination geometry.
+            permutations_safe_override: Computes all the permutations if set to True (overrides the plane separation
+                algorithms or any other algorithm, for testing purposes)
+            deactivate: Whether to deactivate this coordination geometry
+            faces: List of the faces with their vertices given in a clockwise or anticlockwise order, for drawing
+                purposes.
+            edges: List of edges, for drawing purposes.
+            algorithms: Algorithms used to identify this coordination geometry.
+            equivalent_indices: The equivalent sets of indices in this coordination geometry (can be used to skip
+                equivalent permutations that have already been performed).
+            neighbors_sets_hints: Neighors sets hints for this coordination geometry.
         """
         self._mp_symbol = mp_symbol
         self.name = name
@@ -444,8 +564,7 @@ class CoordinationGeometry:
         self.points = points
         self._solid_angles = solid_angles
         self.permutations_safe_override = permutations_safe_override
-        self.plane_ordering_override = plane_ordering_override
-        self.plane_safe_permutations = plane_safe_permutations
+        # self.plane_safe_permutations = plane_safe_permutations
         # self.setup_permutations(permutations)
         self.deactivate = deactivate
         self._faces = faces
@@ -460,6 +579,9 @@ class CoordinationGeometry:
         self._pauling_stability_ratio = None
 
     def as_dict(self):
+        """
+        A JSON serializable dict representation of this CoordinationGeometry.
+        """
         return {'mp_symbol': self._mp_symbol,
                 'name': self.name,
                 'alternative_names': self.alternative_names,
@@ -482,6 +604,14 @@ class CoordinationGeometry:
 
     @classmethod
     def from_dict(cls, dd):
+        """
+        Reconstructs the CoordinationGeometry from its JSON serializable dict representation.
+
+        Args:
+            dd: a JSON serializable dict representation of a CoordinationGeometry.
+
+        Returns: a CoordinationGeometry.
+        """
         dec = MontyDecoder()
         return cls(mp_symbol=dd['mp_symbol'],
                    name=dd['name'],
@@ -552,15 +682,26 @@ class CoordinationGeometry:
         return self.coordination
 
     def set_permutations_safe_override(self, permutations_safe_override):
+        """
+        Setup ChemEnv so that a safe set of permutations are used.
+
+        Args:
+            permutations_safe_override: Whether to use safe permutations.
+        """
         self.permutations_safe_override = permutations_safe_override
         # self.setup_permutations()
 
-    @property
-    def csm_skip_algo(self):
-        return self.CSM_SKIP_SEPARATION_PLANE_ALGO
+    # @property
+    # def csm_skip_algo(self):
+    #     return self.CSM_SKIP_SEPARATION_PLANE_ALGO
 
     @property
     def distfactor_max(self):
+        """
+        The maximum distfactor for the perfect CoordinationGeometry.
+
+        Returns: Maximum distfactor for the perfect CoordinationGeometry (usually 1.0 for symmetric polyhedrons).
+        """
         dists = [np.linalg.norm(pp - self.central_site) for pp in self.points]
         return np.max(dists) / np.min(dists)
 
@@ -585,11 +726,11 @@ class CoordinationGeometry:
                 for ipt1 in range(len(self.points)):
                     pt1 = np.array(self.points[ipt1])
                     mindist_cation_anion = min(mindist_cation_anion,
-                                               np.linalg.norm(pt1-self.central_site))
-                    for ipt2 in range(ipt1+1, len(self.points)):
+                                               np.linalg.norm(pt1 - self.central_site))
+                    for ipt2 in range(ipt1 + 1, len(self.points)):
                         pt2 = np.array(self.points[ipt2])
                         mindist_anions = min(mindist_anions,
-                                             np.linalg.norm(pt1-pt2))
+                                             np.linalg.norm(pt1 - pt2))
                 anion_radius = mindist_anions / 2.0
                 cation_radius = mindist_cation_anion - anion_radius
                 self._pauling_stability_ratio = cation_radius / anion_radius
@@ -667,6 +808,16 @@ class CoordinationGeometry:
         return len(self.permutations)
 
     def ref_permutation(self, permutation):
+        """
+        Returns the reference permutation for a set of equivalent permutations.
+
+        Can be useful to skip permutations that have already been performed.
+
+        Args:
+            permutation: Current permutation
+
+        Returns: Reference permutation of the perfect CoordinationGeometry.
+        """
         perms = []
         for eqv_indices in self.equivalent_indices:
             perms.append(tuple([permutation[ii] for ii in eqv_indices]))
@@ -771,6 +922,7 @@ class CoordinationGeometry:
         pmeshes.append({"pmesh_string": out})
         return pmeshes
 
+
 class AllCoordinationGeometries(dict):
     """
     Class used to store all the reference "coordination geometries" (list with instances of the CoordinationGeometry
@@ -779,10 +931,12 @@ class AllCoordinationGeometries(dict):
 
     def __init__(self, permutations_safe_override=False, only_symbols=None):
         """
-            Initializes the list of Coordination Geometries
-            :param permutations_safe_override:
-            :param only_symbols:
-            """
+        Initializes the list of Coordination Geometries.
+
+        Args:
+            permutations_safe_override: Whether to use safe permutations.
+            only_symbols: Whether to restrict the list of environments to be identified.
+        """
         dict.__init__(self)
         self.cg_list = list()
         if only_symbols is None:
@@ -820,7 +974,7 @@ class AllCoordinationGeometries(dict):
         self.minpoints = {}
         self.maxpoints = {}
         self.separations_cg = {}
-        for cn in range(6, 14):
+        for cn in range(6, 21):
             for cg in self.get_implemented_geometries(coordination=cn):
                 if only_symbols is not None and cg.ce_symbol not in only_symbols:
                     continue
@@ -841,6 +995,13 @@ class AllCoordinationGeometries(dict):
 
     def __getitem__(self, key):
         return self.get_geometry_from_mp_symbol(key)
+
+    def __contains__(self, item):
+        try:
+            self[item]
+            return True
+        except LookupError:
+            return False
 
     def __repr__(self):
         """
@@ -870,7 +1031,10 @@ class AllCoordinationGeometries(dict):
     def get_geometries(self, coordination=None, returned='cg'):
         """
         Returns a list of coordination geometries with the given coordination number.
-        :param coordination: The coordination number of which the list of coordination geometries are returned.
+
+        Args:
+            coordination: The coordination number of which the list of coordination geometries are returned.
+            returned: Type of objects in the list.
         """
         geom = list()
         if coordination is None:
@@ -889,6 +1053,14 @@ class AllCoordinationGeometries(dict):
         return geom
 
     def get_symbol_name_mapping(self, coordination=None):
+        """
+        Return a dictionary mapping the symbol of a CoordinationGeometry to its name.
+
+        Args:
+            coordination: Whether to restrict the dictionary to a given coordination.
+
+        Returns: Dictionary mapping the symbol of a CoordinationGeometry to its name.
+        """
         geom = {}
         if coordination is None:
             for gg in self.cg_list:
@@ -900,6 +1072,14 @@ class AllCoordinationGeometries(dict):
         return geom
 
     def get_symbol_cn_mapping(self, coordination=None):
+        """
+        Return a dictionary mapping the symbol of a CoordinationGeometry to its coordination.
+
+        Args:
+            coordination: Whether to restrict the dictionary to a given coordination.
+
+        Returns: Dictionary mapping the symbol of a CoordinationGeometry to its coordination.
+        """
         geom = {}
         if coordination is None:
             for gg in self.cg_list:
@@ -914,14 +1094,18 @@ class AllCoordinationGeometries(dict):
                                    include_deactivated=False):
         """
         Returns a list of the implemented coordination geometries with the given coordination number.
-        :param coordination: The coordination number of which the list of implemented coordination geometries
-        are returned.
+
+        Args:
+            coordination: The coordination number of which the list of implemented coordination geometries
+                are returned.
+            returned: Type of objects in the list.
+            include_deactivated: Whether to include CoordinationGeometry that are deactivated.
         """
         geom = list()
         if coordination is None:
             for gg in self.cg_list:
                 if gg.points is not None and (
-                            (not gg.deactivate) or include_deactivated):
+                        (not gg.deactivate) or include_deactivated):
                     if returned == 'cg':
                         geom.append(gg)
                     elif returned == 'mp_symbol':
@@ -940,8 +1124,11 @@ class AllCoordinationGeometries(dict):
                                        returned='mp_symbol'):
         """
         Returns a list of the implemented coordination geometries with the given coordination number.
-        :param coordination: The coordination number of which the list of implemented coordination geometries
-        are returned.
+
+        Args:
+            coordination: The coordination number of which the list of implemented coordination geometries
+                are returned.
+            returned: Type of objects in the list.
         """
         geom = list()
         if coordination is None:
@@ -963,7 +1150,9 @@ class AllCoordinationGeometries(dict):
     def get_geometry_from_name(self, name):
         """
         Returns the coordination geometry of the given name.
-        :param name: The name of the coordination geometry.
+
+        Args:
+            name: The name of the coordination geometry.
         """
         for gg in self.cg_list:
             if gg.name == name or name in gg.alternative_names:
@@ -975,7 +1164,9 @@ class AllCoordinationGeometries(dict):
     def get_geometry_from_IUPAC_symbol(self, IUPAC_symbol):
         """
         Returns the coordination geometry of the given IUPAC symbol.
-        :param IUPAC_symbol: The IUPAC symbol of the coordination geometry.
+
+        Args:
+            IUPAC_symbol: The IUPAC symbol of the coordination geometry.
         """
         for gg in self.cg_list:
             if gg.IUPAC_symbol == IUPAC_symbol:
@@ -987,7 +1178,9 @@ class AllCoordinationGeometries(dict):
     def get_geometry_from_IUCr_symbol(self, IUCr_symbol):
         """
         Returns the coordination geometry of the given IUCr symbol.
-        :param IUCr_symbol: The IUCr symbol of the coordination geometry.
+
+        Args:
+            IUCr_symbol: The IUCr symbol of the coordination geometry.
         """
         for gg in self.cg_list:
             if gg.IUCr_symbol == IUCr_symbol:
@@ -999,7 +1192,9 @@ class AllCoordinationGeometries(dict):
     def get_geometry_from_mp_symbol(self, mp_symbol):
         """
         Returns the coordination geometry of the given mp_symbol.
-        :param mp_symbol: The mp_symbol of the coordination geometry.
+
+        Args:
+            mp_symbol: The mp_symbol of the coordination geometry.
         """
         for gg in self.cg_list:
             if gg.mp_symbol == mp_symbol:
@@ -1014,11 +1209,13 @@ class AllCoordinationGeometries(dict):
         """
         Checks whether a given coordination geometry is valid (exists) and whether the parameters are coherent with
         each other.
-        :param IUPAC_symbol:
-        :param IUCr_symbol:
-        :param name:
-        :param cn:
-        :param mp_symbol: The mp_symbol of the coordination geometry.
+
+        Args:
+            mp_symbol: The mp_symbol of the coordination geometry.
+            IUPAC_symbol: The IUPAC_symbol of the coordination geometry.
+            IUCr_symbol: The IUCr_symbol of the coordination geometry.
+            name: The name of the coordination geometry.
+            cn: The coordination of the coordination geometry.
         """
         if name is not None:
             raise NotImplementedError(
@@ -1066,6 +1263,17 @@ class AllCoordinationGeometries(dict):
         raise Exception('Should not be here !')
 
     def pretty_print(self, type='implemented_geometries', maxcn=8, additional_info=None):
+        """
+        Return a string with a list of the Coordination Geometries.
+
+        Args:
+            type: Type of string to be returned (all_geometries, all_geometries_latex_images, all_geometries_latex,
+                implemented_geometries).
+            maxcn: Maximum coordination.
+            additional_info: Whether to add some additional info for each coordination geometry.
+
+        Returns: String describing the list of coordination geometries.
+        """
         if type == 'all_geometries_latex_images':
             mystring = ''
             for cn in range(1, maxcn + 1):
@@ -1131,8 +1339,8 @@ class AllCoordinationGeometries(dict):
                         else:
                             addinfo = ''
                         mystring += ' - {mp} : {name}{addinfo}\n'.format(mp=cg.mp_symbol,
-                                                                  name=cg.get_name(),
-                                                                  addinfo=addinfo)
+                                                                         name=cg.get_name(),
+                                                                         addinfo=addinfo)
                 elif type == 'all_geometries':
                     for cg in self.get_geometries(coordination=cn):
                         mystring += ' - {mp} : {name}\n'.format(mp=cg.mp_symbol,

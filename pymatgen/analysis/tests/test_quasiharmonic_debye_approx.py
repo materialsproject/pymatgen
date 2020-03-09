@@ -1,4 +1,3 @@
-
 import unittest
 import numpy as np
 from pymatgen import Structure
@@ -54,7 +53,7 @@ class TestQuasiharmociDebyeApprox(unittest.TestCase):
         eos = EOS(self.eos)
         eos_fit = eos.fit(self.volumes, self.energies)
         bulk_modulus = float(str(eos_fit.b0_GPa).split()[0])
-        bulk_modulus_ans =  float(str(self.qhda.bulk_modulus).split()[0])
+        bulk_modulus_ans = float(str(self.qhda.bulk_modulus).split()[0])
         np.testing.assert_almost_equal(bulk_modulus, bulk_modulus_ans, 3)
 
     def test_optimum_volume(self):
@@ -80,6 +79,7 @@ class TestQuasiharmociDebyeApprox(unittest.TestCase):
     def test_vibrational_free_energy(self):
         A = self.qhda.vibrational_free_energy(self.T, self.opt_vol)
         np.testing.assert_almost_equal(A, 0.494687, 3)
+
 
 class TestAnharmonicQuasiharmociDebyeApprox(unittest.TestCase):
 
@@ -111,7 +111,7 @@ direct
 
     def test_debye_temperature(self):
         theta = self.qhda.debye_temperature(self.opt_vol)
-        np.testing.assert_approx_equal(theta, 601.239096, 4 )
+        np.testing.assert_approx_equal(theta, 601.239096, 4)
 
     def test_gruneisen_paramter(self):
         gamma = self.qhda.gruneisen_parameter(0, self.qhda.ev_eos_fit.v0)

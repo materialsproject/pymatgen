@@ -105,6 +105,8 @@ class FuncTest(unittest.TestCase):
         self.assertAlmostEqual(get_bond_order(
             'C', 'Br', 2, tol=0.5, default_bl=1.9), 0.894736842105263)
         self.assertRaises(ValueError, get_bond_order, 'C', 'Br', 1.9)
+        self.assertAlmostEqual(get_bond_order(
+            'N', 'N', 1.25), 2)
 
 
 if __name__ == "__main__":

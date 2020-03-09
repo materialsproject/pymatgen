@@ -48,7 +48,7 @@ class MagmomTest(unittest.TestCase):
         self.assertEqual(magmom2.global_moment.tolist(), [1, 2, 3])
         # non-default saxis, normalized internally
         magmom3 = Magmom([1, 2, 3], saxis=[1, 1, 1])
-        self.assertTrue(np.allclose(magmom3.saxis, [np.sqrt(1/3.)]*3))
+        self.assertTrue(np.allclose(magmom3.saxis, [np.sqrt(1 / 3.)] * 3))
         # test construction from known global moment and desired, non-default saxis
         magmom4 = Magmom.from_global_moment_and_saxis([1, 2, 3], saxis=[1, 0, 0])
         self.assertTrue(np.allclose(magmom4.moment, [-3, 2, 1]))
@@ -117,7 +117,7 @@ class MagmomTest(unittest.TestCase):
                    [1, 1, 1],
                    [2, 2, 2]]
         magmoms, saxis = Magmom.get_consistent_set_and_saxis(magmoms)
-        self.assertTrue(np.allclose(saxis, [np.sqrt(1/3.)]*3))
+        self.assertTrue(np.allclose(saxis, [np.sqrt(1 / 3.)] * 3))
 
     def test_relative_to_crystal_axes(self):
         lattice = Lattice.from_parameters(5, 10, 5, 90, 110, 90)
@@ -133,6 +133,7 @@ class MagmomTest(unittest.TestCase):
 
     def test_negative(self):
         self.assertEqual(-Magmom([1, 2, 3]), Magmom([-1, -2, -3]))
-        
+
+
 if __name__ == '__main__':
     unittest.main()

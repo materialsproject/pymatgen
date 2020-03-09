@@ -9,7 +9,6 @@ It has the same functionality as linear_assignment.pyx, but is much slower
 as it is vectorized in numpy rather than cython
 """
 
-
 __author__ = "Will Richards"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
@@ -31,12 +30,6 @@ class LinearAssignment:
     Dense and Sparse Linear Assignment Problems. Computing 38, 325-340
     (1987)
 
-    Args:
-        costs: The cost matrix of the problem. cost[i,j] should be the
-            cost of matching x[i] to y[j]. The cost matrix may be 
-            rectangular
-        epsilon: Tolerance for determining if solution vector is < 0
-
     .. attribute: min_cost:
 
         The minimum cost of the matching
@@ -49,6 +42,13 @@ class LinearAssignment:
     """
 
     def __init__(self, costs, epsilon=1e-6):
+        """
+        Args:
+            costs: The cost matrix of the problem. cost[i,j] should be the
+                cost of matching x[i] to y[j]. The cost matrix may be
+                rectangular
+            epsilon: Tolerance for determining if solution vector is < 0
+        """
         self.orig_c = np.array(costs, dtype=np.float64)
         self.nx, self.ny = self.orig_c.shape
         self.n = self.ny
@@ -56,7 +56,7 @@ class LinearAssignment:
 
         self.epsilon = abs(epsilon)
 
-        #check that cost matrix is square
+        # check that cost matrix is square
         if self.nx > self.ny:
             raise ValueError("cost matrix must have at least as many columns as rows")
 
@@ -71,19 +71,19 @@ class LinearAssignment:
             self.c = np.full((self.n, self.n), np.max(np.min(self.orig_c, axis=1)))
             self.c[:self.nx] = self.orig_c
 
-        #initialize solution vectors
+        # initialize solution vectors
         self._x = np.zeros(self.n, dtype=np.int) - 1
         self._y = self._x.copy()
 
-        #if column reduction doesn't find a solution, augment with shortest
-        #paths until one is found
+        # if column reduction doesn't find a solution, augment with shortest
+        # paths until one is found
         if self._column_reduction():
             self._augmenting_row_reduction()
-            #initialize the reduced costs
+            # initialize the reduced costs
             self._update_cred()
             while -1 in self._x:
                 self._augment()
-        
+
         self.solution = self._x[:self.nx]
         self._min_cost = None
 
@@ -101,19 +101,19 @@ class LinearAssignment:
         """
         Column reduction and reduction transfer steps from LAPJV algorithm
         """
-        #assign each column to its lowest cost row, ensuring that only row
-        #or column is assigned once
+        # assign each column to its lowest cost row, ensuring that only row
+        # or column is assigned once
         i1, j = np.unique(np.argmin(self.c, axis=0), return_index=True)
         self._x[i1] = j
 
-        #if problem is solved, return
+        # if problem is solved, return
         if len(i1) == self.n:
             return False
 
         self._y[j] = i1
 
-        #reduction_transfer
-        #tempc is array with previously assigned matchings masked
+        # reduction_transfer
+        # tempc is array with previously assigned matchings masked
         self._v = np.min(self.c, axis=0)
         tempc = self.c.copy()
         tempc[i1, j] = np.inf
@@ -165,15 +165,15 @@ class LinearAssignment:
         """
         Finds a minimum cost path and adds it to the matching
         """
-        #build a minimum cost tree
+        # build a minimum cost tree
         _pred, _ready, istar, j, mu = self._build_tree()
 
-        #update prices
+        # update prices
         self._v[_ready] += self._d[_ready] - mu
 
-        #augment the solution with the minimum cost path from the
-        #tree. Follows an alternating path along matched, unmatched
-        #edges from X to Y
+        # augment the solution with the minimum cost path from the
+        # tree. Follows an alternating path along matched, unmatched
+        # edges from X to Y
         while True:
             i = _pred[j]
             self._y[j] = i
@@ -191,25 +191,25 @@ class LinearAssignment:
         stored in _pred (new predecessor of nodes in Y), and
         self._x and self._y
         """
-        #find unassigned i*
+        # find unassigned i*
         istar = np.argmin(self._x)
 
-        #compute distances
+        # compute distances
         self._d = self.c[istar] - self._v
         _pred = np.zeros(self.n, dtype=np.int) + istar
 
-        #initialize sets
-        #READY: set of nodes visited and in the path (whose price gets
-        #updated in augment)
-        #SCAN: set of nodes at the bottom of the tree, which we need to
-        #look at
-        #T0DO: unvisited nodes
+        # initialize sets
+        # READY: set of nodes visited and in the path (whose price gets
+        # updated in augment)
+        # SCAN: set of nodes at the bottom of the tree, which we need to
+        # look at
+        # T0DO: unvisited nodes
         _ready = np.zeros(self.n, dtype=np.bool)
         _scan = np.zeros(self.n, dtype=np.bool)
         _todo = np.zeros(self.n, dtype=np.bool) + True
 
         while True:
-            #populate scan with minimum reduced distances
+            # populate scan with minimum reduced distances
             if True not in _scan:
                 mu = np.min(self._d[_todo])
                 _scan[self._d == mu] = True
@@ -218,23 +218,23 @@ class LinearAssignment:
                 if self._y[j] == -1 and _scan[j]:
                     return _pred, _ready, istar, j, mu
 
-            #pick jstar from scan (scan always has at least 1)
+            # pick jstar from scan (scan always has at least 1)
             _jstar = np.argmax(_scan)
 
-            #pick i associated with jstar
+            # pick i associated with jstar
             i = self._y[_jstar]
 
             _scan[_jstar] = False
             _ready[_jstar] = True
 
-            #find shorter distances
+            # find shorter distances
             newdists = mu + self.cred[i, :]
             shorter = np.logical_and(newdists < self._d, _todo)
 
-            #update distances
+            # update distances
             self._d[shorter] = newdists[shorter]
 
-            #update predecessors
+            # update predecessors
             _pred[shorter] = i
 
             for j in np.nonzero(np.logical_and(self._d == mu, _todo))[0]:

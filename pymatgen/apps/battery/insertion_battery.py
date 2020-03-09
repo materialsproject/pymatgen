@@ -69,7 +69,8 @@ class InsertionElectrode(AbstractElectrode):
         # Make phase diagram to determine which entries are stable vs. unstable
         pd = PhaseDiagram(pdentries)
 
-        lifrac = lambda e: e.composition.get_atomic_fraction(self._working_ion)
+        def lifrac(e):
+            return e.composition.get_atomic_fraction(self._working_ion)
 
         # stable entries ordered by amount of Li asc
         self._stable_entries = tuple(sorted([e for e in pd.stable_entries
@@ -94,10 +95,16 @@ class InsertionElectrode(AbstractElectrode):
 
     @property
     def working_ion_entry(self):
+        """
+        Returns: Working ion entry
+        """
         return self._working_ion_entry
 
     @property
     def voltage_pairs(self):
+        """
+        Returns: All InsertionVoltagePairs in electrode.
+        """
         return self._vpairs
 
     def get_stable_entries(self, charge_to_discharge=True):
@@ -146,9 +153,8 @@ class InsertionElectrode(AbstractElectrode):
         all_entries = list(self.get_stable_entries())
         all_entries.extend(self.get_unstable_entries())
         # sort all entries by amount of working ion ASC
-        fsrt = lambda e: e.composition.get_atomic_fraction(self.working_ion)
         all_entries = sorted([e for e in all_entries],
-                             key=fsrt)
+                             key=lambda e: e.composition.get_atomic_fraction(self.working_ion))
         return all_entries if charge_to_discharge else all_entries.reverse()
 
     @property
@@ -332,26 +338,29 @@ class InsertionElectrode(AbstractElectrode):
              "fracA_discharge": dischg_comp.get_atomic_fraction(ion),
              "max_instability": self.get_max_instability(),
              "min_instability": self.get_min_instability(),
-             "material_ids" : [itr_ent.entry_id for itr_ent in self._entries],
-             "stable_material_ids" : [itr_ent.entry_id for itr_ent in self.get_stable_entries()],
+             "material_ids": [itr_ent.entry_id for itr_ent in self._entries],
+             "stable_material_ids": [itr_ent.entry_id for itr_ent in self.get_stable_entries()],
              "unstable_material_ids": [itr_ent.entry_id for itr_ent in self.get_unstable_entries()],
              }
 
         if all(['decomposition_energy' in itr_ent.data for itr_ent in self._entries]):
             d.update({"stability_charge": self.fully_charged_entry.data['decomposition_energy'],
-                 "stability_discharge": self.fully_discharged_entry.data['decomposition_energy'],
-                 "stability_data":{itr_ent.entry_id: itr_ent.data['decomposition_energy'] for itr_ent in self._entries},
-                 })
+                      "stability_discharge": self.fully_discharged_entry.data['decomposition_energy'],
+                      "stability_data": {itr_ent.entry_id: itr_ent.data['decomposition_energy'] for itr_ent in
+                                         self._entries},
+                      })
 
         if all(['muO2' in itr_ent.data for itr_ent in self._entries]):
-            d.update({"muO2_data" : {itr_ent.entry_id: itr_ent.data['muO2'] for itr_ent in self._entries}})
+            d.update({"muO2_data": {itr_ent.entry_id: itr_ent.data['muO2'] for itr_ent in self._entries}})
 
         if print_subelectrodes:
-            f_dict = lambda c: c.as_dict_summary(print_subelectrodes=False)
+
+            def f_dict(c):
+                return c.as_dict_summary(print_subelectrodes=False)
             d["adj_pairs"] = list(map(f_dict,
-                                 self.get_sub_electrodes(adjacent_only=True)))
+                                      self.get_sub_electrodes(adjacent_only=True)))
             d["all_pairs"] = list(map(f_dict,
-                                 self.get_sub_electrodes(adjacent_only=False)))
+                                      self.get_sub_electrodes(adjacent_only=False)))
         return d
 
     def __str__(self):
@@ -370,12 +379,22 @@ class InsertionElectrode(AbstractElectrode):
 
     @classmethod
     def from_dict(cls, d):
+        """
+        Args:
+            d (dict): Dict representation
+
+        Returns:
+            InsertionElectrode
+        """
         from monty.json import MontyDecoder
         dec = MontyDecoder()
         return cls(dec.process_decoded(d["entries"]),
                    dec.process_decoded(d["working_ion_entry"]))
 
     def as_dict(self):
+        """
+        Returns: MSONAble dict
+        """
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "entries": [entry.as_dict() for entry in self._entries],
@@ -385,15 +404,16 @@ class InsertionElectrode(AbstractElectrode):
 class InsertionVoltagePair(AbstractVoltagePair):
     """
     Defines an Insertion Voltage Pair.
-
-    Args:
-        entry1: Entry corresponding to one of the entries in the voltage step.
-        entry2: Entry corresponding to the other entry in the voltage step.
-        working_ion_entry: A single ComputedEntry or PDEntry representing
-            the element that carries charge across the battery, e.g. Li.
     """
 
     def __init__(self, entry1, entry2, working_ion_entry):
+        """
+        Args:
+            entry1: Entry corresponding to one of the entries in the voltage step.
+            entry2: Entry corresponding to the other entry in the voltage step.
+            working_ion_entry: A single ComputedEntry or PDEntry representing
+                the element that carries charge across the battery, e.g. Li.
+        """
         # initialize some internal variables
         working_element = working_ion_entry.composition.elements[0]
 
@@ -430,14 +450,12 @@ class InsertionVoltagePair(AbstractVoltagePair):
 
         # check that the entries do not contain the same amount of the workin
         # element
-        if comp_charge.get_atomic_fraction(working_element) == \
-                comp_discharge.get_atomic_fraction(working_element):
+        if comp_charge.get_atomic_fraction(working_element) == comp_discharge.get_atomic_fraction(working_element):
             raise ValueError("VoltagePair: The working ion atomic percentage "
                              "cannot be the same in both the entries")
 
         # check that the frameworks of the entries are equivalent
-        if not frame_charge_comp.reduced_formula == \
-                frame_discharge_comp.reduced_formula:
+        if not frame_charge_comp.reduced_formula == frame_discharge_comp.reduced_formula:
             raise ValueError("VoltagePair: the specified entries must have the"
                              " same compositional framework")
 
@@ -463,16 +481,15 @@ class InsertionVoltagePair(AbstractVoltagePair):
         self._mass_charge = comp_charge.weight / norm_charge
         self._mass_discharge = comp_discharge.weight / norm_discharge
 
-        self._num_ions_transferred = \
-            (comp_discharge[working_element] / norm_discharge) \
+        self._num_ions_transferred = (comp_discharge[working_element] / norm_discharge) \
             - (comp_charge[working_element] / norm_charge)
 
         self._voltage = \
             (((entry_charge.energy / norm_charge) -
-              (entry_discharge.energy / norm_discharge)) / \
+              (entry_discharge.energy / norm_discharge)) /
              self._num_ions_transferred + working_ion_entry.energy_per_atom) / working_ion_valence
         self._mAh = self._num_ions_transferred * Charge(1, "e").to("C") * \
-                    Time(1, "s").to("h") * N_A * 1000 * working_ion_valence
+            Time(1, "s").to("h") * N_A * 1000 * working_ion_valence
 
         # Step 4: add (optional) hull and muO2 data
         self.decomp_e_charge = \
@@ -492,51 +509,85 @@ class InsertionVoltagePair(AbstractVoltagePair):
             comp_discharge.get_atomic_fraction(working_element)
 
     @property
+    def working_ion(self):
+        """
+        Returns: working ion
+        """
+        return self._working_ion
+
+    @property
     def frac_charge(self):
+        """
+        Returns: Amount of working ion at charge
+        """
         return self._frac_charge
 
     @property
     def frac_discharge(self):
+        """
+        Returns: Amount of working ion at discharge
+        """
         return self._frac_discharge
 
     @property
     def voltage(self):
+        """
+        Returns: Voltage of electrode
+        """
         return self._voltage
 
     @property
     def mAh(self):
+        """
+        Returns: Energy in mAh.
+        """
         return self._mAh
 
     @property
     def mass_charge(self):
+        """
+        Returns: Mass of charged electrode.
+        """
         return self._mass_charge
 
     @property
     def mass_discharge(self):
+        """
+        Returns: Mass of discharged electrode.
+        """
         return self._mass_discharge
 
     @property
     def vol_charge(self):
+        """
+        Returns: Volume of charged electrode.
+        """
         return self._vol_charge
 
     @property
     def vol_discharge(self):
+        """
+        Returns: Volume of discharged electrode.
+        """
         return self._vol_discharge
 
     @property
     def working_ion_entry(self):
+        """
+        Returns: Working ion entry
+        """
         return self._working_ion_entry
 
     def __repr__(self):
-        output = ["Insertion voltage pair with working ion {}"
-                      .format(self._working_ion_entry.composition.reduced_formula),
+        output = ["Insertion voltage pair with working ion {}".format(
+                      self._working_ion_entry.composition.reduced_formula),
                   "V = {}, mAh = {}".format(self.voltage, self.mAh),
-                  "mass_charge = {}, mass_discharge = {}"
-                      .format(self.mass_charge, self.mass_discharge),
-                  "vol_charge = {}, vol_discharge = {}"
-                      .format(self.vol_charge, self.vol_discharge),
-                  "frac_charge = {}, frac_discharge = {}"
-                      .format(self.frac_charge, self.frac_discharge)]
+                  "mass_charge = {}, mass_discharge = {}".format(
+                      self.mass_charge, self.mass_discharge),
+                  "vol_charge = {}, vol_discharge = {}".format(
+                      self.vol_charge, self.vol_discharge),
+                  "frac_charge = {}, frac_discharge = {}".format(
+                      self.frac_charge, self.frac_discharge)]
         return "\n".join(output)
 
     def __str__(self):
