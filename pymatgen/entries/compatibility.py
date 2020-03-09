@@ -677,19 +677,22 @@ class Compatibility(MSONable):
             "Corrected_energy": float,
             "correction_uncertainty:" float,
             "Corrections": [{"Name of Correction": {
-            "Value": float, "Explanation": "string"}]}
+            "Value": float, "Explanation": "string", "Uncertainty": float}]}
         """
         centry = self.process_entry(entry)
         if centry is None:
             uncorrected_energy = entry.uncorrected_energy
             corrected_energy = None
+            correction_uncertainty = None
         else:
             uncorrected_energy = centry.uncorrected_energy
             corrected_energy = centry.energy
+            correction_uncertainty = centry.data.get("correction_uncertainty", np.nan)
         d = {
             "compatibility": self.__class__.__name__,
             "uncorrected_energy": uncorrected_energy,
             "corrected_energy": corrected_energy,
+            "correction_uncertainty": correction_uncertainty
         }
         corrections = []
         corr_dict, uncer_dict = self.get_corrections_dict(entry)
