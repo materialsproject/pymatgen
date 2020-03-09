@@ -19,18 +19,13 @@ and R. W. Chantrell. J. Phys.: Condens. Matter 26, 103202 (2014)
 
 import subprocess
 import logging
-import numpy as np
 import pandas as pd
-import os
 
 from monty.dev import requires
 from monty.os.path import which
 from monty.json import MSONable
 
-from pymatgen.analysis.magnetism.heisenberg import HeisenbergMapper, HeisenbergModel
-from pymatgen.analysis.magnetism.analyzer import CollinearMagneticStructureAnalyzer
-from pymatgen import Structure
-from pymatgen.analysis.graphs import StructureGraph
+from pymatgen.analysis.magnetism.heisenberg import HeisenbergMapper
 
 
 __author__ = "ncfrey"
@@ -81,7 +76,8 @@ class VampireCaller:
             save_inputs (bool): if True, save scratch dir of vampire input files
             hm (HeisenbergModel): object already fit to low energy
                 magnetic orderings.
-            avg (bool): If True, simply use <J> exchange parameter estimate. If False, attempt to use NN, NNN, etc. interactions.
+            avg (bool): If True, simply use <J> exchange parameter estimate.
+                If False, attempt to use NN, NNN, etc. interactions.
             user_input_settings (dict): optional commands for VAMPIRE Monte Carlo
 
         Parameters:
@@ -381,7 +377,7 @@ class VampireCaller:
                 dist = round(c[-1], 2)
 
                 # Look up J_ij between the sites
-                if self.avg == True:  # Just use <J> estimate
+                if self.avg is True:  # Just use <J> estimate
                     j_exc = self.hm.javg
                 else:
                     j_exc = self.hm._get_j_exc(i, j, dist)
@@ -433,11 +429,13 @@ class VampireCaller:
 
 
 class VampireOutput(MSONable):
+    """
+    This class processes results from a Vampire Monte Carlo simulation
+    and returns the critical temperature.
+    """
+
     def __init__(self, parsed_out=None, nmats=None, critical_temp=None):
         """
-        This class processes results from a Vampire Monte Carlo simulation
-        and returns the critical temperature.
-        
         Args:
             parsed_out (json): json rep of parsed stdout DataFrame.
             nmats (int): Number of distinct materials (1 for each specie and up/down spin).
