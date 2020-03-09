@@ -8,8 +8,6 @@ import os
 import unittest
 import pandas as pd
 
-from monty.serialization import loadfn, dumpfn
-
 from pymatgen.analysis.magnetism.heisenberg import HeisenbergMapper
 from pymatgen import Structure
 

@@ -9,10 +9,8 @@ import warnings
 import pandas as pd
 
 from monty.os.path import which
-from monty.serialization import loadfn, dumpfn
 
 import pymatgen.command_line.vampire_caller as vampirecaller
-from pymatgen.analysis.magnetism.heisenberg import HeisenbergMapper
 
 from pymatgen import Structure
 
@@ -64,7 +62,6 @@ class VampireCallerTest(unittest.TestCase):
             voutput = vc.output
             critical_temp = voutput.critical_temp
             self.assertAlmostEqual(400, critical_temp, delta=100)
-
 
 
 if __name__ == "__main__":
