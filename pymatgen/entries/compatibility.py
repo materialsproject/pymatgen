@@ -11,8 +11,9 @@ import abc
 import warnings
 
 from collections import defaultdict
-from math import sqrt
+from math import sqrt, isnan
 import numpy as np
+from uncertainties import ufloat
 
 from typing import Sequence, Tuple
 from monty.design_patterns import cached_class
@@ -81,9 +82,20 @@ class Correction(metaclass=abc.ABCMeta):
         Raises:
             CompatibilityError if entry is not compatible.
         """
-        corr = self.get_correction(entry)
-        entry.correction += corr[0]
-        entry.data["correction_uncertainty"] = corr[1]
+        new_corr = self.get_correction(entry)
+        old_std_dev = entry.data.get("correction_uncertainty", 0)
+        if isnan(old_std_dev):
+            old_std_dev = 0
+        old_corr = ufloat(entry.correction, old_std_dev)
+        updated_corr = new_corr + old_corr
+        entry.correction = updated_corr.nominal_value
+        if updated_corr.nominal_value != 0 and updated_corr.std_dev == 0:
+            # if there are no error values available for the corrections applied,
+            # set correction uncertainty to not a number
+            entry.data["correction_uncertainty"] = np.nan
+        else:
+            entry.data["correction_uncertainty"] = updated_corr.std_dev
+
         return entry
 
 
@@ -133,7 +145,7 @@ class PotcarCorrection(Correction):
         self.input_set = input_set
         self.check_hash = check_hash
 
-    def get_correction(self, entry) -> Tuple[float, float]:
+    def get_correction(self, entry) -> ufloat:
         """
         :param entry: A ComputedEntry/ComputedStructureEntry
         :return: Correction, Uncertainty.
@@ -167,7 +179,7 @@ class PotcarCorrection(Correction):
             self.valid_potcars.get(str(el)) for el in entry.composition.elements
         } != psp_settings:
             raise CompatibilityError("Incompatible potcar")
-        return 0.0, 0.0
+        return ufloat(0.0, 0.0)
 
     def __str__(self):
         return "{} Potcar Correction".format(self.input_set.__name__)
@@ -190,26 +202,24 @@ class GasCorrection(Correction):
         self.name = c["Name"]
         self.cpd_energies = c["Advanced"]["CompoundEnergies"]
 
-    def get_correction(self, entry) -> Tuple[float, float]:
+    def get_correction(self, entry) -> ufloat:
         """
         :param entry: A ComputedEntry/ComputedStructureEntry
         :return: Correction.
         """
         comp = entry.composition
 
-        correction = 0.0
+        correction = ufloat(0.0, 0.0)
 
-        # set error to 0 because old MPCompatibility doesn't have errors but Compatibility methods
-        # expects (correction, uncertainty)
-        error = 0.0
+        # set error to 0 because old MPCompatibility doesn't have errors
 
         rform = entry.composition.reduced_formula
         if rform in self.cpd_energies:
-            correction = (
+            correction += (
                 self.cpd_energies[rform] * comp.num_atoms - entry.uncorrected_energy
             )
 
-        return correction, error
+        return correction
 
     def __str__(self):
         return "{} Gas Correction".format(self.name)
@@ -237,20 +247,19 @@ class AnionCorrection(Correction):
         self.name = c["Name"]
         self.correct_peroxide = correct_peroxide
 
-    def get_correction(self, entry) -> Tuple[float, float]:
+    def get_correction(self, entry) -> ufloat:
         """
         :param entry: A ComputedEntry/ComputedStructureEntry
         :return: Correction.
         """
         comp = entry.composition
         if len(comp) == 1:  # Skip element entry
-            return 0.0, 0.0
+            return ufloat(0.0, 0.0)
 
-        correction = 0.0
+        correction = ufloat(0.0, 0.0)
 
-        # set error to 0 because old MPCompatibility doesn't have errors but Compatibility methods
-        # expects (correction, uncertainty)
-        error = 0.0
+        # set error to 0 because old MPCompatibility doesn't have errors
+
         # Check for sulfide corrections
         if Element("S") in comp:
             sf_type = "sulfide"
@@ -299,7 +308,7 @@ class AnionCorrection(Correction):
             else:
                 correction += self.oxide_correction["oxide"] * comp["O"]
 
-        return correction, error
+        return correction
 
     def __str__(self):
         return "{} Anion Correction".format(self.name)
@@ -327,23 +336,22 @@ class CompositionCorrection(Correction):
         self.correct_peroxide = correct_peroxide
         if error_file:
             e = loadfn(error_file)
-            self.anion_errors = e.get("CompositionCorrections", defaultdict(float))
+            self.comp_errors = e.get("CompositionCorrections", defaultdict(float))
         else:
-            self.anion_errors = defaultdict(float)
+            self.comp_errors = defaultdict(float)
 
-    def get_correction(self, entry) -> Tuple[float, float]:
+    def get_correction(self, entry) -> ufloat:
         """
         :param entry: A ComputedEntry/ComputedStructureEntry
         :return: Correction, Uncertainty.
         """
         comp = entry.composition
 
-        correction = 0.0
-        error = 0.0
+        correction = ufloat(0.0, 0.0)
 
         # Skip single elements
         if len(comp) == 1:
-            return 0.0, 0.0
+            return correction
 
         # Check for sulfide corrections
         if Element("S") in comp:
@@ -353,8 +361,8 @@ class CompositionCorrection(Correction):
             elif hasattr(entry, "structure"):
                 sf_type = sulfide_type(entry.structure)
             if sf_type in self.comp_correction:
-                correction += self.comp_correction[sf_type] * comp["S"]
-                error = sqrt(error ** 2 + (self.anion_errors[sf_type] * comp["S"]) ** 2)
+                correction += ufloat(self.comp_correction[sf_type], self.comp_errors[sf_type]) * comp["S"]
+
 
         # Check for oxide, peroxide, superoxide, and ozonide corrections.
         if Element("O") in comp:
@@ -362,29 +370,21 @@ class CompositionCorrection(Correction):
                 if entry.data.get("oxide_type"):
                     if entry.data["oxide_type"] in self.comp_correction:
                         ox_corr = self.comp_correction[entry.data["oxide_type"]]
-                        correction += ox_corr * comp["O"]
-                        ox_error = self.anion_errors[entry.data["oxide_type"]]
-                        error = sqrt(error ** 2 + (ox_error * comp["O"]) ** 2)
+                        ox_error = self.comp_errors[entry.data["oxide_type"]]
+                        correction += ufloat(ox_corr, ox_error) * comp["O"]
                     if entry.data["oxide_type"] == "hydroxide":
                         ox_corr = self.comp_correction["oxide"]
-                        correction += ox_corr * comp["O"]
-                        ox_error = self.anion_errors["oxide"]
-                        error = sqrt(error ** 2 + (ox_error * comp["O"]) ** 2)
+                        ox_error = self.comp_errors["oxide"]
+                        correction += ufloat(ox_corr, ox_error) * comp["O"]
 
                 elif hasattr(entry, "structure"):
                     ox_type, nbonds = oxide_type(
                         entry.structure, 1.05, return_nbonds=True
                     )
                     if ox_type in self.comp_correction:
-                        correction += self.comp_correction[ox_type] * nbonds
-                        error = sqrt(
-                            error ** 2 + (self.anion_errors[ox_type] * nbonds) ** 2
-                        )
+                        correction += ufloat(self.comp_correction[ox_type], self.comp_errors[ox_type]) * nbonds
                     elif ox_type == "hydroxide":
-                        correction += self.comp_correction["oxide"] * comp["O"]
-                        error = sqrt(
-                            error ** 2 + (self.anion_errors["oxide"] * comp["O"]) ** 2
-                        )
+                        correction += ufloat(self.comp_correction["oxide"], self.comp_errors["oxide"]) * comp["O"]
                 else:
                     warnings.warn(
                         "No structure or oxide_type parameter present. Note "
@@ -394,43 +394,26 @@ class CompositionCorrection(Correction):
                     )
                     rform = entry.composition.reduced_formula
                     if rform in UCorrection.common_peroxides:
-                        correction += self.comp_correction["peroxide"] * comp["O"]
-                        error = sqrt(
-                            error ** 2
-                            + (self.anion_errors["peroxide"] * comp["O"]) ** 2
-                        )
+                        correction += ufloat(self.comp_correction["peroxide"], self.comp_errors["peroxide"]) * comp["O"]
                     elif rform in UCorrection.common_superoxides:
-                        correction += self.comp_correction["superoxide"] * comp["O"]
-                        error = sqrt(
-                            error ** 2
-                            + (self.anion_errors["superoxide"] * comp["O"]) ** 2
-                        )
+                        correction += ufloat(self.comp_correction["superoxide"], self.comp_errors["superoxide"]) * comp["O"]
                     elif rform in UCorrection.ozonides:
-                        correction += self.comp_correction["ozonide"] * comp["O"]
-                        error = sqrt(
-                            error ** 2 + (self.anion_errors["ozonide"] * comp["O"]) ** 2
-                        )
+                        correction += ufloat(self.comp_correction["ozonide"], self.comp_errors["ozonide"]) * comp["O"]
                     elif Element("O") in comp.elements and len(comp.elements) > 1:
-                        correction += self.comp_correction["oxide"] * comp["O"]
-                        error = sqrt(
-                            error ** 2 + (self.anion_errors["oxide"] * comp["O"]) ** 2
-                        )
+                        correction += ufloat(self.comp_correction["oxide"], self.comp_errors["oxide"]) * comp["O"]
             else:
-                correction += self.comp_correction["oxide"] * comp["O"]
-                error = sqrt(error ** 2 + (self.anion_errors["oxide"] * comp["O"]) ** 2)
-
+                correction += ufloat(self.comp_correction["oxide"], self.comp_errors["oxide"]) * comp["O"]
+                
         for anion in ["Br", "I", "Se", "Si", "Sb", "Te"]:
             if Element(anion) in comp and anion in self.comp_correction:
-                correction += self.comp_correction[anion] * comp[anion]
-                error = sqrt(error ** 2 + (self.anion_errors[anion] * comp[anion]) ** 2)
-
+                correction += ufloat(self.comp_correction[anion], self.comp_errors[anion]) * comp[anion]
+                
         if self.name != "MIT":  # the MIT compatibility set still uses MITGasCorrection
             for gas in ["H", "N", "F", "Cl"]:
                 if Element(gas) in comp and gas in self.comp_correction:
-                    correction += self.comp_correction[gas] * comp[gas]
-                    error = sqrt(error ** 2 + (self.anion_errors[gas] * comp[gas]) ** 2)
-
-        return correction, error
+                    correction += ufloat(self.comp_correction[gas], self.comp_errors[gas]) * comp[gas]
+                    
+        return correction
 
     def __str__(self):
         return "{} Composition Correction".format(self.name)
@@ -458,7 +441,7 @@ class AqueousCorrection(Correction):
         else:
             self.cpd_errors = defaultdict(float)
 
-    def get_correction(self, entry) -> Tuple[float, float]:
+    def get_correction(self, entry) -> ufloat:
         """
         :param entry: A ComputedEntry/ComputedStructureEntry
         :return: Correction, Uncertainty.
@@ -466,32 +449,27 @@ class AqueousCorrection(Correction):
         comp = entry.composition
         rform = comp.reduced_formula
         cpdenergies = self.cpd_energies
-        correction = 0.0
-        error = 0.0
+        correction = ufloat(0.0, 0.0)
         if rform in cpdenergies:
             if rform in ["H2", "H2O"]:
-                correction = (
+                corr = (
                     cpdenergies[rform] * comp.num_atoms
                     - entry.uncorrected_energy
                     - entry.correction
                 )
-                error = sqrt(
-                    error ** 2
-                    + (
-                        self.cpd_errors[rform] * comp.num_atoms
-                        - entry.uncorrected_energy
-                        - entry.correction
-                    )
-                    ** 2
+                err = (
+                    self.cpd_errors[rform] * comp.num_atoms
                 )
+
+                correction += ufloat(corr, err)
             else:
-                correction += cpdenergies[rform] * comp.num_atoms
-                error = sqrt(
-                    error ** 2 + (self.cpd_errors[rform] * comp.num_atoms) ** 2
-                )
+                corr = cpdenergies[rform] * comp.num_atoms
+                err = self.cpd_errors[rform] * comp.num_atoms
+
+                correction += ufloat(corr, err)
         if not rform == "H2O":
             correction += 0.5 * 2.46 * min(comp["H"] / 2.0, comp["O"])
-        return correction, error
+        return correction
 
     def __str__(self):
         return "{} Aqueous Correction".format(self.name)
@@ -564,7 +542,7 @@ class UCorrection(Correction):
         else:
             self.u_errors = {}
 
-    def get_correction(self, entry) -> Tuple[float, float]:
+    def get_correction(self, entry) -> ufloat:
         """
         :param entry: A ComputedEntry/ComputedStructureEntry
         :return: Correction, Uncertainty.
@@ -580,8 +558,7 @@ class UCorrection(Correction):
             [el for el in comp.elements if comp[el] > 0], key=lambda el: el.X
         )
         most_electroneg = elements[-1].symbol
-        correction = 0.0
-        error = 0.0
+        correction = ufloat(0.0, 0.0)
         ucorr = self.u_corrections.get(most_electroneg, {})
         usettings = self.u_settings.get(most_electroneg, {})
         uerrors = self.u_errors.get(most_electroneg, defaultdict(float))
@@ -594,10 +571,9 @@ class UCorrection(Correction):
                     "Invalid U value of %s on %s" % (calc_u.get(sym, 0), sym)
                 )
             if sym in ucorr:
-                correction += float(ucorr[sym]) * comp[el]
-                error = sqrt(error ** 2 + (float(uerrors[sym]) * comp[el]) ** 2)
+                correction += ufloat(ucorr[sym], uerrors[sym]) * comp[el]
 
-        return correction, error
+        return correction
 
     def __str__(self):
         return "{} {} Correction".format(self.name, self.compat_type)
@@ -633,21 +609,21 @@ class Compatibility(MSONable):
             returned.
         """
         try:
-            corrections, errors = self.get_corrections_dict(entry)
+            corrections, uncertainties = self.get_corrections_dict(entry)
         except CompatibilityError as error:
             print("CompatibilityError: " + str(error))
             return None
-        entry.correction = sum(corrections.values())
-        tot_error = 0
-        for e in errors.values():
-            tot_error += e ** 2
-        tot_error = sqrt(tot_error)
-        if tot_error == 0:
+        # adds to ufloat(0.0, 0.0) to ensure that no corrections still result in ufloat object
+        correction_ufloat = ufloat(0.0, 0.0) + sum([ufloat(x, y) for x, y in zip(corrections.values(), uncertainties.values())])
+
+        entry.correction = correction_ufloat.nominal_value
+        if correction_ufloat.nominal_value != 0 and correction_ufloat.std_dev == 0:
             # if there are no error values available for the corrections applied,
-            # set correction_uncertainty to not a number
+            # set correction uncertainty to not a number
             entry.data["correction_uncertainty"] = np.nan
         else:
-            entry.data["correction_uncertainty"] = tot_error
+            entry.data["correction_uncertainty"] = correction_ufloat.std_dev
+
         return entry
 
     def get_corrections_dict(self, entry):
@@ -661,13 +637,16 @@ class Compatibility(MSONable):
             ({correction_name: value})
         """
         corrections = {}
-        errors = {}
+        uncertainties = {}
         for c in self.corrections:
-            val, e = c.get_correction(entry)
+            val = c.get_correction(entry)
             if val != 0:
-                corrections[str(c)] = val
-                errors[str(c)] = e
-        return corrections, errors
+                corrections[str(c)] = val.nominal_value
+                if val.std_dev != 0:
+                    uncertainties[str(c)] = val.std_dev
+                else:
+                    uncertainties[str(c)] = np.nan
+        return corrections, uncertainties
 
     def process_entries(self, entries):
         """
@@ -698,31 +677,28 @@ class Compatibility(MSONable):
             "Corrected_energy": float,
             "correction_uncertainty:" float,
             "Corrections": [{"Name of Correction": {
-            "Value": float, "Explanation": "string", "Uncertainty": float}]}
+            "Value": float, "Explanation": "string"}]}
         """
         centry = self.process_entry(entry)
         if centry is None:
             uncorrected_energy = entry.uncorrected_energy
             corrected_energy = None
-            correction_uncertainty = None
         else:
             uncorrected_energy = centry.uncorrected_energy
             corrected_energy = centry.energy
-            correction_uncertainty = centry.data["correction_uncertainty"]
         d = {
             "compatibility": self.__class__.__name__,
             "uncorrected_energy": uncorrected_energy,
             "corrected_energy": corrected_energy,
-            "correction_uncertainty": correction_uncertainty,
         }
         corrections = []
-        corr_dict, error_dict = self.get_corrections_dict(entry)
+        corr_dict, uncer_dict = self.get_corrections_dict(entry)
         for c in self.corrections:
             cd = {
                 "name": str(c),
                 "description": c.__doc__.split("Args")[0].strip(),
                 "value": corr_dict.get(str(c), 0),
-                "uncertainty": error_dict.get(str(c), 0),
+                "uncertainty": uncer_dict.get(str(c), 0)
             }
             corrections.append(cd)
         d["corrections"] = corrections
@@ -748,11 +724,11 @@ class Compatibility(MSONable):
         )
         for c in d["corrections"]:
             print("%s correction: %s\n" % (c["name"], c["description"]))
-            print("For the entry, this correction has the value %f eV." % c["value"])
-            if c["uncertainty"]:
+            print("For the entry, this correction has the value %f eV." % c["value"].nominal_value)
+            if c["value"].std_dev:
                 print(
                     "This correction has an uncertainty value of %f eV."
-                    % c["uncertainty"]
+                    % c["value"].std_dev
                 )
             else:
                 print("This correction does not have uncertainty data available")
