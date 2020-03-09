@@ -1,3 +1,6 @@
+"""
+IO for ADF files.
+"""
 
 from pymatgen.core.structure import Molecule
 from monty.json import MSONable
@@ -35,7 +38,7 @@ def is_numeric(s):
 
 
 def iterlines(s):
-    """
+    r"""
     A generator form of s.split('\n') for reducing memory overhead.
 
     Parameters
@@ -501,22 +504,37 @@ class AdfTask(MSONable):
 
     @staticmethod
     def get_default_basis_set():
+        """
+        Returns: Default basis set
+        """
         return AdfKey.from_string("Basis\ntype DZ\ncore small\nEND")
 
     @staticmethod
     def get_default_scf():
+        """
+        Returns: ADF using default SCF.
+        """
         return AdfKey.from_string("SCF\niterations 300\nEND")
 
     @staticmethod
     def get_default_geo():
+        """
+        Returns: ADFKey using default geometry.
+        """
         return AdfKey.from_string("GEOMETRY SinglePoint\nEND")
 
     @staticmethod
     def get_default_xc():
+        """
+        Returns: ADFKey using default XC.
+        """
         return AdfKey.from_string("XC\nGGA PBE\nEND")
 
     @staticmethod
     def get_default_units():
+        """
+        Returns: Default units.
+        """
         return AdfKey.from_string("Units\nlength angstrom\nangle degree\nEnd")
 
     def _setup_task(self, geo_subkeys):

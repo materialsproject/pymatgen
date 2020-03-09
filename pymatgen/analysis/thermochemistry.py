@@ -25,29 +25,30 @@ STANDARD_TEMP = 298.0
 class ThermoData:
     """
     A object container for an experimental Thermochemical Data.
-
-    Args:
-        data_type: The thermochemical data type. Should be one of the
-            following: fH - Formation enthalpy, S - Entropy,
-            A, B, C, D, E, F, G, H - variables for use in the various
-            quations for generating formation enthaplies or Cp at
-            various temperatures.
-        cpdname (str): A name for the compound. For example, hematite for
-            Fe2O3.
-        phaseinfo (str): Denoting the phase. For example, "solid", "liquid",
-            "gas" or "tetragonal".
-        formula (str): A proper string formula, e.g., Fe2O3
-        value (float): The value of the data.
-        ref (str): A reference, if any, for the data.
-        method (str): The method by which the data was determined,
-            if available.
-        temp_range ([float, float]): Temperature range of validity for the
-            data in Kelvin. Defaults to 298 K only.
-        uncertainty (float):
-            An uncertainty for the data, if available.
     """
     def __init__(self, data_type, cpdname, phaseinfo, formula, value, ref="",
                  method="", temp_range=(298, 298), uncertainty=None):
+        """
+        Args:
+            data_type: The thermochemical data type. Should be one of the
+                following: fH - Formation enthalpy, S - Entropy,
+                A, B, C, D, E, F, G, H - variables for use in the various
+                quations for generating formation enthaplies or Cp at
+                various temperatures.
+            cpdname (str): A name for the compound. For example, hematite for
+                Fe2O3.
+            phaseinfo (str): Denoting the phase. For example, "solid", "liquid",
+                "gas" or "tetragonal".
+            formula (str): A proper string formula, e.g., Fe2O3
+            value (float): The value of the data.
+            ref (str): A reference, if any, for the data.
+            method (str): The method by which the data was determined,
+                if available.
+            temp_range ([float, float]): Temperature range of validity for the
+                data in Kelvin. Defaults to 298 K only.
+            uncertainty (float):
+                An uncertainty for the data, if available.
+        """
         self.type = data_type
         self.formula = formula
         self.composition = Composition(self.formula)
@@ -62,12 +63,22 @@ class ThermoData:
 
     @classmethod
     def from_dict(cls, d):
+        """
+        Args:
+            d (dict): Dict representation
+
+        Returns:
+            ThermoData
+        """
         return ThermoData(d["type"], d["compound_name"],
                           d["phaseinfo"], d["formula"],
                           d["value"], d["ref"], d["method"],
                           d["temp_range"], d.get("uncertainty", None))
 
     def as_dict(self):
+        """
+        Returns: MSONable dict
+        """
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__, "type": self.type,
                 "formula": self.formula, "compound_name": self.compound_name,

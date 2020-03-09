@@ -1636,13 +1636,6 @@ class CubicSupercellTransformation(AbstractTransformation):
     until the largest inscribed cube's side length is at least 'min_length'
     and the number of atoms in the supercell falls in the range
     ``min_atoms < n < max_atoms``.
-
-    Args:
-        max_atoms: Maximum number of atoms allowed in the supercell.
-        min_atoms: Minimum number of atoms allowed in the supercell.
-        min_length: Minimum length of the smallest supercell lattice vector.
-        force_diagonal: If True, return a transformation with a diagonal
-            transformation matrix.
     """
 
     def __init__(
@@ -1652,6 +1645,14 @@ class CubicSupercellTransformation(AbstractTransformation):
         min_length: float = 15.,
         force_diagonal: bool = False,
     ):
+        """
+        Args:
+            max_atoms: Maximum number of atoms allowed in the supercell.
+            min_atoms: Minimum number of atoms allowed in the supercell.
+            min_length: Minimum length of the smallest supercell lattice vector.
+            force_diagonal: If True, return a transformation with a diagonal
+                transformation matrix.
+        """
         self.min_atoms = min_atoms if min_atoms else -np.Inf
         self.max_atoms = max_atoms if max_atoms else np.Inf
         self.min_length = min_length
@@ -1787,10 +1788,18 @@ class CubicSupercellTransformation(AbstractTransformation):
 
     @property
     def inverse(self):
+        """
+        Returns:
+            None
+        """
         return None
 
     @property
     def is_one_to_many(self):
+        """
+        Returns:
+            False
+        """
         return False
 
 
@@ -2118,7 +2127,7 @@ class SQSTransformation(AbstractTransformation):
 
 @requires(hiphive, "hiphive is required for MonteCarloRattleTransformation")
 class MonteCarloRattleTransformation(AbstractTransformation):
-    """
+    r"""
     Uses a Monte Carlo rattle procedure to randomly perturb the sites in a
     structure.
 
@@ -2132,19 +2141,6 @@ class MonteCarloRattleTransformation(AbstractTransformation):
     This process is repeated for each atom a number of times meaning
     the magnitude of the final displacements is not *directly*
     connected to `rattle_std`.
-
-    Args:
-        rattle_std: Rattle amplitude (standard deviation in normal
-            distribution). Note: this value is not *directly* connected to the
-            final average displacement for the structures
-        min_distance: Interatomic distance used for computing the probability
-            for each rattle move.
-        seed: Seed for setting up NumPy random state from which random numbers
-            are generated. If ``None``, a random seed will be generated
-            (default). This option allows the output of this transformation
-            to be deterministic.
-        **kwargs: Additional keyword arguments to be passed to the hiPhive
-            mc_rattle function.
     """
 
     def __init__(
@@ -2154,6 +2150,20 @@ class MonteCarloRattleTransformation(AbstractTransformation):
         seed: Optional[int] = None,
         **kwargs
     ):
+        """
+        Args:
+            rattle_std: Rattle amplitude (standard deviation in normal
+                distribution). Note: this value is not *directly* connected to the
+                final average displacement for the structures
+            min_distance: Interatomic distance used for computing the probability
+                for each rattle move.
+            seed: Seed for setting up NumPy random state from which random numbers
+                are generated. If ``None``, a random seed will be generated
+                (default). This option allows the output of this transformation
+                to be deterministic.
+            **kwargs: Additional keyword arguments to be passed to the hiPhive
+                mc_rattle function.
+        """
         self.rattle_std = rattle_std
         self.min_distance = min_distance
         self.seed = seed

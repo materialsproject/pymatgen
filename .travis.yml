@@ -39,8 +39,7 @@ script:
   - flake8 --count --show-source --statistics pymatgen
   - flake8 --count --exit-zero --max-complexity=10 --statistics pymatgen
   # Docstyle checks are enforced for files that have been modified since the v2020.1.28 tagged release.
-  - export MODIFIED_FILES=`git diff --diff-filter=ACMRTUXB --name-only HEAD v2020.1.28 | grep -E 'pymatgen.*\.(py)$' | sed '/test_/d' | tr '\n' ' '`
-  - pydocstyle --count pymatgen/core $MODIFIED_FILES
+  - pydocstyle --count pymatgen
 
 notifications:
   email:

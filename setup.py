@@ -119,11 +119,9 @@ setup(
         ]},
     package_data={
         "pymatgen.core": ["*.json"],
-        "pymatgen.analysis": ["*.yaml", "*.json"],
-        "pymatgen.analysis.cost": ["*.csv"],
+        "pymatgen.analysis": ["*.yaml", "*.json", "*.csv"],
         "pymatgen.analysis.chemenv.coordination_environments.coordination_geometries_files": ["*.txt", "*.json"],
         "pymatgen.analysis.chemenv.coordination_environments.strategy_files": ["*.json"],
-        "pymatgen.analysis.hhi": ["*.csv"],
         "pymatgen.analysis.magnetism": ["*.json", "*.yaml"],
         "pymatgen.analysis.structure_prediction": ["data/*.json", "*.yaml"],
         "pymatgen.io": ["*.yaml"],

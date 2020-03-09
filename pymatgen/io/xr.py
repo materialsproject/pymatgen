@@ -32,13 +32,14 @@ from pymatgen.core.structure import Structure
 class Xr:
     """
     Basic object for working with xr files.
-
-    Args:
-        structure (Structure/IStructure): Structure object to create the
-                Xr object.
     """
 
     def __init__(self, structure):
+        """
+        Args:
+            structure (Structure/IStructure): Structure object to create the
+                    Xr object.
+        """
         if not structure.is_ordered:
             raise ValueError("Xr file can only be constructed from ordered "
                              "structure")

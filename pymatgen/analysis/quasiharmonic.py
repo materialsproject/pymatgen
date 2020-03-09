@@ -31,30 +31,34 @@ __credits__ = "Cormac Toher"
 
 class QuasiharmonicDebyeApprox:
     """
-    Args:
-        energies (list): list of DFT energies in eV
-        volumes (list): list of volumes in Ang^3
-        structure (Structure):
-        t_min (float): min temperature
-        t_step (float): temperature step
-        t_max (float): max temperature
-        eos (str): equation of state used for fitting the energies and the
-            volumes.
-            options supported by pymatgen: "quadratic", "murnaghan", "birch",
-                "birch_murnaghan", "pourier_tarantola", "vinet",
-                "deltafactor", "numerical_eos"
-        pressure (float): in GPa, optional.
-        poisson (float): poisson ratio.
-        use_mie_gruneisen (bool): whether or not to use the mie-gruneisen
-            formulation to compute the gruneisen parameter.
-            The default is the slater-gamma formulation.
-        anharmonic_contribution (bool): whether or not to consider the anharmonic
-            contribution to the Debye temperature. Cannot be used with
-            use_mie_gruneisen. Defaults to False.
+    Quasiharmonic approximation.
     """
+
     def __init__(self, energies, volumes, structure, t_min=300.0, t_step=100,
                  t_max=300.0, eos="vinet", pressure=0.0, poisson=0.25,
                  use_mie_gruneisen=False, anharmonic_contribution=False):
+        """
+        Args:
+            energies (list): list of DFT energies in eV
+            volumes (list): list of volumes in Ang^3
+            structure (Structure):
+            t_min (float): min temperature
+            t_step (float): temperature step
+            t_max (float): max temperature
+            eos (str): equation of state used for fitting the energies and the
+                volumes.
+                options supported by pymatgen: "quadratic", "murnaghan", "birch",
+                    "birch_murnaghan", "pourier_tarantola", "vinet",
+                    "deltafactor", "numerical_eos"
+            pressure (float): in GPa, optional.
+            poisson (float): poisson ratio.
+            use_mie_gruneisen (bool): whether or not to use the mie-gruneisen
+                formulation to compute the gruneisen parameter.
+                The default is the slater-gamma formulation.
+            anharmonic_contribution (bool): whether or not to consider the anharmonic
+                contribution to the Debye temperature. Cannot be used with
+                use_mie_gruneisen. Defaults to False.
+        """
         self.energies = energies
         self.volumes = volumes
         self.structure = structure
