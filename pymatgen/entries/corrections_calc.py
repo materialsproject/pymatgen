@@ -1,3 +1,8 @@
+"""
+This module calculates corrections for the species listed below, fitted to the experimental and computed
+entries given to the CorrectionCalculator constructor.
+"""
+
 from collections import OrderedDict
 import numpy as np
 import plotly.graph_objects as go
@@ -10,11 +15,6 @@ from monty.serialization import loadfn
 
 from pymatgen import Composition
 from pymatgen.analysis.reaction_calculator import ComputedReaction
-
-"""
-This module calculates corrections for the species listed below, fitted to the experimental and computed
-entries given to the CorrectionCalculator constructor.
-"""
 
 
 def func(x, *m):
@@ -402,7 +402,10 @@ class CorrectionCalculator:
         # chemical potential of H2O is -2.4583 eV/H2O from experiments (import
         # MU_H2O from pourbaix module)
         from pymatgen.analysis.pourbaix_diagram import MU_H2O
-        aqueous["H2"] = round(0.5 * (-15.969 - -0.215891 - -4.9276 - aqueous["O2"] - MU_H2O), 6)
+
+        aqueous["H2"] = round(
+            0.5 * (-15.969 - -0.215891 - -4.9276 - aqueous["O2"] - MU_H2O), 6
+        )
 
         # Ensure that the H2O energy is corrected to produce a gibbs formation
         # energy to MU_H2O. Make sure to add entropy to the DFT energy for O2
