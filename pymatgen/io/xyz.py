@@ -3,7 +3,7 @@
 # Distributed under the terms of the MIT License.
 
 import re
-
+import numpy as np
 from pymatgen.core.structure import Molecule
 from monty.io import zopen
 
@@ -79,7 +79,7 @@ class XYZ:
         return Molecule(sp, coords)
 
     @staticmethod
-    def from_string(contents):
+    def from_string(contents, step_skip=1):
         """
         Creates XYZ object from a string.
 
@@ -98,13 +98,14 @@ class XYZ:
         frame_pattern_text = natoms_line + comment_line + coord_lines
         pat = re.compile(frame_pattern_text, re.MULTILINE)
         mols = []
-        for xyz_match in pat.finditer(contents):
+        for i, xyz_match in enumerate(pat.finditer(contents)):
             xyz_text = xyz_match.group(0)
-            mols.append(XYZ._from_frame_string(xyz_text))
+            if i % step_skip == 0:
+                mols.append(XYZ._from_frame_string(xyz_text))
         return XYZ(mols)
 
     @staticmethod
-    def from_file(filename):
+    def from_file(filename, step_skip=1):
         """
         Creates XYZ object from a file.
 
@@ -114,8 +115,8 @@ class XYZ:
         Returns:
             XYZ object
         """
-        with zopen(filename) as f:
-            return XYZ.from_string(f.read())
+        with zopen(filename, 'rt') as f:
+            return XYZ.from_string(f.read(), step_skip)
 
     def _frame_str(self, frame_mol):
         output = [str(len(frame_mol)), frame_mol.composition.formula]
