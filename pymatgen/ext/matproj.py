@@ -35,6 +35,7 @@ from pymatgen.core.surface import get_symmetrically_equivalent_miller_indices
 from pymatgen.entries.computed_entries import ComputedEntry, \
     ComputedStructureEntry
 from pymatgen.entries.exp_entries import ExpEntry
+from pymatgen.entries.compatibility import MaterialsProjectAqueousCompatibility
 
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
@@ -465,7 +466,7 @@ class MPRester:
             entries = sorted(entries, key=lambda entry: entry.data["e_above_hull"])
         return entries
 
-    def get_pourbaix_entries(self, chemsys):
+    def get_pourbaix_entries(self, chemsys, compat=MaterialsProjectAqueousCompatibility()):
         """
         A helper function to get all entries necessary to generate
         a pourbaix diagram from the rest interface.
@@ -473,12 +474,12 @@ class MPRester:
         Args:
             chemsys ([str]): A list of elements comprising the chemical
                 system, e.g. ['Li', 'Fe']
+            compat: Compatibility object used to process the entries returned 
+                by MPRester.
         """
         from pymatgen.analysis.pourbaix_diagram import PourbaixEntry, IonEntry
         from pymatgen.analysis.phase_diagram import PhaseDiagram
         from pymatgen.core.ion import Ion
-        from pymatgen.entries.compatibility import \
-            MaterialsProjectAqueousCompatibility
 
         pbx_entries = []
 
@@ -492,7 +493,6 @@ class MPRester:
         ion_ref_entries = self.get_entries_in_chemsys(
             list(set([str(e) for e in ion_ref_elts] + ['O', 'H'])),
             property_data=['e_above_hull'], compatible_only=False)
-        compat = MaterialsProjectAqueousCompatibility("Advanced")
         ion_ref_entries = compat.process_entries(ion_ref_entries)
         ion_ref_pd = PhaseDiagram(ion_ref_entries)
 

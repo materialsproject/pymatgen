@@ -11,7 +11,6 @@ import abc
 import warnings
 
 from collections import defaultdict
-from math import isnan
 import numpy as np
 from uncertainties import ufloat
 
@@ -84,7 +83,7 @@ class Correction(metaclass=abc.ABCMeta):
         """
         new_corr = self.get_correction(entry)
         old_std_dev = entry.data.get("correction_uncertainty", 0)
-        if isnan(old_std_dev):
+        if np.isnan(old_std_dev):
             old_std_dev = 0
         old_corr = ufloat(entry.correction, old_std_dev)
         updated_corr = new_corr + old_corr
@@ -478,6 +477,13 @@ class AqueousCorrection(Correction):
         """
         c = loadfn(config_file)
         self.cpd_energies = c["AqueousCompoundEnergies"]
+        # there will either be a CompositionCorrections OR an OxideCorrections key,
+        # but not both, depending on the compatibility scheme we are using.
+        # TODO - the two lines below are specific to MaterialsProjectCompatibility
+        # and MaterialsProjectCompatibility2020. Could be changed to be more general
+        # and/or streamlined if MaterialsProjectCompatibility is retired.
+        self.comp_correction = c.get("CompositionCorrections", defaultdict(float))
+        self.oxide_correction = c.get("OxideCorrections", defaultdict(float))
         self.name = c["Name"]
         if error_file:
             e = loadfn(error_file)
@@ -490,6 +496,7 @@ class AqueousCorrection(Correction):
         :param entry: A ComputedEntry/ComputedStructureEntry
         :return: Correction, Uncertainty.
         """
+        from pymatgen.analysis.pourbaix_diagram import MU_H2O
         comp = entry.composition
         rform = comp.reduced_formula
         cpdenergies = self.cpd_energies
@@ -510,7 +517,32 @@ class AqueousCorrection(Correction):
 
                 correction += ufloat(corr, err)
         if not rform == "H2O":
-            correction += 0.5 * 2.46 * min(comp["H"] / 2.0, comp["O"])
+            # if the composition contains water molecules (e.g. FeO.nH2O),
+            # correct the gibbs free energy such that the waters are assigned energy=MU_H2O
+            # in other words, we assume that the DFT energy of such a compound is really
+            # a superposition of the "real" solid DFT energy (FeO in this case) and the free
+            # energy of some water molecules
+            # e.g. that E_FeO.nH2O = E_FeO + n * g_H2O
+            # so, to get the most accurate gibbs free energy, we want to replace
+            # g_FeO.nH2O = E_FeO.nH2O + dE_Fe + (n+1) * dE_O + 2n dE_H
+            # with
+            # g_FeO = E_FeO.nH2O + dE_Fe + dE_O + n g_H2O
+            # where E is DFT energy, dE is an energy correction, and g is gibbs free energy
+            # This means we have to 1) remove energy corrections associated with H and O in water
+            # and then 2) remove the free energy of the water molecules
+
+            nH2O = int(min(comp["H"] / 2.0, comp["O"]))  # only count whole water molecules
+            if nH2O > 0:
+                # first, remove any H or O corrections already applied to H2O in the
+                # formation energy so that we don't double count them
+                # No. of H atoms not in a water
+                correction -= ufloat((comp["H"] - nH2O/2) * self.comp_correction["H"], 0.0)
+                # No. of O atoms not in a water
+                correction -= ufloat((comp["O"] - nH2O) * (self.comp_correction["oxide"]
+                                                           + self.oxide_correction["oxide"]), 0.0)
+                # next, add MU_H2O for each water molecule present
+                correction += ufloat(-1*MU_H2O * nH2O, 0.0)
+                # correction += 0.5 * 2.46 * nH2O  # this is the old way this correction was calculated
         return correction
 
     def __str__(self):

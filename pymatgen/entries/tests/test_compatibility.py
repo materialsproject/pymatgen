@@ -19,7 +19,7 @@ __date__ = "Mar 19, 2012"
 import os
 import unittest
 
-from math import sqrt, isnan
+from math import sqrt
 
 from monty.json import MontyDecoder
 from pymatgen.entries.compatibility import (
@@ -27,7 +27,6 @@ from pymatgen.entries.compatibility import (
     MITCompatibility,
     AqueousCorrection,
     MITAqueousCompatibility,
-    MaterialsProjectAqueousCompatibility,
     MaterialsProjectCompatibility2020,
     MaterialsProjectAqueousCompatibility2020,
 )
@@ -424,7 +423,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
     def test_deprecation_warning(self):
         # test that initializing compatibility causes deprecation warning
         with self.assertWarns(DeprecationWarning):
-            compat = MaterialsProjectCompatibility(check_potcar_hash=False)
+            MaterialsProjectCompatibility(check_potcar_hash=False)
 
 
 class MaterialsProjectCompatibility2020Test(unittest.TestCase):
@@ -1182,7 +1181,7 @@ class MITCompatibilityTest(unittest.TestCase):
     def test_deprecation_warning(self):
         # test that initializing compatibility causes deprecation warning
         with self.assertWarns(DeprecationWarning):
-            compat = MITCompatibility(check_potcar_hash=True)
+            MITCompatibility(check_potcar_hash=True)
 
 
 class OxideTypeCorrectionTest(unittest.TestCase):
@@ -1880,7 +1879,7 @@ class MITAqueousCompatibilityTest(unittest.TestCase):
     def test_deprecation_warning(self):
         # test that initializing compatibility causes deprecation warning
         with self.assertWarns(DeprecationWarning):
-            compat = MITAqueousCompatibility(check_potcar_hash=True)
+            MITAqueousCompatibility(check_potcar_hash=True)
 
 
 class CorrectionErrorsCompatibility2020Test(unittest.TestCase):

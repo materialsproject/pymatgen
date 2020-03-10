@@ -53,7 +53,7 @@ __date__ = "Nov 1, 2012"
 
 logger = logging.getLogger(__name__)
 
-MU_H2O = -2.4583
+MU_H2O = -2.4583  # experimental free energy of formation of water, eV/H2O
 PREFAC = 0.0591
 
 
