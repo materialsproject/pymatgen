@@ -178,33 +178,49 @@ class Cp2kOutput:
         """
         Parses the structures from a cp2k calculation. Static calculations simply use the initial structure.
         For calculations with ionic motion, the function will look for the appropriate trajectory and lattice
-        files based on naming convention. If no lattice file is given, and no lattice file is found, it is assumed
-        that the lattice remained constant, and the initial lattice is used. If no trajectory file is given, this
-        function *must* be able to find the trajectory file; cp2k does not output the trajectory in the main output
-        file, so non static calculations have to reference the trajectory file.
-        :return:
+        files based on naming convention. If no file is given, and no file is found, it is assumed
+        that the lattice/structure remained constant, and the initial lattice/structure is used.
+        Cp2k does not output the trajectory in the main output file by default, so non static calculations have to
+        reference the trajectory file.
         """
-        lattice = lattice_file or "{}-1.cell".format(self.project_name)
-        if os.path.isfile(os.path.join(self.dir, lattice)):
+        lattice = lattice_file or glob.glob("{}-1.cell".format(self.project_name))
+        if lattice is None:
+            lattice = glob.glob(os.path.join(self.dir, lattice+'*'))
+            if len(lattice) == 0:
+                lattice = self.parse_initial_structure().lattice
+            elif len(lattice) == 1:
+                latfile = np.loadtxt(lattice[0])
+                lattice = [l[2:].reshape(3, 3) for l in latfile]
+            else:
+                raise FileNotFoundError("Unable to automatically determine lattice file. More than one exist.")
+        else:
             latfile = np.loadtxt(lattice)
             lattice = [l[2:].reshape(3, 3) for l in latfile]
+
+        trajectory_file = trajectory_file or "{}-pos-1.xyz".format(self.project_name)
+        if trajectory_file is None:
+            trajectory_file = glob.glob(os.path.join(self.dir, trajectory_file+'*'))
+            if len(trajectory_file) == 0:
+                self.structures = []
+                self.structures.append(self.parse_initial_structure())
+                self.final_structure = self.structures[-1]
+            elif len(trajectory_file) == 1:
+                trajectory_file = os.path.join(self.dir, trajectory_file)
+                mols = XYZ.from_file(trajectory_file).all_molecules
+                self.structures = []
+                for m, l in zip(mols, lattice):
+                    self.structures.append(Structure(lattice=l, coords=[s.coords for s in m.sites],
+                                                     species=[s.specie for s in m.sites], coords_are_cartesian=True))
+                self.final_structure = self.structures[-1]
+            else:
+                raise FileNotFoundError("Unable to automatically determine trajectory file. More than one exist.")
         else:
-            lattice = self.parse_initial_structure().lattice
-        if any(self.run_type == c for c in _static_run_names_):
-            self.structures = []
-            self.structures.append(self.parse_initial_structure())
-            self.final_structure = self.structures[-1]
-            return self.structures
-        else:
-            trajectory_file = trajectory_file or "{}-pos-1.xyz".format(self.project_name)
-            trajectory_file = os.path.join(self.dir, trajectory_file)
             mols = XYZ.from_file(trajectory_file).all_molecules
             self.structures = []
             for m, l in zip(mols, lattice):
                 self.structures.append(Structure(lattice=l, coords=[s.coords for s in m.sites],
                                                  species=[s.specie for s in m.sites], coords_are_cartesian=True))
             self.final_structure = self.structures[-1]
-            return self.structures
 
     # TODO: CP2K Seems to only output initial struc here in output file. If so this can turn into list of structures
     def parse_initial_structure(self):
@@ -322,7 +338,6 @@ class Cp2kOutput:
                 self.input = Cp2kInput.from_file(os.path.join(self.dir, input_filename+ext))
                 return
         raise warnings.warn("Original input file not found. Some info may be lost.")
-
 
     def parse_global_params(self):
         """

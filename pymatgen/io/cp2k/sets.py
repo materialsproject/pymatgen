@@ -324,7 +324,6 @@ class DftSet(Cp2kInputSet):
         for i in range(len(self.structure)):
             self['FORCE_EVAL']['DFT']['PRINT']['PDOS'].insert(LDOS(i))
 
-
     def print_mo_cubes(self, write_cube=False, nlumo=1, nhomo=1):
         """
         Activate printing of molecular orbitals.
@@ -388,7 +387,7 @@ class StaticSet(DftSet):
 class RelaxSet(DftSet):
 
     def __init__(self, structure, max_drift=1e-3, max_force=1e-3, max_iter=200,
-                 project_name='Relax', optimizer='DIIS', override_default_params={}, **kwargs):
+                 project_name='Relax', optimizer='CG', override_default_params={}, **kwargs):
 
         """
         CP2K input set containing the basic settings for performing geometry optimization. Description
