@@ -36,7 +36,7 @@ class Cp2kInputSet(Cp2kInput):
 
     def __init__(self, structure, potential_and_basis={},
                  kppa=1000, break_symmetry=False,
-                 multiplicity=0,
+                 multiplicity=0, project_name='CP2K',
                  override_default_params={}, **kwargs):
         """
         The basic representation of a CP2K input set as a collection of "sections" defining the simulation
@@ -92,6 +92,8 @@ class Cp2kInputSet(Cp2kInput):
         self.charge = structure.charge
         self.multiplicity = multiplicity  # spin multiplicity = 2s+1
         self.override_default_params = override_default_params
+        self.project_name = project_name
+        self.kppa = kppa
 
         if kppa > 0:
             # Only sample gamma point, need k-points / num_atoms to be < 8.
@@ -141,10 +143,26 @@ class Cp2kInputSet(Cp2kInput):
             for s in structure.symbol_set:
                 subsys.insert(Kind(s, basis_set=basis_and_potential[s]['basis'],
                               potential=basis_and_potential[s]['potential']))
-
-        self.insert(ForceEval())
+        if not self.check('FORCE_EVAL'):
+            self.insert(ForceEval())
         self['FORCE_EVAL'].insert(subsys)
+        self['FORCE_EVAL'].insert(Section('PRINT', subsections={}))
+        self['FORCE_EVAL']['PRINT'].insert(Section('FORCES', subsections={}))
+        self['FORCE_EVAL']['PRINT'].insert(Section('STRESS_TENSOR', subsections={}))
+
+        # TODO: For now, always add trajectory and cell printing
+        if not self.check('MOTION'):
+            self.insert(Section('MOTION', subsections={}))
+        self['MOTION'].insert(Section('PRINT', subsections={}))
+        self['MOTION']['PRINT'].insert(Section('TRAJECTORY',
+                                               section_parameters=['HIGH'],
+                                               subsections={}))
+        self['MOTION']['PRINT'].insert(Section('CELL', subsections={}))
+
         self.update(override_default_params)
+
+    def create_structure(self, structure=None):
+        pass
 
     def activate_hybrid(self, structure, method='HSE06', hf_fraction=0.25, gga_x_fraction=0.75, gga_c_fraction=1):
 
@@ -244,7 +262,7 @@ class DftSet(Cp2kInputSet):
     """
 
     def __init__(self, structure, ot=True, band_gap=0.01, eps_default=1e-12,
-                 eps_scf=1e-7, minimizer='DIIS', preconditioner='FULL_ALL',
+                 eps_scf=1e-7, max_scf=50, minimizer='DIIS', preconditioner='FULL_ALL',
                  cutoff=1200, rel_cutoff=80, ngrids=5, progression_factor=3,
                  override_default_params={}, **kwargs):
 
@@ -252,7 +270,7 @@ class DftSet(Cp2kInputSet):
 
         # Build the QS Section
         qs = QS(eps_default=eps_default)
-        scf = Scf(eps_scf=eps_scf, subsections={})
+        scf = Scf(eps_scf=eps_scf, max_scf=max_scf, subsections={})
 
         # If there's a band gap, always use OT, else use Davidson
         if band_gap or ot:
@@ -283,8 +301,9 @@ class DftSet(Cp2kInputSet):
         xc = Section('XC', subsections={'XC_FUNCTIONAL': xc_functional})
         self['FORCE_EVAL']['DFT'].insert(xc)
         self['FORCE_EVAL']['DFT'].insert(Section('PRINT', subsections={}))
-        self['FORCE_EVAL']['DFT']['PRINT'].insert(PDOS())
-        self['FORCE_EVAL']['DFT']['PRINT']['PDOS'].insert(LDOS())
+
+        self.print_pdos()
+        self.print_mo_cubes()
 
         self.update(override_default_params)
 
@@ -298,6 +317,13 @@ class DftSet(Cp2kInputSet):
         """
         if not self.check('FORCE_EVAL/DFT/PRINT/PDOS'):
             self['FORCE_EVAL']['DFT']['PRINT'].insert(PDOS(nlumo=nlumo))
+
+    def print_ldos(self, nlumo=-1):
+        if not self.check('FORCE_EVAL/DFT/PRINT/PDOS'):
+            self['FORCE_EVAL']['DFT']['PRINT'].insert(PDOS(nlumo=nlumo))
+        for i in range(len(self.structure)):
+            self['FORCE_EVAL']['DFT']['PRINT']['PDOS'].insert(LDOS(i))
+
 
     def print_mo_cubes(self, write_cube=False, nlumo=1, nhomo=1):
         """

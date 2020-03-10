@@ -92,6 +92,9 @@ class Section(MSONable):
                 if k.name is key:
                     del self.keywords[i]
 
+    def __eq__(self, other):
+        return self.as_dict().__eq__(other.as_dict())
+
     def get_keyword(self, kwd):
         for i, k in enumerate(self.keywords):
             if k.name == kwd:
@@ -413,7 +416,8 @@ class ForceEval(Section):
         description = 'parameters needed to calculate energy and forces and describe the system you want to analyze.'
 
         keywords = [
-            Keyword('METHOD', kwargs.get('METHOD', 'QS'))
+            Keyword('METHOD', kwargs.get('METHOD', 'QS')),
+            Keyword('STRESS_TENSOR', kwargs.get('STRESS_TENSOR', 'ANALYTICAL'))
         ]
 
         super(ForceEval, self).__init__('FORCE_EVAL', repeats=True, description=description,
@@ -657,12 +661,13 @@ class PDOS(Section):
 
 class LDOS(Section):
 
-    def __init__(self):
+    def __init__(self, i):
 
         description = "Controls printing of the projected density of states decomposed by atom type"
 
         keywords = [
-            Keyword('COMPONENTS')
+            Keyword('COMPONENTS'),
+            Keyword('LIST', i)
         ]
 
         super(LDOS, self).__init__('LDOS', description=description,

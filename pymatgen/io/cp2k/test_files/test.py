@@ -5,12 +5,14 @@ from pymatgen.core.structure import Structure
 from custodian.cp2k.jobs import Cp2kJob
 
 if __name__ == '__main__':
-    structure = Structure(lattice=[[3.349399,0,1.933776],[1.116466, 3.157843, 1.933776],[0,0,3.867552]],
-                        species=['S','Si'], coords=[[0,0,0],[1.11646617, 0.7894608, 1.93377613]])
+    with MPRester() as mp:
+        structure = mp.get_structure_by_material_id('mp-149', conventional_unit_cell=True)
 
-    s = HybridStaticSet(structure, sections={'GLOBAL': {'RUN_TYPE': 'ENERGY'}})
+    s = HybridRelaxSet(structure)
+    s.print_pdos()
+    s.print_e_density()
+    s.print_hartree_potential()
+    s.print_structures()
+    s.print_mo_cubes()
+
     s.write_file('cp2k.inp')
-
-    out = Cp2kOuput(filename='cp2k.out', verbose=False, auto_load=False)
-    out._convergence()
-    print(out.data)
