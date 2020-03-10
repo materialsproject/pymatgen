@@ -63,6 +63,17 @@ class VampireCallerTest(unittest.TestCase):
             critical_temp = voutput.critical_temp
             self.assertAlmostEqual(400, critical_temp, delta=100)
 
+        if os.path.exists("Mn3Al.mat"):
+            os.remove("Mn3Al.mat")
+        if os.path.exists("Mn3Al.ucf"):
+            os.remove("Mn3Al.ucf")
+        if os.path.exists("input"):
+            os.remove("input")
+        if os.path.exists("log"):
+            os.remove("log")
+        if os.path.exists("output"):
+            os.remove("output")
+
 
 if __name__ == "__main__":
     unittest.main()
