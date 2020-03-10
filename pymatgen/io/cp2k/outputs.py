@@ -174,6 +174,8 @@ class Cp2kOutput:
         if self.band_gap <= 0:
             return True
 
+    # TODO Maybe I should create a parse_files function that globs to get the file names instead of putting
+        # it in each function seperate? -NW
     def parse_structures(self, trajectory_file=None, lattice_file=None):
         """
         Parses the structures from a cp2k calculation. Static calculations simply use the initial structure.
@@ -183,8 +185,8 @@ class Cp2kOutput:
         Cp2k does not output the trajectory in the main output file by default, so non static calculations have to
         reference the trajectory file.
         """
-        lattice = lattice_file or glob.glob("{}-1.cell".format(self.project_name))
-        if lattice is None:
+        if lattice_file is None:
+            lattice = "{}-1.cell".format(self.project_name)
             lattice = glob.glob(os.path.join(self.dir, lattice+'*'))
             if len(lattice) == 0:
                 lattice = self.parse_initial_structure().lattice
@@ -194,19 +196,18 @@ class Cp2kOutput:
             else:
                 raise FileNotFoundError("Unable to automatically determine lattice file. More than one exist.")
         else:
-            latfile = np.loadtxt(lattice)
+            latfile = np.loadtxt(lattice_file)
             lattice = [l[2:].reshape(3, 3) for l in latfile]
 
-        trajectory_file = trajectory_file or "{}-pos-1.xyz".format(self.project_name)
         if trajectory_file is None:
+            trajectory_file = "{}-pos-1.xyz".format(self.project_name)
             trajectory_file = glob.glob(os.path.join(self.dir, trajectory_file+'*'))
             if len(trajectory_file) == 0:
                 self.structures = []
                 self.structures.append(self.parse_initial_structure())
                 self.final_structure = self.structures[-1]
             elif len(trajectory_file) == 1:
-                trajectory_file = os.path.join(self.dir, trajectory_file)
-                mols = XYZ.from_file(trajectory_file).all_molecules
+                mols = XYZ.from_file(trajectory_file[0]).all_molecules
                 self.structures = []
                 for m, l in zip(mols, lattice):
                     self.structures.append(Structure(lattice=l, coords=[s.coords for s in m.sites],
