@@ -63,6 +63,11 @@ def _postprocessor(s):
             return int(s)
         except ValueError:
             raise IOError("Error in parsing CP2K output file.")
+    elif re.match(r'\*+', s):
+        try:
+            return np.NaN
+        except ValueError:
+            raise IOError("Error in parsing CP2K output file.")
     else:
         return s
 
@@ -192,7 +197,8 @@ class Cp2kOutput:
                 lattice = self.parse_initial_structure().lattice
             elif len(lattice) == 1:
                 latfile = np.loadtxt(lattice[0])
-                lattice = [l[2:].reshape(3, 3) for l in latfile]
+                lattice = [l[2:11].reshape(3,3) for l in latfile] \
+                    if len(latfile.shape)>1 else latfile[2:11].reshape(3, 3)
             else:
                 raise FileNotFoundError("Unable to automatically determine lattice file. More than one exist.")
         else:
@@ -467,17 +473,17 @@ class Cp2kOutput:
     def parse_timing(self):
         header = r"SUBROUTINE\s+CALLS\s+ASD\s+SELF TIME\s+TOTAL TIME" + \
                  r"\s+MAXIMUM\s+AVERAGE\s+MAXIMUM\s+AVERAGE\s+MAXIMUM"
-        row = r"(\w+)\s+(\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)"
+        row = r"(\w+)\s+(.+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)"
         footer = r"\-+"
 
         timing = self.read_table_pattern(header_pattern=header, row_pattern=row, footer_pattern=footer,
-                                         last_one_only=True)
+                                         last_one_only=True, postprocess=_postprocessor)
         self.timing = {}
         for t in timing:
-            self.timing[t[0]] = {'calls': {'max': int(t[1])},
-                                'asd': float(t[2]),
-                                'self_time': {'average':  float(t[3]), 'maximum':  float(t[4])},
-                                'total_time': {'average':  float(t[5]), 'maximum':  float(t[6])}}
+            self.timing[t[0]] = {'calls': {'max': t[1]},
+                                'asd':t[2],
+                                'self_time': {'average':  t[3], 'maximum':  t[4]},
+                                'total_time': {'average':  t[5], 'maximum':  t[6]}}
 
     def parse_opt_steps(self):
         # "Informations at step =" Summary block (floating point terms)
