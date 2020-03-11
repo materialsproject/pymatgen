@@ -605,6 +605,16 @@ loop_
         s2 = CifParser.from_string(str(writer)).get_structures()[0]
         self.assertTrue(m.fit(s, s2))
 
+        # test angle tolerance.
+        s = Structure.from_file(self.TEST_FILES_DIR / 'LiFePO4.cif')
+        writer = CifWriter(s, symprec=0.1, angle_tolerance=0)
+        d = list(writer.ciffile.data.values())[0]
+        self.assertEqual(d["_symmetry_Int_Tables_number"], 14)
+        s = Structure.from_file(self.TEST_FILES_DIR / 'LiFePO4.cif')
+        writer = CifWriter(s, symprec=0.1, angle_tolerance=2)
+        d = list(writer.ciffile.data.values())[0]
+        self.assertEqual(d["_symmetry_Int_Tables_number"], 62)
+
     def test_disordered(self):
         si = Element("Si")
         n = Element("N")
@@ -939,7 +949,7 @@ _atom_site_occupancy
 _atom_site_U_iso_or_equiv
 Si1 Si 0 0 0 1 0.0
 """
-        parser = CifParser.from_string(cif)
+        p = CifParser.from_string(cif)
         self.assertEqual(p.get_structures()[0].formula, "Si1")
 
 
