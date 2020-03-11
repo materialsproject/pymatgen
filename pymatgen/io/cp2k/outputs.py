@@ -868,7 +868,7 @@ class Cp2kOutput:
     # and the data dict can be created by the drone
     def as_dict(self):
         d = {'input': {}, 'output': {}}
-        d['total_time'] = self.timing['CP2K']['total_time']['maximum']
+        d['total_time'] = self.timing['cp2k']['total_time']['maximum']
         d['run_type'] = self.run_type
         d['input']['global'] = self.data.get('global')
         d['input']['dft'] = self.data.get('dft', None)
