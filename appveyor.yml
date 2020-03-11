@@ -24,6 +24,7 @@ install:
   - 'conda activate test-environment'
   # Install the build dependencies of the project via conda and pip
   - 'pip install -r requirements.txt'
+  - 'pip install pybtex tqdm'
   # Run develop to install in dev mode and build C extension.
   - "pip install --quiet -e ."
 
