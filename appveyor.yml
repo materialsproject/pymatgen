@@ -25,7 +25,7 @@ install:
   # Install the build dependencies of the project via conda and pip
   - 'pip install -r requirements.txt'
   # Run develop to install in dev mode and build C extension.
-  - "python setup.py develop"
+  - "pip install --quiet -e ."
 
 build: false
 
