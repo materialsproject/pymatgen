@@ -950,7 +950,7 @@ _atom_site_U_iso_or_equiv
 Si1 Si 0 0 0 1 0.0
 """
         p = CifParser.from_string(cif)
-        self.assertEqual(p.get_structures()[0].formula, "Si1")
+        self.assertRaises(ValueError, p.get_structures)
 
 
 class MagCifTest(PymatgenTest):
