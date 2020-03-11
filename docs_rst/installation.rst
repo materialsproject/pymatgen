@@ -21,7 +21,7 @@ Optional libraries that are required if you need certain features.
 3. Atomistic Simulation Environment or ASE 3.6+: Required for the usage of the
    adapters in pymatgen.io.aseio between pymatgen's core Structure object and
    the Atoms object used by ASE. Get it at https://wiki.fysik.dtu.dk/ase/.
-   Note that the ASE package is incompatible with Python 3.x at the moment.
+   Note that the ASE package is compatible with Python 3.5+ at the moment.
 4. OpenBabel with Python bindings (http://openbabel.org): Required for the
    usage of the adapters in pymatgen.io.babelio between pymatgen's Molecule
    and OpenBabel's OBMol. Opens up input and output support for the very large
