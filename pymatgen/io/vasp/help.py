@@ -3,6 +3,9 @@ Get help with VASP parameters from VASP wiki.
 """
 
 import requests
+import re
+import urllib3
+
 from bs4 import BeautifulSoup
 
 
@@ -16,6 +19,7 @@ class VaspDoc:
         Init for VaspDoc.
         """
         self.url_template = "http://www.vasp.at/wiki/index.php/%s"
+        urllib3.disable_warnings()
 
     def print_help(self, tag):
         """
@@ -26,7 +30,18 @@ class VaspDoc:
         """
         print(self.get_help(tag))
 
-    def get_help(self, tag):
+    def print_jupyter_help(self, tag):
+        """
+        Display HTML help in ipython notebook.
+
+        Args:
+            tag (str): Tag used in VASP.
+        """
+        help = self.get_help(tag, "html")
+        from IPython.core.display import display, HTML
+        display(HTML(help))
+
+    def get_help(self, tag, fmt="text"):
         """
         Get help on a VASP tag.
 
@@ -39,9 +54,14 @@ class VaspDoc:
         tag = tag.upper()
         r = requests.get("http://www.vasp.at/wiki/index.php/%s" % tag, verify=False)
         soup = BeautifulSoup(r.text)
-        main_doc = soup.find(id="bodyContent")
-        contents = main_doc.text
-        return contents
+        main_doc = soup.find(id="mw-content-text")
+        if fmt == "text":
+            output = main_doc.text
+            output = re.sub("\n{2,}", "\n\n", output)
+        else:
+            output = str(main_doc)
+
+        return output
 
     def get_incar_tags(self):
         """
@@ -55,7 +75,7 @@ class VaspDoc:
             for div in soup.findAll('div', {'class': 'mw-category-group'}):
                 children = div.findChildren('li')
                 for child in children:
-                    tags.append(child.text)
+                    tags.append(child.text.strip())
         return tags
 
 
