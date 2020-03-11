@@ -51,6 +51,7 @@ class TestShengBTE(PymatgenTest):
             "nanowires": False,
         }
 
+    @unittest.skifIf(f90nml is None)
     def test_from_file(self):
         io = Control.from_file(self.filename)
         self.assertEqual(io["nelements"], 1)
@@ -93,6 +94,7 @@ class TestShengBTE(PymatgenTest):
         self.assertMultiLineEqual(test_string, reference_string)
         os.remove(os.path.join(test_dir, "test_control"))
 
+    @unittest.skifIf(f90nml is None)
     def test_from_dict(self):
         io = Control.from_dict(self.test_dict)
         if os.path.exists(os.path.join(test_dir, "test_control")):
@@ -107,6 +109,7 @@ class TestShengBTE(PymatgenTest):
         self.assertMultiLineEqual(test_string, reference_string)
         os.remove(os.path.join(test_dir, "test_control"))
 
+    @unittest.skifIf(f90nml is None)
     def test_MSONable_implementation(self):
         # tests as dict and from dict methods
         Controlinfromfile = Control.from_file(self.filename)
