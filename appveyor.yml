@@ -3,12 +3,12 @@ services:
 
 environment:
   matrix:
-    - PYTHON: "C:\\Miniconda36-x64"
-      PYTHON_VERSION: "3.6"
+    - PYTHON: "C:\\Miniconda3-x64"
+      PYTHON_VERSION: "3.7"
       PYTHON_ARCH: "64"
       platform: x64
       STANDALONE: "FALSE"
-      CONDA_PY: "36"
+      CONDA_PY: "37"
       CONDA_BUILD: "TRUE"
       SPLIT_RUN: "FALSE"
 #  PMG_MAPI_KEY:
