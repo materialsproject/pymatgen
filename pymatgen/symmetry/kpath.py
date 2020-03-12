@@ -519,7 +519,7 @@ class KPathSetyawanCurtarolo(KPathBase):
             "Z": np.array([0.0, 0.0, 0.5]),
         }
         path = [
-            ["\\Gamma", "X", "S", "R", "A", "Z", "\\Gamma", "Y", "X_1", "A_1", "T", "Y",],
+            ["\\Gamma", "X", "S", "R", "A", "Z", "\\Gamma", "Y", "X_1", "A_1", "T", "Y"],
             ["Z", "T"]
         ]
         return {"kpoints": kpoints, "path": path}
