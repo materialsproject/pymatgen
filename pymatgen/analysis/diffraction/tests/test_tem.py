@@ -243,7 +243,7 @@ class XRDCalculatorTest(PymatgenTest):
         fig = c.get_plot_2d_concise(structure)
         width = fig.layout.width
         height = fig.layout.height
-        self.assertTrue(width == 100 and height == 100)
+        self.assertTrue(width == 121 and height == 121)
 
 
 if __name__ == '__main__':
