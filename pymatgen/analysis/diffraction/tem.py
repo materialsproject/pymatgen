@@ -504,7 +504,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
                 showticklabels=False
             ),
             yaxis=dict(
-                range=[-5.5 , 5.5],
+                range=[-5.5, 5.5],
                 showgrid=False,
                 zeroline=False,
                 showline=False,
