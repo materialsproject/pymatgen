@@ -22,11 +22,11 @@ class HighSymmKpath(KPathBase):
     """
     This class generates path along high symmetry lines in the
     Brillouin zone according to different conventions.
-    The class is designed to be used with a specific primitive 
+    The class is designed to be used with a specific primitive
     cell setting. The definitions for the primitive cell
     used can be found in: Computational Materials Science,
     49(2), 299-312. doi:10.1016/j.commatsci.2010.05.010.
-    The space group analyzer can be used to produce the correct 
+    The space group analyzer can be used to produce the correct
     primitive structure
     (method get_primitive_standard_structure(international_monoclinic=False)).
     Ensure input structure is correct before 'get_kpoints()' method is used.

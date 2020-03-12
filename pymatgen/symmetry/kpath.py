@@ -32,7 +32,7 @@ __date__ = "March 2020"
 
 class KPathBase:
     """
-    This is the base class for classes used to generate high-symmetry 
+    This is the base class for classes used to generate high-symmetry
     paths in reciprocal space (k-paths) for band structure calculations.
 
     Args:
@@ -40,7 +40,7 @@ class KPathBase:
         symprec (float): Tolerance for symmetry finding
         angle_tolerance (float): Angle tolerance for symmetry finding.
         atol (float): Absolute tolerance used to compare structures
-            and determine symmetric equivalence of points and lines 
+            and determine symmetric equivalence of points and lines
             in the BZ.
     """
 
@@ -377,8 +377,8 @@ class KPathSetyawanCurtarolo(KPathBase):
             "Z": np.array([0.5, 0.5, -0.5]),
         }
         path = [
-            ["\\Gamma", "X", "Y", "\\Sigma", "\\Gamma", "Z", "\\Sigma_1", "N", "P", "Y_1", "Z",],
-            ["X", "P"],
+            ["\\Gamma", "X", "Y", "\\Sigma", "\\Gamma", "Z", "\\Sigma_1", "N", "P", "Y_1", "Z"],
+            ["X", "P"]
         ]
         return {"kpoints": kpoints, "path": path}
 
@@ -520,7 +520,7 @@ class KPathSetyawanCurtarolo(KPathBase):
         }
         path = [
             ["\\Gamma", "X", "S", "R", "A", "Z", "\\Gamma", "Y", "X_1", "A_1", "T", "Y",],
-            ["Z", "T"],
+            ["Z", "T"]
         ]
         return {"kpoints": kpoints, "path": path}
 
@@ -626,7 +626,6 @@ class KPathSetyawanCurtarolo(KPathBase):
             "F": np.array([1 - zeta, 1 - zeta, 1 - eta]),
             "F_1": np.array([zeta, zeta, eta]),
             "F_2": np.array([-zeta, -zeta, 1 - eta]),
-            #'F_3': np.array([1 - zeta, -zeta, 1 - eta]),
             "I": np.array([phi, 1 - phi, 0.5]),
             "I_1": np.array([1 - phi, phi - 1, 0.5]),
             "L": np.array([0.5, 0.5, 0.5]),
@@ -1049,8 +1048,8 @@ class KPathLatimerMunro(KPathBase):
         PAR = np.array([[-1, 0, 0], [0, -1, 0], [0, 0, -1]])
         # INV to avoid confusion with np.linalg.inv() function)
 
-        ### 1: Get lattices of real and reciprocal structures, and reciprocal
-        ### point group, and Brillouin zone (BZ)
+        # 1: Get lattices of real and reciprocal structures, and reciprocal
+        # point group, and Brillouin zone (BZ)
 
         V = self._latt.matrix.T  # fractional real space to cartesian real space
         # fractional reciprocal space to cartesian reciprocal space
@@ -1117,33 +1116,33 @@ class KPathLatimerMunro(KPathBase):
 
         self._rpg = recip_point_group
 
-        ### 2: Get all vertices, edge- and face- center points of BZ ("key points")
+        # 2: Get all vertices, edge- and face- center points of BZ ("key points")
 
         key_points, bz_as_key_point_inds, face_center_inds = self._get_key_points()
 
-        ### 3: Find symmetry-equivalent points, which can be mapped to each other by a combination of point group
-        ### operations and integer translations by lattice vectors. The integers will only be -1, 0, or 1, since
-        ### we are restricting to the BZ.
+        # 3: Find symmetry-equivalent points, which can be mapped to each other by a combination of point group
+        # operations and integer translations by lattice vectors. The integers will only be -1, 0, or 1, since
+        # we are restricting to the BZ.
 
         key_points_inds_orbits = self._get_key_point_orbits(key_points=key_points)
 
-        ### 4: Get all lines on BZ between adjacent key points and between gamma
-        ### and key points ("key lines")
+        # 4: Get all lines on BZ between adjacent key points and between gamma
+        # and key points ("key lines")
 
         key_lines = self._get_key_lines(key_points=key_points, bz_as_key_point_inds=bz_as_key_point_inds)
 
-        ### 5: Find symmetry-equivalent key lines, defined as endpoints of first line being equivalent
-        ### to end points of second line, and a random point in between being equivalent to the mapped
-        ### random point.
+        # 5: Find symmetry-equivalent key lines, defined as endpoints of first line being equivalent
+        # to end points of second line, and a random point in between being equivalent to the mapped
+        # random point.
 
         key_lines_inds_orbits = self._get_key_line_orbits(
             key_points=key_points, key_lines=key_lines, key_points_inds_orbits=key_points_inds_orbits
         )
 
-        ### 6 & 7: Get little groups for key points (group of symmetry elements present at that point).
-        ### Get little groups for key lines (group of symmetry elements present at every point
-        ### along the line). This is implemented by testing the symmetry at a point e/pi of the
-        ### way between the two endpoints.
+        # 6 & 7: Get little groups for key points (group of symmetry elements present at that point).
+        # Get little groups for key lines (group of symmetry elements present at every point
+        # along the line). This is implemented by testing the symmetry at a point e/pi of the
+        # way between the two endpoints.
 
         little_groups_points, little_groups_lines = self._get_little_groups(
             key_points=key_points,
@@ -1151,10 +1150,10 @@ class KPathLatimerMunro(KPathBase):
             key_lines_inds_orbits=key_lines_inds_orbits,
         )
 
-        ### 8: Choose key lines for k-path. Loose criteria set: choose any points / segments
-        ### with spatial symmetry greater than the general position (AKA more symmetry operations
-        ### than just the identity or identity * TR in the little group).
-        ### This function can be edited to alter high-symmetry criteria for choosing points and lines
+        # 8: Choose key lines for k-path. Loose criteria set: choose any points / segments
+        # with spatial symmetry greater than the general position (AKA more symmetry operations
+        # than just the identity or identity * TR in the little group).
+        # This function can be edited to alter high-symmetry criteria for choosing points and lines
 
         point_orbits_in_path, line_orbits_in_path = self._choose_path(
             key_points=key_points,
@@ -1164,9 +1163,9 @@ class KPathLatimerMunro(KPathBase):
             little_groups_lines=little_groups_lines,
         )
 
-        ### 10: Consolidate selected segments into a single irreducible section of the Brilouin zone (as determined
-        ### by the reciprocal point and lattice symmetries). This is accomplished by identifying the boundary
-        ### planes of the IRBZ. Also, get labels for points according to distance away from axes.
+        # 10: Consolidate selected segments into a single irreducible section of the Brilouin zone (as determined
+        # by the reciprocal point and lattice symmetries). This is accomplished by identifying the boundary
+        # planes of the IRBZ. Also, get labels for points according to distance away from axes.
 
         IRBZ_points_inds = self._get_IRBZ(recip_point_group, W, key_points, face_center_inds, atol)
         lines_in_path_inds = []
@@ -1256,9 +1255,9 @@ class KPathLatimerMunro(KPathBase):
     def _choose_path(
         self, key_points, key_points_inds_orbits, key_lines_inds_orbits, little_groups_points, little_groups_lines
     ):
-        ###
-        ### This function can be edited to alter high-symmetry criteria for choosing points and lines
-        ###
+        #
+        # This function can be edited to alter high-symmetry criteria for choosing points and lines
+        #
 
         ID = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
         PAR = np.array([[-1, 0, 0], [0, -1, 0], [0, 0, -1]])
@@ -1407,7 +1406,7 @@ class KPathLatimerMunro(KPathBase):
         return key_points, bz_as_key_point_inds, face_center_inds
 
     def _get_key_point_orbits(self, key_points):
-        key_points_copy = dict(zip(range(len(key_points) - 1), key_points[0 : len(key_points) - 1]))
+        key_points_copy = dict(zip(range(len(key_points) - 1), key_points[0:len(key_points) - 1]))
         # gamma not equivalent to any on BZ and is last point added to
         # key_points
         key_points_inds_orbits = []
@@ -1581,7 +1580,7 @@ class KPathLatimerMunro(KPathBase):
     def _convert_all_magmoms_to_vectors(self, magmom_axis, axis_specified):
         struct = self._structure.copy()
         magmom_axis = np.array(magmom_axis)
-        if not "magmom" in struct.site_properties:
+        if "magmom" not in struct.site_properties:
             warn(
                 "The 'magmom' property is not set in the structure's site properties."
                 "All magnetic moments are being set to zero."
