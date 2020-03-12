@@ -2,6 +2,10 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+JahnTeller distortion analysis.
+"""
+
 
 import os
 import numpy as np
@@ -22,13 +26,17 @@ MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 class JahnTellerAnalyzer:
+    """
+    Will attempt to classify if structure *may* be Jahn-Teller active.
+    Class currently uses datafile of hard-coded common Jahn-Teller
+    active ions.
+    If structure is annotated with magnetic moments, will estimate
+    if structure may be high-spin or low-spin.
+    Class aims for more false-positives than false-negatives.
+    """
     def __init__(self):
-        """Will attempt to classify if structure *may* be Jahn-Teller active.
-        Class currently uses datafile of hard-coded common Jahn-Teller
-        active ions.
-        If structure is annotated with magnetic moments, will estimate
-        if structure may be high-spin or low-spin.
-        Class aims for more false-positives than false-negatives.
+        """
+        Init for JahnTellerAnalyzer.
         """
 
         self.spin_configs = {

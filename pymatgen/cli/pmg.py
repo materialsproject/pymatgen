@@ -37,6 +37,7 @@ def parse_view(args):
     vis = StructureVis(excluded_bonding_elements=excluded_bonding_elements)
     vis.set_structure(s)
     vis.show()
+    return 0
 
 
 def diff_incar(args):
@@ -66,6 +67,7 @@ def diff_incar(args):
                     format_lists(d['Different'][k]['INCAR2']))
                    for k in sorted(d['Different'].keys()) if k != "SYSTEM"])
     print(tabulate(output, headers=['', filepath1, filepath2]))
+    return 0
 
 
 def main():
@@ -293,8 +295,8 @@ def main():
         getattr(args, "func")
     except AttributeError:
         parser.print_help()
-        sys.exit(0)
-    args.func(args)
+        sys.exit(-1)
+    return args.func(args)
 
 
 if __name__ == "__main__":

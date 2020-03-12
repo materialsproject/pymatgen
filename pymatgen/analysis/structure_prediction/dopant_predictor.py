@@ -1,5 +1,10 @@
+"""
+Predicting potential dopants
+"""
+
 import warnings
 import numpy as np
+
 
 from pymatgen.analysis.structure_prediction.substitution_probability import \
     SubstitutionPredictor
