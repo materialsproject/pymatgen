@@ -834,7 +834,7 @@ class QCOutput(MSONable):
             self.data["energy_trajectory"] = real_energy_trajectory
             self._read_geometries()
             if have_babel:
-                self.data["structure_change"] = _check_for_structure_changes(
+                self.data["structure_change"] = check_for_structure_changes(
                     self.data["initial_molecule"],
                     self.data["molecule_from_last_geometry"])
             self._read_gradients()
@@ -1166,7 +1166,7 @@ class QCOutput(MSONable):
         return jsanitize(d, strict=True)
 
 
-def _check_for_structure_changes(mol1, mol2):
+def check_for_structure_changes(mol1, mol2):
     special_elements = ["Li", "Na", "Mg", "Ca", "Zn"]
     mol_list = [copy.deepcopy(mol1), copy.deepcopy(mol2)]
 
