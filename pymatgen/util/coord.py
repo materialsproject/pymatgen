@@ -3,16 +3,17 @@
 # Distributed under the terms of the MIT License.
 
 
-import itertools
-import numpy as np
-import math
-from . import coord_cython as cuc
-
 """
 Utilities for manipulating coordinates or list of coordinates, under periodic
 boundary conditions or otherwise. Many of these are heavily vectorized in
 numpy for performance.
 """
+
+import itertools
+import numpy as np
+import math
+from . import coord_cython as cuc
+
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -390,12 +391,26 @@ class Simplex:
         return abs(np.linalg.det(self._aug)) / math.factorial(self.simplex_dim)
 
     def bary_coords(self, point):
+        """
+        Args:
+            point (): Point coordinates.
+
+        Returns:
+            Barycentric coordinations.
+        """
         try:
             return np.dot(np.concatenate([point, [1]]), self._aug_inv)
         except AttributeError:
             raise ValueError('Simplex is not full-dimensional')
 
     def point_from_bary_coords(self, bary_coords):
+        """
+        Args:
+            bary_coords (): Barycentric coordinates
+
+        Returns:
+            Point coordinates
+        """
         try:
             return np.dot(bary_coords, self._aug[:, :-1])
         except AttributeError:

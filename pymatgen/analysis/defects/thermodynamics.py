@@ -2,6 +2,10 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+Defect thermodynamics, such as defect phase diagrams, etc.
+"""
+
 import logging
 import numpy as np
 from monty.json import MSONable
@@ -39,27 +43,28 @@ class DefectPhaseDiagram(MSONable):
         a) stability of charge states for a given defect,
         b) list of all formation ens
         c) transition levels in the gap
-
-    Args:
-        dentries ([DefectEntry]): A list of DefectEntry objects
-        vbm (float): Valence Band energy to use for all defect entries.
-            NOTE if using band shifting-type correction then this VBM
-            should still be that of the GGA calculation
-            (the bandedgeshifting_correction accounts for shift's
-            contribution to formation energy).
-        band_gap (float): Band gap to use for all defect entries.
-            NOTE if using band shifting-type correction then this gap
-            should still be that of the Hybrid calculation you are shifting to.
-        filter_compatible (bool): Whether to consider entries which were ruled
-            incompatible by the DefectComaptibility class. Note this must be set to False
-            if you desire a suggestion for larger supercell sizes.
-            Default is True (to omit calculations which have "is_compatible"=False in
-                DefectEntry'sparameters)
-        metadata (dict): Dictionary of metadata to store with the PhaseDiagram. Has
-            no impact on calculations.
     """
 
-    def __init__(self, entries, vbm, band_gap, filter_compatible=True, metadata={}):
+    def __init__(self, entries, vbm, band_gap, filter_compatible=True, metadata=None):
+        """
+        Args:
+            dentries ([DefectEntry]): A list of DefectEntry objects
+            vbm (float): Valence Band energy to use for all defect entries.
+                NOTE if using band shifting-type correction then this VBM
+                should still be that of the GGA calculation
+                (the bandedgeshifting_correction accounts for shift's
+                contribution to formation energy).
+            band_gap (float): Band gap to use for all defect entries.
+                NOTE if using band shifting-type correction then this gap
+                should still be that of the Hybrid calculation you are shifting to.
+            filter_compatible (bool): Whether to consider entries which were ruled
+                incompatible by the DefectComaptibility class. Note this must be set to False
+                if you desire a suggestion for larger supercell sizes.
+                Default is True (to omit calculations which have "is_compatible"=False in
+                    DefectEntry'sparameters)
+            metadata (dict): Dictionary of metadata to store with the PhaseDiagram. Has
+                no impact on calculations
+        """
         self.vbm = vbm
         self.band_gap = band_gap
         self.filter_compatible = filter_compatible
@@ -77,12 +82,13 @@ class DefectPhaseDiagram(MSONable):
                 new_ent.parameters['vbm'] = vbm
                 self.entries[ent_ind] = new_ent
 
-        self.metadata = metadata
+        self.metadata = metadata or {}
         self.find_stable_charges()
 
     def as_dict(self):
         """
-        Json-serializable dict representation of DefectPhaseDiagram
+        Returns:
+            Json-serializable dict representation of DefectPhaseDiagram
         """
         d = {"@module": self.__class__.__module__,
              "@class": self.__class__.__name__,

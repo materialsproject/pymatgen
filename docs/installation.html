@@ -1,44 +1,18 @@
 
-
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
-<head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <title>Installation &mdash; pymatgen 2020.1.10 documentation</title>
-  
 
-  
-  
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
-  
-  
-  
-    <link rel="canonical" href="https://pymatgen.orginstallation.html"/>
-  
-
-  
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
-    
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Installation &#8212; pymatgen 2020.3.2 documentation</title>
+    <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Change log" href="change_log.html" />
@@ -50,157 +24,30 @@
   _gaq.push(['_trackPageview']);
 </script>
 
-</head>
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="change_log.html" title="Change log"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="introduction.html" title="Introduction"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2020.3.2 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
 
-<body class="wy-body-for-nav">
-
-   
-  <div class="wy-grid-for-nav">
-    
-    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
-      <div class="wy-side-scroll">
-        <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
-          
-
-          
-            <a href="index.html" class="icon icon-home"> pymatgen
-          
-
-          
-          </a>
-
-          
-            
-            
-              <div class="version">
-                2020.1.10
-              </div>
-            
-          
-
-          
-<div role="search">
-  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
-    <input type="hidden" name="check_keywords" value="yes" />
-    <input type="hidden" name="area" value="default" />
-  </form>
-</div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
-              <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#requirements">Requirements</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#optional-dependencies">Optional dependencies</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#optional-non-python-programs">Optional non-Python programs</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#conda-based-install">Conda-based install</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#step-1-install-conda">Step 1: Install conda</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#step-2b-optional-create-a-conda-environment">Step 2b: (Optional) Create a conda environment</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#step-3-install-pymatgen">Step 3: Install pymatgen</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#step-4-optional-install-enumlib-and-bader-only-for-osx-and-linux">Step 4: (Optional) Install enumlib and bader (only for OSX and Linux)</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#potcar-setup">POTCAR Setup</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#setup-for-developers-using-github">Setup for Developers (using GitHub)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#step-1-preparing-your-system">Step 1: Preparing your system</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#windows">Windows</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#mac-osx">Mac OSX</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#linux">Linux</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#step-2-install-pymatgen-in-developmental-mode">Step 2: Install pymatgen in developmental mode</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#installation-tips-for-optional-libraries">Installation tips for optional libraries</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#vtk-on-mac-os-x-tested-on-v7-0">VTK on Mac OS X (tested on v7.0)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#openbabel-mac-os-x-tested-on-v2-3-2">OpenBabel Mac OS X (tested on v2.3.2)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#zeo">Zeo++</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="team.html">Development Team</a></li>
-<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
-<li class="toctree-l1"><a class="reference internal" href="modules.html">API Docs</a></li>
-</ul>
-
-            
-          
-        </div>
-      </div>
-    </nav>
-
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
-          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">pymatgen</a>
-        
-      </nav>
-
-
-      <div class="wy-nav-content">
-        
-        <div class="rst-content style-external-links">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
-  <ul class="wy-breadcrumbs">
-    
-      <li><a href="index.html">Docs</a> &raquo;</li>
-        
-      <li>Installation</li>
-    
-    
-      <li class="wy-breadcrumbs-aside">
-        
-            
-            
-              <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/installation.rst" class="fa fa-github"> Edit on GitHub</a>
-            
-          
-        
-      </li>
-    
-  </ul>
-
-  
-  <hr/>
-</div>
-          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
-           <div itemprop="articleBody">
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
             
   <div class="section" id="installation">
 <h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
@@ -245,8 +92,8 @@ used to completely enumerate all symmetrically distinct ordered structures
 of disordered structures via EnumerateStructureTransformation. Many other
 advanced transformations (e.g., MagOrderingTransformation) use
 EnumerateStructureTransformation. The enum.x and makestr.x
-executables must be in the path. Get it at <a class="reference external" href="http://enum.sourceforge.net">http://enum.sourceforge.net</a> and
-follow the instructions to compile multienum.x and makestr.x.</p></li>
+executables must be in the path. Get it at <a class="reference external" href="http://github.com/msg-byu/enumlib">http://github.com/msg-byu/enumlib</a> and
+follow the instructions to compile enum.x and makestr.x.</p></li>
 <li><p>bader: For use with <a class="reference internal" href="pymatgen.command_line.bader_caller.html#pymatgen.command_line.bader_caller.BaderAnalysis" title="pymatgen.command_line.bader_caller.BaderAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.command_line.bader_caller.BaderAnalysis</span></code></a>.
 This library by Henkelmann et al. provides a robust way to calculate the
 Bader analysis from a CHGCAR. The bader executable must be in the path.
@@ -624,9 +471,9 @@ Here are the steps you need to follow (thanks to Bharat)</p>
 </div>
 <p>To test that the installation worked, here is an example series of things you
 can do using pymatgen:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">In</span> <span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="kn">from</span> <span class="nn">pymatgen.analysis.defects.point_defects</span> <span class="k">import</span> <span class="n">Interstitial</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">In</span> <span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="kn">from</span> <span class="nn">pymatgen.analysis.defects.point_defects</span> <span class="kn">import</span> <span class="n">Interstitial</span>
 
-<span class="n">In</span> <span class="p">[</span><span class="mi">2</span><span class="p">]:</span> <span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">2</span><span class="p">]:</span> <span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">Structure</span>
 
 <span class="n">In</span> <span class="p">[</span><span class="mi">3</span><span class="p">]:</span> <span class="n">structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s1">&#39;/path/to/file&#39;</span><span class="p">)</span>
 
@@ -649,44 +496,97 @@ can do using pymatgen:</p>
 </div>
 
 
-           </div>
-           
           </div>
-          <footer>
-  
-
-  <hr/>
-
-  <div role="contentinfo">
-    <p>
-        &copy; Copyright 2011, Pymatgen Development Team
-
-    </p>
-  </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
-
-</footer>
-
         </div>
       </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Installation</a><ul>
+<li><a class="reference internal" href="#requirements">Requirements</a><ul>
+<li><a class="reference internal" href="#optional-dependencies">Optional dependencies</a></li>
+<li><a class="reference internal" href="#optional-non-python-programs">Optional non-Python programs</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#conda-based-install">Conda-based install</a><ul>
+<li><a class="reference internal" href="#step-1-install-conda">Step 1: Install conda</a></li>
+<li><a class="reference internal" href="#step-2b-optional-create-a-conda-environment">Step 2b: (Optional) Create a conda environment</a></li>
+<li><a class="reference internal" href="#step-3-install-pymatgen">Step 3: Install pymatgen</a></li>
+<li><a class="reference internal" href="#step-4-optional-install-enumlib-and-bader-only-for-osx-and-linux">Step 4: (Optional) Install enumlib and bader (only for OSX and Linux)</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#potcar-setup">POTCAR Setup</a></li>
+<li><a class="reference internal" href="#setup-for-developers-using-github">Setup for Developers (using GitHub)</a><ul>
+<li><a class="reference internal" href="#step-1-preparing-your-system">Step 1: Preparing your system</a><ul>
+<li><a class="reference internal" href="#windows">Windows</a></li>
+<li><a class="reference internal" href="#mac-osx">Mac OSX</a></li>
+<li><a class="reference internal" href="#linux">Linux</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#step-2-install-pymatgen-in-developmental-mode">Step 2: Install pymatgen in developmental mode</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#installation-tips-for-optional-libraries">Installation tips for optional libraries</a><ul>
+<li><a class="reference internal" href="#vtk-on-mac-os-x-tested-on-v7-0">VTK on Mac OS X (tested on v7.0)</a></li>
+<li><a class="reference internal" href="#openbabel-mac-os-x-tested-on-v2-3-2">OpenBabel Mac OS X (tested on v2.3.2)</a></li>
+<li><a class="reference internal" href="#zeo">Zeo++</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
 
-    </section>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="introduction.html"
+                        title="previous chapter">Introduction</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="change_log.html"
+                        title="next chapter">Change log</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/installation.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="change_log.html" title="Change log"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="introduction.html" title="Introduction"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2020.3.2 documentation</a> &#187;</li> 
+      </ul>
+    </div>
 
-  </div>
-  
-
-
-  <script type="text/javascript">
-      jQuery(function () {
-          SphinxRtdTheme.Navigation.enable(true);
-      });
-  </script>
-
-  
-  
-    
-  
- 
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
+    </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking
 the JavaScript coming from www.google-analytics.com.
@@ -701,6 +601,5 @@ the JavaScript coming from www.google-analytics.com.
 </script>
 </div>
 
-
-</body>
+  </body>
 </html>

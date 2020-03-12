@@ -25,6 +25,7 @@ from pymatgen.util.string import latexify
 from pymatgen.util.plotting import pretty_plot
 from pymatgen.analysis.reaction_calculator import Reaction, \
     ReactionError
+from pymatgen.entries import Entry
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -37,7 +38,7 @@ __date__ = "May 16, 2011"
 logger = logging.getLogger(__name__)
 
 
-class PDEntry(MSONable):
+class PDEntry(Entry):
     """
     An object encompassing all relevant data for phase diagrams.
 
@@ -57,7 +58,9 @@ class PDEntry(MSONable):
 
     .. attribute:: attribute
 
-        A arbitrary attribute.
+        A arbitrary attribute. Can be used to specify that the entry is a newly
+        found compound, or to specify a particular label for the entry, etc.
+        An attribute can be anything but must be MSONable.
     """
 
     def __init__(self, composition: Composition, energy: float,
@@ -66,50 +69,33 @@ class PDEntry(MSONable):
         Args:
             composition (Composition): Composition
             energy (float): Energy for composition.
-            name (str): Optional parameter to name the entry. Defaults to the
-                reduced chemical formula.
-            attribute: Optional attribute of the entry. This can be used to
-                specify that the entry is a newly found compound, or to specify a
-                particular label for the entry, or else ... Used for further
-                analysis and plotting purposes. An attribute can be anything
-                but must be MSONable.
+            name (str): Optional parameter to name the entry. Defaults 
+                to the reduced chemical formula.
+            attribute: Optional attribute of the entry. Must be MSONable.
         """
-        self.energy = energy
-        self.composition = Composition(composition)
+        super().__init__(composition, energy)
         self.name = name if name else self.composition.reduced_formula
         self.attribute = attribute
 
     @property
-    def energy_per_atom(self):
+    def energy(self) -> float:
         """
-        Returns the final energy per atom.
+        :return: the energy of the entry.
         """
-        return self.energy / self.composition.num_atoms
-
-    @property
-    def is_element(self):
-        """
-        True if the entry is an element.
-        """
-        return self.composition.is_element
+        return self._energy
 
     def __repr__(self):
         return "PDEntry : {} with energy = {:.4f}".format(self.composition,
                                                           self.energy)
 
-    def __str__(self):
-        return self.__repr__()
-
     def as_dict(self):
         """
         :return: MSONable dict.
         """
-        return {"@module": self.__class__.__module__,
-                "@class": self.__class__.__name__,
-                "composition": self.composition.as_dict(),
-                "energy": self.energy,
-                "name": self.name,
-                "attribute": self.attribute}
+        return_dict = super().as_dict()
+        return_dict.update({"name": self.name,
+                            "attribute": self.attribute})
+        return return_dict
 
     def __eq__(self, other):
         if isinstance(other, self.__class__):

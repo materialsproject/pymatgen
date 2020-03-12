@@ -21,7 +21,7 @@ Optional libraries that are required if you need certain features.
 3. Atomistic Simulation Environment or ASE 3.6+: Required for the usage of the
    adapters in pymatgen.io.aseio between pymatgen's core Structure object and
    the Atoms object used by ASE. Get it at https://wiki.fysik.dtu.dk/ase/.
-   Note that the ASE package is incompatible with Python 3.x at the moment.
+   Note that the ASE package is compatible with Python 3.5+ at the moment.
 4. OpenBabel with Python bindings (http://openbabel.org): Required for the
    usage of the adapters in pymatgen.io.babelio between pymatgen's Molecule
    and OpenBabel's OBMol. Opens up input and output support for the very large
@@ -46,8 +46,8 @@ the moment) required only for certain features:
    of disordered structures via EnumerateStructureTransformation. Many other
    advanced transformations (e.g., MagOrderingTransformation) use
    EnumerateStructureTransformation. The enum.x and makestr.x
-   executables must be in the path. Get it at http://enum.sourceforge.net and
-   follow the instructions to compile multienum.x and makestr.x.
+   executables must be in the path. Get it at http://github.com/msg-byu/enumlib and
+   follow the instructions to compile enum.x and makestr.x.
 3. bader: For use with :class:`pymatgen.command_line.bader_caller.BaderAnalysis`.
    This library by Henkelmann et al. provides a robust way to calculate the
    Bader analysis from a CHGCAR. The bader executable must be in the path.
@@ -194,7 +194,7 @@ to see full list of choices.
 .. note::
 
     The Materials Project currently uses older versions of the VASP pseudopotentials
-    for maximum compatibility with historical data, rather than the current 52/54 
+    for maximum compatibility with historical data, rather than the current 52/54
     pseudopotentials. This setting can be overriden by the user if desired.
     As such, current versions of pymatgen will check the hashes of your pseudopotentials
     when constructing input sets to ensure the correct, compatible pseudopotential sets are

@@ -2,12 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
-import os
-
-from monty.serialization import loadfn
-from pymatgen.analysis.structure_matcher import StructureMatcher
-
 """
 This module uses data from the AFLOW LIBRARY OF CRYSTALLOGRAPHIC PROTOTYPES.
 If using this module, please cite their publication appropriately:
@@ -17,6 +11,11 @@ The AFLOW library of crystallographic prototypes: part 1.
 Computational Materials Science, 136, S1-S828.
 http://doi.org/10.1016/j.commatsci.2017.01.017
 """
+
+import os
+
+from monty.serialization import loadfn
+from pymatgen.analysis.structure_matcher import StructureMatcher
 
 module_dir = os.path.dirname(os.path.abspath(__file__))
 AFLOW_PROTOTYPE_LIBRARY = loadfn(os.path.join(os.path.dirname(os.path.abspath(__file__)),
