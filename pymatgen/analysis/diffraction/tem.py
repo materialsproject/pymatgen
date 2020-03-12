@@ -436,12 +436,11 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             dots.append(tem_dot)
         return dots
 
-    def get_plot_2d(self, structure: Structure, disp_colorbar=False) -> go.Figure:
+    def get_plot_2d(self, structure: Structure) -> go.Figure:
         """
         Generates the 2D diffraction pattern of the input structure.
         Args:
             structure (Structure): The input structure.
-            disp_colorbar (Boolean): Displays colorbar. Default false.
         Returns:
             Figure
         """
