@@ -148,9 +148,8 @@ class KPathSetyawanCurtarolo(KPathBase):
 
     def __init__(self, structure, symprec=0.01, angle_tolerance=5, atol=1e-5):
         if "magmom" in structure.site_properties.keys():
-            raise ValueError(
-                "Magnetic data in 'magmom' entry of site properties must be removed to use Setyawan and Curtarolo convention."
-            )
+            warn("'magmom' entry found in site properties but will be ignored \
+                  for the Setyawan and Curtarolo convention.")
 
         super().__init__(structure, symprec=symprec, angle_tolerance=angle_tolerance, atol=atol)
 
