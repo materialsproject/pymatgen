@@ -23,6 +23,7 @@ from IPython.display import set_matplotlib_formats  # type: ignore
 from pymatgen.core.structure import Structure  # type: ignore
 from pymatgen.analysis.diffraction.core import AbstractDiffractionPatternCalculator  # type: ignore
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer  # type: ignore
+from pymatgen.util.string import unicodeify_spacegroup, latexify_spacegroup  # type: ignore
 
 with open(os.path.join(os.path.dirname(__file__),
                        "atomic_scattering_params.json")) as f:
@@ -435,11 +436,12 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             dots.append(tem_dot)
         return dots
 
-    def get_plot_2d(self, structure: Structure) -> go.Figure:
+    def get_plot_2d(self, structure: Structure, disp_colorbar=False) -> go.Figure:
         """
         Generates the 2D diffraction pattern of the input structure.
         Args:
             structure (Structure): The input structure.
+            disp_colorbar (Boolean): Displays colorbar. Default false.
         Returns:
             Figure
         """
@@ -455,8 +457,9 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         for dot in tem_dots:
             xs.append(dot.position[0])
             ys.append(dot.position[1])
-            hkls.append(dot.hkl)
+            hkls.append(str(dot.hkl))
             intensities.append(dot.intensity)
+        hkls = list(map(unicodeify_spacegroup, list(map(latexify_spacegroup, hkls))))
         data = [
             go.Scatter(
                 x=xs,
@@ -469,13 +472,9 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
                     cmax=1,
                     cmin=0,
                     color=intensities,
-                    colorbar=dict(
-                        title='Colorbar',
-                        yanchor='top'
-                    ),
                     colorscale=[[0, 'black'], [1.0, 'white']]
                 ),
-                showlegend=False
+                showlegend=False,
             ), go.Scatter(
                 x=[0],
                 y=[0],
@@ -488,17 +487,17 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
                     cmin=0,
                     color='white'
                 ),
+                showlegend=False,
             )
         ]
         layout = go.Layout(
             title='2D Diffraction Pattern<br>Beam Direction: ' + ''.join(str(e) for e in self.beam_direction),
             font=dict(
-                family='Comic Sans, monospace',
-                size=18,
+                size=14,
                 color='#7f7f7f'),
             hovermode='closest',
             xaxis=dict(
-                autorange=True,
+                range=[-5.5, 5.5],
                 showgrid=False,
                 zeroline=False,
                 showline=False,
@@ -506,20 +505,20 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
                 showticklabels=False
             ),
             yaxis=dict(
-                autorange=True,
+                range=[-5.5 , 5.5],
                 showgrid=False,
                 zeroline=False,
                 showline=False,
                 ticks='',
                 showticklabels=False,
             ),
-            width=600,
-            height=600,
+            width=550,
+            height=550,
             paper_bgcolor='rgba(100,110,110,0.5)',
-            plot_bgcolor='black'
+            plot_bgcolor='black',
         )
         fig = go.Figure(data=data, layout=layout)
-        poff.iplot(fig, filename='stuff')
+        poff.iplot(fig, filename='diffpattern')
         return fig
 
     def get_plot_2d_concise(self, structure: Structure) -> go.Figure:
@@ -541,10 +540,11 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         hkls = []
         intensities = []
         for dot in tem_dots:
-            xs.append(dot.position[0])
-            ys.append(dot.position[1])
-            hkls.append(dot.hkl)
-            intensities.append(dot.intensity)
+            if dot.hkl != (0, 0, 0):
+                xs.append(dot.position[0])
+                ys.append(dot.position[1])
+                hkls.append(dot.hkl)
+                intensities.append(dot.intensity)
         data = [
             go.Scatter(
                 x=xs,
@@ -560,18 +560,6 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
                     colorscale=[[0, 'black'], [1.0, 'white']]
                 ),
                 showlegend=False
-            ), go.Scatter(
-                x=[0],
-                y=[0],
-                text="(0, 0, 0): Direct beam",
-                mode='markers',
-                hoverinfo='skip',
-                marker=dict(
-                    size=7,
-                    cmax=1,
-                    cmin=0,
-                    color='white'
-                ),
             )
         ]
         layout = go.Layout(
@@ -593,8 +581,8 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             ),
             plot_bgcolor='black',
             margin={'l': 0, 'r': 0, 't': 0, 'b': 0},
-            width=100,
-            height=100,
+            width=121,
+            height=121,
         )
         fig = go.Figure(data=data, layout=layout)
         fig.layout.update(showlegend=False)
