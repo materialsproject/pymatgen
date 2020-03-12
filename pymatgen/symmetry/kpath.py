@@ -21,19 +21,27 @@ try:
 except ImportError:
     seekpath = None
 
+__author__ = "Geoffroy Hautier, Katherine Latimer, Jason Munro"
+__copyright__ = "Copyright 2020, The Materials Project"
+__version__ = "0.1"
+__maintainer__ = "Jason Munro"
+__email__ = "jmunro@lbl.gov"
+__status__ = "Development"
+__date__ = "March 2020"
+
 
 class KPathBase:
     """
-    This is the base class for classes used to generate high-symmetry paths in
-    reciprocal space (k-paths) for band structure calculations.
+    This is the base class for classes used to generate high-symmetry 
+    paths in reciprocal space (k-paths) for band structure calculations.
 
     Args:
         structure (Structure): Structure object
         symprec (float): Tolerance for symmetry finding
         angle_tolerance (float): Angle tolerance for symmetry finding.
-        atol (float): Absolute tolerance used to compare the input
-            structure with the one expected as primitive standard.
-            A warning will be issued if the lattices don't match.
+        atol (float): Absolute tolerance used to compare structures
+            and determine symmetric equivalence of points and lines 
+            in the BZ.
     """
 
     def __init__(self, structure, symprec=0.01, angle_tolerance=5, atol=1e-5, *args, **kwargs):
@@ -837,9 +845,8 @@ class KPathSeek(KPathBase):
         structure (Structure): Structure object
         symprec (float): Tolerance for symmetry finding
         angle_tolerance (float): Angle tolerance for symmetry finding.
-        atol (float): Absolute tolerance used to compare the input
-            structure with the one expected as primitive standard.
-            A warning will be issued if the lattices don't match.
+        atol (float): Absolute tolerance used to determine edge cases
+            for settings of structures.
         system_is_tri (boolean): Indicates if the system is time-reversal
             invariant.
     """
@@ -955,7 +962,7 @@ class KPathLatimerMunro(KPathBase):
     854 ('Van Hove singularities and zero-slope points in magnetic
     crystals').
     The user should ensure that the lattice of the input structure
-    is as reduced as possible, ie that there is no linear
+    is as reduced as possible, i.e. that there is no linear
     combination of lattice vectors which can produce a vector of
     lesser magnitude than the given set (this is required to
     obtain the correct Brillouin zone within the current

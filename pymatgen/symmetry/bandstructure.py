@@ -1,3 +1,6 @@
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 from __future__ import division, unicode_literals
 
 from math import ceil
@@ -5,6 +8,14 @@ import itertools
 import numpy as np
 import networkx as nx
 from pymatgen.symmetry.kpath import KPathBase, KPathSetyawanCurtarolo, KPathLatimerMunro, KPathSeek
+
+__author__ = "Jason Munro"
+__copyright__ = "Copyright 2020, The Materials Project"
+__version__ = "0.1"
+__maintainer__ = "Jason Munro"
+__email__ = "jmunro@lbl.gov"
+__status__ = "Development"
+__date__ = "March 2020"
 
 
 class HighSymmKpath(KPathBase):
@@ -18,9 +29,8 @@ class HighSymmKpath(KPathBase):
     The space group analyzer can be used to produce the correct 
     primitive structure
     (method get_primitive_standard_structure(international_monoclinic=False)).
-    Ensure input structure is correct
-    before 'get_kpoints()' method is used. See individual Kpath classes 
-    for details on specific conventions.
+    Ensure input structure is correct before 'get_kpoints()' method is used.
+    See individual KPath classes for details on specific conventions.
 
     Args:
                     structure (Structure): Structure object
@@ -188,10 +198,11 @@ class HighSymmKpath(KPathBase):
     def _get_klabels(self, lm_bs, sc_bs, hin_bs, rpg):
         """
         Returns:
-        labels (dict): Dictionary of equivalent labels for paths if 'all' is chosen. If an exact 
-        kpoint match cannot be found, symmetric equivalency will be searched for and indicated 
-        with an asterisk in the equivalent label. If an equivalent label can still not be found, or 
-        the point is not in the explicit kpath, its equivalent label will be set to itself in the output.
+        labels (dict): Dictionary of equivalent labels for paths if 'all' is chosen. 
+            If an exact kpoint match cannot be found, symmetric equivalency will be 
+            searched for and indicated with an asterisk in the equivalent label. 
+            If an equivalent label can still not be found, or the point is not in 
+            the explicit kpath, its equivalent label will be set to itself in the output.
         """
 
         lm_path = lm_bs.kpath
