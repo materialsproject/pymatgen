@@ -10,6 +10,7 @@ import re
 import logging
 import os
 import warnings
+from typing import List
 
 import numpy as np
 import math
@@ -1207,7 +1208,7 @@ def check_for_structure_changes(mol1: Molecule, mol2: Molecule) -> str:
             )
             special_elements = []
 
-    special_sites = [[], []]
+    special_sites: List[List] = [[], []]
     for ii, mol in enumerate(mol_list):
         for jj, site in enumerate(mol):
             if site.specie.symbol in special_elements:
