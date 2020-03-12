@@ -17,9 +17,9 @@ from pymatgen.core.operations import SymmOp, MagSymmOp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 try:
-    import seekpath
+    from seekpath import get_path
 except ImportError:
-    seekpath = None
+    get_path = None
 
 __author__ = "Geoffroy Hautier, Katherine Latimer, Jason Munro"
 __copyright__ = "Copyright 2020, The Materials Project"
@@ -849,7 +849,7 @@ class KPathSeek(KPathBase):
             invariant.
     """
 
-    @requires(seekpath is not None, "SeeK-path is required to use the convention by Hinuma et al.")
+    @requires(get_path is not None, "SeeK-path is required to use the convention by Hinuma et al.")
     def __init__(self, structure, symprec=0.01, angle_tolerance=5, atol=1e-5, system_is_tri=True):
 
         super().__init__(structure, symprec=symprec, angle_tolerance=angle_tolerance, atol=atol)
@@ -882,7 +882,7 @@ class KPathSeek(KPathBase):
         )
 
         spg_struct = (lattice, scale_pos, atom_num)
-        spath_dat = seekpath.get_path(spg_struct, system_is_tri, "hpkot", atol, symprec, angle_tolerance)
+        spath_dat = get_path(spg_struct, system_is_tri, "hpkot", atol, symprec, angle_tolerance)
 
         self._tmat = self._trans_sc_to_Hin(spath_dat["bravais_lattice_extended"])
         self._rec_lattice = spath_dat["reciprocal_primitive_lattice"]

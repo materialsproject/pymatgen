@@ -178,8 +178,13 @@ class HighSymmKpath(KPathBase):
         Returns:
         Setyawan and Curtarolo k-path with labels.
         """
+        kpath = KPathSetyawanCurtarolo(self._structure, symprec, angle_tolerance, atol)
 
-        return KPathSetyawanCurtarolo(self._structure, symprec, angle_tolerance, atol)
+        self.prim = kpath.prim
+        self.conventional = kpath.conventional
+        self.prim_rec = kpath.prim_rec
+
+        return kpath
 
     def _get_hin_kpath(self, symprec, angle_tolerance, atol, tri):
         """
