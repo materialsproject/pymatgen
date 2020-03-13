@@ -215,6 +215,7 @@ class TestQCOutput(PymatgenTest):
             self._test_property(key, single_outs, multi_outs)
 
     def test_structural_change(self):
+        
         t1 = Molecule.from_file(os.path.join(test_dir, "structural_change",
                                              "t1.xyz"))
         t2 = Molecule.from_file(os.path.join(test_dir, "structural_change",
