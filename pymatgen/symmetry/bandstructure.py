@@ -1,9 +1,13 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
+"""
+Provides a class for interacting with KPath classes to
+generate high-symmetry k-paths using different conventions.
+"""
+
 from __future__ import division, unicode_literals
 
-from math import ceil
 import itertools
 import numpy as np
 import networkx as nx
@@ -31,37 +35,38 @@ class HighSymmKpath(KPathBase):
     (method get_primitive_standard_structure(international_monoclinic=False)).
     Ensure input structure is correct before 'get_kpoints()' method is used.
     See individual KPath classes for details on specific conventions.
-
-    Args:
-                    structure (Structure): Structure object
-                    has_magmoms (boolean): Whether the input structure contains
-                        magnetic moments as site properties with the key 'magmom.'
-                        Values may be in the form of 3-component vectors given in
-                        the basis of the input lattice vectors, in
-                        which case the spin axis will default to a_3, the third
-                        real-space lattice vector (this triggers a warning).
-                    magmom_axis (list or numpy array): 3-component vector specifying
-                        direction along which magnetic moments given as scalars
-                        should point. If all magnetic moments are provided as
-                        vectors then this argument is not used.
-                    path_type (string): Chooses which convention to use to generate
-                        the high symmetry path. Options are: 'sc', 'hin', 'lm' for the 
-                        Setyawan & Curtarolo, Hinuma et al., and  Latimer & Munro conventions.
-                        Choosing 'all' will generate one path with points from all three 
-                        conventions. Equivalent labels between each will also be generated.
-                        Order will always be Latimer & Munro, Setyawan & Curtarolo, and Hinuma et al.
-                        Lengths for each of the paths will also be generated and output
-                        as a list. Note for 'all' the user will have to alter the labels on 
-                        their own for plotting.
-                    symprec (float): Tolerance for symmetry finding
-                    angle_tolerance (float): Angle tolerance for symmetry finding.
-                    atol (float): Absolute tolerance used to determine symmetric
-                        equivalence of points and lines on the BZ.
     """
 
     def __init__(
-        self, structure, has_magmoms=False, magmom_axis=None, path_type="sc", symprec=0.01, angle_tolerance=5, atol=1e-5
-    ):
+            self, structure, has_magmoms=False, magmom_axis=None, path_type="sc",
+            symprec=0.01, angle_tolerance=5, atol=1e-5):
+        """
+        Args:
+            structure (Structure): Structure object
+            has_magmoms (boolean): Whether the input structure contains
+                magnetic moments as site properties with the key 'magmom.'
+                Values may be in the form of 3-component vectors given in
+                the basis of the input lattice vectors, in
+                which case the spin axis will default to a_3, the third
+                real-space lattice vector (this triggers a warning).
+            magmom_axis (list or numpy array): 3-component vector specifying
+                direction along which magnetic moments given as scalars
+                should point. If all magnetic moments are provided as
+                vectors then this argument is not used.
+            path_type (string): Chooses which convention to use to generate
+                the high symmetry path. Options are: 'sc', 'hin', 'lm' for the
+                Setyawan & Curtarolo, Hinuma et al., and  Latimer & Munro conventions.
+                Choosing 'all' will generate one path with points from all three
+                conventions. Equivalent labels between each will also be generated.
+                Order will always be Latimer & Munro, Setyawan & Curtarolo, and Hinuma et al.
+                Lengths for each of the paths will also be generated and output
+                as a list. Note for 'all' the user will have to alter the labels on
+                their own for plotting.
+            symprec (float): Tolerance for symmetry finding
+            angle_tolerance (float): Angle tolerance for symmetry finding.
+            atol (float): Absolute tolerance used to determine symmetric
+                equivalence of points and lines on the BZ.
+        """
 
         super().__init__(structure, symprec=symprec, angle_tolerance=angle_tolerance, atol=atol)
 
@@ -92,8 +97,6 @@ class HighSymmKpath(KPathBase):
 
             sc_bs = self._get_sc_kpath(symprec, angle_tolerance, atol)
             hin_bs = self._get_hin_kpath(symprec, angle_tolerance, atol, not has_magmoms)
-
-            hin_tmat = hin_bs._tmat
 
             index = 0
             cat_points = {}
@@ -149,8 +152,8 @@ class HighSymmKpath(KPathBase):
     def equiv_labels(self):
         """
         Returns:
-        The correspondance between the kpoint symbols in the Latimer and 
-        Munro convention, Setyawan and Curtarolo, and Hinuma 
+        The correspondance between the kpoint symbols in the Latimer and
+        Munro convention, Setyawan and Curtarolo, and Hinuma
         conventions respectively. Only generated when path_type = 'all'.
         """
         return self._equiv_labels
@@ -159,7 +162,7 @@ class HighSymmKpath(KPathBase):
     def path_lengths(self):
         """
         Returns:
-        List of lengths of the Latimer and Munro, Setyawan and Curtarolo, and Hinuma 
+        List of lengths of the Latimer and Munro, Setyawan and Curtarolo, and Hinuma
         conventions in the combined HighSymmKpath object when path_type = 'all' respectively.
         None otherwise.
         """
@@ -203,10 +206,10 @@ class HighSymmKpath(KPathBase):
     def _get_klabels(self, lm_bs, sc_bs, hin_bs, rpg):
         """
         Returns:
-        labels (dict): Dictionary of equivalent labels for paths if 'all' is chosen. 
-            If an exact kpoint match cannot be found, symmetric equivalency will be 
-            searched for and indicated with an asterisk in the equivalent label. 
-            If an equivalent label can still not be found, or the point is not in 
+        labels (dict): Dictionary of equivalent labels for paths if 'all' is chosen.
+            If an exact kpoint match cannot be found, symmetric equivalency will be
+            searched for and indicated with an asterisk in the equivalent label.
+            If an equivalent label can still not be found, or the point is not in
             the explicit kpath, its equivalent label will be set to itself in the output.
         """
 
@@ -278,17 +281,17 @@ class HighSymmKpath(KPathBase):
         """
         Obtain a continous version of an inputted path using graph theory.
         This routine will attempt to add connections between nodes of
-        odd-degree to ensure a Eulerian path can be formed. Initial 
-        k-path must be able to be converted to a connected graph. 
+        odd-degree to ensure a Eulerian path can be formed. Initial
+        k-path must be able to be converted to a connected graph.
 
         Args:
         bandstructure (Bandstructure): Bandstructure object.
 
         Returns:
-        distances_map (list): Mapping of 'distance' segments for altering a 
-            BSPlotter object to new continuous path. List of tuples indicating the 
+        distances_map (list): Mapping of 'distance' segments for altering a
+            BSPlotter object to new continuous path. List of tuples indicating the
             new order of distances, and whether they should be plotted in reverse.
-        kpath_euler (list): New continuous kpath in the HighSymmKpath format. 
+        kpath_euler (list): New continuous kpath in the HighSymmKpath format.
         """
 
         G = nx.Graph()

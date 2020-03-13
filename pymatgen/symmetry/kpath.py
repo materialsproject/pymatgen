@@ -1,6 +1,11 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
+
+"""
+Provides classes for generating high-symmetry k-paths using different conventions.
+"""
+
 from __future__ import division, unicode_literals
 
 from math import cos, sin, tan, e, pi, ceil
@@ -17,7 +22,7 @@ from pymatgen.core.operations import SymmOp, MagSymmOp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 try:
-    from seekpath import get_path
+    from seekpath import get_path  # type: ignore
 except ImportError:
     get_path = None
 
@@ -34,17 +39,19 @@ class KPathBase:
     """
     This is the base class for classes used to generate high-symmetry
     paths in reciprocal space (k-paths) for band structure calculations.
+    """
 
-    Args:
+    def __init__(self, structure, symprec=0.01, angle_tolerance=5, atol=1e-5, *args, **kwargs):
+        """
+        Args:
         structure (Structure): Structure object
         symprec (float): Tolerance for symmetry finding
         angle_tolerance (float): Angle tolerance for symmetry finding.
         atol (float): Absolute tolerance used to compare structures
             and determine symmetric equivalence of points and lines
             in the BZ.
-    """
+        """
 
-    def __init__(self, structure, symprec=0.01, angle_tolerance=5, atol=1e-5, *args, **kwargs):
         self._structure = structure
         self._latt = self._structure.lattice
         self._rec_lattice = self._structure.lattice.reciprocal_lattice
@@ -136,20 +143,23 @@ class KPathSetyawanCurtarolo(KPathBase):
     A warning will signal possible compatibility problems
     with the given structure. KPoints from get_kpoints() method
     are returned in the reciprocal cell basis defined in the paper.
-
-    Args:
-        structure (Structure): Structure object
-        symprec (float): Tolerance for symmetry finding
-        angle_tolerance (float): Angle tolerance for symmetry finding.
-        atol (float): Absolute tolerance used to compare the input
-            structure with the one expected as primitive standard.
-            A warning will be issued if the lattices don't match.
     """
 
     def __init__(self, structure, symprec=0.01, angle_tolerance=5, atol=1e-5):
+        """      
+            Args:
+            structure (Structure): Structure object
+            symprec (float): Tolerance for symmetry finding
+            angle_tolerance (float): Angle tolerance for symmetry finding.
+            atol (float): Absolute tolerance used to compare the input
+                structure with the one expected as primitive standard.
+                A warning will be issued if the lattices don't match.
+        """
         if "magmom" in structure.site_properties.keys():
-            warn("'magmom' entry found in site properties but will be ignored \
-                  for the Setyawan and Curtarolo convention.")
+            warn(
+                "'magmom' entry found in site properties but will be ignored \
+                  for the Setyawan and Curtarolo convention."
+            )
 
         super().__init__(structure, symprec=symprec, angle_tolerance=angle_tolerance, atol=atol)
 
@@ -292,6 +302,9 @@ class KPathSetyawanCurtarolo(KPathBase):
         return self._rec_lattice
 
     def cubic(self):
+        """
+        CUB Path
+        """
         self.name = "CUB"
         kpoints = {
             "\\Gamma": np.array([0.0, 0.0, 0.0]),
@@ -303,6 +316,9 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def fcc(self):
+        """
+        FCC Path
+        """
         self.name = "FCC"
         kpoints = {
             "\\Gamma": np.array([0.0, 0.0, 0.0]),
@@ -319,6 +335,9 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def bcc(self):
+        """
+        BCC Path
+        """
         self.name = "BCC"
         kpoints = {
             "\\Gamma": np.array([0.0, 0.0, 0.0]),
@@ -330,6 +349,9 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def tet(self):
+        """
+        TET Path
+        """
         self.name = "TET"
         kpoints = {
             "\\Gamma": np.array([0.0, 0.0, 0.0]),
@@ -347,6 +369,9 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def bctet1(self, c, a):
+        """
+        BCT1 Path
+        """
         self.name = "BCT1"
         eta = (1 + c ** 2 / a ** 2) / 4.0
         kpoints = {
@@ -362,6 +387,9 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def bctet2(self, c, a):
+        """
+        BCT2 Path
+        """
         self.name = "BCT2"
         eta = (1 + a ** 2 / c ** 2) / 4.0
         zeta = a ** 2 / (2 * c ** 2)
@@ -376,13 +404,13 @@ class KPathSetyawanCurtarolo(KPathBase):
             "Y_1": np.array([0.5, 0.5, -zeta]),
             "Z": np.array([0.5, 0.5, -0.5]),
         }
-        path = [
-            ["\\Gamma", "X", "Y", "\\Sigma", "\\Gamma", "Z", "\\Sigma_1", "N", "P", "Y_1", "Z"],
-            ["X", "P"]
-        ]
+        path = [["\\Gamma", "X", "Y", "\\Sigma", "\\Gamma", "Z", "\\Sigma_1", "N", "P", "Y_1", "Z"], ["X", "P"]]
         return {"kpoints": kpoints, "path": path}
 
     def orc(self):
+        """
+        ORC Path
+        """
         self.name = "ORC"
         kpoints = {
             "\\Gamma": np.array([0.0, 0.0, 0.0]),
@@ -403,6 +431,9 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def orcf1(self, a, b, c):
+        """
+        ORFC1 Path
+        """
         self.name = "ORCF1"
         zeta = (1 + a ** 2 / b ** 2 - a ** 2 / c ** 2) / 4
         eta = (1 + a ** 2 / b ** 2 + a ** 2 / c ** 2) / 4
@@ -427,6 +458,9 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def orcf2(self, a, b, c):
+        """
+        ORFC2 Path
+        """
         self.name = "ORCF2"
         phi = (1 + c ** 2 / b ** 2 - c ** 2 / a ** 2) / 4
         eta = (1 + a ** 2 / b ** 2 - a ** 2 / c ** 2) / 4
@@ -454,6 +488,9 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def orcf3(self, a, b, c):
+        """
+        ORFC3 Path
+        """
         self.name = "ORCF3"
         zeta = (1 + a ** 2 / b ** 2 - a ** 2 / c ** 2) / 4
         eta = (1 + a ** 2 / b ** 2 + a ** 2 / c ** 2) / 4
@@ -476,6 +513,9 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def orci(self, a, b, c):
+        """
+        ORCI Path
+        """
         self.name = "ORCI"
         zeta = (1 + a ** 2 / c ** 2) / 4
         eta = (1 + b ** 2 / c ** 2) / 4
@@ -504,6 +544,9 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def orcc(self, a, b, c):
+        """
+        ORCC Path
+        """
         self.name = "ORCC"
         zeta = (1 + a ** 2 / b ** 2) / 4
         kpoints = {
@@ -518,13 +561,13 @@ class KPathSetyawanCurtarolo(KPathBase):
             "Y": np.array([-0.5, 0.5, 0]),
             "Z": np.array([0.0, 0.0, 0.5]),
         }
-        path = [
-            ["\\Gamma", "X", "S", "R", "A", "Z", "\\Gamma", "Y", "X_1", "A_1", "T", "Y"],
-            ["Z", "T"]
-        ]
+        path = [["\\Gamma", "X", "S", "R", "A", "Z", "\\Gamma", "Y", "X_1", "A_1", "T", "Y"], ["Z", "T"]]
         return {"kpoints": kpoints, "path": path}
 
     def hex(self):
+        """
+        HEX Path
+        """
         self.name = "HEX"
         kpoints = {
             "\\Gamma": np.array([0.0, 0.0, 0.0]),
@@ -542,6 +585,9 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def rhl1(self, alpha):
+        """
+        RHL1 Path
+        """
         self.name = "RHL1"
         eta = (1 + 4 * cos(alpha)) / (2 + 4 * cos(alpha))
         nu = 3.0 / 4.0 - eta / 2.0
@@ -568,6 +614,9 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def rhl2(self, alpha):
+        """
+        RHL2 Path
+        """
         self.name = "RHL2"
         eta = 1 / (2 * tan(alpha / 2.0) ** 2)
         nu = 3.0 / 4.0 - eta / 2.0
@@ -585,6 +634,9 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def mcl(self, b, c, beta):
+        """
+        MCL Path
+        """
         self.name = "MCL"
         eta = (1 - b * cos(beta) / c) / (2 * sin(beta) ** 2)
         nu = 0.5 - eta * c * cos(beta) / b
@@ -614,6 +666,9 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def mclc1(self, a, b, c, alpha):
+        """
+        MCLC1 Path
+        """
         self.name = "MCLC1"
         zeta = (2 - b * cos(alpha) / c) / (4 * sin(alpha) ** 2)
         eta = 0.5 + 2 * zeta * c * cos(alpha) / b
@@ -647,6 +702,9 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def mclc2(self, a, b, c, alpha):
+        """
+        MCLC2 Path
+        """
         self.name = "MCLC2"
         zeta = (2 - b * cos(alpha) / c) / (4 * sin(alpha) ** 2)
         eta = 0.5 + 2 * zeta * c * cos(alpha) / b
@@ -679,6 +737,9 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def mclc3(self, a, b, c, alpha):
+        """
+        MCLC3 Path
+        """
         self.name = "MCLC3"
         mu = (1 + b ** 2 / a ** 2) / 4.0
         delta = b * c * cos(alpha) / (2 * a ** 2)
@@ -713,6 +774,9 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def mclc4(self, a, b, c, alpha):
+        """
+        MCLC4 Path
+        """
         self.name = "MCLC4"
         mu = (1 + b ** 2 / a ** 2) / 4.0
         delta = b * c * cos(alpha) / (2 * a ** 2)
@@ -747,6 +811,9 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def mclc5(self, a, b, c, alpha):
+        """
+        MCLC5 Path
+        """
         self.name = "MCLC5"
         zeta = (b ** 2 / a ** 2 + (1 - b * cos(alpha) / c) / sin(alpha) ** 2) / 4
         eta = 0.5 + 2 * zeta * c * cos(alpha) / b
@@ -785,6 +852,9 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def tria(self):
+        """
+        TRI1a Path
+        """
         self.name = "TRI1a"
         kpoints = {
             "\\Gamma": np.array([0.0, 0.0, 0.0]),
@@ -805,6 +875,9 @@ class KPathSetyawanCurtarolo(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def trib(self):
+        """
+        TRI1b Path
+        """
         self.name = "TRI1b"
         kpoints = {
             "\\Gamma": np.array([0.0, 0.0, 0.0]),
@@ -838,19 +911,20 @@ class KPathSeek(KPathBase):
     The symmetry is determined by spglib through the
     SpacegroupAnalyzer class. KPoints from get_kpoints() method
     are returned in the reciprocal cell basis defined in the paper.
-
-    Args:
-        structure (Structure): Structure object
-        symprec (float): Tolerance for symmetry finding
-        angle_tolerance (float): Angle tolerance for symmetry finding.
-        atol (float): Absolute tolerance used to determine edge cases
-            for settings of structures.
-        system_is_tri (boolean): Indicates if the system is time-reversal
-            invariant.
     """
 
     @requires(get_path is not None, "SeeK-path is required to use the convention by Hinuma et al.")
     def __init__(self, structure, symprec=0.01, angle_tolerance=5, atol=1e-5, system_is_tri=True):
+        """
+        Args:
+            structure (Structure): Structure object
+            symprec (float): Tolerance for symmetry finding
+            angle_tolerance (float): Angle tolerance for symmetry finding.
+            atol (float): Absolute tolerance used to determine edge cases
+                for settings of structures.
+            system_is_tri (boolean): Indicates if the system is time-reversal
+                invariant.
+        """
 
         super().__init__(structure, symprec=symprec, angle_tolerance=angle_tolerance, atol=atol)
 
@@ -909,29 +983,28 @@ class KPathSeek(KPathBase):
     def _trans_sc_to_Hin(sub_class):
 
         if sub_class in [
-            "cP1",
-            "cP2",
-            "cF1",
-            "cF2",
-            "cI1",
-            "tP1",
-            "oP1",
-            "hP1",
-            "hP2",
-            "tI1",
-            "tI2",
-            "oF1",
-            "oF3",
-            "oI1",
-            "oI3",
-            "oC1",
-            "hR1",
-            "hR2",
-            "aP1",
-            "aP2",
-            "aP3",
-            "oA1",
-        ]:
+                "cP1",
+                "cP2",
+                "cF1",
+                "cF2",
+                "cI1",
+                "tP1",
+                "oP1",
+                "hP1",
+                "hP2",
+                "tI1",
+                "tI2",
+                "oF1",
+                "oF3",
+                "oI1",
+                "oI3",
+                "oC1",
+                "hR1",
+                "hR2",
+                "aP1",
+                "aP2",
+                "aP3",
+                "oA1"]:
             return np.eye(3)
         elif sub_class == "oF2":
             return np.array([[0, 0, 1], [1, 0, 0], [0, 1, 0]])
@@ -973,26 +1046,27 @@ class KPathLatimerMunro(KPathBase):
     programatically check for this, so if the input structure is
     incorrect, the class will output the incorrect kpath without
     any warning being issued.
-
-    Args:
-                    structure (Structure): Structure object
-                    has_magmoms (boolean): Whether the input structure contains
-                        magnetic moments as site properties with the key 'magmom.'
-                        Values may be in the form of 3-component vectors given in
-                        the basis of the input lattice vectors, or as scalars, in
-                        which case the spin axis will default to a_3, the third
-                        real-space lattice vector (this triggers a warning).
-                    magmom_axis (list or numpy array): 3-component vector specifying
-                        direction along which magnetic moments given as scalars
-                        should point. If all magnetic moments are provided as
-                        vectors then this argument is not used.
-                    symprec (float): Tolerance for symmetry finding
-                    angle_tolerance (float): Angle tolerance for symmetry finding.
-                    atol (float): Absolute tolerance used to determine symmetric
-                        equivalence of points and lines on the BZ.
     """
 
     def __init__(self, structure, has_magmoms=False, magmom_axis=None, symprec=0.01, angle_tolerance=5, atol=1e-5):
+        """
+        Args:
+            structure (Structure): Structure object
+            has_magmoms (boolean): Whether the input structure contains
+                magnetic moments as site properties with the key 'magmom.'
+                Values may be in the form of 3-component vectors given in
+                the basis of the input lattice vectors, or as scalars, in
+                which case the spin axis will default to a_3, the third
+                real-space lattice vector (this triggers a warning).
+            magmom_axis (list or numpy array): 3-component vector specifying
+                direction along which magnetic moments given as scalars
+                should point. If all magnetic moments are provided as
+                vectors then this argument is not used.
+            symprec (float): Tolerance for symmetry finding
+            angle_tolerance (float): Angle tolerance for symmetry finding.
+            atol (float): Absolute tolerance used to determine symmetric
+                equivalence of points and lines on the BZ.
+        """
         super().__init__(structure, symprec=symprec, angle_tolerance=angle_tolerance, atol=atol)
 
         # Check to see if input lattice is reducible. Ref: B Gruber in Acta. Cryst. Vol. A29,
@@ -1005,13 +1079,13 @@ class KPathLatimerMunro(KPathBase):
             for j in range(3):
                 if i != j:
                     if (
-                        np.absolute(np.dot(self._latt.matrix[i], self._latt.matrix[j]))
-                        > np.dot(self._latt.matrix[i], self._latt.matrix[i])
-                        and np.absolute(
-                            np.dot(self._latt.matrix[i], self._latt.matrix[j])
-                            - np.dot(self._latt.matrix[i], self._latt.matrix[i])
-                        )
-                        > atol
+                            np.absolute(np.dot(self._latt.matrix[i], self._latt.matrix[j]))
+                            > np.dot(self._latt.matrix[i], self._latt.matrix[i])
+                            and np.absolute(
+                                np.dot(self._latt.matrix[i], self._latt.matrix[j])
+                                - np.dot(self._latt.matrix[i], self._latt.matrix[i])
+                            )
+                            > atol
                     ):
                         reducible.append(True)
                     else:
@@ -1253,7 +1327,7 @@ class KPathLatimerMunro(KPathBase):
         return {"kpoints": kpoints, "path": path}
 
     def _choose_path(
-        self, key_points, key_points_inds_orbits, key_lines_inds_orbits, little_groups_points, little_groups_lines
+            self, key_points, key_points_inds_orbits, key_lines_inds_orbits, little_groups_points, little_groups_lines
     ):
         #
         # This function can be edited to alter high-symmetry criteria for choosing points and lines
@@ -1447,16 +1521,16 @@ class KPathLatimerMunro(KPathBase):
             face_center_ind = facet_as_key_point_inds[-1]
             for (j, ind) in enumerate(facet_as_key_point_inds_bndy):
                 if (
-                    min(ind, facet_as_key_point_inds_bndy[j - 1]),
-                    max(ind, facet_as_key_point_inds_bndy[j - 1]),
+                        min(ind, facet_as_key_point_inds_bndy[j - 1]),
+                        max(ind, facet_as_key_point_inds_bndy[j - 1]),
                 ) not in key_lines:
                     key_lines.append(
                         (min(ind, facet_as_key_point_inds_bndy[j - 1]), max(ind, facet_as_key_point_inds_bndy[j - 1]),)
                     )
                 k = j + 1 if j != len(facet_as_key_point_inds_bndy) - 1 else 0
                 if (
-                    min(ind, facet_as_key_point_inds_bndy[k]),
-                    max(ind, facet_as_key_point_inds_bndy[k]),
+                        min(ind, facet_as_key_point_inds_bndy[k]),
+                        max(ind, facet_as_key_point_inds_bndy[k]),
                 ) not in key_lines:
                     key_lines.append(
                         (min(ind, facet_as_key_point_inds_bndy[k]), max(ind, facet_as_key_point_inds_bndy[k]),)
@@ -1493,13 +1567,13 @@ class KPathLatimerMunro(KPathBase):
                 equivline = False
 
                 if (
-                    np.array([l0[0] in orbit and l1[0] in orbit for orbit in key_points_inds_orbits]).any()
-                    and np.array([l0[1] in orbit and l1[1] in orbit for orbit in key_points_inds_orbits]).any()
+                        np.array([l0[0] in orbit and l1[0] in orbit for orbit in key_points_inds_orbits]).any()
+                        and np.array([l0[1] in orbit and l1[1] in orbit for orbit in key_points_inds_orbits]).any()
                 ):
                     equivptspar = True
                 elif (
-                    np.array([l0[1] in orbit and l1[0] in orbit for orbit in key_points_inds_orbits]).any()
-                    and np.array([l0[0] in orbit and l1[1] in orbit for orbit in key_points_inds_orbits]).any()
+                        np.array([l0[1] in orbit and l1[0] in orbit for orbit in key_points_inds_orbits]).any()
+                        and np.array([l0[0] in orbit and l1[1] in orbit for orbit in key_points_inds_orbits]).any()
                 ):
                     equivptsperp = True
 
@@ -1513,7 +1587,7 @@ class KPathLatimerMunro(KPathBase):
                                 pmid0pr = np.dot(op, pmid0) + diff0
                                 p01pr = np.dot(op, p01) + diff0
                                 if np.allclose(p11, p01pr, atol=self._atol) and np.allclose(
-                                    pmid1, pmid0pr, atol=self._atol
+                                        pmid1, pmid0pr, atol=self._atol
                                 ):
                                     equivline = True
 
@@ -1527,7 +1601,7 @@ class KPathLatimerMunro(KPathBase):
                                 pmid0pr = np.dot(op, pmid0) + diff0
                                 p01pr = np.dot(op, p01) + diff0
                                 if np.allclose(p10, p01pr, atol=self._atol) and np.allclose(
-                                    pmid1, pmid0pr, atol=self._atol
+                                        pmid1, pmid0pr, atol=self._atol
                                 ):
                                     equivline = True
 
@@ -1596,7 +1670,7 @@ class KPathLatimerMunro(KPathBase):
         for magmom in old_magmoms:
             if isinstance(magmom, np.ndarray):
                 new_magmoms.append(magmom)
-            elif type(magmom) == list:
+            elif isinstance(magmom, list):
                 new_magmoms.append(np.array(magmom))
             else:
                 found_scalar = True
@@ -1685,7 +1759,7 @@ class KPathLatimerMunro(KPathBase):
 
         if len(pos1) != len(pos2):
             return False
-        for i in range(len(pos1)):
+        for i, v in enumerate(pos1):
             if abs(pos1[i] - pos2[i]) > tolerance[i] and abs(pos1[i] - pos2[i]) < 1.0 - tolerance[i]:
                 return False
         return True
@@ -1699,7 +1773,7 @@ class KPathLatimerMunro(KPathBase):
             in_H = False
             for op2 in H:
                 if np.allclose(op1.rotation_matrix, op2.rotation_matrix, atol=self._atol) and self._closewrapped(
-                    op1.translation_vector, op2.translation_vector, np.ones(3) * self._atol,
+                        op1.translation_vector, op2.translation_vector, np.ones(3) * self._atol,
                 ):
                     in_H = True
                     break
@@ -1712,7 +1786,7 @@ class KPathLatimerMunro(KPathBase):
             for op1 in opH:
                 for op2 in H:
                     if np.allclose(op1.rotation_matrix, op2.rotation_matrix, atol=self._atol) and self._closewrapped(
-                        op1.translation_vector, op2.translation_vector, np.ones(3) * self._atol,
+                            op1.translation_vector, op2.translation_vector, np.ones(3) * self._atol,
                     ):
 
                         is_coset_factor = False
@@ -2139,6 +2213,9 @@ class KPathLatimerMunro(KPathBase):
 
     @staticmethod
     def LabelPoints(index):
+        """
+        Axes used in generating labels for Latimer-Munro convention
+        """
 
         points = [
             [1, 0, 0],
@@ -2173,6 +2250,10 @@ class KPathLatimerMunro(KPathBase):
 
     @staticmethod
     def LabelSymbol(index):
+        """
+        Letters used in generating labels for Latimer-Munro convention
+        """
+
         symbols = [
             "a",
             "b",
