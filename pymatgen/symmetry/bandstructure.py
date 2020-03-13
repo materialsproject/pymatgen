@@ -186,6 +186,7 @@ class HighSymmKpath(KPathBase):
         self.prim = kpath.prim
         self.conventional = kpath.conventional
         self.prim_rec = kpath.prim_rec
+        self._rec_lattice = self.prim_rec
 
         return kpath
 
