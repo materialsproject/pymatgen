@@ -21,10 +21,8 @@ except ImportError:
 
 from pymatgen import Molecule
 from pymatgen.core.operations import SymmOp
-from pymatgen.core.periodic_table import Element, Specie
 from pymatgen.util.coord import get_angle
 from pymatgen.io.babel import BabelMolAdaptor
-from pymatgen.io.xyz import XYZ
 
 from monty.os.path import which
 from monty.tempfile import ScratchDir
@@ -177,7 +175,7 @@ class PackmolRunner:
     def __init__(self, mols, param_list, input_file="pack.inp",
                  tolerance=2.0, filetype="xyz",
                  control_params={"maxit": 20, "nloop": 600},
-                 auto_box=False, output_file="packed.xyz",
+                 auto_box=True, output_file="packed.xyz",
                  bin="packmol"):
         """
         Args:
@@ -201,8 +199,6 @@ class PackmolRunner:
                     according to the filetype
         """
         self.packmol_bin = bin.split()
-
-        """
         if not which(self.packmol_bin[-1]):
             raise RuntimeError(
                 "PackmolRunner requires the executable 'packmol' to be in "
@@ -210,8 +206,6 @@ class PackmolRunner:
                 "https://github.com/leandromartinez98/packmol "
                 "and follow the instructions in the README to compile. "
                 "Don't forget to add the packmol binary to your path")
-        """
-
         self.mols = mols
         self.param_list = param_list
         self.input_file = input_file
@@ -279,7 +273,10 @@ class PackmolRunner:
                     self.write_pdb(mol, filename, num=idx+1)
                 # all other filetypes
                 else:
-                    XYZ(mol).write_file(filename=filename)
+                    a = BabelMolAdaptor(mol)
+                    pm = pb.Molecule(a.openbabel_mol)
+                    pm.write(self.control_params["filetype"], filename=filename,
+                             overwrite=True)
 
                 inp.write("\n")
                 inp.write(
@@ -313,7 +310,9 @@ class PackmolRunner:
             (stdout, stderr) = p.communicate()
             output_file = os.path.join(scratch_dir, self.control_params["output"])
             if os.path.isfile(output_file):
-                packed_mol = XYZ.from_file(output_file)
+                packed_mol = BabelMolAdaptor.from_file(output_file,
+                                                       self.control_params["filetype"])
+                packed_mol = packed_mol.pymatgen_mol
                 print("packed molecule written to {}".format(
                     self.control_params["output"]))
                 if site_property:
@@ -445,7 +444,7 @@ class PackmolRunner:
 
 
 class LammpsRunner:
-    def __init__(self, input_filename="lammps.in", lammps_cmd="lammps"):
+    def __init__(self, input_filename="lammps.in", bin="lammps"):
         """
         LAMMPS wrapper
 
@@ -453,84 +452,48 @@ class LammpsRunner:
             input_filename (string): input file name
             bin (string): command to run, excluding the input file name
         """
-        if isinstance(lammps_cmd, str):
-            lammps_cmd = [lammps_cmd]
-        self.lammps_cmd = lammps_cmd
+        self.lammps_bin = bin.split()
+        if not which(self.lammps_bin[-1]):
+            raise RuntimeError(
+                "LammpsRunner requires the executable {} to be in the path. "
+                "Please download and install LAMMPS from " \
+                "http://lammps.sandia.gov. "
+                "Don't forget to add the binary to your path".format(self.lammps_bin[-1]))
         self.input_filename = input_filename
 
     def run(self):
         """
         Write the input/data files and run LAMMPS.
         """
-
-        lammps_cmd = self.lammps_cmd + ['-in', self.input_filename]
-        logger.info("Running LAMMPS using exe: {}".format(lammps_cmd))
-        return_code = subprocess.call(lammps_cmd, shell=True)
-        logger.info("LAMMPS finished running with returncode: {}".format(return_code))
-
-        lammps_cmd = self.lammps_cmd + ['-in', self.input_filename]
+        lammps_cmd = self.lammps_bin + ['-in', self.input_filename]
         print("Running: {}".format(" ".join(lammps_cmd)))
         p = Popen(lammps_cmd, stdout=PIPE, stderr=PIPE)
         (stdout, stderr) = p.communicate()
         return stdout, stderr
 
 
-class Pair:
-
-    def __init__(self, specie1, specie2):
-        try:
-            self.specie1 = Specie(specie1)
-        except:
-            self.specie1 = specie1
-        try:
-            self.specie2 = Specie(specie2)
-        except:
-            self.specie2 = specie2
-
-    def __hash__(self):
-        try:
-            k1 = self.specie1.Z
-        except:
-            k1 = 120
-        try:
-            k2 = self.specie2.Z
-        except:
-            k2 = 120
-        return int(.5 * ((k1 + k2) * (k1 + k2 + 1)) + k2)  # Cantor Pair function
-
-    def get_id(self):
-        return self.__hash__()
-
-    @staticmethod
-    def from_id(z):
-        w = np.floor((np.sqrt(8 * z + 1) - 1) / 2)
-        t = (w ** 2 + w) / 2
-
-        y = z - t
-        x = w - y
-
-        try:
-            el1 = Element.from_Z(x)
-            specie1 = Specie(el1.symbol)
-        except:
-            specie1 = 'X'
-        try:
-            el2 = Element.from_Z(y)
-            specie2 = Specie(el2.symbol)
-        except:
-            specie2 = 'X'
-
-        return Pair(specie1, specie2)
-
-    def get_string(self):
-        return "{},{}".format(self.specie1, self.specie2)
-
-    def from_string(self, s):
-        l = s.split(",")
-        return Pair.__init__(*l)
-
-    def as_dict(self):
-        return {'specie1': self.specie1, 'specie2': self.specie2}
-
-    def from_dict(self, dic):
-        return Pair.__init__(specie1=dic['specie1'], specie2=dic['specie2'])
+if __name__ == '__main__':
+    ethanol_coords = [[0.00720, -0.56870, 0.00000],
+                      [-1.28540, 0.24990, 0.00000],
+                      [1.13040, 0.31470, 0.00000],
+                      [0.03920, -1.19720, 0.89000],
+                      [0.03920, -1.19720, -0.89000],
+                      [-1.31750, 0.87840, 0.89000],
+                      [-1.31750, 0.87840, -0.89000],
+                      [-2.14220, -0.42390, -0.00000],
+                      [1.98570, -0.13650, -0.00000]]
+    ethanol = Molecule(["C", "C", "O", "H", "H", "H", "H", "H", "H"],
+                       ethanol_coords)
+    water_coords = [[9.626, 6.787, 12.673],
+                    [9.626, 8.420, 12.673],
+                    [10.203, 7.604, 12.673]]
+    water = Molecule(["H", "H", "O"], water_coords)
+    pmr = PackmolRunner([ethanol, water],
+                        [{"number": 1, "fixed": [0, 0, 0, 0, 0, 0],
+                          "centerofmass": ""},
+                         {"number": 15, "inside sphere": [0, 0, 0, 5]}],
+                        input_file="packmol_input.inp", tolerance=2.0,
+                        filetype="xyz",
+                        control_params={"nloop": 1000},
+                        auto_box=False, output_file="cocktail.xyz")
+    s = pmr.run()

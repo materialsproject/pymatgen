@@ -94,78 +94,6 @@ class LammpsDump(MSONable):
         return d
 
 
-class LammpsLog(MSONable):
-
-    def __init__(self, runs, log_file="log.lammps"):
-        self.runs = runs
-        self.log_file = log_file
-
-    @classmethod
-    def from_file(cls, log_file="log.lammps"):
-        return LammpsLog(runs=LammpsLog.parse_lammps_log(log_file), log_file=log_file)
-
-    @staticmethod
-    def parse_lammps_log(self, filename="log.lammps"):
-        """
-        Parses log file with focus on thermo data. Both one and multi line
-        formats are supported. Any incomplete runs (no "Loop time" marker)
-        will not be parsed.
-
-        Notes:
-            SHAKE stats printed with thermo data are not supported yet.
-            They are ignored in multi line format, while they may cause
-            issues with dataframe parsing in one line format.
-
-        Args:
-            filename (str): Filename to parse.
-
-        Returns:
-            [pd.DataFrame] containing thermo data for each completed run.
-
-        """
-        with open(filename) as f:
-            lines = f.readlines()
-        begin_flag = ("Memory usage per processor =",
-                      "Per MPI rank memory allocation (min/avg/max) =")
-        end_flag = "Loop time of"
-        begins, ends = [], []
-        for i, l in enumerate(lines):
-            if l.startswith(begin_flag):
-                begins.append(i)
-            elif l.startswith(end_flag):
-                ends.append(i)
-
-        def _parse_thermo(lines):
-            multi_pattern = r"-+\s+Step\s+([0-9]+)\s+-+"
-            # multi line thermo data
-            if re.match(multi_pattern, lines[0]):
-                timestep_marks = [i for i, l in enumerate(lines)
-                                  if re.match(multi_pattern, l)]
-                timesteps = np.split(lines, timestep_marks)[1:]
-                dicts = []
-                kv_pattern = r"([0-9A-Za-z_\[\]]+)\s+=\s+([0-9eE\.+-]+)"
-                for ts in timesteps:
-                    data = {}
-                    data["Step"] = int(re.match(multi_pattern, ts[0]).group(1))
-                    data.update({k: float(v) for k, v
-                                 in re.findall(kv_pattern, "".join(ts[1:]))})
-                    dicts.append(data)
-                df = pd.DataFrame(dicts)
-                # rearrange the sequence of columns
-                columns = ["Step"] + [k for k, v in
-                                      re.findall(kv_pattern,
-                                                 "".join(timesteps[0][1:]))]
-                df = df[columns]
-            # one line thermo data
-            else:
-                df = pd.read_csv(StringIO("".join(lines)), delim_whitespace=True)
-            return df
-
-        runs = []
-        for b, e in zip(begins, ends):
-            runs.append(_parse_thermo(lines[b + 1:e]))
-        return runs
-
 def parse_lammps_dumps(file_pattern):
     """
     Generator that parses dump file(s).
@@ -199,4 +127,63 @@ def parse_lammps_dumps(file_pattern):
             yield LammpsDump.from_string("".join(dump_cache))
 
 
+def parse_lammps_log(filename="log.lammps"):
+    """
+    Parses log file with focus on thermo data. Both one and multi line
+    formats are supported. Any incomplete runs (no "Loop time" marker)
+    will not be parsed.
 
+    Notes:
+        SHAKE stats printed with thermo data are not supported yet.
+        They are ignored in multi line format, while they may cause
+        issues with dataframe parsing in one line format.
+
+    Args:
+        filename (str): Filename to parse.
+
+    Returns:
+        [pd.DataFrame] containing thermo data for each completed run.
+
+    """
+    with open(filename) as f:
+        lines = f.readlines()
+    begin_flag = ("Memory usage per processor =",
+                  "Per MPI rank memory allocation (min/avg/max) =")
+    end_flag = "Loop time of"
+    begins, ends = [], []
+    for i, l in enumerate(lines):
+        if l.startswith(begin_flag):
+            begins.append(i)
+        elif l.startswith(end_flag):
+            ends.append(i)
+
+    def _parse_thermo(lines):
+        multi_pattern = r"-+\s+Step\s+([0-9]+)\s+-+"
+        # multi line thermo data
+        if re.match(multi_pattern, lines[0]):
+            timestep_marks = [i for i, l in enumerate(lines)
+                              if re.match(multi_pattern, l)]
+            timesteps = np.split(lines, timestep_marks)[1:]
+            dicts = []
+            kv_pattern = r"([0-9A-Za-z_\[\]]+)\s+=\s+([0-9eE\.+-]+)"
+            for ts in timesteps:
+                data = {}
+                data["Step"] = int(re.match(multi_pattern, ts[0]).group(1))
+                data.update({k: float(v) for k, v
+                             in re.findall(kv_pattern, "".join(ts[1:]))})
+                dicts.append(data)
+            df = pd.DataFrame(dicts)
+            # rearrange the sequence of columns
+            columns = ["Step"] + [k for k, v in
+                                  re.findall(kv_pattern,
+                                             "".join(timesteps[0][1:]))]
+            df = df[columns]
+        # one line thermo data
+        else:
+            df = pd.read_csv(StringIO("".join(lines)), delim_whitespace=True)
+        return df
+
+    runs = []
+    for b, e in zip(begins, ends):
+        runs.append(_parse_thermo(lines[b + 1:e]))
+    return runs

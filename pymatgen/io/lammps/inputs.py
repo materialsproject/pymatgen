@@ -1,26 +1,14 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-import abc
-import re
 import os
-import glob
+import re
 import shutil
 import warnings
-from itertools import combinations, product
-from copy import deepcopy
-import numpy as np
-from pathlib import Path
-from monty.serialization import loadfn
-from monty.io import zopen
-import json
-from monty.dev import deprecated
 from string import Template
 
 from monty.json import MSONable
 from pymatgen.io.lammps.data import LammpsData
-from pymatgen.io.lammps.utils import Pair
-from pymatgen.core.periodic_table import Element
 
 """
 This module implements methods for writing LAMMPS input files.
@@ -33,9 +21,6 @@ __version__ = "1.0"
 __maintainer__ = "Zhi Deng"
 __email__ = "z4deng@eng.ucsd.edu"
 __date__ = "Aug 1, 2018"
-
-with open(str(Path(__file__).absolute().parent / "forcefield.json"), "rt") as f:
-    _forcefields = json.load(f)
 
 
 class LammpsRun(MSONable):
@@ -116,170 +101,100 @@ class LammpsRun(MSONable):
                    settings=settings, data=data, script_filename=script_filename)
 
 
-class LammpsInput(MSONable, metaclass=abc.ABCMeta):
+def write_lammps_inputs(output_dir, script_template, settings=None,
+                        data=None, script_filename="in.lammps",
+                        make_dir_if_not_present=True, **kwargs):
+    """
+    Writes input files for a LAMMPS run. Input script is constructed
+    from a str template with placeholders to be filled by custom
+    settings. Data file is either written from a LammpsData
+    instance or copied from an existing file if read_data cmd is
+    inspected in the input script. Other supporting files are not
+    handled at the moment.
 
-    def __init__(self, commands, config_dict={}, lammps_data=None):
-        self.commands    = commands
-        self.config_dict = config_dict
-        self.lammps_data = lammps_data
+    Args:
+        output_dir (str): Directory to output the input files.
+        script_template (str): String template for input script with
+            placeholders. The format for placeholders has to be
+            '$variable_name', e.g., '$temperature'
+        settings (dict): Contains values to be written to the
+            placeholders, e.g., {'temperature': 1}. Default to None.
+        data (LammpsData or str): Data file as a LammpsData instance or
+            path to an existing data file. Default to None, i.e., no
+            data file supplied. Useful only when read_data cmd is in
+            the script.
+        script_filename (str): Filename for the input script.
+        make_dir_if_not_present (bool): Set to True if you want the
+            directory (and the whole path) to be created if it is not
+            present.
+        **kwargs: kwargs supported by LammpsData.write_file.
 
-    @classmethod
-    def from_file(cls, filename):
-        with zopen(filename=filename) as f:
-            return LammpsInput(commands=f.read(), config_dict={}, lammps_data=None)
+    Examples:
+        >>> eam_template = '''units           metal
+        ... atom_style      atomic
+        ...
+        ... lattice         fcc 3.615
+        ... region          box block 0 20 0 20 0 20
+        ... create_box      1 box
+        ... create_atoms    1 box
+        ...
+        ... pair_style      eam
+        ... pair_coeff      1 1 Cu_u3.eam
+        ...
+        ... velocity        all create $temperature 376847 loop geom
+        ...
+        ... neighbor        1.0 bin
+        ... neigh_modify    delay 5 every 1
+        ...
+        ... fix             1 all nvt temp $temperature $temperature 0.1
+        ...
+        ... timestep        0.005
+        ...
+        ... run             $nsteps'''
+        >>> write_lammps_inputs('.', eam_template, settings={'temperature': 1600.0, 'nsteps': 100})
+        >>> with open('in.lammps') as f:
+        ...     script = f.read()
+        ...
+        >>> print(script)
+        units           metal
+        atom_style      atomic
 
+        lattice         fcc 3.615
+        region          box block 0 20 0 20 0 20
+        create_box      1 box
+        create_atoms    1 box
 
-class LammpsInputSet(MSONable):
+        pair_style      eam
+        pair_coeff      1 1 Cu_u3.eam
+
+        velocity        all create 1600.0 376847 loop geom
+
+        neighbor        1.0 bin
+        neigh_modify    delay 5 every 1
+
+        fix             1 all nvt temp 1600.0 1600.0 0.1
+
+        timestep        0.005
+
+        run             100
+
 
     """
-    Class representing the input information necessary to run Lammps. This is comprised of an input object
-    (representing the lammps input file), optional configuration dictionary, and optional lammps data file
-    for input.
-    """
-
-    def __init__(self, lammps_input, config_dict={}, lammps_data=None, **kwargs):
-        """
-
-        Base constructor.
-
-        Args:
-            lammps_input: (LammpsInput or str) the lammps input object or input file path to use. If read from an
-                        input file, that file can, and often should, be a template file. In the template file,
-                        all variables should be specified with a dollar sign, followed by a unique name.
-
-                        Example: write_data $output_data. Where output_data is the variable defined in config_dict
-
-            config_dict: (dict) a dictionary containing the variables to substitute into a template LammpsInput.
-                        Default: {}
-
-            lammps_data: (LammpsData or str) the lammps data object to use. Can either be given as an initialized
-                        LammpsData object, or you can supply a filepath to read-in the data. This does not need to be
-                        given. If you, for example, have your lammps data file in the same directory as your execution
-                        and would simply like to use a variable from the config_dict to let lammps read it,
-                        this works fine.
-        """
-        if isinstance(lammps_input, str):
-            if os.path.isfile(lammps_input):
-                self.lammps_input = LammpsInput.from_file(filename=lammps_input)
-        elif isinstance(lammps_input, dict):
-            self.lammps_input = LammpsInput.from_dict(lammps_input)
+    variables = {} if settings is None else settings
+    template = Template(script_template)
+    input_script = template.safe_substitute(**variables)
+    if make_dir_if_not_present and not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    with open(os.path.join(output_dir, script_filename), "w") as f:
+        f.write(input_script)
+    read_data = re.search(r"read_data\s+(.*)\n", input_script)
+    if read_data:
+        data_filename = read_data.group(1).split()[0]
+        if isinstance(data, LammpsData):
+            data.write_file(os.path.join(output_dir, data_filename), **kwargs)
+        elif isinstance(data, str) and os.path.exists(data):
+            shutil.copyfile(data, os.path.join(output_dir, data_filename))
         else:
-            self.lammps_input = lammps_input
+            warnings.warn("No data file supplied. Skip writing %s."
+                          % data_filename)
 
-        self.config_dict = deepcopy(config_dict)
-
-        self.lammps_data = lammps_data
-        if isinstance(lammps_data, str):
-            if os.path.isfile(lammps_data):
-                atom_style = config_dict.get('atom_style', 'full')
-                self.lammps_data = LammpsData.from_file(lammps_data, atom_style=atom_style)
-        elif isinstance(lammps_data, dict):
-            self.lammps_data = LammpsData.from_dict(lammps_data)
-        elif lammps_data is None:
-            try:
-                atom_style = config_dict.get('atom_style', 'full')
-                self.lammps_data = LammpsData.from_file(os.path.join(os.getcwd(),'lammps.data'), atom_style=atom_style)
-            except:
-                print('Could not located any lammps data')
-        self.kwargs      = kwargs
-
-    def write_input(self, input_filename="in.lammps", output_dir="", data_filename="lammps.data"):
-
-        """
-        Write the inputs necessary to run Lammps. This usually just means the input file, but could also mean
-        a data file for lammps to read.
-
-        Args:
-            input_filename: The name of the input file to write. Default: "in.lammps"
-            output_dir: Output directory. Defailt: "" e.g: the current directory
-            data_filename:
-        Return:
-            None
-        """
-        script_template = self.lammps_input.commands
-        variables       = {} if self.config_dict is None else self.config_dict
-
-        input_script = script_template
-
-        read_data = bool(re.search(r"read_data\s+(.*)\n", script_template))
-        if read_data:
-            if isinstance(self.lammps_data, LammpsData):
-                print("FOUND LAMMPS DATA OBJECT")
-                distance = self.kwargs.get('distance', 6)
-                velocity = self.kwargs.get('velocity', 8)
-                charge = self.kwargs.get('charge', 3)
-                self.lammps_data.write_file(os.path.join(output_dir, data_filename),
-                                            distance=distance, velocity=velocity, charge=charge)
-            elif isinstance(self.lammps_data, str) and os.path.exists(os.path.join(output_dir, self.lammps_data)):
-                print("Located LAMMPS Data File...")
-                self.lammps_data = LammpsData.from_file(os.path.join(output_dir, self.lammps_data),
-                                                        atom_style=self.config_dict.get('atom_style', 'full'))
-                #shutil.copyfile(self.lammps_data, os.path.join(output_dir, data_filename))
-            else:
-                warnings.warn("No data file supplied. Skip writing.")
-
-        for key, value in variables.items():
-            if key == 'pair_coeffs':
-                sub = self._get_pair_coeffs(value)
-            else:
-                sub = value
-            var = "$" + str(key)
-            regex = re.escape(var)
-            input_script = re.sub(regex, str(sub), input_script)
-
-        if bool(output_dir) and not os.path.exists(output_dir):
-            os.makedirs(output_dir)
-
-        with open(os.path.join(output_dir, input_filename), "w") as f:
-            f.write(input_script)
-
-    @classmethod
-    def from_file(cls, filename, config_dict, lammps_data):
-        input = LammpsInput.from_file(filename=filename)
-        if isinstance(lammps_data, str):
-            lammps_data = LammpsData.from_file(lammps_data, atom_style=config_dict.get('atom_style', 'full'))
-        return LammpsInputSet(input, config_dict=config_dict, lammps_data=lammps_data)
-
-    def _get_pair_coeffs(self, pairs):
-
-        try:
-            masses = self.lammps_data.masses.copy()
-            unique_indices = np.unique(masses['mass'], return_index=True)[1]
-            unique_masses  = [masses['mass'].values[index] for index in sorted(unique_indices)]
-
-            ref_masses = [el.atomic_mass.real for el in Element]
-            diff = [np.abs(np.array(ref_masses) - mass) for mass in unique_masses]
-            atomic_numbers = [np.argmin(d) + 1 for d in diff]
-            symbols = [Element.from_Z(an).symbol for an in atomic_numbers]
-
-            key = []
-            numbers = []
-            for i, s in enumerate(symbols):
-                key.append(s)
-                numbers.append(i)
-        except:
-            key = self.config_dict.get('key')
-            numbers = [v-1 for k, v in key.items()]
-            key = [k for k,v in key.items()]
-
-        pair_numbers = (list(combinations(numbers, 2)) + [(i,i) for i in numbers])
-        pair_numbers.sort(key=lambda x: x[0])
-        string = ''
-        for p in pair_numbers:
-            string += 'pair_coeff '+str(p[0]+1)+' '+str(p[1]+1)+' '
-
-            lookup_options = [(key[p[0]], key[p[1]]), key[p[1]], key[p[0]], ('X', 'F'), ('F', 'X'), ('X', 'X')]
-
-            for lu in lookup_options:
-                try:
-                    pair = Pair(lu[0], lu[1])
-                    params = _forcefields[str(pair.get_id())]['params']
-                    break
-                except:
-                    continue
-
-            for k, v in params.items():
-                string += str(v) + ' '
-            string += '\n'
-
-        return string

@@ -261,6 +261,7 @@ class LammpsData(MSONable):
         self.force_field = force_field
         self.topology = topology
         self.atom_style = atom_style
+
     def __str__(self):
         return self.get_string()
 
@@ -760,47 +761,31 @@ class LammpsData(MSONable):
         masses = {}
         atom_types = {}
         post_lines = f1[2:]
-        atom_type_id = 1
         for atom_id in range(len(post_lines)):
             line = post_lines[atom_id].split()
             atom_type = line[0]
 
             coords = [float(x) for x in line[1:]]
 
-            if atom_type not in atom_types.keys():
-                masses[atom_type_id] = {'element': atom_type, 'mass': Element(atom_type).atomic_mass}
-                atom_types[atom_type] = atom_type_id
-                atom_type_id += 1
+            if atom_type not in masses:
+                masses[atom_type] = [atom_type, Element(atom_type).atomic_mass]
 
-            atoms[atom_id] = {'id': atom_id+1, 'type': atom_types[atom_type]}
-
+            atoms[atom_id] = {'id': atom_id+1, 'type': atom_type}
             if charges:
                 atoms[atom_id]['charge'] = charges[atom_type]
-
             atoms[atom_id]['x'] = coords[0]
             atoms[atom_id]['y'] = coords[1]
             atoms[atom_id]['z'] = coords[2]
-            atoms[atom_id].pop('id')
 
         atoms_df = pd.DataFrame.from_dict(atoms, orient='index')
-        atoms_df.index = atoms_df.index + 1
-        masses_df = pd.DataFrame.from_dict(masses, orient='index')
+        masses_df = pd.Series(masses).to_frame()
 
         count = 1
         for key, value in masses.items():
             atoms_df = atoms_df.replace(key, count)
             count += 1
 
-        return LammpsData(box=LammpsBox(box), masses=masses_df.drop(columns='element'), atoms=atoms_df, atom_style=atom_style)
-
-    def insert_atom(self, atom, coords=None, ghost=False):
-        d = self.masses.to_dict()
-        atom_type_id = [k for k,v in d.items()].sort()[-1]
-        d['mass'][atom_type_id] = Element(atom).atomic_mass
-        self.masses.from_dict(d, orient='index')
-        if not ghost:
-            self.atoms.append()
-
+        return LammpsData(box=LammpsBox(box), masses=masses_df, atoms=atoms_df, atom_style=atom_style)
 
     @classmethod
     def from_structure(cls, structure, ff_elements=None, atom_style="charge"):
