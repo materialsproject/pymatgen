@@ -76,7 +76,7 @@ class ZeoCssrTest(unittest.TestCase):
         self.assertIsInstance(zeocssr.structure, Structure)
 
 
-#@unittest.skipIf(not zeo, "zeo not present.")
+# @unittest.skipIf(not zeo, "zeo not present.")
 class ZeoCssrOxiTest(unittest.TestCase):
     def setUp(self):
         filepath = os.path.join(test_dir, 'POSCAR')
@@ -175,29 +175,29 @@ class GetVoronoiNodesTest(unittest.TestCase):
         self.assertIsInstance(vor_node_struct, Structure)
         self.assertIsInstance(vor_edge_center_struct, Structure)
         self.assertIsInstance(vor_face_center_struct, Structure)
-        print (len(vor_node_struct.sites))
-        print (len(vor_face_center_struct.sites))
+        print(len(vor_node_struct.sites))
+        print(len(vor_face_center_struct.sites))
 
 
-@unittest.skipIf(not zeo, "zeo not present.")
+@unittest.skip("file free_sph.cif not present")
 class GetFreeSphereParamsTest(unittest.TestCase):
     def setUp(self):
         filepath = os.path.join(test_dir, 'free_sph.cif')
         self.structure = Structure.from_file(filepath)
-        self.rad_dict = {'Ge':0.67,'P':0.52,'S':1.7,
-                         'La':1.17,'Zr':0.86,'O':1.26}
+        self.rad_dict = {'Ge': 0.67, 'P': 0.52, 'S': 1.7,
+                         'La': 1.17, 'Zr': 0.86, 'O': 1.26}
 
     def test_get_free_sphere_params(self):
         free_sph_params = get_free_sphere_params(self.structure,
-                rad_dict=self.rad_dict)
+                                                 rad_dict=self.rad_dict)
         # Zeo results can change in future. Hence loose comparison
         self.assertAlmostEqual(
-                free_sph_params['inc_sph_max_dia'], 2.58251, places=1)
+            free_sph_params['inc_sph_max_dia'], 2.58251, places=1)
         self.assertAlmostEqual(
-                free_sph_params['free_sph_max_dia'], 1.29452, places=1)
+            free_sph_params['free_sph_max_dia'], 1.29452, places=1)
         self.assertAlmostEqual(
-                free_sph_params['inc_sph_along_free_sph_path_max_dia'], 
-                2.58251, places=1)
+            free_sph_params['inc_sph_along_free_sph_path_max_dia'],
+            2.58251, places=1)
 
 
 @unittest.skipIf(not zeo, "zeo not present.")
@@ -217,15 +217,15 @@ class GetHighAccuracyVoronoiNodesTest(unittest.TestCase):
         assert len(self.rad_dict) == len(self.structure.composition)
 
     def test_get_voronoi_nodes(self):
-        #vor_node_struct, vor_ec_struct, vor_fc_struct = \
+        # vor_node_struct, vor_ec_struct, vor_fc_struct = \
         #    get_high_accuracy_voronoi_nodes(self.structure, self.rad_dict)
         vor_node_struct = \
             get_high_accuracy_voronoi_nodes(self.structure, self.rad_dict)
         self.assertIsInstance(vor_node_struct, Structure)
-        #self.assertIsInstance(vor_ec_struct, Structure)
-        #self.assertIsInstance(vor_fc_struct, Structure)
+        # self.assertIsInstance(vor_ec_struct, Structure)
+        # self.assertIsInstance(vor_fc_struct, Structure)
         print(len(vor_node_struct.sites))
-        #print(len(vor_fc_struct.sites))
+        # print(len(vor_fc_struct.sites))
 
 
 @unittest.skipIf(not zeo, "zeo not present.")
@@ -248,7 +248,7 @@ class GetVoronoiNodesMultiOxiTest(unittest.TestCase):
             print((el, self.rad_dict[el].real))
 
     def test_get_voronoi_nodes(self):
-        vor_node_struct, vor_edge_center_struct, vor_face_center_struct =\
+        vor_node_struct, vor_edge_center_struct, vor_face_center_struct = \
             get_voronoi_nodes(self.structure, self.rad_dict)
         self.assertIsInstance(vor_node_struct, Structure)
         self.assertIsInstance(vor_edge_center_struct, Structure)
@@ -274,9 +274,10 @@ class GetVoidVolumeSurfaceTest(unittest.TestCase):
     def test_void_volume_surface_area(self):
         pass
         vol, sa = get_void_volume_surfarea(self._vac_struct, self._radii)
-        #print "vol:  ", vol, "sa:  ", sa
+        # print "vol:  ", vol, "sa:  ", sa
         self.assertIsInstance(vol, float)
         self.assertIsInstance(sa, float)
+
 
 if __name__ == "__main__":
     unittest.main()

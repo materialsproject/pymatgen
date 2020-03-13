@@ -2,25 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
-import os
-import glob
-
-import numpy as np
-from monty.json import jsanitize
-from monty.json import MSONable
-scipy_old_piecewisepolynomial = True
-try:
-    from scipy.interpolate import PiecewisePolynomial
-except ImportError:
-    from scipy.interpolate import CubicSpline
-    scipy_old_piecewisepolynomial = False
-
-from pymatgen.util.plotting import pretty_plot
-from pymatgen.io.vasp import Poscar, Outcar
-from pymatgen.analysis.structure_matcher import StructureMatcher
-import warnings
-
 """
 Some reimplementation of Henkelman's Transition State Analysis utilities,
 which are originally in Perl. Additional features beyond those offered by
@@ -28,6 +9,25 @@ Henkelman's utilities will be added.
 
 This allows the usage and customization in Python.
 """
+
+import os
+import glob
+
+import numpy as np
+from monty.json import jsanitize
+from monty.json import MSONable
+
+from pymatgen.util.plotting import pretty_plot
+from pymatgen.io.vasp import Poscar, Outcar
+from pymatgen.analysis.structure_matcher import StructureMatcher
+scipy_old_piecewisepolynomial = True
+try:
+    from scipy.interpolate import PiecewisePolynomial
+except ImportError:
+    from scipy.interpolate import CubicSpline
+
+    scipy_old_piecewisepolynomial = False
+
 
 __author__ = 'Shyue Ping Ong'
 __copyright__ = 'Copyright 2013, The Materials Virtual Lab'
@@ -144,7 +144,7 @@ class NEBAnalysis(MSONable):
             if i in [0, len(outcars) - 1]:
                 forces.append(0)
             else:
-                forces.append(o.data["tangent_force"]) 
+                forces.append(o.data["tangent_force"])
         forces = np.array(forces)
         r = np.array(r)
         return cls(r=r, energies=energies, forces=forces,
@@ -170,9 +170,9 @@ class NEBAnalysis(MSONable):
         min_extrema = []
         max_extrema = []
         for i in range(1, len(x) - 1):
-            if y[i] < y[i-1] and y[i] < y[i+1]:
+            if y[i] < y[i - 1] and y[i] < y[i + 1]:
                 min_extrema.append((x[i] * scale, y[i]))
-            elif y[i] > y[i-1] and y[i] > y[i+1]:
+            elif y[i] > y[i - 1] and y[i] > y[i + 1]:
                 max_extrema.append((x[i] * scale, y[i]))
         return min_extrema, max_extrema
 
@@ -348,9 +348,9 @@ def combine_neb_plots(neb_analyses, arranged_neb_analyses=False,
         neb1_start_e, neb1_end_e = neb1_energies[0], neb1_energies[-1]
         neb2_start_e, neb2_end_e = neb2_energies[0], neb2_energies[-1]
         min_e_diff = min(([abs(neb1_start_e - neb2_start_e),
-                         abs(neb1_start_e - neb2_end_e),
-                         abs(neb1_end_e - neb2_start_e),
-                         abs(neb1_end_e - neb2_end_e)]))
+                           abs(neb1_start_e - neb2_end_e),
+                           abs(neb1_end_e - neb2_start_e),
+                           abs(neb1_end_e - neb2_end_e)]))
 
         if arranged_neb_analyses:
             neb1_energies = neb1_energies[0:len(neb1_energies) - 1] \
@@ -383,15 +383,13 @@ def combine_neb_plots(neb_analyses, arranged_neb_analyses=False,
             neb1_energies = neb1_energies + neb2_energies[1:]
             neb1_structures = neb1_structures + neb2.structures[1:]
             neb1_forces = list(neb1_forces) + list(neb2.forces)[1:]
-            neb1_r = [i for i in list(neb1_r)] + \
-                     [i + neb1_r[-1] for i in list(neb2.r)[1:]]
+            neb1_r = [i for i in list(neb1_r)] + [i + neb1_r[-1] for i in list(neb2.r)[1:]]
 
         else:
             neb1_energies = neb1_energies + list(reversed(neb2_energies))[1:]
             neb1_structures = neb1_structures + list(
                 reversed((neb2.structures)))[1:]
-            neb1_forces = list(neb1_forces) + \
-                          list(reversed(list(neb2.forces)))[1:]
+            neb1_forces = list(neb1_forces) + list(reversed(list(neb2.forces)))[1:]
             neb1_r = list(neb1_r) + list(
                 reversed([i * -1 - list(neb2.r)[-1] * -1 + list(neb1_r)[-1]
                           for i in list(neb2.r)[:-1]]))

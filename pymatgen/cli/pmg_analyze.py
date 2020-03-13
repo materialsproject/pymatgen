@@ -3,6 +3,10 @@
 # Distributed under the terms of the MIT License.
 
 
+"""
+Implementation for `pmg analyze` CLI.
+"""
+
 import os
 import re
 import logging
@@ -15,10 +19,6 @@ from pymatgen.apps.borg.hive import SimpleVaspToComputedEntryDrone, \
     VaspToComputedEntryDrone
 from pymatgen.apps.borg.queen import BorgQueen
 
-"""
-A master convenience script with many tools for vasp and structure analysis.
-"""
-
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "4.0"
@@ -26,19 +26,26 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "ongsp@ucsd.edu"
 __date__ = "Aug 13 2016"
 
-
 SAVE_FILE = "vasp_data.gz"
 
 
-def get_energies(rootdir, reanalyze, verbose, detailed, sort, fmt):
+def get_energies(rootdir, reanalyze, verbose, quick, sort, fmt):
     """
-    Doc string.
+    Get energies of all vaspruns in directory (nested).
+    Args:
+        rootdir (str): Root directory.
+        reanalyze (bool): Whether to ignore saved results and reanalyze
+        verbose (bool): Verbose mode or not.
+        quick (bool): Whether to perform a quick analysis (using OSZICAR instead
+            of vasprun.xml
+        sort (bool): Whether to sort the results in ascending order.
+        fmt (str): tablefmt passed to tabulate.
     """
     if verbose:
         logformat = "%(relativeCreated)d msecs : %(message)s"
         logging.basicConfig(level=logging.INFO, format=logformat)
 
-    if not detailed:
+    if quick:
         drone = SimpleVaspToComputedEntryDrone(inc_structure=True)
     else:
         drone = VaspToComputedEntryDrone(inc_structure=True,
@@ -50,7 +57,7 @@ def get_energies(rootdir, reanalyze, verbose, detailed, sort, fmt):
     queen = BorgQueen(drone, number_of_drones=ncpus)
     if os.path.exists(SAVE_FILE) and not reanalyze:
         msg = "Using previously assimilated data from {}.".format(SAVE_FILE) \
-            + " Use -r to force re-analysis."
+              + " Use -r to force re-analysis."
         queen.load_data(SAVE_FILE)
     else:
         if ncpus > 1:
@@ -69,11 +76,11 @@ def get_energies(rootdir, reanalyze, verbose, detailed, sort, fmt):
 
     all_data = []
     for e in entries:
-        if not detailed:
-            delta_vol = "{:.2f}".format(e.data["delta_volume"] * 100)
+        if quick:
+            delta_vol = "NA"
         else:
             delta_vol = e.structure.volume / \
-                e.data["initial_structure"].volume - 1
+                        e.data["initial_structure"].volume - 1
             delta_vol = "{:.2f}".format(delta_vol * 100)
         all_data.append((e.data["filename"].replace("./", ""),
                          re.sub(r"\s+", "", e.composition.formula),
@@ -88,9 +95,20 @@ def get_energies(rootdir, reanalyze, verbose, detailed, sort, fmt):
     else:
         print("No valid vasp run found.")
         os.unlink(SAVE_FILE)
+    return 0
 
 
 def get_magnetizations(mydir, ion_list):
+    """
+    Get magnetization info from OUTCARs.
+
+    Args:
+        mydir (str): Directory name
+        ion_list (List): List of ions to obtain magnetization information for.
+
+    Returns:
+
+    """
     data = []
     max_row = 0
     for (parent, subdirs, files) in os.walk(mydir):
@@ -111,7 +129,7 @@ def get_magnetizations(mydir, ion_list):
                     data.append(row)
                     if len(all_ions) > max_row:
                         max_row = len(all_ions)
-                except:
+                except Exception:
                     pass
 
     for d in data:
@@ -121,16 +139,22 @@ def get_magnetizations(mydir, ion_list):
     for i in range(max_row):
         headers.append(str(i))
     print(tabulate(data, headers))
+    return 0
 
 
 def analyze(args):
+    """
+    Master function controlling which analysis to call.
 
+    Args:
+        args (dict): args from argparse.
+    """
     default_energies = not (args.get_energies or args.ion_list)
 
     if args.get_energies or default_energies:
         for d in args.directories:
-            get_energies(d, args.reanalyze, args.verbose,
-                         args.detailed, args.sort, args.format)
+            return get_energies(d, args.reanalyze, args.verbose,
+                                args.quick, args.sort, args.format)
     if args.ion_list:
         if args.ion_list[0] == "All":
             ion_list = None
@@ -138,4 +162,6 @@ def analyze(args):
             (start, end) = [int(i) for i in re.split(r"-", args.ion_list[0])]
             ion_list = list(range(start, end + 1))
         for d in args.directories:
-            get_magnetizations(d, ion_list)
+            return get_magnetizations(d, ion_list)
+
+    return -1

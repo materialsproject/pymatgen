@@ -9,10 +9,11 @@ from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.abinit.abiinspect import *
 
 _test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
-                        'test_files', "abinit")
+                         'test_files', "abinit")
 
 try:
     import matplotlib
+
     have_matplotlib = "DISPLAY" in os.environ
 except ImportError:
     have_matplotlib = False
@@ -28,9 +29,10 @@ def ref_files(*filenames):
 
 class YamlTokenizerTest(PymatgenTest):
     """Test YamlTokenizer."""
+
     def test_base(self):
         string = \
-"""---
+            """---
 none: [~, null]
 bool: [true, false, on, off]
 int: 42
@@ -58,8 +60,8 @@ hp: [2,6]    # 2d6
 ac: 32
 attacks: [BITE, HURT]
 ...
-"""
-        #for i, line in enumerate(string.splitlines()): print(i, line)
+            """
+        # for i, line in enumerate(string.splitlines()): print(i, line)
         fd, filename = tempfile.mkstemp(text=True)
 
         with open(filename, "w") as fh:
@@ -82,7 +84,7 @@ attacks: [BITE, HURT]
             # Read all docs present in the file.
             r.seek(0)
             all_docs = r.all_yaml_docs()
-            #print(all_docs)
+            # print(all_docs)
             self.assertTrue(len(all_docs) == 3)
 
             # We should be at the begining at the file.
@@ -91,7 +93,7 @@ attacks: [BITE, HURT]
             # Find documents by tag.
             r.seek(0)
             monster = r.next_doc_with_tag("!Monster")
-            #print("monster",monster)
+            # print("monster",monster)
             self.assertTrue(monster == all_docs[1])
 
             monster = r.next_doc_with_tag("!Monster")
@@ -119,7 +121,7 @@ class AbinitInpectTest(PymatgenTest):
         assert list(cycle["vres2"]) == [1.769E+02, 7.920E-01, 1.570E-01, 4.259E-03, 4.150E-05, 3.879E-08]
 
         # TODO: Reactivate
-        #if have_matplotlib:
+        # if have_matplotlib:
         #    assert cycle.plot(show=False)
 
         # Testing CyclesPlotter.
@@ -128,7 +130,7 @@ class AbinitInpectTest(PymatgenTest):
         p.add_label_cycle("same SCF", cycle)
 
         # TODO: Reactivate
-        #if have_matplotlib:
+        # if have_matplotlib:
         #    assert p.combiplot(show=False)
         #    p.slideshow()
 
@@ -145,6 +147,6 @@ class AbinitInpectTest(PymatgenTest):
             print(scf_step.num_iterations)
 
         # TODO: Reactivate
-        #if have_matplotlib:
+        # if have_matplotlib:
         #    relaxation.plot(show=False)
         #    relaxation.slideshow(show=False)

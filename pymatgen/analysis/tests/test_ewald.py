@@ -33,7 +33,7 @@ class EwaldSummationTest(unittest.TestCase):
 
         ham = EwaldSummation(s, compute_forces=True)
         self.assertAlmostEqual(ham.real_space_energy, -502.23549897772602, 4)
-        self.assertAlmostEqual(ham.reciprocal_space_energy,  6.1541071599534654, 4)
+        self.assertAlmostEqual(ham.reciprocal_space_energy, 6.1541071599534654, 4)
         self.assertAlmostEqual(ham.point_energy, -620.22598358035918, 4)
         self.assertAlmostEqual(ham.total_energy, -1123.00766, 1)
         self.assertAlmostEqual(ham.forces[0, 0], -1.98818620e-01, 4)
@@ -110,6 +110,7 @@ class EwaldMinimizerTest(unittest.TestCase):
         self.assertAlmostEquals(-1226.3335, ham.total_energy, 3)
         self.assertAlmostEquals(-45.8338, ham.get_site_energy(0), 3)
         self.assertAlmostEquals(-27.2978, ham.get_site_energy(8), 3)
+
 
 if __name__ == "__main__":
     unittest.main()

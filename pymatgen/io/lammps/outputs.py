@@ -1,6 +1,13 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
+
+"""
+This module implements classes and methods for processing LAMMPS output
+files (log and dump).
+"""
+
+
 import re
 import glob
 from io import StringIO
@@ -13,11 +20,6 @@ from monty.io import zopen
 
 from pymatgen.io.lammps.data import LammpsBox
 
-"""
-This module implements classes and methods for processing LAMMPS output
-files (log and dump).
-
-"""
 
 __author__ = "Kiran Mathew, Zhi Deng"
 __copyright__ = "Copyright 2018, The Materials Virtual Lab"
@@ -28,10 +30,8 @@ __date__ = "Aug 1, 2018"
 
 
 class LammpsDump(MSONable):
-
     """
     Object for representing dump data for a single snapshot.
-
     """
 
     def __init__(self, timestep, natoms, box, data):
@@ -78,12 +78,22 @@ class LammpsDump(MSONable):
 
     @classmethod
     def from_dict(cls, d):
+        """
+        Args:
+            d (dict): Dict representation
+
+        Returns:
+            LammpsDump
+        """
         items = {"timestep": d["timestep"], "natoms": d["natoms"]}
         items["box"] = LammpsBox.from_dict(d["box"])
         items["data"] = pd.read_json(d["data"], orient="split")
         return cls(**items)
 
     def as_dict(self):
+        """
+        Returns: MSONable dict
+        """
         d = dict()
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__

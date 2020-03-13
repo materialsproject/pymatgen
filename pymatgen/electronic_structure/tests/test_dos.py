@@ -60,30 +60,36 @@ class FermiDosTest(unittest.TestCase):
         T = 300
         fermi0 = self.dos.efermi
         frange = [fermi0 - 0.5, fermi0, fermi0 + 2.0, fermi0 + 2.2]
-        dopings = [self.dos.get_doping(fermi=f, T=T) for f in frange]
+        dopings = [self.dos.get_doping(fermi_level=f, temperature=T) for f in frange]
         ref_dopings = [3.48077e+21, 1.9235e+18, -2.6909e+16, -4.8723e+19]
         for i, c_ref in enumerate(ref_dopings):
             self.assertLessEqual(abs(dopings[i] / c_ref - 1.0), 0.01)
 
-        calc_fermis = [self.dos.get_fermi(c=c, T=T) for c in ref_dopings]
+        calc_fermis = [self.dos.get_fermi(concentration=c, temperature=T) for c in ref_dopings]
         for j, f_ref in enumerate(frange):
             self.assertAlmostEqual(calc_fermis[j], f_ref, 4)
 
         sci_dos = FermiDos(self.dos, bandgap=3.0)
+        self.assertEqual(sci_dos.get_gap(), 3.)
+        old_cbm, old_vbm = self.dos.get_cbm_vbm()
+        old_gap = old_cbm - old_vbm
+        new_cbm, new_vbm = sci_dos.get_cbm_vbm()
+        self.assertAlmostEqual(new_cbm - old_cbm, (3. - old_gap) / 2.)
+        self.assertAlmostEqual(old_vbm - new_vbm, (3. - old_gap) / 2.)
         for i, c_ref in enumerate(ref_dopings):
             if c_ref < 0:
                 self.assertAlmostEqual(
-                    sci_dos.get_fermi(c_ref, T=T) - frange[i], 0.47, places=2)
+                    sci_dos.get_fermi(c_ref, temperature=T) - frange[i], 0.47, places=2)
             else:
                 self.assertAlmostEqual(
-                    sci_dos.get_fermi(c_ref, T=T) - frange[i], -0.47, places=2)
+                    sci_dos.get_fermi(c_ref, temperature=T) - frange[i], -0.47, places=2)
 
         self.assertAlmostEqual(sci_dos.get_fermi_interextrapolated(-1e26, 300),
                                7.5108, 4)
         self.assertAlmostEqual(sci_dos.get_fermi_interextrapolated(1e26, 300),
-                               -1.6884, 4)
+                               -1.4182, 4)
         self.assertAlmostEqual(sci_dos.get_fermi_interextrapolated(0.0, 300),
-                               3.2382, 4)
+                               2.5226, 4)
 
 
 class CompleteDosTest(unittest.TestCase):
@@ -362,7 +368,7 @@ class LobsterCompleteDosTest(unittest.TestCase):
         PDOS_Mn_eg_down = (np.array(PDOS_Mn_3dx2_down) + np.array(PDOS_Mn_3dz2_down)).tolist()
         PDOS_Mn_t2g_up = (np.array(PDOS_Mn_3dxy_up) + np.array(PDOS_Mn_3dxz_up) + np.array(PDOS_Mn_3dyz_up)).tolist()
         PDOS_Mn_t2g_down = (
-                    np.array(PDOS_Mn_3dxy_down) + np.array(PDOS_Mn_3dxz_down) + np.array(PDOS_Mn_3dyz_down)).tolist()
+                np.array(PDOS_Mn_3dxy_down) + np.array(PDOS_Mn_3dxz_down) + np.array(PDOS_Mn_3dyz_down)).tolist()
 
         for iel, el in enumerate(
                 self.LobsterCompleteDOS_MnO.get_site_t2g_eg_resolved_dos(self.structure_MnO[1])['e_g'].densities[
@@ -388,7 +394,6 @@ class LobsterCompleteDosTest(unittest.TestCase):
                          self.LobsterCompleteDOS_MnO.get_site_t2g_eg_resolved_dos(self.structure_MnO[1])['e_g'].efermi)
         self.assertEqual(efermi,
                          self.LobsterCompleteDOS_MnO.get_site_t2g_eg_resolved_dos(self.structure_MnO[1])['t2g'].efermi)
-
 
         # without spin polarization
         energies_nonspin = [-11.25000, -7.50000, -3.75000, 0.00000, 3.75000, 7.50000]

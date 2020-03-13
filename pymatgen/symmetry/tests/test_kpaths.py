@@ -3,18 +3,6 @@
 # Distributed under the terms of the MIT License.
 
 
-"""
-Created on Aug 23, 2017
-"""
-
-
-__author__ = "Katie Latimer"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Katie Latimer"
-__email__ = "klatimer@berkeley.edu"
-__date__ = "Aug 23, 2017"
-
 import unittest
 import os
 
@@ -25,7 +13,8 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 
 test_dir_structs = os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                            'test_files', 'space_group_structs')
+                                'test_files', 'space_group_structs')
+
 
 class HighSymmKpathTest(PymatgenTest):
 
@@ -37,13 +26,13 @@ class HighSymmKpathTest(PymatgenTest):
         rhombohedral = range(143, 168)
         hexagonal = range(168, 195)
         cubic = range(195, 231)
-        
+
         species = ['K', 'La', 'Ti']
         coords = [[.345, 5, .77298], [.1345, 5.1, .77298], [.7, .8, .9]]
         for i in range(230):
             sg_num = i + 1
             if sg_num in triclinic:
-                lattice = Lattice([[3.0233057319441246,0,0], [0,7.9850357844548681,0], [0,0,8.1136762279561818]])
+                lattice = Lattice([[3.0233057319441246, 0, 0], [0, 7.9850357844548681, 0], [0, 0, 8.1136762279561818]])
             elif sg_num in monoclinic:
                 lattice = Lattice.monoclinic(2, 9, 1, 99)
             elif sg_num in orthorhombic:
@@ -56,9 +45,9 @@ class HighSymmKpathTest(PymatgenTest):
                 lattice = Lattice.hexagonal(2, 9)
             elif sg_num in cubic:
                 lattice = Lattice.cubic(2)
-        
+
             struct = Structure.from_spacegroup(sg_num, lattice, species, coords)
-            kpath = HighSymmKpath(struct) #Throws error if something doesn't work, causing test to fail.
+            kpath = HighSymmKpath(struct)  # Throws error if something doesn't work, causing test to fail.
 
         struct_file_path = os.path.join(test_dir_structs, 'ICSD_170.cif')
         struct = Structure.from_file(struct_file_path)
@@ -71,7 +60,7 @@ class HighSymmKpathTest(PymatgenTest):
         lattice = Lattice.orthorhombic(2, 9, 1)
         struct = Structure.from_spacegroup(38, lattice, species, coords)
         kpath = HighSymmKpath(struct)
-        
+
         kpoints = kpath._kpath['kpoints']
         labels = list(kpoints.keys())
 
@@ -116,6 +105,7 @@ class HighSymmKpathTest(PymatgenTest):
         self.assertAlmostEqual(kpoints['Z'][0], 0.00000000)
         self.assertAlmostEqual(kpoints['Z'][1], 0.00000000)
         self.assertAlmostEqual(kpoints['Z'][2], 0.50000000)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -3,35 +3,24 @@
 # Distributed under the terms of the MIT License.
 
 
-"""
-TODO: Modify module doc.
-"""
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "6/9/13"
-
 import unittest
 import os
 
-from pymatgen.analysis.molecule_matcher import MoleculeMatcher
-from pymatgen.analysis.molecule_matcher import IsomorphismMolAtomMapper
-from pymatgen.analysis.molecule_matcher import InchiMolAtomMapper
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure import Molecule
+
 try:
     import openbabel as ob
-except ImportError:
+    from pymatgen.analysis.molecule_matcher import MoleculeMatcher
+    from pymatgen.analysis.molecule_matcher import IsomorphismMolAtomMapper
+    from pymatgen.analysis.molecule_matcher import InchiMolAtomMapper
+except (ImportError, RuntimeError):
     ob = None
-
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files', "molecules", "molecule_matcher")
 
-obalign_missing = ob is None or 'OBAlign' not in dir(ob)
+obalign_missing = (ob is None) or ('OBAlign' not in dir(ob))
 
 
 @unittest.skipIf(obalign_missing, "OBAlign is missing, Skipping")

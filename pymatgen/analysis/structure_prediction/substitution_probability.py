@@ -2,6 +2,11 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+This module provides classes for representing species substitution
+probabilities.
+"""
+
 from collections import defaultdict
 from operator import mul
 from pymatgen.core.periodic_table import Specie, get_el_sp
@@ -13,12 +18,6 @@ import json
 import logging
 import math
 import os
-
-
-"""
-This module provides classes for representing species substitution
-probabilities.
-"""
 
 __author__ = "Will Richards, Geoffroy Hautier"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -39,16 +38,17 @@ class SubstitutionProbability:
     Hautier, G., Fischer, C., Ehrlacher, V., Jain, A., and Ceder, G. (2011)
     Data Mined Ionic Substitutions for the Discovery of New Compounds.
     Inorganic Chemistry, 50(2), 656-663. doi:10.1021/ic102031h
-
-    Args:
-        lambda_table:
-            json table of the weight functions lambda if None,
-            will use the default lambda.json table
-        alpha:
-            weight function for never observed substitutions
     """
 
     def __init__(self, lambda_table=None, alpha=-5):
+        """
+        Args:
+            lambda_table:
+                json table of the weight functions lambda if None,
+                will use the default lambda.json table
+            alpha:
+                weight function for never observed substitutions
+        """
         if lambda_table is not None:
             self._lambda_table = lambda_table
         else:
@@ -79,11 +79,26 @@ class SubstitutionProbability:
             self.Z += value
 
     def get_lambda(self, s1, s2):
+        """
+        Args:
+            s1 (Structure): 1st Structure
+            s2 (Structure): 2nd Structure
+
+        Returns:
+            Lambda values
+        """
         k = frozenset([get_el_sp(s1),
                        get_el_sp(s2)])
         return self._l.get(k, self.alpha)
 
     def get_px(self, sp):
+        """
+        Args:
+            sp (Specie/Element): Species
+
+        Returns:
+            Probability
+        """
         return self._px[get_el_sp(sp)]
 
     def prob(self, s1, s2):
@@ -118,8 +133,7 @@ class SubstitutionProbability:
         Returns:
             The pair correlation of 2 species
         """
-        return math.exp(self.get_lambda(s1, s2)) * \
-               self.Z / (self.get_px(s1) * self.get_px(s2))
+        return math.exp(self.get_lambda(s1, s2)) * self.Z / (self.get_px(s1) * self.get_px(s2))
 
     def cond_prob_list(self, l1, l2):
         """
@@ -141,6 +155,9 @@ class SubstitutionProbability:
         return p
 
     def as_dict(self):
+        """
+        Returns: MSONAble dict
+        """
         return {"name": self.__class__.__name__, "version": __version__,
                 "init_args": {"lambda_table": self._lambda_table,
                               "alpha": self._alpha},
@@ -149,6 +166,13 @@ class SubstitutionProbability:
 
     @classmethod
     def from_dict(cls, d):
+        """
+        Args:
+            d(dict): Dict representation
+
+        Returns:
+            Class
+        """
         return cls(**d['init_args'])
 
 
@@ -159,6 +183,12 @@ class SubstitutionPredictor:
     """
 
     def __init__(self, lambda_table=None, alpha=-5, threshold=1e-3):
+        """
+        Args:
+            lambda_table (): Input lambda table.
+            alpha (float): weight function for never observed substitutions
+            threshold (float): Threshold to use to identify high probability structures.
+        """
         self.p = SubstitutionProbability(lambda_table, alpha)
         self.threshold = threshold
 

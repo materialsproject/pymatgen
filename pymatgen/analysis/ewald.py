@@ -2,6 +2,9 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+This module provides classes for calculating the ewald sum of a structure.
+"""
 
 from math import pi, sqrt, log
 from datetime import datetime
@@ -12,10 +15,6 @@ import bisect
 import numpy as np
 from scipy.special import erfc, comb
 import scipy.constants as constants
-
-"""
-This module provides classes for calculating the ewald sum of a structure.
-"""
 
 __author__ = "Shyue Ping Ong, William Davidson Richard"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -113,7 +112,7 @@ class EwaldSummation:
 
         # Compute the correction for a charged cell
         self._charged_cell_energy = - EwaldSummation.CONV_FACT / 2 * np.pi / \
-                                    structure.volume / self._eta * structure.charge ** 2
+            structure.volume / self._eta * structure.charge ** 2
 
     def compute_partial_energy(self, removed_indices):
         """
@@ -250,18 +249,17 @@ class EwaldSummation:
             raise AttributeError(
                 "Forces are available only if compute_forces is True!")
         return self._forces
-        
+
     def get_site_energy(self, site_index):
         """Compute the energy for a single site in the structure
-        
+
         Args:
             site_index (int): Index of site
         ReturnS:
             (float) - Energy of that site"""
         if self._charged:
             warn('Per atom energies for charged structures not supported in EwaldSummation')
-        return np.sum(self._recip[:,site_index]) + np.sum(self._real[:,site_index]) \
-            + self._point[site_index]
+        return np.sum(self._recip[:, site_index]) + np.sum(self._real[:, site_index]) + self._point[site_index]
 
     def _calc_recip(self):
         """
@@ -312,7 +310,7 @@ class EwaldSummation:
             if self._compute_forces:
                 pref = 2 * expval / g2 * oxistates
                 factor = prefactor * pref * (
-                    sreal * np.sin(gr) - simag * np.cos(gr))
+                        sreal * np.sin(gr) - simag * np.cos(gr))
 
                 forces += factor[:, None] * g[None, :]
 
@@ -338,7 +336,7 @@ class EwaldSummation:
 
         for i in range(numsites):
             nfcoords, rij, js, _ = self._s.lattice.get_points_in_sphere(fcoords,
-                                    coords[i], self._rmax, zip_results=False)
+                                                                        coords[i], self._rmax, zip_results=False)
 
             # remove the rii term
             inds = rij > 1e-8
@@ -371,22 +369,25 @@ class EwaldSummation:
 
     @property
     def eta(self):
+        """
+        Returns: eta value used in Ewald summation.
+        """
         return self._eta
 
     def __str__(self):
         if self._compute_forces:
             output = ["Real = " + str(self.real_space_energy),
-                  "Reciprocal = " + str(self.reciprocal_space_energy),
-                  "Point = " + str(self.point_energy),
-                  "Total = " + str(self.total_energy),
-                  "Forces:\n" + str(self.forces)
-                  ]           
+                      "Reciprocal = " + str(self.reciprocal_space_energy),
+                      "Point = " + str(self.point_energy),
+                      "Total = " + str(self.total_energy),
+                      "Forces:\n" + str(self.forces)
+                      ]
         else:
             output = ["Real = " + str(self.real_space_energy),
-                  "Reciprocal = " + str(self.reciprocal_space_energy),
-                  "Point = " + str(self.point_energy),
-                  "Total = " + str(self.total_energy),
-                  "Forces were not computed"]
+                      "Reciprocal = " + str(self.reciprocal_space_energy),
+                      "Point = " + str(self.point_energy),
+                      "Total = " + str(self.total_energy),
+                      "Forces were not computed"]
         return "\n".join(output)
 
 
@@ -406,21 +407,6 @@ class EwaldMinimizer:
     order disordered structure transformation.
 
     Author - Will Richards
-
-    Args:
-        matrix: A matrix of the ewald sum interaction energies. This is stored
-            in the class as a diagonally symmetric array and so
-            self._matrix will not be the same as the input matrix.
-        m_list: list of manipulations. each item is of the form
-            (multiplication fraction, number_of_indices, indices, species)
-            These are sorted such that the first manipulation contains the
-            most permutations. this is actually evaluated last in the
-            recursion since I'm using pop.
-        num_to_return: The minimizer will find the number_returned lowest
-            energy structures. This is likely to return a number of duplicate
-            structures so it may be necessary to overestimate and then
-            remove the duplicates later. (duplicate checking in this
-            process is extremely expensive)
     """
 
     ALGO_FAST = 0
@@ -435,6 +421,22 @@ class EwaldMinimizer:
     ALGO_TIME_LIMIT = 3
 
     def __init__(self, matrix, m_list, num_to_return=1, algo=ALGO_FAST):
+        """
+        Args:
+            matrix: A matrix of the ewald sum interaction energies. This is stored
+                in the class as a diagonally symmetric array and so
+                self._matrix will not be the same as the input matrix.
+            m_list: list of manipulations. each item is of the form
+                (multiplication fraction, number_of_indices, indices, species)
+                These are sorted such that the first manipulation contains the
+                most permutations. this is actually evaluated last in the
+                recursion since I'm using pop.
+            num_to_return: The minimizer will find the number_returned lowest
+                energy structures. This is likely to return a number of duplicate
+                structures so it may be necessary to overestimate and then
+                remove the duplicates later. (duplicate checking in this
+                process is extremely expensive)
+        """
         # Setup and checking of inputs
         self._matrix = copy(matrix)
         # Make the matrix diagonally symmetric (so matrix[i,:] == matrix[:,j])
@@ -476,7 +478,7 @@ class EwaldMinimizer:
         ewald sum calls recursive function to iterate through permutations
         """
         if self._algo == EwaldMinimizer.ALGO_FAST or \
-                        self._algo == EwaldMinimizer.ALGO_BEST_FIRST:
+                self._algo == EwaldMinimizer.ALGO_BEST_FIRST:
             return self._recurse(self._matrix, self._m_list,
                                  set(range(len(self._matrix))))
 
@@ -490,7 +492,7 @@ class EwaldMinimizer:
         else:
             bisect.insort(self._output_lists, [matrix_sum, m_list])
         if self._algo == EwaldMinimizer.ALGO_BEST_FIRST and \
-                        len(self._output_lists) == self._num_to_return:
+                len(self._output_lists) == self._num_to_return:
             self._finished = True
         if len(self._output_lists) > self._num_to_return:
             self._output_lists.pop()
@@ -547,8 +549,7 @@ class EwaldMinimizer:
             interaction_correction = average_correction * speedup_parameter \
                 + interaction_correction * (1 - speedup_parameter)
 
-        best_case = np.sum(matrix) + np.inner(sums[::-1], fractions - 1) \
-            + interaction_correction
+        best_case = np.sum(matrix) + np.inner(sums[::-1], fractions - 1) + interaction_correction
 
         return best_case
 
@@ -626,14 +627,23 @@ class EwaldMinimizer:
 
     @property
     def best_m_list(self):
+        """
+        Returns: Best m_list found.
+        """
         return self._best_m_list
 
     @property
     def minimized_sum(self):
+        """
+        Returns: Minimized sum
+        """
         return self._minimized_sum
 
     @property
     def output_lists(self):
+        """
+        Returns: output lists.
+        """
         return self._output_lists
 
 

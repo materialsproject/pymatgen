@@ -2,9 +2,10 @@
 
 import unittest
 import numpy as np
-
-from pymatgen.symmetry.maggroups import *
+from pymatgen.core.lattice import Lattice
+from pymatgen.symmetry.maggroups import MagneticSpaceGroup
 from pymatgen.symmetry.groups import SpaceGroup
+from pymatgen.util.testing import PymatgenTest
 
 __author__ = "Matthew Horton"
 __copyright__ = "Copyright 2017, The Materials Project"
@@ -14,12 +15,14 @@ __email__ = "mkhorton@lbl.gov"
 __status__ = "Beta"
 __date__ = "Feb 2017"
 
-class MagneticSpaceGroupTest(unittest.TestCase):
+
+class MagneticSpaceGroupTest(PymatgenTest):
 
     def setUp(self):
         self.msg_1 = MagneticSpaceGroup([70, 530])
         self.msg_2 = MagneticSpaceGroup([62, 448])
         self.msg_3 = MagneticSpaceGroup([20, 37])
+        self.msg_4 = MagneticSpaceGroup([2, 7], "c,1/4a+1/4b,-1/2a+1/2b;0,0,0")
 
     def test_init(self):
         # test init with the following space group:
@@ -116,7 +119,7 @@ x+1/2, -y+1/2, -z+1/2, -1
 -x+1/2, -y, z+1/2, -1
 -x+1/2, y+1/2, z+1/2, -1
 x+1/2, y, -z+1/2, -1"""
-        self.assertEqual(msg_2_symmops, msg_2_symmops_ref)
+        self.assertStrContentEqual(msg_2_symmops, msg_2_symmops_ref)
 
         msg_3_symmops = "\n".join([str(op) for op in self.msg_3.symmetry_ops])
         msg_3_symmops_ref = """x, y, z, +1
@@ -131,11 +134,18 @@ x+1/2, y+1/2, z, +1
 x+1/2, -y+1/2, -z, +1
 -x+1/2, y+1/2, -z+1/2, +1
 -x+1/2, -y+1/2, z+1/2, +1
-x+1/2, y+1, z+1/2, -1
-x+1, -y+1/2, -z+1/2, -1
--x+1, y+1/2, -z, -1
--x+1, -y+1/2, z, -1"""
+x+1/2, y, z+1/2, -1
+x, -y+1/2, -z+1/2, -1
+-x, y+1/2, -z, -1
+-x, -y+1/2, z, -1"""
         self.assertEqual(msg_3_symmops, msg_3_symmops_ref)
+
+        msg_4_symmops = "\n".join([str(op) for op in self.msg_4.symmetry_ops])
+        msg_4_symmops_ref = """x, y, z, +1
+-x, -y, -z, +1
+x+1/2, y, z, -1
+-x+1/2, -y, -z, -1"""
+        self.assertEqual(msg_4_symmops, msg_4_symmops_ref)
 
     def test_equivalence_to_spacegroup(self):
 
@@ -165,7 +175,7 @@ x+1, -y+1/2, -z+1/2, -1
 
         ref_string = """BNS: 4.11 P_b2_1
 Operators: (1|0,0,0) (2y|0,1/2,0) (1|0,1/2,0)' (2y|0,0,0)'
-Wyckoff Positions: 
+Wyckoff Positions:
 4e  (x,y,z;mx,my,mz) (-x,y+1/2,-z;-mx,my,-mz) (x,y+1/2,z;-mx,-my,-mz)
     (-x,y,-z;mx,-my,mz)
 2d  (1/2,y,1/2;mx,0,mz) (1/2,y+1/2,1/2;-mx,0,-mz)
@@ -177,7 +187,7 @@ Alternative OG setting exists for this space group."""
         ref_string_all = """BNS: 4.11 P_b2_1		OG: 3.7.14 P_2b2'
 OG-BNS Transform: (a,2b,c;0,0,0)
 Operators (BNS): (1|0,0,0) (2y|0,1/2,0) (1|0,1/2,0)' (2y|0,0,0)'
-Wyckoff Positions (BNS): 
+Wyckoff Positions (BNS):
 4e  (x,y,z;mx,my,mz) (-x,y+1/2,-z;-mx,my,-mz) (x,y+1/2,z;-mx,-my,-mz)
     (-x,y,-z;mx,-my,mz)
 2d  (1/2,y,1/2;mx,0,mz) (1/2,y+1/2,1/2;-mx,0,-mz)
@@ -193,8 +203,9 @@ Wyckoff Positions (OG): (1,0,0)+ (0,2,0)+ (0,0,1)+
 2b  (0,y,1/2;mx,0,mz) (0,y+1,-1/2;-mx,0,-mz)
 2a  (0,y,0;mx,0,mz) (0,y+1,0;-mx,0,-mz)"""
 
-        self.assertEqual(str(msg), ref_string)
-        self.assertEqual(msg.data_str(), ref_string_all)
+        self.assertStrContentEqual(str(msg), ref_string)
+        self.assertStrContentEqual(msg.data_str(), ref_string_all)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -3,10 +3,6 @@
 # Distributed under the terms of the MIT License.import string
 
 
-import string
-import random
-import numpy as np
-
 """
 function for calculating the convergence of an x, y data set
 main api:
@@ -23,6 +19,11 @@ returns the x_value for which dy(x)/dx < tol for all x >= x_value, conv is true 
 for the best fit a gnuplot line is printed plotting the data, the function and the assymthotic value
 """
 
+import string
+import random
+import numpy as np
+
+
 __author__ = "Michiel van Setten"
 __copyright__ = " "
 __version__ = "0.9"
@@ -32,11 +33,26 @@ __date__ = "June 2014"
 
 
 def id_generator(size=8, chars=string.ascii_uppercase + string.digits):
+    """
+    Args:
+        size ():
+        chars ():
+
+    Returns:
+
+    """
     return ''.join(random.choice(chars) for _ in range(size))
 
 
 class SplineInputError(Exception):
+    """
+    Error for Spline input
+    """
     def __init__(self, msg):
+        """
+        Args:
+            msg (str): Message
+        """
         self.msg = msg
 
 
@@ -61,12 +77,12 @@ def get_derivatives(xs, ys, fd=False):
         m, left, right = 0, 0, 0
         for n in range(0, len(xs), 1):
             try:
-                left = (ys[n] - ys[n-1]) / (xs[n] - xs[n-1])
+                left = (ys[n] - ys[n - 1]) / (xs[n] - xs[n - 1])
                 m += 1
             except IndexError:
                 pass
             try:
-                right = (ys[n+1] - ys[n]) / (xs[n+1] - xs[n])
+                right = (ys[n + 1] - ys[n]) / (xs[n + 1] - xs[n])
                 m += 1
             except IndexError:
                 pass
@@ -80,10 +96,19 @@ functions used in the fitting procedure, with initial guesses
 
 
 def print_and_raise_error(xs, ys, name):
-        print('Index error in', name)
-        print('ys: ', ys)
-        print('xs: ', xs)
-        raise RuntimeError
+    """
+    Args:
+        xs ():
+        ys ():
+        name ():
+
+    Returns:
+
+    """
+    print('Index error in', name)
+    print('ys: ', ys)
+    print('xs: ', xs)
+    raise RuntimeError
 
 
 def reciprocal(x, a, b, n):
@@ -109,7 +134,7 @@ def p0_reciprocal(xs, ys):
     predictor for first guess for reciprocal
     """
     a0 = ys[len(ys) - 1]
-    b0 = ys[0]*xs[0] - a0*xs[0]
+    b0 = ys[0] * xs[0] - a0 * xs[0]
     return [a0, b0, 1]
 
 
@@ -136,11 +161,20 @@ def exponential(x, a, b, n):
 
 
 def p0_exponential(xs, ys):
+    """
+
+    Args:
+        xs ():
+        ys ():
+
+    Returns:
+
+    """
     n0 = 1.005
     b0 = (n0 ** -xs[-1] - n0 ** -xs[1]) / (ys[-1] - ys[1])
     a0 = ys[1] - b0 * n0 ** -xs[1]
-    #a0 = ys[-1]
-    #b0 = (ys[0] - a0) / n0 ** xs[0]
+    # a0 = ys[-1]
+    # b0 = (ys[0] - a0) / n0 ** xs[0]
     return [a0, b0, n0]
 
 
@@ -159,8 +193,17 @@ def single_reciprocal(x, a, b, c):
 
 
 def p0_single_reciprocal(xs, ys):
+    """
+
+    Args:
+        xs ():
+        ys ():
+
+    Returns:
+
+    """
     c = 1
-    b = (1/(xs[-1] - c)-1/(xs[1] - c)) / (ys[-1] - ys[1])
+    b = (1 / (xs[-1] - c) - 1 / (xs[1] - c)) / (ys[-1] - ys[1])
     a = ys[1] - b / (xs[1] - c)
     return [a, b, c]
 
@@ -180,9 +223,18 @@ def simple_reciprocal(x, a, b):
 
 
 def p0_simple_reciprocal(xs, ys):
-    #b = (ys[-1] - ys[1]) / (1/xs[-1] - 1/xs[1])
-    #a = ys[1] - b / xs[1]
-    b = (ys[-1] - ys[-2]) / (1/(xs[-1]) - 1/(xs[-2]))
+    """
+
+    Args:
+        xs ():
+        ys ():
+
+    Returns:
+
+    """
+    # b = (ys[-1] - ys[1]) / (1/xs[-1] - 1/xs[1])
+    # a = ys[1] - b / xs[1]
+    b = (ys[-1] - ys[-2]) / (1 / (xs[-1]) - 1 / (xs[-2]))
     a = ys[-2] - b / (xs[-2])
     return [a, b]
 
@@ -203,9 +255,18 @@ def simple_2reciprocal(x, a, b):
 
 
 def p0_simple_2reciprocal(xs, ys):
+    """
+
+    Args:
+        xs ():
+        ys ():
+
+    Returns:
+
+    """
     c = 2
-    b = (ys[-1] - ys[1]) / (1/xs[-1]**c - 1/xs[1]**c)
-    a = ys[1] - b / xs[1]**c
+    b = (ys[-1] - ys[1]) / (1 / xs[-1] ** c - 1 / xs[1] ** c)
+    a = ys[1] - b / xs[1] ** c
     return [a, b]
 
 
@@ -225,9 +286,18 @@ def simple_4reciprocal(x, a, b):
 
 
 def p0_simple_4reciprocal(xs, ys):
+    """
+
+    Args:
+        xs ():
+        ys ():
+
+    Returns:
+
+    """
     c = 4
-    b = (ys[-1] - ys[1]) / (1/xs[-1]**c - 1/xs[1]**c)
-    a = ys[1] - b / xs[1]**c
+    b = (ys[-1] - ys[1]) / (1 / xs[-1] ** c - 1 / xs[1] ** c)
+    a = ys[1] - b / xs[1] ** c
     return [a, b]
 
 
@@ -247,14 +317,31 @@ def simple_5reciprocal(x, a, b):
 
 
 def p0_simple_5reciprocal(xs, ys):
+    """
+    Args:
+        xs ():
+        ys ():
+
+    Returns:
+
+    """
     c = 0.5
-    b = (ys[-1] - ys[1]) / (1/xs[-1]**c - 1/xs[1]**c)
-    a = ys[1] - b / xs[1]**c
+    b = (ys[-1] - ys[1]) / (1 / xs[-1] ** c - 1 / xs[1] ** c)
+    a = ys[1] - b / xs[1] ** c
     return [a, b]
 
 
 def extrapolate_simple_reciprocal(xs, ys):
-    b = (ys[-2] - ys[-1]) / (1/(xs[-2]) - 1/(xs[-1]))
+    """
+
+    Args:
+        xs ():
+        ys ():
+
+    Returns:
+
+    """
+    b = (ys[-2] - ys[-1]) / (1 / (xs[-2]) - 1 / (xs[-1]))
     a = ys[-1] - b / (xs[-1])
     return [a, b]
 
@@ -269,14 +356,14 @@ def extrapolate_reciprocal(xs, ys, n, noise):
         x1 = (xs[-3] + xs[-4]) / 2
         x2 = (xs[-1] + xs[-2]) / 2
         try:
-            b = (y1 - y2) / (1/x1**n - 1/x2**n)
-            a = y2 - b / x2**n
+            b = (y1 - y2) / (1 / x1 ** n - 1 / x2 ** n)
+            a = y2 - b / x2 ** n
         except IndexError:
             print_and_raise_error(xs, ys, 'extrapolate_reciprocal')
     else:
         try:
-            b = (ys[-2] - ys[-1]) / (1/(xs[-2])**n - 1/(xs[-1])**n)
-            a = ys[-1] - b / (xs[-1])**n
+            b = (ys[-2] - ys[-1]) / (1 / (xs[-2]) ** n - 1 / (xs[-1]) ** n)
+            a = ys[-1] - b / (xs[-1]) ** n
         except IndexError:
             print_and_raise_error(xs, ys, 'extrapolate_reciprocal')
     return [a, b, n]
@@ -291,9 +378,9 @@ def measure(function, xs, ys, popt, weights):
     for x in xs:
         try:
             if len(popt) == 2:
-                m += (ys[n] - function(x, popt[0], popt[1]))**2 * weights[n]
+                m += (ys[n] - function(x, popt[0], popt[1])) ** 2 * weights[n]
             elif len(popt) == 3:
-                m += (ys[n] - function(x, popt[0], popt[1], popt[2]))**2 * weights[n]
+                m += (ys[n] - function(x, popt[0], popt[1], popt[2])) ** 2 * weights[n]
             else:
                 raise NotImplementedError
             n += 1
@@ -304,6 +391,15 @@ def measure(function, xs, ys, popt, weights):
 
 
 def get_weights(xs, ys, mode=2):
+    """
+    Args:
+        xs ():
+        ys ():
+        mode ():
+
+    Returns:
+
+    """
     ds = get_derivatives(xs, ys, fd=True)
     if mode == 1:
         mind = np.inf
@@ -313,10 +409,10 @@ def get_weights(xs, ys, mode=2):
         for d in ds:
             weights.append(abs((mind / d)))
     if mode == 2:
-        maxxs = max(xs)**2
+        maxxs = max(xs) ** 2
         weights = []
         for x in xs:
-            weights.append(x**2 / maxxs)
+            weights.append(x ** 2 / maxxs)
     else:
         weights = [1] * len(xs)
     return weights
@@ -326,11 +422,11 @@ def multi_curve_fit(xs, ys, verbose):
     """
     fit multiple functions to the x, y data, return the best fit
     """
-    #functions = {exponential: p0_exponential, reciprocal: p0_reciprocal, single_reciprocal: p0_single_reciprocal}
+    # functions = {exponential: p0_exponential, reciprocal: p0_reciprocal, single_reciprocal: p0_single_reciprocal}
     functions = {
         exponential: p0_exponential,
         reciprocal: p0_reciprocal,
-        #single_reciprocal: p0_single_reciprocal,
+        # single_reciprocal: p0_single_reciprocal,
         simple_reciprocal: p0_simple_reciprocal,
         simple_2reciprocal: p0_simple_2reciprocal,
         simple_4reciprocal: p0_simple_4reciprocal,
@@ -383,7 +479,7 @@ def print_plot_line(function, popt, xs, ys, name, tol=0.05, extra=''):
     print the gnuplot command line to plot the x, y data with the fitted function using the popt parameters
     """
     idp = id_generator()
-    f = open('convdat.'+str(idp), mode='w')
+    f = open('convdat.' + str(idp), mode='w')
     for n in range(0, len(ys), 1):
         f.write(str(xs[n]) + ' ' + str(ys[n]) + '\n')
     f.close()
@@ -410,7 +506,7 @@ def print_plot_line(function, popt, xs, ys, name, tol=0.05, extra=''):
     with open('plot-fits', mode='a') as f:
         f.write('set title "' + name + ' - ' + extra + '"\n')
         f.write("set output '" + name + '-' + idp + ".gif'" + '\n')
-        f.write("set yrange [" + str(popt[0] - 5 * tol) + ':' + str(popt[0] + 5 * tol)+']\n')
+        f.write("set yrange [" + str(popt[0] - 5 * tol) + ':' + str(popt[0] + 5 * tol) + ']\n')
         f.write(line + '\n')
         f.write('pause -1 \n')
 
@@ -447,7 +543,7 @@ def determine_convergence(xs, ys, name, tol=0.0001, extra='', verbose=False, mod
                     print('warning function ', func[0], ' as the best fit but not a good fit: ', func[1])
                 # todo print this to file via a method in helper, as dict
                 if plots:
-                    with open(name+'.fitdat', mode='a') as f:
+                    with open(name + '.fitdat', mode='a') as f:
                         f.write('{')
                         f.write('"popt": ' + str(popt) + ', ')
                         f.write('"pcov": ' + str(pcov) + ', ')

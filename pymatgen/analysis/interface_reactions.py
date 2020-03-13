@@ -2,6 +2,11 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+This module provides class to generate and analyze interfacial reactions.
+"""
+
+
 from __future__ import division
 
 import warnings
@@ -11,10 +16,6 @@ import matplotlib.pylab as plt
 from pymatgen import Composition
 from pymatgen.analysis.phase_diagram import GrandPotentialPhaseDiagram
 from pymatgen.analysis.reaction_calculator import Reaction
-
-"""
-This module provides class to generate and analyze interfacial reactions.
-"""
 
 __author__ = "Yihan Xiao"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -28,33 +29,34 @@ __date__ = "Aug 15 2017"
 class InterfacialReactivity:
     """
     An object encompassing all relevant data for interface reactions.
-
-    Args:
-        c1 (Composition): Composition object for reactant 1.
-        c2 (Composition): Composition object for reactant 2.
-        pd (PhaseDiagram): PhaseDiagram object or GrandPotentialPhaseDiagram
-            object built from all elements in composition c1 and c2.
-        norm (bool): Whether or not the total number of atoms in composition
-            of reactant will be normalized to 1.
-        include_no_mixing_energy (bool): No_mixing_energy for a reactant is the
-            opposite number of its energy above grand potential convex hull. In
-            cases where reactions involve elements reservoir, this param
-            determines whether no_mixing_energy of reactants will be included
-            in the final reaction energy calculation. By definition, if pd is
-            not a GrandPotentialPhaseDiagram object, this param is False.
-        pd_non_grand (PhaseDiagram): PhaseDiagram object but not
-            GrandPotentialPhaseDiagram object built from elements in c1 and c2.
-        use_hull_energy (bool): Whether or not use the convex hull energy for
-            a given composition for reaction energy calculation. If false,
-            the energy of ground state structure will be used instead.
-            Note that in case when ground state can not be found for a
-            composition, convex hull energy will be used associated with a
-            warning message.
     """
     EV_TO_KJ_PER_MOL = 96.4853
 
     def __init__(self, c1, c2, pd, norm=True, include_no_mixing_energy=False,
                  pd_non_grand=None, use_hull_energy=False):
+        """
+        Args:
+            c1 (Composition): Composition object for reactant 1.
+            c2 (Composition): Composition object for reactant 2.
+            pd (PhaseDiagram): PhaseDiagram object or GrandPotentialPhaseDiagram
+                object built from all elements in composition c1 and c2.
+            norm (bool): Whether or not the total number of atoms in composition
+                of reactant will be normalized to 1.
+            include_no_mixing_energy (bool): No_mixing_energy for a reactant is the
+                opposite number of its energy above grand potential convex hull. In
+                cases where reactions involve elements reservoir, this param
+                determines whether no_mixing_energy of reactants will be included
+                in the final reaction energy calculation. By definition, if pd is
+                not a GrandPotentialPhaseDiagram object, this param is False.
+            pd_non_grand (PhaseDiagram): PhaseDiagram object but not
+                GrandPotentialPhaseDiagram object built from elements in c1 and c2.
+            use_hull_energy (bool): Whether or not use the convex hull energy for
+                a given composition for reaction energy calculation. If false,
+                the energy of ground state structure will be used instead.
+                Note that in case when ground state can not be found for a
+                composition, convex hull energy will be used associated with a
+                warning message.
+        """
         self.grand = isinstance(pd, GrandPotentialPhaseDiagram)
 
         # if include_no_mixing_energy is True, pd should be a
@@ -204,8 +206,7 @@ class InterfacialReactivity:
         Returns:
             Reaction energy.
         """
-        return self.pd.get_hull_energy(self.comp1 * x + self.comp2 * (1-x)) - \
-            self.e1 * x - self.e2 * (1-x)
+        return self.pd.get_hull_energy(self.comp1 * x + self.comp2 * (1 - x)) - self.e1 * x - self.e2 * (1 - x)
 
     def _get_reaction(self, x):
         """
@@ -218,7 +219,7 @@ class InterfacialReactivity:
         Returns:
             Reaction object.
         """
-        mix_comp = self.comp1 * x + self.comp2 * (1-x)
+        mix_comp = self.comp1 * x + self.comp2 * (1 - x)
         decomp = self.pd.get_decomposition(mix_comp)
 
         # Uses original composition for reactants.
@@ -240,7 +241,7 @@ class InterfacialReactivity:
         if np.isclose(x_original, 1):
             reaction.normalize_to(self.c1_original, x_original)
         else:
-            reaction.normalize_to(self.c2_original, 1-x_original)
+            reaction.normalize_to(self.c2_original, 1 - x_original)
         return reaction
 
     def _get_elmt_amt_in_rxt(self, rxt):
@@ -285,7 +286,7 @@ class InterfacialReactivity:
         Returns:
             Mixing ratio in c1 - c2 tie line, a float between 0 and 1.
         """
-        return x * factor2 / ((1-x) * factor1 + x * factor2)
+        return x * factor2 / ((1 - x) * factor1 + x * factor2)
 
     @staticmethod
     def _reverse_convert(x, factor1, factor2):
@@ -305,7 +306,7 @@ class InterfacialReactivity:
         Returns:
             Mixing ratio in comp1 - comp2 tie line, a float between 0 and 1.
         """
-        return x * factor1 / ((1-x) * factor2 + x * factor1)
+        return x * factor1 / ((1 - x) * factor2 + x * factor1)
 
     def get_kinks(self):
         """
@@ -332,7 +333,7 @@ class InterfacialReactivity:
             energy_kink = [self._get_energy(x) for x in x_kink]
             react_kink = [self._get_reaction(x) for x in x_kink]
             num_atoms = [(x * self.comp1.num_atoms +
-                          (1-x) * self.comp2.num_atoms) for x in x_kink]
+                          (1 - x) * self.comp2.num_atoms) for x in x_kink]
             energy_per_rxt_formula = [energy_kink[i] *
                                       self._get_elmt_amt_in_rxt(
                                           react_kink[i]) /
@@ -343,13 +344,11 @@ class InterfacialReactivity:
             for i in reversed(critical_comp):
                 # Gets mixing ratio x at kinks.
                 c = self.pd.pd_coords(i)
-                x = np.linalg.norm(c - c2_coord) / \
-                    np.linalg.norm(c1_coord - c2_coord)
+                x = np.linalg.norm(c - c2_coord) / np.linalg.norm(c1_coord - c2_coord)
                 # Modifies mixing ratio in case compositions self.comp1 and
                 # self.comp2 are not normalized.
                 x = x * n2 / (n1 + x * (n2 - n1))
-                n_atoms = x * self.comp1.num_atoms \
-                    + (1-x) * self.comp2.num_atoms
+                n_atoms = x * self.comp1.num_atoms + (1 - x) * self.comp2.num_atoms
                 # Converts mixing ratio in comp1 - comp2 tie line to that in
                 # c1 - c2 tie line.
                 x_converted = InterfacialReactivity._convert(
@@ -361,13 +360,11 @@ class InterfacialReactivity:
                 # Gets balanced reaction at kinks
                 rxt = self._get_reaction(x)
                 react_kink.append(rxt)
-                rxt_energy = normalized_energy * \
-                    self._get_elmt_amt_in_rxt(rxt) / \
-                    n_atoms
+                rxt_energy = normalized_energy * self._get_elmt_amt_in_rxt(rxt) / n_atoms
                 energy_per_rxt_formula.append(
                     rxt_energy *
                     InterfacialReactivity.EV_TO_KJ_PER_MOL)
-        index_kink = range(1, len(critical_comp)+1)
+        index_kink = range(1, len(critical_comp) + 1)
         return zip(index_kink, x_kink, energy_kink, react_kink,
                    energy_per_rxt_formula)
 
@@ -489,14 +486,10 @@ class InterfacialReactivity:
         Returns:
             [(reactant1, no_mixing_energy1),(reactant2,no_mixing_energy2)].
         """
-        assert self.grand == 1, \
-            'Please provide grand potential phase diagram ' \
-            'for computing no_mixing_energy!'
+        assert self.grand == 1, 'Please provide grand potential phase diagram for computing no_mixing_energy!'
 
-        energy1 = self.pd.get_hull_energy(self.comp1) - \
-            self._get_grand_potential(self.c1)
-        energy2 = self.pd.get_hull_energy(self.comp2) - \
-            self._get_grand_potential(self.c2)
+        energy1 = self.pd.get_hull_energy(self.comp1) - self._get_grand_potential(self.c1)
+        energy2 = self.pd.get_hull_energy(self.comp2) - self._get_grand_potential(self.c2)
         unit = 'eV/f.u.'
         if self.norm:
             unit = 'eV/atom'
@@ -549,11 +542,9 @@ class InterfacialReactivity:
         Cp_std = Cp_dict[element]
         S_std = S_dict[element]
         PV_correction = ideal_gas_const * temp * np.log(pres / std_pres)
-        TS_correction = - Cp_std * (temp * np.log(temp)
-                                    - std_temp * np.log(std_temp)) \
-                        + Cp_std * (temp - std_temp) \
-                                 * (1 + np.log(std_temp)) \
-                        - S_std * (temp - std_temp)
+        TS_correction = - Cp_std * (temp * np.log(temp) - std_temp * np.log(std_temp)) \
+            + Cp_std * (temp - std_temp) * (1 + np.log(std_temp)) \
+            - S_std * (temp - std_temp)
 
         dG = PV_correction + TS_correction
         # Convert to eV/molecule unit.

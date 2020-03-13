@@ -2,22 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
-import os
-import subprocess
-import shutil
-import warnings
-import glob
-import numpy as np
-
-
-from pymatgen.io.vasp.outputs import Chgcar
-from pymatgen.io.vasp.inputs import Potcar
-from monty.dev import requires
-from monty.os.path import which
-from monty.tempfile import ScratchDir
-from monty.io import zopen
-
 """
 This module implements an interface to the Henkelmann et al.'s excellent
 Fortran code for calculating a Bader charge analysis.
@@ -31,6 +15,20 @@ If you use this module, please cite the following:
 G. Henkelman, A. Arnaldsson, and H. Jonsson, "A fast and robust algorithm for
 Bader decomposition of charge density", Comput. Mater. Sci. 36, 254-360 (2006).
 """
+
+import os
+import subprocess
+import shutil
+import warnings
+import glob
+import numpy as np
+
+from pymatgen.io.vasp.outputs import Chgcar
+from pymatgen.io.vasp.inputs import Potcar
+from monty.dev import requires
+from monty.os.path import which
+from monty.tempfile import ScratchDir
+from monty.io import zopen
 
 __author__ = "shyuepingong"
 __version__ = "0.1"
@@ -85,7 +83,7 @@ class BaderAnalysis:
         calculating charge transferred).
 
     .. attribute: chgcar_ref
-    
+
         Chgcar reference which calculated by AECCAR0 + AECCAR2.
         (See http://theory.cm.utexas.edu/henkelman/code/bader/ for details.)
 
@@ -137,7 +135,7 @@ class BaderAnalysis:
         chgrefpath = os.path.abspath(chgref_filename) if chgref_filename else None
         self.reference_used = True if chgref_filename else False
         self.parse_atomic_densities = parse_atomic_densities
-        with ScratchDir(".") as temp_dir:
+        with ScratchDir("."):
             with zopen(chgcarpath, 'rt') as f_in:
                 with open("CHGCAR", "wt") as f_out:
                     shutil.copyfileobj(f_in, f_out)
@@ -160,7 +158,7 @@ class BaderAnalysis:
 
             try:
                 self.version = float(stdout.split()[5])
-            except:
+            except Exception:
                 self.version = -1  # Unknown
             if self.version < 1.0:
                 warnings.warn('Your installed version of Bader is outdated, '
@@ -173,10 +171,10 @@ class BaderAnalysis:
                 raw.pop(0)
                 raw.pop(0)
                 while True:
-                    l = raw.pop(0).strip()
-                    if l.startswith("-"):
+                    line = raw.pop(0).strip()
+                    if line.startswith("-"):
                         break
-                    vals = map(float, l.split()[1:])
+                    vals = map(float, line.split()[1:])
                     data.append(dict(zip(headers, vals)))
                 for l in raw:
                     toks = l.strip().split(":")
@@ -217,10 +215,10 @@ class BaderAnalysis:
                         return data[startx:startx + xwidth, starty:starty + ywidth, startz:startz + zwidth]
 
                     # Finds the central encompassing volume which holds all the data within a precision
-                    def find_encompassing_vol(data,prec=1e-3):
+                    def find_encompassing_vol(data, prec=1e-3):
                         total = np.sum(data)
                         for i in range(np.max(data.shape)):
-                            sliced_data = slice_from_center(data,i,i,i)
+                            sliced_data = slice_from_center(data, i, i, i)
                             if total - np.sum(sliced_data) < 0.1:
                                 return sliced_data
                         return None
@@ -232,11 +230,6 @@ class BaderAnalysis:
                     }
                     atomic_densities.append(d)
                 self.atomic_densities = atomic_densities
-
-    @classmethod
-    def rebuild_chgcar(cls,atomic_densities):
-
-        pass
 
     def get_charge(self, atom_index):
         """
@@ -290,6 +283,9 @@ class BaderAnalysis:
 
     @property
     def summary(self):
+        """
+        :return: Dict summary of key analysis, e.g., atomic volume, charge, etc.
+        """
 
         summary = {
             "min_dist": [d['min_dist'] for d in self.data],

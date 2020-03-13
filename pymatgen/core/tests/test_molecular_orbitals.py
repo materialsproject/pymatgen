@@ -10,12 +10,12 @@ from pymatgen.core.molecular_orbitals import MolecularOrbitals
 
 test_case = MolecularOrbitals('NaCl')
 
+
 class MolecularOrbitalTestCase(PymatgenTest):
 
     def test_max_electronegativity(self):
         test_elec_neg = 2.23
         self.assertEqual(test_elec_neg, test_case.max_electronegativity())
-
 
     def test_aos_as_list(self):
         test_list = [['Cl', '1s', -100.369229], ['Na', '1s', -37.719975],

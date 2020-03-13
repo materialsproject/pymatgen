@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.molecule_matcher &#8212; pymatgen 2019.3.13 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.analysis.molecule_matcher &#8212; pymatgen 2020.3.2 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -15,7 +13,6 @@
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
  
@@ -35,7 +32,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.3.13 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -74,12 +71,12 @@
 <span class="kn">import</span> <span class="nn">itertools</span>
 <span class="kn">import</span> <span class="nn">copy</span>
 
-<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
-<span class="kn">from</span> <span class="nn">monty.dev</span> <span class="k">import</span> <span class="n">requires</span>
-<span class="kn">from</span> <span class="nn">pymatgen.io.babel</span> <span class="k">import</span> <span class="n">BabelMolAdaptor</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">MSONable</span>
+<span class="kn">from</span> <span class="nn">monty.dev</span> <span class="kn">import</span> <span class="n">requires</span>
 
 <span class="k">try</span><span class="p">:</span>
-    <span class="kn">import</span> <span class="nn">openbabel</span> <span class="k">as</span> <span class="nn">ob</span>
+    <span class="kn">from</span> <span class="nn">openbabel</span> <span class="kn">import</span> <span class="n">openbabel</span> <span class="k">as</span> <span class="n">ob</span>
+    <span class="kn">from</span> <span class="nn">pymatgen.io.babel</span> <span class="kn">import</span> <span class="n">BabelMolAdaptor</span>
 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
     <span class="n">ob</span> <span class="o">=</span> <span class="kc">None</span>
 
@@ -127,6 +124,13 @@
 
 <div class="viewcode-block" id="AbstractMolAtomMapper.from_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.molecule_matcher.html#pymatgen.analysis.molecule_matcher.AbstractMolAtomMapper.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            d (): Dict</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            AbstractMolAtomMapper</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">trans_modules</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;molecule_matcher&#39;</span><span class="p">]:</span>
             <span class="kn">import</span> <span class="nn">sys</span>
             <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span> <span class="o">&gt;</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
@@ -146,6 +150,7 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Pair atoms by isomorphism permutations in the OpenBabel::OBAlign class</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
 <div class="viewcode-block" id="IsomorphismMolAtomMapper.uniform_labels"><a class="viewcode-back" href="../../../pymatgen.analysis.molecule_matcher.html#pymatgen.analysis.molecule_matcher.IsomorphismMolAtomMapper.uniform_labels">[docs]</a>    <span class="k">def</span> <span class="nf">uniform_labels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mol1</span><span class="p">,</span> <span class="n">mol2</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Pair the geometrically equivalent atoms of the molecules.</span>
@@ -219,33 +224,56 @@
         <span class="k">return</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">&quot;inchi&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="IsomorphismMolAtomMapper.as_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.molecule_matcher.html#pymatgen.analysis.molecule_matcher.IsomorphismMolAtomMapper.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Jsonable dict.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="n">__version__</span><span class="p">,</span> <span class="s2">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
                 <span class="s2">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">}</span></div>
 
 <div class="viewcode-block" id="IsomorphismMolAtomMapper.from_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.molecule_matcher.html#pymatgen.analysis.molecule_matcher.IsomorphismMolAtomMapper.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            d (dict): Dict representation</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            IsomorphismMolAtomMapper</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">IsomorphismMolAtomMapper</span><span class="p">()</span></div></div>
 
 
 <div class="viewcode-block" id="InchiMolAtomMapper"><a class="viewcode-back" href="../../../pymatgen.analysis.molecule_matcher.html#pymatgen.analysis.molecule_matcher.InchiMolAtomMapper">[docs]</a><span class="k">class</span> <span class="nc">InchiMolAtomMapper</span><span class="p">(</span><span class="n">AbstractMolAtomMapper</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Pair atoms by inchi labels.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        angle_tolerance: Angle threshold to assume linear molecule. In degrees.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">angle_tolerance</span><span class="o">=</span><span class="mf">10.0</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">angle_tolerance</span><span class="o">=</span><span class="mf">10.0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            angle_tolerance (float): Angle threshold to assume linear molecule. In degrees.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_angle_tolerance</span> <span class="o">=</span> <span class="n">angle_tolerance</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_assistant_mapper</span> <span class="o">=</span> <span class="n">IsomorphismMolAtomMapper</span><span class="p">()</span>
 
 <div class="viewcode-block" id="InchiMolAtomMapper.as_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.molecule_matcher.html#pymatgen.analysis.molecule_matcher.InchiMolAtomMapper.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            MSONAble dict.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="n">__version__</span><span class="p">,</span> <span class="s2">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
                 <span class="s2">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
                 <span class="s2">&quot;angle_tolerance&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_angle_tolerance</span><span class="p">}</span></div>
 
 <div class="viewcode-block" id="InchiMolAtomMapper.from_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.molecule_matcher.html#pymatgen.analysis.molecule_matcher.InchiMolAtomMapper.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            d (dict): Dict Representation</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            InchiMolAtomMapper</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">InchiMolAtomMapper</span><span class="p">(</span><span class="n">angle_tolerance</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;angle_tolerance&quot;</span><span class="p">])</span></div>
 
     <span class="nd">@staticmethod</span>
@@ -296,7 +324,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">c1x</span><span class="p">,</span> <span class="n">c1y</span><span class="p">,</span> <span class="n">c1z</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">group_atoms</span><span class="p">:</span>
-            <span class="n">orig_idx</span> <span class="o">=</span> <span class="n">ilabels</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">orig_idx</span> <span class="o">=</span> <span class="n">ilabels</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
             <span class="n">oa1</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">GetAtom</span><span class="p">(</span><span class="n">orig_idx</span><span class="p">)</span>
             <span class="n">c1x</span> <span class="o">+=</span> <span class="nb">float</span><span class="p">(</span><span class="n">oa1</span><span class="o">.</span><span class="n">x</span><span class="p">())</span>
             <span class="n">c1y</span> <span class="o">+=</span> <span class="nb">float</span><span class="p">(</span><span class="n">oa1</span><span class="o">.</span><span class="n">y</span><span class="p">())</span>
@@ -328,23 +356,23 @@
         <span class="n">all_atoms</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">ilabels</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
         <span class="n">unique_atom_labels</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">all_atoms</span> <span class="o">-</span> <span class="n">non_unique_atoms</span><span class="p">)</span>
 
-        <span class="c1">#try to align molecules using unique atoms</span>
+        <span class="c1"># try to align molecules using unique atoms</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">unique_atom_labels</span><span class="p">:</span>
-            <span class="n">orig_idx</span> <span class="o">=</span> <span class="n">ilabels</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">orig_idx</span> <span class="o">=</span> <span class="n">ilabels</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
             <span class="n">oa1</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">GetAtom</span><span class="p">(</span><span class="n">orig_idx</span><span class="p">)</span>
             <span class="n">a1</span> <span class="o">=</span> <span class="n">vmol</span><span class="o">.</span><span class="n">NewAtom</span><span class="p">()</span>
             <span class="n">a1</span><span class="o">.</span><span class="n">SetAtomicNum</span><span class="p">(</span><span class="n">oa1</span><span class="o">.</span><span class="n">GetAtomicNum</span><span class="p">())</span>
             <span class="n">a1</span><span class="o">.</span><span class="n">SetVector</span><span class="p">(</span><span class="n">oa1</span><span class="o">.</span><span class="n">GetVector</span><span class="p">())</span>
 
-        <span class="c1">#try to align using centroids of the equivalent atoms</span>
+        <span class="c1"># try to align using centroids of the equivalent atoms</span>
         <span class="k">if</span> <span class="n">vmol</span><span class="o">.</span><span class="n">NumAtoms</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">symm</span> <span class="ow">in</span> <span class="n">eq_atoms</span><span class="p">:</span>
                 <span class="n">c1x</span><span class="p">,</span> <span class="n">c1y</span><span class="p">,</span> <span class="n">c1z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_group_centroid</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">ilabels</span><span class="p">,</span> <span class="n">symm</span><span class="p">)</span>
                 <span class="n">min_distance</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">vmol</span><span class="o">.</span><span class="n">NumAtoms</span><span class="p">()</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">vmol</span><span class="o">.</span><span class="n">NumAtoms</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
                     <span class="n">va</span> <span class="o">=</span> <span class="n">vmol</span><span class="o">.</span><span class="n">GetAtom</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
-                    <span class="n">distance</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">c1x</span> <span class="o">-</span> <span class="n">va</span><span class="o">.</span><span class="n">x</span><span class="p">())</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">c1y</span> <span class="o">-</span> <span class="n">va</span><span class="o">.</span><span class="n">y</span><span class="p">())</span><span class="o">**</span><span class="mi">2</span>
-                                         <span class="o">+</span> <span class="p">(</span><span class="n">c1z</span> <span class="o">-</span> <span class="n">va</span><span class="o">.</span><span class="n">z</span><span class="p">())</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+                    <span class="n">distance</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">c1x</span> <span class="o">-</span> <span class="n">va</span><span class="o">.</span><span class="n">x</span><span class="p">())</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">c1y</span> <span class="o">-</span> <span class="n">va</span><span class="o">.</span><span class="n">y</span><span class="p">())</span> <span class="o">**</span> <span class="mi">2</span>
+                                         <span class="o">+</span> <span class="p">(</span><span class="n">c1z</span> <span class="o">-</span> <span class="n">va</span><span class="o">.</span><span class="n">z</span><span class="p">())</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
                     <span class="k">if</span> <span class="n">distance</span> <span class="o">&lt;</span> <span class="n">min_distance</span><span class="p">:</span>
                         <span class="n">min_distance</span> <span class="o">=</span> <span class="n">distance</span>
                 <span class="k">if</span> <span class="n">min_distance</span> <span class="o">&gt;</span> <span class="mf">0.2</span><span class="p">:</span>
@@ -410,10 +438,10 @@
             <span class="n">a2</span><span class="o">.</span><span class="n">SetAtomicNum</span><span class="p">(</span><span class="n">oa2</span><span class="o">.</span><span class="n">GetAtomicNum</span><span class="p">())</span>
             <span class="n">a2</span><span class="o">.</span><span class="n">SetVector</span><span class="p">(</span><span class="n">oa2</span><span class="o">.</span><span class="n">GetVector</span><span class="p">())</span>
 
-        <span class="n">canon_label2</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">nheavy</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+        <span class="n">canon_label2</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">nheavy</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
         <span class="k">for</span> <span class="n">symm</span> <span class="ow">in</span> <span class="n">eq_atoms</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">symm</span><span class="p">:</span>
-                <span class="n">canon_label2</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+                <span class="n">canon_label2</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
         <span class="k">for</span> <span class="n">symm</span> <span class="ow">in</span> <span class="n">eq_atoms</span><span class="p">:</span>
             <span class="n">candidates1</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">symm</span><span class="p">)</span>
             <span class="n">candidates2</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">symm</span><span class="p">)</span>
@@ -427,7 +455,7 @@
                     <span class="k">if</span> <span class="n">d</span> <span class="o">&lt;</span> <span class="n">distance</span><span class="p">:</span>
                         <span class="n">distance</span> <span class="o">=</span> <span class="n">d</span>
                         <span class="n">canon_idx</span> <span class="o">=</span> <span class="n">c1</span>
-                <span class="n">canon_label2</span><span class="p">[</span><span class="n">c2</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">canon_idx</span>
+                <span class="n">canon_label2</span><span class="p">[</span><span class="n">c2</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">canon_idx</span>
                 <span class="n">candidates1</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">canon_idx</span><span class="p">)</span>
 
         <span class="n">canon_inchi_orig_map2</span> <span class="o">=</span> <span class="p">[(</span><span class="n">canon</span><span class="p">,</span> <span class="n">inchi</span><span class="p">,</span> <span class="n">orig</span><span class="p">)</span>
@@ -455,7 +483,7 @@
 <span class="sd">            corrected label map of all atoms of the second molecule</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">num_atoms</span> <span class="o">=</span> <span class="n">mol2</span><span class="o">.</span><span class="n">NumAtoms</span><span class="p">()</span>
-        <span class="n">all_atom</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_atoms</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+        <span class="n">all_atom</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_atoms</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
         <span class="n">hydrogen_atoms1</span> <span class="o">=</span> <span class="n">all_atom</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">heavy_indices1</span><span class="p">)</span>
         <span class="n">hydrogen_atoms2</span> <span class="o">=</span> <span class="n">all_atom</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">heavy_indices2</span><span class="p">)</span>
         <span class="n">label1</span> <span class="o">=</span> <span class="n">heavy_indices1</span> <span class="o">+</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">hydrogen_atoms1</span><span class="p">)</span>
@@ -536,7 +564,7 @@
             <span class="k">return</span> <span class="kc">True</span>
         <span class="n">a1</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">GetAtom</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">a2</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">GetAtom</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">mol</span><span class="o">.</span><span class="n">NumAtoms</span><span class="p">()</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">mol</span><span class="o">.</span><span class="n">NumAtoms</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
             <span class="n">angle</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">GetAtom</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">GetAngle</span><span class="p">(</span><span class="n">a2</span><span class="p">,</span> <span class="n">a1</span><span class="p">))</span>
             <span class="k">if</span> <span class="n">angle</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">:</span>
                 <span class="n">angle</span> <span class="o">=</span> <span class="o">-</span><span class="n">angle</span>
@@ -547,6 +575,14 @@
         <span class="k">return</span> <span class="kc">True</span>
 
 <div class="viewcode-block" id="InchiMolAtomMapper.uniform_labels"><a class="viewcode-back" href="../../../pymatgen.analysis.molecule_matcher.html#pymatgen.analysis.molecule_matcher.InchiMolAtomMapper.uniform_labels">[docs]</a>    <span class="k">def</span> <span class="nf">uniform_labels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mol1</span><span class="p">,</span> <span class="n">mol2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            mol1 (Molecule): Molecule 1</span>
+<span class="sd">            mol2 (Molecule): Molecule 2</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Labels</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">obmol1</span> <span class="o">=</span> <span class="n">BabelMolAdaptor</span><span class="p">(</span><span class="n">mol1</span><span class="p">)</span><span class="o">.</span><span class="n">openbabel_mol</span>
         <span class="n">obmol2</span> <span class="o">=</span> <span class="n">BabelMolAdaptor</span><span class="p">(</span><span class="n">mol2</span><span class="p">)</span><span class="o">.</span><span class="n">openbabel_mol</span>
 
@@ -597,17 +633,20 @@
 <div class="viewcode-block" id="MoleculeMatcher"><a class="viewcode-back" href="../../../pymatgen.analysis.molecule_matcher.html#pymatgen.analysis.molecule_matcher.MoleculeMatcher">[docs]</a><span class="k">class</span> <span class="nc">MoleculeMatcher</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Class to match molecules and identify whether molecules are the same.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        tolerance: RMSD difference threshold whether two molecules are</span>
-<span class="sd">            different</span>
-<span class="sd">        mapper: MolAtomMapper object that is able to map the atoms of two</span>
-<span class="sd">            molecule to uniform order</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="nd">@requires</span><span class="p">(</span><span class="n">ob</span><span class="p">,</span>
               <span class="s2">&quot;BabelMolAdaptor requires openbabel to be installed with &quot;</span>
-              <span class="s2">&quot;Python bindings. Please get it at http://openbabel.org.&quot;</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">mapper</span><span class="o">=</span><span class="n">InchiMolAtomMapper</span><span class="p">()):</span>
+              <span class="s2">&quot;Python bindings. Please get it at http://openbabel.org &quot;</span>
+              <span class="s2">&quot;(version &gt;=3.0.0).&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">mapper</span><span class="o">=</span><span class="n">InchiMolAtomMapper</span><span class="p">()):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            tolerance (float): RMSD difference threshold whether two molecules are</span>
+<span class="sd">                different</span>
+<span class="sd">            mapper (AbstractMolAtomMapper): MolAtomMapper object that is able to map the atoms of two</span>
+<span class="sd">                molecule to uniform order</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_tolerance</span> <span class="o">=</span> <span class="n">tolerance</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_mapper</span> <span class="o">=</span> <span class="n">mapper</span>
 
@@ -693,7 +732,7 @@
                     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">mol_list</span><span class="p">)]</span>
         <span class="n">mol_hash</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 
-        <span class="c1">#Use molecular hash to pre-group molecules.</span>
+        <span class="c1"># Use molecular hash to pre-group molecules.</span>
         <span class="n">raw_groups</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">tuple</span><span class="p">([</span><span class="n">m</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">g</span><span class="p">])</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">g</span>
                             <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">mol_hash</span><span class="p">,</span>
                                                  <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])])</span>
@@ -727,12 +766,23 @@
         <span class="k">return</span> <span class="n">all_groups</span></div>
 
 <div class="viewcode-block" id="MoleculeMatcher.as_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.molecule_matcher.html#pymatgen.analysis.molecule_matcher.MoleculeMatcher.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            MSONAble dict.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="n">__version__</span><span class="p">,</span> <span class="s2">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
                 <span class="s2">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
                 <span class="s2">&quot;tolerance&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tolerance</span><span class="p">,</span> <span class="s2">&quot;mapper&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mapper</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()}</span></div>
 
 <div class="viewcode-block" id="MoleculeMatcher.from_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.molecule_matcher.html#pymatgen.analysis.molecule_matcher.MoleculeMatcher.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            d (dict): Dict representation</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            MoleculeMatcher</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">MoleculeMatcher</span><span class="p">(</span>
             <span class="n">tolerance</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;tolerance&quot;</span><span class="p">],</span>
             <span class="n">mapper</span><span class="o">=</span><span class="n">AbstractMolAtomMapper</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;mapper&quot;</span><span class="p">]))</span></div></div>
@@ -744,13 +794,11 @@
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -768,7 +816,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.3.13 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -776,7 +824,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

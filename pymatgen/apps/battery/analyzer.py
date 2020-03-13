@@ -2,6 +2,10 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+Analysis classes for batteries
+"""
+
 from collections import defaultdict
 import math
 
@@ -18,7 +22,6 @@ __maintainer__ = "Anubhav Jain"
 __email__ = "ajain@lbl.gov"
 __date__ = "Sep 20, 2011"
 
-
 EV_PER_ATOM_TO_J_PER_MOL = const.e * const.N_A
 ELECTRON_TO_AMPERE_HOURS = EV_PER_ATOM_TO_J_PER_MOL / 3600
 
@@ -31,9 +34,11 @@ class BatteryAnalyzer():
     def __init__(self, struc_oxid, cation='Li'):
         """
         Pass in a structure for analysis
+
         Arguments:
-            struc_oxid - a Structure object; oxidation states *must* be assigned for this structure; disordered structures should be OK
-            cation - a String symbol or Element for the cation. It must be positively charged, but can be 1+/2+/3+ etc.
+            struc_oxid: a Structure object; oxidation states *must* be assigned for this structure; disordered
+                structures should be OK
+            cation: a String symbol or Element for the cation. It must be positively charged, but can be 1+/2+/3+ etc.
         """
         for site in struc_oxid:
             if not hasattr(site.specie, 'oxi_state'):
@@ -63,17 +68,17 @@ class BatteryAnalyzer():
 
         oxid_limit = oxid_pot / self.cation_charge
 
-        #the number of A that exist in the structure for removal
+        # the number of A that exist in the structure for removal
         num_cation = self.comp[Specie(self.cation.symbol, self.cation_charge)]
 
         return min(oxid_limit, num_cation)
-
 
     @property
     def max_cation_insertion(self):
         """
         Maximum number of cation A that can be inserted while maintaining charge-balance.
-        No consideration is given to whether there (geometrically speaking) are Li sites to actually accommodate the extra Li.
+        No consideration is given to whether there (geometrically speaking) are Li sites to actually accommodate the
+        extra Li.
 
         Returns:
             integer amount of cation. Depends on cell size (this is an 'extrinsic' function!)
@@ -83,11 +88,10 @@ class BatteryAnalyzer():
         lowest_oxid = defaultdict(lambda: 2, {'Cu': 1})  # only Cu can go down to 1+
         oxid_pot = sum([(spec.oxi_state - min(
             e for e in Element(spec.symbol).oxidation_states if e >= lowest_oxid[spec.symbol])) *
-            self.comp[spec] for spec in self.comp if
-            is_redox_active_intercalation(Element(spec.symbol))])
+                        self.comp[spec] for spec in self.comp if
+                        is_redox_active_intercalation(Element(spec.symbol))])
 
         return oxid_pot / self.cation_charge
-
 
     def _get_max_cap_ah(self, remove, insert):
         """
@@ -101,7 +105,6 @@ class BatteryAnalyzer():
             num_cations += self.max_cation_insertion
 
         return num_cations * self.cation_charge * ELECTRON_TO_AMPERE_HOURS
-
 
     def get_max_capgrav(self, remove=True, insert=True):
         """
@@ -120,7 +123,6 @@ class BatteryAnalyzer():
         if insert:
             weight += self.max_cation_insertion * self.cation.atomic_mass
         return self._get_max_cap_ah(remove, insert) / (weight / 1000)
-
 
     def get_max_capvol(self, remove=True, insert=True, volume=None):
         """
@@ -180,14 +182,14 @@ class BatteryAnalyzer():
         """
 
         # If Mn is the oxid_el, we have a mixture of Mn2+, Mn3+, determine the minimum oxidation state for Mn
-        #this is the state we want to oxidize!
+        # this is the state we want to oxidize!
         oxid_old = min([spec.oxi_state for spec in spec_amts_oxi if spec.symbol == oxid_el.symbol])
         oxid_new = math.floor(oxid_old + 1)
-        #if this is not a valid solution, break out of here and don't add anything to the list
+        # if this is not a valid solution, break out of here and don't add anything to the list
         if oxid_new > oxid_el.max_oxidation_state:
             return numa
 
-        #update the spec_amts_oxi map to reflect that the oxidation took place
+        # update the spec_amts_oxi map to reflect that the oxidation took place
         spec_old = Specie(oxid_el.symbol, oxid_old)
         spec_new = Specie(oxid_el.symbol, oxid_new)
         specamt = spec_amts_oxi[spec_old]
@@ -195,13 +197,13 @@ class BatteryAnalyzer():
         spec_amts_oxi[spec_new] = specamt
         spec_amts_oxi = Composition(spec_amts_oxi)
 
-        #determine the amount of cation A in the structure needed for charge balance and add it to the list
+        # determine the amount of cation A in the structure needed for charge balance and add it to the list
         oxi_noA = sum([spec.oxi_state * spec_amts_oxi[spec] for spec in spec_amts_oxi if
                        spec.symbol not in self.cation.symbol])
         a = max(0, -oxi_noA / self.cation_charge)
         numa = numa.union({a})
 
-        #recursively try the other oxidation states
+        # recursively try the other oxidation states
         if a == 0:
             return numa
         else:
@@ -221,4 +223,3 @@ def is_redox_active_intercalation(element):
 
     ns = ['Ti', 'V', 'Cr', 'Mn', 'Fe', 'Co', 'Ni', 'Cu', 'Nb', 'Mo', 'W', 'Sb', 'Sn', 'Bi']
     return element.symbol in ns
-
