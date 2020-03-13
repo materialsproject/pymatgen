@@ -7,6 +7,8 @@ import os
 import unittest
 
 from monty.serialization import loadfn, dumpfn
+from monty.os.path import which
+
 from pymatgen.core.structure import Molecule
 from pymatgen.io.qchem.outputs import QCOutput, check_for_structure_changes
 from pymatgen.util.testing import PymatgenTest
@@ -214,6 +216,8 @@ class TestQCOutput(PymatgenTest):
             print('Testing ', key)
             self._test_property(key, single_outs, multi_outs)
 
+    @unittest.skipIf((not (have_babel)) or (not which("babel")),
+                     "OpenBabel not installed.")
     def test_structural_change(self):
         
         t1 = Molecule.from_file(os.path.join(test_dir, "structural_change",
