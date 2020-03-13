@@ -72,7 +72,6 @@ def _postprocessor(s):
         return s
 
 
-# TODO: Partition so that the constructor calls all default parsing methods -NW
 class Cp2kOutput:
 
     """
@@ -80,14 +79,8 @@ class Cp2kOutput:
     This class will automatically parse parameters that should always be present, but other parsing features may be
     called depending on the run type.
 
-    Current RUN_TYPES supported:
-        ENERGY
-        ENERGY_FORCE
-        GEO_OPT
-        MD
-
     Args:
-        filename: (str) Name of the CP2K output file to parse.
+        filename: (str) Name of the CP2K output file to parse
         verbose: (bool) Whether or not to parse with verbosity (will parse lots of data that may not be useful)
 
     """
@@ -96,7 +89,8 @@ class Cp2kOutput:
         # IO Info
         self.filename = filename
         self.dir = os.path.dirname(filename)
-
+        self.filenames = {}
+        self.parse_files()
         self.data = {}
 
         # Material properties/results
@@ -178,6 +172,32 @@ class Cp2kOutput:
     def is_metal(self):
         if self.band_gap <= 0:
             return True
+        return False
+
+    def parse_files(self):
+        print("-"*50)
+        print("Beginning file parsing... looking for cp2k outputs.")
+        print("-"*50)
+        pdos = glob.glob(os.path.join(self.dir, '*pdos*'))
+        self.filenames['PDOS'] = []
+        self.filenames['LDOS'] = []
+        for p in pdos:
+            if p.split('/')[-1].__contains__('list'):
+                self.filenames['LDOS'].append(p)
+            else:
+                self.filenames['PDOS'].append(p)
+
+        self.filenames['trajectory'] = glob.glob(os.path.join(self.dir, '*pos*.xyz*'))
+        self.filenames['cell'] = glob.glob(os.path.join(self.dir, '*.cell*'))
+        self.filenames['electron_density'] = glob.glob(os.path.join(self.dir, '*ELECTRON_DENSITY*.cube*'))
+        self.filenames['spin_density'] = glob.glob(os.path.join(self.dir, '*SPIN_DENSITY*.cube*'))
+        self.filenames['v_hartree'] = glob.glob(os.path.join(self.dir, '*HARTREE*.cube*'))
+
+        for k,v in self.filenames.items():
+            print("Finding {} files... found {} files.".format(k, len(v)))
+        print("-"*50)
+        print("Finished looking for output files.")
+        print("-"*50)
 
     # TODO Maybe I should create a parse_files function that globs to get the file names instead of putting
         # it in each function seperate? -NW
@@ -191,12 +211,10 @@ class Cp2kOutput:
         reference the trajectory file.
         """
         if lattice_file is None:
-            lattice = "{}-1.cell".format(self.project_name)
-            lattice = glob.glob(os.path.join(self.dir, lattice+'*'))
-            if len(lattice) == 0:
+            if len(self.filenames['cell']) == 0:
                 lattice = self.parse_initial_structure().lattice
-            elif len(lattice) == 1:
-                latfile = np.loadtxt(lattice[0])
+            elif len(self.filenames['cell']) == 1:
+                latfile = np.loadtxt(self.filenames['cell'][0])
                 lattice = [l[2:11].reshape(3,3) for l in latfile] \
                     if len(latfile.shape)>1 else latfile[2:11].reshape(3, 3)
             else:
@@ -206,14 +224,12 @@ class Cp2kOutput:
             lattice = [l[2:].reshape(3, 3) for l in latfile]
 
         if trajectory_file is None:
-            trajectory_file = "{}-pos-1.xyz".format(self.project_name)
-            trajectory_file = glob.glob(os.path.join(self.dir, trajectory_file+'*'))
-            if len(trajectory_file) == 0:
+            if len(self.filenames['trajectory']) == 0:
                 self.structures = []
                 self.structures.append(self.parse_initial_structure())
                 self.final_structure = self.structures[-1]
-            elif len(trajectory_file) == 1:
-                mols = XYZ.from_file(trajectory_file[0]).all_molecules
+            elif len(self.filenames['trajectory']) == 1:
+                mols = XYZ.from_file(self.filenames['trajectory'][0]).all_molecules
                 self.structures = []
                 for m, l in zip(mols, lattice):
                     self.structures.append(Structure(lattice=l, coords=[s.coords for s in m.sites],
@@ -229,7 +245,6 @@ class Cp2kOutput:
                                                  species=[s.specie for s in m.sites], coords_are_cartesian=True))
             self.final_structure = self.structures[-1]
 
-    # TODO: CP2K Seems to only output initial struc here in output file. If so this can turn into list of structures
     def parse_initial_structure(self):
         header = r"Atom\s+Kind\s+Element\s+X\s+Y\s+Z\s+Z\(eff\)\s+Mass"
         row = r"\s+(\d+)\s+(\d+)\s+(\w+)\s+(\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)"
@@ -344,7 +359,7 @@ class Cp2kOutput:
             if os.path.exists(os.path.join(self.dir, input_filename+ext)):
                 self.input = Cp2kInput.from_file(os.path.join(self.dir, input_filename+ext))
                 return
-        raise warnings.warn("Original input file not found. Some info may be lost.")
+        warnings.warn("Original input file not found. Some info may be lost.")
 
     def parse_global_params(self):
         """
@@ -660,7 +675,7 @@ class Cp2kOutput:
         pattern = re.compile(r"HOMO - LUMO gap.*\s(-?\d+.\d+)")
         self.read_pattern(patterns={'band_gap': pattern}, reverse=True, terminate_on_match=True, postprocess=float)
 
-    def parse_pdos(self, pdos_files=None):
+    def parse_ldos(self, ldos_files=None):
         """
         Parse the pdos files created by cp2k, and assimilate them into a CompleteDos object.
         Either provide a list of PDOS file paths, or use glob to find the .pdos extension in
@@ -672,16 +687,91 @@ class Cp2kOutput:
         Returns:
             CompleteDos
         """
+        if ldos_files is None:
+            ldos_files = self.filenames['LDOS']
+            if len(ldos_files) == 0:
+                raise FileNotFoundError("Unable to automatically located LDOS files in the calculation directory")
+        ldoss = {}
+        for ldos_file in ldos_files:
+            if os.path.split(ldos_file)[-1].__contains__('BETA'):
+                spin = -1
+            else:
+                spin = 1
+            with zopen(ldos_file, 'rt') as f:
+                lines = f.readlines()
+                site, num = re.search(r"list (\d+).+(\d+)", lines[0]).groups()
+                site = self.final_structure[int(site)] # TODO assumes one site gets one LDOS, not always true..
+                if site not in ldoss.keys():
+                    ldoss[site] = {}
+                efermi = float(lines[0].split()[-2]) * _hartree_to_ev_
+                header = re.split(r'\s{2,}', lines[1].replace('#', '').strip())
+                dat = np.loadtxt(ldos_file)
+                dat[:, 1] = dat[:, 1] * _hartree_to_ev_
+                for i in range(len(header)):
+                    if header[i] == 'd-2':
+                        header[i] = 'dxy'
+                    elif header[i] == 'd-1':
+                        header[i] = 'dyz'
+                    elif header[i] == 'd0':
+                        header[i] = 'dz2'
+                    elif header[i] == 'd+1':
+                        header[i] = 'dxz'
+                    elif header[i] == 'd+2':
+                        header[i] = 'dx2'
+                    elif header[i] == 'f-3':
+                        header[i] = 'f_3'
+                    elif header[i] == 'f-2':
+                        header[i] = 'f_2'
+                    elif header[i] == 'f-1':
+                        header[i] = 'f_1'
+                    elif header[i] == 'f0':
+                        header[i] = 'f0'
+                    elif header[i] == 'f+1':
+                        header[i] = 'f1'
+                    elif header[i] == 'f+2':
+                        header[i] = 'f2'
+                    elif header[i] == 'f+3':
+                        header[i] = 'f3'
+                energies = []
+                for i in range(2, len(header)):
+                    if ldoss[site].get(getattr(Orbital, header[i])):
+                        continue
+                    else:
+                        ldoss[site][getattr(Orbital, header[i])] = {Spin.up: [], Spin.down: []}
+                for r in dat:
+                    energies.append(float(r[1]))
+                    for i in range(3, len(r)):
+                        ldoss[site][getattr(Orbital, header[i - 1])][Spin(spin)].append(r[i])
+
+        tdos_densities = {Spin.up: np.zeros(len(energies)), Spin.down: np.zeros(len(energies))}
+        for site, orbitals in ldoss.items():
+            for orbital, d in orbitals.items():
+                if len(d[Spin.down]) == 0:
+                    d[Spin.down] = d[Spin.up].copy()
+                tdos_densities = add_densities(tdos_densities, d)
+
+        self.data['dos'] = CompleteDos(self.final_structure,
+                                       Dos(efermi=efermi, energies=energies, densities=tdos_densities), ldoss)
+
+    def parse_pdos(self, pdos_files=None):
+        """
+        Parse the pdos files created by cp2k, and assimilate them into a CompleteDos object.
+        Either provide a list of PDOS file paths, or use glob to find the .pdos extension in
+        the calculation directory.
+
+        Args:
+            pdos_files (list): list of pdos file paths
+        """
         if pdos_files is None:
-            pdos_files = glob.glob(os.path.join(self.dir, '*.pdos'))
+            pdos_files = self.filenames['PDOS']
             if len(pdos_files) == 0:
                 raise FileNotFoundError("Unable to automatically located PDOS files in the calculation directory")
         pdoss = {}
         for pdos_file in pdos_files:
-            if os.path.split(pdos_file)[-1].__contains__('ALPHA'):
-                spin = 1
-            else:
+            if os.path.split(pdos_file)[-1].__contains__('BETA'):
                 spin = -1
+            else:
+                spin = 1
             with zopen(pdos_file, 'rt') as f:
                 lines = f.readlines()
                 kind = re.search(r"atomic kind\s(.*)\sat iter", lines[0]).groups()[0]
@@ -716,7 +806,6 @@ class Cp2kOutput:
                         header[i] = 'f2'
                     elif header[i] == 'f+3':
                         header[i] = 'f3'
-                densities = []
                 energies = []
                 for i in range(2, len(header)):
                     if pdoss[kind].get(getattr(Orbital, header[i])):
@@ -728,44 +817,15 @@ class Cp2kOutput:
                     for i in range(3, len(r)):
                         pdoss[kind][getattr(Orbital, header[i - 1])][Spin(spin)].append(r[i])
 
-        print(pdoss)
         tdos_densities = {Spin.up: np.zeros(len(energies)), Spin.down: np.zeros(len(energies))}
         for el, orbitals in pdoss.items():
             for orbital, d in orbitals.items():
+                if len(d[Spin.down]) == 0:
+                    d[Spin.down] = d[Spin.up].copy()
                 tdos_densities = add_densities(tdos_densities, d)
 
-        print(tdos_densities)
-
-        return Dos(efermi=efermi, energies=energies, densities=tdos_densities)
-
-        # sort and assimilate the total dos
-        sort = np.argsort(tdos_energies)
-        tdos_energies = list(np.array(tdos_energies)[sort])
-        tdos_densities[Spin.up] = list(np.array(tdos_densities[Spin.up])[sort])
-        tdos_densities[Spin.down] = list(np.array(tdos_densities[Spin.down])[sort])
-
-        # TODO confim this works
-        combined_energies = [tdos_energies[0]]
-        combined_tdos = {Spin.up: [tdos_densities[Spin.up][0]],
-                         Spin.down: [tdos_densities[Spin.down][0]]}
-        for i in range(len(tdos_energies)-1):
-            if (tdos_energies[i] == tdos_energies[i+1]) and (tdos_densities[Spin.up][i] != 0.0):
-                combined_tdos[Spin.up][-1] += tdos_densities[Spin.up][i+1]
-                combined_tdos[Spin.down][-1] += tdos_densities[Spin.down][i+1]
-            else:
-                combined_energies.append(tdos_energies[i+1])
-                combined_tdos[Spin.up].append(tdos_densities[Spin.up][i+1])
-                combined_tdos[Spin.down].append(tdos_densities[Spin.down][i+1])
-
-        #print(tdos_energies)
-        #print(tdos_densities[Spin.down])
-        #print()
-        #print(combined_energies)
-        #print(combined_tdos[Spin.down])
-        # TODO confirm combined dos works
-        #tdos = Dos(efermi, tdos_densities, combined_tdos)
-        tdos = Dos(efermi, tdos_energies, tdos_densities)
-        return CompleteDos(self.initial_structure, total_dos=tdos, pdoss=pdoss)
+        self.data['dos'] = Dos(efermi=efermi, energies=energies, densities=tdos_densities)
+        self.data['pdos'] = pdoss  # TODO pymatgen dos objects are supposed to be site decomposed
 
     def read_pattern(self, patterns, reverse=False, terminate_on_match=False,
                      postprocess=str):
@@ -890,27 +950,6 @@ class Cp2kOutput:
         return d
 
 
-# TODO Use pymatgen's new "trajectory" object instead of a list of structures
-def parse_structures(trajectory_file, lattice, final=False, step_skip=1):
-    mols = XYZ.from_file(trajectory_file, step_skip=step_skip).all_molecules
-    if isinstance(lattice, Lattice):
-        lattice = [lattice]
-    elif os.path.isfile(lattice):
-        latfile = np.loadtxt(lattice)
-        lattice = [l[2:].reshape(3,3) for l in latfile]
-    else:
-        raise ValueError("Lattice format not regonized! We take Lattice objects",
-                         "or paths to a cp2k cell file.")
-    structures = []
-    for m, l in zip(mols, lattice):
-        structures.append(Structure(lattice=l, coords=[s.coords for s in m.sites],
-                                    species=[s.specie for s in m.sites],
-                                    coords_are_cartesian=True))
-    if final:
-        return structures[-1]
-    return structures
-
-
 def parse_energy_file(energy_file):
     """
     Parses energy file for calculations with multiple ionic steps.
@@ -925,52 +964,6 @@ def parse_energy_file(energy_file):
     df.astype(float)
     d = {c: df[c].values for c in columns}
     return d
-
-
-def parse_pdos(pdos_file):
-    with zopen(pdos_file, 'rt') as f:
-        lines = f.readlines()
-        efermi = float(lines[0].split()[-2])*_hartree_to_ev_
-        header = re.split(r'\s{2,}', lines[1].replace('#', '').strip())
-        dat = np.loadtxt(pdos_file)
-        dat[:, 1] = dat[:, 1]*_hartree_to_ev_
-        for i in range(len(header)):
-            if header[i] == 'd-2':
-                header[i] = 'dxy'
-            elif header[i] == 'd-1':
-                header[i] = 'dyz'
-            elif header[i] == 'd0':
-                header[i] = 'dz2'
-            elif header[i] == 'd+1':
-                header[i] = 'dxz'
-            elif header[i] == 'd+2':
-                header[i] = 'dx2'
-            elif header[i] == 'f-3':
-                header[i] = 'f_3'
-            elif header[i] == 'f-2':
-                header[i] = 'f_2'
-            elif header[i] == 'f-1':
-                header[i] = 'f_1'
-            elif header[i] == 'f0':
-                header[i] = 'f0'
-            elif header[i] == 'f+1':
-                header[i] = 'f1'
-            elif header[i] == 'f+2':
-                header[i] = 'f2'
-            elif header[i] == 'f+3':
-                header[i] = 'f3'
-        densities = {}
-        energies = []
-        for i in range(2, len(header)):
-            densities[getattr(Orbital, header[i])] = {Spin.up: []}
-        for r in dat:
-            energies.append(float(r[1]))
-            for i in range(3, len(r)):
-                densities[getattr(Orbital, header[i-1])][Spin.up].append(r[i])
-        dos = {}
-        for k,v in densities.items():
-            dos[k] = Dos(efermi=efermi, energies=energies, densities=v)
-        return dos
 
 
 class Cube:

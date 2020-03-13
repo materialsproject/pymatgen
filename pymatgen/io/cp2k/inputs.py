@@ -6,6 +6,26 @@ from monty.io import zopen
 
 # TODO: Location/Dependencies
 
+__author__ = "Nicholas Winner"
+__version__ = "0.2"
+__email__ = "nwinner@berkeley.edu"
+__date__ = "January 2019"
+
+"""
+This module defines the building blocks of a CP2K input file. The cp2k input structure is essentially a collection
+of "sections" which are similar to dictionary objects that activate modules of the cp2k executable, and then
+"keywords" which adjust variables inside of those modules. For example, FORCE_EVAL section will activate CP2K's ability 
+to calculate forces, and inside FORCE_EVAL, the Keyword "METHOD can be set to "QS" to set the method of force evaluation
+to be the quickstep (DFT) module.
+
+A quick overview of the module:
+
+-- Section class defines the basis of Cp2k input and contains methods for manipulating these objects similarly to Dicts. 
+-- Keyword class defines the keywords used inside of Section objects that changes variables in Cp2k program
+-- Cp2kInput class is special instantiation of Section that is used to represent the full cp2k calculation input.
+-- The rest of the classes are children of Section intended to make initialization of common sections easier.
+"""
+
 
 class Section(MSONable):
 

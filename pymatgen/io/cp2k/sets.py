@@ -95,6 +95,8 @@ class Cp2kInputSet(Cp2kInput):
         self.project_name = project_name
         self.kppa = kppa
 
+        # This is a simple way to make a supercell according to the number of k-points / atom
+        # TODO: should be anisotropic, scaling the directions as needed
         if kppa > 0:
             # Only sample gamma point, need k-points / num_atoms to be < 8.
             structure.make_supercell(math.ceil(math.pow(kppa / structure.num_sites / 8, 1/3)))
@@ -119,6 +121,8 @@ class Cp2kInputSet(Cp2kInput):
         self.basis_set_file_name = basis_and_potential['basis_filename']
         self.potential_file_name = basis_and_potential['potential_filename']
 
+
+        # TODO: This is my least favorite "hack" in the current sets implementation... definitely going to change -NW
         # The natural way to do this is define a "KIND" for each element, but, if
         # there are site properties of interest MAGMOM/MAGNETIZATION, then these
         # are defined in the KIND section, so we need to split of the KIND sections
@@ -145,6 +149,7 @@ class Cp2kInputSet(Cp2kInput):
                               potential=basis_and_potential[s]['potential']))
         if not self.check('FORCE_EVAL'):
             self.insert(ForceEval())
+
         self['FORCE_EVAL'].insert(subsys)
         self['FORCE_EVAL'].insert(Section('PRINT', subsections={}))
         self['FORCE_EVAL']['PRINT'].insert(Section('FORCES', subsections={}))
@@ -158,6 +163,8 @@ class Cp2kInputSet(Cp2kInput):
                                                section_parameters=['HIGH'],
                                                subsections={}))
         self['MOTION']['PRINT'].insert(Section('CELL', subsections={}))
+        self['MOTION']['PRINT'].insert(Section('FORCES', subsections={}))
+        self['MOTION']['PRINT'].insert(Section('STRESS'))
 
         self.update(override_default_params)
 
@@ -207,8 +214,8 @@ class Cp2kInputSet(Cp2kInput):
         elif method is 'PBE0':
             ip_keywords = [
                 Keyword('POTENTIAL_TYPE', 'TRUNCATED'),
-                Keyword('CUTOFF_RADIUS', min(structure.lattice.abc) / 2),
-                Keyword('T_C_G_DATA', 't_c_g.data')
+                Keyword('CUTOFF_RADIUS', structure.lattice.matrix[structure.lattice.matrix.nonzero()].min() / 2),
+                Keyword('T_C_G_DATA', 't_c_g.dat')
             ]
         interaction_potential = Section('INTERACTION_POTENTIAL', subsections={},
                                         keywords=ip_keywords)
