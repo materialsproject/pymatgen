@@ -2,29 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
-import re
-import math
-import subprocess
-import itertools
-import logging
-import glob
-import warnings
-
-import numpy as np
-from monty.fractions import lcm
-import fractions
-
-from pymatgen.io.vasp.inputs import Poscar
-from pymatgen.core.sites import PeriodicSite
-from pymatgen.core.structure import Structure
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.core.periodic_table import DummySpecie
-from monty.os.path import which
-from monty.dev import requires
-from monty.tempfile import ScratchDir
-from threading import Timer
-
 """
 This module implements an interface to enumlib, Gus Hart"s excellent Fortran
 code for enumerating derivative structures.
@@ -46,6 +23,28 @@ Gus L. W. Hart, Lance J. Nelson, and Rodney W. Forcade, "Generating
 derivative structures at a fixed concentration," Comp. Mat. Sci. 59
 101-107 (March 2012)
 """
+
+import re
+import math
+import subprocess
+import itertools
+import logging
+import glob
+
+import numpy as np
+from monty.fractions import lcm
+import fractions
+
+from pymatgen.io.vasp.inputs import Poscar
+from pymatgen.core.sites import PeriodicSite
+from pymatgen.core.structure import Structure
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.core.periodic_table import DummySpecie
+from monty.os.path import which
+from monty.dev import requires
+from monty.tempfile import ScratchDir
+from threading import Timer
+
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -257,13 +256,11 @@ class EnumlibAdaptor:
 
         output.append("{} {}".format(self.min_cell_size, self.max_cell_size))
         output.append(str(self.enum_precision_parameter))
-        output.append("partial")
+        output.append("full")
 
         ndisordered = sum([len(s) for s in disordered_sites])
-        base = int(ndisordered*lcm(*[f.limit_denominator(ndisordered *
-                                          self.max_cell_size).denominator
-                                       for f in map(fractions.Fraction,
-                                                    index_amounts)]))
+        base = int(ndisordered*lcm(*[f.limit_denominator(ndisordered * self.max_cell_size).denominator
+                                     for f in map(fractions.Fraction, index_amounts)]))
 
         # This multiplicative factor of 10 is to prevent having too small bases
         # which can lead to rounding issues in the next step.
@@ -406,7 +403,7 @@ class EnumlibAdaptor:
                                          properties=disordered_site_properties)
                         )
                     else:
-                        warnings.warn("Skipping sites that include species X.")
+                        logger.debug("Skipping sites that include species X.")
                 structs.append(Structure.from_sites(sorted(sites)))
 
         logger.debug("Read in a total of {} structures.".format(num_structs))
@@ -414,4 +411,7 @@ class EnumlibAdaptor:
 
 
 class EnumError(BaseException):
+    """
+    Error subclass for enumeration errors.
+    """
     pass

@@ -15,16 +15,13 @@ __maintainer__ = "David Waroquiers"
 __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
 
-
 from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import is_anion_cation_bond
-
 
 STATS_ENV_PAPER = 'David Waroquiers, Xavier Gonze, Gian-Marco Rignanese, Cathrin Welker-Nieuwoudt, Frank Rosowski,\n' \
                   'Michael Goebel, Stephan Schenk, Peter Degelmann, Rute Andre, Robert Glaum, and Geoffroy Hautier,\n' \
                   '"Statistical analysis of coordination environments in oxides",\n' \
                   'Chem. Mater., 2017, 29 (19), pp 8346-8360,\n' \
                   'DOI: 10.1021/acs.chemmater.7b02766\n'
-
 
 
 def chemenv_citations():
@@ -41,14 +38,14 @@ class AdditionalConditions():
     NO_ELEMENT_TO_SAME_ELEMENT_BONDS = 2
     ONLY_ANION_CATION_BONDS_AND_NO_ELEMENT_TO_SAME_ELEMENT_BONDS = 3
     ONLY_ELEMENT_TO_OXYGEN_BONDS = 4
-    #Short versions
+    # Short versions
     NONE = NO_ADDITIONAL_CONDITION
     NO_AC = NO_ADDITIONAL_CONDITION
     ONLY_ACB = ONLY_ANION_CATION_BONDS
     NO_E2SEB = NO_ELEMENT_TO_SAME_ELEMENT_BONDS
     ONLY_ACB_AND_NO_E2SEB = ONLY_ANION_CATION_BONDS_AND_NO_ELEMENT_TO_SAME_ELEMENT_BONDS
     ONLY_E2OB = ONLY_ELEMENT_TO_OXYGEN_BONDS
-    #Dictionary mapping of integer for the condition and its "description"
+    # Dictionary mapping of integer for the condition and its "description"
     CONDITION_DESCRIPTION = {NO_ADDITIONAL_CONDITION: 'No additional condition',
                              ONLY_ANION_CATION_BONDS: 'Only anion-cation bonds',
                              NO_ELEMENT_TO_SAME_ELEMENT_BONDS: 'No element-element bonds (same elements)',

@@ -90,21 +90,21 @@ following must be satisfied for your contributions to be accepted into pymatgen.
 2. **Python PEP 8** `code style <http://www.python.org/dev/peps/pep-0008/>`_.
    We allow a few exceptions when they are well-justified (e.g., Element's
    atomic number is given a variable name of capital Z, in line with accepted
-   scientific convention), but generally, PEP 8 must be observed.
-3. **Python 3**. All code should seamless work with Python 2.7 and Python 3.x.
-   Please read `Python's official guidelines
-   <https://docs.python.org/3/howto/pyporting.html>`_ on how to write Python 3.x
-   compatible code, including the usage of the "six" package. It is recommended
-   that you install the "python-modernize" package and run it before submitting
-   any pull requests.
+   scientific convention), but generally, PEP 8 must be observed. Code style
+   will be automatically checked, but to aid you, you can copy the example
+   pre-commit hook into your .git/hooks directly. This will automatically run
+   pycodestyle prior to any commits. At the very least, copy pre-commit to
+   .git/hooks/pre-push.
+3. **Python 3**. We only support Python 3.5+.
 4. **Documentation** required for all modules, classes and methods. In
    particular, the method docstrings should make clear the arguments expected
    and the return values. For complex algorithms (e.g., an Ewald summation), a
    summary of the alogirthm should be provided, and preferably with a link to a
    publication outlining the method in detail.
-5. **IDE**. We highly recommend the use of Pycharm or Eclipse + PyDev. You
-   should also set up pylint and pep8 and turn those on within the IDE setup.
-   This will warn of any issues with coding styles.
+5. **IDE**. We highly recommend the use of Pycharm. You should also set up
+   pycodestyle and turn those on within the IDE setup. This will warn of any
+   issues with coding styles. Many code style errors can be done by simply
+   selecting the entire code and using the Code->Reformat Code within Pycharm.
 
 For the above, if in doubt, please refer to the core classes in pymatgen for
 examples of what is expected.

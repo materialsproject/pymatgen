@@ -52,7 +52,9 @@ class StructureNLCase(unittest.TestCase):
         self.junk = "This is junk text, not a BibTeX reference"
 
         # set up remarks
-        self.remark_fail = ["This is a really long remark that is clearly invalid and must fail, don't you agree? It would be silly to allow remarks that went on forever and ever."]
+        self.remark_fail = [
+            "This is a really long remark that is clearly invalid and must fail, don't you agree? It would be silly "
+            "to allow remarks that went on forever and ever."]
 
         # set up some authors
         self.hulk = [{"name": "Hulk", "email": "hulk@avengers.com"}]
@@ -192,7 +194,7 @@ class StructureNLCase(unittest.TestCase):
                          'to/from dict is broken when object embedding is '
                          'used! Apparently MontyEncoding is broken...')
 
-        #Test molecule
+        # Test molecule
         molnl = StructureNL(self.mol, self.hulk, references=self.pmg)
         b = StructureNL.from_dict(molnl.as_dict())
         self.assertEqual(molnl, b)
@@ -201,7 +203,7 @@ class StructureNLCase(unittest.TestCase):
         s1 = Structure([[5, 0, 0], [0, 5, 0], [0, 0, 5]], ["Fe"], [[0, 0, 0]])
         s2 = Structure([[5, 0, 0], [0, 5, 0], [0, 0, 5]], ["Mn"], [[0, 0, 0]])
         remarks = ["unittest"]
-        authors="Test User <test@materialsproject.com>"
+        authors = "Test User <test@materialsproject.com>"
         snl_list = StructureNL.from_structures([s1, s2], authors, remarks=remarks)
 
         self.assertEqual(len(snl_list), 2)

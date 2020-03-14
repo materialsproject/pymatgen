@@ -2,19 +2,19 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+This module implements a MolecularOrbital class to represent band character in
+solids. Usefull for predicting PDOS character from structural information.
+"""
+
 from itertools import chain, combinations
 
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.composition import Composition
 
-'''
-This module implements a MolecularOrbital class to represent band character in
-solids. Usefull for predicting PDOS character from structural information.
-'''
-
 
 class MolecularOrbitals:
-    '''
+    """
     Represents the character of bands in a solid. The input is a chemical
     formula, since no structural characteristics are taken into account.
 
@@ -30,10 +30,10 @@ class MolecularOrbitals:
     >>> MOs = MolecularOrbitals('SrTiO3')
     >>> MOs.band_edges
     {'HOMO':['O','2p',-0.338381], 'LUMO':['Ti','3d',-0.17001], 'metal':False}
-    '''
+    """
 
     def __init__(self, formula):
-        '''
+        """
         Args:
             chemical formula as a string. formula must have integer subscripts
             Ex: 'SrTiO3'
@@ -49,7 +49,7 @@ class MolecularOrbitals:
                          orbital (HOMO), lowest unocupied molecular orbital
                          (LUMO), and whether the material is predicted to be a
                          metal
-        '''
+        """
         self.composition = Composition(formula).as_dict()
         self.elements = self.composition.keys()
         for subscript in self.composition.values():
@@ -63,9 +63,10 @@ class MolecularOrbitals:
         self.band_edges = self.obtain_band_edges()
 
     def max_electronegativity(self):
-        '''
-        returns the maximum pairwise electronegativity difference
-        '''
+        """
+        Returns:
+            The maximum pairwise electronegativity difference.
+        """
         maximum = 0
         for e1, e2 in combinations(self.elements, 2):
             if abs(Element(e1).X - Element(e2).X) > maximum:
@@ -73,18 +74,25 @@ class MolecularOrbitals:
         return maximum
 
     def aos_as_list(self):
-        '''
-        Returns a list of atomic orbitals, sorted from lowest to highest energy
-        '''
+        """
+        Returns:
+            A list of atomic orbitals, sorted from lowest to highest energy.
+
+            The orbitals energies in eV are represented as
+                [['O', '1s', -18.758245], ['O', '2s', -0.871362], ['O', '2p', -0.338381]]
+            Data is obtained from
+            https://www.nist.gov/pml/data/atomic-reference-data-electronic-structure-calculations
+        """
         return sorted(chain.from_iterable(
             [self.aos[el] * int(self.composition[el]) for el in self.elements]
         ), key=lambda x: x[2])
 
     def obtain_band_edges(self):
-        '''
+        """
         Fill up the atomic orbitals with available electrons.
-        Return HOMO, LUMO, and whether it's a metal.
-        '''
+        Returns:
+            HOMO, LUMO, and whether it's a metal.
+        """
         orbitals = self.aos_as_list()
         electrons = Composition(self.composition).total_electrons
         partial_filled = []
@@ -108,12 +116,7 @@ class MolecularOrbitals:
             homo = partial_filled[-1]
             try:
                 lumo = orbitals[len(partial_filled)]
-            except:
+            except Exception:
                 lumo = None
 
-        if homo == lumo:
-            metal = True
-        else:
-            metal = False
-
-        return {'HOMO': homo, 'LUMO': lumo, 'metal': metal}
+        return {'HOMO': homo, 'LUMO': lumo, 'metal': homo == lumo}

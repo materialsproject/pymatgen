@@ -2,6 +2,6 @@ pymatgen.analysis.chemenv.coordination\_environments.coordination\_geometry\_fin
 ==========================================================================================
 
 .. automodule:: pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

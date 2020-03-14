@@ -5,7 +5,9 @@ A number of different algorithms are implemented. These are based on the
 following publications:
 
 get_dimensionality_larsen:
-  - P. Larsen, M. Pandey, M. Strange, K. W. Jacobsen, 2018, arXiv:1808.02114
+  - P. M. Larsen, M. Pandey, M. Strange, K. W. Jacobsen. Definition of a
+    scoring parameter to identify low-dimensional materials components.
+    Phys. Rev. Materials 3, 034003 (2019).
 
 get_dimensionality_cheon:
   - Cheon, G.; Duerloo, K.-A. N.; Sendek, A. D.; Porter, C.; Chen, Y.; Reed,
@@ -17,7 +19,6 @@ get_dimensionality_gorai:
     Promising Thermoelectric Materials Among Known Quasi-2D Binary Compounds.
     J. Mater. Chem. A 2, 4136 (2016).
 """
-
 
 import itertools
 import copy
@@ -56,7 +57,9 @@ def get_dimensionality_larsen(bonded_structure):
 
     Based on the modified breadth-first-search algorithm described in:
 
-    P. Larsem, M. Pandey, M. Strange, K. W. Jacobsen, 2018, arXiv:1808.02114
+    P. M. Larsen, M. Pandey, M. Strange, K. W. Jacobsen. Definition of a
+    scoring parameter to identify low-dimensional materials components.
+    Phys. Rev. Materials 3, 034003 (2019).
 
     Args:
         bonded_structure (StructureGraph): A structure with bonds, represented
@@ -85,7 +88,9 @@ def get_structure_components(bonded_structure, inc_orientation=False,
 
     Based on the modified breadth-first-search algorithm described in:
 
-    P. Larsem, M. Pandey, M. Strange, K. W. Jacobsen, 2018, arXiv:1808.02114
+    P. M. Larsen, M. Pandey, M. Strange, K. W. Jacobsen. Definition of a
+    scoring parameter to identify low-dimensional materials components.
+    Phys. Rev. Materials 3, 034003 (2019).
 
     Args:
         bonded_structure (StructureGraph): A structure with bonds, represented
@@ -173,7 +178,9 @@ def calculate_dimensionality_of_site(bonded_structure, site_index,
     Implements directly the modified breadth-first-search algorithm described in
     Algorithm 1 of:
 
-    P. Larsem, M. Pandey, M. Strange, K. W. Jacobsen, 2018, arXiv:1808.02114
+    P. M. Larsen, M. Pandey, M. Strange, K. W. Jacobsen. Definition of a
+    scoring parameter to identify low-dimensional materials components.
+    Phys. Rev. Materials 3, 034003 (2019).
 
     Args:
         bonded_structure (StructureGraph): A structure with bonds, represented
@@ -189,6 +196,7 @@ def calculate_dimensionality_of_site(bonded_structure, site_index,
         function will return a tuple of (dimensionality, vertices), where
         vertices is a list of tuples. E.g. [(0, 0, 0), (1, 1, 1)].
     """
+
     def neighbours(comp_index):
         return [(s.index, s.jimage) for s
                 in bonded_structure.get_connected_sites(comp_index)]
@@ -201,6 +209,12 @@ def calculate_dimensionality_of_site(bonded_structure, site_index,
         else:
             vertices = np.array(list(vertices))
             return np.linalg.matrix_rank(vertices[1:] - vertices[0])
+
+    def rank_increase(seen, candidate):
+
+        rank0 = len(seen) - 1
+        rank1 = rank(seen.union({candidate}))
+        return rank1 > rank0
 
     connected_sites = {i: neighbours(i) for i in
                        range(bonded_structure.structure.num_sites)}
@@ -216,9 +230,10 @@ def calculate_dimensionality_of_site(bonded_structure, site_index,
             continue
         seen_vertices.add((comp_i, image_i))
 
-        if (rank(seen_comp_vertices[comp_i].union({image_i})) >
-                rank(seen_comp_vertices[comp_i])):
-            seen_comp_vertices[comp_i].add(image_i)
+        if not rank_increase(seen_comp_vertices[comp_i], image_i):
+            continue
+
+        seen_comp_vertices[comp_i].add(image_i)
 
         for comp_j, image_j in connected_sites[comp_i]:
 
@@ -227,8 +242,7 @@ def calculate_dimensionality_of_site(bonded_structure, site_index,
             if (comp_j, image_j) in seen_vertices:
                 continue
 
-            if (rank(seen_comp_vertices[comp_j].union({image_j})) >
-                    rank(seen_comp_vertices[comp_j])):
+            if rank_increase(seen_comp_vertices[comp_j], image_j):
                 queue.append((comp_j, image_j))
 
     if inc_vertices:
@@ -327,7 +341,7 @@ def get_dimensionality_cheon(structure_raw, tolerance=0.45,
     if standardize:
         structure = SpacegroupAnalyzer(structure_raw).get_conventional_standard_structure()
     else:
-        structure=structure_raw
+        structure = structure_raw
     structure_save = copy.copy(structure_raw)
     connected_list1 = find_connected_atoms(structure, tolerance=tolerance, ldict=ldict)
     max1, min1, clusters1 = find_clusters(structure, connected_list1)
@@ -410,10 +424,10 @@ def find_connected_atoms(struct, tolerance=0.45, ldict=JmolNN().el_radius):
     species = list(map(str, struct.species))
     # in case of charged species
     for i, item in enumerate(species):
-        if not item in ldict.keys():
+        if item not in ldict.keys():
             species[i] = str(Specie.from_string(item).element)
     latmat = struct.lattice.matrix
-    connected_matrix = np.zeros((n_atoms,n_atoms))
+    connected_matrix = np.zeros((n_atoms, n_atoms))
 
     for i in range(n_atoms):
         for j in range(i + 1, n_atoms):
@@ -473,7 +487,7 @@ def find_clusters(struct, connected_matrix):
     for i in range(n_atoms):
         if not visited[i]:
             atom_cluster = set()
-            cluster=visit(i, atom_cluster)
+            cluster = visit(i, atom_cluster)
             clusters.append(cluster)
             cluster_sizes.append(len(cluster))
 
@@ -538,7 +552,3 @@ def get_dimensionality_gorai(structure, max_hkl=2, el_radius_updates=None,
                         num_surfaces += 1
 
     return 3 - min(num_surfaces, 2)
-
-from pymatgen.util.testing import PymatgenTest
-s=PymatgenTest.get_structure('Graphite')
-get_dimensionality_cheon(s, larger_cell=True)

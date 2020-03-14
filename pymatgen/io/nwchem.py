@@ -2,6 +2,25 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+This module implements input and output processing from Nwchem.
+
+2015/09/21 - Xin Chen (chenxin13@mails.tsinghua.edu.cn):
+
+    NwOutput will read new kinds of data:
+
+        1. normal hessian matrix.       ["hessian"]
+        2. projected hessian matrix.    ["projected_hessian"]
+        3. normal frequencies.          ["normal_frequencies"]
+
+    For backward compatibility, the key for accessing the projected frequencies
+    is still 'frequencies'.
+
+2015/10/12 - Xin Chen
+    NwOutput will read new kinds of data:
+
+        1. forces.                      ["forces"]
+"""
 
 import re
 import os
@@ -18,24 +37,6 @@ from pymatgen.core.units import Energy
 from pymatgen.core.units import FloatWithUnit
 from pymatgen.analysis.excitation import ExcitationSpectrum
 
-"""
-This module implements input and output processing from Nwchem.
-
-2015/09/21 - Xin Chen (chenxin13@mails.tsinghua.edu.cn):
-
-    NwOutput will read new kinds of data:
-        1. normal hessian matrix.       ["hessian"]
-        2. projected hessian matrix.    ["projected_hessian"]
-        3. normal frequencies.          ["normal_frequencies"]
-
-    For backward compatibility, the key for accessing the projected frequencies
-    is still 'frequencies'.
-
-2015/10/12 - Xin Chen
-    NwOutput will read new kinds of data:
-        1. forces.                      ["forces"]
-
-"""
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -43,7 +44,6 @@ __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "6/5/13"
-
 
 NWCHEM_BASIS_LIBRARY = None
 if os.environ.get("NWCHEM_BASIS_LIBRARY"):
@@ -180,7 +180,7 @@ $theory_spec
 """)
 
         output = t.substitute(
-            title=self.title, charge=self.charge,
+            title=self.title, charge=int(self.charge),
             spinmult=self.spin_multiplicity,
             basis_set_option=self.basis_set_option,
             bset_spec="\n".join(bset_spec),
@@ -192,6 +192,9 @@ $theory_spec
         return output
 
     def as_dict(self):
+        """
+        Returns: MSONable dict.
+        """
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "charge": self.charge,
@@ -204,6 +207,13 @@ $theory_spec
 
     @classmethod
     def from_dict(cls, d):
+        """
+        Args:
+            d (dict): Dict representation
+
+        Returns:
+            NwTask
+        """
         return NwTask(charge=d["charge"],
                       spin_multiplicity=d["spin_multiplicity"],
                       title=d["title"], theory=d["theory"],
@@ -278,7 +288,7 @@ $theory_spec
 
     @classmethod
     def dft_task(cls, mol, xc="b3lyp", **kwargs):
-        """
+        r"""
         A class method for quickly creating DFT tasks with optional
         cosmo parameter .
 
@@ -295,7 +305,7 @@ $theory_spec
 
     @classmethod
     def esp_task(cls, mol, **kwargs):
-        """
+        r"""
         A class method for quickly creating ESP tasks with RESP
         charge fitting.
 
@@ -311,27 +321,28 @@ class NwInput(MSONable):
     """
     An object representing a Nwchem input file, which is essentially a list
     of tasks on a particular molecule.
-
-    Args:
-        mol: Input molecule. If molecule is a single string, it is used as a
-            direct input to the geometry section of the Gaussian input
-            file.
-        tasks: List of NwTasks.
-        directives: List of root level directives as tuple. E.g.,
-            [("start", "water"), ("print", "high")]
-        geometry_options: Additional list of options to be supplied to the
-            geometry. E.g., ["units", "angstroms", "noautoz"]. Defaults to
-            ("units", "angstroms").
-        symmetry_options: Addition list of option to be supplied to the
-            symmetry. E.g. ["c1"] to turn off the symmetry
-        memory_options: Memory controlling options. str.
-            E.g "total 1000 mb stack 400 mb"
     """
 
     def __init__(self, mol, tasks, directives=None,
                  geometry_options=("units", "angstroms"),
                  symmetry_options=None,
                  memory_options=None):
+        """
+        Args:
+            mol: Input molecule. If molecule is a single string, it is used as a
+                direct input to the geometry section of the Gaussian input
+                file.
+            tasks: List of NwTasks.
+            directives: List of root level directives as tuple. E.g.,
+                [("start", "water"), ("print", "high")]
+            geometry_options: Additional list of options to be supplied to the
+                geometry. E.g., ["units", "angstroms", "noautoz"]. Defaults to
+                ("units", "angstroms").
+            symmetry_options: Addition list of option to be supplied to the
+                symmetry. E.g. ["c1"] to turn off the symmetry
+            memory_options: Memory controlling options. str.
+                E.g "total 1000 mb stack 400 mb"
+        """
         self._mol = mol
         self.directives = directives if directives is not None else []
         self.tasks = tasks
@@ -366,10 +377,17 @@ class NwInput(MSONable):
         return "\n".join(o)
 
     def write_file(self, filename):
+        """
+        Args:
+            filename (str): Filename
+        """
         with zopen(filename, "w") as f:
             f.write(self.__str__())
 
     def as_dict(self):
+        """
+        Returns: MSONable dict
+        """
         return {
             "mol": self._mol.as_dict(),
             "tasks": [t.as_dict() for t in self.tasks],
@@ -381,6 +399,13 @@ class NwInput(MSONable):
 
     @classmethod
     def from_dict(cls, d):
+        """
+        Args:
+            d (dict): Dict representation
+
+        Returns:
+            NwInput
+        """
         return NwInput(Molecule.from_dict(d["mol"]),
                        tasks=[NwTask.from_dict(dt) for dt in d["tasks"]],
                        directives=[tuple(li) for li in d["directives"]],
@@ -469,7 +494,7 @@ class NwInput(MSONable):
                            basis_set_option=basis_set_option,
                            theory_directives=theory_directives.get(toks[1])))
             elif toks[0].lower() == "memory":
-                    memory_options = ' '.join(toks[1:])
+                memory_options = ' '.join(toks[1:])
             else:
                 directives.append(l.strip().split())
 
@@ -507,12 +532,13 @@ class NwOutput:
     only parses energies and geometries. Please note that Nwchem typically
     outputs energies in either au or kJ/mol. All energies are converted to
     eV in the parser.
-
-    Args:
-        filename: Filename to read.
     """
 
     def __init__(self, filename):
+        """
+        Args:
+            filename: Filename to read.
+        """
         self.filename = filename
 
         with zopen(filename) as f:
@@ -670,8 +696,11 @@ class NwOutput:
             "geom_binvr: #indep variables incorrect": "autoz error",
             "dft optimize failed": "Geometry optimization failed"}
 
-        fort2py = lambda x: x.replace("D", "e")
-        isfloatstring = lambda s: s.find(".") == -1
+        def fort2py(x):
+            return x.replace("D", "e")
+
+        def isfloatstring(s):
+            return s.find(".") == -1
 
         parse_hess = False
         parse_proj_hess = False
@@ -831,13 +860,11 @@ class NwOutput:
                     cosmo_scf_energy = energies[-1]
                     energies[-1] = dict()
                     energies[-1].update({"cosmo scf": cosmo_scf_energy})
-                    energies[-1].update({"gas phase":
-                                         Energy(m.group(1), "Ha").to("eV")})
+                    energies[-1].update({"gas phase": Energy(m.group(1), "Ha").to("eV")})
 
                 m = energy_sol_patt.search(l)
                 if m:
-                    energies[-1].update(
-                        {"sol phase": Energy(m.group(1), "Ha").to("eV")})
+                    energies[-1].update({"sol phase": Energy(m.group(1), "Ha").to("eV")})
 
                 m = preamble_patt.search(l)
                 if m:
@@ -892,10 +919,10 @@ class NwOutput:
 
         if frequencies:
             for freq, mode in frequencies:
-                mode[:] = zip(*[iter(mode)]*3)
+                mode[:] = zip(*[iter(mode)] * 3)
         if normal_frequencies:
             for freq, mode in normal_frequencies:
-                mode[:] = zip(*[iter(mode)]*3)
+                mode[:] = zip(*[iter(mode)] * 3)
         if hessian:
             n = len(hessian)
             for i in range(n):

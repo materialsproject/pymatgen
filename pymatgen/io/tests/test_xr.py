@@ -20,10 +20,10 @@ from pymatgen.core.structure import Structure
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 
+
 class XrTest(unittest.TestCase):
 
     def setUp(self):
-
         filepath = os.path.join(test_dir, 'POSCAR')
         p = Poscar.from_file(filepath)
         self.xr = Xr(p.structure)
@@ -71,6 +71,7 @@ class XrTest(unittest.TestCase):
         self.assertIsInstance(xr.structure, Structure)
         xr2 = Xr.from_file(filename, use_cores=False)
         self.assertIsInstance(xr2.structure, Structure)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -19,19 +19,16 @@ Tran, R.; Xu, Z.; Radhakrishnan, B.; Winston, D.; Persson, K. A.; Ong, S. P.
 """
 
 from pymatgen.core.structure import Structure
-from pymatgen.core.surface import get_recp_symmetry_operation
 from pymatgen.util.coord import get_angle
 import numpy as np
-import scipy as sp
 from scipy.spatial import ConvexHull
 import logging
 import warnings
 
-
 __author__ = 'Zihan Xu, Richard Tran, Shyue Ping Ong'
 __copyright__ = 'Copyright 2013, The Materials Virtual Lab'
 __version__ = '0.1'
-__maintainer__ = 'Zihan Xu'
+__maintainer__ = 'Zihan Xu' 
 __email__ = 'zix009@eng.ucsd.edu'
 __date__ = 'May 5 2016'
 
@@ -66,7 +63,7 @@ def get_tri_area(pts):
     a, b, c = pts[0], pts[1], pts[2]
     v1 = np.array(b) - np.array(a)
     v2 = np.array(c) - np.array(a)
-    area_tri = abs(sp.linalg.norm(sp.cross(v1, v2)) / 2)
+    area_tri = abs(np.linalg.norm(np.cross(v1, v2)) / 2)
     return area_tri
 
 
@@ -77,6 +74,15 @@ class WulffFacet:
 
     def __init__(self, normal, e_surf, normal_pt, dual_pt, index, m_ind_orig,
                  miller):
+        """
+        :param normal:
+        :param e_surf:
+        :param normal_pt:
+        :param dual_pt:
+        :param index:
+        :param m_ind_orig:
+        :param miller:
+        """
         self.normal = normal
         self.e_surf = e_surf
         self.normal_pt = normal_pt
@@ -232,7 +238,7 @@ class WulffShape:
         color_ind = self.color_ind
         planes = []
         recp = self.structure.lattice.reciprocal_lattice_crystallographic
-        recp_symmops = get_recp_symmetry_operation(self.structure, self.symprec)
+        recp_symmops = self.lattice.get_recp_symmetry_operation(self.symprec)
 
         for i, (hkl, energy) in enumerate(zip(self.hkl_list,
                                               self.e_surf_list)):
@@ -241,7 +247,7 @@ class WulffShape:
                 if miller not in all_hkl:
                     all_hkl.append(miller)
                     normal = recp.get_cartesian_coords(miller)
-                    normal /= sp.linalg.norm(normal)
+                    normal /= np.linalg.norm(normal)
                     normal_pt = [x * energy for x in normal]
                     dual_pt = [x / energy for x in normal]
                     color_plane = color_ind[divmod(i, len(color_ind))[1]]
@@ -265,7 +271,7 @@ class WulffShape:
         """
         matrix_surfs = [self.facets[dual_simp[i]].normal for i in range(3)]
         matrix_e = [self.facets[dual_simp[i]].e_surf for i in range(3)]
-        cross_pt = sp.dot(sp.linalg.inv(matrix_surfs), matrix_e)
+        cross_pt = np.dot(np.linalg.inv(matrix_surfs), matrix_e)
         return cross_pt
 
     def _get_simpx_plane(self):
@@ -337,16 +343,15 @@ class WulffShape:
         color_proxy = [plt.Rectangle((2, 2), 1, 1, fc=x, alpha=alpha)
                        for x in color_list]
 
-        return color_list, color_proxy, color_proxy_on_wulff, miller_on_wulff, \
-            e_surf_on_wulff_list
+        return color_list, color_proxy, color_proxy_on_wulff, miller_on_wulff, e_surf_on_wulff_list
 
     def show(self, *args, **kwargs):
-        """
+        r"""
         Show the Wulff plot.
 
         Args:
-            \\*args: Passed to get_plot.
-            \\*\\*kwargs: Passed to get_plot.
+            *args: Passed to get_plot.
+            **kwargs: Passed to get_plot.
         """
         self.get_plot(*args, **kwargs).show()
 
@@ -407,9 +412,8 @@ class WulffShape:
         import matplotlib as mpl
         import matplotlib.pyplot as plt
         import mpl_toolkits.mplot3d as mpl3
-        color_list, color_proxy, color_proxy_on_wulff, \
-            miller_on_wulff, e_surf_on_wulff = self._get_colors(
-                color_set, alpha, off_color, custom_colors=custom_colors)
+        color_list, color_proxy, color_proxy_on_wulff, miller_on_wulff, e_surf_on_wulff = self._get_colors(
+            color_set, alpha, off_color, custom_colors=custom_colors)
 
         if not direction:
             # If direction is not specified, use the miller indices of
@@ -477,8 +481,8 @@ class WulffShape:
                 ax1, cmap=cmap, norm=norm, boundaries=[0] + bounds + [10],
                 extend='both', ticks=bounds[:-1], spacing='proportional',
                 orientation='vertical')
-            units = "$J/m^2$" if units_in_JPERM2 else "$eV/\AA^2$"
-            cbar.set_label('Surface Energies (%s)' %(units), fontsize=100)
+            units = "$J/m^2$" if units_in_JPERM2 else r"$eV/\AA^2$"
+            cbar.set_label('Surface Energies (%s)' % (units), fontsize=100)
 
         if grid_off:
             ax.grid('off')
@@ -561,7 +565,7 @@ class WulffShape:
         miller_energy_dict = self.miller_energy_dict
 
         for hkl in miller_energy_dict.keys():
-            square_diff_energy += (miller_energy_dict[hkl] - weighted_energy)\
+            square_diff_energy += (miller_energy_dict[hkl] - weighted_energy) \
                                   ** 2 * area_frac_dict[hkl]
         return np.sqrt(square_diff_energy) / weighted_energy
 
@@ -578,7 +582,6 @@ class WulffShape:
         """
         return self.surface_area / (self.volume ** (2 / 3))
 
-
     @property
     def effective_radius(self):
         """
@@ -588,7 +591,7 @@ class WulffShape:
         Returns:
             (float) radius.
         """
-        return ((3/4)*(self.volume/np.pi)) ** (1 / 3)
+        return ((3 / 4) * (self.volume / np.pi)) ** (1 / 3)
 
     @property
     def total_surface_energy(self):
@@ -627,7 +630,7 @@ class WulffShape:
             for i, p in enumerate(pt):
                 if i == len(pt) / 2:
                     break
-                lines.append(tuple(sorted(tuple([tuple(pt[i*2]), tuple(pt[i*2+1])]))))
+                lines.append(tuple(sorted(tuple([tuple(pt[i * 2]), tuple(pt[i * 2 + 1])]))))
 
             for i, p in enumerate(lines):
                 if p not in all_edges:
@@ -636,4 +639,3 @@ class WulffShape:
             all_edges.extend(edges)
 
         return len(all_edges)
-

@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.electronic_structure.bandstructure &#8212; pymatgen 2019.3.13 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.electronic_structure.bandstructure &#8212; pymatgen 2020.3.2 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -15,7 +13,6 @@
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
  
@@ -35,7 +32,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.3.13 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -51,24 +48,24 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module provides classes to define everything related to band structures.</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">import</span> <span class="nn">itertools</span>
 <span class="kn">import</span> <span class="nn">collections</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 
-<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">get_el_sp</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.lattice</span> <span class="k">import</span> <span class="n">Lattice</span>
-<span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.core</span> <span class="k">import</span> <span class="n">Spin</span><span class="p">,</span> <span class="n">Orbital</span>
-<span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="k">import</span> <span class="n">SpacegroupAnalyzer</span>
-<span class="kn">from</span> <span class="nn">pymatgen.util.coord</span> <span class="k">import</span> <span class="n">pbc_diff</span>
-
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">This module provides classes to define everything related to band structures.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">MSONable</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="kn">import</span> <span class="n">get_el_sp</span><span class="p">,</span> <span class="n">Element</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">Structure</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.lattice</span> <span class="kn">import</span> <span class="n">Lattice</span>
+<span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.core</span> <span class="kn">import</span> <span class="n">Spin</span><span class="p">,</span> <span class="n">Orbital</span>
+<span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="kn">import</span> <span class="n">SpacegroupAnalyzer</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.coord</span> <span class="kn">import</span> <span class="n">pbc_diff</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Geoffroy Hautier, Shyue Ping Ong, Michael Kocher&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2012, The Materials Project&quot;</span>
@@ -84,21 +81,22 @@
 <span class="sd">    Class to store kpoint objects. A kpoint is defined with a lattice and frac</span>
 <span class="sd">    or cartesian coordinates syntax similar than the site object in</span>
 <span class="sd">    pymatgen.core.structure.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        coords: coordinate of the kpoint as a numpy array</span>
-<span class="sd">        lattice: A pymatgen.core.lattice.Lattice lattice object representing</span>
-<span class="sd">            the reciprocal lattice of the kpoint</span>
-<span class="sd">        to_unit_cell: Translates fractional coordinate to the basic unit</span>
-<span class="sd">            cell, i.e., all fractional coordinates satisfy 0 &lt;= a &lt; 1.</span>
-<span class="sd">            Defaults to False.</span>
-<span class="sd">        coords_are_cartesian: Boolean indicating if the coordinates given are</span>
-<span class="sd">            in cartesian or fractional coordinates (by default fractional)</span>
-<span class="sd">        label: the label of the kpoint if any (None by default)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            coords: coordinate of the kpoint as a numpy array</span>
+<span class="sd">            lattice: A pymatgen.core.lattice.Lattice lattice object representing</span>
+<span class="sd">                the reciprocal lattice of the kpoint</span>
+<span class="sd">            to_unit_cell: Translates fractional coordinate to the basic unit</span>
+<span class="sd">                cell, i.e., all fractional coordinates satisfy 0 &lt;= a &lt; 1.</span>
+<span class="sd">                Defaults to False.</span>
+<span class="sd">            coords_are_cartesian: Boolean indicating if the coordinates given are</span>
+<span class="sd">                in cartesian or fractional coordinates (by default fractional)</span>
+<span class="sd">            label: the label of the kpoint if any (None by default)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_lattice</span> <span class="o">=</span> <span class="n">lattice</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_fcoords</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">get_fractional_coords</span><span class="p">(</span><span class="n">coords</span><span class="p">)</span> \
             <span class="k">if</span> <span class="n">coords_are_cartesian</span> <span class="k">else</span> <span class="n">coords</span>
@@ -160,7 +158,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fcoords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a string with fractional, cartesian coordinates and label</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -219,34 +217,35 @@
 <span class="sd">        ndarray is necessary for computational as well as memory efficiency</span>
 <span class="sd">        due to the large amount of numerical data. The indices of the ndarray</span>
 <span class="sd">        are [band_index, kpoint_index, orbital_index, ion_index].</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        kpoints: list of kpoint as numpy arrays, in frac_coords of the</span>
-<span class="sd">            given lattice by default</span>
-<span class="sd">        eigenvals: dict of energies for spin up and spin down</span>
-<span class="sd">            {Spin.up:[][],Spin.down:[][]}, the first index of the array</span>
-<span class="sd">            [][] refers to the band and the second to the index of the</span>
-<span class="sd">            kpoint. The kpoints are ordered according to the order of the</span>
-<span class="sd">            kpoints array. If the band structure is not spin polarized, we</span>
-<span class="sd">            only store one data set under Spin.up</span>
-<span class="sd">        lattice: The reciprocal lattice as a pymatgen Lattice object.</span>
-<span class="sd">            Pymatgen uses the physics convention of reciprocal lattice vectors</span>
-<span class="sd">            WITH a 2*pi coefficient</span>
-<span class="sd">        efermi: fermi energy</span>
-<span class="sd">        labels_dict: (dict) of {} this links a kpoint (in frac coords or</span>
-<span class="sd">            cartesian coordinates depending on the coords) to a label.</span>
-<span class="sd">        coords_are_cartesian: Whether coordinates are cartesian.</span>
-<span class="sd">        structure: The crystal structure (as a pymatgen Structure object)</span>
-<span class="sd">            associated with the band structure. This is needed if we</span>
-<span class="sd">            provide projections to the band structure</span>
-<span class="sd">        projections: dict of orbital projections as {spin: ndarray}. The</span>
-<span class="sd">            indices of the ndarrayare [band_index, kpoint_index, orbital_index,</span>
-<span class="sd">            ion_index].If the band structure is not spin polarized, we only</span>
-<span class="sd">            store one data set under Spin.up.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kpoints</span><span class="p">,</span> <span class="n">eigenvals</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">efermi</span><span class="p">,</span> <span class="n">labels_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kpoints</span><span class="p">,</span> <span class="n">eigenvals</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">efermi</span><span class="p">,</span> <span class="n">labels_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">structure</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">projections</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            kpoints: list of kpoint as numpy arrays, in frac_coords of the</span>
+<span class="sd">                given lattice by default</span>
+<span class="sd">            eigenvals: dict of energies for spin up and spin down</span>
+<span class="sd">                {Spin.up:[][],Spin.down:[][]}, the first index of the array</span>
+<span class="sd">                [][] refers to the band and the second to the index of the</span>
+<span class="sd">                kpoint. The kpoints are ordered according to the order of the</span>
+<span class="sd">                kpoints array. If the band structure is not spin polarized, we</span>
+<span class="sd">                only store one data set under Spin.up</span>
+<span class="sd">            lattice: The reciprocal lattice as a pymatgen Lattice object.</span>
+<span class="sd">                Pymatgen uses the physics convention of reciprocal lattice vectors</span>
+<span class="sd">                WITH a 2*pi coefficient</span>
+<span class="sd">            efermi: fermi energy</span>
+<span class="sd">            labels_dict: (dict) of {} this links a kpoint (in frac coords or</span>
+<span class="sd">                cartesian coordinates depending on the coords) to a label.</span>
+<span class="sd">            coords_are_cartesian: Whether coordinates are cartesian.</span>
+<span class="sd">            structure: The crystal structure (as a pymatgen Structure object)</span>
+<span class="sd">                associated with the band structure. This is needed if we</span>
+<span class="sd">                provide projections to the band structure</span>
+<span class="sd">            projections: dict of orbital projections as {spin: ndarray}. The</span>
+<span class="sd">                indices of the ndarrayare [band_index, kpoint_index, orbital_index,</span>
+<span class="sd">                ion_index].If the band structure is not spin polarized, we only</span>
+<span class="sd">                store one data set under Spin.up.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">efermi</span> <span class="o">=</span> <span class="n">efermi</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lattice_rec</span> <span class="o">=</span> <span class="n">lattice</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">kpoints</span> <span class="o">=</span> <span class="p">[]</span>
@@ -474,7 +473,7 @@
                 <span class="s1">&#39;projections&#39;</span><span class="p">:</span> <span class="n">proj</span><span class="p">}</span></div>
 
 <div class="viewcode-block" id="BandStructure.get_band_gap"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.bandstructure.html#pymatgen.electronic_structure.bandstructure.BandStructure.get_band_gap">[docs]</a>    <span class="k">def</span> <span class="nf">get_band_gap</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns band gap data.</span>
 
 <span class="sd">        Returns:</span>
@@ -494,7 +493,7 @@
         <span class="k">if</span> <span class="p">(</span><span class="n">cbm</span><span class="p">[</span><span class="s2">&quot;kpoint&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">cbm</span><span class="p">[</span><span class="s2">&quot;kpoint&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">label</span> <span class="o">==</span> <span class="n">vbm</span><span class="p">[</span>
             <span class="s2">&quot;kpoint&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">label</span><span class="p">)</span> \
                 <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">cbm</span><span class="p">[</span><span class="s2">&quot;kpoint&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">cart_coords</span>
-                                          <span class="o">-</span> <span class="n">vbm</span><span class="p">[</span><span class="s2">&quot;kpoint&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">cart_coords</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">0.01</span><span class="p">:</span>
+                                  <span class="o">-</span> <span class="n">vbm</span><span class="p">[</span><span class="s2">&quot;kpoint&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">cart_coords</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">0.01</span><span class="p">:</span>
             <span class="n">result</span><span class="p">[</span><span class="s2">&quot;direct&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
 
         <span class="n">result</span><span class="p">[</span><span class="s2">&quot;transition&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;-&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
@@ -684,7 +683,7 @@
                             <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;projections&#39;</span><span class="p">][</span><span class="n">spin</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">][</span>
                                                    <span class="n">orb</span><span class="p">])):</span>
                                 <span class="n">ddddd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;projections&#39;</span><span class="p">][</span><span class="n">spin</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">][</span>
-                                                <span class="n">orb</span><span class="p">][</span><span class="n">l</span><span class="p">])</span>
+                                                 <span class="n">orb</span><span class="p">][</span><span class="n">l</span><span class="p">])</span>
                             <span class="n">dddd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ddddd</span><span class="p">))</span>
                         <span class="n">ddd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">dddd</span><span class="p">))</span>
                     <span class="n">dd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ddd</span><span class="p">))</span>
@@ -697,40 +696,41 @@
 
 
 <div class="viewcode-block" id="BandStructureSymmLine"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.bandstructure.html#pymatgen.electronic_structure.bandstructure.BandStructureSymmLine">[docs]</a><span class="k">class</span> <span class="nc">BandStructureSymmLine</span><span class="p">(</span><span class="n">BandStructure</span><span class="p">,</span> <span class="n">MSONable</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This object stores band structures along selected (symmetry) lines in the</span>
 <span class="sd">    Brillouin zone. We call the different symmetry lines (ex: \\Gamma to Z)</span>
 <span class="sd">    &quot;branches&quot;.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        kpoints: list of kpoint as numpy arrays, in frac_coords of the</span>
-<span class="sd">            given lattice by default</span>
-<span class="sd">        eigenvals: dict of energies for spin up and spin down</span>
-<span class="sd">            {Spin.up:[][],Spin.down:[][]}, the first index of the array</span>
-<span class="sd">            [][] refers to the band and the second to the index of the</span>
-<span class="sd">            kpoint. The kpoints are ordered according to the order of the</span>
-<span class="sd">            kpoints array. If the band structure is not spin polarized, we</span>
-<span class="sd">            only store one data set under Spin.up.</span>
-<span class="sd">        lattice: The reciprocal lattice.</span>
-<span class="sd">            Pymatgen uses the physics convention of reciprocal lattice vectors</span>
-<span class="sd">            WITH a 2*pi coefficient</span>
-<span class="sd">        efermi: fermi energy</span>
-<span class="sd">        label_dict: (dict) of {} this link a kpoint (in frac coords or</span>
-<span class="sd">            cartesian coordinates depending on the coords).</span>
-<span class="sd">        coords_are_cartesian: Whether coordinates are cartesian.</span>
-<span class="sd">        structure: The crystal structure (as a pymatgen Structure object)</span>
-<span class="sd">            associated with the band structure. This is needed if we</span>
-<span class="sd">            provide projections to the band structure.</span>
-<span class="sd">        projections: dict of orbital projections as {spin: ndarray}. The</span>
-<span class="sd">            indices of the ndarrayare [band_index, kpoint_index, orbital_index,</span>
-<span class="sd">            ion_index].If the band structure is not spin polarized, we only</span>
-<span class="sd">            store one data set under Spin.up.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kpoints</span><span class="p">,</span> <span class="n">eigenvals</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">efermi</span><span class="p">,</span> <span class="n">labels_dict</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kpoints</span><span class="p">,</span> <span class="n">eigenvals</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">efermi</span><span class="p">,</span> <span class="n">labels_dict</span><span class="p">,</span>
                  <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">structure</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">projections</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">BandStructureSymmLine</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            kpoints: list of kpoint as numpy arrays, in frac_coords of the</span>
+<span class="sd">                given lattice by default</span>
+<span class="sd">            eigenvals: dict of energies for spin up and spin down</span>
+<span class="sd">                {Spin.up:[][],Spin.down:[][]}, the first index of the array</span>
+<span class="sd">                [][] refers to the band and the second to the index of the</span>
+<span class="sd">                kpoint. The kpoints are ordered according to the order of the</span>
+<span class="sd">                kpoints array. If the band structure is not spin polarized, we</span>
+<span class="sd">                only store one data set under Spin.up.</span>
+<span class="sd">            lattice: The reciprocal lattice.</span>
+<span class="sd">                Pymatgen uses the physics convention of reciprocal lattice vectors</span>
+<span class="sd">                WITH a 2*pi coefficient</span>
+<span class="sd">            efermi: fermi energy</span>
+<span class="sd">            label_dict: (dict) of {} this link a kpoint (in frac coords or</span>
+<span class="sd">                cartesian coordinates depending on the coords).</span>
+<span class="sd">            coords_are_cartesian: Whether coordinates are cartesian.</span>
+<span class="sd">            structure: The crystal structure (as a pymatgen Structure object)</span>
+<span class="sd">                associated with the band structure. This is needed if we</span>
+<span class="sd">                provide projections to the band structure.</span>
+<span class="sd">            projections: dict of orbital projections as {spin: ndarray}. The</span>
+<span class="sd">                indices of the ndarrayare [band_index, kpoint_index, orbital_index,</span>
+<span class="sd">                ion_index].If the band structure is not spin polarized, we only</span>
+<span class="sd">                store one data set under Spin.up.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">kpoints</span><span class="p">,</span> <span class="n">eigenvals</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">efermi</span><span class="p">,</span> <span class="n">labels_dict</span><span class="p">,</span>
             <span class="n">coords_are_cartesian</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">projections</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">distance</span> <span class="o">=</span> <span class="p">[]</span>
@@ -766,8 +766,7 @@
         <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">branches_tmp</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">branches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                 <span class="p">{</span><span class="s2">&quot;start_index&quot;</span><span class="p">:</span> <span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;end_index&quot;</span><span class="p">:</span> <span class="n">b</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
-                 <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kpoints</span><span class="p">[</span><span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">label</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;-&quot;</span> <span class="o">+</span>
-                         <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kpoints</span><span class="p">[</span><span class="n">b</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">label</span><span class="p">)})</span>
+                 <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kpoints</span><span class="p">[</span><span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">label</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;-&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kpoints</span><span class="p">[</span><span class="n">b</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">label</span><span class="p">)})</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">is_spin_polarized</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bands</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
@@ -801,7 +800,7 @@
         <span class="k">return</span> <span class="n">list_index_kpoints</span></div>
 
 <div class="viewcode-block" id="BandStructureSymmLine.get_branch"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.bandstructure.html#pymatgen.electronic_structure.bandstructure.BandStructureSymmLine.get_branch">[docs]</a>    <span class="k">def</span> <span class="nf">get_branch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns in what branch(es) is the kpoint. There can be several</span>
 <span class="sd">        branches.</span>
 
@@ -885,7 +884,7 @@
                             <span class="n">old_dict</span><span class="p">[</span><span class="s1">&#39;bands&#39;</span><span class="p">][</span><span class="n">spin</span><span class="p">][</span><span class="n">k</span><span class="p">][</span><span class="n">v</span><span class="p">]</span> <span class="o">=</span> \
                                 <span class="n">old_dict</span><span class="p">[</span><span class="s1">&#39;bands&#39;</span><span class="p">][</span><span class="n">spin</span><span class="p">][</span><span class="n">k</span><span class="p">][</span><span class="n">v</span><span class="p">]</span> <span class="o">+</span> <span class="n">shift</span>
             <span class="n">old_dict</span><span class="p">[</span><span class="s1">&#39;efermi&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">old_dict</span><span class="p">[</span><span class="s1">&#39;efermi&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">shift</span>
-            <span class="k">return</span> <span class="n">BandStructureSymmLine</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">old_dict</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">old_dict</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="BandStructureSymmLine.as_dict"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.bandstructure.html#pymatgen.electronic_structure.bandstructure.BandStructureSymmLine.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -959,7 +958,7 @@
                                <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;bands&#39;</span><span class="p">]},</span>
                 <span class="n">Lattice</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;lattice_rec&#39;</span><span class="p">][</span><span class="s1">&#39;matrix&#39;</span><span class="p">]),</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;efermi&#39;</span><span class="p">],</span>
                 <span class="n">labels_dict</span><span class="p">,</span> <span class="n">structure</span><span class="o">=</span><span class="n">structure</span><span class="p">,</span> <span class="n">projections</span><span class="o">=</span><span class="n">projections</span><span class="p">)</span>
-        <span class="k">except</span><span class="p">:</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Trying from_dict failed. Now we are trying the old &quot;</span>
                           <span class="s2">&quot;format. Please convert your BS dicts to the new &quot;</span>
                           <span class="s2">&quot;format. The old format will be retired in pymatgen &quot;</span>
@@ -994,7 +993,7 @@
                             <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;projections&#39;</span><span class="p">][</span><span class="n">spin</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">][</span>
                                                    <span class="n">orb</span><span class="p">])):</span>
                                 <span class="n">ddddd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;projections&#39;</span><span class="p">][</span><span class="n">spin</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">][</span>
-                                                <span class="n">orb</span><span class="p">][</span><span class="n">l</span><span class="p">])</span>
+                                                 <span class="n">orb</span><span class="p">][</span><span class="n">l</span><span class="p">])</span>
                             <span class="n">dddd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ddddd</span><span class="p">))</span>
                         <span class="n">ddd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">dddd</span><span class="p">))</span>
                     <span class="n">dd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ddd</span><span class="p">))</span>
@@ -1005,6 +1004,181 @@
                            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;bands&#39;</span><span class="p">]},</span>
             <span class="n">Lattice</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;lattice_rec&#39;</span><span class="p">][</span><span class="s1">&#39;matrix&#39;</span><span class="p">]),</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;efermi&#39;</span><span class="p">],</span>
             <span class="n">labels_dict</span><span class="p">,</span> <span class="n">structure</span><span class="o">=</span><span class="n">structure</span><span class="p">,</span> <span class="n">projections</span><span class="o">=</span><span class="n">projections</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="LobsterBandStructureSymmLine"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.bandstructure.html#pymatgen.electronic_structure.bandstructure.LobsterBandStructureSymmLine">[docs]</a><span class="k">class</span> <span class="nc">LobsterBandStructureSymmLine</span><span class="p">(</span><span class="n">BandStructureSymmLine</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Lobster subclass of BandStructure with customized functions.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="LobsterBandStructureSymmLine.as_dict"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.bandstructure.html#pymatgen.electronic_structure.bandstructure.LobsterBandStructureSymmLine.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Json-serializable dict representation of BandStructureSymmLine.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
+             <span class="s2">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+             <span class="s2">&quot;lattice_rec&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice_rec</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(),</span> <span class="s2">&quot;efermi&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">efermi</span><span class="p">,</span>
+             <span class="s2">&quot;kpoints&quot;</span><span class="p">:</span> <span class="p">[]}</span>
+        <span class="c1"># kpoints are not kpoint objects dicts but are frac coords (this makes</span>
+        <span class="c1"># the dict smaller and avoids the repetition of the lattice</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">kpoints</span><span class="p">:</span>
+            <span class="n">d</span><span class="p">[</span><span class="s2">&quot;kpoints&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">k</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()[</span><span class="s2">&quot;fcoords&quot;</span><span class="p">])</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;branches&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">branches</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;bands&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">spin</span><span class="p">)):</span> <span class="bp">self</span><span class="o">.</span><span class="n">bands</span><span class="p">[</span><span class="n">spin</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+                      <span class="k">for</span> <span class="n">spin</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bands</span><span class="p">}</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;is_metal&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_metal</span><span class="p">()</span>
+        <span class="n">vbm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_vbm</span><span class="p">()</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;vbm&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;energy&quot;</span><span class="p">:</span> <span class="n">vbm</span><span class="p">[</span><span class="s2">&quot;energy&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;kpoint_index&quot;</span><span class="p">:</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">vbm</span><span class="p">[</span><span class="s2">&quot;kpoint_index&quot;</span><span class="p">]],</span>
+                    <span class="s2">&quot;band_index&quot;</span><span class="p">:</span> <span class="p">{</span><span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">spin</span><span class="p">)):</span> <span class="n">vbm</span><span class="p">[</span><span class="s2">&quot;band_index&quot;</span><span class="p">][</span><span class="n">spin</span><span class="p">]</span>
+                                   <span class="k">for</span> <span class="n">spin</span> <span class="ow">in</span> <span class="n">vbm</span><span class="p">[</span><span class="s2">&quot;band_index&quot;</span><span class="p">]},</span>
+                    <span class="s1">&#39;projections&#39;</span><span class="p">:</span> <span class="p">{</span><span class="nb">str</span><span class="p">(</span><span class="n">spin</span><span class="p">):</span> <span class="n">v</span> <span class="k">for</span> <span class="n">spin</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">vbm</span><span class="p">[</span>
+                        <span class="s1">&#39;projections&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()}}</span>
+        <span class="n">cbm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_cbm</span><span class="p">()</span>
+        <span class="n">d</span><span class="p">[</span><span class="s1">&#39;cbm&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;energy&#39;</span><span class="p">:</span> <span class="n">cbm</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">],</span>
+                    <span class="s1">&#39;kpoint_index&#39;</span><span class="p">:</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">cbm</span><span class="p">[</span><span class="s2">&quot;kpoint_index&quot;</span><span class="p">]],</span>
+                    <span class="s1">&#39;band_index&#39;</span><span class="p">:</span> <span class="p">{</span><span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">spin</span><span class="p">)):</span> <span class="n">cbm</span><span class="p">[</span><span class="s1">&#39;band_index&#39;</span><span class="p">][</span><span class="n">spin</span><span class="p">]</span>
+                                   <span class="k">for</span> <span class="n">spin</span> <span class="ow">in</span> <span class="n">cbm</span><span class="p">[</span><span class="s1">&#39;band_index&#39;</span><span class="p">]},</span>
+                    <span class="s1">&#39;projections&#39;</span><span class="p">:</span> <span class="p">{</span><span class="nb">str</span><span class="p">(</span><span class="n">spin</span><span class="p">):</span> <span class="n">v</span> <span class="k">for</span> <span class="n">spin</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">cbm</span><span class="p">[</span>
+                        <span class="s1">&#39;projections&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()}}</span>
+        <span class="n">d</span><span class="p">[</span><span class="s1">&#39;band_gap&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_band_gap</span><span class="p">()</span>
+        <span class="n">d</span><span class="p">[</span><span class="s1">&#39;labels_dict&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">d</span><span class="p">[</span><span class="s1">&#39;is_spin_polarized&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_spin_polarized</span>
+        <span class="c1"># MongoDB does not accept keys starting with $. Add a blanck space to fix the problem</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels_dict</span><span class="p">:</span>
+            <span class="n">mongo_key</span> <span class="o">=</span> <span class="n">c</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">c</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;$&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="n">c</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;labels_dict&#39;</span><span class="p">][</span><span class="n">mongo_key</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels_dict</span><span class="p">[</span><span class="n">c</span><span class="p">]</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()[</span>
+                <span class="s1">&#39;fcoords&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">projections</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;structure&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;projections&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">spin</span><span class="p">)):</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+                                <span class="k">for</span> <span class="n">spin</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">projections</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        <span class="k">return</span> <span class="n">d</span></div>
+
+<div class="viewcode-block" id="LobsterBandStructureSymmLine.from_dict"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.bandstructure.html#pymatgen.electronic_structure.bandstructure.LobsterBandStructureSymmLine.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            d (dict): A dict with all data for a band structure symm line</span>
+<span class="sd">                object.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A BandStructureSymmLine object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Strip the label to recover initial string (see trick used in as_dict to handle $ chars)</span>
+            <span class="n">labels_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;labels_dict&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+            <span class="n">projections</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">structure</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;projections&#39;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;projections&quot;</span><span class="p">][</span><span class="s1">&#39;1&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="nb">dict</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Old band structure dict format detected!&quot;</span><span class="p">)</span>
+                <span class="n">structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;structure&#39;</span><span class="p">])</span>
+                <span class="n">projections</span> <span class="o">=</span> <span class="p">{</span><span class="n">Spin</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">spin</span><span class="p">)):</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+                               <span class="k">for</span> <span class="n">spin</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;projections&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+
+            <span class="k">return</span> <span class="n">LobsterBandStructureSymmLine</span><span class="p">(</span>
+                <span class="n">d</span><span class="p">[</span><span class="s1">&#39;kpoints&#39;</span><span class="p">],</span> <span class="p">{</span><span class="n">Spin</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">k</span><span class="p">)):</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;bands&#39;</span><span class="p">][</span><span class="n">k</span><span class="p">]</span>
+                               <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;bands&#39;</span><span class="p">]},</span>
+                <span class="n">Lattice</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;lattice_rec&#39;</span><span class="p">][</span><span class="s1">&#39;matrix&#39;</span><span class="p">]),</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;efermi&#39;</span><span class="p">],</span>
+                <span class="n">labels_dict</span><span class="p">,</span> <span class="n">structure</span><span class="o">=</span><span class="n">structure</span><span class="p">,</span> <span class="n">projections</span><span class="o">=</span><span class="n">projections</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Trying from_dict failed. Now we are trying the old &quot;</span>
+                          <span class="s2">&quot;format. Please convert your BS dicts to the new &quot;</span>
+                          <span class="s2">&quot;format. The old format will be retired in pymatgen &quot;</span>
+                          <span class="s2">&quot;5.0.&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">LobsterBandStructureSymmLine</span><span class="o">.</span><span class="n">from_old_dict</span><span class="p">(</span><span class="n">d</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LobsterBandStructureSymmLine.from_old_dict"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.bandstructure.html#pymatgen.electronic_structure.bandstructure.LobsterBandStructureSymmLine.from_old_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_old_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            d (dict): A dict with all data for a band structure symm line</span>
+<span class="sd">                object.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            A BandStructureSymmLine object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Strip the label to recover initial string (see trick used in as_dict to handle $ chars)</span>
+        <span class="n">labels_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;labels_dict&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        <span class="n">projections</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">structure</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="s1">&#39;projections&#39;</span> <span class="ow">in</span> <span class="n">d</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;projections&#39;</span><span class="p">])</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;structure&#39;</span><span class="p">])</span>
+            <span class="n">projections</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">spin</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;projections&#39;</span><span class="p">]:</span>
+                <span class="n">dd</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;projections&#39;</span><span class="p">][</span><span class="n">spin</span><span class="p">])):</span>
+                    <span class="n">ddd</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;projections&#39;</span><span class="p">][</span><span class="n">spin</span><span class="p">][</span><span class="n">i</span><span class="p">])):</span>
+                        <span class="n">ddd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;projections&#39;</span><span class="p">][</span><span class="n">spin</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">])</span>
+                    <span class="n">dd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ddd</span><span class="p">))</span>
+                <span class="n">projections</span><span class="p">[</span><span class="n">Spin</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">spin</span><span class="p">))]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">dd</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">LobsterBandStructureSymmLine</span><span class="p">(</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;kpoints&#39;</span><span class="p">],</span> <span class="p">{</span><span class="n">Spin</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">k</span><span class="p">)):</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;bands&#39;</span><span class="p">][</span><span class="n">k</span><span class="p">]</span>
+                           <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;bands&#39;</span><span class="p">]},</span>
+            <span class="n">Lattice</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;lattice_rec&#39;</span><span class="p">][</span><span class="s1">&#39;matrix&#39;</span><span class="p">]),</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;efermi&#39;</span><span class="p">],</span>
+            <span class="n">labels_dict</span><span class="p">,</span> <span class="n">structure</span><span class="o">=</span><span class="n">structure</span><span class="p">,</span> <span class="n">projections</span><span class="o">=</span><span class="n">projections</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LobsterBandStructureSymmLine.get_projection_on_elements"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.bandstructure.html#pymatgen.electronic_structure.bandstructure.LobsterBandStructureSymmLine.get_projection_on_elements">[docs]</a>    <span class="k">def</span> <span class="nf">get_projection_on_elements</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Method returning a dictionary of projections on elements.</span>
+<span class="sd">        It sums over all available orbitals for each element.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            a dictionary in the {Spin.up:[][{Element:values}],</span>
+<span class="sd">            Spin.down:[][{Element:values}]} format</span>
+<span class="sd">            if there is no projections in the band structure</span>
+<span class="sd">            returns an empty dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">spin</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">projections</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">result</span><span class="p">[</span><span class="n">spin</span><span class="p">]</span> <span class="o">=</span> <span class="p">[[</span><span class="n">collections</span><span class="o">.</span><span class="n">defaultdict</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+                             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kpoints</span><span class="p">))]</span>
+                            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nb_bands</span><span class="p">)]</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nb_bands</span><span class="p">),</span>
+                                          <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kpoints</span><span class="p">))):</span>
+                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">v</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="k">for</span> <span class="n">key2</span><span class="p">,</span> <span class="n">item2</span> <span class="ow">in</span> <span class="n">item</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                        <span class="n">specie</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Element</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[0-9]+&quot;</span><span class="p">,</span> <span class="n">key</span><span class="p">)[</span><span class="mi">0</span><span class="p">]))</span>
+                        <span class="n">result</span><span class="p">[</span><span class="n">spin</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">][</span><span class="n">specie</span><span class="p">]</span> <span class="o">+=</span> <span class="n">item2</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+<div class="viewcode-block" id="LobsterBandStructureSymmLine.get_projections_on_elements_and_orbitals"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.bandstructure.html#pymatgen.electronic_structure.bandstructure.LobsterBandStructureSymmLine.get_projections_on_elements_and_orbitals">[docs]</a>    <span class="k">def</span> <span class="nf">get_projections_on_elements_and_orbitals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">el_orb_spec</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Method returning a dictionary of projections on elements and specific</span>
+<span class="sd">        orbitals</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            el_orb_spec: A dictionary of Elements and Orbitals for which we want</span>
+<span class="sd">                to have projections on. It is given as: {Element:[orbitals]},</span>
+<span class="sd">                e.g., {&#39;Si&#39;:[&#39;3s&#39;,&#39;3p&#39;]} or {&#39;Si&#39;:[&#39;3s&#39;,&#39;3p_x&#39;, &#39;3p_y&#39;, &#39;3p_z&#39;]} depending on input files</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A dictionary of projections on elements in the</span>
+<span class="sd">            {Spin.up:[][{Element:{orb:values}}],</span>
+<span class="sd">            Spin.down:[][{Element:{orb:values}}]} format</span>
+<span class="sd">            if there is no projections in the band structure returns an empty</span>
+<span class="sd">            dict.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">el_orb_spec</span> <span class="o">=</span> <span class="p">{</span><span class="n">get_el_sp</span><span class="p">(</span><span class="n">el</span><span class="p">):</span> <span class="n">orbs</span> <span class="k">for</span> <span class="n">el</span><span class="p">,</span> <span class="n">orbs</span> <span class="ow">in</span> <span class="n">el_orb_spec</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        <span class="k">for</span> <span class="n">spin</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">projections</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">result</span><span class="p">[</span><span class="n">spin</span><span class="p">]</span> <span class="o">=</span> <span class="p">[[{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">):</span> <span class="n">collections</span><span class="o">.</span><span class="n">defaultdict</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+                              <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">el_orb_spec</span><span class="p">}</span>
+                             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kpoints</span><span class="p">))]</span>
+                            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nb_bands</span><span class="p">)]</span>
+
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nb_bands</span><span class="p">),</span>
+                                          <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kpoints</span><span class="p">))):</span>
+                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">v</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="k">for</span> <span class="n">key2</span><span class="p">,</span> <span class="n">item2</span> <span class="ow">in</span> <span class="n">item</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                        <span class="n">specie</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Element</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[0-9]+&quot;</span><span class="p">,</span> <span class="n">key</span><span class="p">)[</span><span class="mi">0</span><span class="p">]))</span>
+                        <span class="k">if</span> <span class="n">get_el_sp</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">specie</span><span class="p">))</span> <span class="ow">in</span> <span class="n">el_orb_spec</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="n">key2</span> <span class="ow">in</span> <span class="n">el_orb_spec</span><span class="p">[</span><span class="n">get_el_sp</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">specie</span><span class="p">))]:</span>
+                                <span class="n">result</span><span class="p">[</span><span class="n">spin</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">][</span><span class="n">specie</span><span class="p">][</span><span class="n">key2</span><span class="p">]</span> <span class="o">+=</span> <span class="n">item2</span>
+        <span class="k">return</span> <span class="n">result</span></div></div>
 
 
 <div class="viewcode-block" id="get_reconstructed_band_structure"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.bandstructure.html#pymatgen.electronic_structure.bandstructure.get_reconstructed_band_structure">[docs]</a><span class="k">def</span> <span class="nf">get_reconstructed_band_structure</span><span class="p">(</span><span class="n">list_bs</span><span class="p">,</span> <span class="n">efermi</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -1073,13 +1247,11 @@
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -1097,7 +1269,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.3.13 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1105,7 +1277,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

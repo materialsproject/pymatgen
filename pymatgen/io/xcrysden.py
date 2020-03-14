@@ -2,6 +2,12 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+Support for reading XCrysDen files.
+"""
+
+from pymatgen.core.periodic_table import Element
+
 __author__ = "Matteo Giantomassi"
 __copyright__ = "Copyright 2013, The Materials Project"
 __version__ = "0.1"
@@ -14,6 +20,9 @@ class XSF:
     """
 
     def __init__(self, structure):
+        """
+        :param structure: Structure object.
+        """
         self.structure = structure
 
     def to_string(self):
@@ -85,7 +94,11 @@ class XSF:
 
                 for j in range(i+2, i+2+num_sites):
                     tokens = lines[j].split()
-                    species.append(int(tokens[0]))
+                    if tokens[0].isalpha():
+                        Z = Element(tokens[0]).Z
+                    else:
+                        Z = int(tokens[0])
+                    species.append(Z)
                     coords.append([float(j) for j in tokens[1:4]])
                 break
         else:

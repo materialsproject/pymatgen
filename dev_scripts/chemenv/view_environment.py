@@ -2,8 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
-
 """
 Script to visualize the model coordination environments
 """
@@ -22,7 +20,6 @@ from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import Plane
 
 import numpy as np
 
-
 if __name__ == '__main__':
     print('+-------------------------------------------------------+\n'
           '| Development script of the ChemEnv utility of pymatgen |\n'
@@ -31,12 +28,12 @@ if __name__ == '__main__':
     allcg = AllCoordinationGeometries()
     vis = None
     while True:
-        cg_symbol = raw_input('Enter symbol of the geometry you want to see, "l" to see the list '
-                              'of existing geometries or "q" to quit : ')
+        cg_symbol = input('Enter symbol of the geometry you want to see, "l" to see the list '
+                          'of existing geometries or "q" to quit : ')
         if cg_symbol == 'q':
             break
         if cg_symbol == 'l':
-            print(allcg.pretty_print(maxcn=13, additional_info={'nb_hints': True}))
+            print(allcg.pretty_print(maxcn=20, additional_info={'nb_hints': True}))
             continue
         try:
             cg = allcg[cg_symbol]
@@ -54,13 +51,13 @@ if __name__ == '__main__':
         # Visualize the separation plane of a given algorithm
         sepplane = False
         if any([algo.algorithm_type == SEPARATION_PLANE for algo in cg.algorithms]):
-            test = raw_input('Enter index of the algorithm for which you want to visualize the plane : ')
+            test = input('Enter index of the algorithm for which you want to visualize the plane : ')
             if test != '':
                 try:
                     ialgo = int(test)
                     algo = cg.algorithms[ialgo]
                     sepplane = True
-                except:
+                except Exception:
                     print('Unable to determine the algorithm/separation_plane you want '
                           'to visualize for this geometry. Continues without ...')
         myfactor = 3.0
@@ -68,8 +65,8 @@ if __name__ == '__main__':
             vis = visualize(cg=cg, zoom=1.0, myfactor=myfactor)
         else:
             vis = visualize(cg=cg, vis=vis, myfactor=myfactor)
-        cg_points = [myfactor*np.array(pp) for pp in cg.points]
-        cg_central_site = myfactor*np.array(cg.central_site)
+        cg_points = [myfactor * np.array(pp) for pp in cg.points]
+        cg_central_site = myfactor * np.array(cg.central_site)
         if sepplane:
             pts = [cg_points[ii] for ii in algo.plane_points]
             if algo.minimum_number_of_points == 2:
@@ -79,7 +76,7 @@ if __name__ == '__main__':
                 centre = np.sum(pts, axis=0) / len(pts)
 
             factor = 1.5
-            target_dist = max([np.dot(pp-centre, pp-centre) for pp in cg_points])
+            target_dist = max([np.dot(pp - centre, pp - centre) for pp in cg_points])
             current_dist = np.dot(pts[0] - centre, pts[0] - centre)
             factor = factor * target_dist / current_dist
             plane = Plane.from_npoints(points=pts)

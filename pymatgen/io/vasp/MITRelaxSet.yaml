@@ -4,6 +4,7 @@
 # used in an era whether computational power is more limited.
 # Nevertheless, this is still a good starting point for extremely expensive
 # methods.
+PARENT: VASPIncarBase
 INCAR:
   ALGO: FAST
   EDIFF: 1.0e-05
@@ -123,6 +124,7 @@ INCAR:
   SIGMA: 0.05
 KPOINTS:
   length: 25
+POTCAR_FUNCTIONAL: PBE
 POTCAR:
   Ac:
     symbol: Ac

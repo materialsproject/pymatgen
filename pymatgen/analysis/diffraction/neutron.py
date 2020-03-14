@@ -2,6 +2,9 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+This module implements a neutron diffraction (ND) pattern calculator.
+"""
 
 from math import sin, cos, asin, pi, degrees, radians
 import os
@@ -13,17 +16,12 @@ from .core import DiffractionPattern, AbstractDiffractionPatternCalculator, \
     get_unique_families
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
-"""
-This module implements a neutron diffraction (ND) pattern calculator.
-"""
-
 __author__ = "Yuta Suzuki"
 __copyright__ = "Copyright 2018, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Yuta Suzuki"
 __email__ = "resnant@outlook.jp"
 __date__ = "4/19/18"
-
 
 with open(os.path.join(os.path.dirname(__file__),
                        "neutron_scattering_length.json")) as f:
@@ -37,6 +35,7 @@ class NDCalculator(AbstractDiffractionPatternCalculator):
     This code is a slight modification of XRDCalculator in
     pymatgen.analysis.diffraction.xrd. See it for details of the algorithm.
     Main changes by using neutron instead of X-ray are as follows:
+
     1. Atomic scattering length is a constant.
     2. Polarization correction term of Lorentz factor is unnecessary.
 
@@ -148,7 +147,7 @@ class NDCalculator(AbstractDiffractionPatternCalculator):
                 s = g_hkl / 2
 
                 # Calculate Debye-Waller factor
-                dw_correction = np.exp(-dwfactors * (s**2))
+                dw_correction = np.exp(-dwfactors * (s ** 2))
 
                 # Vectorized computation of g.r for all fractional coords and
                 # hkl.
@@ -200,4 +199,3 @@ class NDCalculator(AbstractDiffractionPatternCalculator):
         if scaled:
             nd.normalize(mode="max", value=100)
         return nd
-

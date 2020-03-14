@@ -20,6 +20,6 @@ Module contents
 ---------------
 
 .. automodule:: pymatgen.io.feff
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

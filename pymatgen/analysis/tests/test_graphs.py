@@ -17,10 +17,12 @@ from pymatgen.analysis.local_env import (
     MinimumOKeeffeNN,
     OpenBabelNN,
     CutOffDictNN,
+    VoronoiNN,
+    CovalentBondNN
 )
-
+from pymatgen.util.testing import PymatgenTest
 try:
-    import openbabel as ob
+    from openbabel import openbabel as ob
 except ImportError:
     ob = None
 try:
@@ -39,7 +41,7 @@ __date__ = "August 2017"
 module_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)))
 
 
-class StructureGraphTest(unittest.TestCase):
+class StructureGraphTest(PymatgenTest):
     def setUp(self):
 
         self.maxDiff = None
@@ -111,7 +113,7 @@ class StructureGraphTest(unittest.TestCase):
         )
         c2o = Critic2Output(self.structure, reference_stdout)
         self.mos2_sg = c2o.structure_graph(
-            edge_weight="bond_length", edge_weight_units="Å"
+            edge_weight="bond_length", edge_weight_units="Å", include_critical_points=False
         )
 
         latt = Lattice.cubic(4.17)
@@ -130,6 +132,11 @@ class StructureGraphTest(unittest.TestCase):
 
     def tearDown(self):
         warnings.simplefilter("default")
+
+    def test_inappropriate_construction(self):
+        # Check inappropriate strategy
+        with self.assertRaises(ValueError):
+            StructureGraph.with_local_env_strategy(self.NiO, CovalentBondNN())
 
     def test_properties(self):
 
@@ -233,8 +240,8 @@ class StructureGraphTest(unittest.TestCase):
 
         # Test that StructureGraph.graph is correctly updated
         square_copy.insert_node(1, "H", [0.5, 0.5, 0.75], edges=[{"from_index": 1,
-                                                                 "to_index": 2,
-                                                                 "to_jimage": (0, 0, 0)}])
+                                                                  "to_index": 2,
+                                                                  "to_jimage": (0, 0, 0)}])
         square_copy.remove_nodes([1])
         self.assertEqual(square_copy.graph.number_of_nodes(), 2)
         self.assertEqual(square_copy.graph.number_of_edges(), 5)
@@ -287,16 +294,15 @@ class StructureGraphTest(unittest.TestCase):
             (0, 0, {"to_jimage": (-1, -1, 0)}),
             (0, 0, {"to_jimage": (-1, 0, 0)}),
             (0, 0, {"to_jimage": (0, -1, 0)}),
-            (0, 0, {"to_jimage": (0, 0, 0)}),
+            (0, 0, {"to_jimage": (0, 1, 0)}),
             (0, 0, {"to_jimage": (1, 0, 0)}),
         ]
-
-        self.assertEqual(list(sg.graph.edges(data=True)), ref_edges)
+        self.assertEqual(len(list(sg.graph.edges(data=True))), 6)
 
     def test_str(self):
 
         square_sg_str_ref = """Structure Graph
-Structure: 
+Structure:
 Full Formula (H1)
 Reduced Formula: H2
 abc   :   5.000000   5.000000  50.000000
@@ -306,16 +312,16 @@ Sites (1)
 ---  ----  ---  ---  ---
   0  H       0    0    0
 Graph: bonds
-from    to  to_image    
+from    to  to_image
 ----  ----  ------------
-   0     0  (1, 0, 0)   
-   0     0  (-1, 0, 0)  
-   0     0  (0, 1, 0)   
-   0     0  (0, -1, 0)  
+   0     0  (1, 0, 0)
+   0     0  (-1, 0, 0)
+   0     0  (0, 1, 0)
+   0     0  (0, -1, 0)
 """
 
         mos2_sg_str_ref = """Structure Graph
-Structure: 
+Structure:
 Full Formula (Mo1 S2)
 Reduced Formula: MoS2
 abc   :   3.190316   3.190315  17.439502
@@ -340,15 +346,15 @@ from    to  to_image      bond_length (A)
         # don't care about testing Py 2.7 unicode support,
         # change Å to A
         self.mos2_sg.graph.graph["edge_weight_units"] = "A"
-        self.assertEqual(str(self.square_sg), square_sg_str_ref)
-        self.assertEqual(str(self.mos2_sg), mos2_sg_str_ref)
+        self.assertStrContentEqual(str(self.square_sg), square_sg_str_ref)
+        self.assertStrContentEqual(str(self.mos2_sg), mos2_sg_str_ref)
 
     def test_mul(self):
 
         square_sg_mul = self.square_sg * (2, 1, 1)
 
         square_sg_mul_ref_str = """Structure Graph
-Structure: 
+Structure:
 Full Formula (H2)
 Reduced Formula: H2
 abc   :  10.000000   5.000000  50.000000
@@ -359,14 +365,14 @@ Sites (2)
   0  H     0      0    0
   1  H     0.5    0   -0
 Graph: bonds
-from    to  to_image    
+from    to  to_image
 ----  ----  ------------
-   0     0  (0, 1, 0)   
-   0     0  (0, -1, 0)  
-   0     1  (0, 0, 0)   
-   0     1  (-1, 0, 0)  
-   1     1  (0, 1, 0)   
-   1     1  (0, -1, 0)  
+   0     0  (0, 1, 0)
+   0     0  (0, -1, 0)
+   0     1  (0, 0, 0)
+   0     1  (-1, 0, 0)
+   1     1  (0, 1, 0)
+   1     1  (0, -1, 0)
 """
         square_sg_mul_actual_str = str(square_sg_mul)
 
@@ -376,7 +382,7 @@ from    to  to_image
         square_sg_mul_ref_str = "\n".join(square_sg_mul_ref_str.splitlines()[11:])
         square_sg_mul_actual_str = "\n".join(square_sg_mul_actual_str.splitlines()[11:])
 
-        self.assertEqual(square_sg_mul_actual_str, square_sg_mul_ref_str)
+        self.assertStrContentEqual(square_sg_mul_actual_str, square_sg_mul_ref_str)
 
         # test sequential multiplication
         sq_sg_1 = self.square_sg * (2, 2, 1)
@@ -695,13 +701,13 @@ class MoleculeGraphTest(unittest.TestCase):
         self.assertEqual(mol_graph.graph.adj, ref_mol_graph.graph.adj)
         for node in mol_graph.graph.nodes:
             self.assertEqual(
-                mol_graph.graph.node[node]["specie"],
-                ref_mol_graph.graph.node[node]["specie"],
+                mol_graph.graph.nodes[node]["specie"],
+                ref_mol_graph.graph.nodes[node]["specie"],
             )
             for ii in range(3):
                 self.assertEqual(
-                    mol_graph.graph.node[node]["coords"][ii],
-                    ref_mol_graph.graph.node[node]["coords"][ii],
+                    mol_graph.graph.nodes[node]["coords"][ii],
+                    ref_mol_graph.graph.nodes[node]["coords"][ii],
                 )
 
         edges_pc = {(e[0], e[1]): {"weight": 1.0} for e in self.pc_edges}
@@ -712,20 +718,23 @@ class MoleculeGraphTest(unittest.TestCase):
         self.assertEqual(mol_graph.graph.adj, ref_mol_graph.graph.adj)
         for node in mol_graph.graph:
             self.assertEqual(
-                mol_graph.graph.node[node]["specie"],
-                ref_mol_graph.graph.node[node]["specie"],
+                mol_graph.graph.nodes[node]["specie"],
+                ref_mol_graph.graph.nodes[node]["specie"],
             )
             for ii in range(3):
                 self.assertEqual(
-                    mol_graph.graph.node[node]["coords"][ii],
-                    ref_mol_graph.graph.node[node]["coords"][ii],
+                    mol_graph.graph.nodes[node]["coords"][ii],
+                    ref_mol_graph.graph.nodes[node]["coords"][ii],
                 )
 
         mol_graph_edges = MoleculeGraph.with_edges(self.pc, edges=edges_pc)
-        mol_graph_strat = MoleculeGraph.with_local_env_strategy(
-            self.pc, OpenBabelNN(), reorder=False, extend_structure=False
-        )
+        mol_graph_strat = MoleculeGraph.with_local_env_strategy(self.pc, OpenBabelNN())
+
         self.assertTrue(mol_graph_edges.isomorphic_to(mol_graph_strat))
+
+        # Check inappropriate strategy
+        with self.assertRaises(ValueError):
+            MoleculeGraph.with_local_env_strategy(self.pc, VoronoiNN())
 
     def test_properties(self):
         self.assertEqual(self.cyclohexene.name, "bonds")
@@ -875,7 +884,11 @@ class MoleculeGraphTest(unittest.TestCase):
     def test_build_unique_fragments(self):
         edges = {(e[0], e[1]): None for e in self.pc_edges}
         mol_graph = MoleculeGraph.with_edges(self.pc, edges)
-        unique_fragments = mol_graph.build_unique_fragments()
+        unique_fragment_dict = mol_graph.build_unique_fragments()
+        unique_fragments = []
+        for key in unique_fragment_dict:
+            for fragment in unique_fragment_dict[key]:
+                unique_fragments.append(fragment)
         self.assertEqual(len(unique_fragments), 295)
         nm = iso.categorical_node_match("specie", "ERROR")
         for ii in range(295):
@@ -915,7 +928,7 @@ class MoleculeGraphTest(unittest.TestCase):
         no_rings = self.butadiene.find_rings()
         self.assertEqual(no_rings, [])
 
-    def test_isomorphic_to(self):
+    def test_isomorphic(self):
         ethylene = Molecule.from_file(
             os.path.join(
                 os.path.dirname(__file__),

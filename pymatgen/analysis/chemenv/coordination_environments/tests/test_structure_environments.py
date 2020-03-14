@@ -24,7 +24,6 @@ se_files_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "
 
 class StructureEnvironmentsTest(PymatgenTest):
 
-
     def test_structure_environments(self):
         with ScratchDir("."):
             f = open("{}/{}".format(se_files_dir, 'se_mp-7000.json'), 'r')
@@ -34,9 +33,12 @@ class StructureEnvironmentsTest(PymatgenTest):
             se = StructureEnvironments.from_dict(dd)
             isite = 6
             csm_and_maps_fig, csm_and_maps_subplot = se.get_csm_and_maps(isite=isite)
-            np.testing.assert_array_almost_equal(csm_and_maps_subplot.lines[0].get_xydata().flatten(), [0.0, 0.53499332])
-            np.testing.assert_array_almost_equal(csm_and_maps_subplot.lines[1].get_xydata().flatten(), [1.0, 0.47026441])
-            np.testing.assert_array_almost_equal(csm_and_maps_subplot.lines[2].get_xydata().flatten(), [2.0, 0.00988778])
+            np.testing.assert_array_almost_equal(csm_and_maps_subplot.lines[0].get_xydata().flatten(),
+                                                 [0.0, 0.53499332])
+            np.testing.assert_array_almost_equal(csm_and_maps_subplot.lines[1].get_xydata().flatten(),
+                                                 [1.0, 0.47026441])
+            np.testing.assert_array_almost_equal(csm_and_maps_subplot.lines[2].get_xydata().flatten(),
+                                                 [2.0, 0.00988778])
 
             environments_figure, environments_subplot = se.get_environments_figure(isite=isite)
             np.testing.assert_array_almost_equal(np.array(environments_subplot.patches[0].get_xy()),
@@ -161,10 +163,10 @@ class StructureEnvironmentsTest(PymatgenTest):
             stats = lse.get_statistics()
 
             neighbors = lse.strategy.get_site_neighbors(site=lse.structure[isite])
-            self.assertArrayAlmostEqual(neighbors[0].coords, np.array([ 0.2443798, 1.80409653, -1.13218359]))
-            self.assertArrayAlmostEqual(neighbors[1].coords, np.array([ 1.44020353, 1.11368738, 1.13218359]))
-            self.assertArrayAlmostEqual(neighbors[2].coords, np.array([ 2.75513098, 2.54465207, -0.70467298]))
-            self.assertArrayAlmostEqual(neighbors[3].coords, np.array([ 0.82616785, 3.65833945, 0.70467298]))
+            self.assertArrayAlmostEqual(neighbors[0].coords, np.array([0.2443798, 1.80409653, -1.13218359]))
+            self.assertArrayAlmostEqual(neighbors[1].coords, np.array([1.44020353, 1.11368738, 1.13218359]))
+            self.assertArrayAlmostEqual(neighbors[2].coords, np.array([2.75513098, 2.54465207, -0.70467298]))
+            self.assertArrayAlmostEqual(neighbors[3].coords, np.array([0.82616785, 3.65833945, 0.70467298]))
 
             equiv_site_index_and_transform = lse.strategy.equivalent_site_index_and_transform(neighbors[0])
             self.assertEqual(equiv_site_index_and_transform[0], 0)

@@ -1,3 +1,7 @@
+"""
+Utilities for Qchem io.
+"""
+
 import re
 import numpy as np
 from collections import defaultdict
@@ -5,24 +9,24 @@ from collections import defaultdict
 
 def read_pattern(text_str, patterns, terminate_on_match=False,
                  postprocess=str):
-    """
-        General pattern reading on an input string
+    r"""
+    General pattern reading on an input string
 
-        Args:
-            text_str (str): the input string to search for patterns
-            patterns (dict): A dict of patterns, e.g.,
-                {"energy": r"energy\\(sigma->0\\)\\s+=\\s+([\\d\\-.]+)"}.
-            terminate_on_match (bool): Whether to terminate when there is at
-                least one match in each key in pattern.
-            postprocess (callable): A post processing function to convert all
-                matches. Defaults to str, i.e., no change.
+    Args:
+        text_str (str): the input string to search for patterns
+        patterns (dict): A dict of patterns, e.g.,
+            {"energy": r"energy\\(sigma->0\\)\\s+=\\s+([\\d\\-.]+)"}.
+        terminate_on_match (bool): Whether to terminate when there is at
+            least one match in each key in pattern.
+        postprocess (callable): A post processing function to convert all
+            matches. Defaults to str, i.e., no change.
 
-        Renders accessible:
-            Any attribute in patterns. For example,
-            {"energy": r"energy\\(sigma->0\\)\\s+=\\s+([\\d\\-.]+)"} will set the
-            value of matches["energy"] = [[-1234], [-3453], ...], to the
-            results from regex and postprocess. Note that the returned values
-            are lists of lists, because you can grep multiple items on one line.
+    Renders accessible:
+        Any attribute in patterns. For example,
+        {"energy": r"energy\\(sigma->0\\)\\s+=\\s+([\\d\\-.]+)"} will set the
+        value of matches["energy"] = [[-1234], [-3453], ...], to the
+        results from regex and postprocess. Note that the returned values
+        are lists of lists, because you can grep multiple items on one line.
     """
 
     compiled = {
@@ -45,7 +49,7 @@ def read_table_pattern(text_str,
                        postprocess=str,
                        attribute_name=None,
                        last_one_only=False):
-    """
+    r"""
     Parse table-like data. A table composes of three parts: header,
     main body, footer. All the data matches "row pattern" in the main body
     will be returned.
@@ -122,7 +126,7 @@ def lower_and_check_unique(dict_to_check):
         to_return (dict): An identical dictionary but with all keys made
             lower case and no identical keys present.
     """
-    if dict_to_check == None:
+    if dict_to_check is None:
         return None
     else:
         to_return = {}
@@ -131,8 +135,9 @@ def lower_and_check_unique(dict_to_check):
             if new_key == "jobtype":
                 new_key = "job_type"
             if new_key in to_return:
-                raise Exception(
-                    "Multiple instances of key " + new_key + " found!")
+                if to_return[key] != to_return[new_key]:
+                    raise Exception(
+                        "Multiple instances of key " + new_key + " found with different values! Exiting...")
             else:
                 try:
                     to_return[new_key] = dict_to_check.get(key).lower()

@@ -7,10 +7,15 @@ import os
 import unittest
 
 from monty.serialization import loadfn, dumpfn
-from pymatgen.io.qchem.outputs import QCOutput
+from monty.os.path import which
+
+from pymatgen.core.structure import Molecule
+from pymatgen.io.qchem.outputs import QCOutput, check_for_structure_changes
 from pymatgen.util.testing import PymatgenTest
+
 try:
-    import openbabel
+    from openbabel import openbabel
+
     have_babel = True
 except ImportError:
     have_babel = False
@@ -49,6 +54,8 @@ property_list = {"errors",
                  "molecule_from_optimized_geometry",
                  "last_geometry",
                  "molecule_from_last_geometry",
+                 "geometries",
+                 "gradients",
                  "frequency_mode_vectors",
                  "walltime",
                  "cputime",
@@ -70,7 +77,19 @@ property_list = {"errors",
                  "vib_entropy",
                  "rot_entropy",
                  "total_entropy",
-                 "total_enthalpy"}
+                 "total_enthalpy",
+                 "warnings",
+                 "SCF_energy_in_the_final_basis_set",
+                 "Total_energy_in_the_final_basis_set",
+                 "solvent_method",
+                 "solvent_data",
+                 "using_dft_d3",
+                 "single_point_job",
+                 "force_job",
+                 "pcm_gradients",
+                 "CDS_gradients",
+                 "RESP",
+                 "trans_dip"}
 
 if have_babel:
     property_list.add("structure_change")
@@ -127,7 +146,8 @@ single_job_out_names = {"unable_to_determine_lambda_in_geom_opt.qcout",
                         "new_qchem_files/1746.qout",
                         "new_qchem_files/1570.qout",
                         "new_qchem_files/1570_2.qout",
-                        "new_qchem_files/single_point.qout"}
+                        "new_qchem_files/single_point.qout",
+                        "new_qchem_files/roothaan_diis_gdm.qout"}
 
 multi_job_out_names = {"not_enough_total_memory.qcout",
                        "new_qchem_files/VC_solv_eps10.qcout",
@@ -195,6 +215,40 @@ class TestQCOutput(PymatgenTest):
         for key in property_list:
             print('Testing ', key)
             self._test_property(key, single_outs, multi_outs)
+
+    @unittest.skipIf((not (have_babel)) or (not which("babel")),
+                     "OpenBabel not installed.")
+    def test_structural_change(self):
+        
+        t1 = Molecule.from_file(os.path.join(test_dir, "structural_change",
+                                             "t1.xyz"))
+        t2 = Molecule.from_file(os.path.join(test_dir, "structural_change",
+                                             "t2.xyz"))
+        t3 = Molecule.from_file(os.path.join(test_dir, "structural_change",
+                                             "t3.xyz"))
+
+        thio_1 = Molecule.from_file(os.path.join(test_dir, "structural_change",
+                                                 "thiophene1.xyz"))
+        thio_2 = Molecule.from_file(os.path.join(test_dir, "structural_change",
+                                                 "thiophene2.xyz"))
+
+        frag_1 = Molecule.from_file(os.path.join(test_dir, "new_qchem_files",
+                                                 "test_structure_change",
+                                                 "frag_1.xyz"))
+        frag_2 = Molecule.from_file(os.path.join(test_dir, "new_qchem_files",
+                                                 "test_structure_change",
+                                                 "frag_2.xyz"))
+
+        self.assertEqual(check_for_structure_changes(t1, t1), "no_change")
+        self.assertEqual(check_for_structure_changes(t2, t3), "no_change")
+        self.assertEqual(check_for_structure_changes(t1, t2), "fewer_bonds")
+        self.assertEqual(check_for_structure_changes(t2, t1), "more_bonds")
+
+        self.assertEqual(check_for_structure_changes(thio_1, thio_2),
+                         "unconnected_fragments")
+
+        self.assertEqual(check_for_structure_changes(frag_1, frag_2),
+                         "bond_change")
 
 
 if __name__ == "__main__":

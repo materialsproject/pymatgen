@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies &#8212; pymatgen 2019.3.13 documentation</title>
+    <meta charset="utf-8" />
+    <title>pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies &#8212; pymatgen 2020.3.2 documentation</title>
     <link rel="stylesheet" href="../../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../../" src="../../../../../_static/documentation_options.js"></script>
@@ -15,7 +13,6 @@
     <script type="text/javascript" src="../../../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../../search.html" />
  
@@ -35,7 +32,7 @@
         <li class="right" >
           <a href="../../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2019.3.13 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -67,28 +64,27 @@
 <span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;david.waroquiers@gmail.com&quot;</span>
 <span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Feb 20, 2016&quot;</span>
 
-
 <span class="kn">import</span> <span class="nn">abc</span>
 <span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
-<span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="k">import</span> <span class="n">SpacegroupAnalyzer</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.operations</span> <span class="k">import</span> <span class="n">SymmOp</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.sites</span> <span class="k">import</span> <span class="n">PeriodicSite</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">MSONable</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="kn">import</span> <span class="n">SpacegroupAnalyzer</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.operations</span> <span class="kn">import</span> <span class="n">SymmOp</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.sites</span> <span class="kn">import</span> <span class="n">PeriodicSite</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="k">import</span> <span class="n">gmean</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.coordination_environments.coordination_geometries</span> <span class="k">import</span> <span class="n">UNCLEAR_ENVIRONMENT_SYMBOL</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.utils.coordination_geometry_utils</span> <span class="k">import</span> <span class="n">get_lower_and_upper_f</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.utils.func_utils</span> <span class="k">import</span> <span class="n">CSMFiniteRatioFunction</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.utils.func_utils</span> <span class="k">import</span> <span class="n">CSMInfiniteRatioFunction</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.utils.func_utils</span> <span class="k">import</span> <span class="n">DeltaCSMRatioFunction</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.utils.func_utils</span> <span class="k">import</span> <span class="n">RatioFunction</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.utils.chemenv_errors</span> <span class="k">import</span> <span class="n">EquivalentSiteSearchError</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.coordination_environments.coordination_geometries</span> <span class="k">import</span> <span class="n">AllCoordinationGeometries</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.utils.defs_utils</span> <span class="k">import</span> <span class="n">AdditionalConditions</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">gmean</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.utils.coordination_geometry_utils</span> <span class="kn">import</span> <span class="n">get_lower_and_upper_f</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.utils.func_utils</span> <span class="kn">import</span> <span class="n">CSMFiniteRatioFunction</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.utils.func_utils</span> <span class="kn">import</span> <span class="n">CSMInfiniteRatioFunction</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.utils.func_utils</span> <span class="kn">import</span> <span class="n">DeltaCSMRatioFunction</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.utils.func_utils</span> <span class="kn">import</span> <span class="n">RatioFunction</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.utils.chemenv_errors</span> <span class="kn">import</span> <span class="n">EquivalentSiteSearchError</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.coordination_environments.coordination_geometries</span> <span class="kn">import</span> <span class="n">AllCoordinationGeometries</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.utils.defs_utils</span> <span class="kn">import</span> <span class="n">AdditionalConditions</span>
 
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.coordination_environments.voronoi</span> <span class="k">import</span> <span class="n">DetailedVoronoiContainer</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span>
-
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.coordination_environments.voronoi</span> <span class="kn">import</span> <span class="n">DetailedVoronoiContainer</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
 
 <span class="n">module_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
 
@@ -97,8 +93,7 @@
 
 
 <div class="viewcode-block" id="StrategyOption"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.StrategyOption">[docs]</a><span class="k">class</span> <span class="nc">StrategyOption</span><span class="p">(</span><span class="n">MSONable</span><span class="p">,</span> <span class="n">metaclass</span><span class="o">=</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">):</span>
-
-    <span class="n">allowed_values</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">allowed_values</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># type: Optional[str]</span>
 
 <div class="viewcode-block" id="StrategyOption.as_dict"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.StrategyOption.as_dict">[docs]</a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -109,10 +104,9 @@
 
 
 <div class="viewcode-block" id="DistanceCutoffFloat"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceCutoffFloat">[docs]</a><span class="k">class</span> <span class="nc">DistanceCutoffFloat</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">StrategyOption</span><span class="p">):</span>
-
     <span class="n">allowed_values</span> <span class="o">=</span> <span class="s1">&#39;Real number between 1.0 and +infinity&#39;</span>
 
-    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">myfloat</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">myfloat</span><span class="p">):</span>
         <span class="n">flt</span> <span class="o">=</span> <span class="nb">float</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">myfloat</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">flt</span> <span class="o">&lt;</span> <span class="mf">1.0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Distance cutoff should be between 1.0 and +infinity&quot;</span><span class="p">)</span>
@@ -129,10 +123,9 @@
 
 
 <div class="viewcode-block" id="AngleCutoffFloat"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AngleCutoffFloat">[docs]</a><span class="k">class</span> <span class="nc">AngleCutoffFloat</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">StrategyOption</span><span class="p">):</span>
-
     <span class="n">allowed_values</span> <span class="o">=</span> <span class="s1">&#39;Real number between 0.0 and 1.0&#39;</span>
 
-    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">myfloat</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">myfloat</span><span class="p">):</span>
         <span class="n">flt</span> <span class="o">=</span> <span class="nb">float</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">myfloat</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">flt</span> <span class="o">&lt;</span> <span class="mf">0.0</span> <span class="ow">or</span> <span class="n">flt</span> <span class="o">&gt;</span> <span class="mf">1.0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Angle cutoff should be between 0.0 and 1.0&quot;</span><span class="p">)</span>
@@ -149,10 +142,9 @@
 
 
 <div class="viewcode-block" id="CSMFloat"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.CSMFloat">[docs]</a><span class="k">class</span> <span class="nc">CSMFloat</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">StrategyOption</span><span class="p">):</span>
-
     <span class="n">allowed_values</span> <span class="o">=</span> <span class="s1">&#39;Real number between 0.0 and 100.0&#39;</span>
 
-    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">myfloat</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">myfloat</span><span class="p">):</span>
         <span class="n">flt</span> <span class="o">=</span> <span class="nb">float</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">myfloat</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">flt</span> <span class="o">&lt;</span> <span class="mf">0.0</span> <span class="ow">or</span> <span class="n">flt</span> <span class="o">&gt;</span> <span class="mf">100.0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Continuous symmetry measure limits should be between 0.0 and 100.0&quot;</span><span class="p">)</span>
@@ -169,12 +161,11 @@
 
 
 <div class="viewcode-block" id="AdditionalConditionInt"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt">[docs]</a><span class="k">class</span> <span class="nc">AdditionalConditionInt</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">StrategyOption</span><span class="p">):</span>
-
     <span class="n">allowed_values</span> <span class="o">=</span> <span class="s1">&#39;Integer amongst :</span><span class="se">\n</span><span class="s1">&#39;</span>
     <span class="k">for</span> <span class="n">integer</span><span class="p">,</span> <span class="n">description</span> <span class="ow">in</span> <span class="n">AdditionalConditions</span><span class="o">.</span><span class="n">CONDITION_DESCRIPTION</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="n">allowed_values</span> <span class="o">+=</span> <span class="s1">&#39; - </span><span class="si">{:d}</span><span class="s1"> for &quot;</span><span class="si">{}</span><span class="s1">&quot;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">integer</span><span class="p">,</span> <span class="n">description</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">integer</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">integer</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">integer</span><span class="p">))</span> <span class="o">!=</span> <span class="nb">str</span><span class="p">(</span><span class="n">integer</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Additional condition </span><span class="si">{}</span><span class="s2"> is not an integer&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">integer</span><span class="p">)))</span>
         <span class="n">intger</span> <span class="o">=</span> <span class="nb">int</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">integer</span><span class="p">)</span>
@@ -198,16 +189,16 @@
 <span class="sd">    StructureEnvironments object</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">AC</span> <span class="o">=</span> <span class="n">AdditionalConditions</span><span class="p">()</span>
-    <span class="n">STRATEGY_OPTIONS</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
-    <span class="n">STRATEGY_DESCRIPTION</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">STRATEGY_INFO_FIELDS</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">STRATEGY_OPTIONS</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>  <span class="c1"># type: Dict[str, Dict]</span>
+    <span class="n">STRATEGY_DESCRIPTION</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># type: str</span>
+    <span class="n">STRATEGY_INFO_FIELDS</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># type: List</span>
     <span class="n">DEFAULT_SYMMETRY_MEASURE_TYPE</span> <span class="o">=</span> <span class="s1">&#39;csm_wcs_ctwcc&#39;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure_environments</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">symmetry_measure_type</span><span class="o">=</span><span class="n">DEFAULT_SYMMETRY_MEASURE_TYPE</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure_environments</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">symmetry_measure_type</span><span class="o">=</span><span class="n">DEFAULT_SYMMETRY_MEASURE_TYPE</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Abstract constructor for the all chemenv strategies.</span>
 <span class="sd">        :param structure_environments: StructureEnvironments object containing all the information on the</span>
-<span class="sd">        coordination of the sites in a structure</span>
+<span class="sd">            coordination of the sites in a structure</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">structure_environments</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">structure_environments</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -228,7 +219,7 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">spg_analyzer</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure_environments</span><span class="o">.</span><span class="n">structure</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">symops</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spg_analyzer</span><span class="o">.</span><span class="n">get_symmetry_operations</span><span class="p">()</span>
-        <span class="k">except</span><span class="p">:</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">symops</span> <span class="o">=</span> <span class="p">[]</span></div>
 
 <div class="viewcode-block" id="AbstractChemenvStrategy.equivalent_site_index_and_transform"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy.equivalent_site_index_and_transform">[docs]</a>    <span class="k">def</span> <span class="nf">equivalent_site_index_and_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">psite</span><span class="p">):</span>
@@ -250,13 +241,13 @@
         <span class="c1"># Get the translation between the equivalent site for which the neighbors have been computed and the site in</span>
         <span class="c1"># the unit cell that corresponds to psite (Translation II)</span>
         <span class="n">equivsite</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure_environments</span><span class="o">.</span><span class="n">structure</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">structure_environments</span><span class="o">.</span><span class="n">sites_map</span><span class="p">[</span><span class="n">isite</span><span class="p">]]</span><span class="o">.</span><span class="n">to_unit_cell</span><span class="p">()</span>
-        <span class="c1">#equivsite = self.structure_environments.structure[self.structure_environments.sites_map[isite]]</span>
+        <span class="c1"># equivsite = self.structure_environments.structure[self.structure_environments.sites_map[isite]]</span>
         <span class="n">dequivsite</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure_environments</span><span class="o">.</span><span class="n">structure</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">structure_environments</span><span class="o">.</span><span class="n">sites_map</span><span class="p">[</span><span class="n">isite</span><span class="p">]]</span><span class="o">.</span><span class="n">frac_coords</span>
                       <span class="o">-</span> <span class="n">equivsite</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">)</span>
         <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="c1"># Find the symmetry that applies the site in the unit cell to the equivalent site, as well as the translation</span>
         <span class="c1"># that gets back the site to the unit cell (Translation III)</span>
-        <span class="c1">#TODO: check that these tolerances are needed, now that the structures are refined before analyzing environments</span>
+        <span class="c1"># TODO: check that these tolerances are needed, now that the structures are refined before analyzing envs</span>
         <span class="n">tolerances</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1e-8</span><span class="p">,</span> <span class="mf">1e-7</span><span class="p">,</span> <span class="mf">1e-6</span><span class="p">,</span> <span class="mf">1e-5</span><span class="p">,</span> <span class="mf">1e-4</span><span class="p">]</span>
         <span class="k">for</span> <span class="n">tolerance</span> <span class="ow">in</span> <span class="n">tolerances</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">symop</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">symops</span><span class="p">:</span>
@@ -270,7 +261,7 @@
                 <span class="n">symops</span> <span class="o">=</span> <span class="p">[</span><span class="n">SymmOp</span><span class="o">.</span><span class="n">from_rotation_and_translation</span><span class="p">()]</span>
                 <span class="k">for</span> <span class="n">symop</span> <span class="ow">in</span> <span class="n">symops</span><span class="p">:</span>
                     <span class="n">newsite</span> <span class="o">=</span> <span class="n">PeriodicSite</span><span class="p">(</span><span class="n">equivsite</span><span class="o">.</span><span class="n">_species</span><span class="p">,</span> <span class="n">symop</span><span class="o">.</span><span class="n">operate</span><span class="p">(</span><span class="n">equivsite</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">),</span> <span class="n">equivsite</span><span class="o">.</span><span class="n">_lattice</span><span class="p">)</span>
-                    <span class="c1">#if newsite.is_periodic_image(thissite):</span>
+                    <span class="c1"># if newsite.is_periodic_image(thissite):</span>
                     <span class="k">if</span> <span class="n">newsite</span><span class="o">.</span><span class="n">is_periodic_image</span><span class="p">(</span><span class="n">thissite</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="n">tolerance</span><span class="p">):</span>
                         <span class="n">mysym</span> <span class="o">=</span> <span class="n">symop</span>
                         <span class="n">dthissite2</span> <span class="o">=</span> <span class="n">thissite</span><span class="o">.</span><span class="n">frac_coords</span> <span class="o">-</span> <span class="n">newsite</span><span class="o">.</span><span class="n">frac_coords</span>
@@ -288,9 +279,9 @@
 <span class="sd">        Applies the strategy to the structure_environments object in order to get the neighbors of a given site.</span>
 <span class="sd">        :param site: Site for which the neighbors are looked for</span>
 <span class="sd">        :param structure_environments: StructureEnvironments object containing all the information needed to get the</span>
-<span class="sd">        neighbors of the site</span>
+<span class="sd">            neighbors of the site</span>
 <span class="sd">        :return: The list of neighbors of the site. For complex strategies, where one allows multiple solutions, this</span>
-<span class="sd">        can return a list of list of neighbors</span>
+<span class="sd">            can return a list of list of neighbors</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
@@ -309,7 +300,7 @@
 <span class="sd">        a given site.</span>
 <span class="sd">        :param site: Site for which the coordination environment is looked for</span>
 <span class="sd">        :return: The coordination environment of the site. For complex strategies, where one allows multiple</span>
-<span class="sd">        solutions, this can return a list of coordination environments for the site</span>
+<span class="sd">            solutions, this can return a list of coordination environments for the site</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
@@ -320,7 +311,7 @@
 <span class="sd">        a given site.</span>
 <span class="sd">        :param site: Site for which the coordination environment is looked for</span>
 <span class="sd">        :return: The coordination environment of the site. For complex strategies, where one allows multiple</span>
-<span class="sd">        solutions, this can return a list of coordination environments for the site</span>
+<span class="sd">            solutions, this can return a list of coordination environments for the site</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
@@ -333,7 +324,7 @@
 <span class="sd">        a given site.</span>
 <span class="sd">        :param site: Site for which the coordination environment is looked for</span>
 <span class="sd">        :return: The coordination environment of the site. For complex strategies, where one allows multiple</span>
-<span class="sd">        solutions, this can return a list of coordination environments for the site</span>
+<span class="sd">            solutions, this can return a list of coordination environments for the site</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
@@ -373,7 +364,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="n">option_name</span><span class="p">,</span> <span class="n">option_value</span><span class="p">)</span></div>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Equality method that should be implemented for any strategy</span>
 <span class="sd">        :param other: strategy to be compared with the current one</span>
@@ -381,13 +372,13 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">out</span> <span class="o">=</span> <span class="s1">&#39;  Chemenv Strategy &quot;</span><span class="si">{}</span><span class="s1">&quot;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
-        <span class="n">out</span> <span class="o">+=</span> <span class="s1">&#39;  </span><span class="si">{}</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;=&#39;</span><span class="o">*</span><span class="p">(</span><span class="mi">19</span><span class="o">+</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)))</span>
-        <span class="n">out</span> <span class="o">+=</span> <span class="s1">&#39;  Description :</span><span class="se">\n</span><span class="s1">  </span><span class="si">{}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="o">*</span><span class="mi">13</span><span class="p">)</span>
+        <span class="n">out</span> <span class="o">+=</span> <span class="s1">&#39;  </span><span class="si">{}</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;=&#39;</span> <span class="o">*</span> <span class="p">(</span><span class="mi">19</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)))</span>
+        <span class="n">out</span> <span class="o">+=</span> <span class="s1">&#39;  Description :</span><span class="se">\n</span><span class="s1">  </span><span class="si">{}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;-&#39;</span> <span class="o">*</span> <span class="mi">13</span><span class="p">)</span>
         <span class="n">out</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">STRATEGY_DESCRIPTION</span>
         <span class="n">out</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&#39;</span>
-        <span class="n">out</span> <span class="o">+=</span> <span class="s1">&#39;  Options :</span><span class="se">\n</span><span class="s1">  </span><span class="si">{}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="o">*</span><span class="mi">9</span><span class="p">)</span>
+        <span class="n">out</span> <span class="o">+=</span> <span class="s1">&#39;  Options :</span><span class="se">\n</span><span class="s1">  </span><span class="si">{}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;-&#39;</span> <span class="o">*</span> <span class="mi">9</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">option_name</span><span class="p">,</span> <span class="n">option_dict</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">STRATEGY_OPTIONS</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">out</span> <span class="o">+=</span> <span class="s1">&#39;   - </span><span class="si">{}</span><span class="s1"> : </span><span class="si">{}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">option_name</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">option_name</span><span class="p">)))</span>
         <span class="k">return</span> <span class="n">out</span>
@@ -422,9 +413,9 @@
     <span class="n">DEFAULT_ANGLE_CUTOFF</span> <span class="o">=</span> <span class="mf">0.3</span>
     <span class="n">DEFAULT_CONTINUOUS_SYMMETRY_MEASURE_CUTOFF</span> <span class="o">=</span> <span class="mf">10.0</span>
     <span class="n">DEFAULT_ADDITIONAL_CONDITION</span> <span class="o">=</span> <span class="n">AbstractChemenvStrategy</span><span class="o">.</span><span class="n">AC</span><span class="o">.</span><span class="n">ONLY_ACB</span>
-    <span class="n">STRATEGY_OPTIONS</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
-    <span class="n">STRATEGY_OPTIONS</span><span class="p">[</span><span class="s1">&#39;distance_cutoff&#39;</span><span class="p">]</span> <span class="o">=</span>  <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="n">DistanceCutoffFloat</span><span class="p">,</span> <span class="s1">&#39;internal&#39;</span><span class="p">:</span> <span class="s1">&#39;_distance_cutoff&#39;</span><span class="p">,</span>
-                                            <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="n">DEFAULT_DISTANCE_CUTOFF</span><span class="p">}</span>
+    <span class="n">STRATEGY_OPTIONS</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>  <span class="c1"># type: Dict[str, Dict]</span>
+    <span class="n">STRATEGY_OPTIONS</span><span class="p">[</span><span class="s1">&#39;distance_cutoff&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="n">DistanceCutoffFloat</span><span class="p">,</span> <span class="s1">&#39;internal&#39;</span><span class="p">:</span> <span class="s1">&#39;_distance_cutoff&#39;</span><span class="p">,</span>
+                                           <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="n">DEFAULT_DISTANCE_CUTOFF</span><span class="p">}</span>
     <span class="n">STRATEGY_OPTIONS</span><span class="p">[</span><span class="s1">&#39;angle_cutoff&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="n">AngleCutoffFloat</span><span class="p">,</span> <span class="s1">&#39;internal&#39;</span><span class="p">:</span> <span class="s1">&#39;_angle_cutoff&#39;</span><span class="p">,</span>
                                         <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="n">DEFAULT_ANGLE_CUTOFF</span><span class="p">}</span>
     <span class="n">STRATEGY_OPTIONS</span><span class="p">[</span><span class="s1">&#39;additional_condition&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="n">AdditionalConditionInt</span><span class="p">,</span>
@@ -439,7 +430,7 @@
                            <span class="s1">&#39;    The coordination environment is then given as the one with the </span><span class="se">\n</span><span class="s1">&#39;</span> \
                            <span class="s1">&#39;    lowest continuous symmetry measure.&#39;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure_environments</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">distance_cutoff</span><span class="o">=</span><span class="n">DEFAULT_DISTANCE_CUTOFF</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure_environments</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">distance_cutoff</span><span class="o">=</span><span class="n">DEFAULT_DISTANCE_CUTOFF</span><span class="p">,</span>
                  <span class="n">angle_cutoff</span><span class="o">=</span><span class="n">DEFAULT_ANGLE_CUTOFF</span><span class="p">,</span> <span class="n">additional_condition</span><span class="o">=</span><span class="n">DEFAULT_ADDITIONAL_CONDITION</span><span class="p">,</span>
                  <span class="n">continuous_symmetry_measure_cutoff</span><span class="o">=</span><span class="n">DEFAULT_CONTINUOUS_SYMMETRY_MEASURE_CUTOFF</span><span class="p">,</span>
                  <span class="n">symmetry_measure_type</span><span class="o">=</span><span class="n">AbstractChemenvStrategy</span><span class="o">.</span><span class="n">DEFAULT_SYMMETRY_MEASURE_TYPE</span><span class="p">):</span>
@@ -490,8 +481,9 @@
     <span class="k">def</span> <span class="nf">continuous_symmetry_measure_cutoff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">continuous_symmetry_measure_cutoff</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_continuous_symmetry_measure_cutoff</span> <span class="o">=</span> <span class="n">CSMFloat</span><span class="p">(</span><span class="n">continuous_symmetry_measure_cutoff</span><span class="p">)</span>
 
-<div class="viewcode-block" id="SimplestChemenvStrategy.get_site_neighbors"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimplestChemenvStrategy.get_site_neighbors">[docs]</a>    <span class="k">def</span> <span class="nf">get_site_neighbors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">site</span><span class="p">,</span> <span class="n">isite</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dequivsite</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dthissite</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mysym</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span><span class="c1">#, neighbors_map=None):</span>
-        <span class="c1">#if neighbors_map is not None:</span>
+<div class="viewcode-block" id="SimplestChemenvStrategy.get_site_neighbors"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimplestChemenvStrategy.get_site_neighbors">[docs]</a>    <span class="k">def</span> <span class="nf">get_site_neighbors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">site</span><span class="p">,</span> <span class="n">isite</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dequivsite</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dthissite</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                           <span class="n">mysym</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>  <span class="c1"># , neighbors_map=None):</span>
+        <span class="c1"># if neighbors_map is not None:</span>
         <span class="c1">#    return self.structure_environments.voronoi.get_neighbors(isite=isite, neighbors_map=neighbors_map)</span>
         <span class="k">if</span> <span class="n">isite</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="p">[</span><span class="n">isite</span><span class="p">,</span> <span class="n">dequivsite</span><span class="p">,</span> <span class="n">dthissite</span><span class="p">,</span> <span class="n">mysym</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">equivalent_site_index_and_transform</span><span class="p">(</span><span class="n">site</span><span class="p">)</span>
@@ -600,7 +592,7 @@
         <span class="n">subplot</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_distance_cutoff</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_angle_cutoff</span><span class="p">,</span> <span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">mec</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mfc</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
         <span class="n">subplot</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_distance_cutoff</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_angle_cutoff</span><span class="p">,</span> <span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="ow">and</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_distance_cutoff</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">_distance_cutoff</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_angle_cutoff</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">_angle_cutoff</span> <span class="ow">and</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_additional_condition</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">_additional_condition</span> <span class="ow">and</span>
@@ -643,7 +635,7 @@
 
     <span class="n">DEFAULT_MAX_DIST</span> <span class="o">=</span> <span class="mf">2.0</span>
     <span class="n">DEFAULT_ADDITIONAL_CONDITION</span> <span class="o">=</span> <span class="n">AbstractChemenvStrategy</span><span class="o">.</span><span class="n">AC</span><span class="o">.</span><span class="n">ONLY_ACB</span>
-    <span class="n">STRATEGY_OPTIONS</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+    <span class="n">STRATEGY_OPTIONS</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>  <span class="c1"># type: Dict[str, Dict]</span>
     <span class="n">STRATEGY_OPTIONS</span><span class="p">[</span><span class="s1">&#39;additional_condition&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="n">AdditionalConditionInt</span><span class="p">,</span>
                                                 <span class="s1">&#39;internal&#39;</span><span class="p">:</span> <span class="s1">&#39;_additional_condition&#39;</span><span class="p">,</span>
                                                 <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="n">DEFAULT_ADDITIONAL_CONDITION</span><span class="p">}</span>
@@ -653,13 +645,13 @@
                            <span class="s1">&#39;    The coordination environment is then given as the one with the </span><span class="se">\n</span><span class="s1">&#39;</span> \
                            <span class="s1">&#39;    lowest continuous symmetry measure.&#39;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure_environments</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure_environments</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">additional_condition</span><span class="o">=</span><span class="n">AbstractChemenvStrategy</span><span class="o">.</span><span class="n">AC</span><span class="o">.</span><span class="n">ONLY_ACB</span><span class="p">,</span>
                  <span class="n">symmetry_measure_type</span><span class="o">=</span><span class="n">AbstractChemenvStrategy</span><span class="o">.</span><span class="n">DEFAULT_SYMMETRY_MEASURE_TYPE</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Constructor for the SimpleAbundanceChemenvStrategy.</span>
 <span class="sd">        :param structure_environments: StructureEnvironments object containing all the information on the</span>
-<span class="sd">        coordination of the sites in a structure</span>
+<span class="sd">            coordination of the sites in a structure</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;SimpleAbundanceChemenvStrategy not yet implemented&#39;</span><span class="p">)</span>
         <span class="n">AbstractChemenvStrategy</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure_environments</span><span class="p">,</span> <span class="n">symmetry_measure_type</span><span class="o">=</span><span class="n">symmetry_measure_type</span><span class="p">)</span>
@@ -687,8 +679,8 @@
         <span class="n">cn_map</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_map</span><span class="p">(</span><span class="n">isite</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">cn_map</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
-        <span class="n">coord_geoms</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure_environments</span><span class="o">.</span>
-                       <span class="n">ce_list</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">structure_environments</span><span class="o">.</span><span class="n">sites_map</span><span class="p">[</span><span class="n">isite</span><span class="p">]][</span><span class="n">cn_map</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="n">cn_map</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
+        <span class="n">coord_geoms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure_environments</span><span class="o">.</span><span class="n">ce_list</span><span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">structure_environments</span><span class="o">.</span><span class="n">sites_map</span><span class="p">[</span><span class="n">isite</span><span class="p">]][</span><span class="n">cn_map</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="n">cn_map</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
         <span class="k">if</span> <span class="n">return_map</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">coord_geoms</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">cn_map</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">cn_map</span>
@@ -724,7 +716,7 @@
                                                                      <span class="n">surface_calculation_type</span><span class="o">=</span><span class="n">surface_calculation_type</span><span class="p">,</span>
                                                                      <span class="n">max_dist</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">DEFAULT_MAX_DIST</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="ow">and</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_additional_condition</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">additional_condition</span><span class="p">)</span>
 
@@ -757,7 +749,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">DEFAULT_TARGET_ENVIRONMENTS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;O:6&#39;</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure_environments</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">truncate_dist_ang</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure_environments</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">truncate_dist_ang</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                  <span class="n">additional_condition</span><span class="o">=</span><span class="n">AbstractChemenvStrategy</span><span class="o">.</span><span class="n">AC</span><span class="o">.</span><span class="n">ONLY_ACB</span><span class="p">,</span>
                  <span class="n">max_nabundant</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">target_environments</span><span class="o">=</span><span class="n">DEFAULT_TARGET_ENVIRONMENTS</span><span class="p">,</span> <span class="n">target_penalty_type</span><span class="o">=</span><span class="s1">&#39;max_csm&#39;</span><span class="p">,</span>
                  <span class="n">max_csm</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span> <span class="n">symmetry_measure_type</span><span class="o">=</span><span class="n">AbstractChemenvStrategy</span><span class="o">.</span><span class="n">DEFAULT_SYMMETRY_MEASURE_TYPE</span><span class="p">):</span>
@@ -777,9 +769,8 @@
         <span class="n">cn_map</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_map</span><span class="p">(</span><span class="n">isite</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">cn_map</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
-        <span class="n">chemical_environments</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure_environments</span><span class="o">.</span><span class="n">ce_list</span>
-                                 <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">structure_environments</span><span class="o">.</span><span class="n">sites_map</span><span class="p">[</span><span class="n">isite</span><span class="p">]][</span><span class="n">cn_map</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="n">cn_map</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
-
+        <span class="n">chemical_environments</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure_environments</span><span class="o">.</span><span class="n">ce_list</span><span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">structure_environments</span><span class="o">.</span><span class="n">sites_map</span><span class="p">[</span><span class="n">isite</span><span class="p">]][</span><span class="n">cn_map</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="n">cn_map</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
         <span class="k">if</span> <span class="n">return_map</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">chemical_environments</span><span class="o">.</span><span class="n">coord_geoms</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">chemical_environments</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">cn_map</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">cn_map</span>
@@ -813,7 +804,7 @@
                           <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">structure_environments</span><span class="o">.</span><span class="n">sites_map</span><span class="p">[</span><span class="n">isite</span><span class="p">]]</span>
                           <span class="p">[</span><span class="n">mymap</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="n">mymap</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">minimum_geometry</span><span class="p">(</span><span class="n">symmetry_measure_type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_symmetry_measure_type</span><span class="p">))</span>
             <span class="k">if</span> <span class="p">(</span><span class="n">cg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_environments</span> <span class="ow">and</span> <span class="n">cgdict</span><span class="p">[</span><span class="s1">&#39;symmetry_measure&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_csm</span> <span class="ow">and</span>
-                        <span class="n">cgdict</span><span class="p">[</span><span class="s1">&#39;symmetry_measure&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">current_target_env_csm</span><span class="p">):</span>
+                    <span class="n">cgdict</span><span class="p">[</span><span class="s1">&#39;symmetry_measure&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">current_target_env_csm</span><span class="p">):</span>
                 <span class="n">current_map</span> <span class="o">=</span> <span class="n">mymap</span>
                 <span class="n">current_target_env_csm</span> <span class="o">=</span> <span class="n">cgdict</span><span class="p">[</span><span class="s1">&#39;symmetry_measure&#39;</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">current_map</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -838,7 +829,7 @@
                 <span class="s2">&quot;target_penalty_type&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_penalty_type</span><span class="p">,</span>
                 <span class="s2">&quot;max_csm&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_csm</span><span class="p">}</span></div>
 
-    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="ow">and</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_additional_condition</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">additional_condition</span> <span class="ow">and</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">max_nabundant</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">max_nabundant</span> <span class="ow">and</span>
@@ -876,10 +867,9 @@
 
 
 <div class="viewcode-block" id="AngleNbSetWeight"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AngleNbSetWeight">[docs]</a><span class="k">class</span> <span class="nc">AngleNbSetWeight</span><span class="p">(</span><span class="n">NbSetWeight</span><span class="p">):</span>
-
     <span class="n">SHORT_NAME</span> <span class="o">=</span> <span class="s1">&#39;AngleWeight&#39;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">aa</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">aa</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">aa</span> <span class="o">=</span> <span class="n">aa</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">aa</span> <span class="o">==</span> <span class="mf">1.0</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">aw</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">angle_sum</span>
@@ -895,10 +885,10 @@
 <div class="viewcode-block" id="AngleNbSetWeight.angle_sumn"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AngleNbSetWeight.angle_sumn">[docs]</a>    <span class="k">def</span> <span class="nf">angle_sumn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nb_set</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">angle_sum</span><span class="p">(</span><span class="n">nb_set</span><span class="o">=</span><span class="n">nb_set</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">aa</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">aa</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">aa</span>
 
-    <span class="k">def</span> <span class="nf">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">other</span>
 
 <div class="viewcode-block" id="AngleNbSetWeight.as_dict"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AngleNbSetWeight.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -913,10 +903,9 @@
 
 
 <div class="viewcode-block" id="NormalizedAngleDistanceNbSetWeight"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NormalizedAngleDistanceNbSetWeight">[docs]</a><span class="k">class</span> <span class="nc">NormalizedAngleDistanceNbSetWeight</span><span class="p">(</span><span class="n">NbSetWeight</span><span class="p">):</span>
-
     <span class="n">SHORT_NAME</span> <span class="o">=</span> <span class="s1">&#39;NormAngleDistWeight&#39;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">average_type</span><span class="p">,</span> <span class="n">aa</span><span class="p">,</span> <span class="n">bb</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">average_type</span><span class="p">,</span> <span class="n">aa</span><span class="p">,</span> <span class="n">bb</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">average_type</span> <span class="o">=</span> <span class="n">average_type</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">average_type</span> <span class="o">==</span> <span class="s1">&#39;geometric&#39;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">eval</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gweight</span>
@@ -951,10 +940,10 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">fda</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">angninvndist</span>
 
-    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">average_type</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">average_type</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">aa</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">aa</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">bb</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">bb</span>
 
-    <span class="k">def</span> <span class="nf">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">other</span>
 
 <div class="viewcode-block" id="NormalizedAngleDistanceNbSetWeight.as_dict"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NormalizedAngleDistanceNbSetWeight.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -973,13 +962,13 @@
         <span class="k">return</span> <span class="p">[</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">dist</span> <span class="k">for</span> <span class="n">dist</span> <span class="ow">in</span> <span class="n">nb_set</span><span class="o">.</span><span class="n">normalized_distances</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="NormalizedAngleDistanceNbSetWeight.invndist"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NormalizedAngleDistanceNbSetWeight.invndist">[docs]</a>    <span class="k">def</span> <span class="nf">invndist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nb_set</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">[</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">dist</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">bb</span> <span class="k">for</span> <span class="n">dist</span> <span class="ow">in</span> <span class="n">nb_set</span><span class="o">.</span><span class="n">normalized_distances</span><span class="p">]</span></div>
+        <span class="k">return</span> <span class="p">[</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">dist</span> <span class="o">**</span> <span class="bp">self</span><span class="o">.</span><span class="n">bb</span> <span class="k">for</span> <span class="n">dist</span> <span class="ow">in</span> <span class="n">nb_set</span><span class="o">.</span><span class="n">normalized_distances</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="NormalizedAngleDistanceNbSetWeight.ang"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NormalizedAngleDistanceNbSetWeight.ang">[docs]</a>    <span class="k">def</span> <span class="nf">ang</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nb_set</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">nb_set</span><span class="o">.</span><span class="n">normalized_angles</span></div>
 
 <div class="viewcode-block" id="NormalizedAngleDistanceNbSetWeight.angn"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NormalizedAngleDistanceNbSetWeight.angn">[docs]</a>    <span class="k">def</span> <span class="nf">angn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nb_set</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">ang</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">aa</span> <span class="k">for</span> <span class="n">ang</span> <span class="ow">in</span> <span class="n">nb_set</span><span class="o">.</span><span class="n">normalized_angles</span><span class="p">]</span></div>
+        <span class="k">return</span> <span class="p">[</span><span class="n">ang</span> <span class="o">**</span> <span class="bp">self</span><span class="o">.</span><span class="n">aa</span> <span class="k">for</span> <span class="n">ang</span> <span class="ow">in</span> <span class="n">nb_set</span><span class="o">.</span><span class="n">normalized_angles</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="NormalizedAngleDistanceNbSetWeight.anginvdist"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NormalizedAngleDistanceNbSetWeight.anginvdist">[docs]</a>    <span class="k">def</span> <span class="nf">anginvdist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nb_set</span><span class="p">):</span>
         <span class="n">nangles</span> <span class="o">=</span> <span class="n">nb_set</span><span class="o">.</span><span class="n">normalized_angles</span>
@@ -987,15 +976,15 @@
 
 <div class="viewcode-block" id="NormalizedAngleDistanceNbSetWeight.anginvndist"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NormalizedAngleDistanceNbSetWeight.anginvndist">[docs]</a>    <span class="k">def</span> <span class="nf">anginvndist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nb_set</span><span class="p">):</span>
         <span class="n">nangles</span> <span class="o">=</span> <span class="n">nb_set</span><span class="o">.</span><span class="n">normalized_angles</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">nangles</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="o">/</span> <span class="n">dist</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">bb</span> <span class="k">for</span> <span class="n">ii</span><span class="p">,</span> <span class="n">dist</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">nb_set</span><span class="o">.</span><span class="n">normalized_distances</span><span class="p">)]</span></div>
+        <span class="k">return</span> <span class="p">[</span><span class="n">nangles</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="o">/</span> <span class="n">dist</span> <span class="o">**</span> <span class="bp">self</span><span class="o">.</span><span class="n">bb</span> <span class="k">for</span> <span class="n">ii</span><span class="p">,</span> <span class="n">dist</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">nb_set</span><span class="o">.</span><span class="n">normalized_distances</span><span class="p">)]</span></div>
 
 <div class="viewcode-block" id="NormalizedAngleDistanceNbSetWeight.angninvdist"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NormalizedAngleDistanceNbSetWeight.angninvdist">[docs]</a>    <span class="k">def</span> <span class="nf">angninvdist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nb_set</span><span class="p">):</span>
         <span class="n">nangles</span> <span class="o">=</span> <span class="n">nb_set</span><span class="o">.</span><span class="n">normalized_angles</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">nangles</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">aa</span> <span class="o">/</span> <span class="n">dist</span> <span class="k">for</span> <span class="n">ii</span><span class="p">,</span> <span class="n">dist</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">nb_set</span><span class="o">.</span><span class="n">normalized_distances</span><span class="p">)]</span></div>
+        <span class="k">return</span> <span class="p">[</span><span class="n">nangles</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="o">**</span> <span class="bp">self</span><span class="o">.</span><span class="n">aa</span> <span class="o">/</span> <span class="n">dist</span> <span class="k">for</span> <span class="n">ii</span><span class="p">,</span> <span class="n">dist</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">nb_set</span><span class="o">.</span><span class="n">normalized_distances</span><span class="p">)]</span></div>
 
 <div class="viewcode-block" id="NormalizedAngleDistanceNbSetWeight.angninvndist"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NormalizedAngleDistanceNbSetWeight.angninvndist">[docs]</a>    <span class="k">def</span> <span class="nf">angninvndist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nb_set</span><span class="p">):</span>
         <span class="n">nangles</span> <span class="o">=</span> <span class="n">nb_set</span><span class="o">.</span><span class="n">normalized_angles</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">nangles</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">aa</span> <span class="o">/</span> <span class="n">dist</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">bb</span> <span class="k">for</span> <span class="n">ii</span><span class="p">,</span> <span class="n">dist</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">nb_set</span><span class="o">.</span><span class="n">normalized_distances</span><span class="p">)]</span></div>
+        <span class="k">return</span> <span class="p">[</span><span class="n">nangles</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="o">**</span> <span class="bp">self</span><span class="o">.</span><span class="n">aa</span> <span class="o">/</span> <span class="n">dist</span> <span class="o">**</span> <span class="bp">self</span><span class="o">.</span><span class="n">bb</span> <span class="k">for</span> <span class="n">ii</span><span class="p">,</span> <span class="n">dist</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">nb_set</span><span class="o">.</span><span class="n">normalized_distances</span><span class="p">)]</span></div>
 
 <div class="viewcode-block" id="NormalizedAngleDistanceNbSetWeight.weight"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NormalizedAngleDistanceNbSetWeight.weight">[docs]</a>    <span class="k">def</span> <span class="nf">weight</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nb_set</span><span class="p">,</span> <span class="n">structure_environments</span><span class="p">,</span> <span class="n">cn_map</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">additional_info</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">fda_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fda</span><span class="p">(</span><span class="n">nb_set</span><span class="o">=</span><span class="n">nb_set</span><span class="p">)</span>
@@ -1019,7 +1008,7 @@
             <span class="n">effective_csm</span> <span class="o">=</span> <span class="mf">100.0</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">mingeoms</span> <span class="o">=</span> <span class="n">site_chemenv</span><span class="o">.</span><span class="n">minimum_geometries</span><span class="p">(</span><span class="n">symmetry_measure_type</span><span class="o">=</span><span class="n">symmetry_measure_type</span><span class="p">,</span>
-                                                   <span class="n">max_csm</span><span class="o">=</span><span class="n">max_effective_csm</span><span class="p">)</span>
+                                                       <span class="n">max_csm</span><span class="o">=</span><span class="n">max_effective_csm</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">mingeoms</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">effective_csm</span> <span class="o">=</span> <span class="mf">100.0</span>
             <span class="k">else</span><span class="p">:</span>
@@ -1042,7 +1031,6 @@
 
 
 <div class="viewcode-block" id="SelfCSMNbSetWeight"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SelfCSMNbSetWeight">[docs]</a><span class="k">class</span> <span class="nc">SelfCSMNbSetWeight</span><span class="p">(</span><span class="n">NbSetWeight</span><span class="p">):</span>
-
     <span class="n">SHORT_NAME</span> <span class="o">=</span> <span class="s1">&#39;SelfCSMWeight&#39;</span>
 
     <span class="n">DEFAULT_EFFECTIVE_CSM_ESTIMATOR</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;function&#39;</span><span class="p">:</span> <span class="s1">&#39;power2_inverse_decreasing&#39;</span><span class="p">,</span>
@@ -1052,13 +1040,13 @@
                                             <span class="s1">&#39;alpha&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">}}</span>
     <span class="n">DEFAULT_SYMMETRY_MEASURE_TYPE</span> <span class="o">=</span> <span class="s1">&#39;csm_wcs_ctwcc&#39;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">effective_csm_estimator</span><span class="o">=</span><span class="n">DEFAULT_EFFECTIVE_CSM_ESTIMATOR</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">effective_csm_estimator</span><span class="o">=</span><span class="n">DEFAULT_EFFECTIVE_CSM_ESTIMATOR</span><span class="p">,</span>
                  <span class="n">weight_estimator</span><span class="o">=</span><span class="n">DEFAULT_WEIGHT_ESTIMATOR</span><span class="p">,</span>
                  <span class="n">symmetry_measure_type</span><span class="o">=</span><span class="n">DEFAULT_SYMMETRY_MEASURE_TYPE</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">effective_csm_estimator</span> <span class="o">=</span> <span class="n">effective_csm_estimator</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">effective_csm_estimator_rf</span> <span class="o">=</span> <span class="n">CSMInfiniteRatioFunction</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">effective_csm_estimator</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">weight_estimator</span> <span class="o">=</span> <span class="n">weight_estimator</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">weight_estimator_rf</span> <span class="o">=</span>  <span class="n">CSMFiniteRatioFunction</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">weight_estimator</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">weight_estimator_rf</span> <span class="o">=</span> <span class="n">CSMFiniteRatioFunction</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">weight_estimator</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">symmetry_measure_type</span> <span class="o">=</span> <span class="n">symmetry_measure_type</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_effective_csm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">effective_csm_estimator</span><span class="p">[</span><span class="s1">&#39;options&#39;</span><span class="p">][</span><span class="s1">&#39;max_csm&#39;</span><span class="p">]</span>
 
@@ -1074,12 +1062,12 @@
                  <span class="n">cn_map</span><span class="o">=</span><span class="n">cn_map</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">weight</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">weight</span></div>
 
-    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">effective_csm_estimator</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">effective_csm_estimator</span> <span class="ow">and</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">weight_estimator</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">weight_estimator</span> <span class="ow">and</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">symmetry_measure_type</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">symmetry_measure_type</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">other</span>
 
 <div class="viewcode-block" id="SelfCSMNbSetWeight.as_dict"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SelfCSMNbSetWeight.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1098,7 +1086,6 @@
 
 
 <div class="viewcode-block" id="DeltaCSMNbSetWeight"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DeltaCSMNbSetWeight">[docs]</a><span class="k">class</span> <span class="nc">DeltaCSMNbSetWeight</span><span class="p">(</span><span class="n">NbSetWeight</span><span class="p">):</span>
-
     <span class="n">SHORT_NAME</span> <span class="o">=</span> <span class="s1">&#39;DeltaCSMWeight&#39;</span>
 
     <span class="n">DEFAULT_EFFECTIVE_CSM_ESTIMATOR</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;function&#39;</span><span class="p">:</span> <span class="s1">&#39;power2_inverse_decreasing&#39;</span><span class="p">,</span>
@@ -1108,7 +1095,7 @@
                                 <span class="s1">&#39;options&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;delta_csm_min&#39;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
                                             <span class="s1">&#39;delta_csm_max&#39;</span><span class="p">:</span> <span class="mf">3.0</span><span class="p">}}</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">effective_csm_estimator</span><span class="o">=</span><span class="n">DEFAULT_EFFECTIVE_CSM_ESTIMATOR</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">effective_csm_estimator</span><span class="o">=</span><span class="n">DEFAULT_EFFECTIVE_CSM_ESTIMATOR</span><span class="p">,</span>
                  <span class="n">weight_estimator</span><span class="o">=</span><span class="n">DEFAULT_WEIGHT_ESTIMATOR</span><span class="p">,</span>
                  <span class="n">delta_cn_weight_estimators</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">symmetry_measure_type</span><span class="o">=</span><span class="n">DEFAULT_SYMMETRY_MEASURE_TYPE</span><span class="p">):</span>
@@ -1178,13 +1165,13 @@
                  <span class="n">cn_map</span><span class="o">=</span><span class="n">cn_map</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">delta_csm_cn_map2</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">nb_set_weight</span></div>
 
-    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">effective_csm_estimator</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">effective_csm_estimator</span> <span class="ow">and</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">weight_estimator</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">weight_estimator</span> <span class="ow">and</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">delta_cn_weight_estimators</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">delta_cn_weight_estimators</span> <span class="ow">and</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">symmetry_measure_type</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">symmetry_measure_type</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">other</span>
 
 <div class="viewcode-block" id="DeltaCSMNbSetWeight.delta_cn_specifics"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DeltaCSMNbSetWeight.delta_cn_specifics">[docs]</a>    <span class="nd">@classmethod</span>
@@ -1193,19 +1180,18 @@
                            <span class="n">effective_csm_estimator</span><span class="o">=</span><span class="n">DEFAULT_EFFECTIVE_CSM_ESTIMATOR</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">delta_csm_mins</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">delta_csm_maxs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">delta_cn_weight_estimators</span> <span class="o">=</span> <span class="p">{</span><span class="n">dcn</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;function&#39;</span><span class="p">:</span> <span class="n">function</span><span class="p">,</span>
-                                                <span class="s1">&#39;options&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;delta_csm_min&#39;</span><span class="p">:</span> <span class="mf">0.25</span><span class="o">+</span><span class="n">dcn</span><span class="o">*</span><span class="mf">0.25</span><span class="p">,</span>
-                                                            <span class="s1">&#39;delta_csm_max&#39;</span><span class="p">:</span> <span class="mf">5.0</span><span class="o">+</span><span class="n">dcn</span><span class="o">*</span><span class="mf">0.25</span><span class="p">}}</span> <span class="k">for</span> <span class="n">dcn</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">)}</span>
+                                                <span class="s1">&#39;options&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;delta_csm_min&#39;</span><span class="p">:</span> <span class="mf">0.25</span> <span class="o">+</span> <span class="n">dcn</span> <span class="o">*</span> <span class="mf">0.25</span><span class="p">,</span>
+                                                            <span class="s1">&#39;delta_csm_max&#39;</span><span class="p">:</span> <span class="mf">5.0</span> <span class="o">+</span> <span class="n">dcn</span> <span class="o">*</span> <span class="mf">0.25</span><span class="p">}}</span> <span class="k">for</span> <span class="n">dcn</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">)}</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">delta_cn_weight_estimators</span> <span class="o">=</span> <span class="p">{</span><span class="n">dcn</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;function&#39;</span><span class="p">:</span> <span class="n">function</span><span class="p">,</span>
-                                                <span class="s1">&#39;options&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;delta_csm_min&#39;</span><span class="p">:</span> <span class="n">delta_csm_mins</span><span class="p">[</span><span class="n">dcn</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
-                                                            <span class="s1">&#39;delta_csm_max&#39;</span><span class="p">:</span> <span class="n">delta_csm_maxs</span><span class="p">[</span><span class="n">dcn</span><span class="o">-</span><span class="mi">1</span><span class="p">]}}</span>
+                                                <span class="s1">&#39;options&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;delta_csm_min&#39;</span><span class="p">:</span> <span class="n">delta_csm_mins</span><span class="p">[</span><span class="n">dcn</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span>
+                                                            <span class="s1">&#39;delta_csm_max&#39;</span><span class="p">:</span> <span class="n">delta_csm_maxs</span><span class="p">[</span><span class="n">dcn</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]}}</span>
                                           <span class="k">for</span> <span class="n">dcn</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">)}</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">effective_csm_estimator</span><span class="o">=</span><span class="n">effective_csm_estimator</span><span class="p">,</span>
                    <span class="n">weight_estimator</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;function&#39;</span><span class="p">:</span> <span class="n">function</span><span class="p">,</span>
-                                     <span class="s1">&#39;options&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;delta_csm_min&#39;</span><span class="p">:</span> <span class="n">delta_cn_weight_estimators</span><span class="p">[</span><span class="mi">12</span><span class="p">]</span>
-                                                 <span class="p">[</span><span class="s1">&#39;options&#39;</span><span class="p">][</span><span class="s1">&#39;delta_csm_min&#39;</span><span class="p">],</span>
-                                                 <span class="s1">&#39;delta_csm_max&#39;</span><span class="p">:</span> <span class="n">delta_cn_weight_estimators</span><span class="p">[</span><span class="mi">12</span><span class="p">]</span>
-                                                 <span class="p">[</span><span class="s1">&#39;options&#39;</span><span class="p">][</span><span class="s1">&#39;delta_csm_max&#39;</span><span class="p">]}},</span>
+                                     <span class="s1">&#39;options&#39;</span><span class="p">:</span> <span class="p">{</span>
+                                         <span class="s1">&#39;delta_csm_min&#39;</span><span class="p">:</span> <span class="n">delta_cn_weight_estimators</span><span class="p">[</span><span class="mi">12</span><span class="p">][</span><span class="s1">&#39;options&#39;</span><span class="p">][</span><span class="s1">&#39;delta_csm_min&#39;</span><span class="p">],</span>
+                                         <span class="s1">&#39;delta_csm_max&#39;</span><span class="p">:</span> <span class="n">delta_cn_weight_estimators</span><span class="p">[</span><span class="mi">12</span><span class="p">][</span><span class="s1">&#39;options&#39;</span><span class="p">][</span><span class="s1">&#39;delta_csm_max&#39;</span><span class="p">]}},</span>
                    <span class="n">delta_cn_weight_estimators</span><span class="o">=</span><span class="n">delta_cn_weight_estimators</span><span class="p">,</span>
                    <span class="n">symmetry_measure_type</span><span class="o">=</span><span class="n">symmetry_measure_type</span><span class="p">)</span></div>
 
@@ -1229,21 +1215,20 @@
 
 
 <div class="viewcode-block" id="CNBiasNbSetWeight"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.CNBiasNbSetWeight">[docs]</a><span class="k">class</span> <span class="nc">CNBiasNbSetWeight</span><span class="p">(</span><span class="n">NbSetWeight</span><span class="p">):</span>
-
     <span class="n">SHORT_NAME</span> <span class="o">=</span> <span class="s1">&#39;CNBiasWeight&#39;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cn_weights</span><span class="p">,</span> <span class="n">initialization_options</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cn_weights</span><span class="p">,</span> <span class="n">initialization_options</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cn_weights</span> <span class="o">=</span> <span class="n">cn_weights</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">initialization_options</span> <span class="o">=</span> <span class="n">initialization_options</span>
 
 <div class="viewcode-block" id="CNBiasNbSetWeight.weight"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.CNBiasNbSetWeight.weight">[docs]</a>    <span class="k">def</span> <span class="nf">weight</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nb_set</span><span class="p">,</span> <span class="n">structure_environments</span><span class="p">,</span> <span class="n">cn_map</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">additional_info</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cn_weights</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">nb_set</span><span class="p">)]</span></div>
 
-    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cn_weights</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">cn_weights</span> <span class="ow">and</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">initialization_options</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">initialization_options</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">other</span>
 
 <div class="viewcode-block" id="CNBiasNbSetWeight.as_dict"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.CNBiasNbSetWeight.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1275,7 +1260,7 @@
                                   <span class="s1">&#39;weight_cn13&#39;</span><span class="p">:</span> <span class="n">weight_cn13</span>
                                   <span class="p">}</span>
         <span class="n">factor</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">weight_cn13</span><span class="p">)</span> <span class="o">/</span> <span class="n">weight_cn1</span><span class="p">,</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="mf">12.0</span><span class="p">)</span>
-        <span class="n">cn_weights</span> <span class="o">=</span> <span class="p">{</span><span class="n">cn</span><span class="p">:</span> <span class="n">weight_cn1</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">factor</span><span class="p">,</span> <span class="n">cn</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>  <span class="k">for</span> <span class="n">cn</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">14</span><span class="p">)}</span>
+        <span class="n">cn_weights</span> <span class="o">=</span> <span class="p">{</span><span class="n">cn</span><span class="p">:</span> <span class="n">weight_cn1</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">factor</span><span class="p">,</span> <span class="n">cn</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">cn</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">14</span><span class="p">)}</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">cn_weights</span><span class="o">=</span><span class="n">cn_weights</span><span class="p">,</span> <span class="n">initialization_options</span><span class="o">=</span><span class="n">initialization_options</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="CNBiasNbSetWeight.explicit"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.CNBiasNbSetWeight.explicit">[docs]</a>    <span class="nd">@classmethod</span>
@@ -1296,7 +1281,6 @@
 
 
 <div class="viewcode-block" id="DistanceAngleAreaNbSetWeight"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceAngleAreaNbSetWeight">[docs]</a><span class="k">class</span> <span class="nc">DistanceAngleAreaNbSetWeight</span><span class="p">(</span><span class="n">NbSetWeight</span><span class="p">):</span>
-
     <span class="n">SHORT_NAME</span> <span class="o">=</span> <span class="s1">&#39;DistAngleAreaWeight&#39;</span>
 
     <span class="n">AC</span> <span class="o">=</span> <span class="n">AdditionalConditions</span><span class="p">()</span>
@@ -1304,7 +1288,7 @@
                                   <span class="s1">&#39;distance_bounds&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;lower&#39;</span><span class="p">:</span> <span class="mf">1.2</span><span class="p">,</span> <span class="s1">&#39;upper&#39;</span><span class="p">:</span> <span class="mf">1.8</span><span class="p">},</span>
                                   <span class="s1">&#39;angle_bounds&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;lower&#39;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span> <span class="s1">&#39;upper&#39;</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">}}</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weight_type</span><span class="o">=</span><span class="s1">&#39;has_intersection&#39;</span><span class="p">,</span> <span class="n">surface_definition</span><span class="o">=</span><span class="n">DEFAULT_SURFACE_DEFINITION</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weight_type</span><span class="o">=</span><span class="s1">&#39;has_intersection&#39;</span><span class="p">,</span> <span class="n">surface_definition</span><span class="o">=</span><span class="n">DEFAULT_SURFACE_DEFINITION</span><span class="p">,</span>
                  <span class="n">nb_sets_from_hints</span><span class="o">=</span><span class="s1">&#39;fallback_to_source&#39;</span><span class="p">,</span> <span class="n">other_nb_sets</span><span class="o">=</span><span class="s1">&#39;0_weight&#39;</span><span class="p">,</span>
                  <span class="n">additional_condition</span><span class="o">=</span><span class="n">AC</span><span class="o">.</span><span class="n">ONLY_ACB</span><span class="p">,</span> <span class="n">smoothstep_distance</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">smoothstep_angle</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">weight_type</span> <span class="o">=</span> <span class="n">weight_type</span>
@@ -1342,8 +1326,8 @@
 
 <div class="viewcode-block" id="DistanceAngleAreaNbSetWeight.w_area_has_intersection_smoothstep"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceAngleAreaNbSetWeight.w_area_has_intersection_smoothstep">[docs]</a>    <span class="k">def</span> <span class="nf">w_area_has_intersection_smoothstep</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nb_set</span><span class="p">,</span> <span class="n">structure_environments</span><span class="p">,</span>
                                            <span class="n">cn_map</span><span class="p">,</span> <span class="n">additional_info</span><span class="p">):</span>
-        <span class="n">w_area</span> <span class="o">=</span>  <span class="bp">self</span><span class="o">.</span><span class="n">w_area_intersection_specific</span><span class="p">(</span><span class="n">nb_set</span><span class="o">=</span><span class="n">nb_set</span><span class="p">,</span> <span class="n">structure_environments</span><span class="o">=</span><span class="n">structure_environments</span><span class="p">,</span>
-                                                    <span class="n">cn_map</span><span class="o">=</span><span class="n">cn_map</span><span class="p">,</span> <span class="n">additional_info</span><span class="o">=</span><span class="n">additional_info</span><span class="p">)</span>
+        <span class="n">w_area</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">w_area_intersection_specific</span><span class="p">(</span><span class="n">nb_set</span><span class="o">=</span><span class="n">nb_set</span><span class="p">,</span> <span class="n">structure_environments</span><span class="o">=</span><span class="n">structure_environments</span><span class="p">,</span>
+                                                   <span class="n">cn_map</span><span class="o">=</span><span class="n">cn_map</span><span class="p">,</span> <span class="n">additional_info</span><span class="o">=</span><span class="n">additional_info</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">w_area</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">smoothstep_distance</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">w_area</span> <span class="o">=</span> <span class="n">w_area</span>
@@ -1429,7 +1413,7 @@
             <span class="k">return</span> <span class="kc">True</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Should not reach this point!&#39;</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weight_type</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">weight_type</span> <span class="ow">and</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">surface_definition</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">surface_definition</span> <span class="ow">and</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">nb_sets_from_hints</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">nb_sets_from_hints</span> <span class="ow">and</span>
@@ -1437,7 +1421,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">additional_condition</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">additional_condition</span>
                 <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">other</span>
 
 <div class="viewcode-block" id="DistanceAngleAreaNbSetWeight.as_dict"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceAngleAreaNbSetWeight.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1457,10 +1441,9 @@
 
 
 <div class="viewcode-block" id="DistancePlateauNbSetWeight"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistancePlateauNbSetWeight">[docs]</a><span class="k">class</span> <span class="nc">DistancePlateauNbSetWeight</span><span class="p">(</span><span class="n">NbSetWeight</span><span class="p">):</span>
-
     <span class="n">SHORT_NAME</span> <span class="o">=</span> <span class="s1">&#39;DistancePlateauWeight&#39;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">distance_function</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">weight_function</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">distance_function</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">weight_function</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">distance_function</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">distance_function</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;normalized_distance&#39;</span><span class="p">}</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1474,10 +1457,10 @@
 <div class="viewcode-block" id="DistancePlateauNbSetWeight.weight"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistancePlateauNbSetWeight.weight">[docs]</a>    <span class="k">def</span> <span class="nf">weight</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nb_set</span><span class="p">,</span> <span class="n">structure_environments</span><span class="p">,</span> <span class="n">cn_map</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">additional_info</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight_rf</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="n">nb_set</span><span class="o">.</span><span class="n">distance_plateau</span><span class="p">())</span></div>
 
-    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="vm">__class__</span>
 
-    <span class="k">def</span> <span class="nf">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">other</span>
 
 <div class="viewcode-block" id="DistancePlateauNbSetWeight.as_dict"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistancePlateauNbSetWeight.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1493,10 +1476,9 @@
 
 
 <div class="viewcode-block" id="AnglePlateauNbSetWeight"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AnglePlateauNbSetWeight">[docs]</a><span class="k">class</span> <span class="nc">AnglePlateauNbSetWeight</span><span class="p">(</span><span class="n">NbSetWeight</span><span class="p">):</span>
-
     <span class="n">SHORT_NAME</span> <span class="o">=</span> <span class="s1">&#39;AnglePlateauWeight&#39;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">angle_function</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">weight_function</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">angle_function</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">weight_function</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">angle_function</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">angle_function</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;normalized_angle&#39;</span><span class="p">}</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1510,10 +1492,10 @@
 <div class="viewcode-block" id="AnglePlateauNbSetWeight.weight"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AnglePlateauNbSetWeight.weight">[docs]</a>    <span class="k">def</span> <span class="nf">weight</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nb_set</span><span class="p">,</span> <span class="n">structure_environments</span><span class="p">,</span> <span class="n">cn_map</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">additional_info</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight_rf</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="n">nb_set</span><span class="o">.</span><span class="n">angle_plateau</span><span class="p">())</span></div>
 
-    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="vm">__class__</span>
 
-    <span class="k">def</span> <span class="nf">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">other</span>
 
 <div class="viewcode-block" id="AnglePlateauNbSetWeight.as_dict"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AnglePlateauNbSetWeight.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1529,10 +1511,9 @@
 
 
 <div class="viewcode-block" id="DistanceNbSetWeight"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceNbSetWeight">[docs]</a><span class="k">class</span> <span class="nc">DistanceNbSetWeight</span><span class="p">(</span><span class="n">NbSetWeight</span><span class="p">):</span>
-
     <span class="n">SHORT_NAME</span> <span class="o">=</span> <span class="s1">&#39;DistanceNbSetWeight&#39;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weight_function</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nbs_source</span><span class="o">=</span><span class="s1">&#39;voronoi&#39;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weight_function</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nbs_source</span><span class="o">=</span><span class="s1">&#39;voronoi&#39;</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">weight_function</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">weight_function</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;function&#39;</span><span class="p">:</span> <span class="s1">&#39;smootherstep&#39;</span><span class="p">,</span> <span class="s1">&#39;options&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;lower&#39;</span><span class="p">:</span> <span class="mf">1.2</span><span class="p">,</span> <span class="s1">&#39;upper&#39;</span><span class="p">:</span> <span class="mf">1.3</span><span class="p">}}</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1564,10 +1545,10 @@
             <span class="k">return</span> <span class="mf">1.0</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight_rf</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">normalized_distances</span><span class="p">))</span></div>
 
-    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="vm">__class__</span>
 
-    <span class="k">def</span> <span class="nf">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">other</span>
 
 <div class="viewcode-block" id="DistanceNbSetWeight.as_dict"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceNbSetWeight.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1583,10 +1564,9 @@
 
 
 <div class="viewcode-block" id="DeltaDistanceNbSetWeight"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DeltaDistanceNbSetWeight">[docs]</a><span class="k">class</span> <span class="nc">DeltaDistanceNbSetWeight</span><span class="p">(</span><span class="n">NbSetWeight</span><span class="p">):</span>
-
     <span class="n">SHORT_NAME</span> <span class="o">=</span> <span class="s1">&#39;DeltaDistanceNbSetWeight&#39;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weight_function</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nbs_source</span><span class="o">=</span><span class="s1">&#39;voronoi&#39;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weight_function</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nbs_source</span><span class="o">=</span><span class="s1">&#39;voronoi&#39;</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">weight_function</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">weight_function</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;function&#39;</span><span class="p">:</span> <span class="s1">&#39;smootherstep&#39;</span><span class="p">,</span> <span class="s1">&#39;options&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;lower&#39;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span> <span class="s1">&#39;upper&#39;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">}}</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1619,12 +1599,12 @@
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">nb_set</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">return</span> <span class="mf">0.0</span>
         <span class="n">nb_set_max_normalized_distance</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">nb_set</span><span class="o">.</span><span class="n">normalized_distances</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight_rf</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">normalized_distances</span><span class="p">)</span><span class="o">-</span><span class="n">nb_set_max_normalized_distance</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight_rf</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">normalized_distances</span><span class="p">)</span> <span class="o">-</span> <span class="n">nb_set_max_normalized_distance</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="vm">__class__</span>
 
-    <span class="k">def</span> <span class="nf">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">other</span>
 
 <div class="viewcode-block" id="DeltaDistanceNbSetWeight.as_dict"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DeltaDistanceNbSetWeight.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1647,7 +1627,7 @@
     <span class="n">DEFAULT_CE_ESTIMATOR</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;function&#39;</span><span class="p">:</span> <span class="s1">&#39;power2_inverse_power2_decreasing&#39;</span><span class="p">,</span>
                             <span class="s1">&#39;options&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;max_csm&#39;</span><span class="p">:</span> <span class="mf">8.0</span><span class="p">}}</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure_environments</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure_environments</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">additional_condition</span><span class="o">=</span><span class="n">AbstractChemenvStrategy</span><span class="o">.</span><span class="n">AC</span><span class="o">.</span><span class="n">ONLY_ACB</span><span class="p">,</span>
                  <span class="n">symmetry_measure_type</span><span class="o">=</span><span class="n">AbstractChemenvStrategy</span><span class="o">.</span><span class="n">DEFAULT_SYMMETRY_MEASURE_TYPE</span><span class="p">,</span>
                  <span class="n">nb_set_weights</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -1655,7 +1635,7 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Constructor for the WeightedNbSetChemenvStrategy.</span>
 <span class="sd">        :param structure_environments: StructureEnvironments object containing all the information on the</span>
-<span class="sd">        coordination of the sites in a structure</span>
+<span class="sd">            coordination of the sites in a structure</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">AbstractChemenvStrategy</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure_environments</span><span class="p">,</span> <span class="n">symmetry_measure_type</span><span class="o">=</span><span class="n">symmetry_measure_type</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_additional_condition</span> <span class="o">=</span> <span class="n">additional_condition</span>
@@ -1684,7 +1664,7 @@
         <span class="n">cn_maps</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">cn</span><span class="p">,</span> <span class="n">nb_sets</span> <span class="ow">in</span> <span class="n">site_nb_sets</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">for</span> <span class="n">inb_set</span><span class="p">,</span> <span class="n">nb_set</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">nb_sets</span><span class="p">):</span>
-                <span class="c1">#CHECK THE ADDITIONAL CONDITION HERE ?</span>
+                <span class="c1"># CHECK THE ADDITIONAL CONDITION HERE ?</span>
                 <span class="n">cn_maps</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">cn</span><span class="p">,</span> <span class="n">inb_set</span><span class="p">))</span>
         <span class="n">weights_additional_info</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;weights&#39;</span><span class="p">:</span> <span class="p">{</span><span class="n">isite</span><span class="p">:</span> <span class="p">{}}}</span>
         <span class="k">for</span> <span class="n">wdict</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ordered_weights</span><span class="p">:</span>
@@ -1698,7 +1678,7 @@
                 <span class="k">if</span> <span class="n">cn_map</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">weights_additional_info</span><span class="p">[</span><span class="s1">&#39;weights&#39;</span><span class="p">][</span><span class="n">isite</span><span class="p">]:</span>
                     <span class="n">weights_additional_info</span><span class="p">[</span><span class="s1">&#39;weights&#39;</span><span class="p">][</span><span class="n">isite</span><span class="p">][</span><span class="n">cn_map</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
                 <span class="n">weights_additional_info</span><span class="p">[</span><span class="s1">&#39;weights&#39;</span><span class="p">][</span><span class="n">isite</span><span class="p">][</span><span class="n">cn_map</span><span class="p">][</span><span class="n">weight_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">w_nb_set</span>
-                <span class="k">if</span> <span class="n">w_nb_set</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">return_all</span> <span class="ow">or</span> <span class="n">w_nb_set</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
                     <span class="n">cn_maps_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cn_map</span><span class="p">)</span>
             <span class="n">cn_maps</span> <span class="o">=</span> <span class="n">cn_maps_new</span>
         <span class="k">for</span> <span class="n">cn_map</span><span class="p">,</span> <span class="n">weights</span> <span class="ow">in</span> <span class="n">weights_additional_info</span><span class="p">[</span><span class="s1">&#39;weights&#39;</span><span class="p">][</span><span class="n">isite</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -1812,14 +1792,14 @@
         <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">get_site_coordination_environment</span><span class="p">(</span><span class="n">site</span><span class="o">=</span><span class="n">site</span><span class="p">,</span> <span class="n">isite</span><span class="o">=</span><span class="n">isite</span><span class="p">,</span> <span class="n">dequivsite</span><span class="o">=</span><span class="n">dequivsite</span><span class="p">,</span>
                                                        <span class="n">dthissite</span><span class="o">=</span><span class="n">dthissite</span><span class="p">,</span> <span class="n">mysym</span><span class="o">=</span><span class="n">mysym</span><span class="p">,</span> <span class="n">return_map</span><span class="o">=</span><span class="n">return_maps</span><span class="p">)]</span></div>
 
-    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="ow">and</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_additional_condition</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">_additional_condition</span> <span class="ow">and</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">symmetry_measure_type</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">symmetry_measure_type</span> <span class="ow">and</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">nb_set_weights</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">nb_set_weights</span> <span class="ow">and</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">ce_estimator</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">ce_estimator</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">other</span>
 
 <div class="viewcode-block" id="WeightedNbSetChemenvStrategy.as_dict"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.WeightedNbSetChemenvStrategy.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1861,9 +1841,9 @@
     <span class="c1">#                         &#39;cn_map_fraction&#39;, &#39;cn_map_ce_fraction&#39;, &#39;ce_fraction&#39;]</span>
     <span class="n">DEFAULT_CE_ESTIMATOR</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;function&#39;</span><span class="p">:</span> <span class="s1">&#39;power2_inverse_power2_decreasing&#39;</span><span class="p">,</span>
                             <span class="s1">&#39;options&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;max_csm&#39;</span><span class="p">:</span> <span class="mf">8.0</span><span class="p">}}</span>
-    <span class="n">DEFAULT_DIST_ANG_AREA_WEIGHT</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">DEFAULT_DIST_ANG_AREA_WEIGHT</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># type: Dict</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure_environments</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure_environments</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">additional_condition</span><span class="o">=</span><span class="n">AbstractChemenvStrategy</span><span class="o">.</span><span class="n">AC</span><span class="o">.</span><span class="n">ONLY_ACB</span><span class="p">,</span>
                  <span class="n">symmetry_measure_type</span><span class="o">=</span><span class="n">AbstractChemenvStrategy</span><span class="o">.</span><span class="n">DEFAULT_SYMMETRY_MEASURE_TYPE</span><span class="p">,</span>
                  <span class="n">dist_ang_area_weight</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -1877,7 +1857,7 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Constructor for the MultiWeightsChemenvStrategy.</span>
 <span class="sd">        :param structure_environments: StructureEnvironments object containing all the information on the</span>
-<span class="sd">        coordination of the sites in a structure</span>
+<span class="sd">            coordination of the sites in a structure</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_additional_condition</span> <span class="o">=</span> <span class="n">additional_condition</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dist_ang_area_weight</span> <span class="o">=</span> <span class="n">dist_ang_area_weight</span>
@@ -1946,7 +1926,7 @@
     <span class="k">def</span> <span class="nf">uniquely_determines_coordination_environments</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">False</span>
 
-    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="ow">and</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_additional_condition</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">_additional_condition</span> <span class="ow">and</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">symmetry_measure_type</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">symmetry_measure_type</span> <span class="ow">and</span>
@@ -1958,7 +1938,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">normalized_angle_distance_weight</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">normalized_angle_distance_weight</span> <span class="ow">and</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">ce_estimator</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">ce_estimator</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">other</span>
 
 <div class="viewcode-block" id="MultiWeightsChemenvStrategy.as_dict"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.MultiWeightsChemenvStrategy.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -2019,13 +1999,11 @@
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../../../../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -2043,7 +2021,7 @@
         <li class="right" >
           <a href="../../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2019.3.13 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -2051,7 +2029,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

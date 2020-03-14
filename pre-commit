@@ -1,0 +1,23 @@
+#!/bin/bash
+#
+# An example hook script to verify what is about to be committed.
+# Called by "git commit" with no arguments.  The hook should
+# exit with non-zero status after issuing an appropriate message if
+# it wants to stop the commit.
+#
+# To enable this hook, rename this file to "pre-commit".
+
+status=0
+files=$(git diff --diff-filter=d --cached --name-only | grep -E 'pymatgen.*\.(py)$' | sed '/test_/d')
+files=`echo $files | tr '\n' ' '`
+if [ "$files" != " " ]; then
+    for cmd in pycodestyle mypy flake8 pydocstyle
+    do
+        echo "Running $cmd $files..."
+        $cmd $files
+        if [ $? -ne 0 ]; then
+            echo "$cmd failed. Fix before commit."
+            exit 1
+        fi
+    done
+fi

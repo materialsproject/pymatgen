@@ -14,7 +14,6 @@ import scipy
 import itertools
 
 import collections
-from monty.dev import deprecated
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.tensors import SquareTensor, symmetry_reduce
@@ -45,7 +44,7 @@ class Deformation(SquareTensor):
             deformation_gradient (3x3 array-like): the 3x3 array-like
                 representing the deformation gradient
         """
-        obj = super(Deformation, cls).__new__(cls, deformation_gradient)
+        obj = super().__new__(cls, deformation_gradient)
         return obj.view(cls)
 
     def is_independent(self, tol=1e-8):
@@ -175,7 +174,7 @@ class Strain(SquareTensor):
         """
         vscale = np.ones((6,))
         vscale[3:] *= 2
-        obj = super(Strain, cls).__new__(cls, strain_matrix, vscale=vscale)
+        obj = super().__new__(cls, strain_matrix, vscale=vscale)
         if not obj.is_symmetric():
             raise ValueError("Strain objects must be initialized "
                              "with a symmetric array or a voigt-notation "
@@ -225,13 +224,6 @@ class Strain(SquareTensor):
         else:
             raise ValueError("Index must either be 2-tuple or integer "
                              "corresponding to full-tensor or voigt index")
-
-    @property
-    @deprecated(message="the deformation_matrix property is deprecated, and "
-                        "will be removed in pymatgen v2019.1.1, please use the "
-                        "get_deformation_matrix method instead.")
-    def deformation_matrix(self):
-        return self.get_deformation_matrix()
 
     def get_deformation_matrix(self, shape="upper"):
         """
