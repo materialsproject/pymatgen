@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.defects.corrections &#8212; pymatgen 2019.11.11 documentation</title>
+    <title>pymatgen.analysis.defects.corrections &#8212; pymatgen 2020.3.2 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -32,7 +32,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.11.11 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -48,12 +48,16 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Implementation of defect correction methods.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">scipy</span>
-<span class="kn">from</span> <span class="nn">scipy</span> <span class="k">import</span> <span class="n">stats</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.defects.core</span> <span class="k">import</span> <span class="n">DefectCorrection</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.defects.utils</span> <span class="k">import</span> <span class="n">ang_to_bohr</span><span class="p">,</span> <span class="n">hart_to_ev</span><span class="p">,</span> <span class="n">eV_to_k</span><span class="p">,</span> \
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">stats</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.defects.core</span> <span class="kn">import</span> <span class="n">DefectCorrection</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.defects.utils</span> <span class="kn">import</span> <span class="n">ang_to_bohr</span><span class="p">,</span> <span class="n">hart_to_ev</span><span class="p">,</span> <span class="n">eV_to_k</span><span class="p">,</span> \
     <span class="n">generate_reciprocal_vectors_squared</span><span class="p">,</span> <span class="n">QModel</span><span class="p">,</span> <span class="n">converge</span><span class="p">,</span> <span class="n">tune_for_gamma</span><span class="p">,</span> \
     <span class="n">generate_R_and_G_vecs</span><span class="p">,</span> <span class="n">kumagai_to_V</span>
 
@@ -78,7 +82,7 @@
 <span class="sd">    doi: 10.1103/PhysRevLett.102.016402</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dielectric_const</span><span class="p">,</span> <span class="n">q_model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">energy_cutoff</span><span class="o">=</span><span class="mi">520</span><span class="p">,</span> <span class="n">madetol</span><span class="o">=</span><span class="mf">0.0001</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dielectric_const</span><span class="p">,</span> <span class="n">q_model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">energy_cutoff</span><span class="o">=</span><span class="mi">520</span><span class="p">,</span> <span class="n">madetol</span><span class="o">=</span><span class="mf">0.0001</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initializes the FreysoldtCorrection class</span>
 <span class="sd">        Args:</span>
@@ -383,7 +387,7 @@
 <span class="sd">    NOTE that equations 8 and 9 from Kumagai et al. reference are divided by (4 pi) to get SI units</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                  <span class="n">dielectric_tensor</span><span class="p">,</span>
                  <span class="n">sampling_radius</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">gamma</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -657,10 +661,25 @@
         <span class="k">return</span> <span class="n">recip_part</span></div>
 
 <div class="viewcode-block" id="KumagaiCorrection.get_self_interaction"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.corrections.html#pymatgen.analysis.defects.corrections.KumagaiCorrection.get_self_interaction">[docs]</a>    <span class="k">def</span> <span class="nf">get_self_interaction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gamma</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            gamma ():</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Self-interaction energy of defect.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">determ</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dielectric</span><span class="p">)</span>
         <span class="k">return</span> <span class="o">-</span> <span class="n">gamma</span> <span class="o">/</span> <span class="p">(</span><span class="mf">2.</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">determ</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="KumagaiCorrection.get_potential_shift"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.corrections.html#pymatgen.analysis.defects.corrections.KumagaiCorrection.get_potential_shift">[docs]</a>    <span class="k">def</span> <span class="nf">get_potential_shift</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gamma</span><span class="p">,</span> <span class="n">volume</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            gamma (float): Gamma</span>
+<span class="sd">            volume (float): Volume.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Potential shift for defect.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="o">-</span> <span class="mf">0.25</span> <span class="o">/</span> <span class="p">(</span><span class="n">volume</span> <span class="o">*</span> <span class="n">gamma</span> <span class="o">**</span> <span class="mf">2.</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="KumagaiCorrection.plot"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.corrections.html#pymatgen.analysis.defects.corrections.KumagaiCorrection.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">saved</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -734,7 +753,7 @@
 <span class="sd">    A class for BandFillingCorrection class. Largely adapted from PyCDT code</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="mf">0.01</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="mf">0.01</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initializes the Bandfilling correction</span>
 
@@ -841,7 +860,7 @@
 <span class="sd">    A class for BandEdgeShiftingCorrection class. Largely adapted from PyCDT code</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initializes the BandEdgeShiftingCorrection class</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -919,7 +938,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.11.11 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -927,7 +946,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

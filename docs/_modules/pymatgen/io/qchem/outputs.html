@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.qchem.outputs &#8212; pymatgen 2019.11.11 documentation</title>
+    <title>pymatgen.io.qchem.outputs &#8212; pymatgen 2020.3.2 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -32,7 +32,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.11.11 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -48,6 +48,10 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Parsers for Qchem output files.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">os</span>
@@ -55,24 +59,24 @@
 <span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">import</span> <span class="nn">copy</span>
 
-<span class="kn">from</span> <span class="nn">monty.io</span> <span class="k">import</span> <span class="n">zopen</span>
-<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">jsanitize</span>
-<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core</span> <span class="k">import</span> <span class="n">Molecule</span>
+<span class="kn">from</span> <span class="nn">monty.io</span> <span class="kn">import</span> <span class="n">zopen</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">jsanitize</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">MSONable</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core</span> <span class="kn">import</span> <span class="n">Molecule</span>
 
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.graphs</span> <span class="k">import</span> <span class="n">MoleculeGraph</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.local_env</span> <span class="k">import</span> <span class="n">OpenBabelNN</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.graphs</span> <span class="kn">import</span> <span class="n">MoleculeGraph</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.local_env</span> <span class="kn">import</span> <span class="n">OpenBabelNN</span>
 <span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nx</span>
 
 <span class="k">try</span><span class="p">:</span>
-    <span class="kn">import</span> <span class="nn">openbabel</span> <span class="k">as</span> <span class="nn">ob</span>
+    <span class="kn">from</span> <span class="nn">openbabel</span> <span class="kn">import</span> <span class="n">openbabel</span> <span class="k">as</span> <span class="n">ob</span>
 
     <span class="n">have_babel</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
     <span class="n">ob</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">have_babel</span> <span class="o">=</span> <span class="kc">False</span>
 
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="k">import</span> <span class="n">read_table_pattern</span><span class="p">,</span> <span class="n">read_pattern</span><span class="p">,</span> <span class="n">process_parsed_coords</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">read_table_pattern</span><span class="p">,</span> <span class="n">read_pattern</span><span class="p">,</span> <span class="n">process_parsed_coords</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Samuel Blau, Brandon Wood, Shyam Dwaraknath&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2018, The Materials Project&quot;</span>
@@ -86,7 +90,7 @@
 <span class="sd">    Class to parse QChem output files.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            filename (str): Filename to parse</span>
@@ -362,12 +366,12 @@
 <div class="viewcode-block" id="QCOutput.multiple_outputs_from_file"><a class="viewcode-back" href="../../../../pymatgen.io.qchem.outputs.html#pymatgen.io.qchem.outputs.QCOutput.multiple_outputs_from_file">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">multiple_outputs_from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">keep_sub_files</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">            Parses a QChem output file with multiple calculations</span>
-<span class="sd">            1.) Seperates the output into sub-files</span>
-<span class="sd">                e.g. qcout -&gt; qcout.0, qcout.1, qcout.2 ... qcout.N</span>
-<span class="sd">                a.) Find delimeter for multiple calcualtions</span>
-<span class="sd">                b.) Make seperate output sub-files</span>
-<span class="sd">            2.) Creates seperate QCCalcs for each one from the sub-files</span>
+<span class="sd">        Parses a QChem output file with multiple calculations</span>
+<span class="sd">        1.) Seperates the output into sub-files</span>
+<span class="sd">            e.g. qcout -&gt; qcout.0, qcout.1, qcout.2 ... qcout.N</span>
+<span class="sd">            a.) Find delimeter for multiple calcualtions</span>
+<span class="sd">            b.) Make seperate output sub-files</span>
+<span class="sd">        2.) Creates seperate QCCalcs for each one from the sub-files</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">to_return</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;rt&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
@@ -876,7 +880,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;energy_trajectory&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">real_energy_trajectory</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_read_geometries</span><span class="p">()</span>
             <span class="k">if</span> <span class="n">have_babel</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;structure_change&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">check_for_structure_changes</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;structure_change&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_check_for_structure_changes</span><span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;initial_molecule&quot;</span><span class="p">],</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;molecule_from_last_geometry&quot;</span><span class="p">])</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_read_gradients</span><span class="p">()</span>
@@ -1197,6 +1201,10 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;errors&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;unknown_error&quot;</span><span class="p">]</span>
 
 <div class="viewcode-block" id="QCOutput.as_dict"><a class="viewcode-back" href="../../../../pymatgen.io.qchem.outputs.html#pymatgen.io.qchem.outputs.QCOutput.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            MSONAble dict.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">d</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span>
         <span class="n">d</span><span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">text</span>
@@ -1204,7 +1212,7 @@
         <span class="k">return</span> <span class="n">jsanitize</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="check_for_structure_changes"><a class="viewcode-back" href="../../../../pymatgen.io.qchem.outputs.html#pymatgen.io.qchem.outputs.check_for_structure_changes">[docs]</a><span class="k">def</span> <span class="nf">check_for_structure_changes</span><span class="p">(</span><span class="n">mol1</span><span class="p">,</span> <span class="n">mol2</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_check_for_structure_changes</span><span class="p">(</span><span class="n">mol1</span><span class="p">,</span> <span class="n">mol2</span><span class="p">):</span>
     <span class="n">special_elements</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Li&quot;</span><span class="p">,</span> <span class="s2">&quot;Na&quot;</span><span class="p">,</span> <span class="s2">&quot;Mg&quot;</span><span class="p">,</span> <span class="s2">&quot;Ca&quot;</span><span class="p">,</span> <span class="s2">&quot;Zn&quot;</span><span class="p">]</span>
     <span class="n">mol_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">mol1</span><span class="p">),</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">mol2</span><span class="p">)]</span>
 
@@ -1231,14 +1239,10 @@
     <span class="c1"># Can add logic to check the distances in the future if desired</span>
 
     <span class="n">initial_mol_graph</span> <span class="o">=</span> <span class="n">MoleculeGraph</span><span class="o">.</span><span class="n">with_local_env_strategy</span><span class="p">(</span><span class="n">mol_list</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-                                                              <span class="n">OpenBabelNN</span><span class="p">(),</span>
-                                                              <span class="n">reorder</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                                                              <span class="n">extend_structure</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                                                              <span class="n">OpenBabelNN</span><span class="p">())</span>
     <span class="n">initial_graph</span> <span class="o">=</span> <span class="n">initial_mol_graph</span><span class="o">.</span><span class="n">graph</span>
     <span class="n">last_mol_graph</span> <span class="o">=</span> <span class="n">MoleculeGraph</span><span class="o">.</span><span class="n">with_local_env_strategy</span><span class="p">(</span><span class="n">mol_list</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
-                                                           <span class="n">OpenBabelNN</span><span class="p">(),</span>
-                                                           <span class="n">reorder</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                                                           <span class="n">extend_structure</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                                                           <span class="n">OpenBabelNN</span><span class="p">())</span>
     <span class="n">last_graph</span> <span class="o">=</span> <span class="n">last_mol_graph</span><span class="o">.</span><span class="n">graph</span>
     <span class="k">if</span> <span class="n">initial_mol_graph</span><span class="o">.</span><span class="n">isomorphic_to</span><span class="p">(</span><span class="n">last_mol_graph</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;no_change&quot;</span>
@@ -1250,7 +1254,7 @@
         <span class="k">elif</span> <span class="n">last_graph</span><span class="o">.</span><span class="n">number_of_edges</span><span class="p">()</span> <span class="o">&gt;</span> <span class="n">initial_graph</span><span class="o">.</span><span class="n">number_of_edges</span><span class="p">():</span>
             <span class="k">return</span> <span class="s2">&quot;more_bonds&quot;</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s2">&quot;bond_change&quot;</span></div>
+            <span class="k">return</span> <span class="s2">&quot;bond_change&quot;</span>
 </pre></div>
 
           </div>
@@ -1281,7 +1285,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.11.11 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1289,7 +1293,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

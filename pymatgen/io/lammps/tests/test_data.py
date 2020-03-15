@@ -823,9 +823,9 @@ class CombinedDataTest(unittest.TestCase):
         self.assertEqual(ff["Improper Coeffs"].shape, (2, 3))
         # header box
         np.testing.assert_array_equal(ec_fec.box.bounds,
-                                      [[-1.000000, 54.000000],
-                                       [-1.000000, 54.000000],
-                                       [-1.000000, 54.000000]])
+                                      [[-0.597365, 54.56835],
+                                       [-0.597365, 54.56835],
+                                       [-0.597365, 54.56835]])
         # body
         self.assertEqual(ec_fec.masses.at[7, "mass"], 1.008)
         self.assertEqual(ff["Pair Coeffs"].at[9, "coeff2"], 3.750)
@@ -875,9 +875,9 @@ class CombinedDataTest(unittest.TestCase):
         self.assertEqual(ff["Improper Coeffs"].shape, (2, 3))
         # header box
         np.testing.assert_array_equal(ec_fec.box.bounds,
-                                      [[-1.000000, 54.000000],
-                                       [-1.000000, 54.000000],
-                                       [-1.000000, 54.000000]])
+                                      [[-0.597365, 54.56835],
+                                       [-0.597365, 54.56835],
+                                       [-0.597365, 54.56835]])
         # body
         self.assertEqual(ec_fec.masses.at[7, "mass"], 1.008)
         self.assertEqual(ff["Pair Coeffs"].at[9, "coeff2"], 3.750)

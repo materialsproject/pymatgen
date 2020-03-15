@@ -68,7 +68,7 @@ def make_doc(ctx):
                     fid.write("".join(newoutput))
         ctx.run("make html")
 
-        ctx.run("cp _static/* ../docs/html/_static")
+        ctx.run("cp _static/* ../docs/html/_static", warn=True)
 
     with cd("docs"):
         ctx.run("rm *.html", warn=True)
@@ -78,7 +78,7 @@ def make_doc(ctx):
         ctx.run("rm -r _sources", warn=True)
         ctx.run("rm -r _build", warn=True)
 
-        # This makes sure pymatgen.org works to redirect to the Gihub page
+        # This makes sure pymatgen.org works to redirect to the Github page
         ctx.run("echo \"pymatgen.org\" > CNAME")
         # Avoid the use of jekyll so that _dir works as intended.
         ctx.run("touch .nojekyll")
@@ -203,7 +203,7 @@ def merge_stable(ctx):
 
     :param ctx:
     """
-    ctx.run("git commit -a -m \"v%s release\"" % (NEW_VER, ))
+    ctx.run("git commit -a -m \"v%s release\"" % (NEW_VER, ), warn=True)
     ctx.run("git tag -a v%s -m \"v%s release\"" % (NEW_VER, NEW_VER))
     ctx.run("git push --tags")
     ctx.run("git checkout stable")

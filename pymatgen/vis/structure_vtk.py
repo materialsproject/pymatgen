@@ -189,6 +189,9 @@ class StructureVis:
         self.ren_win.Render()
 
     def orthongonalize_structure(self):
+        """
+        Orthogonalize the structure.
+        """
         if self.structure is not None:
             self.set_structure(self.structure.copy(sanitize=True))
         self.ren_win.Render()
@@ -282,11 +285,11 @@ class StructureVis:
                     max_radius = (1 + self.poly_radii_tol_factor) * (max_radius + anion_radius)
                     nn = structure.get_neighbors(site, float(max_radius))
                     nn_sites = []
-                    for nnsite, dist in nn:
-                        if contains_anion(nnsite):
-                            nn_sites.append(nnsite)
-                            if not in_coord_list(inc_coords, nnsite.coords):
-                                self.add_site(nnsite)
+                    for neighbor in nn:
+                        if contains_anion(neighbor):
+                            nn_sites.append(neighbor)
+                            if not in_coord_list(inc_coords, neighbor.coords):
+                                self.add_site(neighbor)
                     if self.show_bonds:
                         self.add_bonds(nn_sites, site)
                     if self.show_polyhedron:
@@ -376,6 +379,17 @@ class StructureVis:
 
     def add_partial_sphere(self, coords, radius, color, start=0, end=360,
                            opacity=1.0):
+        """
+        Adding a partial sphere (to display partial occupancies.
+
+        Args:
+            coords (nd.array): Coordinates
+            radius (float): Radius of sphere
+            color (): Color of sphere.
+            start (float): Starting angle.
+            end (float): Ending angle.
+            opacity (float): Opacity.
+        """
         sphere = vtk.vtkSphereSource()
         sphere.SetCenter(coords)
         sphere.SetRadius(radius)
@@ -559,6 +573,14 @@ class StructureVis:
         self.ren.AddActor(ac)
 
     def add_faces(self, faces, color, opacity=0.35):
+        """
+        Adding face of polygon.
+
+        Args:
+            faces (): Coordinates of the faces.
+            color (): Color.
+            opacity (float): Opacity
+        """
         for face in faces:
             if len(face) == 3:
                 points = vtk.vtkPoints()
@@ -643,6 +665,13 @@ class StructureVis:
                 raise ValueError("Number of points for a face should be >= 3")
 
     def add_edges(self, edges, type='line', linewidth=2, color=[0.0, 0.0, 0.0]):
+        """
+        Args:
+            edges (): List of edges
+            type ():
+            linewidth (): Width of line
+            color (nd.array/tuple): RGB color.
+        """
         points = vtk.vtkPoints()
         lines = vtk.vtkCellArray()
         for iedge, edge in enumerate(edges):
@@ -710,7 +739,9 @@ class StructureVis:
         self.ren.AddActor(actor)
 
     def add_picker_fixed(self):
-        # Create a cell picker.
+        """
+        Create a cell picker.Returns:
+        """
         picker = vtk.vtkCellPicker()
 
         # Create a Python function to create the text for the text mapper used
@@ -741,7 +772,9 @@ class StructureVis:
         self.iren.SetPicker(picker)
 
     def add_picker(self):
-        # Create a cell picker.
+        """
+        Create a cell picker.
+        """
         picker = vtk.vtkCellPicker()
         # Create a Python function to create the text for the text mapper used
         # to display the results of picking.
@@ -783,6 +816,10 @@ class StructureInteractorStyle(vtkInteractorStyleTrackballCamera):
     """
 
     def __init__(self, parent):
+        """
+        Args:
+            parent ():
+        """
         self.parent = parent
         self.AddObserver("LeftButtonPressEvent", self.leftButtonPressEvent)
         self.AddObserver("MouseMoveEvent", self.mouseMoveEvent)
@@ -790,16 +827,31 @@ class StructureInteractorStyle(vtkInteractorStyleTrackballCamera):
         self.AddObserver("KeyPressEvent", self.keyPressEvent)
 
     def leftButtonPressEvent(self, obj, event):
+        """
+        Args:
+            obj ():
+            event ():
+        """
         self.mouse_motion = 0
         self.OnLeftButtonDown()
         return
 
     def mouseMoveEvent(self, obj, event):
+        """
+        Args:
+            obj ():
+            event ():
+        """
         self.mouse_motion = 1
         self.OnMouseMove()
         return
 
     def leftButtonReleaseEvent(self, obj, event):
+        """
+        Args:
+            obj ():
+            event ():
+        """
         ren = obj.GetCurrentRenderer()
         iren = ren.GetRenderWindow().GetInteractor()
         if self.mouse_motion == 0:
@@ -809,6 +861,11 @@ class StructureInteractorStyle(vtkInteractorStyleTrackballCamera):
         return
 
     def keyPressEvent(self, obj, event):
+        """
+        Args:
+            obj ():
+            event ():
+        """
         parent = obj.GetCurrentRenderer().parent
         sym = parent.iren.GetKeySym()
 
@@ -863,7 +920,7 @@ class StructureInteractorStyle(vtkInteractorStyleTrackballCamera):
 
 def make_movie(structures, output_filename="movie.mp4", zoom=1.0, fps=20,
                bitrate="10000k", quality=1, **kwargs):
-    """
+    r"""
     Generate a movie from a sequence of structures using vtk and ffmpeg.
 
     Args:
@@ -895,6 +952,9 @@ def make_movie(structures, output_filename="movie.mp4", zoom=1.0, fps=20,
 
 
 class MultiStructuresVis(StructureVis):
+    """
+    Visualization for multiple structures.
+    """
     DEFAULT_ANIMATED_MOVIE_OPTIONS = {'time_between_frames': 0.1,
                                       'looping_type': 'restart',
                                       'number_of_loops': 1,
@@ -904,6 +964,28 @@ class MultiStructuresVis(StructureVis):
                  show_bonds=False, show_polyhedron=False,
                  poly_radii_tol_factor=0.5, excluded_bonding_elements=None,
                  animated_movie_options=DEFAULT_ANIMATED_MOVIE_OPTIONS):
+        """
+        Args:
+            element_color_mapping: Optional color mapping for the elements,
+                as a dict of {symbol: rgb tuple}. For example, {"Fe": (255,
+                123,0), ....} If None is specified, a default based on
+                Jmol"s color scheme is used.
+            show_unit_cell: Set to False to not show the unit cell
+                boundaries. Defaults to True.
+            show_bonds: Set to True to show bonds. Defaults to True.
+            show_polyhedron: Set to True to show polyhedrons. Defaults to
+                False.
+            poly_radii_tol_factor: The polyhedron and bonding code uses the
+                ionic radii of the elements or species to determine if two
+                atoms are bonded. This specifies a tolerance scaling factor
+                such that atoms which are (1 + poly_radii_tol_factor) * sum
+                of ionic radii apart are still considered as bonded.
+            excluded_bonding_elements: List of atom types to exclude from
+                bonding determination. Defaults to an empty list. Useful
+                when trying to visualize a certain atom type in the
+                framework (e.g., Li in a Li-ion battery cathode material).
+            animated_movie_options (): Used for moving.
+        """
         super().__init__(element_color_mapping=element_color_mapping,
                          show_unit_cell=show_unit_cell,
                          show_bonds=show_bonds, show_polyhedron=show_polyhedron,
@@ -919,6 +1001,13 @@ class MultiStructuresVis(StructureVis):
         self.set_animated_movie_options(animated_movie_options=animated_movie_options)
 
     def set_structures(self, structures, tags=None):
+        """
+        Add list of structures to the visualizer.
+
+        Args:
+            structures (List of Structures):
+            tags (): List of tags.
+        """
         self.structures = structures
         self.istruct = 0
         self.current_structure = self.structures[self.istruct]
@@ -942,11 +1031,23 @@ class MultiStructuresVis(StructureVis):
         self.set_structure(self.current_structure, reset_camera=True, to_unit_cell=False)
 
     def set_structure(self, structure, reset_camera=True, to_unit_cell=False):
+        """
+        Add a structure to the visualizer.
+
+        Args:
+            structure: structure to visualize
+            reset_camera: Set to True to reset the camera to a default
+                determined based on the structure.
+            to_unit_cell: Whether or not to fall back sites into the unit cell.
+        """
         super().set_structure(structure=structure, reset_camera=reset_camera,
                               to_unit_cell=to_unit_cell)
         self.apply_tags()
 
     def apply_tags(self):
+        """
+        Apply tags.
+        """
         tags = {}
         for tag in self.tags:
             istruct = tag.get('istruct', 'all')
@@ -995,6 +1096,10 @@ class MultiStructuresVis(StructureVis):
                                     opacity=opacity)
 
     def set_animated_movie_options(self, animated_movie_options=None):
+        """
+        Args:
+            animated_movie_options ():
+        """
         if animated_movie_options is None:
             self.animated_movie_options = self.DEFAULT_ANIMATED_MOVIE_OPTIONS.copy()
         else:
@@ -1027,6 +1132,10 @@ class MultiStructuresVis(StructureVis):
         self.helptxt_actor.VisibilityOn()
 
     def display_warning(self, warning):
+        """
+        Args:
+            warning (str): Warning
+        """
         self.warningtxt_mapper = vtk.vtkTextMapper()
         tprops = self.warningtxt_mapper.GetTextProperty()
         tprops.SetFontSize(14)
@@ -1045,9 +1154,16 @@ class MultiStructuresVis(StructureVis):
         self.warningtxt_actor.VisibilityOn()
 
     def erase_warning(self):
+        """
+        Remove warnings.
+        """
         self.warningtxt_actor.VisibilityOff()
 
     def display_info(self, info):
+        """
+        Args:
+            info (str): Information.
+        """
         self.infotxt_mapper = vtk.vtkTextMapper()
         tprops = self.infotxt_mapper.GetTextProperty()
         tprops.SetFontSize(14)
@@ -1066,14 +1182,29 @@ class MultiStructuresVis(StructureVis):
         self.infotxt_actor.VisibilityOn()
 
     def erase_info(self):
+        """
+        Erase all info.
+        """
         self.infotxt_actor.VisibilityOff()
 
 
 class MultiStructuresInteractorStyle(StructureInteractorStyle):
+    """
+    Interactor for MultiStructureVis.
+    """
     def __init__(self, parent):
+        """
+        Args:
+            parent ():
+        """
         StructureInteractorStyle.__init__(self, parent=parent)
 
     def keyPressEvent(self, obj, event):
+        """
+        Args:
+            obj ():
+            event ():
+        """
         parent = obj.GetCurrentRenderer().parent
         sym = parent.iren.GetKeySym()
 

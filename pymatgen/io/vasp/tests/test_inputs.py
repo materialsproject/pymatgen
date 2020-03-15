@@ -3,6 +3,7 @@
 # Distributed under the terms of the MIT License.
 
 import unittest
+import pytest  # type: ignore
 import pickle
 import os
 import numpy as np
@@ -13,7 +14,7 @@ from pathlib import Path
 from monty.tempfile import ScratchDir
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.vasp.inputs import Incar, Poscar, Kpoints, Potcar, \
-    PotcarSingle, VaspInput, BadIncarWarning
+    PotcarSingle, VaspInput, BadIncarWarning, BadPotcarWarning
 from pymatgen import Composition, Structure
 from pymatgen.electronic_structure.core import Magmom
 from monty.io import zopen
@@ -773,6 +774,27 @@ class PotcarSingleTest(PymatgenTest):
         self.assertEqual(psingle.functional_class, 'LDA')
 
         self.assertEqual(psingle.potential_type, 'PAW')
+
+    def test_identify_potcar(self):
+        filename = (self.TEST_FILES_DIR / "POT_GGA_PAW_PBE_54" / "POTCAR.Fe.gz")
+
+        with pytest.warns(None) as warning:
+            psingle = PotcarSingle.from_file(filename)
+        assert "PBE_54" in psingle.identify_potcar()[0]
+        assert not warning
+        assert "Fe" in psingle.identify_potcar()[1]
+
+    def test_potcar_hash_warning(self):
+        filename = (self.TEST_FILES_DIR / "modified_potcars_data" /
+                    "POT_GGA_PAW_PBE" / "POTCAR.Fe_pv")
+        with pytest.warns(BadPotcarWarning, match="integrity"):
+            PotcarSingle.from_file(filename)
+
+    def test_potcar_file_hash_warning(self):
+        filename = (self.TEST_FILES_DIR / "modified_potcars_header" /
+                    "POT_GGA_PAW_PBE" / "POTCAR.Fe_pv")
+        with pytest.warns(BadPotcarWarning, match="following"):
+            PotcarSingle.from_file(filename)
 
     # def test_default_functional(self):
     #     p = PotcarSingle.from_symbol_and_functional("Fe")

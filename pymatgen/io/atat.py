@@ -2,12 +2,13 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from pymatgen import Structure, Lattice, Specie, DummySpecie
-import numpy as np
-
 """
 Classes for reading/writing mcsqs files following the rndstr.in format.
 """
+
+from pymatgen import Structure, Lattice, Specie, DummySpecie
+import numpy as np
+
 
 __author__ = "Matthew Horton"
 __copyright__ = "Copyright 2017, The Materials Project"
@@ -18,12 +19,13 @@ __date__ = "October 2017"
 
 
 class Mcsqs:
+    """
+    Handle input/output for the crystal definition format
+    used by mcsqs and other ATAT codes.
+    """
 
     def __init__(self, structure):
         """
-        Handle input/output for the crystal definition format
-        used by mcsqs and other ATAT codes.
-
         :param structure: input Structure
         """
 
@@ -37,9 +39,7 @@ class Mcsqs:
 
         # add lattice vectors
         m = self.structure.lattice.matrix
-        output = ["{:6f} {:6f} {:6f}".format(*m[0]),
-                  "{:6f} {:6f} {:6f}".format(*m[1]),
-                  "{:6f} {:6f} {:6f}".format(*m[2])]
+        output = ["{:6f} {:6f} {:6f}".format(*l) for l in m]
 
         # define coord system, use Cartesian
         output.append("1.0 0.0 0.0")

@@ -2,6 +2,12 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+
+"""
+This module implements input and output processing from PWSCF.
+"""
+
+
 import re
 
 from monty.io import zopen
@@ -14,9 +20,6 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.util.io_utils import clean_lines
 
-"""
-This module implements input and output processing from PWSCF.
-"""
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Virtual Lab"
@@ -399,10 +402,16 @@ class PWInput:
 
 
 class PWInputError(BaseException):
+    """
+    Error for PWInput
+    """
     pass
 
 
 class PWOutput:
+    """
+    Parser for PWSCF output file.
+    """
     patterns = {
         "energies": r'total energy\s+=\s+([\d\.\-]+)\sRy',
         "ecut": r'kinetic\-energy cutoff\s+=\s+([\d\.\-]+)\s+Ry',
@@ -417,6 +426,10 @@ class PWOutput:
     }
 
     def __init__(self, filename):
+        """
+        Args:
+            filename (str): Filename
+        """
         self.filename = filename
         self.data = defaultdict(list)
         self.read_pattern(PWOutput.patterns)
@@ -430,7 +443,7 @@ class PWOutput:
 
     def read_pattern(self, patterns, reverse=False,
                      terminate_on_match=False, postprocess=str):
-        """
+        r"""
         General pattern reading. Uses monty's regrep method. Takes the same
         arguments.
 
@@ -459,12 +472,25 @@ class PWOutput:
         self.data.update(matches)
 
     def get_celldm(self, i):
+        """
+        Args:
+            i (int): index
+
+        Returns:
+            Cell dimension along index
+        """
         return self.data["celldm%d" % i]
 
     @property
     def final_energy(self):
+        """
+        Returns: Final energy
+        """
         return self.data["energies"][-1]
 
     @property
     def lattice_type(self):
+        """
+        Returns: Lattice type.
+        """
         return self.data["lattice_type"]

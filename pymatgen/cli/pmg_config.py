@@ -4,7 +4,7 @@
 # Distributed under the terms of the MIT License.
 
 """
-A master convenience script with many tools for vasp and structure analysis.
+Implementation for `pmg config` CLI.
 """
 
 

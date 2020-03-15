@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.qchem.sets &#8212; pymatgen 2019.11.11 documentation</title>
+    <title>pymatgen.io.qchem.sets &#8212; pymatgen 2020.3.2 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -32,7 +32,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.11.11 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -48,13 +48,16 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Input sets for Qchem</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">monty.io</span> <span class="k">import</span> <span class="n">zopen</span>
-<span class="kn">from</span> <span class="nn">pymatgen.io.qchem.inputs</span> <span class="k">import</span> <span class="n">QCInput</span>
-<span class="kn">from</span> <span class="nn">pymatgen.io.qchem.utils</span> <span class="k">import</span> <span class="n">lower_and_check_unique</span>
+<span class="kn">from</span> <span class="nn">monty.io</span> <span class="kn">import</span> <span class="n">zopen</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.qchem.inputs</span> <span class="kn">import</span> <span class="n">QCInput</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.qchem.utils</span> <span class="kn">import</span> <span class="n">lower_and_check_unique</span>
 
-<span class="c1"># Classes for reading/manipulating/writing QChem output files.</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Samuel Blau, Brandon Wood, Shyam Dwaraknath&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2018, The Materials Project&quot;</span>
@@ -68,7 +71,7 @@
 <span class="sd">    Build a QCInput given all the various input parameters. Can be extended by standard implementations below.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                  <span class="n">molecule</span><span class="p">,</span>
                  <span class="n">job_type</span><span class="p">,</span>
                  <span class="n">basis_set</span><span class="p">,</span>
@@ -195,6 +198,10 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">molecule</span><span class="p">,</span> <span class="n">rem</span><span class="o">=</span><span class="n">myrem</span><span class="p">,</span> <span class="n">pcm</span><span class="o">=</span><span class="n">mypcm</span><span class="p">,</span> <span class="n">solvent</span><span class="o">=</span><span class="n">mysolvent</span><span class="p">,</span> <span class="n">smx</span><span class="o">=</span><span class="n">mysmx</span><span class="p">)</span>
 
 <div class="viewcode-block" id="QChemDictSet.write"><a class="viewcode-back" href="../../../../pymatgen.io.qchem.sets.html#pymatgen.io.qchem.sets.QChemDictSet.write">[docs]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_file</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            input_file (str): Filename</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="n">input_file</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">smd_solvent</span> <span class="o">==</span> <span class="s2">&quot;custom&quot;</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">smd_solvent</span> <span class="o">==</span> <span class="s2">&quot;other&quot;</span><span class="p">:</span>
             <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">input_file</span><span class="p">),</span> <span class="s2">&quot;solvent_data&quot;</span><span class="p">),</span> <span class="s1">&#39;wt&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
@@ -206,7 +213,7 @@
 <span class="sd">    QChemDictSet for a geometry optimization</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                  <span class="n">molecule</span><span class="p">,</span>
                  <span class="n">dft_rung</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
                  <span class="n">basis_set</span><span class="o">=</span><span class="s2">&quot;def2-tzvppd&quot;</span><span class="p">,</span>
@@ -217,6 +224,19 @@
                  <span class="n">max_scf_cycles</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
                  <span class="n">geom_opt_max_cycles</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
                  <span class="n">overwrite_inputs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            molecule ():</span>
+<span class="sd">            dft_rung ():</span>
+<span class="sd">            basis_set ():</span>
+<span class="sd">            pcm_dielectric ():</span>
+<span class="sd">            smd_solvent ():</span>
+<span class="sd">            custom_smd ():</span>
+<span class="sd">            scf_algorithm ():</span>
+<span class="sd">            max_scf_cycles ():</span>
+<span class="sd">            geom_opt_max_cycles ():</span>
+<span class="sd">            overwrite_inputs ():</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">basis_set</span> <span class="o">=</span> <span class="n">basis_set</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">scf_algorithm</span> <span class="o">=</span> <span class="n">scf_algorithm</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_scf_cycles</span> <span class="o">=</span> <span class="n">max_scf_cycles</span>
@@ -240,7 +260,7 @@
 <span class="sd">    QChemDictSet for a single point calculation</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                  <span class="n">molecule</span><span class="p">,</span>
                  <span class="n">dft_rung</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
                  <span class="n">basis_set</span><span class="o">=</span><span class="s2">&quot;def2-tzvppd&quot;</span><span class="p">,</span>
@@ -250,6 +270,19 @@
                  <span class="n">scf_algorithm</span><span class="o">=</span><span class="s2">&quot;diis&quot;</span><span class="p">,</span>
                  <span class="n">max_scf_cycles</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
                  <span class="n">overwrite_inputs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            molecule ():</span>
+<span class="sd">            dft_rung ():</span>
+<span class="sd">            basis_set ():</span>
+<span class="sd">            pcm_dielectric ():</span>
+<span class="sd">            smd_solvent ():</span>
+<span class="sd">            custom_smd ():</span>
+<span class="sd">            scf_algorithm ():</span>
+<span class="sd">            max_scf_cycles ():</span>
+<span class="sd">            overwrite_inputs ():</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">basis_set</span> <span class="o">=</span> <span class="n">basis_set</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">scf_algorithm</span> <span class="o">=</span> <span class="n">scf_algorithm</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_scf_cycles</span> <span class="o">=</span> <span class="n">max_scf_cycles</span>
@@ -271,7 +304,7 @@
 <span class="sd">    QChemDictSet for a single point calculation</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                  <span class="n">molecule</span><span class="p">,</span>
                  <span class="n">dft_rung</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
                  <span class="n">basis_set</span><span class="o">=</span><span class="s2">&quot;def2-tzvppd&quot;</span><span class="p">,</span>
@@ -281,6 +314,18 @@
                  <span class="n">scf_algorithm</span><span class="o">=</span><span class="s2">&quot;diis&quot;</span><span class="p">,</span>
                  <span class="n">max_scf_cycles</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
                  <span class="n">overwrite_inputs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            molecule ():</span>
+<span class="sd">            dft_rung ():</span>
+<span class="sd">            basis_set ():</span>
+<span class="sd">            pcm_dielectric ():</span>
+<span class="sd">            smd_solvent ():</span>
+<span class="sd">            custom_smd ():</span>
+<span class="sd">            scf_algorithm ():</span>
+<span class="sd">            max_scf_cycles ():</span>
+<span class="sd">            overwrite_inputs ():</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">basis_set</span> <span class="o">=</span> <span class="n">basis_set</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">scf_algorithm</span> <span class="o">=</span> <span class="n">scf_algorithm</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_scf_cycles</span> <span class="o">=</span> <span class="n">max_scf_cycles</span>
@@ -325,7 +370,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.11.11 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -333,7 +378,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

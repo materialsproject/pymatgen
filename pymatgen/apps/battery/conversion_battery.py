@@ -2,6 +2,10 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+This module contains the classes to build a ConversionElectrode.
+"""
+
 from scipy.constants import N_A
 
 from pymatgen.core.periodic_table import Element
@@ -13,18 +17,6 @@ from pymatgen.apps.battery.battery_abc import AbstractElectrode, \
     AbstractVoltagePair
 from pymatgen.analysis.phase_diagram import PhaseDiagram
 from monty.json import MontyDecoder
-
-"""
-This module contains the classes to build a ConversionElectrode.
-"""
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Feb 1, 2012"
-__status__ = "Beta"
 
 
 class ConversionElectrode(AbstractElectrode):
@@ -149,11 +141,14 @@ class ConversionElectrode(AbstractElectrode):
         return sub_electrodes
 
     @property
-    def composition(self):
+    def composition(self) -> Composition:
+        """
+        Returns: Composition
+        """
         return self._composition
 
     @property
-    def working_ion(self):
+    def working_ion(self) -> Element:
         """
         The working ion as an Element object
         """
@@ -161,10 +156,16 @@ class ConversionElectrode(AbstractElectrode):
 
     @property
     def working_ion_entry(self):
+        """
+        Returns: Working ion as an entry.
+        """
         return self._working_ion_entry
 
     @property
     def voltage_pairs(self):
+        """
+        Returns: All voltage pairs.
+        """
         return self._vpairs
 
     def is_super_electrode(self, conversion_electrode):
@@ -234,12 +235,22 @@ class ConversionElectrode(AbstractElectrode):
 
     @classmethod
     def from_dict(cls, d):
+        """
+        Args:
+            d (dict): Dict representation
+
+        Returns:
+            ConversionElectrode
+        """
         dec = MontyDecoder()
         return cls(dec.process_decoded(d["voltage_pairs"]),
                    dec.process_decoded(d["working_ion_entry"]),
                    Composition(d["initial_comp"]))
 
     def as_dict(self):
+        """
+        Returns: MSONable dict.
+        """
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "voltage_pairs": [v.as_dict() for v in self._vpairs],
@@ -308,25 +319,26 @@ class ConversionVoltagePair(AbstractVoltagePair):
     """
     A VoltagePair representing a Conversion Reaction with a defined voltage.
     Typically not initialized directly but rather used by ConversionElectrode.
-
-    Args:
-        balanced_rxn (BalancedReaction): BalancedReaction for the step
-        voltage (float): Voltage for the step
-        mAh (float): Capacity of the step
-        vol_charge (float): Volume of charged state
-        vol_discharge (float): Volume of discharged state
-        mass_charge (float): Mass of charged state
-        mass_discharge (float): Mass of discharged state
-        frac_charge (float): Fraction of working ion in the charged state
-        frac_discharge (float): Fraction of working ion in the discharged state
-        entries_charge ([ComputedEntry]): Entries in the charged state
-        entries_discharge ([ComputedEntry]): Entries in discharged state
-        working_ion_entry (ComputedEntry): Entry of the working ion.
     """
 
     def __init__(self, balanced_rxn, voltage, mAh, vol_charge, vol_discharge,
                  mass_charge, mass_discharge, frac_charge, frac_discharge,
                  entries_charge, entries_discharge, working_ion_entry):
+        """
+        Args:
+            balanced_rxn (BalancedReaction): BalancedReaction for the step
+            voltage (float): Voltage for the step
+            mAh (float): Capacity of the step
+            vol_charge (float): Volume of charged state
+            vol_discharge (float): Volume of discharged state
+            mass_charge (float): Mass of charged state
+            mass_discharge (float): Mass of discharged state
+            frac_charge (float): Fraction of working ion in the charged state
+            frac_discharge (float): Fraction of working ion in the discharged state
+            entries_charge ([ComputedEntry]): Entries in the charged state
+            entries_discharge ([ComputedEntry]): Entries in discharged state
+            working_ion_entry (ComputedEntry): Entry of the working ion.
+        """
         self._working_ion_entry = working_ion_entry
         working_ion = self._working_ion_entry.composition.elements[0].symbol
         self._voltage = voltage
@@ -420,54 +432,93 @@ class ConversionVoltagePair(AbstractVoltagePair):
 
     @property
     def working_ion(self):
+        """
+        Returns: working ion
+        """
         return self._working_ion
 
     @property
     def entries_charge(self):
+        """
+        Returns: Entries pertaining to charged electrode.
+        """
         return self._entries_charge
 
     @property
     def entries_discharge(self):
+        """
+        Returns: Entries pertaining to discharged electrode.
+        """
         return self._entries_discharge
 
     @property
     def frac_charge(self):
+        """
+        Returns: Amount of working ion at charge
+        """
         return self._frac_charge
 
     @property
     def frac_discharge(self):
+        """
+        Returns: Amount of working ion at discharge
+        """
         return self._frac_discharge
 
     @property
     def rxn(self):
+        """
+        Returns: Reaction representing the conversion.
+        """
         return self._rxn
 
     @property
     def voltage(self):
+        """
+        Returns: Voltage of electrode
+        """
         return self._voltage
 
     @property
     def mAh(self):
+        """
+        Returns: Energy in mAh.
+        """
         return self._mAh
 
     @property
     def mass_charge(self):
+        """
+        Returns: Mass of charged electrode.
+        """
         return self._mass_charge
 
     @property
     def mass_discharge(self):
+        """
+        Returns: Mass of discharged electrode.
+        """
         return self._mass_discharge
 
     @property
     def vol_charge(self):
+        """
+        Returns: Volume of charged electrode.
+        """
         return self._vol_charge
 
     @property
     def vol_discharge(self):
+        """
+        Returns: Volume of discharged electrode.
+        """
         return self._vol_discharge
 
     @property
     def working_ion_entry(self):
+        """
+        Returns: Working ion entry
+        """
         return self._working_ion_entry
 
     def __repr__(self):
@@ -488,6 +539,13 @@ class ConversionVoltagePair(AbstractVoltagePair):
 
     @classmethod
     def from_dict(cls, d):
+        """
+        Args:
+            d (dict): Dict representation
+
+        Returns:
+            ConversionVoltagePair
+        """
         dec = MontyDecoder()
         working_ion_entry = dec.process_decoded(d["working_ion_entry"])
         balanced_rxn = dec.process_decoded(d["balanced_rxn"])
@@ -501,6 +559,9 @@ class ConversionVoltagePair(AbstractVoltagePair):
                                      working_ion_entry)
 
     def as_dict(self):
+        """
+        Returns: MSONable dict
+        """
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "working_ion_entry": self._working_ion_entry.as_dict(),

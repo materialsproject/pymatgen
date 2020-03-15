@@ -33,9 +33,6 @@ class CovalentRadius():
     Beatriz C. et al. Dalton Trans. 2008, 2832-2838. DOI: 10.1039/b801115j
     """
 
-    def __init__(self):
-        pass
-
     radius = {'H': 0.31, 'He': 0.28, 'Li': 1.28, 'Be': 0.96,
               'B': 0.84, 'C': 0.73, 'N': 0.71, 'O': 0.66,
               'F': 0.57, 'Ne': 0.58, 'Na': 1.66, 'Mg': 1.41,
@@ -63,23 +60,9 @@ class CovalentRadius():
 
 
 class MoleculeStructureComparator(MSONable):
-
     """
     Class to check whether the connection tables of the two molecules are the
     same. The atom in the two molecule must be paired accordingly.
-
-    Args:
-        bond_length_cap: The ratio of the elongation of the bond to be
-            acknowledged. If the distance between two atoms is less than (
-            empirical covalent bond length) X (1 + bond_length_cap), the bond
-            between the two atoms will be acknowledged.
-        covalent_radius: The covalent radius of the atoms.
-            dict (element symbol -> radius)
-        priority_bonds: The bonds that are known to be existed in the initial
-            molecule. Such bonds will be acknowledged in a loose criteria.
-            The index should start from 0.
-        priority_cap: The ratio of the elongation of the bond to be
-            acknowledged for the priority bonds.
     """
 
     ionic_element_list = ['Na', 'Mg', 'Al', 'Sc', 'V', 'Cr', "Mn", 'Fe', 'Co', 'Ni',
@@ -92,6 +75,20 @@ class MoleculeStructureComparator(MSONable):
                  priority_cap=0.8,
                  ignore_ionic_bond=True,
                  bond_13_cap=0.05):
+        """
+        Args:
+            bond_length_cap: The ratio of the elongation of the bond to be
+                acknowledged. If the distance between two atoms is less than (
+                empirical covalent bond length) X (1 + bond_length_cap), the bond
+                between the two atoms will be acknowledged.
+            covalent_radius: The covalent radius of the atoms.
+                dict (element symbol -> radius)
+            priority_bonds: The bonds that are known to be existed in the initial
+                molecule. Such bonds will be acknowledged in a loose criteria.
+                The index should start from 0.
+            priority_cap: The ratio of the elongation of the bond to be
+                acknowledged for the priority bonds.
+        """
         self.bond_length_cap = bond_length_cap
         self.covalent_radius = covalent_radius
         self.priority_bonds = [tuple(sorted(b)) for b in priority_bonds]
@@ -114,6 +111,13 @@ class MoleculeStructureComparator(MSONable):
 
     @staticmethod
     def get_13_bonds(priority_bonds):
+        """
+        Args:
+            priority_bonds ():
+
+        Returns:
+
+        """
         all_bond_pairs = list(itertools.combinations(priority_bonds, r=2))
         all_2_bond_atoms = [set(b1+b2) for b1, b2 in all_bond_pairs]
         all_13_bond_atoms = [a for a in all_2_bond_atoms if len(a) == 3]
@@ -167,6 +171,9 @@ class MoleculeStructureComparator(MSONable):
         return bonds
 
     def as_dict(self):
+        """
+        Returns: MSONable dict
+        """
         return {"version": __version__, "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "bond_length_cap": self.bond_length_cap,
@@ -176,6 +183,14 @@ class MoleculeStructureComparator(MSONable):
 
     @classmethod
     def from_dict(cls, d):
+        """
+        Args:
+            d (dict): Dict representation
+
+        Returns:
+            MoleculeStructureComparator
+        """
+
         return MoleculeStructureComparator(
             bond_length_cap=d["bond_length_cap"],
             covalent_radius=d["covalent_radius"],

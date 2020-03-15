@@ -7,25 +7,26 @@ Module for reading Lobster output files. For more information
 on LOBSTER see www.cohp.de.
 """
 
-import re
-import numpy as np
 import collections
-import os
-from monty.io import zopen
-from monty.serialization import loadfn
-from monty.json import MSONable
 import fnmatch
 import itertools
+import os
+import re
 import warnings
-import spglib
-from typing import Dict, Any, Optional, List
 from collections import defaultdict
-from pymatgen.electronic_structure.core import Spin, Orbital
-from pymatgen.io.vasp.outputs import Vasprun
-from pymatgen.electronic_structure.dos import Dos, LobsterCompleteDos
-from pymatgen.electronic_structure.bandstructure import LobsterBandStructureSymmLine
+from typing import Dict, Any, Optional, List
+
+import numpy as np
+import spglib
+from monty.io import zopen
+from monty.json import MSONable
+from monty.serialization import loadfn
 from pymatgen.core.structure import Structure
+from pymatgen.electronic_structure.bandstructure import LobsterBandStructureSymmLine
+from pymatgen.electronic_structure.core import Spin, Orbital
+from pymatgen.electronic_structure.dos import Dos, LobsterCompleteDos
 from pymatgen.io.vasp.inputs import Incar, Kpoints, Potcar
+from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 
 __author__ = "Janine George, Marco Esters"
@@ -253,7 +254,7 @@ class Icohplist:
 
         # LOBSTER list files have an extra trailing blank line
         # and we don't need the header.
-        with zopen(filename) as f:
+        with zopen(filename, 'rt') as f:
             data = f.read().split("\n")[1:-1]
         if len(data) == 0:
             raise IOError("ICOHPLIST file contains no data.")
@@ -848,7 +849,7 @@ class Lobsterout:
         for row in data:
             splitrow = row.split()
             if len(splitrow) > 11:
-                if (splitrow[11]) == "threads":
+                if (splitrow[11]) == "threads" or (splitrow[11] == "thread"):
                     return splitrow[10]
 
     def _get_spillings(self, data, number_of_spins):

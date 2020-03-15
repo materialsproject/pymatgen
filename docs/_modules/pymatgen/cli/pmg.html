@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.cli.pmg &#8212; pymatgen 2019.11.11 documentation</title>
+    <title>pymatgen.cli.pmg &#8212; pymatgen 2020.3.2 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -32,7 +32,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.11.11 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -57,17 +57,17 @@
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">itertools</span>
 
-<span class="kn">from</span> <span class="nn">tabulate</span> <span class="k">import</span> <span class="n">tabulate</span><span class="p">,</span> <span class="n">tabulate_formats</span>
-<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="k">import</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">SETTINGS</span>
-<span class="kn">from</span> <span class="nn">pymatgen.io.vasp</span> <span class="k">import</span> <span class="n">Incar</span><span class="p">,</span> <span class="n">Potcar</span>
+<span class="kn">from</span> <span class="nn">tabulate</span> <span class="kn">import</span> <span class="n">tabulate</span><span class="p">,</span> <span class="n">tabulate_formats</span>
+<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">SETTINGS</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.vasp</span> <span class="kn">import</span> <span class="n">Incar</span><span class="p">,</span> <span class="n">Potcar</span>
 
-<span class="kn">from</span> <span class="nn">pymatgen.cli.pmg_analyze</span> <span class="k">import</span> <span class="n">analyze</span>
-<span class="kn">from</span> <span class="nn">pymatgen.cli.pmg_config</span> <span class="k">import</span> <span class="n">configure_pmg</span>
-<span class="kn">from</span> <span class="nn">pymatgen.cli.pmg_potcar</span> <span class="k">import</span> <span class="n">generate_potcar</span>
-<span class="kn">from</span> <span class="nn">pymatgen.cli.pmg_plot</span> <span class="k">import</span> <span class="n">plot</span>
-<span class="kn">from</span> <span class="nn">pymatgen.cli.pmg_structure</span> <span class="k">import</span> <span class="n">analyze_structures</span>
-<span class="kn">from</span> <span class="nn">pymatgen.cli.pmg_query</span> <span class="k">import</span> <span class="n">do_query</span>
-<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="k">import</span> <span class="n">__version__</span>
+<span class="kn">from</span> <span class="nn">pymatgen.cli.pmg_analyze</span> <span class="kn">import</span> <span class="n">analyze</span>
+<span class="kn">from</span> <span class="nn">pymatgen.cli.pmg_config</span> <span class="kn">import</span> <span class="n">configure_pmg</span>
+<span class="kn">from</span> <span class="nn">pymatgen.cli.pmg_potcar</span> <span class="kn">import</span> <span class="n">generate_potcar</span>
+<span class="kn">from</span> <span class="nn">pymatgen.cli.pmg_plot</span> <span class="kn">import</span> <span class="n">plot</span>
+<span class="kn">from</span> <span class="nn">pymatgen.cli.pmg_structure</span> <span class="kn">import</span> <span class="n">analyze_structures</span>
+<span class="kn">from</span> <span class="nn">pymatgen.cli.pmg_query</span> <span class="kn">import</span> <span class="n">do_query</span>
+<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">__version__</span>
 
 
 <div class="viewcode-block" id="parse_view"><a class="viewcode-back" href="../../../pymatgen.cli.pmg.html#pymatgen.cli.pmg.parse_view">[docs]</a><span class="k">def</span> <span class="nf">parse_view</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
@@ -76,13 +76,14 @@
 
 <span class="sd">    :param args: Args from command.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="kn">from</span> <span class="nn">pymatgen.vis.structure_vtk</span> <span class="k">import</span> <span class="n">StructureVis</span>
+    <span class="kn">from</span> <span class="nn">pymatgen.vis.structure_vtk</span> <span class="kn">import</span> <span class="n">StructureVis</span>
     <span class="n">excluded_bonding_elements</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">exclude_bonding</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span> \
         <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">exclude_bonding</span> <span class="k">else</span> <span class="p">[]</span>
     <span class="n">s</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">filename</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
     <span class="n">vis</span> <span class="o">=</span> <span class="n">StructureVis</span><span class="p">(</span><span class="n">excluded_bonding_elements</span><span class="o">=</span><span class="n">excluded_bonding_elements</span><span class="p">)</span>
     <span class="n">vis</span><span class="o">.</span><span class="n">set_structure</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
-    <span class="n">vis</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+    <span class="n">vis</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="k">return</span> <span class="mi">0</span></div>
 
 
 <div class="viewcode-block" id="diff_incar"><a class="viewcode-back" href="../../../pymatgen.cli.pmg.html#pymatgen.cli.pmg.diff_incar">[docs]</a><span class="k">def</span> <span class="nf">diff_incar</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
@@ -111,7 +112,8 @@
     <span class="n">output</span><span class="o">.</span><span class="n">extend</span><span class="p">([(</span><span class="n">k</span><span class="p">,</span> <span class="n">format_lists</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;Different&#39;</span><span class="p">][</span><span class="n">k</span><span class="p">][</span><span class="s1">&#39;INCAR1&#39;</span><span class="p">]),</span>
                     <span class="n">format_lists</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;Different&#39;</span><span class="p">][</span><span class="n">k</span><span class="p">][</span><span class="s1">&#39;INCAR2&#39;</span><span class="p">]))</span>
                    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;Different&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="s2">&quot;SYSTEM&quot;</span><span class="p">])</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">tabulate</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">filepath1</span><span class="p">,</span> <span class="n">filepath2</span><span class="p">]))</span></div>
+    <span class="nb">print</span><span class="p">(</span><span class="n">tabulate</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">filepath1</span><span class="p">,</span> <span class="n">filepath2</span><span class="p">]))</span>
+    <span class="k">return</span> <span class="mi">0</span></div>
 
 
 <div class="viewcode-block" id="main"><a class="viewcode-back" href="../../../pymatgen.cli.pmg.html#pymatgen.cli.pmg.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
@@ -339,8 +341,8 @@
         <span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;func&quot;</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
         <span class="n">parser</span><span class="o">.</span><span class="n">print_help</span><span class="p">()</span>
-        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-    <span class="n">args</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="n">args</span><span class="p">)</span></div>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">args</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="n">args</span><span class="p">)</span></div>
 
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
@@ -375,7 +377,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.11.11 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -383,7 +385,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

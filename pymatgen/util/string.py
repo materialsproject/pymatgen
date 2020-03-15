@@ -7,14 +7,6 @@ This module provides utility classes for string operations.
 import re
 from fractions import Fraction
 
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "1.0"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__status__ = "Production"
-__date__ = "Sep 23, 2011"
-
 
 def str_delimited(results, header=None, delimiter="\t"):
     """
@@ -366,19 +358,30 @@ def disordered_formula(disordered_struct, symbols=('x', 'y', 'z'), fmt='plain'):
 
 
 class StringColorizer:
-    colours = {"default": "",
-               "blue": "\x1b[01;34m",
-               "cyan": "\x1b[01;36m",
-               "green": "\x1b[01;32m",
-               "red": "\x1b[01;31m",
-               # lighting colours.
-               # "lred":    "\x1b[01;05;37;41m"
-               }
+    """
+    Provides coloring for strings in terminals.
+    """
+
+    colours = {
+        "default": "",
+        "blue": "\x1b[01;34m",
+        "cyan": "\x1b[01;36m",
+        "green": "\x1b[01;32m",
+        "red": "\x1b[01;31m",
+    }
 
     def __init__(self, stream):
+        """
+        :param stream: Input stream
+        """
         self.has_colours = stream_has_colours(stream)
 
     def __call__(self, string, colour):
+        """
+        :param string: Actual string
+        :param colour: Color to assign.
+        :return: Colored string.
+        """
         if self.has_colours:
             code = self.colours.get(colour.lower(), "")
             if code:
@@ -391,5 +394,4 @@ class StringColorizer:
 
 if __name__ == "__main__":
     import doctest
-
     doctest.testmod()

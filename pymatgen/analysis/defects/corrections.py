@@ -2,6 +2,10 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+Implementation of defect correction methods.
+"""
+
 import logging
 import numpy as np
 import scipy
@@ -611,10 +615,25 @@ class KumagaiCorrection(DefectCorrection):
         return recip_part
 
     def get_self_interaction(self, gamma):
+        """
+        Args:
+            gamma ():
+
+        Returns:
+            Self-interaction energy of defect.
+        """
         determ = np.linalg.det(self.dielectric)
         return - gamma / (2. * np.pi * np.sqrt(np.pi * determ))
 
     def get_potential_shift(self, gamma, volume):
+        """
+        Args:
+            gamma (float): Gamma
+            volume (float): Volume.
+
+        Returns:
+            Potential shift for defect.
+        """
         return - 0.25 / (volume * gamma ** 2.)
 
     def plot(self, title=None, saved=False):

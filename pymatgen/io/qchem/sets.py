@@ -2,13 +2,16 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+Input sets for Qchem
+"""
+
 import logging
 import os
 from monty.io import zopen
 from pymatgen.io.qchem.inputs import QCInput
 from pymatgen.io.qchem.utils import lower_and_check_unique
 
-# Classes for reading/manipulating/writing QChem output files.
 
 __author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath"
 __copyright__ = "Copyright 2018, The Materials Project"
@@ -149,6 +152,10 @@ class QChemDictSet(QCInput):
             self.molecule, rem=myrem, pcm=mypcm, solvent=mysolvent, smx=mysmx)
 
     def write(self, input_file):
+        """
+        Args:
+            input_file (str): Filename
+        """
         self.write_file(input_file)
         if self.smd_solvent == "custom" or self.smd_solvent == "other":
             with zopen(os.path.join(os.path.dirname(input_file), "solvent_data"), 'wt') as f:
@@ -171,6 +178,19 @@ class OptSet(QChemDictSet):
                  max_scf_cycles=200,
                  geom_opt_max_cycles=200,
                  overwrite_inputs=None):
+        """
+        Args:
+            molecule ():
+            dft_rung ():
+            basis_set ():
+            pcm_dielectric ():
+            smd_solvent ():
+            custom_smd ():
+            scf_algorithm ():
+            max_scf_cycles ():
+            geom_opt_max_cycles ():
+            overwrite_inputs ():
+        """
         self.basis_set = basis_set
         self.scf_algorithm = scf_algorithm
         self.max_scf_cycles = max_scf_cycles
@@ -204,6 +224,19 @@ class SinglePointSet(QChemDictSet):
                  scf_algorithm="diis",
                  max_scf_cycles=200,
                  overwrite_inputs=None):
+        """
+
+        Args:
+            molecule ():
+            dft_rung ():
+            basis_set ():
+            pcm_dielectric ():
+            smd_solvent ():
+            custom_smd ():
+            scf_algorithm ():
+            max_scf_cycles ():
+            overwrite_inputs ():
+        """
         self.basis_set = basis_set
         self.scf_algorithm = scf_algorithm
         self.max_scf_cycles = max_scf_cycles
@@ -235,6 +268,18 @@ class FreqSet(QChemDictSet):
                  scf_algorithm="diis",
                  max_scf_cycles=200,
                  overwrite_inputs=None):
+        """
+        Args:
+            molecule ():
+            dft_rung ():
+            basis_set ():
+            pcm_dielectric ():
+            smd_solvent ():
+            custom_smd ():
+            scf_algorithm ():
+            max_scf_cycles ():
+            overwrite_inputs ():
+        """
         self.basis_set = basis_set
         self.scf_algorithm = scf_algorithm
         self.max_scf_cycles = max_scf_cycles

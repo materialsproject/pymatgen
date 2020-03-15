@@ -3,6 +3,10 @@
 # Distributed under the terms of the MIT License.
 
 
+"""
+Implementation for `pmg analyze` CLI.
+"""
+
 import os
 import re
 import logging
@@ -14,10 +18,6 @@ from pymatgen.io.vasp import Outcar
 from pymatgen.apps.borg.hive import SimpleVaspToComputedEntryDrone, \
     VaspToComputedEntryDrone
 from pymatgen.apps.borg.queen import BorgQueen
-
-"""
-A master convenience script with many tools for vasp and structure analysis.
-"""
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -31,7 +31,15 @@ SAVE_FILE = "vasp_data.gz"
 
 def get_energies(rootdir, reanalyze, verbose, quick, sort, fmt):
     """
-    Doc string.
+    Get energies of all vaspruns in directory (nested).
+    Args:
+        rootdir (str): Root directory.
+        reanalyze (bool): Whether to ignore saved results and reanalyze
+        verbose (bool): Verbose mode or not.
+        quick (bool): Whether to perform a quick analysis (using OSZICAR instead
+            of vasprun.xml
+        sort (bool): Whether to sort the results in ascending order.
+        fmt (str): tablefmt passed to tabulate.
     """
     if verbose:
         logformat = "%(relativeCreated)d msecs : %(message)s"
@@ -87,9 +95,20 @@ def get_energies(rootdir, reanalyze, verbose, quick, sort, fmt):
     else:
         print("No valid vasp run found.")
         os.unlink(SAVE_FILE)
+    return 0
 
 
 def get_magnetizations(mydir, ion_list):
+    """
+    Get magnetization info from OUTCARs.
+
+    Args:
+        mydir (str): Directory name
+        ion_list (List): List of ions to obtain magnetization information for.
+
+    Returns:
+
+    """
     data = []
     max_row = 0
     for (parent, subdirs, files) in os.walk(mydir):
@@ -120,15 +139,22 @@ def get_magnetizations(mydir, ion_list):
     for i in range(max_row):
         headers.append(str(i))
     print(tabulate(data, headers))
+    return 0
 
 
 def analyze(args):
+    """
+    Master function controlling which analysis to call.
+
+    Args:
+        args (dict): args from argparse.
+    """
     default_energies = not (args.get_energies or args.ion_list)
 
     if args.get_energies or default_energies:
         for d in args.directories:
-            get_energies(d, args.reanalyze, args.verbose,
-                         args.quick, args.sort, args.format)
+            return get_energies(d, args.reanalyze, args.verbose,
+                                args.quick, args.sort, args.format)
     if args.ion_list:
         if args.ion_list[0] == "All":
             ion_list = None
@@ -136,4 +162,6 @@ def analyze(args):
             (start, end) = [int(i) for i in re.split(r"-", args.ion_list[0])]
             ion_list = list(range(start, end + 1))
         for d in args.directories:
-            get_magnetizations(d, ion_list)
+            return get_magnetizations(d, ion_list)
+
+    return -1

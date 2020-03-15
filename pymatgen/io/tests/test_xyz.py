@@ -97,6 +97,21 @@ C  -4.440892098501D-01 -1.116307996198d+01  1.933502166311E+01
         self.assertAlmostEqual(mol[2].y, -11.16307996198)
         # self.assertTrue(abs(mol[1].z) < 1e-5)
 
+        mol_str = """    5
+C32-C2-1                                                                        
+ C     2.70450   1.16090  -0.14630     1     3    23     2
+ C     1.61930   1.72490  -0.79330     2     1     5    26
+ C     2.34210   1.02670   1.14620     3     1     8     6
+ C    -0.68690   2.16170  -0.13790     4     5    18     7
+ C     0.67160   2.15830   0.14350     5     4     2     6
+ """
+        xyz = XYZ.from_string(mol_str)
+        mol = xyz.molecule
+        self.assertAlmostEqual(mol[0].x, 2.70450)
+        self.assertAlmostEqual(mol[1].y, 1.72490)
+        self.assertAlmostEqual(mol[2].x, 2.34210)
+        self.assertAlmostEqual(mol[3].z, -0.13790)
+
     def test_from_file(self):
         filepath = os.path.join(test_dir, 'multiple_frame_xyz.xyz')
         mxyz = XYZ.from_file(filepath)

@@ -2,10 +2,12 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from pymatgen.transformations.transformation_abc import AbstractTransformation
 """
 This module defines classes for point defect transformations on structures
 """
+
+from pymatgen.transformations.transformation_abc import AbstractTransformation
+
 
 __author__ = "Danny Broberg, Shyam Dwaraknath"
 __copyright__ = "Copyright 2018, The Materials Project"
@@ -51,8 +53,14 @@ class DefectTransformation(AbstractTransformation):
 
     @property
     def inverse(self):
+        """
+        Not implemented
+        """
         raise NotImplementedError()
 
     @property
     def is_one_to_many(self):
+        """
+        Returns: False
+        """
         return False

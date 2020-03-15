@@ -264,7 +264,7 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
         ref = [[9.61811430e-01, -8.25159596e-19, -4.70319444e-19],
                [-8.25159596e-19, 2.94284288e+00, 3.00368916e-18],
                [-4.70319444e-19, 3.00368916e-18, 7.60458168e-01]]
-        ref2 = [[2.79760445e+01, -2.39347589e-17, -1.36897140e-17],
+        ref2 = [[27.97604444269153, -2.39347589e-17, -1.36897140e-17],
                 [-2.39347589e-17, 8.55969097e+01, 8.74169648e-17],
                 [-1.36897140e-17, 8.74169648e-17, 2.21151980e+01]]
 
@@ -272,14 +272,14 @@ class BoltztrapAnalyzerTest(unittest.TestCase):
             for j in range(0, 3):
                 self.assertAlmostEqual(
                     self.bz.get_average_eff_mass(output='tensor')['p'][300][2][
-                        i][j], ref[i][j])
+                        i][j], ref[i][j], 4)
                 self.assertAlmostEqual(
                     self.bz.get_average_eff_mass(output='tensor',
                                                  doping_levels=False)[300][500][
-                        i][j], ref2[i][j])
+                        i][j], ref2[i][j], 4)
         self.assertAlmostEqual(
             self.bz.get_average_eff_mass(output='average')['n'][300][2],
-            1.53769093989)
+            1.53769093989, 4)
 
     def test_get_carrier_concentration(self):
         self.assertAlmostEqual(self.bz.get_carrier_concentration()[300][39] /

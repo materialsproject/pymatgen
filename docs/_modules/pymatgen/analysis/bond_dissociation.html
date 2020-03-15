@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.bond_dissociation &#8212; pymatgen 2019.11.11 documentation</title>
+    <title>pymatgen.analysis.bond_dissociation &#8212; pymatgen 2020.3.2 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -32,7 +32,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.11.11 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -54,13 +54,13 @@
 
 <span class="kn">import</span> <span class="nn">logging</span>
 
-<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">MSONable</span>
 
-<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Molecule</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.graphs</span> <span class="k">import</span> <span class="n">MoleculeGraph</span><span class="p">,</span> <span class="n">MolGraphSplitError</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.local_env</span> <span class="k">import</span> <span class="n">OpenBabelNN</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.fragmenter</span> <span class="k">import</span> <span class="n">open_ring</span>
-<span class="kn">from</span> <span class="nn">pymatgen.io.babel</span> <span class="k">import</span> <span class="n">BabelMolAdaptor</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">Molecule</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.graphs</span> <span class="kn">import</span> <span class="n">MoleculeGraph</span><span class="p">,</span> <span class="n">MolGraphSplitError</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.local_env</span> <span class="kn">import</span> <span class="n">OpenBabelNN</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.fragmenter</span> <span class="kn">import</span> <span class="n">open_ring</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.babel</span> <span class="kn">import</span> <span class="n">BabelMolAdaptor</span>
 <span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nx</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Samuel Blau&quot;</span>
@@ -85,7 +85,7 @@
 <span class="sd">    workflow.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">molecule_entry</span><span class="p">,</span> <span class="n">fragment_entries</span><span class="p">,</span> <span class="n">allow_additional_charge_separation</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">multibreak</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">molecule_entry</span><span class="p">,</span> <span class="n">fragment_entries</span><span class="p">,</span> <span class="n">allow_additional_charge_separation</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">multibreak</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Note that the entries passed by the user must have the following keys: formula_pretty, initial_molecule,</span>
 <span class="sd">        final_molecule. If a PCM is present, all entries should also have a pcm_dielectric key.</span>
@@ -144,9 +144,7 @@
 
         <span class="c1"># Build principle molecule graph</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mol_graph</span> <span class="o">=</span> <span class="n">MoleculeGraph</span><span class="o">.</span><span class="n">with_local_env_strategy</span><span class="p">(</span><span class="n">Molecule</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">molecule_entry</span><span class="p">[</span><span class="s2">&quot;final_molecule&quot;</span><span class="p">]),</span>
-                                                               <span class="n">OpenBabelNN</span><span class="p">(),</span>
-                                                               <span class="n">reorder</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                                                               <span class="n">extend_structure</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                                                               <span class="n">OpenBabelNN</span><span class="p">())</span>
         <span class="c1"># Loop through bonds, aka graph edges, and fragment and process:</span>
         <span class="k">for</span> <span class="n">bond</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mol_graph</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">:</span>
             <span class="n">bonds</span> <span class="o">=</span> <span class="p">[(</span><span class="n">bond</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">bond</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span>
@@ -336,13 +334,9 @@
             <span class="c1"># Build initial and final molgraphs:</span>
             <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;initial_molgraph&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">MoleculeGraph</span><span class="o">.</span><span class="n">with_local_env_strategy</span><span class="p">(</span>
                 <span class="n">Molecule</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s2">&quot;initial_molecule&quot;</span><span class="p">]),</span>
-                <span class="n">OpenBabelNN</span><span class="p">(),</span>
-                <span class="n">reorder</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                <span class="n">extend_structure</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="n">OpenBabelNN</span><span class="p">())</span>
             <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;final_molgraph&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">MoleculeGraph</span><span class="o">.</span><span class="n">with_local_env_strategy</span><span class="p">(</span><span class="n">Molecule</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s2">&quot;final_molecule&quot;</span><span class="p">]),</span>
-                                                                            <span class="n">OpenBabelNN</span><span class="p">(),</span>
-                                                                            <span class="n">reorder</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                                                                            <span class="n">extend_structure</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                                                                            <span class="n">OpenBabelNN</span><span class="p">())</span>
             <span class="c1"># Classify any potential structural change that occured during optimization:</span>
             <span class="k">if</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;initial_molgraph&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isomorphic_to</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s2">&quot;final_molgraph&quot;</span><span class="p">]):</span>
                 <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;structure_change&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;no_change&quot;</span>
@@ -427,7 +421,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.11.11 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -435,7 +429,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

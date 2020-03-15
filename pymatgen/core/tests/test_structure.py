@@ -405,6 +405,12 @@ class IStructureTest(PymatgenTest):
         all_nn = s.get_all_neighbors(0.05)
         self.assertEqual([len(nn) for nn in all_nn], [0] * len(s))
 
+    def test_get_neighbor_list(self):
+        s = self.struct
+        c_indices1, c_indices2, c_offsets, c_distances = s.get_neighbor_list(3)
+        p_indices1, p_indices2, p_offsets, p_distances = s._get_neighbor_list_py(3)
+        self.assertArrayAlmostEqual(sorted(c_distances), sorted(p_distances))
+
     @unittest.skipIf(not os.environ.get("CI"), "Only run this in CI tests.")
     def test_get_all_neighbors_crosscheck_old(self):
         warnings.simplefilter("ignore")
@@ -1213,6 +1219,11 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         # Test no_cross option
         self.assertRaises(ValueError, self.mol.get_boxed_structure,
                           5, 5, 5, offset=[10, 10, 10], no_cross=True)
+
+        # Test reorder option
+        no_reorder = self.mol.get_boxed_structure(10, 10, 10, reorder=False)
+        self.assertEqual(str(s3[0].specie), "H")
+        self.assertEqual(str(no_reorder[0].specie), "C")
 
     def test_get_distance(self):
         self.assertAlmostEqual(self.mol.get_distance(0, 1), 1.089)

@@ -5,6 +5,7 @@
 """
 This module implements more advanced transformations.
 """
+from typing import Optional
 
 import numpy as np
 from fractions import Fraction
@@ -16,10 +17,13 @@ import logging
 import math
 
 import warnings
+
+from monty.dev import requires
 from monty.fractions import lcm
 from monty.json import MSONable
 
 from pymatgen.core.periodic_table import Element, Specie, get_el_sp, DummySpecie
+from pymatgen.io.ase import AseAtomsAdaptor
 from pymatgen.transformations.transformation_abc import AbstractTransformation
 from pymatgen.transformations.standard_transformations import (
     SubstitutionTransformation,
@@ -42,7 +46,13 @@ from pymatgen.analysis.gb.grain import GrainBoundaryGenerator
 from pymatgen.analysis.adsorption import AdsorbateSiteFinder
 from pymatgen.command_line.mcsqs_caller import run_mcsqs
 
-__author__ = "Shyue Ping Ong, Stephen Dacek, Anubhav Jain, Matthew Horton"
+try:
+    import hiphive  # type: ignore
+except ImportError:
+    hiphive = None
+
+__author__ = "Shyue Ping Ong, Stephen Dacek, Anubhav Jain, Matthew Horton, " \
+             "Alex Ganose"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
@@ -1614,142 +1624,42 @@ class GrainBoundaryTransformation(AbstractTransformation):
 
 class CubicSupercellTransformation(AbstractTransformation):
     """
-    A transformation that aims to generate a nearly cubic supercell structure from a structure.
+    A transformation that aims to generate a nearly cubic supercell structure
+    from a structure.
 
-    The algorithm solves for a transformation matrix that makes the supercell cubic. The matrix
-    must have integer entries, so entries are rounded (in such a way that forces the matrix to be
-    nonsingular). From the supercell resulting from this transformation matrix, vector projections
-    are used to determine the side length of the largest cube that can fit inside the supercell.
-    The algorithm will iteratively increase the size of the supercell until the largest inscribed
-    cube's side length is at least 'num_nn_dists' times the nearest neighbor distance and the
-    number of atoms in the supercell falls in the range ['min_atoms', 'max_atoms'].
+    The algorithm solves for a transformation matrix that makes the supercell
+    cubic. The matrix must have integer entries, so entries are rounded (in such
+    a way that forces the matrix to be nonsingular). From the supercell
+    resulting from this transformation matrix, vector projections are used to
+    determine the side length of the largest cube that can fit inside the
+    supercell. The algorithm will iteratively increase the size of the supercell
+    until the largest inscribed cube's side length is at least 'min_length'
+    and the number of atoms in the supercell falls in the range
+    ``min_atoms < n < max_atoms``.
     """
 
     def __init__(
         self,
-        min_atoms=None,
-        max_atoms=None,
-        num_nn_dists=5,
-        force_diagonal_transformation=False,
+        min_atoms: Optional[int] = None,
+        max_atoms: Optional[int] = None,
+        min_length: float = 15.,
+        force_diagonal: bool = False,
     ):
         """
-        Returns a supercell structure given a Pymatgen structure suitable for
-        Compressed Sensing Lattice Dynamics (CSLD). See papers below for details
-        on CSLD.
-
-        doi: 10.1103/PhysRevLett.113.185501
-        https://arxiv.org/abs/1805.08904
-        https://arxiv.org/abs/1805.08903
-
         Args:
-            structure (Structure): input structure.
-            max_atoms (int): maximum number of atoms allowed in the supercell
-            min_atoms (int): minimum number of atoms allowed in the supercell
-            num_nn_dists (int): number of multiples of atomic nearest neighbor
-                distances to force all directions of the supercell to be at
-                least as large
-            force_diagonal_transformation (bool): If true, return a
-                transformation with a diagonal transformation matrix. Else,
-                do not impose this constraint (leading to a better result).
-        Returns:
-            Supercell structure (Structure)
+            max_atoms: Maximum number of atoms allowed in the supercell.
+            min_atoms: Minimum number of atoms allowed in the supercell.
+            min_length: Minimum length of the smallest supercell lattice vector.
+            force_diagonal: If True, return a transformation with a diagonal
+                transformation matrix.
         """
-        if min_atoms is None:
-            min_atoms = -np.Inf
-        if max_atoms is None:
-            max_atoms = np.Inf
+        self.min_atoms = min_atoms if min_atoms else -np.Inf
+        self.max_atoms = max_atoms if max_atoms else np.Inf
+        self.min_length = min_length
+        self.force_diagonal = force_diagonal
+        self.transformation_matrix = None
 
-        self.min_atoms = min_atoms
-        self.max_atoms = max_atoms
-        self.num_nn_dists = num_nn_dists
-        self.force_diagonal_transformation = force_diagonal_transformation
-
-        # Variables to be solved for by 'apply_transformation()'
-        self.smallest_dim = (
-            None
-        )  # norm of smallest direction of the resulting supercell
-        self.trans_mat = None  # transformation matrix
-        self.nn_dist = None
-
-    def _round_away_from_zero(self, x):
-        """
-        Returns 'x' rounded to the next integer away from 0.
-        If 'x' is zero, then returns zero.
-        E.g. -1.2 rounds to -2.0. 1.2 rounds to 2.0.
-
-        Args:
-            x (float): Number to be rounded to the next
-                integer away from 0.
-        Returns:
-            Number (float) rounded away from zero.
-        """
-        aX = abs(x)
-        return math.ceil(aX) * (aX / x) if x != 0 else 0
-
-    def _round_and_make_arr_singular(self, arr):
-        """
-        This function rounds all elements of a matrix to the nearest integer,
-        unless the rounding scheme causes the matrix to be singular, in which
-        case elements of zero rows or columns in the rounded matrix with the
-        largest absolute valued magnitude in the unrounded matrix will be
-        rounded to the next integer away from zero rather than to the
-        nearest integer.
-
-        Args:
-            array (np.ndarray): Matrix to be transformed
-        Returns:
-            transformed array (np.ndarray): Transformed matrix. The transformation
-                is as follows. First, all entries in 'arr' will be rounded to the
-                nearest integer to yield 'arr_rounded'. If 'arr_rounded' has any
-                zero rows, then one element in each zero row of 'arr_rounded'
-                corresponding to the element in 'arr' of that row with the
-                largest absolute valued magnitude will be rounded to the next
-                integer away from zero (see the '_round_away_from_zero(x)'
-                function) rather than the nearest integer. This process is then
-                repeated for zero columns. Also note that if 'arr' already has
-                zero rows or columns, then this function will not change those
-                rows/columns.
-        """
-        arr_rounded = np.around(arr)
-
-        # Zero rows in 'arr_rounded' make the array singular,
-        #   so force zero rows to be nonzero
-        if (~arr_rounded.any(axis=1)).any():  # Check for zero rows in T_rounded
-            # indices of zero rows
-            zero_row_idxs = np.where(~arr_rounded.any(axis=1))[0]
-
-            for zero_row_idx in zero_row_idxs:  # loop over zero rows
-                zero_row = arr[zero_row_idx, :]
-
-                # Find the element of the zero row with the largest absolute
-                #   magnitude in the original (non-rounded) array (i.e. 'arr')
-                col_idx_to_fix = np.where(
-                    np.absolute(zero_row) == np.amax(np.absolute(zero_row))
-                )[0]
-
-                # Break ties for the largest absolute magnitude
-                col_idx_to_fix = col_idx_to_fix[np.random.randint(len(col_idx_to_fix))]
-
-                # Round the chosen element away from zero
-                arr_rounded[zero_row_idx, col_idx_to_fix] = self._round_away_from_zero(
-                    arr[zero_row_idx, col_idx_to_fix]
-                )
-
-        # Repeat process for zero columns
-        if (~arr_rounded.any(axis=0)).any():  # Check for zero columns in T_rounded
-            zero_col_idxs = np.where(~arr_rounded.any(axis=0))[0]
-            for zero_col_idx in zero_col_idxs:
-                zero_col = arr[:, zero_col_idx]
-                row_idx_to_fix = np.where(
-                    np.absolute(zero_col) == np.amax(np.absolute(zero_col))
-                )[0]
-                for i in row_idx_to_fix:
-                    arr_rounded[i, zero_col_idx] = self._round_away_from_zero(
-                        arr[i, zero_col_idx]
-                    )
-        return arr_rounded.astype(int)
-
-    def apply_transformation(self, structure):
+    def apply_transformation(self, structure: Structure) -> Structure:
         """
         The algorithm solves for a transformation matrix that makes the
         supercell cubic. The matrix must have integer entries, so entries are
@@ -1760,133 +1670,136 @@ class CubicSupercellTransformation(AbstractTransformation):
         increase the size of the supercell until the largest inscribed cube's
         side length is at least 'num_nn_dists' times the nearest neighbor
         distance and the number of atoms in the supercell falls in the range
-        ['min_atoms', 'max_atoms'].
+        defined by min_atoms and max_atoms.
 
         Returns:
-            supercell (Structure)
+            supercell: Transformed supercell.
         """
 
         lat_vecs = structure.lattice.matrix
-        bond_matrix = structure.distance_matrix
-        np.fill_diagonal(bond_matrix, np.Inf)
-        self.nn_dist = np.amin(bond_matrix)
 
-        if not structure:
-            raise AttributeError("No structure was passed into gen_scaling_matrix()")
+        # boolean for if a sufficiently large supercell has been created
+        sc_not_found = True
+
+        if self.force_diagonal:
+            # trans_mat_diagonal holds the diagonal of the trans_mat
+            trans_mat_diagonal = np.array([0, 0, 0])
+            trans_mat_diagonal_update = np.array([1, 1, 1])
         else:
-            # boolean for if a sufficiently large supercell has been created
-            sc_not_found = True
+            # target_threshold is used as the desired cubic side lengths
+            target_sc_size = self.min_length
 
-            # minimum distance any direction of the supercell must be as large as
-            hard_sc_size_threshold = self.nn_dist * self.num_nn_dists
+        while sc_not_found:
+            if self.force_diagonal:
+                # Update trans_mat (with diagonal constraint)
+                trans_mat_diagonal += trans_mat_diagonal_update
+                self.transformation_matrix = np.diag(trans_mat_diagonal)
 
-            if self.force_diagonal_transformation:
-                # trans_mat_diagonal holds the diagonal of the trans_mat
-                trans_mat_diagonal = np.array([0, 0, 0])
-                trans_mat_diagonal_update = np.array([1, 1, 1])
             else:
-                # target_threshold is used as the desired cubic side lengths of the supercell
-                target_sc_size = hard_sc_size_threshold
-            while sc_not_found:
-                if self.force_diagonal_transformation:
-                    # Update trans_mat (with diagonal constraint)
-                    trans_mat_diagonal += trans_mat_diagonal_update
-                    self.trans_mat = np.diag(trans_mat_diagonal)
-                else:
-                    # Update trans_mat (without diagonal constraint)
-                    target_sc_lat_vecs = np.eye(3, 3) * target_sc_size
-                    self.trans_mat = np.linalg.inv(lat_vecs) @ target_sc_lat_vecs
+                # Update trans_mat (without diagonal constraint)
+                target_sc_lat_vecs = np.eye(3, 3) * target_sc_size
 
-                    # round the entries of T and force T to be nonsingular
-                    self.trans_mat = self._round_and_make_arr_singular(self.trans_mat)
-
-                proposed_sc_lat_vecs = self.trans_mat @ lat_vecs
-
-                # Find the shortest dimension length and direction
-                a = proposed_sc_lat_vecs[0]
-                b = proposed_sc_lat_vecs[1]
-                c = proposed_sc_lat_vecs[2]
-
-                length1_vec = c - _proj(c, a)  # a-c plane
-                length2_vec = a - _proj(a, c)
-                length3_vec = b - _proj(b, a)  # b-a plane
-                length4_vec = a - _proj(a, b)
-                length5_vec = b - _proj(b, c)  # b-c plane
-                length6_vec = c - _proj(c, b)
-                length_vecs = np.array(
-                    [
-                        length1_vec,
-                        length2_vec,
-                        length3_vec,
-                        length4_vec,
-                        length5_vec,
-                        length6_vec,
-                    ]
+                self.transformation_matrix = (
+                        np.linalg.inv(lat_vecs) @ target_sc_lat_vecs
                 )
 
-                lengths = np.linalg.norm(length_vecs, axis=1)
-                self.smallest_dim = np.amin(lengths)  # shortest length
-                smallest_dim_idx = np.argmin(lengths)
-                smallest_dim_vec = length_vecs[smallest_dim_idx]  # shortest direction
+                # round the entries of T and force T to be nonsingular
+                self.transformation_matrix = _round_and_make_arr_singular(
+                    self.transformation_matrix
+                )
 
-                # Get number of atoms
-                superstructure = SupercellTransformation(
-                    self.trans_mat
-                ).apply_transformation(structure)
-                num_at = superstructure.num_sites
+            proposed_sc_lat_vecs = self.transformation_matrix @ lat_vecs
 
-                # Check if constraints are satisfied
-                if (
-                    self.smallest_dim >= hard_sc_size_threshold
-                    and num_at >= self.min_atoms
-                    and num_at <= self.max_atoms
-                ):
-                    return superstructure
+            # Find the shortest dimension length and direction
+            a = proposed_sc_lat_vecs[0]
+            b = proposed_sc_lat_vecs[1]
+            c = proposed_sc_lat_vecs[2]
+
+            length1_vec = c - _proj(c, a)  # a-c plane
+            length2_vec = a - _proj(a, c)
+            length3_vec = b - _proj(b, a)  # b-a plane
+            length4_vec = a - _proj(a, b)
+            length5_vec = b - _proj(b, c)  # b-c plane
+            length6_vec = c - _proj(c, b)
+            length_vecs = np.array(
+                [
+                    length1_vec,
+                    length2_vec,
+                    length3_vec,
+                    length4_vec,
+                    length5_vec,
+                    length6_vec,
+                ]
+            )
+
+            lengths = np.linalg.norm(length_vecs, axis=1)
+            smallest_dim = np.amin(lengths)  # shortest length
+            smallest_dim_idx = np.argmin(lengths)
+            # shortest direction
+            smallest_dim_vec = length_vecs[smallest_dim_idx]
+
+            # Get number of atoms
+            st = SupercellTransformation(self.transformation_matrix)
+            superstructure = st.apply_transformation(structure)
+            num_at = superstructure.num_sites
+
+            # Check if constraints are satisfied
+            if (
+                smallest_dim >= self.min_length
+                and self.min_atoms <= num_at <= self.max_atoms
+            ):
+                return superstructure
+            else:
+                # Increase threshold until proposed supercell meets requirements
+                if self.force_diagonal:
+                    # Find which supercell lattice vector contributes most to
+                    # the shortest dimension
+                    sc_latvec1_proj_mag = np.linalg.norm(
+                        _proj(proposed_sc_lat_vecs[0], smallest_dim_vec)
+                    )
+                    sc_latvec2_proj_mag = np.linalg.norm(
+                        _proj(proposed_sc_lat_vecs[1], smallest_dim_vec)
+                    )
+                    sc_latvec3_proj_mag = np.linalg.norm(
+                        _proj(proposed_sc_lat_vecs[2], smallest_dim_vec)
+                    )
+                    sc_latvec_proj_mags = [
+                        sc_latvec1_proj_mag,
+                        sc_latvec2_proj_mag,
+                        sc_latvec3_proj_mag,
+                    ]
+                    sc_proj_max_idx = sc_latvec_proj_mags.index(
+                        max(sc_latvec_proj_mags)
+                    )
+
+                    # Increase the corresponding supercell lattice vector size
+                    trans_mat_diagonal_update = np.array([0, 0, 0])
+                    np.put(trans_mat_diagonal_update, sc_proj_max_idx, 1)
                 else:
-                    # Increase threshold until proposed supercell meets requirements
-                    if self.force_diagonal_transformation:
-                        # Find which supercell lattice vector contributes most to
-                        # the shortest dimension
-                        sc_latvec1_proj_mag = np.linalg.norm(
-                            _proj(proposed_sc_lat_vecs[0], smallest_dim_vec)
-                        )
-                        sc_latvec2_proj_mag = np.linalg.norm(
-                            _proj(proposed_sc_lat_vecs[1], smallest_dim_vec)
-                        )
-                        sc_latvec3_proj_mag = np.linalg.norm(
-                            _proj(proposed_sc_lat_vecs[2], smallest_dim_vec)
-                        )
-                        sc_latvec_proj_mags = [
-                            sc_latvec1_proj_mag,
-                            sc_latvec2_proj_mag,
-                            sc_latvec3_proj_mag,
-                        ]
-                        sc_proj_max_idx = sc_latvec_proj_mags.index(
-                            max(sc_latvec_proj_mags)
-                        )
+                    target_sc_size += 0.1
 
-                        # Increase the corresponding supercell lattice vector size
-                        trans_mat_diagonal_update = np.array([0, 0, 0])
-                        np.put(trans_mat_diagonal_update, sc_proj_max_idx, 1)
-                    else:
-                        target_sc_size += 0.1
-                    if num_at > self.max_atoms:
-                        raise AttributeError(
-                            "While trying to solve for the "
-                            "supercell, the max number of atoms"
-                            " was exceeded. Try lowering the "
-                            "number of nearest neighbor "
-                            "distances."
-                        )
+                if num_at > self.max_atoms:
+                    raise AttributeError(
+                        "While trying to solve for the supercell, the max "
+                        "number of atoms was exceeded. Try lowering the number"
+                        "of nearest neighbor distances."
+                    )
+        raise AttributeError("Unable to find cubic supercell")
 
     @property
     def inverse(self):
-        """Returns: None"""
+        """
+        Returns:
+            None
+        """
         return None
 
     @property
     def is_one_to_many(self):
-        """Returns: False"""
+        """
+        Returns:
+            False
+        """
         return False
 
 
@@ -1984,6 +1897,84 @@ class AddAdsorbateTransformation(AbstractTransformation):
     def is_one_to_many(self):
         """Returns: True"""
         return True
+
+
+def _round_and_make_arr_singular(arr: np.ndarray) -> np.ndarray:
+    """
+    This function rounds all elements of a matrix to the nearest integer,
+    unless the rounding scheme causes the matrix to be singular, in which
+    case elements of zero rows or columns in the rounded matrix with the
+    largest absolute valued magnitude in the unrounded matrix will be
+    rounded to the next integer away from zero rather than to the
+    nearest integer.
+
+    The transformation is as follows. First, all entries in 'arr' will be
+    rounded to the nearest integer to yield 'arr_rounded'. If 'arr_rounded'
+    has any zero rows, then one element in each zero row of 'arr_rounded'
+    corresponding to the element in 'arr' of that row with the largest
+    absolute valued magnitude will be rounded to the next integer away from
+    zero (see the '_round_away_from_zero(x)' function) rather than the
+    nearest integer. This process is then repeated for zero columns. Also
+    note that if 'arr' already has zero rows or columns, then this function
+    will not change those rows/columns.
+
+    Args:
+        arr: Input matrix
+
+    Returns:
+        Transformed matrix.
+    """
+    def round_away_from_zero(x):
+        """
+        Returns 'x' rounded to the next integer away from 0.
+        If 'x' is zero, then returns zero.
+        E.g. -1.2 rounds to -2.0. 1.2 rounds to 2.0.
+        """
+        abs_x = abs(x)
+        return math.ceil(abs_x) * (abs_x / x) if x != 0 else 0
+
+    arr_rounded = np.around(arr)
+
+    # Zero rows in 'arr_rounded' make the array singular, so force zero rows to
+    # be nonzero
+    if (~arr_rounded.any(axis=1)).any():
+        # Check for zero rows in T_rounded
+
+        # indices of zero rows
+        zero_row_idxs = np.where(~arr_rounded.any(axis=1))[0]
+
+        for zero_row_idx in zero_row_idxs:  # loop over zero rows
+            zero_row = arr[zero_row_idx, :]
+
+            # Find the element of the zero row with the largest absolute
+            # magnitude in the original (non-rounded) array (i.e. 'arr')
+            matches = np.absolute(zero_row) == np.amax(np.absolute(zero_row))
+            col_idx_to_fix = np.where(matches)[0]
+
+            # Break ties for the largest absolute magnitude
+            r_idx = np.random.randint(len(col_idx_to_fix))
+            col_idx_to_fix = col_idx_to_fix[r_idx]
+
+            # Round the chosen element away from zero
+            arr_rounded[zero_row_idx, col_idx_to_fix] = round_away_from_zero(
+                arr[zero_row_idx, col_idx_to_fix]
+            )
+
+    # Repeat process for zero columns
+    if (~arr_rounded.any(axis=0)).any():
+
+        # Check for zero columns in T_rounded
+        zero_col_idxs = np.where(~arr_rounded.any(axis=0))[0]
+        for zero_col_idx in zero_col_idxs:
+            zero_col = arr[:, zero_col_idx]
+            matches = np.absolute(zero_col) == np.amax(np.absolute(zero_col))
+            row_idx_to_fix = np.where(matches)[0]
+
+            for i in row_idx_to_fix:
+                arr_rounded[i, zero_col_idx] = round_away_from_zero(
+                    arr[i, zero_col_idx]
+                )
+    return arr_rounded.astype(int)
 
 
 class SubstituteSurfaceSiteTransformation(AbstractTransformation):
@@ -2131,4 +2122,105 @@ class SQSTransformation(AbstractTransformation):
     @property
     def is_one_to_many(self):
         """Returns: False"""
+        return False
+
+
+@requires(hiphive, "hiphive is required for MonteCarloRattleTransformation")
+class MonteCarloRattleTransformation(AbstractTransformation):
+    r"""
+    Uses a Monte Carlo rattle procedure to randomly perturb the sites in a
+    structure.
+
+    This class requires the hiPhive package to be installed.
+
+    Rattling atom `i` is carried out as a Monte Carlo move that is accepted with
+    a probability determined from the minimum interatomic distance
+    :math:`d_{ij}`.  If :math:`\\min(d_{ij})` is smaller than :math:`d_{min}`
+    the move is only accepted with a low probability.
+
+    This process is repeated for each atom a number of times meaning
+    the magnitude of the final displacements is not *directly*
+    connected to `rattle_std`.
+    """
+
+    def __init__(
+        self,
+        rattle_std: float,
+        min_distance: float,
+        seed: Optional[int] = None,
+        **kwargs
+    ):
+        """
+        Args:
+            rattle_std: Rattle amplitude (standard deviation in normal
+                distribution). Note: this value is not *directly* connected to the
+                final average displacement for the structures
+            min_distance: Interatomic distance used for computing the probability
+                for each rattle move.
+            seed: Seed for setting up NumPy random state from which random numbers
+                are generated. If ``None``, a random seed will be generated
+                (default). This option allows the output of this transformation
+                to be deterministic.
+            **kwargs: Additional keyword arguments to be passed to the hiPhive
+                mc_rattle function.
+        """
+        self.rattle_std = rattle_std
+        self.min_distance = min_distance
+        self.seed = seed
+
+        if not seed:
+            # if seed is None, use a random RandomState seed but make sure
+            # we store that the original seed was None
+            seed = np.random.randint(1, 1000000000)
+
+        self.random_state = np.random.RandomState(seed)
+        self.kwargs = kwargs
+
+    def apply_transformation(self, structure: Structure) -> Structure:
+        """
+        Apply the transformation.
+
+        Args:
+            structure: Input Structure
+
+        Returns:
+            Structure with sites perturbed.
+        """
+        from hiphive.structure_generation.rattle import (  # type: ignore
+            mc_rattle
+        )
+
+        atoms = AseAtomsAdaptor.get_atoms(structure)
+        seed = self.random_state.randint(1, 1000000000)
+        displacements = mc_rattle(
+            atoms, self.rattle_std, self.min_distance, seed=seed, **self.kwargs
+        )
+
+        transformed_structure = Structure(
+            structure.lattice,
+            structure.species,
+            structure.cart_coords + displacements,
+            coords_are_cartesian=True
+        )
+
+        return transformed_structure
+
+    def __str__(self):
+        return "{} : rattle_std = {}".format(__name__, self.rattle_std)
+
+    def __repr__(self):
+        return self.__str__()
+
+    @property
+    def inverse(self):
+        """
+        Returns: None
+        """
+        return None
+
+    @property
+    def is_one_to_many(self):
+        """
+        Returns: False
+        """
         return False

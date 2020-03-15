@@ -33,7 +33,7 @@ if __name__ == '__main__':
         if cg_symbol == 'q':
             break
         if cg_symbol == 'l':
-            print(allcg.pretty_print(maxcn=13, additional_info={'nb_hints': True}))
+            print(allcg.pretty_print(maxcn=20, additional_info={'nb_hints': True}))
             continue
         try:
             cg = allcg[cg_symbol]

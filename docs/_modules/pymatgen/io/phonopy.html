@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.phonopy &#8212; pymatgen 2019.11.11 documentation</title>
+    <title>pymatgen.io.phonopy &#8212; pymatgen 2020.3.2 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -32,7 +32,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.11.11 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -48,18 +48,24 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Module for interfacing with phonopy, see https://atztogo.github.io/phonopy/</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core</span> <span class="k">import</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">Lattice</span>
-<span class="kn">from</span> <span class="nn">pymatgen.phonon.bandstructure</span> <span class="k">import</span> <span class="n">PhononBandStructureSymmLine</span>
-<span class="kn">from</span> <span class="nn">pymatgen.phonon.dos</span> <span class="k">import</span> <span class="n">PhononDos</span><span class="p">,</span> <span class="n">CompletePhononDos</span>
-<span class="kn">from</span> <span class="nn">monty.serialization</span> <span class="k">import</span> <span class="n">loadfn</span>
-<span class="kn">from</span> <span class="nn">monty.dev</span> <span class="k">import</span> <span class="n">requires</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core</span> <span class="kn">import</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">Lattice</span>
+<span class="kn">from</span> <span class="nn">pymatgen.phonon.bandstructure</span> <span class="kn">import</span> <span class="n">PhononBandStructureSymmLine</span><span class="p">,</span> \
+    <span class="n">PhononBandStructure</span>
+<span class="kn">from</span> <span class="nn">pymatgen.phonon.dos</span> <span class="kn">import</span> <span class="n">PhononDos</span><span class="p">,</span> <span class="n">CompletePhononDos</span>
+<span class="kn">from</span> <span class="nn">monty.serialization</span> <span class="kn">import</span> <span class="n">loadfn</span>
+<span class="kn">from</span> <span class="nn">monty.dev</span> <span class="kn">import</span> <span class="n">requires</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.symmetry.bandstructure</span> <span class="kn">import</span> <span class="n">HighSymmKpath</span>
 
 <span class="k">try</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">phonopy</span> <span class="k">import</span> <span class="n">Phonopy</span>
-    <span class="kn">from</span> <span class="nn">phonopy.structure.atoms</span> <span class="k">import</span> <span class="n">PhonopyAtoms</span>
-    <span class="kn">from</span> <span class="nn">phonopy.file_IO</span> <span class="k">import</span> <span class="n">write_disp_yaml</span>
+    <span class="kn">from</span> <span class="nn">phonopy</span> <span class="kn">import</span> <span class="n">Phonopy</span>
+    <span class="kn">from</span> <span class="nn">phonopy.structure.atoms</span> <span class="kn">import</span> <span class="n">PhonopyAtoms</span>
+    <span class="kn">from</span> <span class="nn">phonopy.file_IO</span> <span class="kn">import</span> <span class="n">write_disp_yaml</span>
 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
     <span class="n">Phonopy</span> <span class="o">=</span> <span class="kc">None</span>
 
@@ -131,7 +137,7 @@
 
 
 <div class="viewcode-block" id="eigvec_to_eigdispl"><a class="viewcode-back" href="../../../pymatgen.io.phonopy.html#pymatgen.io.phonopy.eigvec_to_eigdispl">[docs]</a><span class="k">def</span> <span class="nf">eigvec_to_eigdispl</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">frac_coords</span><span class="p">,</span> <span class="n">mass</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Converts a single eigenvector to an eigendisplacement in the primitive cell</span>
 <span class="sd">    according to the formula::</span>
 
@@ -153,7 +159,7 @@
 
 
 <div class="viewcode-block" id="get_ph_bs_symm_line_from_dict"><a class="viewcode-back" href="../../../pymatgen.io.phonopy.html#pymatgen.io.phonopy.get_ph_bs_symm_line_from_dict">[docs]</a><span class="k">def</span> <span class="nf">get_ph_bs_symm_line_from_dict</span><span class="p">(</span><span class="n">bands_dict</span><span class="p">,</span> <span class="n">has_nac</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">labels_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Creates a pymatgen PhononBandStructure object from the dictionary</span>
 <span class="sd">    extracted by the band.yaml file produced by phonopy. The labels</span>
 <span class="sd">    will be extracted from the dictionary, if present. If the &#39;eigenvector&#39;</span>
@@ -219,7 +225,7 @@
 
 
 <div class="viewcode-block" id="get_ph_bs_symm_line"><a class="viewcode-back" href="../../../pymatgen.io.phonopy.html#pymatgen.io.phonopy.get_ph_bs_symm_line">[docs]</a><span class="k">def</span> <span class="nf">get_ph_bs_symm_line</span><span class="p">(</span><span class="n">bands_path</span><span class="p">,</span> <span class="n">has_nac</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">labels_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Creates a pymatgen PhononBandStructure from a band.yaml file.</span>
 <span class="sd">    The labels will be extracted from the dictionary, if present.</span>
 <span class="sd">    If the &#39;eigenvector&#39;  key is found the eigendisplacements will be</span>
@@ -276,7 +282,7 @@
 <div class="viewcode-block" id="get_displaced_structures"><a class="viewcode-back" href="../../../pymatgen.io.phonopy.html#pymatgen.io.phonopy.get_displaced_structures">[docs]</a><span class="nd">@requires</span><span class="p">(</span><span class="n">Phonopy</span><span class="p">,</span> <span class="s2">&quot;phonopy not installed!&quot;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">get_displaced_structures</span><span class="p">(</span><span class="n">pmg_structure</span><span class="p">,</span> <span class="n">atom_disp</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>
                              <span class="n">supercell_matrix</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">yaml_fname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Generate a set of symmetrically inequivalent displaced structures for</span>
 <span class="sd">    phonon calculations.</span>
 
@@ -310,10 +316,9 @@
 
     <span class="k">if</span> <span class="n">yaml_fname</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">displacements</span> <span class="o">=</span> <span class="n">phonon</span><span class="o">.</span><span class="n">get_displacements</span><span class="p">()</span>
-        <span class="n">directions</span> <span class="o">=</span> <span class="n">phonon</span><span class="o">.</span><span class="n">get_displacement_directions</span><span class="p">()</span>
         <span class="n">write_disp_yaml</span><span class="p">(</span><span class="n">displacements</span><span class="o">=</span><span class="n">displacements</span><span class="p">,</span>
                         <span class="n">supercell</span><span class="o">=</span><span class="n">phonon</span><span class="o">.</span><span class="n">get_supercell</span><span class="p">(),</span>
-                        <span class="n">directions</span><span class="o">=</span><span class="n">directions</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">yaml_fname</span><span class="p">)</span>
+                        <span class="n">filename</span><span class="o">=</span><span class="n">yaml_fname</span><span class="p">)</span>
 
     <span class="c1"># Supercell structures with displacement</span>
     <span class="n">disp_supercells</span> <span class="o">=</span> <span class="n">phonon</span><span class="o">.</span><span class="n">get_supercells_with_displacements</span><span class="p">()</span>
@@ -327,6 +332,147 @@
             <span class="n">structure_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">get_pmg_structure</span><span class="p">(</span><span class="n">c</span><span class="p">))</span>
 
     <span class="k">return</span> <span class="n">structure_list</span></div>
+
+
+<div class="viewcode-block" id="get_phonon_dos_from_fc"><a class="viewcode-back" href="../../../pymatgen.io.phonopy.html#pymatgen.io.phonopy.get_phonon_dos_from_fc">[docs]</a><span class="nd">@requires</span><span class="p">(</span><span class="n">Phonopy</span><span class="p">,</span> <span class="s2">&quot;phonopy is required to calculate phonon density of states&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">get_phonon_dos_from_fc</span><span class="p">(</span>
+    <span class="n">structure</span><span class="p">:</span> <span class="n">Structure</span><span class="p">,</span>
+    <span class="n">supercell_matrix</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">force_constants</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">mesh_density</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">100.</span><span class="p">,</span>
+    <span class="n">num_dos_steps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CompletePhononDos</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get a projected phonon density of states from phonopy force constants.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        structure: A structure.</span>
+<span class="sd">        supercell_matrix: The supercell matrix used to generate the force</span>
+<span class="sd">            constants.</span>
+<span class="sd">        force_constants: The force constants in phonopy format.</span>
+<span class="sd">        mesh_density: The density of the q-point mesh. See the docstring</span>
+<span class="sd">            for the ``mesh`` argument in Phonopy.init_mesh() for more details.</span>
+<span class="sd">        num_dos_steps: Number of frequency steps in the energy grid.</span>
+<span class="sd">        **kwargs: Additional kwargs passed to the Phonopy constructor.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The density of states.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">structure_phonopy</span> <span class="o">=</span> <span class="n">get_phonopy_structure</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+    <span class="n">phonon</span> <span class="o">=</span> <span class="n">Phonopy</span><span class="p">(</span>
+        <span class="n">structure_phonopy</span><span class="p">,</span> <span class="n">supercell_matrix</span><span class="o">=</span><span class="n">supercell_matrix</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">)</span>
+    <span class="n">phonon</span><span class="o">.</span><span class="n">set_force_constants</span><span class="p">(</span><span class="n">force_constants</span><span class="p">)</span>
+    <span class="n">phonon</span><span class="o">.</span><span class="n">run_mesh</span><span class="p">(</span>
+        <span class="n">mesh_density</span><span class="p">,</span>
+        <span class="n">is_mesh_symmetry</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">with_eigenvectors</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">is_gamma_center</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># get min, max, step frequency</span>
+    <span class="n">frequencies</span> <span class="o">=</span> <span class="n">phonon</span><span class="o">.</span><span class="n">get_mesh_dict</span><span class="p">()[</span><span class="s2">&quot;frequencies&quot;</span><span class="p">]</span>
+    <span class="n">freq_min</span> <span class="o">=</span> <span class="n">frequencies</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+    <span class="n">freq_max</span> <span class="o">=</span> <span class="n">frequencies</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+    <span class="n">freq_pitch</span> <span class="o">=</span> <span class="p">(</span><span class="n">freq_max</span> <span class="o">-</span> <span class="n">freq_min</span><span class="p">)</span> <span class="o">/</span> <span class="n">num_dos_steps</span>
+
+    <span class="n">phonon</span><span class="o">.</span><span class="n">run_projected_dos</span><span class="p">(</span>
+        <span class="n">freq_min</span><span class="o">=</span><span class="n">freq_min</span><span class="p">,</span> <span class="n">freq_max</span><span class="o">=</span><span class="n">freq_max</span><span class="p">,</span> <span class="n">freq_pitch</span><span class="o">=</span><span class="n">freq_pitch</span>
+    <span class="p">)</span>
+
+    <span class="n">dos_raw</span> <span class="o">=</span> <span class="n">phonon</span><span class="o">.</span><span class="n">projected_dos</span><span class="o">.</span><span class="n">get_partial_dos</span><span class="p">()</span>
+    <span class="n">pdoss</span> <span class="o">=</span> <span class="p">{</span><span class="n">s</span><span class="p">:</span> <span class="n">dos</span> <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">dos</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">dos_raw</span><span class="p">[</span><span class="mi">1</span><span class="p">])}</span>
+
+    <span class="n">total_dos</span> <span class="o">=</span> <span class="n">PhononDos</span><span class="p">(</span><span class="n">dos_raw</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dos_raw</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">CompletePhononDos</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">total_dos</span><span class="p">,</span> <span class="n">pdoss</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_phonon_band_structure_from_fc"><a class="viewcode-back" href="../../../pymatgen.io.phonopy.html#pymatgen.io.phonopy.get_phonon_band_structure_from_fc">[docs]</a><span class="nd">@requires</span><span class="p">(</span><span class="n">Phonopy</span><span class="p">,</span> <span class="s2">&quot;phonopy is required to calculate phonon band structures&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">get_phonon_band_structure_from_fc</span><span class="p">(</span>
+    <span class="n">structure</span><span class="p">:</span> <span class="n">Structure</span><span class="p">,</span>
+    <span class="n">supercell_matrix</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">force_constants</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">mesh_density</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">100.0</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PhononBandStructure</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get a uniform phonon band structure from phonopy force constants.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        structure: A structure.</span>
+<span class="sd">        supercell_matrix: The supercell matrix used to generate the force</span>
+<span class="sd">            constants.</span>
+<span class="sd">        force_constants: The force constants in phonopy format.</span>
+<span class="sd">        mesh_density: The density of the q-point mesh. See the docstring</span>
+<span class="sd">            for the ``mesh`` argument in Phonopy.init_mesh() for more details.</span>
+<span class="sd">        **kwargs: Additional kwargs passed to the Phonopy constructor.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The uniform phonon band structure.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">structure_phonopy</span> <span class="o">=</span> <span class="n">get_phonopy_structure</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+    <span class="n">phonon</span> <span class="o">=</span> <span class="n">Phonopy</span><span class="p">(</span>
+        <span class="n">structure_phonopy</span><span class="p">,</span> <span class="n">supercell_matrix</span><span class="o">=</span><span class="n">supercell_matrix</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">)</span>
+    <span class="n">phonon</span><span class="o">.</span><span class="n">set_force_constants</span><span class="p">(</span><span class="n">force_constants</span><span class="p">)</span>
+    <span class="n">phonon</span><span class="o">.</span><span class="n">run_mesh</span><span class="p">(</span><span class="n">mesh_density</span><span class="p">,</span> <span class="n">is_mesh_symmetry</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">is_gamma_center</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">mesh</span> <span class="o">=</span> <span class="n">phonon</span><span class="o">.</span><span class="n">get_mesh_dict</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">PhononBandStructure</span><span class="p">(</span>
+        <span class="n">mesh</span><span class="p">[</span><span class="s2">&quot;qpoints&quot;</span><span class="p">],</span> <span class="n">mesh</span><span class="p">[</span><span class="s2">&quot;frequencies&quot;</span><span class="p">],</span> <span class="n">structure</span><span class="o">.</span><span class="n">lattice</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_phonon_band_structure_symm_line_from_fc"><a class="viewcode-back" href="../../../pymatgen.io.phonopy.html#pymatgen.io.phonopy.get_phonon_band_structure_symm_line_from_fc">[docs]</a><span class="nd">@requires</span><span class="p">(</span><span class="n">Phonopy</span><span class="p">,</span> <span class="s2">&quot;phonopy is required to calculate phonon band structures&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">get_phonon_band_structure_symm_line_from_fc</span><span class="p">(</span>
+    <span class="n">structure</span><span class="p">:</span> <span class="n">Structure</span><span class="p">,</span>
+    <span class="n">supercell_matrix</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">force_constants</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">line_density</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">20.0</span><span class="p">,</span>
+    <span class="n">symprec</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PhononBandStructureSymmLine</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get a phonon band structure along a high symmetry path from phonopy force</span>
+<span class="sd">    constants.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        structure: A structure.</span>
+<span class="sd">        supercell_matrix: The supercell matrix used to generate the force</span>
+<span class="sd">            constants.</span>
+<span class="sd">        force_constants: The force constants in phonopy format.</span>
+<span class="sd">        line_density: The density along the high symmetry path.</span>
+<span class="sd">        symprec: Symmetry precision passed to phonopy and used for determining</span>
+<span class="sd">            the band structure path.</span>
+<span class="sd">        **kwargs: Additional kwargs passed to the Phonopy constructor.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The line mode band structure.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">structure_phonopy</span> <span class="o">=</span> <span class="n">get_phonopy_structure</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+    <span class="n">phonon</span> <span class="o">=</span> <span class="n">Phonopy</span><span class="p">(</span>
+        <span class="n">structure_phonopy</span><span class="p">,</span>
+        <span class="n">supercell_matrix</span><span class="o">=</span><span class="n">supercell_matrix</span><span class="p">,</span>
+        <span class="n">symprec</span><span class="o">=</span><span class="n">symprec</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">)</span>
+    <span class="n">phonon</span><span class="o">.</span><span class="n">set_force_constants</span><span class="p">(</span><span class="n">force_constants</span><span class="p">)</span>
+
+    <span class="n">kpath</span> <span class="o">=</span> <span class="n">HighSymmKpath</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="n">symprec</span><span class="p">)</span>
+
+    <span class="n">kpoints</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">kpath</span><span class="o">.</span><span class="n">get_kpoints</span><span class="p">(</span>
+        <span class="n">line_density</span><span class="o">=</span><span class="n">line_density</span><span class="p">,</span> <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span>
+
+    <span class="n">phonon</span><span class="o">.</span><span class="n">run_qpoints</span><span class="p">(</span><span class="n">kpoints</span><span class="p">)</span>
+    <span class="n">frequencies</span> <span class="o">=</span> <span class="n">phonon</span><span class="o">.</span><span class="n">qpoints</span><span class="o">.</span><span class="n">get_frequencies</span><span class="p">()</span><span class="o">.</span><span class="n">T</span>
+
+    <span class="n">labels_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">([(</span><span class="n">a</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">kpoints</span><span class="p">)</span> <span class="k">if</span> <span class="n">a</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">PhononBandStructureSymmLine</span><span class="p">(</span>
+        <span class="n">kpoints</span><span class="p">,</span> <span class="n">frequencies</span><span class="p">,</span> <span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="p">,</span> <span class="n">labels_dict</span><span class="o">=</span><span class="n">labels_dict</span>
+    <span class="p">)</span></div>
 </pre></div>
 
           </div>
@@ -357,7 +503,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.11.11 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -365,7 +511,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

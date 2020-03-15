@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.feff.sets &#8212; pymatgen 2019.11.11 documentation</title>
+    <title>pymatgen.io.feff.sets &#8212; pymatgen 2020.3.2 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -32,7 +32,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.11.11 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -59,14 +59,14 @@
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">abc</span>
-<span class="kn">from</span> <span class="nn">copy</span> <span class="k">import</span> <span class="n">deepcopy</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 
-<span class="kn">from</span> <span class="nn">monty.serialization</span> <span class="k">import</span> <span class="n">loadfn</span>
-<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
-<span class="kn">from</span> <span class="nn">monty.os.path</span> <span class="k">import</span> <span class="n">zpath</span>
+<span class="kn">from</span> <span class="nn">monty.serialization</span> <span class="kn">import</span> <span class="n">loadfn</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">MSONable</span>
+<span class="kn">from</span> <span class="nn">monty.os.path</span> <span class="kn">import</span> <span class="n">zpath</span>
 
-<span class="kn">from</span> <span class="nn">pymatgen.io.feff.inputs</span> <span class="k">import</span> <span class="n">Atoms</span><span class="p">,</span> <span class="n">Tags</span><span class="p">,</span> <span class="n">Potential</span><span class="p">,</span> <span class="n">Header</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.feff.inputs</span> <span class="kn">import</span> <span class="n">Atoms</span><span class="p">,</span> <span class="n">Tags</span><span class="p">,</span> <span class="n">Potential</span><span class="p">,</span> <span class="n">Header</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Kiran Mathew&quot;</span>
@@ -177,7 +177,7 @@
 <span class="sd">    implementations.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">absorbing_atom</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">config_dict</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">absorbing_atom</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">config_dict</span><span class="p">,</span>
                  <span class="n">edge</span><span class="o">=</span><span class="s2">&quot;K&quot;</span><span class="p">,</span> <span class="n">spectrum</span><span class="o">=</span><span class="s2">&quot;EXAFS&quot;</span><span class="p">,</span> <span class="n">nkpts</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
                  <span class="n">user_tag_settings</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -281,7 +281,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">Atoms</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">absorbing_atom</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">radius</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">output</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">spectrum</span><span class="p">]</span>
         <span class="n">output</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> = </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">))</span>
                        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
@@ -316,7 +316,7 @@
             <span class="n">distance_matrix</span> <span class="o">=</span> <span class="n">input_atoms</span><span class="o">.</span><span class="n">distance_matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]</span>
 
             <span class="c1"># Get radius value</span>
-            <span class="kn">from</span> <span class="nn">math</span> <span class="k">import</span> <span class="n">ceil</span>
+            <span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">ceil</span>
             <span class="n">radius</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">ceil</span><span class="p">(</span><span class="n">input_atoms</span><span class="o">.</span><span class="n">get_distance</span><span class="p">(</span><span class="n">input_atoms</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">input_atoms</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
                                                        <span class="n">input_atoms</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">input_atoms</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))))</span>
 
@@ -354,7 +354,7 @@
 
     <span class="n">CONFIG</span> <span class="o">=</span> <span class="n">loadfn</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MODULE_DIR</span><span class="p">,</span> <span class="s2">&quot;MPXANESSet.yaml&quot;</span><span class="p">))</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">absorbing_atom</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">edge</span><span class="o">=</span><span class="s2">&quot;K&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mf">10.</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">absorbing_atom</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">edge</span><span class="o">=</span><span class="s2">&quot;K&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mf">10.</span><span class="p">,</span>
                  <span class="n">nkpts</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">user_tag_settings</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
@@ -379,7 +379,7 @@
 
     <span class="n">CONFIG</span> <span class="o">=</span> <span class="n">loadfn</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MODULE_DIR</span><span class="p">,</span> <span class="s2">&quot;MPEXAFSSet.yaml&quot;</span><span class="p">))</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">absorbing_atom</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">edge</span><span class="o">=</span><span class="s2">&quot;K&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mf">10.</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">absorbing_atom</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">edge</span><span class="o">=</span><span class="s2">&quot;K&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mf">10.</span><span class="p">,</span>
                  <span class="n">nkpts</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">user_tag_settings</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
@@ -402,7 +402,7 @@
 <span class="sd">    FeffDictSet for ELNES spectroscopy.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">absorbing_atom</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">edge</span><span class="p">,</span> <span class="n">spectrum</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">absorbing_atom</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">edge</span><span class="p">,</span> <span class="n">spectrum</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span>
                  <span class="n">beam_energy</span><span class="p">,</span> <span class="n">beam_direction</span><span class="p">,</span> <span class="n">collection_angle</span><span class="p">,</span>
                  <span class="n">convergence_angle</span><span class="p">,</span> <span class="n">config_dict</span><span class="p">,</span> <span class="n">user_eels_settings</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">nkpts</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">user_tag_settings</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -457,7 +457,7 @@
 
     <span class="n">CONFIG</span> <span class="o">=</span> <span class="n">loadfn</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MODULE_DIR</span><span class="p">,</span> <span class="s2">&quot;MPELNESSet.yaml&quot;</span><span class="p">))</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">absorbing_atom</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">edge</span><span class="o">=</span><span class="s2">&quot;K&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mf">10.</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">absorbing_atom</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">edge</span><span class="o">=</span><span class="s2">&quot;K&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mf">10.</span><span class="p">,</span>
                  <span class="n">beam_energy</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">beam_direction</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">collection_angle</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                  <span class="n">convergence_angle</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">user_eels_settings</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nkpts</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
                  <span class="n">user_tag_settings</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -494,7 +494,7 @@
 
     <span class="n">CONFIG</span> <span class="o">=</span> <span class="n">loadfn</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MODULE_DIR</span><span class="p">,</span> <span class="s2">&quot;MPEXELFSSet.yaml&quot;</span><span class="p">))</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">absorbing_atom</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">edge</span><span class="o">=</span><span class="s2">&quot;K&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mf">10.</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">absorbing_atom</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">edge</span><span class="o">=</span><span class="s2">&quot;K&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mf">10.</span><span class="p">,</span>
                  <span class="n">beam_energy</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">beam_direction</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">collection_angle</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                  <span class="n">convergence_angle</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">user_eels_settings</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nkpts</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
                  <span class="n">user_tag_settings</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -552,7 +552,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.11.11 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -560,7 +560,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

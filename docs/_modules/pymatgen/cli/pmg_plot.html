@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.cli.pmg_plot &#8212; pymatgen 2019.11.11 documentation</title>
+    <title>pymatgen.cli.pmg_plot &#8212; pymatgen 2020.3.2 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -32,7 +32,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.11.11 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -49,16 +49,25 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Implementation for `pmg plot` CLI.</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span>
-<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="k">import</span> <span class="n">Structure</span>
-<span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.plotter</span> <span class="k">import</span> <span class="n">DosPlotter</span>
-<span class="kn">from</span> <span class="nn">pymatgen.io.vasp</span> <span class="k">import</span> <span class="n">Vasprun</span><span class="p">,</span> <span class="n">Chgcar</span>
-<span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="k">import</span> <span class="n">SpacegroupAnalyzer</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.diffraction.xrd</span> <span class="k">import</span> <span class="n">XRDCalculator</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">Structure</span>
+<span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.plotter</span> <span class="kn">import</span> <span class="n">DosPlotter</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.vasp</span> <span class="kn">import</span> <span class="n">Vasprun</span><span class="p">,</span> <span class="n">Chgcar</span>
+<span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="kn">import</span> <span class="n">SpacegroupAnalyzer</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.diffraction.xrd</span> <span class="kn">import</span> <span class="n">XRDCalculator</span>
 
 
 <div class="viewcode-block" id="get_dos_plot"><a class="viewcode-back" href="../../../pymatgen.cli.pmg_plot.html#pymatgen.cli.pmg_plot.get_dos_plot">[docs]</a><span class="k">def</span> <span class="nf">get_dos_plot</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plot DOS.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        args (dict): Args from argparse.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">v</span> <span class="o">=</span> <span class="n">Vasprun</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">dos_file</span><span class="p">)</span>
     <span class="n">dos</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">complete_dos</span>
 
@@ -88,6 +97,12 @@
 
 
 <div class="viewcode-block" id="get_chgint_plot"><a class="viewcode-back" href="../../../pymatgen.cli.pmg_plot.html#pymatgen.cli.pmg_plot.get_chgint_plot">[docs]</a><span class="k">def</span> <span class="nf">get_chgint_plot</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plot integrated charge.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        args (dict): args from argparse.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">chgcar</span> <span class="o">=</span> <span class="n">Chgcar</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">chgcar_file</span><span class="p">)</span>
     <span class="n">s</span> <span class="o">=</span> <span class="n">chgcar</span><span class="o">.</span><span class="n">structure</span>
 
@@ -99,7 +114,7 @@
                  <span class="n">finder</span><span class="o">.</span><span class="n">get_symmetrized_structure</span><span class="p">()</span><span class="o">.</span><span class="n">equivalent_sites</span><span class="p">]</span>
         <span class="n">atom_ind</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">sites</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">site</span><span class="p">)</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">sites</span><span class="p">]</span>
 
-    <span class="kn">from</span> <span class="nn">pymatgen.util.plotting</span> <span class="k">import</span> <span class="n">pretty_plot</span>
+    <span class="kn">from</span> <span class="nn">pymatgen.util.plotting</span> <span class="kn">import</span> <span class="n">pretty_plot</span>
     <span class="n">plt</span> <span class="o">=</span> <span class="n">pretty_plot</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">atom_ind</span><span class="p">:</span>
         <span class="n">d</span> <span class="o">=</span> <span class="n">chgcar</span><span class="o">.</span><span class="n">get_integrated_diff</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">radius</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span>
@@ -113,12 +128,24 @@
 
 
 <div class="viewcode-block" id="get_xrd_plot"><a class="viewcode-back" href="../../../pymatgen.cli.pmg_plot.html#pymatgen.cli.pmg_plot.get_xrd_plot">[docs]</a><span class="k">def</span> <span class="nf">get_xrd_plot</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plot XRD</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        args (dict): Args from argparse</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">s</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">xrd_structure_file</span><span class="p">)</span>
     <span class="n">c</span> <span class="o">=</span> <span class="n">XRDCalculator</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">c</span><span class="o">.</span><span class="n">get_plot</span><span class="p">(</span><span class="n">s</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="plot"><a class="viewcode-back" href="../../../pymatgen.cli.pmg_plot.html#pymatgen.cli.pmg_plot.plot">[docs]</a><span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Master control method calling other plot methods based on args.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        args (dict): Args from argparse.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">plt</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">chgcar_file</span><span class="p">:</span>
         <span class="n">plt</span> <span class="o">=</span> <span class="n">get_chgint_plot</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
@@ -162,7 +189,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.11.11 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -170,7 +197,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

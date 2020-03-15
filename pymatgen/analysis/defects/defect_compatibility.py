@@ -2,6 +2,12 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+
+"""
+This module implements DefectCompatibility analysis for consideration of
+defects
+"""
+
 import logging
 from monty.json import MSONable
 from pymatgen.core import Structure
@@ -9,10 +15,6 @@ from pymatgen.analysis.defects.corrections import FreysoldtCorrection, \
     KumagaiCorrection, BandFillingCorrection, BandEdgeShiftingCorrection
 from pymatgen.analysis.defects.core import Vacancy
 
-"""
-This module implements DefectCompatibility analysis for consideration of
-defects
-"""
 
 __author__ = "Danny Broberg, Shyam Dwaraknath"
 __copyright__ = "Copyright 2018, The Materials Project"
@@ -187,7 +189,15 @@ class DefectCompatibility(MSONable):
         return defect_entry
 
     def perform_all_corrections(self, defect_entry):
+        """
+        Perform all corrections for a defect.
 
+        Args:
+            defect_entry (DefectEntry): Defect to correct.
+
+        Returns:
+            Corrected DefectEntry
+        """
         # consider running freysoldt correction
         required_frey_params = ["dielectric", "axis_grid", "bulk_planar_averages", "defect_planar_averages",
                                 "initial_defect_structure", "defect_frac_sc_coords"]
@@ -258,6 +268,15 @@ class DefectCompatibility(MSONable):
         return defect_entry
 
     def perform_freysoldt(self, defect_entry):
+        """
+        Perform Freysoldt correction.
+
+        Args:
+            defect_entry (DefectEntry): Defect to correct.
+
+        Returns:
+            Corrected DefectEntry
+        """
         FC = FreysoldtCorrection(defect_entry.parameters['dielectric'])
         freycorr = FC.get_correction(defect_entry)
 
@@ -269,6 +288,15 @@ class DefectCompatibility(MSONable):
         return defect_entry
 
     def perform_kumagai(self, defect_entry):
+        """
+        Perform Kumagai correction.
+
+        Args:
+            defect_entry (DefectEntry): Defect to correct.
+
+        Returns:
+            Corrected DefectEntry
+        """
         gamma = defect_entry.parameters['gamma'] if 'gamma' in defect_entry.parameters.keys() else None
         sampling_radius = defect_entry.parameters[
             'sampling_radius'] if 'sampling_radius' in defect_entry.parameters.keys() else None
@@ -285,6 +313,15 @@ class DefectCompatibility(MSONable):
         return defect_entry
 
     def perform_bandfilling(self, defect_entry):
+        """
+        Perform bandfilling correction.
+
+        Args:
+            defect_entry (DefectEntry): Defect to correct.
+
+        Returns:
+            Corrected DefectEntry
+        """
         BFC = BandFillingCorrection()
         bfc_dict = BFC.get_correction(defect_entry)
 
@@ -297,6 +334,15 @@ class DefectCompatibility(MSONable):
         return defect_entry
 
     def perform_band_edge_shifting(self, defect_entry):
+        """
+        Perform band edge shifting correction.
+
+        Args:
+            defect_entry (DefectEntry): Defect to correct.
+
+        Returns:
+            Corrected DefectEntry
+        """
         BEC = BandEdgeShiftingCorrection()
         bec_dict = BEC.get_correction(defect_entry)
 
@@ -356,6 +402,15 @@ class DefectCompatibility(MSONable):
         return defect_entry
 
     def check_freysoldt_delocalized(self, defect_entry):
+        """
+        Check for Freysoldt delocalization.
+
+        Args:
+            defect_entry (DefectEntry): Defect to correct.
+
+        Returns:
+            Corrected DefectEntry
+        """
         plnr_avg_analyze_meta = {}
         plnr_avg_allows_compatible = True
         for ax in range(3):
@@ -388,6 +443,15 @@ class DefectCompatibility(MSONable):
         return defect_entry
 
     def check_kumagai_delocalized(self, defect_entry):
+        """
+        Check for Kumagai delocalization.
+
+        Args:
+            defect_entry (DefectEntry): Defect to correct.
+
+        Returns:
+            Corrected DefectEntry
+        """
         atomic_site_analyze_meta = {}
         kumagaistats = defect_entry.parameters['kumagai_meta']['pot_corr_uncertainty_md']['stats']
 

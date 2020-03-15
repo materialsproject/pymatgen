@@ -1,36 +1,35 @@
 version: 2
 jobs:
-  pmglint:
-    working_directory: ~/pymatgen
-    docker:
-      - image: materialsvirtuallab/circle-ci-pmg-py3:3.7.3
-    steps:
-      - checkout
-      - run:
-          command: |
-            pip install --quiet pycodestyle flake8 mypy pydocstyle pylint
-            echo "Checks will be performed in the order of pycodestyle -> flake8 -> mypy -> pydocstyle "
-            echo "It is highly recommended that you use the pre-commit hook provided in pymatgen."
-            echo "Simply copy pre-commit to .git/hooks to check before pushing your code."
-            echo "pycodestyle checks..."
-            pycodestyle pymatgen
-            echo "--- Done ---"
-            echo "flake8 checks..."
-            flake8 --count --show-source --statistics pymatgen
-            # exit-zero treats all errors as warnings.
-            flake8 --count --exit-zero --max-complexity=20 --statistics pymatgen
-            echo "--- Done ---"
-            echo "mypy checks..."
-            mypy pymatgen
-            echo "--- Done ---"
-            # Docstyle checks are enforced for files that have been modified since the v2019.10.16 tagged release.
-            export MODIFIED_FILES=`git diff --diff-filter=ACMRTUXB --name-only HEAD v2019.10.16 | grep -E 'pymatgen.*\.(py)$' | sed '/test_/d' | tr '\n' ' '`
-            echo "pydocstyle checks for $MODIFIED_FILES..."
-            pydocstyle --count pymatgen/core $MODIFIED_FILES
-            echo "--- Done ---"
-            echo "pylint checks..."
-            pylint --exit-zero pymatgen
-            echo "--- Done ---"
+#  pmglint:
+#    working_directory: ~/pymatgen
+#    docker:
+#      - image: materialsvirtuallab/circle-ci-pmg-py3:3.7.3
+#    steps:
+#      - checkout
+#      - run:
+#          command: |
+#            pip install --quiet pycodestyle flake8 mypy pydocstyle pylint
+#            echo "Checks will be performed in the order of pycodestyle -> flake8 -> mypy -> pydocstyle "
+#            echo "It is highly recommended that you use the pre-commit hook provided in pymatgen."
+#            echo "Simply copy pre-commit to .git/hooks to check before pushing your code."
+#            echo "pycodestyle checks..."
+#            pycodestyle pymatgen
+#            echo "--- Done ---"
+#            echo "flake8 checks..."
+#            flake8 --count --show-source --statistics pymatgen
+#            # exit-zero treats all errors as warnings.
+#            flake8 --count --exit-zero --max-complexity=20 --statistics pymatgen
+#            echo "--- Done ---"
+#            echo "mypy checks..."
+#            mypy pymatgen
+#            echo "--- Done ---"
+#            # Docstyle checks are enforced for files that have been modified since the v2020.1.28 tagged release.
+#            echo "pylint checks..."
+#            pylint --exit-zero pymatgen
+#            echo "--- Done ---"
+#            echo "pydocstyle checks for $MODIFIED_FILES..."
+#            pydocstyle --count pymatgen
+#            echo "--- Done ---"
   py3test:
     working_directory: ~/pymatgen
     docker:
@@ -48,7 +47,6 @@ jobs:
             export PATH=$HOME/miniconda3/bin:$PATH
             conda config --set always_yes yes --set changeps1 no
             conda config --system --add channels conda-forge
-            conda config --system --add channels openbabel
             if [ -e $HOME/miniconda3/envs/test-environment ]; then
               echo "Conda env already present from the cache."
             else
@@ -80,7 +78,7 @@ jobs:
             rm vasp_data.gz
             rm pmg.cif
             rm POSCAR.pmg
-            if [ "$CI_PULL_REQUEST" == "" ]; then coveralls; fi
+            # if [ "$CI_PULL_REQUEST" == "" ]; then coveralls; fi
           no_output_timeout: 3600
       - store_artifacts:
           path: coverage_reports/
@@ -95,4 +93,4 @@ workflows:
   build_and_test:
     jobs:
       - py3test
-      - pmglint
+#      - pmglint

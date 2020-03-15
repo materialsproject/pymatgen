@@ -31,14 +31,14 @@ if sys.platform.startswith('win') and platform.machine().endswith('64'):
     extra_link_args.append('-Wl,--allow-multiple-definition')
 
 cpp_extra_link_args = extra_link_args
-cpp_extra_compile_args = ["-Wno-cpp", "-Wno-unused-function", "-O2", "-march=native", '-std=c++11']
+cpp_extra_compile_args = ["-Wno-cpp", "-Wno-unused-function", "-O2", "-march=native", '-std=c++0x']
 if sys.platform.startswith('darwin'):
     cpp_extra_compile_args.append("-stdlib=libc++")
     cpp_extra_link_args = ["-O2", "-march=native", '-stdlib=libc++']
 
 # https://docs.microsoft.com/en-us/cpp/build/reference/compiler-options-listed-alphabetically?view=vs-2017
 if sys.platform.startswith('win'):
-    cpp_extra_compile_args = ['/w', '/O2', '/std:c++14']
+    cpp_extra_compile_args = ['/w', '/O2', '/std:c++0x']
     cpp_extra_link_args = extra_link_args
 
 long_desc = """
@@ -101,14 +101,15 @@ who require Python 2.7 should install pymatgen v2018.x.
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="2019.11.11",
+    version="2020.3.13",
     cmdclass={'build_ext': build_ext},
     setup_requires=['numpy>=1.14.3', 'setuptools>=18.0'],
     python_requires='>=3.6',
     install_requires=["numpy>=1.14.3", "requests", "ruamel.yaml>=0.15.6",
                       "monty>=3.0.2", "scipy>=1.0.1", "pydispatcher>=2.0.5",
                       "tabulate", "spglib>=1.9.9.44", "networkx>=2.2",
-                      "matplotlib>=1.5", "palettable>=3.1.1", "sympy", "pandas"],
+                      "matplotlib>=1.5", "palettable>=3.1.1", "sympy", "pandas",
+                      "plotly>=4.5.0"],
     extras_require={
         "provenance": ["pybtex"],
         "ase": ["ase>=3.3"],
@@ -119,16 +120,14 @@ setup(
         ]},
     package_data={
         "pymatgen.core": ["*.json"],
-        "pymatgen.analysis": ["*.yaml", "*.json"],
-        "pymatgen.analysis.cost": ["*.csv"],
+        "pymatgen.analysis": ["*.yaml", "*.json", "*.csv"],
         "pymatgen.analysis.chemenv.coordination_environments.coordination_geometries_files": ["*.txt", "*.json"],
         "pymatgen.analysis.chemenv.coordination_environments.strategy_files": ["*.json"],
-        "pymatgen.analysis.hhi": ["*.csv"],
         "pymatgen.analysis.magnetism": ["*.json", "*.yaml"],
         "pymatgen.analysis.structure_prediction": ["data/*.json", "*.yaml"],
         "pymatgen.io": ["*.yaml"],
         "pymatgen.io.vasp": ["*.yaml", "*.json"],
-        "pymatgen.io.lammps": ["templates/*.*"],
+        "pymatgen.io.lammps": ["templates/*.*", "*.yaml"],
         "pymatgen.io.feff": ["*.yaml"],
         "pymatgen.symmetry": ["*.yaml", "*.json", "*.sqlite"],
         "pymatgen.entries": ["*.yaml"],
