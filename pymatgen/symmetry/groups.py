@@ -382,11 +382,7 @@ class SpaceGroup(SymmetryGroup):
             a = abc[0]
             return check(abc, [a, a, a], tol) and check(angles, [90, 90, 90], angle_tol)
         elif crys_system == "hexagonal" or (
-                crys_system == "trigonal" and (
-                self.symbol.endswith("H") or
-                self.int_number in [143, 144, 145, 147, 149, 150, 151, 152,
-                                    153, 154, 156, 157, 158, 159, 162, 163,
-                                    164, 165])):
+                crys_system == "trigonal" and self.symbol.endswith("H")):
             a = abc[0]
             return check(abc, [a, a, None], tol) and check(angles, [90, 90, 120], angle_tol)
         elif crys_system == "trigonal":
@@ -479,8 +475,10 @@ class SpaceGroup(SymmetryGroup):
         Returns:
             (SpaceGroup)
         """
-        return SpaceGroup(sg_symbol_from_int_number(int_number,
-                                                    hexagonal=hexagonal))
+        sym = sg_symbol_from_int_number(int_number,hexagonal=hexagonal)
+        if not hexagonal and int_number in [146,148,155,160,161,166,167]:
+            sym += ':R'
+        return SpaceGroup(sym)
 
     def __str__(self):
         return "Spacegroup %s with international number %d and order %d" % (
