@@ -172,7 +172,7 @@ class SpaceGroupTest(unittest.TestCase):
                 SpaceGroup.from_int_number(230)))
 
     def test_hexagonal(self):
-        sgs = [146,148,155,160,161,166,167]
+        sgs = [146, 148, 155, 160, 161, 166, 167]
         for sg in sgs:
             s = SpaceGroup.from_int_number(sg, hexagonal=False)
             self.assertTrue(not s.symbol.endswith('H'))
