@@ -149,8 +149,11 @@ class SpaceGroupTest(unittest.TestCase):
         self.assertFalse(sg.is_compatible(hexagonal))
 
         sg = SpaceGroup.from_int_number(165)
-        self.assertTrue(sg.is_compatible(rhom))
-        self.assertFalse(sg.is_compatible(hexagonal))
+        self.assertFalse(sg.is_compatible(cubic))
+        self.assertFalse(sg.is_compatible(tet))
+        self.assertFalse(sg.is_compatible(ortho))
+        self.assertFalse(sg.is_compatible(rhom))
+        self.assertTrue(sg.is_compatible(hexagonal))
 
     def test_symmops(self):
         sg = SpaceGroup("Pnma")
