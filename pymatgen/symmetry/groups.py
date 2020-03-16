@@ -475,7 +475,7 @@ class SpaceGroup(SymmetryGroup):
         Returns:
             (SpaceGroup)
         """
-        sym = sg_symbol_from_int_number(int_number,hexagonal=hexagonal)
+        sym = sg_symbol_from_int_number(int_number, hexagonal=hexagonal)
         if not hexagonal and int_number in [146, 148, 155, 160, 161, 166, 167]:
             sym += ':R'
         return SpaceGroup(sym)
