@@ -479,8 +479,10 @@ class SpaceGroup(SymmetryGroup):
         Returns:
             (SpaceGroup)
         """
-        return SpaceGroup(sg_symbol_from_int_number(int_number,
-                                                    hexagonal=hexagonal))
+        sym = sg_symbol_from_int_number(int_number, hexagonal=hexagonal)
+        if not hexagonal and int_number in [146, 148, 155, 160, 161, 166, 167]:
+            sym += ':R'
+        return SpaceGroup(sym)
 
     def __str__(self):
         return "Spacegroup %s with international number %d and order %d" % (
