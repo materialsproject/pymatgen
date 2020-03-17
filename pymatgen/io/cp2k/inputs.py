@@ -1,38 +1,40 @@
+"""
+This module defines the building blocks of a CP2K input file. The cp2k input structure is essentially a collection
+of "sections" which are similar to dictionary objects that activate modules of the cp2k executable, and then
+"keywords" which adjust variables inside of those modules. For example, FORCE_EVAL section will activate CP2K's ability
+to calculate forces, and inside FORCE_EVAL, the Keyword "METHOD can be set to "QS" to set the method of force evaluation
+to be the quickstep (DFT) module.
+
+A quick overview of the module:
+
+-- Section class defines the basis of Cp2k input and contains methods for manipulating these objects similarly to Dicts.
+-- Keyword class defines the keywords used inside of Section objects that changes variables in Cp2k program
+-- Cp2kInput class is special instantiation of Section that is used to represent the full cp2k calculation input.
+-- The rest of the classes are children of Section intended to make initialization of common sections easier.
+"""
+
 import os
 import copy
 import textwrap
 from monty.json import MSONable
 from monty.io import zopen
 
-# TODO: Location/Dependencies
-
 __author__ = "Nicholas Winner"
 __version__ = "0.2"
 __email__ = "nwinner@berkeley.edu"
 __date__ = "January 2019"
 
-"""
-This module defines the building blocks of a CP2K input file. The cp2k input structure is essentially a collection
-of "sections" which are similar to dictionary objects that activate modules of the cp2k executable, and then
-"keywords" which adjust variables inside of those modules. For example, FORCE_EVAL section will activate CP2K's ability 
-to calculate forces, and inside FORCE_EVAL, the Keyword "METHOD can be set to "QS" to set the method of force evaluation
-to be the quickstep (DFT) module.
-
-A quick overview of the module:
-
--- Section class defines the basis of Cp2k input and contains methods for manipulating these objects similarly to Dicts. 
--- Keyword class defines the keywords used inside of Section objects that changes variables in Cp2k program
--- Cp2kInput class is special instantiation of Section that is used to represent the full cp2k calculation input.
--- The rest of the classes are children of Section intended to make initialization of common sections easier.
-"""
-
 
 class Section(MSONable):
 
+    """
+    Basic input representation of input to Cp2k. Activates functionality inside of the Cp2k executable.
+    """
+
     # TODO: Not sure if I want to use this required_sections/keywords idea
-    required_sections = []
-    required_keywords = []
-    subsections = {}  # Must exist before __init__ is even called
+    # required_sections = []
+    # required_keywords = []
+    subsections: dict = {}  # Must exist before __init__ is even called
 
     def __init__(self, name, subsections, repeats=False, description=None, keywords=[],
                  section_parameters=[], location=None, verbose=True, alias=None, **kwargs):
@@ -116,11 +118,17 @@ class Section(MSONable):
         return self.as_dict().__eq__(other.as_dict())
 
     def get_keyword(self, kwd):
+        """
+        Retrieve a keyword given its name
+        """
         for i, k in enumerate(self.keywords):
             if k.name == kwd:
                 return k
 
     def set_keyword(self, kwd):
+        """
+        Set a keyword given another keyword with the same name
+        """
         for i, k in enumerate(self.keywords):
             if k.name == kwd.name:
                 self.keywords[i] = kwd
@@ -128,9 +136,15 @@ class Section(MSONable):
         self.keywords.append(kwd)
 
     def set(self, d):
+        """
+        Alias for update
+        """
         return self.update(d)
 
     def pop(self, d):
+        """
+        pop function (dictionary) that deletes from a Section according to a dictionary of what to delete
+        """
         for k, v in d.items():
             if isinstance(v, dict):
                 self[k].pop(v)
@@ -138,32 +152,39 @@ class Section(MSONable):
                 self[k].__delitem__(v)
 
     def as_dict(self):
+        """
+        Get a dictionary representation of the Section
+        """
         d = {}
         d["@module"] = self.__class__.__module__
         d["@module"] = self.__class__.__name__
         d['name'] = self.name
         d['repeats'] = self.repeats
         d['description'] = self.description
+        d['alias'] = self.alias
         d['keywords'] = []
         for k in self.keywords:
             d['keywords'].append(k.as_dict())
         d['section_parameters'] = self.section_parameters
         d['subsections'] = {}
         for k, v in self.subsections.items():
-            d['subsections'][v.name] = v.as_dict()
+            d['subsections'][v.alias or v.name] = v.as_dict()
         return d
 
     @classmethod
     def from_dict(cls, d):
+        """
+        Initialize from a dictionary
+        """
         subsections = {}
         keywords = []
         for v in d['subsections'].values():
-            subsections[v['name']] = Section.from_dict(v)
+            subsections[v['alias'] or v['name']] = Section.from_dict(v)
         for k in d['keywords']:
             keywords.append(Keyword.from_dict(copy.deepcopy(k)))
         return Section(d['name'], repeats=d['repeats'], description=d['description'],
                        keywords=keywords, section_parameters=d['section_parameters'],
-                       subsections=subsections)
+                       subsections=subsections, alias=d['alias'])
 
     def update(self, d):
         """
@@ -247,6 +268,9 @@ class Section(MSONable):
         return s
 
     def get_string(self):
+        """
+        Get string representation of Section
+        """
         return Section._get_string(self)
 
     @staticmethod
@@ -259,12 +283,12 @@ class Section(MSONable):
         if d.description and d.verbose:
             string += '\n' + textwrap.fill(d.description, initial_indent='\t' * indent + '! ',
                                            subsequent_indent='\t' * indent + '! ', width=50) + '\n'
-        string += '\t' * indent + '&' + d.name
+        string += '\t' * indent + '&' + (d.alias or d.name)
         string += ' ' + ' '.join(map(str, d.section_parameters)) + '\n'
 
         for s in d.keywords:
             string += '\t' * (indent+1) + s.__str__() + '\n'
-        for k,v in d.subsections.items():
+        for k, v in d.subsections.items():
             string += v._get_string(v, indent + 1)
         string += '\t' * indent + '&END ' + d.name + '\n'
 
@@ -284,17 +308,20 @@ class Section(MSONable):
 
 class Keyword:
 
+    """
+    Class representing a keyword argument in CP2K. Within CP2K Secitons, which activate features
+    of the CP2K code, the keywords are arguments that control the functionality of that feature.
+    For example, the section "FORCE_EVAL" activates the evaluation of forces/energies, but within
+    "FORCE_EVAL" the keyword "METHOD" controls whether or not this will be done with, say,
+    "Quickstep" (DFT) or "EIP" (empirical interatomic potential).
+    """
+
     def __init__(self, name, *args, description=None, units=None,
                  verbose=True, repeats=False):
         """
-        Class representing a keyword argument in CP2K. Within CP2K Secitons, which activate features
-        of the CP2K code, the keywords are arguments that control the functionality of that feature.
-        For example, the section "FORCE_EVAL" activates the evaluation of forces/energies, but within
-        "FORCE_EVAL" the keyword "METHOD" controls whether or not this will be done with, say,
-        "Quickstep" (DFT) or "EIP" (empirical interatomic potential). These Keywords and the value passed
-        to them are sometimes as simple as KEYWORD VALUE, but can also be more elaborate such as
-        KEYWORD [UNITS] VALUE1 VALUE2, which is why this class exists: to handle many values and control
-        easy printing to an input file.
+        Initializes a keyword. These Keywords and the value passed to them are sometimes as simple as KEYWORD VALUE,
+        but can also be more elaborate such as KEYWORD [UNITS] VALUE1 VALUE2, which is why this class exists:
+        to handle many values and control easy printing to an input file.
 
         Args:
             name (str): The name of this keyword. Must match an acceptable keyword from CP2K
@@ -327,6 +354,9 @@ class Keyword:
         return False
 
     def as_dict(self):
+        """
+        Get a dictionary representation of the Keyword
+        """
         d = {}
         d['name'] = self.name
         d['values'] = self.values
@@ -338,11 +368,17 @@ class Keyword:
 
     @classmethod
     def from_dict(cls, d):
+        """
+        Initialise from dictonary
+        """
         return Keyword(d['name'], *d['values'], description=d['description'],
                        repeats=d['repeats'], units=d['units'], verbose=d['verbose'])
 
     @classmethod
     def from_string(self, s):
+        """
+        Initialise from a string
+        """
         return Keyword(*s.split())
 
     def silence(self):
@@ -354,11 +390,15 @@ class Keyword:
 
 class Cp2kInput(Section):
 
+    """
+    Special instance of 'Section' class that is meant to represent the overall cp2k input.
+    Distinguishes itself from Section by overriding get_string() to not print this section's
+    title and by implementing the file i/o
+    """
+
     def __init__(self, name='CP2K_INPUT', subsections={}, **kwargs):
         """
-        Special instance of 'Section' class that is meant to represent the overall cp2k input.
-        Distinguishes itself from Section by overriding get_string() to not print this section's
-        title and by implementing the file i/o
+        Initialize Cp2kInput by calling the super
         """
 
         description = "CP2K Input"
@@ -367,6 +407,9 @@ class Cp2kInput(Section):
                                         **kwargs)
 
     def get_string(self):
+        """
+        Get string representation of the Cp2kInput
+        """
         s = ''
         for k in self.subsections.keys():
             s += self.subsections[k].get_string()
@@ -374,10 +417,16 @@ class Cp2kInput(Section):
 
     @classmethod
     def from_dict(cls, d):
+        """
+        Initialize from a dictionary
+        """
         return Cp2kInput('CP2K_INPUT', subsections=Section.from_dict(d).subsections)
 
     @staticmethod
     def from_file(file):
+        """
+        Initialize from a file
+        """
         with zopen(file, 'rt') as f:
             lines = f.read().splitlines()
             lines = [line.replace('\t', '') for line in lines]
@@ -386,11 +435,17 @@ class Cp2kInput(Section):
 
     @classmethod
     def from_lines(cls, lines):
+        """
+        Helper method to read lines of file
+        """
         cp2k_input = Cp2kInput('CP2K_INPUT', subsections={})
         Cp2kInput._from_lines(cp2k_input, lines)
         return cp2k_input
 
     def _from_lines(self, lines):
+        """
+        Helper method, reads lines of text to get a Cp2kInput
+        """
         current = self.name
         for line in lines:
             if line.startswith('!') or line.startswith('#'):
@@ -408,6 +463,9 @@ class Cp2kInput(Section):
                 self.by_path(current).keywords.append(Keyword(*args))
 
     def write_file(self, input_filename='cp2k.inp', output_dir='.', make_dir_if_not_present=True):
+        """
+        Write input to a file.
+        """
         if not os.path.isdir(output_dir) and make_dir_if_not_present:
             os.mkdir(output_dir)
         filepath = os.path.join(output_dir, input_filename)
@@ -417,7 +475,15 @@ class Cp2kInput(Section):
 
 class Global(Section):
 
+    """
+    Controls 'global' settings for cp2k execution such as RUN_TYPE and PROJECT_NAME
+    """
+
     def __init__(self, project_name='CP2K', run_type='ENERGY_FORCE', subsections={}, **kwargs):
+        """
+        Initialize the global section
+        """
+
         description = 'Section with general information regarding which kind of simulation' + \
                       'to perform an parameters for the whole PROGRAM'
 
@@ -432,7 +498,15 @@ class Global(Section):
 
 class ForceEval(Section):
 
+    """
+    Controls the calculation of energy and forces in Cp2k
+    """
+
     def __init__(self, subsections={}, **kwargs):
+        """
+        Initialize the ForceEval section
+        """
+
         description = 'parameters needed to calculate energy and forces and describe the system you want to analyze.'
 
         keywords = [
@@ -446,8 +520,21 @@ class ForceEval(Section):
 
 class Dft(Section):
 
+    """
+    Controls the DFT parameters in Cp2k
+    """
+
     def __init__(self, subsections={}, basis_set_filename='BASIS_MOLOPT',
                  potential_filename='GTH_POTENTIALS', uks=True, **kwargs):
+        """
+        Initialize the DFT section
+
+        Args:
+            subsections: Any subsections to initialize with
+            basis_set_filename: Name of the file that contains the basis set information
+            potential_filename: Name of the file that contains the pseudopotential information
+            uks: Whether to run unrestricted Kohn Sham (spin polarized)
+        """
 
         description = 'parameter needed by dft programs'
 
@@ -463,7 +550,14 @@ class Dft(Section):
 
 class Subsys(Section):
 
+    """
+    Controls the definition of the system to be simulated
+    """
+
     def __init__(self, subsections={}, **kwargs):
+        """
+        Initialize the subsys section
+        """
         description = 'a subsystem: coordinates, topology, molecules and cell'
         super(Subsys, self).__init__('SUBSYS', description=description,
                                      subsections=subsections, **kwargs)
@@ -471,8 +565,22 @@ class Subsys(Section):
 
 class QS(Section):
 
+    """
+    Controls the quickstep settings (DFT driver)
+    """
+
     def __init__(self, method='GPW', eps_default=1e-7, extrapolation='ASPC',
                  subsections={}, **kwargs):
+        """
+        Initialize the QS Section
+
+        Args:
+            method: What dft methodology to use. Can be GPW (Gaussian Plane Waves) for DFT with pseudopotentials
+                or GAPW (Gaussian Augmented Plane Waves) for all electron calculations
+            eps_default: The default level of convergence accuracy (Not for SCF, but for other parameters in QS section)
+            extrapolation: Method use for extrapolation
+            subsections: Subsections to initialize with
+        """
 
         description = 'parameters needed to set up the Quickstep framework'
 
@@ -488,8 +596,21 @@ class QS(Section):
 
 class Scf(Section):
 
+    """
+    Controls the self consistent field loop
+    """
+
     def __init__(self, max_scf=50, eps_scf=1e-6, scf_guess='RESTART',
                  subsections={}, **kwargs):
+        """
+        Initialize the Scf section
+
+        Args:
+            max_scf: maximum number of SCF loops before terminating
+            eps_scf: convergence criteria for SCF loop
+            scf_guess: Initial guess for SCF loop (RESTART will switch to ATOMIC when no restart file
+                is present)
+        """
 
         description = 'Parameters needed to perform an SCF run.'
 
@@ -505,12 +626,28 @@ class Scf(Section):
 
 class Mgrid(Section):
 
+    """
+    Controls the multigrid for numerical integration
+    """
+
     def __init__(self, cutoff=1200, rel_cutoff=80, ngrids=5,
                  progression_factor=3, subsections={}, **kwargs):
+        """
+        Initialize the MGRID section
+
+        Args:
+            cutoff: Cutoff energy (in Rydbergs for historical reasons) defining how find of Gaussians will be used
+            rel_cutoff: The relative cutoff energy, which defines how to map the Gaussians onto the multigrid. If the
+                the value is too low then, even if you have a high cutoff with sharp Gaussians, they will be mapped
+                to the course part of the multigrid
+            ngrids: number of grids to use
+            progression_factor: divisor that decides how to map Gaussians the multigrid after the highest mapping is
+                decided by rel_cutoff
+        """
 
         description = 'Multigrid information. Multigrid allows for sharp gaussians and diffuse ' + \
-                        'gaussians to be treated on different grids, where the spacing of FFT integration ' + \
-                        'points can be tailored to the degree of sharpness/diffusiveness of the gaussians.'
+                      'gaussians to be treated on different grids, where the spacing of FFT integration ' + \
+                      'points can be tailored to the degree of sharpness/diffusiveness of the gaussians.'
 
         keywords = [
             Keyword('CUTOFF', cutoff, description='Cutoff in [Ry] for finest level of the MG.'),
@@ -525,9 +662,16 @@ class Mgrid(Section):
 
 
 class Diagonalization(Section):
-    
+
+    """
+    Controls diagonalization settings (if using traditional diagonalization).
+    """
+
     def __init__(self, eps_adapt=0, eps_iter=1e-8, eps_jacobi=0,
                  jacobi_threshold=1e-7, subsections={}):
+        """
+        Initialize the diagronalization section
+        """
 
         location = 'CP2K_INPUT/FORCE_EVAL/DFT/SCF/DIAGONALIZATION'
 
@@ -545,15 +689,19 @@ class Diagonalization(Section):
 
 class OrbitalTransformation(Section):
 
+    """
+    Turns on the Orbital Transformation scheme for diagonalizing the Hamiltonian. Much faster and with
+    guaranteed convergence compared to normal diagonalization, but requires the system to have a band
+    gap.
+
+    NOTE: OT has poor convergence for metallic systems and cannot use SCF mixing or smearing. Therefore,
+    you should not use it for metals or systems with 'small' band gaps. In that case, use normal
+    diagonalization, which will be slower, but will converge properly.
+    """
+
     def __init__(self, minimizer='CG', preconditioner='FULL_ALL', energy_gap=0.01, **kwargs):
         """
-        Turns on the Orbital Transformation scheme for diagonalizing the Hamiltonian. Much faster and with
-        guaranteed convergence compared to normal diagonalization, but requires the system to have a band
-        gap.
-
-        NOTE: OT has poor convergence for metallic systems and cannot use SCF mixing or smearing. Therefore,
-        you should not use it for metals or systems with 'small' band gaps. In that case, use normal
-        diagonalization, which will be slower, but will converge properly.
+        Initialize the OT section
 
         Args:
             minimizer (str): The minimizer to use with the OT method. Default is conjugate gradient method,
@@ -581,14 +729,24 @@ class OrbitalTransformation(Section):
             Keyword('PRECONDITIONER', preconditioner),
             Keyword('ENERGY_GAP', energy_gap)
         ]
-        
+
         super(OrbitalTransformation, self).__init__('OT', description=description, keywords=keywords,
                                                     subsections={}, **kwargs)
 
 
 class Cell(Section):
 
+    """
+    Defines the simulation cell (lattice)
+    """
+
     def __init__(self, lattice, subsections={}, **kwargs):
+        """
+        Initialize the cell section.
+
+        Args:
+            lattice: pymatgen lattice object
+        """
 
         description = 'Input parameters needed to set up the CELL.'
 
@@ -604,11 +762,15 @@ class Cell(Section):
 
 class Kind(Section):
 
+    """
+    Specifies the information for the different atom types being simulated.
+    """
+
     def __init__(self, specie, alias=None, magnetization=0.0,
                  subsections={}, basis_set='GTH_BASIS', potential='GTH_POTENTIALS',
                  **kwargs):
         """
-        Specifies the information for the different atom types being simulated.
+        Initialize a KIND section
 
         Args:
             specie (Species or Element): Object representing the atom.
@@ -634,22 +796,22 @@ class Kind(Section):
             Keyword('POTENTIAL', potential)
         ]
 
-        section_param = alias if alias else specie.__str__()
-        section_alias = 'KIND '+(alias if alias else specie.__str__())
-
+        section_alias = 'KIND ' + (alias if alias else specie.__str__())
         super(Kind, self).__init__('KIND', subsections=subsections, description=description, keywords=keywords,
-                                   section_parameters=[section_param], alias=section_alias, **kwargs)
+                                   section_parameters=[], alias=section_alias, **kwargs)
 
 
 class Coord(Section):
 
+    """
+    Specifies the coordinates of the atoms using a pymatgen structure object.
+    """
+
     def __init__(self, structure, alias=False):
         """
-        Specifies the coordinates of the atoms using a pymatgen structure object.
-
         Args:
             structure: Pymatgen structure object
-            alisa (bool): whether or not to identify the sites by Element + number so you can do things like
+            alias (bool): whether or not to identify the sites by Element + number so you can do things like
                 assign unique magnetization do different elements.
         """
 
@@ -657,7 +819,9 @@ class Coord(Section):
                       'here by default using explicit XYZ coordinates. More complex systems ' + \
                       'should be given via an external coordinate file in the SUBSYS%TOPOLOGY section.'
         if alias:
-            keywords = [Keyword(s.specie.symbol+'_'+str(i+1), *s.coords) for i,s in enumerate(structure.sites)]
+            keywords = []
+            for k, v in alias.items():
+                keywords.extend([Keyword(k, *structure[i].coords) for i in v])
         else:
             keywords = [Keyword(s.specie.symbol, *s.coords) for s in structure.sites]
 
@@ -666,7 +830,18 @@ class Coord(Section):
 
 class PDOS(Section):
 
+    """
+    Controls printing of projected density of states onto the different atom KINDS
+    (elemental decomposed DOS).
+    """
+
     def __init__(self, nlumo=-1):
+        """
+        Initialize the PDOS section
+
+        Args:
+            nlumo: how many unoccupied orbitals to include (-1==ALL)
+        """
 
         description = "Controls printing of the projected density of states"
 
@@ -681,13 +856,23 @@ class PDOS(Section):
 
 class LDOS(Section):
 
-    def __init__(self, i):
+    """
+    Controls printing of the LDOS (List-Density of states). i.e. projects onto specific atoms.
+    """
+
+    def __init__(self, index):
+        """
+        Initialize the LDOS section
+
+        Args:
+            index: Index of the atom to project onto
+        """
 
         description = "Controls printing of the projected density of states decomposed by atom type"
 
         keywords = [
             Keyword('COMPONENTS'),
-            Keyword('LIST', i)
+            Keyword('LIST', index)
         ]
 
         super(LDOS, self).__init__('LDOS', description=description,
@@ -696,7 +881,14 @@ class LDOS(Section):
 
 class V_Hartree_Cube(Section):
 
+    """
+    Controls printing of the hartree potential as a cube file.
+    """
+
     def __init__(self):
+        """
+        Initialize the V_HARTREE_CUBE section
+        """
 
         description = "Controls the printing of a cube file with eletrostatic potential generated by " + \
                       "the total density (electrons+ions). It is valid only for QS with GPW formalism. " + \
@@ -710,7 +902,14 @@ class V_Hartree_Cube(Section):
 
 class MO_Cubes(Section):
 
+    """
+    Controls printing of the molecular orbital eigenvalues
+    """
+
     def __init__(self, write_cube=False, nhomo=1, nlumo=1):
+        """
+            Initialize the MO_CUBES section
+        """
 
         description = "Controls the printing of a cube file with eletrostatic potential generated by " + \
                       "the total density (electrons+ions). It is valid only for QS with GPW formalism. " + \
@@ -728,7 +927,14 @@ class MO_Cubes(Section):
 
 class E_Density_Cube(Section):
 
+    """
+    Controls printing of the electron density cube file
+    """
+
     def __init__(self):
+        """
+        Initialize the E_DENSITY_CUBE Section
+        """
 
         description = "Controls the printing of cube files with the electronic density and, for LSD " + \
                       "calculations, the spin density."
@@ -741,7 +947,14 @@ class E_Density_Cube(Section):
 
 class Smear(Section):
 
+    """
+    Control electron smearing
+    """
+
     def __init__(self, elec_temp=300, method='FERMI_DIRAC', fixed_magnetic_moment=-1e2):
+        """
+        Initialize the SMEAR section
+        """
 
         description = "Activates smearing of electron occupations"
 
@@ -757,22 +970,26 @@ class Smear(Section):
 
 class BrokenSymmetry(Section):
 
-    def __init__(self, L_alpha = -1, N_alpha = 0, NEL_alpha = -1,
-                 L_beta = -1, N_beta = 0, NEL_beta = -1):
+    """
+    Define the required atomic orbital occupation assigned in initialization
+    of the density matrix, by adding or subtracting electrons from specific
+    angular momentum channels. It works only with GUESS ATOMIC
+    """
+
+    def __init__(self, l_alpha=-1, n_alpha=0, nel_alpha=-1,
+                 l_beta=-1, n_beta=0, nel_beta=-1):
         """
-        Define the required atomic orbital occupation assigned in initialization
-        of the density matrix, by adding or subtracting electrons from specific
-        angular momentum channels. It works only with GUESS ATOMIC
+        Initialize the broken symmetry section
 
         Args:
-            L_alpha: Angular momentum quantum number of the orbitals whose occupation is changed
-            N_alpha: Principal quantum number of the orbitals whose occupation is changed.
+            l_alpha: Angular momentum quantum number of the orbitals whose occupation is changed
+            n_alpha: Principal quantum number of the orbitals whose occupation is changed.
                 Default is the first not occupied
-            NEL_alpha: Orbital occupation change per angular momentum quantum number. In
+            nel_alpha: Orbital occupation change per angular momentum quantum number. In
                 unrestricted calculations applied to spin alpha
-            L_beta: Same as L_alpha for beta channel
-            N_beta: Same as N_alpha for beta channel
-            NEL_beta: Same as NEL_alpha for beta channel
+            l_beta: Same as L_alpha for beta channel
+            n_beta: Same as N_alpha for beta channel
+            nel_beta: Same as NEL_alpha for beta channel
         """
 
         description = 'Define the required atomic orbital occupation assigned in initialization ' + \
@@ -780,16 +997,16 @@ class BrokenSymmetry(Section):
                       'angular momentum channels. It works only with GUESS ATOMIC'
 
         keywords_alpha = [
-            Keyword('L', L_alpha),
-            Keyword('N', N_alpha),
-            Keyword('NEL', NEL_alpha)
+            Keyword('L', l_alpha),
+            Keyword('N', n_alpha),
+            Keyword('NEL', nel_alpha)
         ]
         alpha = Section('ALPHA', keywords=keywords_alpha, subsections={}, repeats=False)
 
         keywords_beta = [
-            Keyword('L', L_beta),
-            Keyword('N', N_beta),
-            Keyword('NEL', NEL_beta)
+            Keyword('L', l_beta),
+            Keyword('N', n_beta),
+            Keyword('NEL', nel_beta)
         ]
         beta = Section('BETA', keywords=keywords_beta, subsections={}, repeats=False)
 
@@ -800,7 +1017,14 @@ class BrokenSymmetry(Section):
 
 class XC_FUNCTIONAL(Section):
 
+    """
+    Defines the XC functional to use
+    """
+
     def __init__(self, functional, subsections={}):
+        """
+        Initialize the XC_FUNCTIONAL class
+        """
 
         location = 'CP2K_INPUT/FORCE_EVAL/DFT/XC/XC_FUNCTIONAL'
 
@@ -830,10 +1054,12 @@ class XC_FUNCTIONAL(Section):
 
 class PBE(Section):
 
+    """
+        Info about the PBE functional.
+    """
+
     def __init__(self, parameterization='ORIG', scale_c=1, scale_x=1):
         """
-        Info about the PBE functional.
-        
         Args:
             parameterization (str):
                 ORIG: original PBE
@@ -854,5 +1080,3 @@ class PBE(Section):
         super(PBE, self).__init__('PBE', subsections={}, repeats=False,
                                   location=location, section_parameters=[],
                                   keywords=keywords)
-
-

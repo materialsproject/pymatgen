@@ -1,7 +1,11 @@
+"""
+Utility functions for assisting with creating cp2k inputs
+"""
+
 import os
 import re
-from monty.io import zopen
-from ruamel import yaml
+import numpy as np
+from monty.re import regrep
 from pathlib import Path
 
 from pymatgen import SETTINGS
@@ -9,113 +13,8 @@ from pymatgen import SETTINGS
 MODULE_DIR = Path(__file__).resolve().parent
 
 
-# TODO: only loads the GTH type potentials. (Usually this is what is used with CP2K, but more exist.)
-def update_potentials(directory=None, potential_files=[]):
-    """
-    Updates the POTENTIALS.yaml files in the cp2k module.
-
-    Can give this function a different data directory from which to read the files.
-    This can be useful if you have custom potential files.
-    """
-    if directory:
-        cp2k_data = directory
-    else:
-        cp2k_data = SETTINGS.get("PMG_CP2K_DATA_DIR", '')
-    if not potential_files:
-        potential_files = [
-            'GTH_POTENTIALS',
-            'NLCC_POTENTIALS'
-        ]
-
-    class CustomDumper(yaml.Dumper):
-        # Super neat hack to preserve the mapping key order. See https://stackoverflow.com/a/52621703/1497385
-        # Preserves ordering of the elements in the potential.yaml file
-        def represent_dict_preserve_order(self, data):
-            return self.represent_dict(data.items())
-    CustomDumper.add_representer(dict, CustomDumper.represent_dict_preserve_order)
-
-    for potential_file in potential_files:
-        potentials = read_potentials(filename=os.path.join(cp2k_data, potential_file))
-        with open('{}.yaml'.format(potential_file), 'w') as outfile:
-            yaml.dump(potentials, outfile, default_flow_style=False, Dumper=CustomDumper)
-
-
-def read_potentials(filename):
-    """
-    Reads in the pseudopotentials information from GTH formatted potential file as
-    is found in cp2k/data directory
-
-    Args:
-        filename: (str) filename to be parsed.
-
-    Returns:
-         (dict) representation of the pseudopotential file
-    """
-    with zopen(filename) as f:
-        lines = f.readlines()
-    potentials = {}
-    current_functional = ''
-    for i in range(len(lines)):
-        if lines[i].__contains__('functional'):
-            match = re.search(r'(\w+) functional', lines[i])
-            current_functional = match.groups(0)[0]
-            potentials[current_functional] = {}
-        if current_functional:
-            if lines[i].__contains__('GTH'):
-                l = lines[i].split()
-                element = l[0]
-                potential = l[1]
-                potentials[current_functional][element] = {}
-                potentials[current_functional][element][potential] = {}
-                potentials[current_functional][element][potential]['alias'] = [s for s in l[2:]]
-
-                i += 1
-                potentials[current_functional][element][potential]['nelect'] = \
-                    [int(s) for s in lines[i].split()]
-                i += 1
-
-                l3 = lines[i].split()  # r_loc nexp_ppl cexp_ppl(1) ... cexp_ppl(nexp_ppl)
-                potentials[current_functional][element][potential]['r_loc'] = \
-                    float(l3[0])
-                potentials[current_functional][element][potential]['nexp_ppl'] = \
-                    int(l3[1])
-                potentials[current_functional][element][potential]['cexp_ppl'] = \
-                    [float(s) for s in l3[2:]]
-                i += 1
-
-                if lines[i].split()[0] == 'NLCC':
-                    potentials[current_functional][element][potential]['NLCC'] = {
-                        'n_nlcc': int(lines[i].split()[-1]),
-                        'r_core': float(lines[i+1].split()[0]),
-                        'n_core': float(lines[i+1].split()[1]),
-                        'c_core': float(lines[i+1].split()[2])
-                    }
-                    i += 2
-
-                potentials[current_functional][element][potential]['nprj'] = int(lines[i].split()[0])
-                i += 1
-
-                potentials[current_functional][element][potential][
-                    'r'] = []  # Radius of non-local part for ang. mom. quantum number l
-                potentials[current_functional][element][potential][
-                    'nprj_ppnl'] = []  # number of nonlocal projectors for ang mom = l
-                potentials[current_functional][element][potential]['hprj_ppnl'] = []  # coeff of nonlocal projectors funcs
-                for j in range(potentials[current_functional][element][potential]['nprj']):
-                    l = lines[i].split()
-                    potentials[current_functional][element][potential]['r'].append(float(l[0]))
-                    potentials[current_functional][element][potential]['nprj_ppnl'].append(int(l[1]))
-                    for k in range(1, potentials[current_functional][element][potential]['nprj_ppnl'][-1] + 1).__reversed__():
-                        l = lines[i].split()
-                        potentials[current_functional][element][potential]['hprj_ppnl'].extend(
-                            [float(s) for s in l[-k:]]
-                        )
-                        i += 1
-                i += 1
-    return potentials
-
-
 # TODO: Setting the default basis set to triple zeta double valence potential (highest accuracy). Check this.
-def get_basis_and_potential(species, potential_type='GTH', functional='PBE', basis_type='MOLOPT', cardinality='DZVP'):
+def get_basis_and_potential(species, functional='PBE', basis_type='MOLOPT', cardinality='DZVP'):
 
     """
     Given a specie and a potential/basis type, this function accesses the available basis sets and potentials in
@@ -125,10 +24,10 @@ def get_basis_and_potential(species, potential_type='GTH', functional='PBE', bas
     Note: as with most cp2k inputs, the convention is to use all caps, so use type="GTH" instead of "gth"
 
     Args:
-        specie: (list) list of species for which to get the potential/basis strings
-        potential_type: (str) the potential type. Default: 'GTH'
-        basis_type: (str) the basis set type. Default: 'TZV2P'
+        species: (list) list of species for which to get the potential/basis strings
         functional: (str) functional type. Default: 'PBE'
+        basis_type: (str) the basis set type. Default: 'MOLOPT'
+        cardinality: (str) basis set cardinality. Default: 'DZVP'
 
             functionals available in CP2K:
                 - BLYP
@@ -143,28 +42,107 @@ def get_basis_and_potential(species, potential_type='GTH', functional='PBE', bas
     Returns:
         (dict) of the form {'specie': {'potential': potential, 'basis': basis}...}
     """
+    cp2k_data = SETTINGS.get("PMG_CP2K_DATA_DIR", '')
+    basis_filename = SETTINGS.get('PMG_DEFAULT_CP2K_BASIS_FILE', 'BASIS_MOLOPT')
+    basis_path = os.path.join(cp2k_data, basis_filename)
 
-    with zopen(os.path.join(MODULE_DIR, '{}_POTENTIALS.yaml'.format(potential_type))) as f:
-        potentials = yaml.safe_load(f)
+    potential_filename = SETTINGS.get('PMG_DEFAULT_CP2K_POTENTIAL_FILE', 'GTH_POTENTIALS')
+    potential_path = os.path.join(cp2k_data, potential_filename)
 
-    d = {}
-    for specie in species:
-        d[specie] = {}
-        if basis_type is 'MOLOPT':
-            d[specie]['basis'] = "{}-MOLOPT-GTH".format(cardinality)
-            d['basis_filename'] = 'BASIS_MOLOPT'
-            d['potential_filename'] = 'GTH_POTENTIALS'
-        elif basis_type is 'GTH':
-            d[specie]['basis'] = "{}-GTH".format(cardinality)
-            d['basis_filename'] = 'GTH_BASIS_SETS'
-            d['potential_filename'] = 'GTH_POTENTIALS'
-        elif (basis_type is 'ALL') or (basis_type is 'ALLELECTRON'):
-            d[specie]['basis'] = "{}-ALL".format(cardinality)
-            d['basis_filename'] = 'ALL_BASIS_SETS'
-            d['potential_filename'] = 'ALL_POTENTIALS'
+    functional = functional or SETTINGS.get("PMG_DEFAULT_FUNCTIONAL", "PBE")
+    cardinality = cardinality or SETTINGS.get("PMG_DEFAULT_BASIS_CARDINALITY", "DZVP")
+
+    basis_and_potential = {
+        'basis_filename': basis_filename,
+        'potential_filename': potential_filename,
+    }
+
+    patterns = {specie: re.compile(r"^[\s+]?{}\s+(.+) ".format(specie)) for specie in species}
+    matches_basis = regrep(basis_path, patterns=patterns)
+    matches_potential = regrep(potential_path, patterns=patterns)
+
+    for k in patterns.keys():
+        basis_and_potential[k] = {}
+        for m in ([i[0] for i in matches_basis.get(k, [])]):
+            if m[0].__contains__(cardinality.upper()):
+                if m[0].__contains__(basis_type.upper()):
+                    basis_and_potential[k]['basis'] = m[0]
+
+        for m in ([i[0] for i in matches_potential.get(k, [])]):
+            if m[0].__contains__(functional.upper()):
+                basis_and_potential[k]['potential'] = m[0]
+
+    return basis_and_potential
+
+
+def get_aux_basis(species, basis_filename=[], basis_type='cpFIT'):
+    """
+    Get auxiliary basis info for a list of species
+
+    Args:
+        species (list): list of species to get info for
+        basis_filename (list): list of basis set filenames to look in
+        basis_type (str): default basis type to look for. Otherwise, follow defaults
+    """
+
+    _aux = [
+        basis_type,
+        'FIT',
+        'cFIT',
+        'pFIT',
+        'cpFIT',
+        'aug-FIT',
+        'aug-cFIT',
+        'aug-pFIT',
+        'aug-cpFIT'
+    ]
+
+    cp2k_data = SETTINGS.get("PMG_CP2K_DATA_DIR", '')
+    basis_filenames = basis_filename or ['BASIS_ADMM', 'BASIS_ADMM_MOLOPT']
+    basis = {
+        'basis_filename': basis_filenames
+    }
+    basis.update({k: {} for k in species})
+
+    for basis_filename in basis_filenames:
+        basis_path = os.path.join(cp2k_data, basis_filename)
+        patterns = {specie: re.compile(r"^[\s+]?{}\s+(.+)[\s+]?$".format(specie)) for specie in species}
+        matches = regrep(basis_path, patterns=patterns)
+
+        for k in patterns.keys():
+            found = False
+            for a in _aux:
+                for m in ([i[0] for i in matches.get(k, [])]):
+                    if m[0].startswith(a):
+                        basis[k]['basis'] = m[0]
+                        found = True
+                        break
+                if found:
+                    break
+    return basis
+
+
+def get_unique_site_indices(structure):
+    """
+    Get unique site indices for a structure according to site properties. Whatever site-property has the most
+    unique values is used for indexing
+    """
+    sites = {}
+    property = None
+    for s in structure.symbol_set:
+        s_ids = structure.indices_from_symbol(s)
+        unique = [0]
+        for site_prop, vals in structure.site_properties.items():
+            _unique = np.unique([vals[i] for i in s_ids])
+            if len(unique) < len(_unique):
+                unique = _unique
+                property = site_prop
+        if property is None:
+            sites[s] = s_ids
         else:
-            raise AttributeError("AN UNKNOWN BASIS SET TYPE, {}, HAS BEEN SPECIFIED.".format(basis_type))
-
-        d[specie]['potential'] = "GTH-{}".format(functional)
-
-    return d
+            for i, u in enumerate(unique):
+                sites[s+'_'+str(i+1)] = []
+                for j, site in enumerate([structure.site_properties[property][ids] for ids in s_ids]):
+                    if site == u:
+                        sites[s+'_'+str(i+1)].append(j)
+    return sites

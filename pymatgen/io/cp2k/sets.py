@@ -1,17 +1,3 @@
-import math
-from pathlib import Path
-from pymatgen.io.cp2k.inputs import *
-from pymatgen.io.cp2k.utils import get_basis_and_potential
-
-import warnings
-
-__author__ = "Nicholas Winner"
-__version__ = "0.2"
-__email__ = "nwinner@berkeley.edu"
-__date__ = "January 2019"
-
-MODULE_DIR = Path(__file__).resolve().parent
-
 """
 This module defines input sets for CP2K and is a work in progress. The structure/philosophy
 of this module is based on the Vasp input sets in Pymatgen. These sets are meant to contain
@@ -20,7 +6,7 @@ need for intervention 99% of the time. 99% of the time, you only need to provide
 structure object and let the defaults take over from there.
 
 The sets are intended to be very general, e.g. a set for geometry relaxation, and so most of the
-time, if you have specific needs, you can simply specify them via the keyword argument 
+time, if you have specific needs, you can simply specify them via the keyword argument
 override_default_params (see Section.update() method). If you have the need to create a new input
 set (say for a standardized high throughput calculation) then you can create a new child of the
 Cp2kInputSet class.
@@ -31,31 +17,47 @@ In order to implement a new Set within the current code structure, follow this 3
     (3) Call self.update(override_default_params) in order to allow user settings.
 """
 
+import math
+from pathlib import Path
+from pymatgen.io.cp2k.inputs import Cp2kInput, Section, Keyword, Global, ForceEval, Mgrid, MO_Cubes, \
+    OrbitalTransformation, XC_FUNCTIONAL, V_Hartree_Cube, Dft, E_Density_Cube, LDOS, PDOS, \
+    Coord, Kind, QS, PBE, Cell, Subsys, Scf
+from pymatgen.io.cp2k.utils import get_basis_and_potential, get_aux_basis, get_unique_site_indices
+
+__author__ = "Nicholas Winner"
+__version__ = "0.2"
+__email__ = "nwinner@berkeley.edu"
+__date__ = "January 2019"
+
+MODULE_DIR = Path(__file__).resolve().parent
+
 
 class Cp2kInputSet(Cp2kInput):
+
+    """
+    The basic representation of a CP2K input set as a collection of "sections" defining the simulation
+    connected to a structure object. At the most basis level, CP2K requires a &GLOBAL section and
+    &FORCE_EVAL section. Global sets parameters like "RUN_TYPE" or the overall verbosity. FORCE_EVAL is
+    the largest section usually, containing the cell and coordinates of atoms, the DFT settings, and more.
+    This top level input set is meant to initialize GLOBAL and FORCE_EVAL based on a structure object and
+    and sections that the user provides.
+
+    Like everything that goes into a cp2k input file, this base input set is essentially a section object.
+    These sets are distinguished by saving default settings for easy implementation of calculations such
+    as relaxation and static calculations. This base set is here to transfer a pymatgen structure object
+    into the input format for cp2k and associate the basis set and pseudopotential to use with each
+    element in the structure.
+
+    Generally, this class will not be used directly, and instead one of
+    its child-classes will be used, which contain more predefined initializations of various sections, and,
+    if modifications are required, the user can specify override_default_settings.
+    """
 
     def __init__(self, structure, potential_and_basis={},
                  kppa=1000, break_symmetry=False,
                  multiplicity=0, project_name='CP2K',
                  override_default_params={}, **kwargs):
         """
-        The basic representation of a CP2K input set as a collection of "sections" defining the simulation
-        connected to a structure object. At the most basis level, CP2K requires a &GLOBAL section and
-        &FORCE_EVAL section. Global sets parameters like "RUN_TYPE" or the overall verbosity. FORCE_EVAL is
-        the largest section usually, containing the cell and coordinates of atoms, the DFT settings, and more.
-        This top level input set is meant to initialize GLOBAL and FORCE_EVAL based on a structure object and
-        and sections that the user provides.
-
-        Like everything that goes into a cp2k input file, this base input set is essentially a section object.
-        These sets are distinguished by saving default settings for easy implementation of calculations such
-        as relaxation and static calculations. This base set is here to transfer a pymatgen structure object
-        into the input format for cp2k and associate the basis set and pseudopotential to use with each
-        element in the structure.
-
-        Generally, this class will not be used directly, and instead one of
-        its child-classes will be used, which contain more predefined initializations of various sections, and,
-        if modifications are required, the user can specify override_default_settings.
-
         Args:
             structure: (Structure) pymatgen structure object used to define the lattice,
                         coordinates, and elements
@@ -101,74 +103,40 @@ class Cp2kInputSet(Cp2kInput):
             # Only sample gamma point, need k-points / num_atoms to be < 8.
             structure.make_supercell(math.ceil(math.pow(kppa / structure.num_sites / 8, 1/3)))
 
-        # Build the simulation cell from structure
-        if break_symmetry:
-            coord = Coord(structure, True)
-        else:
-            coord = Coord(structure, alias=False)
-
         cell = Cell(structure.lattice)
-        subsys = Subsys(subsections={'CELL': cell, 'COORD': coord})
+        subsys = Subsys(subsections={'CELL': cell})
 
         # Decide what basis sets/pseudopotentials to use
         basis_type = potential_and_basis.get("basis", 'MOLOPT')
         potential = potential_and_basis.get("potential", 'GTH')
-        functional = potential_and_basis.get('functional', 'PBE')
         cardinality = potential_and_basis.get('cardinality', 'DZVP')
-        basis_and_potential = get_basis_and_potential(structure.symbol_set, potential_type=potential,
-                                                      functional=functional, basis_type=basis_type,
+        basis_and_potential = get_basis_and_potential(structure.symbol_set, functional=potential, basis_type=basis_type,
                                                       cardinality=cardinality)
         self.basis_set_file_name = basis_and_potential['basis_filename']
         self.potential_file_name = basis_and_potential['potential_filename']
 
+        # Insert atom kinds by identifying the unique sites (unique element and site properties)
+        unique_kinds = get_unique_site_indices(structure)
+        for k in unique_kinds.keys():
+            kind = k.split('_')[0]
+            subsys.insert(Kind(kind, alias=k, basis_set=basis_and_potential[kind]['basis'],
+                          potential=basis_and_potential[kind]['potential']))
+        coord = Coord(structure, alias=unique_kinds)
+        subsys.insert(coord)
 
-        # TODO: This is my least favorite "hack" in the current sets implementation... definitely going to change -NW
-        # The natural way to do this is define a "KIND" for each element, but, if
-        # there are site properties of interest MAGMOM/MAGNETIZATION, then these
-        # are defined in the KIND section, so we need to split of the KIND sections
-        # by site.
-        if break_symmetry:
-            for i, s in enumerate(structure.sites):
-                _kind_subsections = {}
-                if 'magmom' in s.properties:
-                    magnetization = s.properties.get('magmom')
-                elif 'magnetization' in s.properties:
-                    magnetization = s.properties.get('magnetization')
-                else:
-                    magnetization = 0
-                if 'BS' in s.properties:
-                    _kind_subsections['BS'] = BrokenSymmetry(**s.properties.get('BS'))
-                alias = s.species_string+'_'+str(i+1)
-                subsys.insert(Kind(s.species_string, alias=alias, magnetization=magnetization,
-                                   subsections=_kind_subsections, verbose=False,
-                                   basis_set=basis_and_potential[s.species_string]['basis'],
-                                   potential=basis_and_potential[s.species_string]['potential']))
-        else:
-            for s in structure.symbol_set:
-                subsys.insert(Kind(s, basis_set=basis_and_potential[s]['basis'],
-                              potential=basis_and_potential[s]['potential']))
         if not self.check('FORCE_EVAL'):
             self.insert(ForceEval())
 
         self['FORCE_EVAL'].insert(subsys)
-        self['FORCE_EVAL'].insert(Section('PRINT', subsections={}))
-        self['FORCE_EVAL']['PRINT'].insert(Section('FORCES', subsections={}))
-        self['FORCE_EVAL']['PRINT'].insert(Section('STRESS_TENSOR', subsections={}))
-
-        # TODO: For now, always add trajectory and cell printing
-        if not self.check('MOTION'):
-            self.insert(Section('MOTION', subsections={}))
-        self['MOTION'].insert(Section('PRINT', subsections={}))
-        self['MOTION']['PRINT'].insert(Section('TRAJECTORY',
-                                               section_parameters=['HIGH'],
-                                               subsections={}))
-        self['MOTION']['PRINT'].insert(Section('CELL', subsections={}))
-        self['MOTION']['PRINT'].insert(Section('FORCES', subsections={}))
-        self['MOTION']['PRINT'].insert(Section('STRESS'))
+        self.print_forces()
+        self.print_motion()
 
         self.update(override_default_params)
 
     def create_structure(self, structure=None):
+        """
+        Create the structure for the input
+        """
         pass
 
     def activate_hybrid(self, structure, method='HSE06', hf_fraction=0.25, gga_x_fraction=0.75, gga_c_fraction=1):
@@ -176,12 +144,14 @@ class Cp2kInputSet(Cp2kInput):
         """
         Basic set for activating hybrid DFT calculation using Auxiliary Density Matrix Method.
         """
-
-        self['FORCE_EVAL']['DFT'].keywords.append(Keyword('BASIS_SET_FILE_NAME', 'BASIS_ADMM'))
+        basis = get_aux_basis(self.structure.symbol_set)
+        self['FORCE_EVAL']['DFT'].keywords.extend([
+            Keyword('BASIS_SET_FILE_NAME', b) for b in basis['basis_filename']])
 
         for k, v in self['FORCE_EVAL']['SUBSYS'].subsections.items():
             if 'KIND' in k:
-                v.keywords.append(Keyword('BASIS_SET', 'AUX_FIT', 'cFIT3'))
+                kind = v.get_keyword('ELEMENT').values[0]
+                v.keywords.append(Keyword('BASIS_SET', 'AUX_FIT', basis[kind]['basis']))
 
         aux_matrix_params = [
             Keyword('ADMM_PURIFICATION_METHOD', 'MO_DIAG'),
@@ -202,7 +172,7 @@ class Cp2kInputSet(Cp2kInput):
                                       Keyword('SCREEN_ON_INITIAL_P', True),
                                       Keyword('SCREEN_P_FORCES', True)])
 
-        if method is 'HSE06':
+        if method == 'HSE06':
             xc_functional.insert(Section('XWPBE', subsections={},
                                          keywords=[Keyword('SCALE_X0', 1),
                                                    Keyword('SCALE_X', -hf_fraction),
@@ -211,7 +181,7 @@ class Cp2kInputSet(Cp2kInput):
                 Keyword('POTENTIAL_TYPE', 'SHORTRANGE'),
                 Keyword('OMEGA', 0.11)  # TODO This value should be tested, can we afford to increase it to an opt val?
             ]
-        elif method is 'PBE0':
+        elif method == 'PBE0':
             ip_keywords = [
                 Keyword('POTENTIAL_TYPE', 'TRUNCATED'),
                 Keyword('CUTOFF_RADIUS', structure.lattice.matrix[structure.lattice.matrix.nonzero()].min() / 2),
@@ -233,45 +203,70 @@ class Cp2kInputSet(Cp2kInput):
         self.subsections['FORCE_EVAL']['DFT'].insert(aux_matrix)
         self.subsections['FORCE_EVAL']['DFT'].insert(xc)
 
+    def print_forces(self):
+        """
+        Print out the forces and stress during calculation
+        """
+        self['FORCE_EVAL'].insert(Section('PRINT', subsections={}))
+        self['FORCE_EVAL']['PRINT'].insert(Section('FORCES', subsections={}))
+        self['FORCE_EVAL']['PRINT'].insert(Section('STRESS_TENSOR', subsections={}))
+
+    def print_motion(self):
+        """
+        Print the motion info (trajectory, cell, forces, stress
+        """
+        if not self.check('MOTION'):
+            self.insert(Section('MOTION', subsections={}))
+        self['MOTION'].insert(Section('PRINT', subsections={}))
+        self['MOTION']['PRINT'].insert(Section('TRAJECTORY',
+                                               section_parameters=['HIGH'],
+                                               subsections={}))
+        self['MOTION']['PRINT'].insert(Section('CELL', subsections={}))
+        self['MOTION']['PRINT'].insert(Section('FORCES', subsections={}))
+        self['MOTION']['PRINT'].insert(Section('STRESS', subsections={}))
+
 
 class DftSet(Cp2kInputSet):
     """
     Base for an input set using the Quickstep module (i.e. a DFT calculation). The DFT section is pretty vast
     in CP2K, so this set hopes to make the DFT setup fairly simple. The provided parameters are pretty conservative,
     and so they should not need to be changed very often.
-
-    Args:
-        structure: Pymatgen structure object
-        ot (bool): Whether or not to use orbital transformation method for matrix diagonalization. OT is the flagship
-            matrix diagonalizer of CP2K, and will provide huge speed-ups for this part of the calculation, but the
-            system must have a band gap for OT to be used (higher band-gap --> faster convergence). Band gap is also
-            used by the preconditioner for OT, and should be set as a value SMALLER than the true band gap to get good
-            efficiency. Generally, this parameter does not need to be changed from default of 0.01
-        band_gap (float): The band gap can also be specified in order to determine if ot should be turned on.
-        eps_default (float): Replaces all EPS_XX Keywords in the DFT section (NOT its subsections!) to have this value,
-            ensuring an overall accuracy of at least this much.
-        minimizer (str): The minimization scheme. DIIS can be as much as 50% faster than the more robust conjugate
-            gradient method, and so it is chosen as default. Switch to CG if dealing with a difficult system.
-        preconditioner (str): Preconditioner for the OT method. The FULL_ALL preconditioner with a small estimate
-            of the band gap is usually very robust. Should only change when simulation cell gets to be very large.
-        cutoff (int): Cutoff energy (in Ry) for the finest level of the multigrid. A high cutoff will allow you to have
-            very accurate calculations PROVIDED that REL_CUTOFF is appropriate.
-        rel_cutoff (int): This cutoff decides how the Guassians are mapped onto the different levels of the multigrid:
-            From CP2K: A Gaussian is mapped onto the coarsest level of the multi-grid, on which the function will cover
-                number of grid points greater than or equal to the number of grid points
-                will cover on a reference grid defined by REL_CUTOFF.
-        progression_factor (int): Divisor of CUTOFF to get the cutoff for the next level of the multigrid.
-
-        Takeaway for the cutoffs: https://www.cp2k.org/howto:converging_cutoff
-        If CUTOFF is too low, then all grids will be coarse and the calculation may become inaccurate; and if
-        REL_CUTOFF is too low, then even if you have a high CUTOFF, all Gaussians will be mapped onto the coarsest
-        level of the multi-grid, and thus the effective integration grid for the calculation may still be too coarse.
     """
 
     def __init__(self, structure, ot=True, band_gap=0.01, eps_default=1e-12,
                  eps_scf=1e-7, max_scf=50, minimizer='DIIS', preconditioner='FULL_ALL',
                  cutoff=1200, rel_cutoff=80, ngrids=5, progression_factor=3,
                  override_default_params={}, **kwargs):
+        """
+        Args:
+            structure: Pymatgen structure object
+            ot (bool): Whether or not to use orbital transformation method for matrix diagonalization. OT is the
+                flagship matrix diagonalizer of CP2K, and will provide huge speed-ups for this part of the calculation,
+                but the system must have a band gap for OT to be used (higher band-gap --> faster convergence).
+                Band gap is also used by the preconditioner for OT, and should be set as a value SMALLER than the true
+                band gap to get good efficiency. Generally, this parameter does not need to be changed from
+                default of 0.01
+            band_gap (float): The band gap can also be specified in order to determine if ot should be turned on.
+            eps_default (float): Replaces all EPS_XX Keywords in the DFT section (NOT its subsections!) to have this
+                value, ensuring an overall accuracy of at least this much.
+            minimizer (str): The minimization scheme. DIIS can be as much as 50% faster than the more robust conjugate
+                gradient method, and so it is chosen as default. Switch to CG if dealing with a difficult system.
+            preconditioner (str): Preconditioner for the OT method. The FULL_ALL preconditioner with a small estimate
+                of the band gap is usually very robust. Should only change when simulation cell gets to be very large.
+            cutoff (int): Cutoff energy (in Ry) for the finest level of the multigrid. A high cutoff will allow you to
+                have very accurate calculations PROVIDED that REL_CUTOFF is appropriate.
+            rel_cutoff (int): This cutoff decides how the Guassians are mapped onto the different levels of the
+                multigrid. From CP2K: A Gaussian is mapped onto the coarsest level of the multi-grid, on which the
+                    function will cover number of grid points greater than or equal to the number of grid points
+                    will cover on a reference grid defined by REL_CUTOFF.
+            progression_factor (int): Divisor of CUTOFF to get the cutoff for the next level of the multigrid.
+
+            Takeaway for the cutoffs: https://www.cp2k.org/howto:converging_cutoff
+            If CUTOFF is too low, then all grids will be coarse and the calculation may become inaccurate; and if
+            REL_CUTOFF is too low, then even if you have a high CUTOFF, all Gaussians will be mapped onto the coarsest
+            level of the multi-grid, and thus the effective integration grid for the calculation may still be too
+            coarse.
+        """
 
         super(DftSet, self).__init__(structure, **kwargs)
 
@@ -310,6 +305,7 @@ class DftSet(Cp2kInputSet):
         self['FORCE_EVAL']['DFT'].insert(Section('PRINT', subsections={}))
 
         self.print_pdos()
+        self.print_ldos()
         self.print_mo_cubes()
 
         self.update(override_default_params)
@@ -326,6 +322,13 @@ class DftSet(Cp2kInputSet):
             self['FORCE_EVAL']['DFT']['PRINT'].insert(PDOS(nlumo=nlumo))
 
     def print_ldos(self, nlumo=-1):
+        """
+        Activate the printing of LDOS files, printing one for each atom kind by default
+
+        Args:
+            nlumo (int): Number of virtual orbitals to be added to the MO set (-1=all).
+                CAUTION: Setting this value to be higher than the number of states present may cause a Cholesky error.
+        """
         if not self.check('FORCE_EVAL/DFT/PRINT/PDOS'):
             self['FORCE_EVAL']['DFT']['PRINT'].insert(PDOS(nlumo=nlumo))
         for i in range(len(self.structure)):
@@ -365,21 +368,17 @@ class DftSet(Cp2kInputSet):
         """
         self['FORCE_EVAL']['DFT'].set_keyword(Keyword('CHARGE', charge))
 
-    def print_structures(self):
-        trajectory = Section('TRAJECTORY', section_parameters=['HIGH'], subsections={})
-        cell = Section('CELL', subsections={})
-        print = Section('PRINT', subsections={'TRAJECTORY': trajectory, 'CELL': cell})
-        self['MOTION'] = Section('MOTION', subsections={'PRINT': print})
-
 
 class StaticSet(DftSet):
+
+    """
+    Basic static energy calculation. Turns on Quickstep module, sets the run_type in global,
+    and uses structure object to build the subsystem.
+    """
 
     def __init__(self, structure, project_name='Static', run_type='ENERGY_FORCE',
                  override_default_params={}, **kwargs):
         """
-        Basic static energy calculation. Turns on Quickstep module, sets the run_type in global,
-        and uses structure object to build the subsystem.
-
         Args:
             structure: Pymatgen structure object
             project_name (str): What to name this cp2k project (controls naming of files printed out)
@@ -393,24 +392,27 @@ class StaticSet(DftSet):
 
 class RelaxSet(DftSet):
 
+    """
+    CP2K input set containing the basic settings for performing geometry optimization. Description
+    of args for geo optimization are from CP2K Manual
+    """
+
     def __init__(self, structure, max_drift=1e-3, max_force=1e-3, max_iter=200,
                  project_name='Relax', optimizer='CG', override_default_params={}, **kwargs):
 
         """
-        CP2K input set containing the basic settings for performing geometry optimization. Description
-        of args for geo optimization are from CP2K Manual
-
         Args:
             structure:
-            max_drift: Convergence criterion for the maximum geometry change between the current and the last optimizer iteration.
-                This keyword cannot be repeated and it expects precisely one real.
+            max_drift: Convergence criterion for the maximum geometry change between the current and the
+                last optimizer iteration. This keyword cannot be repeated and it expects precisely one real.
                 Default value: 3.00000000E-003
                 Default unit: [bohr]
             max_force (float): Convergence criterion for the maximum force component of the current configuration.
                 This keyword cannot be repeated and it expects precisely one real.
                 Default value: 4.50000000E-004
                 Default unit: [bohr^-1*hartree]
-            max_iter (int): Specifies the maximum number of geometry optimization steps. One step might imply several force evaluations for the CG and LBFGS optimizers.
+            max_iter (int): Specifies the maximum number of geometry optimization steps.
+                One step might imply several force evaluations for the CG and LBFGS optimizers.
                 This keyword cannot be repeated and it expects precisely one integer.
                 Default value: 200
             optimizer (str): Specify which method to use to perform a geometry optimization.
@@ -422,7 +424,6 @@ class RelaxSet(DftSet):
         """
         super(RelaxSet, self).__init__(structure, **kwargs)
 
-        s = structure.composition.formula.replace(' ', '-')
         global_section = Global(project_name=project_name, run_type='GEO_OPT')
 
         geo_opt_params = [
@@ -448,11 +449,21 @@ class RelaxSet(DftSet):
 
 class HybridStaticSet(StaticSet):
 
+    """
+    Static calculation using hybrid DFT with the ADMM formalism in Cp2k.
+    """
+
     def __init__(self, structure, method='HSE06', hf_fraction=0.25, project_name='Hybrid-Static',
                  gga_x_fraction=0.75, gga_c_fraction=1, override_default_params={}, **kwargs):
         """
-        Static calculation using hybrid DFT with the ADMM formalism in Cp2k.
-        :param structure:
+        Args:
+            structure: pymatgen structure object
+            method: hybrid dft method to use (currently select between HSE06 and PBE0)
+            hf_fraction: percentage of exact HF to mix-in
+            project_name: what to call this project
+            gga_x_fraction: percentage of gga exchange to use
+            gga_c_fraction: percentage of gga correlation to use
+            override_default_params: override settings (see above).
         """
         super(HybridStaticSet, self).__init__(structure, project_name=project_name, **kwargs)
         self.activate_hybrid(structure, method=method, hf_fraction=hf_fraction,
@@ -462,8 +473,22 @@ class HybridStaticSet(StaticSet):
 
 class HybridRelaxSet(RelaxSet):
 
+    """
+    Static calculation using hybrid DFT with the ADMM formalism in Cp2k.
+    """
+
     def __init__(self, structure, method='HSE06', hf_fraction=0.25, project_name='Hybrid-Relax',
                  gga_x_fraction=0.75, gga_c_fraction=1, override_default_params={}, **kwargs):
+        """
+        Args:
+            structure: pymatgen structure object
+            method: hybrid dft method to use (currently select between HSE06 and PBE0)
+            hf_fraction: percentage of exact HF to mix-in
+            project_name: what to call this project
+            gga_x_fraction: percentage of gga exchange to use
+            gga_c_fraction: percentage of gga correlation to use
+            override_default_params: override settings (see above).
+        """
         super(HybridRelaxSet, self).__init__(structure, project_name=project_name, **kwargs)
         self.activate_hybrid(structure, method=method, hf_fraction=hf_fraction,
                              gga_x_fraction=gga_x_fraction, gga_c_fraction=gga_c_fraction)
