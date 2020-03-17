@@ -1,6 +1,13 @@
-import json
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
+
+"""
+This module defines the Cp2k output parser along with a few other functions for parsing cp2k-related
+outputs.
+"""
+
 import glob
-import itertools
 import logging
 import math
 import os
@@ -9,24 +16,17 @@ import numpy as np
 import pandas as pd
 import warnings
 
-from monty.io import zopen, reverse_readfile
-from monty.json import MSONable
-from monty.json import jsanitize
+from monty.io import zopen
 from monty.re import regrep
-from monty.os.path import zpath
 
 from pymatgen.core.sites import Site
 from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Structure, Molecule
+from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.electronic_structure.dos import Dos, CompleteDos, add_densities
 from pymatgen.io.xyz import XYZ
 
 from pymatgen.io.cp2k.inputs import Cp2kInput
-
-"""
-Classes for reading/manipulating/writing CP2K output files. 
-"""
 
 __author__ = "Nicholas Winner"
 __version__ = "0.1"
@@ -73,19 +73,21 @@ def _postprocessor(s):
 
 
 class Cp2kOutput:
-
     """
     Class for parsing output file from CP2K. The CP2K Input file is very flexible in the way that it is returned.
     This class will automatically parse parameters that should always be present, but other parsing features may be
     called depending on the run type.
-
-    Args:
-        filename: (str) Name of the CP2K output file to parse
-        verbose: (bool) Whether or not to parse with verbosity (will parse lots of data that may not be useful)
-
     """
-
     def __init__(self, filename, verbose=False, auto_load=False):
+        """
+        Initialize the Cp2kOutput object.
+
+        Args:
+            filename: (str) Name of the CP2K output file to parse
+            verbose: (bool) Whether or not to parse with verbosity (will parse lots of data that may not be useful)
+            auto_load (bool): Whether or not to automatically load basic info like energies and structures.
+        """
+
         # IO Info
         self.filename = filename
         self.dir = os.path.dirname(filename)
@@ -119,13 +121,13 @@ class Cp2kOutput:
             self.ran_successfully()  # Only if job completed. No info about convergence etc.
             self.convergence()  # Checks to see if job converged
 
-            self.parse_energies() # get total energy for each ionic step
-            self.parse_forces() # get forces on all atoms (in order), if available
-            self.parse_stresses() # get stress tensor and total stress at each ionic step, if available
-            self.parse_ionic_steps() # collect energy, forces, and total stress into ionic steps variable
+            self.parse_energies()  # get total energy for each ionic step
+            self.parse_forces()  # get forces on all atoms (in order), if available
+            self.parse_stresses()  # get stress tensor and total stress at each ionic step, if available
+            self.parse_ionic_steps()  # collect energy, forces, and total stress into ionic steps variable
 
             self.parse_initial_structure()  # Get the initial structure by parsing lattice and then parsing coords
-            self.parse_structures() # collect all structurs from the run
+            self.parse_structures()  # collect all structurs from the run
 
             self.parse_mo_eigenvalues()  # Get the eigenvalues of the MOs (for finding gaps, VBM, CBM)
             self.parse_timing()  # Get timing info (includes total CPU time consumed, but also much more)
@@ -140,29 +142,47 @@ class Cp2kOutput:
 
     @property
     def cp2k_version(self):
+        """
+        The cp2k version used in the calculation
+        """
         return self.data.get('cp2k_version', None)
 
     @property
     def completed(self):
-        try:
-            return self.data.get('completed', False)[0][0]
-        except:
-            return False
+        """
+        Did the calculation complete
+        """
+        c = self.data.get('completed', False)
+        if c:
+            return c[0][0]
+        return c
 
     @property
     def num_warnings(self):
+        """
+        How many warnings showed up during the run
+        """
         return self.data.get('num_warnings', 0)
 
     @property
     def run_type(self):
+        """
+        What type of run (Energy, MD, etc.) was performed
+        """
         return self.data.get('global').get('run_type')
 
     @property
     def project_name(self):
+        """
+        What project name was used for this calculation
+        """
         return self.data.get('global').get("project_name")
 
     @property
     def spin_polarized(self):
+        """
+        Was the calculation spin polarized
+        """
         if ('UKS' or 'UNRESTRICTED_KOHN_SHAM' or 'LSD' or 'SPIN_POLARIZED') in \
                 self.data['dft'].values():
             return True
@@ -170,11 +190,17 @@ class Cp2kOutput:
 
     @property
     def is_metal(self):
+        """
+        Was a band gap found? i.e. is it a metal
+        """
         if self.band_gap <= 0:
             return True
         return False
 
     def parse_files(self):
+        """
+        Identify files present in the directory with the cp2k output file. Looks for trajectories, dos, and cubes
+        """
         print("-"*50)
         print("Beginning file parsing... looking for cp2k outputs.")
         print("-"*50)
@@ -193,7 +219,7 @@ class Cp2kOutput:
         self.filenames['spin_density'] = glob.glob(os.path.join(self.dir, '*SPIN_DENSITY*.cube*'))
         self.filenames['v_hartree'] = glob.glob(os.path.join(self.dir, '*HARTREE*.cube*'))
 
-        for k,v in self.filenames.items():
+        for k, v in self.filenames.items():
             print("Finding {} files... found {} files.".format(k, len(v)))
         print("-"*50)
         print("Finished looking for output files.")
@@ -215,8 +241,8 @@ class Cp2kOutput:
                 lattice = self.parse_initial_structure().lattice
             elif len(self.filenames['cell']) == 1:
                 latfile = np.loadtxt(self.filenames['cell'][0])
-                lattice = [l[2:11].reshape(3,3) for l in latfile] \
-                    if len(latfile.shape)>1 else latfile[2:11].reshape(3, 3)
+                lattice = [l[2:11].reshape(3, 3) for l in latfile] \
+                    if len(latfile.shape) > 1 else latfile[2:11].reshape(3, 3)
             else:
                 raise FileNotFoundError("Unable to automatically determine lattice file. More than one exist.")
         else:
@@ -245,16 +271,30 @@ class Cp2kOutput:
                                                  species=[s.specie for s in m.sites], coords_are_cartesian=True))
             self.final_structure = self.structures[-1]
 
+    # TODO There seems to be a regex exponential explosion that happens with table parsing the initial coordinates
+        # as the structure gets large. This should work around that
     def parse_initial_structure(self):
-        header = r"Atom\s+Kind\s+Element\s+X\s+Y\s+Z\s+Z\(eff\)\s+Mass"
-        row = r"\s+(\d+)\s+(\d+)\s+(\w+)\s+(\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)"
-        footer = r"^$"
+        """
+        Parse the initial structure from the main cp2k output file
+        """
+        pattern = re.compile(r"- Atoms:\s+(\d+)")
+        patterns = {'num_atoms': pattern}
+        self.read_pattern(patterns=patterns, reverse=False, terminate_on_match=True, postprocess=int)
+
+        coord_table = []
+        with zopen(self.filename, "rt") as f:
+            while True:
+                line = f.readline()
+                if "Atom  Kind  Element       X           Y           Z          Z(eff)       Mass" in line:
+                    f.readline()
+                    for i in range(self.data['num_atoms'][0][0]):
+                        coord_table.append(f.readline().split())
+                    break
 
         self.parse_cell_params()
-        coord_table = self.read_table_pattern(header_pattern=header, row_pattern=row, footer_pattern=footer)
         self.initial_structure = Structure(self.lattice,
-                                   species=[i[2] for i in coord_table],
-                                   coords=[[float(i[4]), float(i[5]), float(i[6])] for i in coord_table])
+                                           species=[i[2] for i in coord_table],
+                                           coords=[[float(i[4]), float(i[5]), float(i[6])] for i in coord_table])
 
         self.composition = self.initial_structure.composition
         return self.initial_structure
@@ -276,6 +316,9 @@ class Cp2kOutput:
             raise ValueError("The provided CP2K job did not finish running! Cannot parse the file reliably.")
 
     def convergence(self):
+        """
+        Check whether or not the SCF and geometry optimization cycles converged.
+        """
         # SCF Loops
         uncoverged_inner_loop = re.compile(r"(Leaving inner SCF loop)")
         scf_converged = re.compile(r"(SCF run converged)")
@@ -301,12 +344,18 @@ class Cp2kOutput:
                           UserWarning)
 
     def parse_energies(self):
+        """
+        Get the total energy from the output file
+        """
         toten_pattern = re.compile(r"Total FORCE_EVAL.*\s(-?\d+.\d+)")
         self.read_pattern({'total_energy': toten_pattern},
                           terminate_on_match=True, postprocess=float, reverse=False)
         self.final_energy = self.data.get('total_energy', [])[-1][-1]
 
     def parse_forces(self):
+        """
+        Get the forces from the output file
+        """
         header_pattern = r"ATOMIC FORCES.+Z"
         row_pattern = r"\s+\d+\s+\d+\s+\w+\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)"
         footer_pattern = r"SUM OF ATOMIC FORCES"
@@ -316,6 +365,9 @@ class Cp2kOutput:
                                                       last_one_only=False)
 
     def parse_stresses(self):
+        """
+        Get the stresses from the output file.
+        """
         header_pattern = r"STRESS TENSOR.+Z"
         row_pattern = r"\s+\w+\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)"
         footer_pattern = r"^$"
@@ -328,21 +380,28 @@ class Cp2kOutput:
         self.read_pattern({'stress': trace_pattern}, terminate_on_match=False, postprocess=float, reverse=False)
 
     def parse_ionic_steps(self):
+        """
+        Parse the ionic step info
+        """
         self.ionic_steps = []
         for i in range(len(self.data['total_energy'])):
             self.ionic_steps.append({})
             try:
                 self.ionic_steps[i]['E'] = self.data['total_energy'][i][0]
-            except:
+            except TypeError:
                 raise warnings.warn('No total energies idenfied! Check output file')
             try:
                 self.ionic_steps[i]['forces'] = self.data['forces'][i]
-            except:
+            except TypeError:
                 pass
             try:
                 self.ionic_steps[i]['stress'] = self.data['stress'][i][0]
-            except:
+            except TypeError:
                 pass
+            try:
+                self.ionic_steps[i]['structure'] = self.structures[i]
+            except TypeError:
+                raise warnings.warn('Structure corresponding to this ionic step was not found!')
 
     def parse_cp2k_params(self):
         """
@@ -351,9 +410,12 @@ class Cp2kOutput:
         version = re.compile(r"\s+CP2K\|.+(\d\.\d)")
         input_file = re.compile(r"\s+CP2K\|\s+Input file name\s+(.+)$")
         self.read_pattern({'cp2k_version': version, 'input_filename': input_file},
-                           terminate_on_match=True, reverse=False)
+                          terminate_on_match=True, reverse=False)
 
     def parse_input(self):
+        """
+        Load in the input set from the input file (if it can be found)
+        """
         input_filename = self.data['input_filename'][0][0]
         for ext in ['', '.gz', '.GZ', '.z', '.Z', '.bz2', '.BZ2']:
             if os.path.exists(os.path.join(self.dir, input_filename+ext)):
@@ -386,7 +448,8 @@ class Cp2kOutput:
 
         # Functional
         functional = re.compile(r"\s+FUNCTIONAL\|\s+(.+):")
-        self.read_pattern({'functional': functional}, terminate_on_match=False, postprocess=_postprocessor, reverse=False)
+        self.read_pattern({'functional': functional}, terminate_on_match=False,
+                          postprocess=_postprocessor, reverse=False)
         self.data['dft']['functional'] = [item for sublist in self.data.pop('functional') for item in sublist]
 
         # HF exchange info
@@ -416,6 +479,9 @@ class Cp2kOutput:
         self.data['scf']['eps_scf'] = self.data.pop('eps_scf')[0][0]
 
     def parse_cell_params(self):
+        """
+        Parse the lattice parameters (initial) from the output file
+        """
         cell_volume = re.compile(r"\s+CELL\|\sVolume.*\s(\d+\.\d+)")
         vectors = re.compile(r"\s+CELL\| Vector.*\s(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)")
         angles = re.compile(r"\s+CELL\| Angle.*\s(\d+\.\d+)")
@@ -425,6 +491,9 @@ class Cp2kOutput:
         return self.lattice
 
     def parse_atomic_kind_info(self):
+        """
+        Parse info on what atomic kinds are present and what basis/pseudopotential is describing each of them.
+        """
         kinds = re.compile(r"Atomic kind: (\w+)")
         orbital_basis_set = re.compile(r"Orbital Basis Set\s+(.+$)")
         potential_information = re.compile(r"Potential information for\s+(.+$)")
@@ -441,20 +510,23 @@ class Cp2kOutput:
                                          'pseudo_potential': self.data.get('potential_info')[i][0]}
             try:
                 atomic_kind_info[kind[0]]['valence_electrons'] = self.data.get('valence_electrons')[i][0]
-            except:
+            except TypeError:
                 atomic_kind_info[kind[0]]['valence_electrons'] = None
             try:
                 atomic_kind_info[kind[0]]['core_electrons'] = self.data.get('core_electrons')[i][0]
-            except:
+            except TypeError:
                 atomic_kind_info[kind[0]]['core_electrons'] = None
             try:
                 atomic_kind_info[kind[0]]['auxiliary_basis_set'] = self.data.get('auxiliary_basis_set')[i]
-            except:
+            except TypeError:
                 atomic_kind_info[kind[0]]['auxiliary_basis_set'] = None
 
         self.data['atomic_kind_info'] = atomic_kind_info
 
     def parse_total_numbers(self):
+        """
+        Parse total numbers (not usually important)
+        """
         atomic_kinds = r'- Atomic kinds:\s+(\d+)'
         atoms = r'- Atoms:\s+(\d+)'
         shell_sets = r'- Shell sets:\s+(\d+)'
@@ -470,9 +542,13 @@ class Cp2kOutput:
                           terminate_on_match=True)
 
     def parse_scf_opt(self):
+        """
+        Parse the SCF cycles (not usually important)
+        """
         header = r"Step\s+Update method\s+Time\s+Convergence\s+Total energy\s+Change" + \
             r"\s+\-+"
-        row = r"(\d+)\s+(\w+\s?\w+)\s+(\d+\.\d+E\+\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+E[\+\-]?\d+)"
+        row = r"(\d+)\s+(\w+\s?\w+)\s+(\d+\.\d+E\+\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)" + \
+            r"\s+(-?\d+\.\d+)\s+(-?\d+\.\d+E[\+\-]?\d+)"
         footer = r"^$"
 
         scfs = self.read_table_pattern(header_pattern=header,
@@ -481,11 +557,14 @@ class Cp2kOutput:
 
         self.data['electronic_steps'] = scfs
 
-        #self.data['electronic_steps'] = []
-        #for i in scfs:
-        #    self.data['electronic_steps'].append([float(j[-2]) for j in i])
+        self.data['electronic_steps'] = []
+        for i in scfs:
+            self.data['electronic_steps'].append([float(j[-2]) for j in i])
 
     def parse_timing(self):
+        """
+        Parse the timing info (how long did the run take).
+        """
         header = r"SUBROUTINE\s+CALLS\s+ASD\s+SELF TIME\s+TOTAL TIME" + \
                  r"\s+MAXIMUM\s+AVERAGE\s+MAXIMUM\s+AVERAGE\s+MAXIMUM"
         row = r"(\w+)\s+(.+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)"
@@ -495,12 +574,14 @@ class Cp2kOutput:
                                          last_one_only=True, postprocess=_postprocessor)
         self.timing = {}
         for t in timing:
-            self.timing[t[0]] = {'calls': {'max': t[1]},
-                                'asd':t[2],
-                                'self_time': {'average':  t[3], 'maximum':  t[4]},
-                                'total_time': {'average':  t[5], 'maximum':  t[6]}}
+            self.timing[t[0]] = {'calls': {'max': t[1]}, 'asd': t[2],
+                                 'self_time': {'average':  t[3], 'maximum':  t[4]},
+                                 'total_time': {'average':  t[5], 'maximum':  t[6]}}
 
     def parse_opt_steps(self):
+        """
+        Parse the geometry optimization information
+        """
         # "Informations at step =" Summary block (floating point terms)
         total_energy = re.compile(r"\s+Total Energy\s+=\s+(-?\d+.\d+)")
         real_energy_change = re.compile(r"\s+Real energy change\s+=\s+(-?\d+.\d+)")
@@ -534,14 +615,23 @@ class Cp2kOutput:
                           terminate_on_match=False, postprocess=_postprocessor)
 
     def parse_mulliken(self):
+        """
+        Parse the mulliken population analysis info for each step
+        :return:
+        """
         header = r"Mulliken Population Analysis.+Net charge"
         pattern = r"\s+(\d)\s+(\w+)\s+(\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)"
         footer = r".+Total charge"
 
         d = self.read_table_pattern(header_pattern=header, row_pattern=pattern,
                                     footer_pattern=footer, last_one_only=False)
+        if d:
+            print("Found data, but not yet implemented!")
 
     def parse_hirshfeld(self):
+        """
+        parse the hirshfeld population analysis for each step
+        """
         uks = self.spin_polarized
         header = r"Hirshfeld Charges.+Net charge"
         footer = r"^$"
@@ -561,7 +651,8 @@ class Cp2kOutput:
                              for j in range(len(population))]
                 self.structures[i].add_site_property('hirshfield', hirshfeld)
         else:
-            pattern = r"\s+(\d)\s+(\w+)\s+(\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)"
+            pattern = r"\s+(\d)\s+(\w+)\s+(\d+)\s+(-?\d+\.\d+)\s+" \
+                + r"(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)"
             d = self.read_table_pattern(header_pattern=header, row_pattern=pattern,
                                         footer_pattern=footer, last_one_only=False)
             for i, ionic_step in enumerate(d):
@@ -700,7 +791,7 @@ class Cp2kOutput:
             with zopen(ldos_file, 'rt') as f:
                 lines = f.readlines()
                 site, num = re.search(r"list (\d+).+(\d+)", lines[0]).groups()
-                site = self.final_structure[int(site)] # TODO assumes one site gets one LDOS, not always true..
+                site = self.final_structure[int(site)]  # TODO assumes one site gets one LDOS, not always true..
                 if site not in ldoss.keys():
                     ldoss[site] = {}
                 efermi = float(lines[0].split()[-2]) * _hartree_to_ev_
@@ -829,7 +920,7 @@ class Cp2kOutput:
 
     def read_pattern(self, patterns, reverse=False, terminate_on_match=False,
                      postprocess=str):
-        """
+        r"""
         This function originally comes from pymatgen.io.vasp.outputs Outcar class
 
         General pattern reading. Uses monty's regrep method. Takes the same
@@ -862,7 +953,7 @@ class Cp2kOutput:
     def read_table_pattern(self, header_pattern, row_pattern, footer_pattern,
                            postprocess=str, attribute_name=None,
                            last_one_only=True):
-        """
+        r"""
         This function originally comes from pymatgen.io.vasp.outputs Outcar class
 
         Parse table-like data. A table composes of three parts: header,
@@ -927,6 +1018,9 @@ class Cp2kOutput:
     # TODO: for modularity, maybe this should return a raw dict instead of data dict
     # and the data dict can be created by the drone
     def as_dict(self):
+        """
+        Return dictionary representation of the output
+        """
         d = {'input': {}, 'output': {}}
         d['total_time'] = self.timing['cp2k']['total_time']['maximum']
         d['run_type'] = self.run_type
@@ -957,7 +1051,7 @@ def parse_energy_file(energy_file):
     columns = [
         'step', 'kinetic_energy', 'temp', 'potential_energy', 'conserved_quantity', 'used_time'
     ]
-    df = pd.read_table(energy_file, skiprows=1, names=columns, sep='\s+')
+    df = pd.read_table(energy_file, skiprows=1, names=columns, sep=r'\s+')
     df['kinetic_energy'] = df['kinetic_energy'] * _hartree_to_ev_
     df['potential_energy'] = df['potential_energy'] * _hartree_to_ev_
     df['conserved_quantity'] = df['conserved_quantity'] * _hartree_to_ev_
@@ -967,83 +1061,83 @@ def parse_energy_file(energy_file):
 
 
 class Cube:
+    """
+    From ERG Research Group with minor modifications.
+    """
+    def __init__(self, fname):
         """
-        From ERG Research Group with minor modifications.
+        Args:
+            fname (str): filename of the cube to read
         """
-        def __init__(self, fname):
-            f = zopen(fname, 'rt')
+        f = zopen(fname, 'rt')
 
-            # skip header lines
-            for i in range(2): f.readline()
+        # skip header lines
+        for i in range(2):
+            f.readline()
 
-            # number of atoms included in the file followed by the position of the origin of the volumetric data
+        # number of atoms included in the file followed by the position of the origin of the volumetric data
+        line = f.readline().split()
+        self.natoms = int(line[0])
+        self.origin = np.array(np.array(list(map(float, line[1:]))))
+
+        # The next three lines give the number of voxels along each axis (x, y, z) followed by the axis vector.
+        line = f.readline().split()
+        self.NX = int(line[0])
+        self.X = np.array([0.529177*float(l) for l in line[1:]])
+
+        line = f.readline().split()
+        self.NY = int(line[0])
+        self.Y = np.array([0.529177*float(l) for l in line[1:]])
+
+        line = f.readline().split()
+        self.NZ = int(line[0])
+        self.Z = np.array([0.529177*float(l) for l in line[1:]])
+
+        self.volume = abs(np.dot(np.cross(self.X, self.Y), self.Z))
+
+        # The last section in the header is one line for each atom consisting of 5 numbers,
+        # the first is the atom number, second (?), the last three are the x,y,z coordinates of the atom center.
+        self.sites = []
+        for i in range(self.natoms):
             line = f.readline().split()
-            self.natoms = int(line[0])
-            self.origin = np.array(np.array(list(map(float, line[1:]))))
+            self.sites.append(Site(line[0], list(map(float, line[2:]))))
 
-            # The next three lines give the number of voxels along each axis (x, y, z) followed by the axis vector.
-            line = f.readline().split()
-            self.NX = int(line[0])
-            self.X = np.array([0.529177*float(l) for l in line[1:]])
+        # Volumetric data
+        self.data = np.zeros((self.NX, self.NY, self.NZ))
+        i = 0
+        for s in f:
+            for v in s.split():
+                self.data[int(i / (self.NY * self.NZ)), int((i / self.NZ) % self.NY), int(i % self.NZ)] = float(v)
+                i += 1
 
-            line = f.readline().split()
-            self.NY = int(line[0])
-            self.Y = np.array([0.529177*float(l) for l in line[1:]])
+    def mask_sphere(self, r, coord):
+        """
+        produce spheric volume mask with radius R and center @ [Cx,Cy,Cz]
+        can be used for integration over spherical part of the volume
+        """
+        m = 0 * self.data
+        Cx, Cy, Cz = coord
+        for ix in range(int(math.ceil((Cx - r) / self.X[0])), int(math.floor((Cx + r) / self.X[0]))):
+            ryz = math.sqrt(r ** 2 - (ix * self.X[0] - Cx) ** 2)
+            for iy in range(int(math.ceil((Cy - ryz) / self.Y[1])), int(math.floor((Cy + ryz) / self.Y[1]))):
+                rz = math.sqrt(ryz ** 2 - (iy * self.Y[1] - Cy) ** 2)
+                for iz in range(int(math.ceil((Cz - rz) / self.Z[2])), int(math.floor((Cz + rz) / self.Z[2]))):
+                    m[ix, iy, iz] = 1
+        return m
 
-            line = f.readline().split()
-            self.NZ = int(line[0])
-            self.Z = np.array([0.529177*float(l) for l in line[1:]])
+    def integrate(self):
+        """
+        Integrate over the whole volume
+        """
+        return ((self.data)**2).sum()*self.volume
 
-            self.volume = abs(np.dot(np.cross(self.X, self.Y), self.Z))
+    def integrate_sphere(self, r, coord):
+        """
+        Integrate over a sphere of radius r.
 
-            # The last section in the header is one line for each atom consisting of 5 numbers,
-            # the first is the atom number, second (?), the last three are the x,y,z coordinates of the atom center.
-            self.sites = []
-            for i in range(self.natoms):
-                line = f.readline().split()
-                self.sites.append(Site(line[0], list(map(float, line[2:]))))
-
-            # Volumetric data
-            self.data = np.zeros((self.NX, self.NY, self.NZ))
-            i = 0
-            for s in f:
-                for v in s.split():
-                    self.data[int(i / (self.NY * self.NZ)), int((i / self.NZ) % self.NY), int(i % self.NZ)] = float(v)
-                    i += 1
-
-        def mask_sphere(self, r, coord):
-            # produce spheric volume mask with radius R and center @ [Cx,Cy,Cz]
-            # can be used for integration over spherical part of the volume
-            m = 0 * self.data
-            Cx, Cy, Cz = coord
-            for ix in range(int(math.ceil((Cx - r) / self.X[0])), int(math.floor((Cx + r) / self.X[0]))):
-                ryz = math.sqrt(r ** 2 - (ix * self.X[0] - Cx) ** 2)
-                for iy in range(int(math.ceil((Cy - ryz) / self.Y[1])), int(math.floor((Cy + ryz) / self.Y[1]))):
-                    rz = math.sqrt(ryz ** 2 - (iy * self.Y[1] - Cy) ** 2)
-                    for iz in range(int(math.ceil((Cz - rz) / self.Z[2])), int(math.floor((Cz + rz) / self.Z[2]))):
-                        m[ix, iy, iz] = 1
-            return m
-
-        def dump(self, f):
-            # output Gaussian cube into file descriptor "f".
-            # Usage pattern: f=open('filename.cube'); cube.dump(f); f.close()
-            print >> f, "CUBE file\ngenerated by piton _at_ erg.biophys.msu.ru"
-            print >> f, "%4d %.6f %.6f %.6f" % (self.natoms, self.origin[0], self.origin[1], self.origin[2])
-            print >> f, "%4d %.6f %.6f %.6f" % (self.NX, self.X[0], self.X[1], self.X[2])
-            print >> f, "%4d %.6f %.6f %.6f" % (self.NY, self.Y[0], self.Y[1], self.Y[2])
-            print >> f, "%4d %.6f %.6f %.6f" % (self.NZ, self.Z[0], self.Z[1], self.Z[2])
-            for atom in self.atoms:
-                print >> f, "%s %d %s %s %s" % (atom[0], 0, atom[1], atom[2], atom[3])
-            for ix in range(self.NX):
-                for iy in range(self.NY):
-                    for iz in range(self.NZ):
-                        print >> f, "%.5e " % self.data[ix, iy, iz],
-                        if (iz % 6 == 5): print >> f, ''
-                    print >> f, ""
-
-        def integrate(self):
-            return ((self.data)**2).sum()*self.volume
-
-        def integrate_sphere(self, r, coord):
-            mask = self.mask_sphere(r, coord)
-            return ((mask*self.data)**2).sum()*self.volume
+        Args:
+            r (float): radius of the sphere to construct
+            coord (list): list of cartesian coordinates for where to center the sphere
+        """
+        mask = self.mask_sphere(r, coord)
+        return ((mask*self.data)**2).sum()*self.volume
