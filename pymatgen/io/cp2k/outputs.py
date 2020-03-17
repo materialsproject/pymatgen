@@ -121,13 +121,13 @@ class Cp2kOutput:
             self.ran_successfully()  # Only if job completed. No info about convergence etc.
             self.convergence()  # Checks to see if job converged
 
+            self.parse_initial_structure()  # Get the initial structure by parsing lattice and then parsing coords
+            self.parse_structures()  # collect all structures from the run
+
             self.parse_energies()  # get total energy for each ionic step
             self.parse_forces()  # get forces on all atoms (in order), if available
             self.parse_stresses()  # get stress tensor and total stress at each ionic step, if available
             self.parse_ionic_steps()  # collect energy, forces, and total stress into ionic steps variable
-
-            self.parse_initial_structure()  # Get the initial structure by parsing lattice and then parsing coords
-            self.parse_structures()  # collect all structurs from the run
 
             self.parse_mo_eigenvalues()  # Get the eigenvalues of the MOs (for finding gaps, VBM, CBM)
             self.parse_timing()  # Get timing info (includes total CPU time consumed, but also much more)
@@ -388,20 +388,20 @@ class Cp2kOutput:
             self.ionic_steps.append({})
             try:
                 self.ionic_steps[i]['E'] = self.data['total_energy'][i][0]
-            except TypeError:
-                raise warnings.warn('No total energies idenfied! Check output file')
+            except (TypeError, IndexError):
+                warnings.warn('No total energies identified! Check output file')
             try:
                 self.ionic_steps[i]['forces'] = self.data['forces'][i]
-            except TypeError:
+            except (TypeError, IndexError):
                 pass
             try:
                 self.ionic_steps[i]['stress'] = self.data['stress'][i][0]
-            except TypeError:
+            except (TypeError, IndexError):
                 pass
             try:
                 self.ionic_steps[i]['structure'] = self.structures[i]
-            except TypeError:
-                raise warnings.warn('Structure corresponding to this ionic step was not found!')
+            except (TypeError, IndexError):
+                warnings.warn('Structure corresponding to this ionic step was not found!')
 
     def parse_cp2k_params(self):
         """
@@ -510,15 +510,15 @@ class Cp2kOutput:
                                          'pseudo_potential': self.data.get('potential_info')[i][0]}
             try:
                 atomic_kind_info[kind[0]]['valence_electrons'] = self.data.get('valence_electrons')[i][0]
-            except TypeError:
+            except (TypeError, IndexError):
                 atomic_kind_info[kind[0]]['valence_electrons'] = None
             try:
                 atomic_kind_info[kind[0]]['core_electrons'] = self.data.get('core_electrons')[i][0]
-            except TypeError:
+            except (TypeError, IndexError):
                 atomic_kind_info[kind[0]]['core_electrons'] = None
             try:
                 atomic_kind_info[kind[0]]['auxiliary_basis_set'] = self.data.get('auxiliary_basis_set')[i]
-            except TypeError:
+            except (TypeError, IndexError):
                 atomic_kind_info[kind[0]]['auxiliary_basis_set'] = None
 
         self.data['atomic_kind_info'] = atomic_kind_info
