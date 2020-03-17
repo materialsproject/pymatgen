@@ -32,8 +32,8 @@ class Section(MSONable):
     """
 
     # TODO: Not sure if I want to use this required_sections/keywords idea
-    # required_sections = []
-    # required_keywords = []
+    required_sections: list = []
+    required_keywords: list = []
     subsections: dict = {}  # Must exist before __init__ is even called
 
     def __init__(self, name, subsections, repeats=False, description=None, keywords=[],
