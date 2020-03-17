@@ -8,6 +8,7 @@ Provides classes for generating high-symmetry k-paths using different convention
 
 from __future__ import division, unicode_literals
 
+import abc
 from math import cos, sin, tan, e, pi, ceil
 import itertools
 from warnings import warn
@@ -35,12 +36,13 @@ __status__ = "Development"
 __date__ = "March 2020"
 
 
-class KPathBase:
+class KPathBase(metaclass=abc.ABCMeta):
     """
     This is the base class for classes used to generate high-symmetry
     paths in reciprocal space (k-paths) for band structure calculations.
     """
 
+    @abc.abstractmethod
     def __init__(self, structure, symprec=0.01, angle_tolerance=5, atol=1e-5, *args, **kwargs):
         """
         Args:
@@ -146,7 +148,7 @@ class KPathSetyawanCurtarolo(KPathBase):
     """
 
     def __init__(self, structure, symprec=0.01, angle_tolerance=5, atol=1e-5):
-        """      
+        """
             Args:
             structure (Structure): Structure object
             symprec (float): Tolerance for symmetry finding
