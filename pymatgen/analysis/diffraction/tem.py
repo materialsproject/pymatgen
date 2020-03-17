@@ -17,7 +17,6 @@ import numpy as np
 import scipy.constants as sc
 import pandas as pd
 import plotly.graph_objs as go
-import plotly.offline as poff
 from pymatgen.core.structure import Structure
 from pymatgen.analysis.diffraction.core import AbstractDiffractionPatternCalculator
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -513,7 +512,6 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             plot_bgcolor='black',
         )
         fig = go.Figure(data=data, layout=layout)
-        poff.iplot(fig, filename='diffpattern')
         return fig
 
     def get_plot_2d_concise(self, structure: Structure) -> go.Figure:
