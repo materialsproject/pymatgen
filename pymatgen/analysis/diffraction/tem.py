@@ -7,29 +7,25 @@
 This module implements a TEM pattern calculator.
 """
 
-from __future__ import division, print_function, unicode_literals
 import json
 import os
 from collections import namedtuple
 from fractions import Fraction
 from typing import List, Dict, Tuple, cast
 from functools import lru_cache
-import numpy as np  # type: ignore
-import scipy.constants as sc  # type: ignore
-import pandas as pd  # type: ignore
-import plotly.graph_objs as go  # type: ignore
-import plotly.offline as poff  # type: ignore
-from IPython.display import set_matplotlib_formats  # type: ignore
-from pymatgen.core.structure import Structure  # type: ignore
-from pymatgen.analysis.diffraction.core import AbstractDiffractionPatternCalculator  # type: ignore
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer  # type: ignore
-from pymatgen.util.string import unicodeify_spacegroup, latexify_spacegroup  # type: ignore
+import numpy as np
+import scipy.constants as sc
+import pandas as pd
+import plotly.graph_objs as go
+import plotly.offline as poff
+from pymatgen.core.structure import Structure
+from pymatgen.analysis.diffraction.core import AbstractDiffractionPatternCalculator
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.util.string import unicodeify_spacegroup, latexify_spacegroup
 
 with open(os.path.join(os.path.dirname(__file__),
                        "atomic_scattering_params.json")) as f:
     ATOMIC_SCATTERING_PARAMS = json.load(f)
-set_matplotlib_formats('retina')
-poff.init_notebook_mode(connected=True)
 
 __author__ = "Frank Wan, Jason Liang"
 __copyright__ = "Copyright 2020, The Materials Project"
