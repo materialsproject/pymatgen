@@ -119,7 +119,7 @@ setup(
             "dataclasses>=0.6",
         ]},
     package_data={
-        "pymatgen.core": ["*.json"],
+        "pymatgen.core": ["*.json", "py.typed"],
         "pymatgen.analysis": ["*.yaml", "*.json", "*.csv"],
         "pymatgen.analysis.chemenv.coordination_environments.coordination_geometries_files": ["*.txt", "*.json"],
         "pymatgen.analysis.chemenv.coordination_environments.strategy_files": ["*.json"],
