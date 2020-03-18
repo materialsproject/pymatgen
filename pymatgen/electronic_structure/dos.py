@@ -10,7 +10,7 @@ import numpy as np
 import warnings
 import functools
 from monty.json import MSONable
-from pymatgen.electronic_structure.core import Spin, Orbital
+from pymatgen.electronic_structure.core import Spin, Orbital, OrbitalType
 from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.core.structure import Structure
 from pymatgen.core.spectrum import Spectrum
@@ -659,6 +659,92 @@ class CompleteDos(Dos):
         self.pdos = pdoss
         self.structure = structure
 
+    def get_orbital_dos(self):
+        """
+        Get the Dos for orbitals
+
+        Returns:
+            dict of {"s": densities, "px": densities, "py": densities, ...}
+            Here, "p", "d", and "f" are ignored.
+        """
+        orb_dos = {}
+        for site_dos in self.pdos.values():
+            for o, p in site_dos.items():
+                if o not in orb_dos:
+                    orb_dos[o] = p
+                else:
+                    orb_dos[o] = add_densities(orb_dos[o], p)
+        return {o: Dos(self.efermi, self.energies, d)
+                for o, d in orb_dos.items()}
+
+    def get_element_orbital_dos(self, el):
+        """
+        Get the orbital projected Dos of a particular element
+
+        Args:
+            el: Element in Structure.composition associated with CompleteDos
+
+        Returns:
+            dict of {"s": densities, "px": densities, "py": densities, ...}
+            at a particular element. Here, "p", "d", and "f" are ignored.
+        """
+        el = get_el_sp(el)
+        el_dos = {}
+        for s, site_dos in self.pdos.items():
+            if s.specie == el:
+                for o, p in site_dos.items():
+                    if o not in el_dos:
+                        el_dos[o] = p
+                    else:
+                        el_dos[o] = add_densities(el_dos[o], p)
+        return {o: Dos(self.efermi, self.energies, d)
+                for o, d in el_dos.items()}
+
+    def get_bundle_pdos(self, *pdos):
+        """
+        Get the sum of multiple projected Dos
+
+        Args:
+            site:int, element:str, orbital:str, orbital:str,
+            ortibtal_type:str, (site:int, orbital:str), (site:int,
+            orbital_type:str), (element:str, orbital:str), (element:str, 
+            orbital_type:str) are available
+
+        Returns:
+            Dos summed given multiple inputs
+        """
+        pdos_list = []
+        for p in pdos:
+            if hasattr(p, '__iter__') and type(p) is not str:
+                if type(p[0]) is int:
+                    if p[1] in ['s', 'p', 'd', 'f']:
+                        dos = self.get_site_spd_dos(
+                            self.structure.sites[p[0]])[
+                            getattr(OrbitalType, p[1])]
+                    else:
+                        dos = self.get_site_orbital_dos(
+                            self.structure.sites[p[0]],
+                            getattr(Orbital, p[1]))
+                else:
+                    if p[1] in ['s', 'p', 'd', 'f']:
+                        dos = self.get_element_spd_dos(
+                            get_el_sp(p[0]))[getattr(OrbitalType, p[1])] 
+                    else:
+                        dos = self.get_element_orbital_dos(
+                            get_el_sp(p[0]))[getattr(Orbital, p[1])]
+            else:
+                if type(p) is int:
+                    dos = self.get_site_dos(self.structure.sites[p])
+                elif p[0].isupper():
+                    dos = self.get_element_dos()[get_el_sp(p)]
+                elif p in ['s', 'p', 'd', 'f']:
+                    dos = self.get_spd_dos()[getattr(OrbitalType, p)]
+                else:
+                    dos = self.get_orbital_dos()[getattr(Orbital, p)]
+            pdos_list.append(dos.densities)
+        densities = functools.reduce(add_densities, pdos_list)
+        return Dos(self.efermi, self.energies, densities)
+
     def get_site_orbital_dos(self, site, orbital):
         """
         Get the Dos for a particular orbital of a particular site.
@@ -776,7 +862,7 @@ class CompleteDos(Dos):
             el: Element in Structure.composition associated with CompleteDos
 
         Returns:
-            dict of {Element: {"S": densities, "P": densities, "D": densities}}
+            dict of {"s": densities, "p": densities, "d": densities}
         """
         el = get_el_sp(el)
         el_dos = {}
