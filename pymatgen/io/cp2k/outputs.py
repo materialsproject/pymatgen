@@ -614,9 +614,10 @@ class Cp2kOutput:
         """
         cell_volume = re.compile(r"\s+CELL\|\sVolume.*\s(\d+\.\d+)")
         vectors = re.compile(
-            r"\s+CELL\| Vector.*\s(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)"
+            r"\s+CELL\| Vector.*\s(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)"
         )
         angles = re.compile(r"\s+CELL\| Angle.*\s(\d+\.\d+)")
+
         self.read_pattern(
             {"cell_volume": cell_volume, "lattice": vectors, "angles": angles},
             terminate_on_match=False,
