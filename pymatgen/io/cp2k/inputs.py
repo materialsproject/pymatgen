@@ -36,8 +36,19 @@ class Section(MSONable):
     required_keywords: list = []
     subsections: dict = {}  # Must exist before __init__ is even called
 
-    def __init__(self, name, subsections, repeats=False, description=None, keywords=[],
-                 section_parameters=[], location=None, verbose=True, alias=None, **kwargs):
+    def __init__(
+        self,
+        name,
+        subsections,
+        repeats=False,
+        description=None,
+        keywords=[],
+        section_parameters=[],
+        location=None,
+        verbose=True,
+        alias=None,
+        **kwargs
+    ):
         """
         Basic object representing a CP2K Section. Sections activate different parts of the calculation.
         For example, FORCE_EVAL section will activate CP2K's ability to calculate forces. Sections are
@@ -83,10 +94,18 @@ class Section(MSONable):
 
         for k in self.required_sections:
             if not self.check(k):
-                raise UserWarning("WARNING: REQUIRED SECTION {} HAS NOT BEEN INITIALIZED".format(k))
+                raise UserWarning(
+                    "WARNING: REQUIRED SECTION {} HAS NOT BEEN INITIALIZED".format(
+                        k
+                    )
+                )
         for k in self.required_keywords:
             if k not in self.keywords:
-                raise UserWarning("WARNING: REQUIRED KEYWORD {} HAS NOT BEEN PROVIDED".format(k))
+                raise UserWarning(
+                    "WARNING: REQUIRED KEYWORD {} HAS NOT BEEN PROVIDED".format(
+                        k
+                    )
+                )
 
     def __str__(self):
         return self.get_string()
@@ -154,21 +173,26 @@ class Section(MSONable):
     def as_dict(self):
         """
         Get a dictionary representation of the Section
+
+        name, subsections, repeats=False, description=None, keywords=[],
+                 section_parameters=[], location=None, verbose=True, alias=None
         """
         d = {}
         d["@module"] = self.__class__.__module__
         d["@module"] = self.__class__.__name__
-        d['name'] = self.name
-        d['repeats'] = self.repeats
-        d['description'] = self.description
-        d['alias'] = self.alias
-        d['keywords'] = []
-        for k in self.keywords:
-            d['keywords'].append(k.as_dict())
-        d['section_parameters'] = self.section_parameters
-        d['subsections'] = {}
+        d["name"] = self.name
+        d["subsections"] = {}
         for k, v in self.subsections.items():
-            d['subsections'][v.alias or v.name] = v.as_dict()
+            d["subsections"][v.alias or v.name] = v.as_dict()
+        d["repeats"] = self.repeats
+        d["description"] = self.description
+        d["keywords"] = []
+        for k in self.keywords:
+            d["keywords"].append(k.as_dict())
+        d["section_parameters"] = self.section_parameters
+        d["location"] = self.location
+        d["verbose"] = self.verbose
+        d["alias"] = self.alias
         return d
 
     @classmethod
@@ -178,13 +202,21 @@ class Section(MSONable):
         """
         subsections = {}
         keywords = []
-        for v in d['subsections'].values():
-            subsections[v['alias'] or v['name']] = Section.from_dict(v)
-        for k in d['keywords']:
+        for v in d["subsections"].values():
+            subsections[v["alias"] or v["name"]] = Section.from_dict(v)
+        for k in d["keywords"]:
             keywords.append(Keyword.from_dict(copy.deepcopy(k)))
-        return Section(d['name'], repeats=d['repeats'], description=d['description'],
-                       keywords=keywords, section_parameters=d['section_parameters'],
-                       subsections=subsections, alias=d['alias'])
+        return Section(
+            d["name"],
+            repeats=d["repeats"],
+            description=d["description"],
+            keywords=keywords,
+            section_parameters=d["section_parameters"],
+            subsections=subsections,
+            alias=d["alias"],
+            verbose=d["verbose"],
+            location=d["location"],
+        )
 
     def update(self, d):
         """
@@ -242,7 +274,7 @@ class Section(MSONable):
         Args:
             path (str): Path to section of form 'SUBSECTION1/SUBSECTION2/SUBSECTION_OF_INTEREST'
         """
-        path = path.split('/')
+        path = path.split("/")
         s = self.subsections
         for p in path:
             if p in s.keys():
@@ -259,7 +291,7 @@ class Section(MSONable):
             path (str): Path to section of form 'SUBSECTION1/SUBSECTION2/SUBSECTION_OF_INTEREST'
 
         """
-        path = path.split('/')
+        path = path.split("/")
         if path[0] == self.name:
             path = path[1:]
         s = self
@@ -279,18 +311,26 @@ class Section(MSONable):
         Helper function to return a pretty string of the section. Includes indentation and
         descriptions (if present).
         """
-        string = ''
+        string = ""
         if d.description and d.verbose:
-            string += '\n' + textwrap.fill(d.description, initial_indent='\t' * indent + '! ',
-                                           subsequent_indent='\t' * indent + '! ', width=50) + '\n'
-        string += '\t' * indent + '&' + (d.alias or d.name)
-        string += ' ' + ' '.join(map(str, d.section_parameters)) + '\n'
+            string += (
+                "\n"
+                + textwrap.fill(
+                    d.description,
+                    initial_indent="\t" * indent + "! ",
+                    subsequent_indent="\t" * indent + "! ",
+                    width=50,
+                )
+                + "\n"
+            )
+        string += "\t" * indent + "&" + d.name
+        string += " " + " ".join(map(str, d.section_parameters)) + "\n"
 
         for s in d.keywords:
-            string += '\t' * (indent+1) + s.__str__() + '\n'
+            string += "\t" * (indent + 1) + s.__str__() + "\n"
         for k, v in d.subsections.items():
             string += v._get_string(v, indent + 1)
-        string += '\t' * indent + '&END ' + d.name + '\n'
+        string += "\t" * indent + "&END " + d.name + "\n"
 
         return string
 
@@ -316,8 +356,15 @@ class Keyword:
     "Quickstep" (DFT) or "EIP" (empirical interatomic potential).
     """
 
-    def __init__(self, name, *args, description=None, units=None,
-                 verbose=True, repeats=False):
+    def __init__(
+        self,
+        name,
+        *args,
+        description=None,
+        units=None,
+        verbose=True,
+        repeats=False
+    ):
         """
         Initializes a keyword. These Keywords and the value passed to them are sometimes as simple as KEYWORD VALUE,
         but can also be more elaborate such as KEYWORD [UNITS] VALUE1 VALUE2, which is why this class exists:
@@ -341,10 +388,17 @@ class Keyword:
         self.verbose = verbose
 
     def __str__(self):
-        return self.name.__str__() + ' ' + \
-               ('[{}] '.format(self.units) if self.units else "") + \
-               ' '.join(map(str, self.values)) + \
-               (' ! '+self.description if (self.description and self.verbose) else "")
+        return (
+            self.name.__str__()
+            + " "
+            + ("[{}] ".format(self.units) if self.units else "")
+            + " ".join(map(str, self.values))
+            + (
+                " ! " + self.description
+                if (self.description and self.verbose)
+                else ""
+            )
+        )
 
     def __eq__(self, other):
         if self.name == other.name:
@@ -358,12 +412,12 @@ class Keyword:
         Get a dictionary representation of the Keyword
         """
         d = {}
-        d['name'] = self.name
-        d['values'] = self.values
-        d['description'] = self.description
-        d['repeats'] = self.repeats
-        d['units'] = self.units
-        d['verbose'] = self.verbose
+        d["name"] = self.name
+        d["values"] = self.values
+        d["description"] = self.description
+        d["repeats"] = self.repeats
+        d["units"] = self.units
+        d["verbose"] = self.verbose
         return d
 
     @classmethod
@@ -371,8 +425,14 @@ class Keyword:
         """
         Initialise from dictonary
         """
-        return Keyword(d['name'], *d['values'], description=d['description'],
-                       repeats=d['repeats'], units=d['units'], verbose=d['verbose'])
+        return Keyword(
+            d["name"],
+            *d["values"],
+            description=d["description"],
+            repeats=d["repeats"],
+            units=d["units"],
+            verbose=d["verbose"]
+        )
 
     @classmethod
     def from_string(self, s):
@@ -396,21 +456,27 @@ class Cp2kInput(Section):
     title and by implementing the file i/o
     """
 
-    def __init__(self, name='CP2K_INPUT', subsections={}, **kwargs):
+    def __init__(self, name="CP2K_INPUT", subsections={}, **kwargs):
         """
         Initialize Cp2kInput by calling the super
         """
 
         description = "CP2K Input"
-        super(Cp2kInput, self).__init__(name, repeats=False, description=description, keywords=[],
-                                        section_parameters=[], subsections=subsections,
-                                        **kwargs)
+        super(Cp2kInput, self).__init__(
+            name,
+            repeats=False,
+            description=description,
+            keywords=[],
+            section_parameters=[],
+            subsections=subsections,
+            **kwargs
+        )
 
     def get_string(self):
         """
         Get string representation of the Cp2kInput
         """
-        s = ''
+        s = ""
         for k in self.subsections.keys():
             s += self.subsections[k].get_string()
         return s
@@ -420,16 +486,18 @@ class Cp2kInput(Section):
         """
         Initialize from a dictionary
         """
-        return Cp2kInput('CP2K_INPUT', subsections=Section.from_dict(d).subsections)
+        return Cp2kInput(
+            "CP2K_INPUT", subsections=Section.from_dict(d).subsections
+        )
 
     @staticmethod
     def from_file(file):
         """
         Initialize from a file
         """
-        with zopen(file, 'rt') as f:
+        with zopen(file, "rt") as f:
             lines = f.read().splitlines()
-            lines = [line.replace('\t', '') for line in lines]
+            lines = [line.replace("\t", "") for line in lines]
             lines = [line for line in lines if line]
             return Cp2kInput.from_lines(lines)
 
@@ -438,7 +506,7 @@ class Cp2kInput(Section):
         """
         Helper method to read lines of file
         """
-        cp2k_input = Cp2kInput('CP2K_INPUT', subsections={})
+        cp2k_input = Cp2kInput("CP2K_INPUT", subsections={})
         Cp2kInput._from_lines(cp2k_input, lines)
         return cp2k_input
 
@@ -448,28 +516,34 @@ class Cp2kInput(Section):
         """
         current = self.name
         for line in lines:
-            if line.startswith('!') or line.startswith('#'):
+            if line.startswith("!") or line.startswith("#"):
                 continue
-            elif line.startswith('&END'):
-                current = '/'.join(current.split('/')[:-1])
-            elif line.startswith('&'):
+            elif line.startswith("&END"):
+                current = "/".join(current.split("/")[:-1])
+            elif line.startswith("&"):
                 name, subsection_params = line.split()[0][1:], line.split()[1:]
-                s = Section(name, section_parameters=subsection_params,
-                            subsections={})
+                s = Section(
+                    name, section_parameters=subsection_params, subsections={}
+                )
                 self.by_path(current).insert(s)
-                current = current+'/'+name
+                current = current + "/" + name
             else:
                 args = line.split()
                 self.by_path(current).keywords.append(Keyword(*args))
 
-    def write_file(self, input_filename='cp2k.inp', output_dir='.', make_dir_if_not_present=True):
+    def write_file(
+        self,
+        input_filename="cp2k.inp",
+        output_dir=".",
+        make_dir_if_not_present=True,
+    ):
         """
         Write input to a file.
         """
         if not os.path.isdir(output_dir) and make_dir_if_not_present:
             os.mkdir(output_dir)
         filepath = os.path.join(output_dir, input_filename)
-        with open(filepath, 'w') as f:
+        with open(filepath, "w") as f:
             f.write(self.get_string())
 
 
@@ -479,21 +553,34 @@ class Global(Section):
     Controls 'global' settings for cp2k execution such as RUN_TYPE and PROJECT_NAME
     """
 
-    def __init__(self, project_name='CP2K', run_type='ENERGY_FORCE', subsections={}, **kwargs):
+    def __init__(
+        self,
+        project_name="CP2K",
+        run_type="ENERGY_FORCE",
+        subsections={},
+        **kwargs
+    ):
         """
         Initialize the global section
         """
 
-        description = 'Section with general information regarding which kind of simulation' + \
-                      'to perform an parameters for the whole PROGRAM'
+        description = (
+            "Section with general information regarding which kind of simulation"
+            + "to perform an parameters for the whole PROGRAM"
+        )
 
         keywords = [
-            Keyword('PROJECT_NAME', project_name),
-            Keyword('RUN_TYPE', run_type)
+            Keyword("PROJECT_NAME", project_name),
+            Keyword("RUN_TYPE", run_type),
         ]
 
-        super().__init__('GLOBAL', description=description,
-                         keywords=keywords, subsections=subsections, **kwargs)
+        super().__init__(
+            "GLOBAL",
+            description=description,
+            keywords=keywords,
+            subsections=subsections,
+            **kwargs
+        )
 
 
 class ForceEval(Section):
@@ -507,15 +594,21 @@ class ForceEval(Section):
         Initialize the ForceEval section
         """
 
-        description = 'parameters needed to calculate energy and forces and describe the system you want to analyze.'
+        description = "parameters needed to calculate energy and forces and describe the system you want to analyze."
 
         keywords = [
-            Keyword('METHOD', kwargs.get('METHOD', 'QS')),
-            Keyword('STRESS_TENSOR', kwargs.get('STRESS_TENSOR', 'ANALYTICAL'))
+            Keyword("METHOD", kwargs.get("METHOD", "QS")),
+            Keyword("STRESS_TENSOR", kwargs.get("STRESS_TENSOR", "ANALYTICAL")),
         ]
 
-        super(ForceEval, self).__init__('FORCE_EVAL', repeats=True, description=description,
-                                        keywords=keywords, subsections=subsections, **kwargs)
+        super(ForceEval, self).__init__(
+            "FORCE_EVAL",
+            repeats=True,
+            description=description,
+            keywords=keywords,
+            subsections=subsections,
+            **kwargs
+        )
 
 
 class Dft(Section):
@@ -524,8 +617,14 @@ class Dft(Section):
     Controls the DFT parameters in Cp2k
     """
 
-    def __init__(self, subsections={}, basis_set_filename='BASIS_MOLOPT',
-                 potential_filename='GTH_POTENTIALS', uks=True, **kwargs):
+    def __init__(
+        self,
+        subsections={},
+        basis_set_filename="BASIS_MOLOPT",
+        potential_filename="GTH_POTENTIALS",
+        uks=True,
+        **kwargs
+    ):
         """
         Initialize the DFT section
 
@@ -536,16 +635,21 @@ class Dft(Section):
             uks: Whether to run unrestricted Kohn Sham (spin polarized)
         """
 
-        description = 'parameter needed by dft programs'
+        description = "parameter needed by dft programs"
 
         keywords = [
-            Keyword('BASIS_SET_FILE_NAME', basis_set_filename),
-            Keyword('POTENTIAL_FILE_NAME', potential_filename),
-            Keyword('UKS', uks)
+            Keyword("BASIS_SET_FILE_NAME", basis_set_filename),
+            Keyword("POTENTIAL_FILE_NAME", potential_filename),
+            Keyword("UKS", uks),
         ]
 
-        super().__init__('DFT', description=description, keywords=keywords,
-                         subsections=subsections, **kwargs)
+        super().__init__(
+            "DFT",
+            description=description,
+            keywords=keywords,
+            subsections=subsections,
+            **kwargs
+        )
 
 
 class Subsys(Section):
@@ -558,9 +662,10 @@ class Subsys(Section):
         """
         Initialize the subsys section
         """
-        description = 'a subsystem: coordinates, topology, molecules and cell'
-        super(Subsys, self).__init__('SUBSYS', description=description,
-                                     subsections=subsections, **kwargs)
+        description = "a subsystem: coordinates, topology, molecules and cell"
+        super(Subsys, self).__init__(
+            "SUBSYS", description=description, subsections=subsections, **kwargs
+        )
 
 
 class QS(Section):
@@ -569,8 +674,14 @@ class QS(Section):
     Controls the quickstep settings (DFT driver)
     """
 
-    def __init__(self, method='GPW', eps_default=1e-7, extrapolation='ASPC',
-                 subsections={}, **kwargs):
+    def __init__(
+        self,
+        method="GPW",
+        eps_default=1e-7,
+        extrapolation="ASPC",
+        subsections={},
+        **kwargs
+    ):
         """
         Initialize the QS Section
 
@@ -582,16 +693,21 @@ class QS(Section):
             subsections: Subsections to initialize with
         """
 
-        description = 'parameters needed to set up the Quickstep framework'
+        description = "parameters needed to set up the Quickstep framework"
 
         keywords = [
-            Keyword('METHOD', method),
-            Keyword('EPS_DEFAULT', eps_default),
-            Keyword('EXTRAPOLATION', extrapolation)
+            Keyword("METHOD", method),
+            Keyword("EPS_DEFAULT", eps_default),
+            Keyword("EXTRAPOLATION", extrapolation),
         ]
 
-        super(QS, self).__init__('QS', description=description, keywords=keywords,
-                                 subsections=subsections, **kwargs)
+        super(QS, self).__init__(
+            "QS",
+            description=description,
+            keywords=keywords,
+            subsections=subsections,
+            **kwargs
+        )
 
 
 class Scf(Section):
@@ -600,8 +716,14 @@ class Scf(Section):
     Controls the self consistent field loop
     """
 
-    def __init__(self, max_scf=50, eps_scf=1e-6, scf_guess='RESTART',
-                 subsections={}, **kwargs):
+    def __init__(
+        self,
+        max_scf=50,
+        eps_scf=1e-6,
+        scf_guess="RESTART",
+        subsections={},
+        **kwargs
+    ):
         """
         Initialize the Scf section
 
@@ -612,16 +734,23 @@ class Scf(Section):
                 is present)
         """
 
-        description = 'Parameters needed to perform an SCF run.'
+        description = "Parameters needed to perform an SCF run."
 
         keywords = [
-            Keyword('MAX_SCF', max_scf),
-            Keyword('EPS_SCF', eps_scf),
-            Keyword('SCF_GUESS', scf_guess)  # Uses Restart file if present, and ATOMIC if not present
+            Keyword("MAX_SCF", max_scf),
+            Keyword("EPS_SCF", eps_scf),
+            Keyword(
+                "SCF_GUESS", scf_guess
+            ),  # Uses Restart file if present, and ATOMIC if not present
         ]
 
-        super(Scf, self).__init__('SCF', description=description, keywords=keywords,
-                                  subsections=subsections, **kwargs)
+        super(Scf, self).__init__(
+            "SCF",
+            description=description,
+            keywords=keywords,
+            subsections=subsections,
+            **kwargs
+        )
 
 
 class Mgrid(Section):
@@ -630,8 +759,15 @@ class Mgrid(Section):
     Controls the multigrid for numerical integration
     """
 
-    def __init__(self, cutoff=1200, rel_cutoff=80, ngrids=5,
-                 progression_factor=3, subsections={}, **kwargs):
+    def __init__(
+        self,
+        cutoff=1200,
+        rel_cutoff=80,
+        ngrids=5,
+        progression_factor=3,
+        subsections={},
+        **kwargs
+    ):
         """
         Initialize the MGRID section
 
@@ -645,20 +781,34 @@ class Mgrid(Section):
                 decided by rel_cutoff
         """
 
-        description = 'Multigrid information. Multigrid allows for sharp gaussians and diffuse ' + \
-                      'gaussians to be treated on different grids, where the spacing of FFT integration ' + \
-                      'points can be tailored to the degree of sharpness/diffusiveness of the gaussians.'
+        description = (
+            "Multigrid information. Multigrid allows for sharp gaussians and diffuse "
+            + "gaussians to be treated on different grids, where the spacing of FFT integration "
+            + "points can be tailored to the degree of sharpness/diffusiveness of the gaussians."
+        )
 
         keywords = [
-            Keyword('CUTOFF', cutoff, description='Cutoff in [Ry] for finest level of the MG.'),
-            Keyword('REL_CUTOFF', rel_cutoff,
-                    description='Controls which gaussians are mapped to which level of the MG'),
-            Keyword('NGRIDS', ngrids),
-            Keyword('PROGRESSION_FACTOR', progression_factor),
+            Keyword(
+                "CUTOFF",
+                cutoff,
+                description="Cutoff in [Ry] for finest level of the MG.",
+            ),
+            Keyword(
+                "REL_CUTOFF",
+                rel_cutoff,
+                description="Controls which gaussians are mapped to which level of the MG",
+            ),
+            Keyword("NGRIDS", ngrids),
+            Keyword("PROGRESSION_FACTOR", progression_factor),
         ]
 
-        super(Mgrid, self).__init__('MGRID', description=description, keywords=keywords,
-                                    subsections=subsections, **kwargs)
+        super(Mgrid, self).__init__(
+            "MGRID",
+            description=description,
+            keywords=keywords,
+            subsections=subsections,
+            **kwargs
+        )
 
 
 class Diagonalization(Section):
@@ -667,24 +817,34 @@ class Diagonalization(Section):
     Controls diagonalization settings (if using traditional diagonalization).
     """
 
-    def __init__(self, eps_adapt=0, eps_iter=1e-8, eps_jacobi=0,
-                 jacobi_threshold=1e-7, subsections={}):
+    def __init__(
+        self,
+        eps_adapt=0,
+        eps_iter=1e-8,
+        eps_jacobi=0,
+        jacobi_threshold=1e-7,
+        subsections={},
+    ):
         """
         Initialize the diagronalization section
         """
 
-        location = 'CP2K_INPUT/FORCE_EVAL/DFT/SCF/DIAGONALIZATION'
+        location = "CP2K_INPUT/FORCE_EVAL/DFT/SCF/DIAGONALIZATION"
 
         keywords = [
-            Keyword('EPS_ADAPT', eps_adapt),
-            Keyword('EPS_ITER', eps_iter),
-            Keyword('EPS_JACOBI', eps_jacobi),
-            Keyword('JACOBI_THRESHOLD', jacobi_threshold)
+            Keyword("EPS_ADAPT", eps_adapt),
+            Keyword("EPS_ITER", eps_iter),
+            Keyword("EPS_JACOBI", eps_jacobi),
+            Keyword("JACOBI_THRESHOLD", jacobi_threshold),
         ]
 
-        super(Diagonalization, self).__init__('DIAGONALIZATION', keywords=keywords,
-                                              subsections=subsections, repeats=False,
-                                              location=location)
+        super(Diagonalization, self).__init__(
+            "DIAGONALIZATION",
+            keywords=keywords,
+            subsections=subsections,
+            repeats=False,
+            location=location,
+        )
 
 
 class OrbitalTransformation(Section):
@@ -699,7 +859,15 @@ class OrbitalTransformation(Section):
     diagonalization, which will be slower, but will converge properly.
     """
 
-    def __init__(self, minimizer='CG', preconditioner='FULL_ALL', energy_gap=0.01, **kwargs):
+    def __init__(
+        self,
+        minimizer="CG",
+        preconditioner="FULL_ALL",
+        algorithm="STRICT",
+        energy_gap=0.01,
+        linesearch="2PNT",
+        **kwargs
+    ):
         """
         Initialize the OT section
 
@@ -708,30 +876,50 @@ class OrbitalTransformation(Section):
                 which is more robust, but more well-behaved systems should use DIIS, which can be as much
                 as 50% faster.
             preconditioner (str): Preconditionar to use for OT, FULL_ALL tends to be most robust, but is
-                not always most efficient. Consult the manual.
-            energy_gap (float): Guess for the band gap. Should be smaller than the actual band gap, so simply
-                using 0.01 is a robust value. Choosing a larger value will help if you start with a bad
-                initial guess though.
+                not always most efficient. For difficult systems, FULL_SINGLE_INVERSE can be more robust,
+                and is reasonably efficient with large systems. For huge, but well behaved, systems,
+                where construction of the preconditioner can take a very long time, FULL_KINETIC can be a good
+                choice.
+            energy_gap (float): Guess for the band gap. For FULL_ALL, should be smaller than the actual band gap,
+                so simply using 0.01 is a robust value. Choosing a larger value will help if you start with a bad
+                initial guess though. For FULL_SINGLE_INVERSE, energy_gap is treated as a lower bound. Values lower
+                than 0.05 in this case can lead to stability issues.
+            algorithm (str): What algorithm to use for OT. 'Strict': Taylor or diagonalization based algorithm.
+                IRAC: Orbital Transformation based Iterative Refinement of the Approximative Congruence
+                transformation (OT/IR).
+            linesearch (str): From the manual: 1D line search algorithm to be used with the OT minimizer,
+                in increasing order of robustness and cost. MINIMIZER CG combined with LINESEARCH
+                GOLD should always find an electronic minimum. Whereas the 2PNT minimizer is almost always OK,
+                3PNT might be needed for systems in which successive OT CG steps do not decrease the total energy.
         """
 
-        description = 'Sets the various options for the orbital transformation (OT) method. ' + \
-                      'Default settings already provide an efficient, yet robust method. Most ' + \
-                      'systems benefit from using the FULL_ALL preconditioner combined with a small ' + \
-                      'value (0.001) of ENERGY_GAP. Well-behaved systems might benefit from using ' + \
-                      'a DIIS minimizer. Advantages: It\'s fast, because no expensive diagonalisation' + \
-                      'is performed. If preconditioned correctly, method guaranteed to find minimum. ' + \
-                      'Disadvantages: Sensitive to preconditioning. A good preconditioner can be ' + \
-                      'expensive. No smearing, or advanced SCF mixing possible: POOR convergence for ' + \
-                      'metalic systems.'
+        description = (
+            "Sets the various options for the orbital transformation (OT) method. "
+            + "Default settings already provide an efficient, yet robust method. Most "
+            + "systems benefit from using the FULL_ALL preconditioner combined with a small "
+            + "value (0.001) of ENERGY_GAP. Well-behaved systems might benefit from using "
+            + "a DIIS minimizer. Advantages: It's fast, because no expensive diagonalisation"
+            + "is performed. If preconditioned correctly, method guaranteed to find minimum. "
+            + "Disadvantages: Sensitive to preconditioning. A good preconditioner can be "
+            + "expensive. No smearing, or advanced SCF mixing possible: POOR convergence for "
+            + "metalic systems."
+        )
 
         keywords = [
-            Keyword('MINIMIZER', minimizer),
-            Keyword('PRECONDITIONER', preconditioner),
-            Keyword('ENERGY_GAP', energy_gap)
+            Keyword("MINIMIZER", minimizer),
+            Keyword("PRECONDITIONER", preconditioner),
+            Keyword("ENERGY_GAP", energy_gap),
+            Keyword("ALGORITHM", algorithm),
+            Keyword("LINESEARCH", linesearch),
         ]
 
-        super(OrbitalTransformation, self).__init__('OT', description=description, keywords=keywords,
-                                                    subsections={}, **kwargs)
+        super(OrbitalTransformation, self).__init__(
+            "OT",
+            description=description,
+            keywords=keywords,
+            subsections={},
+            **kwargs
+        )
 
 
 class Cell(Section):
@@ -748,16 +936,21 @@ class Cell(Section):
             lattice: pymatgen lattice object
         """
 
-        description = 'Input parameters needed to set up the CELL.'
+        description = "Input parameters needed to set up the CELL."
 
         keywords = [
-            Keyword('A', *lattice.matrix[0]),
-            Keyword('B', *lattice.matrix[1]),
-            Keyword('C', *lattice.matrix[2])
+            Keyword("A", *lattice.matrix[0]),
+            Keyword("B", *lattice.matrix[1]),
+            Keyword("C", *lattice.matrix[2]),
         ]
 
-        super(Cell, self).__init__('CELL', description=description, keywords=keywords,
-                                   subsections=subsections, **kwargs)
+        super(Cell, self).__init__(
+            "CELL",
+            description=description,
+            keywords=keywords,
+            subsections=subsections,
+            **kwargs
+        )
 
 
 class Kind(Section):
@@ -766,9 +959,16 @@ class Kind(Section):
     Specifies the information for the different atom types being simulated.
     """
 
-    def __init__(self, specie, alias=None, magnetization=0.0,
-                 subsections={}, basis_set='GTH_BASIS', potential='GTH_POTENTIALS',
-                 **kwargs):
+    def __init__(
+        self,
+        specie,
+        alias=None,
+        magnetization=0.0,
+        subsections={},
+        basis_set="GTH_BASIS",
+        potential="GTH_POTENTIALS",
+        **kwargs
+    ):
         """
         Initialize a KIND section
 
@@ -787,18 +987,26 @@ class Kind(Section):
             kwargs: Additional kwargs to pass to Section()
         """
 
-        description = 'The description of the kind of the atoms (mostly for QM)'
+        description = "The description of the kind of the atoms (mostly for QM)"
 
         keywords = [
-            Keyword('ELEMENT', specie.__str__()),
-            Keyword('MAGNETIZATION', magnetization),
-            Keyword('BASIS_SET', basis_set),
-            Keyword('POTENTIAL', potential)
+            Keyword("ELEMENT", specie.__str__()),
+            Keyword("MAGNETIZATION", magnetization),
+            Keyword("BASIS_SET", basis_set),
+            Keyword("POTENTIAL", potential),
         ]
 
-        section_alias = 'KIND ' + (alias if alias else specie.__str__())
-        super(Kind, self).__init__('KIND', subsections=subsections, description=description, keywords=keywords,
-                                   section_parameters=[], alias=section_alias, **kwargs)
+        kind_name = alias if alias else specie.__str__()
+        section_alias = "KIND " + kind_name
+        super(Kind, self).__init__(
+            "KIND",
+            subsections=subsections,
+            description=description,
+            keywords=keywords,
+            section_parameters=[kind_name],
+            alias=section_alias,
+            **kwargs
+        )
 
 
 class Coord(Section):
@@ -815,17 +1023,23 @@ class Coord(Section):
                 assign unique magnetization do different elements.
         """
 
-        description = 'The coordinates for simple systems (like small QM cells) are specified ' + \
-                      'here by default using explicit XYZ coordinates. More complex systems ' + \
-                      'should be given via an external coordinate file in the SUBSYS%TOPOLOGY section.'
+        description = (
+            "The coordinates for simple systems (like small QM cells) are specified "
+            + "here by default using explicit XYZ coordinates. More complex systems "
+            + "should be given via an external coordinate file in the SUBSYS%TOPOLOGY section."
+        )
         if alias:
             keywords = []
             for k, v in alias.items():
                 keywords.extend([Keyword(k, *structure[i].coords) for i in v])
         else:
-            keywords = [Keyword(s.specie.symbol, *s.coords) for s in structure.sites]
+            keywords = [
+                Keyword(s.specie.symbol, *s.coords) for s in structure.sites
+            ]
 
-        super(Coord, self).__init__('COORD', description=description, keywords=keywords, subsections={})
+        super(Coord, self).__init__(
+            "COORD", description=description, keywords=keywords, subsections={}
+        )
 
 
 class PDOS(Section):
@@ -845,13 +1059,11 @@ class PDOS(Section):
 
         description = "Controls printing of the projected density of states"
 
-        keywords = [
-            Keyword('NLUMO', nlumo),
-            Keyword('COMPONENTS')
-        ]
+        keywords = [Keyword("NLUMO", nlumo), Keyword("COMPONENTS")]
 
-        super(PDOS, self).__init__('PDOS', description=description,
-                                   keywords=keywords, subsections={})
+        super(PDOS, self).__init__(
+            "PDOS", description=description, keywords=keywords, subsections={}
+        )
 
 
 class LDOS(Section):
@@ -860,7 +1072,7 @@ class LDOS(Section):
     Controls printing of the LDOS (List-Density of states). i.e. projects onto specific atoms.
     """
 
-    def __init__(self, index):
+    def __init__(self, index, alias=None, **kwargs):
         """
         Initialize the LDOS section
 
@@ -870,13 +1082,16 @@ class LDOS(Section):
 
         description = "Controls printing of the projected density of states decomposed by atom type"
 
-        keywords = [
-            Keyword('COMPONENTS'),
-            Keyword('LIST', index)
-        ]
+        keywords = [Keyword("COMPONENTS"), Keyword("LIST", index)]
 
-        super(LDOS, self).__init__('LDOS', description=description,
-                                   keywords=keywords, subsections={})
+        super(LDOS, self).__init__(
+            "LDOS",
+            alias=alias,
+            description=description,
+            keywords=keywords,
+            subsections={},
+            **kwargs
+        )
 
 
 class V_Hartree_Cube(Section):
@@ -890,14 +1105,20 @@ class V_Hartree_Cube(Section):
         Initialize the V_HARTREE_CUBE section
         """
 
-        description = "Controls the printing of a cube file with eletrostatic potential generated by " + \
-                      "the total density (electrons+ions). It is valid only for QS with GPW formalism. " + \
-                      "Note that by convention the potential has opposite sign than the expected physical one."
+        description = (
+            "Controls the printing of a cube file with eletrostatic potential generated by "
+            + "the total density (electrons+ions). It is valid only for QS with GPW formalism. "
+            + "Note that by convention the potential has opposite sign than the expected physical one."
+        )
 
         keywords = []
 
-        super(V_Hartree_Cube, self).__init__('V_HARTREE_CUBE', description=description,
-                                             keywords=keywords, subsections={})
+        super(V_Hartree_Cube, self).__init__(
+            "V_HARTREE_CUBE",
+            description=description,
+            keywords=keywords,
+            subsections={},
+        )
 
 
 class MO_Cubes(Section):
@@ -911,18 +1132,24 @@ class MO_Cubes(Section):
             Initialize the MO_CUBES section
         """
 
-        description = "Controls the printing of a cube file with eletrostatic potential generated by " + \
-                      "the total density (electrons+ions). It is valid only for QS with GPW formalism. " + \
-                      "Note that by convention the potential has opposite sign than the expected physical one."
+        description = (
+            "Controls the printing of a cube file with eletrostatic potential generated by "
+            + "the total density (electrons+ions). It is valid only for QS with GPW formalism. "
+            + "Note that by convention the potential has opposite sign than the expected physical one."
+        )
 
         keywords = [
-            Keyword('WRITE_CUBE', write_cube),
+            Keyword("WRITE_CUBE", write_cube),
             Keyword("NHOMO", nhomo),
-            Keyword("NLUMO", nlumo)
+            Keyword("NLUMO", nlumo),
         ]
 
-        super(MO_Cubes, self).__init__('MO_CUBES', description=description,
-                                       keywords=keywords, subsections={})
+        super(MO_Cubes, self).__init__(
+            "MO_CUBES",
+            description=description,
+            keywords=keywords,
+            subsections={},
+        )
 
 
 class E_Density_Cube(Section):
@@ -936,13 +1163,19 @@ class E_Density_Cube(Section):
         Initialize the E_DENSITY_CUBE Section
         """
 
-        description = "Controls the printing of cube files with the electronic density and, for LSD " + \
-                      "calculations, the spin density."
+        description = (
+            "Controls the printing of cube files with the electronic density and, for LSD "
+            + "calculations, the spin density."
+        )
 
         keywords = []
 
-        super(E_Density_Cube, self).__init__('E_DENSITY_CUBE', description=description,
-                                             keywords=keywords, subsections={})
+        super(E_Density_Cube, self).__init__(
+            "E_DENSITY_CUBE",
+            description=description,
+            keywords=keywords,
+            subsections={},
+        )
 
 
 class Smear(Section):
@@ -951,7 +1184,9 @@ class Smear(Section):
     Control electron smearing
     """
 
-    def __init__(self, elec_temp=300, method='FERMI_DIRAC', fixed_magnetic_moment=-1e2):
+    def __init__(
+        self, elec_temp=300, method="FERMI_DIRAC", fixed_magnetic_moment=-1e2
+    ):
         """
         Initialize the SMEAR section
         """
@@ -959,13 +1194,14 @@ class Smear(Section):
         description = "Activates smearing of electron occupations"
 
         keywords = [
-            Keyword('ELEC_TEMP', elec_temp),
-            Keyword('METHOD', method),
-            Keyword('FIXED_MAGNETIC_MOMENT', fixed_magnetic_moment)
+            Keyword("ELEC_TEMP", elec_temp),
+            Keyword("METHOD", method),
+            Keyword("FIXED_MAGNETIC_MOMENT", fixed_magnetic_moment),
         ]
 
-        super(Smear, self).__init__('SMEAR', description=description,
-                                    subsections={}, keywords=keywords)
+        super(Smear, self).__init__(
+            "SMEAR", description=description, subsections={}, keywords=keywords
+        )
 
 
 class BrokenSymmetry(Section):
@@ -976,8 +1212,15 @@ class BrokenSymmetry(Section):
     angular momentum channels. It works only with GUESS ATOMIC
     """
 
-    def __init__(self, l_alpha=-1, n_alpha=0, nel_alpha=-1,
-                 l_beta=-1, n_beta=0, nel_beta=-1):
+    def __init__(
+        self,
+        l_alpha=-1,
+        n_alpha=0,
+        nel_alpha=-1,
+        l_beta=-1,
+        n_beta=0,
+        nel_beta=-1,
+    ):
         """
         Initialize the broken symmetry section
 
@@ -992,27 +1235,37 @@ class BrokenSymmetry(Section):
             nel_beta: Same as NEL_alpha for beta channel
         """
 
-        description = 'Define the required atomic orbital occupation assigned in initialization ' + \
-                      'of the density matrix, by adding or subtracting electrons from specific ' + \
-                      'angular momentum channels. It works only with GUESS ATOMIC'
+        description = (
+            "Define the required atomic orbital occupation assigned in initialization "
+            + "of the density matrix, by adding or subtracting electrons from specific "
+            + "angular momentum channels. It works only with GUESS ATOMIC"
+        )
 
         keywords_alpha = [
-            Keyword('L', l_alpha),
-            Keyword('N', n_alpha),
-            Keyword('NEL', nel_alpha)
+            Keyword("L", l_alpha),
+            Keyword("N", n_alpha),
+            Keyword("NEL", nel_alpha),
         ]
-        alpha = Section('ALPHA', keywords=keywords_alpha, subsections={}, repeats=False)
+        alpha = Section(
+            "ALPHA", keywords=keywords_alpha, subsections={}, repeats=False
+        )
 
         keywords_beta = [
-            Keyword('L', l_beta),
-            Keyword('N', n_beta),
-            Keyword('NEL', nel_beta)
+            Keyword("L", l_beta),
+            Keyword("N", n_beta),
+            Keyword("NEL", nel_beta),
         ]
-        beta = Section('BETA', keywords=keywords_beta, subsections={}, repeats=False)
+        beta = Section(
+            "BETA", keywords=keywords_beta, subsections={}, repeats=False
+        )
 
-        super(BrokenSymmetry, self).__init__('BS', description=description,
-                                             subsections={'ALPHA': alpha, 'BETA': beta},
-                                             keywords=[], repeats=False)
+        super(BrokenSymmetry, self).__init__(
+            "BS",
+            description=description,
+            subsections={"ALPHA": alpha, "BETA": beta},
+            keywords=[],
+            repeats=False,
+        )
 
 
 class XC_FUNCTIONAL(Section):
@@ -1026,30 +1279,35 @@ class XC_FUNCTIONAL(Section):
         Initialize the XC_FUNCTIONAL class
         """
 
-        location = 'CP2K_INPUT/FORCE_EVAL/DFT/XC/XC_FUNCTIONAL'
+        location = "CP2K_INPUT/FORCE_EVAL/DFT/XC/XC_FUNCTIONAL"
 
         built_in = [
-            'BL3YLP',
-            'BEEFVDW',
-            'BLYP',
-            'BP',
-            'HCTH120',
-            'LDA',
-            'NONE',
-            'NO_SHORTCUT',
-            'OLYP',
-            'PADE',
-            'PBE',
-            'PBE0',
-            'TPSS'
+            "BL3YLP",
+            "BEEFVDW",
+            "BLYP",
+            "BP",
+            "HCTH120",
+            "LDA",
+            "NONE",
+            "NO_SHORTCUT",
+            "OLYP",
+            "PADE",
+            "PBE",
+            "PBE0",
+            "TPSS",
         ]
 
         if functional not in built_in:
             raise Warning("The selected functional does not exist in CP2K.")
 
-        super(XC_FUNCTIONAL, self).__init__('XC_FUNCTIONAL', keywords=[], subsections=subsections,
-                                            location=location, repeats=False,
-                                            section_parameters=[functional])
+        super(XC_FUNCTIONAL, self).__init__(
+            "XC_FUNCTIONAL",
+            keywords=[],
+            subsections=subsections,
+            location=location,
+            repeats=False,
+            section_parameters=[functional],
+        )
 
 
 class PBE(Section):
@@ -1058,7 +1316,7 @@ class PBE(Section):
         Info about the PBE functional.
     """
 
-    def __init__(self, parameterization='ORIG', scale_c=1, scale_x=1):
+    def __init__(self, parameterization="ORIG", scale_c=1, scale_x=1):
         """
         Args:
             parameterization (str):
@@ -1069,14 +1327,19 @@ class PBE(Section):
             scale_x (float): scales the exchange part of the functional.
         """
 
-        location = 'CP2K_INPUT/FORCE_EVAL/DFT/XC/XC_FUNCTIONAL/PBE'
+        location = "CP2K_INPUT/FORCE_EVAL/DFT/XC/XC_FUNCTIONAL/PBE"
 
         keywords = [
-            Keyword('PARAMETRIZATION', parameterization),
-            Keyword('SCALE_C', scale_c),
-            Keyword('SCALE_X', scale_x)
+            Keyword("PARAMETRIZATION", parameterization),
+            Keyword("SCALE_C", scale_c),
+            Keyword("SCALE_X", scale_x),
         ]
 
-        super(PBE, self).__init__('PBE', subsections={}, repeats=False,
-                                  location=location, section_parameters=[],
-                                  keywords=keywords)
+        super(PBE, self).__init__(
+            "PBE",
+            subsections={},
+            repeats=False,
+            location=location,
+            section_parameters=[],
+            keywords=keywords,
+        )
