@@ -49,9 +49,6 @@ def run_mcsqs(
 
     num_atoms = len(structure)
 
-    # if supercell and total_atoms != num_atoms:
-    #     raise ValueError("Pick supercell OR number of atoms")
-
     if structure.is_ordered:
         raise ValueError("Pick a disordered structure")
 
@@ -63,15 +60,13 @@ def run_mcsqs(
 
         else:
 
-            # Set supercell
-            cell = np.eye(3)
-            text_file = open("sqscell.out", "w")
-            text_file.write("1\n")
-            for i in range(len(cell)):
-                text_file.write("\n")
-                for j in range(len(cell[i])):
-                    text_file.write(str(cell[i][j]) + " ")
-            text_file.close()
+            # Set supercell to identity (will make supercell with pymatgen)
+            with open("sqscell.out", "w") as f:
+                f.write("1\n"
+                        "1 0 0\n"
+                        "0 1 0\n"
+                        "0 0 1\n")
+
             structure = structure*scaling
             mcsqs_find_sqs_cmd = ["mcsqs", "-rc", "-n {}".format(num_atoms)]
 
@@ -84,21 +79,13 @@ def run_mcsqs(
 
         # Run mcsqs to find clusters
         p = subprocess.Popen(
-            mcsqs_generate_clusters_cmd,
-            stdout=subprocess.PIPE,
-            stdin=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            close_fds=True,
+            mcsqs_generate_clusters_cmd
         )
         p.communicate()
 
         # Run mcsqs to find sqs structure
         p = subprocess.Popen(
-            mcsqs_find_sqs_cmd,
-            stdout=subprocess.PIPE,
-            stdin=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            close_fds=True,
+            mcsqs_find_sqs_cmd
         )
 
         try:
@@ -109,7 +96,11 @@ def run_mcsqs(
             if os.path.exists("bestsqs.out") and os.path.exists("bestcorr.out"):
 
                 # Convert output sqs structure to cif file
-                os.system("str2cif < bestsqs.out > bestsqs.cif")
+                p = subprocess.Popen(
+                    "str2cif < bestsqs.out > bestsqs.cif",
+                    shell=True
+                )
+                p.communicate()
 
                 # Get objective function
                 with open('bestcorr.out', 'r') as f:
