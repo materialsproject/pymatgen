@@ -341,7 +341,7 @@ class Cp2kOutput:
             species=[i[2] for i in coord_table],
             coords=[
                 [float(i[4]), float(i[5]), float(i[6])] for i in coord_table
-            ],
+            ], coords_are_cartesian=True
         )
 
         self.composition = self.initial_structure.composition
@@ -514,7 +514,10 @@ class Cp2kOutput:
         """
         Load in the input set from the input file (if it can be found)
         """
-        input_filename = self.data["input_filename"][0][0]
+        if len(self.data['input_filename']) == 0:
+            return
+        else:
+            input_filename = self.data["input_filename"][0][0]
         for ext in ["", ".gz", ".GZ", ".z", ".Z", ".bz2", ".BZ2"]:
             if os.path.exists(os.path.join(self.dir, input_filename + ext)):
                 self.input = Cp2kInput.from_file(
@@ -912,74 +915,79 @@ class Cp2kOutput:
         band_gap = []
         efermi = []
 
-        with zopen(self.filename, "rt") as f:
-            lines = iter(f.readlines())
-            for line in lines:
-                if line.__contains__(" occupied subspace spin"):
-                    eigenvalues.append(
-                        {
-                            "occupied": {Spin.up: [], Spin.down: []},
-                            "unoccupied": {Spin.up: [], Spin.down: []},
-                        }
-                    )
-                    band_gap.append({Spin.up: None, Spin.down: None})
-                    efermi.append({Spin.up: None, Spin.down: None})
-
-                    next(lines)
-                    while True:
-                        line = next(lines)
-                        if line.__contains__("Fermi"):
-                            efermi[-1][Spin.up] = float(line.split()[-1])
-                            break
-                        eigenvalues[-1]["occupied"][Spin.up].extend(
-                            [_hartree_to_ev_ * float(l) for l in line.split()]
-                        )
-                    next(lines)
-                    line = next(lines)
+        try:
+            with zopen(self.filename, "rt") as f:
+                lines = iter(f.readlines())
+                for line in lines:
                     if line.__contains__(" occupied subspace spin"):
+                        eigenvalues.append(
+                            {
+                                "occupied": {Spin.up: [], Spin.down: []},
+                                "unoccupied": {Spin.up: [], Spin.down: []},
+                            }
+                        )
+                        band_gap.append({Spin.up: None, Spin.down: None})
+                        efermi.append({Spin.up: None, Spin.down: None})
+
                         next(lines)
                         while True:
                             line = next(lines)
                             if line.__contains__("Fermi"):
-                                efermi[-1][Spin.down] = float(line.split()[-1])
+                                efermi[-1][Spin.up] = float(line.split()[-1])
                                 break
-                            eigenvalues[-1]["occupied"][Spin.down].extend(
-                                [
-                                    _hartree_to_ev_ * float(l)
-                                    for l in line.split()
-                                ]
+                            eigenvalues[-1]["occupied"][Spin.up].extend(
+                                [_hartree_to_ev_ * float(l) for l in line.split()]
                             )
-                if line.__contains__(" unoccupied subspace spin"):
-                    next(lines)
-                    next(lines)
-                    while True:
+                        next(lines)
                         line = next(lines)
-                        if line.__contains__("Eigenvalues"):
-                            break
-                        elif line.__contains__("HOMO"):
-                            band_gap[-1][Spin.up] = float(line.split()[-1])
-                            break
-                        eigenvalues[-1]["unoccupied"][Spin.up].extend(
-                            [_hartree_to_ev_ * float(l) for l in line.split()]
-                        )
-                    next(lines)
-                    next(lines)
+                        if line.__contains__(" occupied subspace spin"):
+                            next(lines)
+                            while True:
+                                line = next(lines)
+                                if line.__contains__("Fermi"):
+                                    efermi[-1][Spin.down] = float(line.split()[-1])
+                                    break
+                                eigenvalues[-1]["occupied"][Spin.down].extend(
+                                    [
+                                        _hartree_to_ev_ * float(l)
+                                        for l in line.split()
+                                    ]
+                                )
                     if line.__contains__(" unoccupied subspace spin"):
+                        next(lines)
+                        next(lines)
                         while True:
                             line = next(lines)
-                            if line.__contains__("HOMO"):
-                                band_gap[-1][Spin.up] = float(line.split()[-1])
-                                line = next(lines)
-                                band_gap[-1][Spin.down] = float(
-                                    line.split()[-1]
-                                )
+                            if line.__contains__("Eigenvalues"):
                                 break
-                            eigenvalues[-1]["unoccupied"][Spin.down].extend(
-                                [
-                                    _hartree_to_ev_ * float(l)
-                                    for l in line.split()
-                                ]
+                            elif line.__contains__("HOMO"):
+                                band_gap[-1][Spin.up] = float(line.split()[-1])
+                                break
+                            eigenvalues[-1]["unoccupied"][Spin.up].extend(
+                                [_hartree_to_ev_ * float(l) for l in line.split()]
                             )
+                        next(lines)
+                        next(lines)
+                        if line.__contains__(" unoccupied subspace spin"):
+                            while True:
+                                line = next(lines)
+                                if line.__contains__("HOMO"):
+                                    band_gap[-1][Spin.up] = float(line.split()[-1])
+                                    line = next(lines)
+                                    band_gap[-1][Spin.down] = float(
+                                        line.split()[-1]
+                                    )
+                                    break
+                                eigenvalues[-1]["unoccupied"][Spin.down].extend(
+                                    [
+                                        _hartree_to_ev_ * float(l)
+                                        for l in line.split()
+                                    ]
+                                )
+        except ValueError:
+            eigenvalues = [{'occupied': {Spin.up: None, Spin.down: None},
+                            'unoccupied': {Spin.up: None, Spin.down: None}}]
+            warnings.warn('Convergence of eigenvalues  for one or more subspaces did NOT converge')
 
         self.data["eigenvalues"] = eigenvalues
         self.data["band_gap"] = band_gap
