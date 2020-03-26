@@ -5,7 +5,7 @@ https://www.brown.edu/Departments/Engineering/Labs/avdw/atat/
 
 import os
 import subprocess
-from typing import Dict, Union, List, NamedTuple
+from typing import Dict, Union, List, NamedTuple, Optional
 
 import numpy as np
 from monty.tempfile import ScratchDir
@@ -28,7 +28,7 @@ def run_mcsqs(
     clusters: Dict[int, float],
     scaling: Union[int, List[int]],
     search_time: float = 0.01,
-) -> Sqs:
+) -> Optional[Sqs]:
     """
     Helper function for calling mcsqs with different arguments
     Args:
