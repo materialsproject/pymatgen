@@ -117,4 +117,3 @@ def run_mcsqs(
 
             else:
                 raise TimeoutError("Cluster expansion took too long.")
-
