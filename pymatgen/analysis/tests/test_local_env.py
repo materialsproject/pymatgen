@@ -376,6 +376,7 @@ class MiniDistNNTest(PymatgenTest):
             ['Mo', 'S', 'S'], [[-1e-06, 1.842, 3.72], [1.595, 0.92, 5.29],
                                [1.595, 0.92, 2.155]], coords_are_cartesian=True)
         self.lifepo4 = self.get_structure("LiFePO4")
+        self.lifepo4.add_oxidation_state_by_guess()
 
     def test_all_nn_classes(self):
         self.assertEqual(MinimumDistanceNN(cutoff=5, get_all_sites=True).get_cn(
@@ -400,6 +401,7 @@ class MiniDistNNTest(PymatgenTest):
         self.assertEqual(virenn.get_cn(self.diamond, 0), 4)
         self.assertEqual(virenn.get_cn(self.nacl, 0), 6)
         self.assertEqual(virenn.get_cn(self.cscl, 0), 8)
+        self.assertEqual(virenn.get_cn(self.lifepo4, 0), 2)
 
         brunner_recip = BrunnerNN_reciprocal(tol=0.01)
         self.assertEqual(brunner_recip.get_cn(self.diamond, 0), 4)
@@ -423,7 +425,7 @@ class MiniDistNNTest(PymatgenTest):
         self.assertEqual(econn.get_cn(self.diamond, 0), 4)
         self.assertEqual(econn.get_cn(self.nacl, 0), 6)
         self.assertEqual(econn.get_cn(self.cscl, 0), 8)
-        self.assertEqual(econn.get_cn(self.lifepo4, 0), 12)
+        self.assertEqual(econn.get_cn(self.lifepo4, 0), 6)
 
         voroinn = VoronoiNN(tol=0.5)
         self.assertEqual(voroinn.get_cn(self.diamond, 0), 4)
