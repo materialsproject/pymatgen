@@ -3394,7 +3394,7 @@ class EconNN(NearNeighbors):
 
     def __init__(
         self,
-        tol: float = 0.5,
+        tol: float = 0.2,
         cutoff: float = 10.0,
         cation_anion: bool = False
     ):
