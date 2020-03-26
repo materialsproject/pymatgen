@@ -426,12 +426,9 @@ class MiniDistNNTest(PymatgenTest):
         self.assertAlmostEqual(BrunnerNN_real(tol=0.01).get_cn(
             self.cscl, 0), 8)
 
-        self.assertAlmostEqual(EconNN(tol=0.01).get_cn(
-            self.diamond, 0), 4)
-        self.assertAlmostEqual(EconNN(tol=0.01).get_cn(
-            self.nacl, 0), 6)
-        self.assertAlmostEqual(EconNN(tol=0.01).get_cn(
-            self.cscl, 0), 14)
+        self.assertAlmostEqual(EconNN().get_cn(self.diamond, 0), 4)
+        self.assertAlmostEqual(EconNN().get_cn(self.nacl, 0), 6)
+        self.assertAlmostEqual(EconNN().get_cn(self.cscl, 0), 8)
 
         self.assertAlmostEqual(VoronoiNN(tol=0.5).get_cn(
             self.diamond, 0), 4)
