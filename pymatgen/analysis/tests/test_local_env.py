@@ -424,7 +424,7 @@ class MiniDistNNTest(PymatgenTest):
         econn = EconNN()
         self.assertEqual(econn.get_cn(self.diamond, 0), 4)
         self.assertEqual(econn.get_cn(self.nacl, 0), 6)
-        self.assertEqual(econn.get_cn(self.cscl, 0), 8)
+        self.assertEqual(econn.get_cn(self.cscl, 0), 14)
         self.assertEqual(econn.get_cn(self.lifepo4, 0), 6)
 
         voroinn = VoronoiNN(tol=0.5)

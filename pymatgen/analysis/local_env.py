@@ -3396,7 +3396,8 @@ class EconNN(NearNeighbors):
         self,
         tol: float = 0.2,
         cutoff: float = 10.0,
-        cation_anion: bool = False
+        cation_anion: bool = False,
+        use_fictive_radius: bool = False
     ):
         """
         Args:
@@ -3405,10 +3406,13 @@ class EconNN(NearNeighbors):
             cation_anion: If set to True, will restrict bonding targets to
                 sites with opposite or zero charge. Requires an oxidation states
                 on all sites in the structure.
+            use_fictive_radius: Whether to use the fictive radius in the
+                EcoN calculation. If False, the bond distance will be used.
         """
         self.tol = tol
         self.cutoff = cutoff
         self.cation_anion = cation_anion
+        self.use_fictive_radius = use_fictive_radius
 
     @property
     def structures_allowed(self):
@@ -3460,14 +3464,18 @@ class EconNN(NearNeighbors):
             elif site.specie.oxi_state <= 0:
                 neighbors = [n for n in neighbors if n.oxi_state >= 0]
 
-        # calculate fictive ionic radii
-        firs = [_get_fictive_ionic_radius(site, neighbor)
-                for neighbor in neighbors]
+        if self.use_fictive_radius:
+            # calculate fictive ionic radii
+            firs = [_get_fictive_ionic_radius(site, neighbor)
+                    for neighbor in neighbors]
+        else:
+            # just use the bond distance
+            firs = [neighbor.nn_distance for neighbor in neighbors]
 
         # calculate mean fictive ionic radius
         mefir = _get_mean_fictive_ionic_radius(firs)
 
-        # iteratively solve MEFIR; follows equation 4 in Hoppe's EconN paper
+        # # iteratively solve MEFIR; follows equation 4 in Hoppe's EconN paper
         prev_mefir = float("inf")
         while abs(prev_mefir - mefir) > 1e-4:
             # this is guaranteed to converge
