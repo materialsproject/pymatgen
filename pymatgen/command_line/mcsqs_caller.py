@@ -15,6 +15,9 @@ from pymatgen import Structure
 
 
 class Sqs(NamedTuple):
+    """
+    Return type for run_mcsqs.
+    """
     bestsqs: Structure
     objective_function: float
 
