@@ -93,6 +93,7 @@ def run_mcsqs(
 
         try:
             p.communicate(timeout=search_time * 60)
+            raise Exception("mcsqs exited before timeout reached")
         except subprocess.TimeoutExpired:
             p.kill()
             p.communicate()
