@@ -7,7 +7,6 @@ import os
 import subprocess
 from typing import Dict, Union, List, NamedTuple, Optional
 
-import numpy as np
 from monty.tempfile import ScratchDir
 from monty.dev import requires
 from monty.os.path import which
