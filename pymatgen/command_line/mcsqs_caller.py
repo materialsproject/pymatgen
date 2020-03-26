@@ -54,7 +54,10 @@ def run_mcsqs(
 
     with ScratchDir("."):
 
-        if isinstance(scaling, int):
+        if isinstance(scaling, (int, float)):
+
+            if scaling % 1:
+                raise ValueError("Scaling should be an integer, not {}".format(scaling))
 
             mcsqs_find_sqs_cmd = ["mcsqs", "-n {}".format(scaling*num_atoms)]
 
