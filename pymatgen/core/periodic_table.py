@@ -1475,7 +1475,7 @@ class DummySpecie(Specie):
         Raises:
             ValueError if species_string cannot be intepreted.
         """
-        m = re.search(r"([A-Z][a-z]*)([0-9.]*)([+\-]*)(.*)", species_string)
+        m = re.search(r"([A-ZAa-z]*)([0-9.]*)([+\-]*)(.*)", species_string)
         if m:
             sym = m.group(1)
             if m.group(2) == "" and m.group(3) == "":
