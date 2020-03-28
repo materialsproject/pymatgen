@@ -7,12 +7,12 @@ Unit tests for TEM calculator.
 """
 
 import unittest
-from pymatgen.core.lattice import Lattice  # type: ignore
-from pymatgen.core.structure import Structure  # type: ignore
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Structure
 from pymatgen.analysis.diffraction.tem import TEMCalculator  # type: ignore
-from pymatgen.util.testing import PymatgenTest  # type: ignore
-import numpy as np  # type: ignore
-import pandas as pd  # type: ignore
+from pymatgen.util.testing import PymatgenTest
+import numpy as np
+import pandas as pd
 import plotly.graph_objs as go  # type: ignore
 
 __author__ = "Frank Wan, Jason Liang"
@@ -202,11 +202,20 @@ class XRDCalculatorTest(PymatgenTest):
         self.assertTrue(4.209 in first_pt.values())
 
     def test_interplanar_angle(self):
+        # test interplanar angles. Reference values from KW Andrews,
+        # Interpretation of Electron Diffraction pp70-90.
         c = TEMCalculator()
         latt = Lattice.cubic(4.209)
         cubic = Structure(latt, ["Cs", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]])
         phi = c.get_interplanar_angle(cubic, (0, 0, -1), (0, -1, 0))
-        self.assertEqual(90, phi)
+        self.assertAlmostEqual(90, phi, places=1)
+        tet = self.get_structure("Li10GeP2S12")
+        phi = c.get_interplanar_angle(tet, (0, 0, 1), (1, 0, 3))
+        self.assertAlmostEqual(25.796, phi, places=1)
+        latt = Lattice.hexagonal(2, 4)
+        hex = Structure(latt, ["Ab"], [[0, 0, 0]])
+        phi = c.get_interplanar_angle(hex, (0, 0, 1), (1, 0, 6))
+        self.assertAlmostEqual(21.052, phi, places=1)
 
     def test_get_plot_coeffs(self):
         # Test if x * p1 + y * p2 yields p3.
