@@ -21,15 +21,17 @@ Tran, R.; Xu, Z.; Radhakrishnan, B.; Winston, D.; Persson, K. A.; Ong, S. P.
 from pymatgen.core.structure import Structure
 from pymatgen.util.coord import get_angle
 import numpy as np
-import scipy as sp
 from scipy.spatial import ConvexHull
 import logging
 import warnings
+import itertools
+import plotly.graph_objs as go
+from pymatgen.util.string import unicodeify_spacegroup
 
 __author__ = 'Zihan Xu, Richard Tran, Shyue Ping Ong'
 __copyright__ = 'Copyright 2013, The Materials Virtual Lab'
 __version__ = '0.1'
-__maintainer__ = 'Zihan Xu'
+__maintainer__ = 'Zihan Xu' 
 __email__ = 'zix009@eng.ucsd.edu'
 __date__ = 'May 5 2016'
 
@@ -64,7 +66,7 @@ def get_tri_area(pts):
     a, b, c = pts[0], pts[1], pts[2]
     v1 = np.array(b) - np.array(a)
     v2 = np.array(c) - np.array(a)
-    area_tri = abs(sp.linalg.norm(sp.cross(v1, v2)) / 2)
+    area_tri = abs(np.linalg.norm(np.cross(v1, v2)) / 2)
     return area_tri
 
 
@@ -248,7 +250,7 @@ class WulffShape:
                 if miller not in all_hkl:
                     all_hkl.append(miller)
                     normal = recp.get_cartesian_coords(miller)
-                    normal /= sp.linalg.norm(normal)
+                    normal /= np.linalg.norm(normal)
                     normal_pt = [x * energy for x in normal]
                     dual_pt = [x / energy for x in normal]
                     color_plane = color_ind[divmod(i, len(color_ind))[1]]
@@ -272,7 +274,7 @@ class WulffShape:
         """
         matrix_surfs = [self.facets[dual_simp[i]].normal for i in range(3)]
         matrix_e = [self.facets[dual_simp[i]].e_surf for i in range(3)]
-        cross_pt = sp.dot(sp.linalg.inv(matrix_surfs), matrix_e)
+        cross_pt = np.dot(np.linalg.inv(matrix_surfs), matrix_e)
         return cross_pt
 
     def _get_simpx_plane(self):
@@ -406,6 +408,8 @@ class WulffShape:
                 index and value is the color. Undefined facets will use default
                 color site. Note: If you decide to set your own colors, it
                 probably won't make any sense to have the color bar on.
+            units_in_JPERM2 (bool): Units of surface energy, defaults to
+                Joules per square meter (True)
 
         Return:
             (matplotlib.pyplot)
@@ -483,13 +487,109 @@ class WulffShape:
                 extend='both', ticks=bounds[:-1], spacing='proportional',
                 orientation='vertical')
             units = "$J/m^2$" if units_in_JPERM2 else r"$eV/\AA^2$"
-            cbar.set_label('Surface Energies (%s)' % (units), fontsize=100)
+            cbar.set_label('Surface Energies (%s)' % (units), fontsize=25)
 
         if grid_off:
             ax.grid('off')
         if axis_off:
             ax.axis('off')
         return plt
+
+    def get_plotly(self, color_set='PuBu', off_color='red',
+                   alpha=1, custom_colors={}, units_in_JPERM2=True):
+        """
+        Get the Wulff shape as a plotly Figure object.
+
+        Args:
+            color_set: default is 'PuBu'
+            alpha (float): chosen from 0 to 1 (float), default is 1
+            off_color: Default color for facets not present on the Wulff shape.
+            custom_colors ({(h,k,l}: [r,g,b,alpha}): Customize color of each
+                facet with a dictionary. The key is the corresponding Miller
+                index and value is the color. Undefined facets will use default
+                color site. Note: If you decide to set your own colors, it
+                probably won't make any sense to have the color bar on.
+            units_in_JPERM2 (bool): Units of surface energy, defaults to
+                Joules per square meter (True)
+
+        Return:
+            (plotly.graph_objs.Figure)
+        """
+
+        units = 'Jm⁻²' if units_in_JPERM2 else 'eVÅ⁻²'
+        color_list, color_proxy, color_proxy_on_wulff, \
+            miller_on_wulff, e_surf_on_wulff = self. \
+            _get_colors(color_set, alpha, off_color,
+                        custom_colors=custom_colors)
+
+        planes_data, color_scale, ticktext, tickvals = [], [], [], []
+        for plane in self.facets:
+            if len(plane.points) < 1:
+                # empty, plane is not on_wulff.
+                continue
+
+            plane_color = color_list[plane.index]
+            plane_color = (1, 0, 0, 1) if plane_color == off_color else plane_color  # set to red for now
+
+            pt = self.get_line_in_facet(plane)
+            x_pts, y_pts, z_pts = [], [], []
+            for p in pt:
+                x_pts.append(p[0])
+                y_pts.append(p[1])
+                z_pts.append(p[2])
+
+            # remove duplicate x y z pts to save time
+            all_xyz = []
+            [all_xyz.append(list(coord)) for coord in np.array([x_pts, y_pts, z_pts]).T
+             if list(coord) not in all_xyz]
+            x_pts, y_pts, z_pts = np.array(all_xyz).T[0], np.array(all_xyz).T[1], np.array(all_xyz).T[2]
+            index_list = [int(i) for i in np.linspace(0, len(x_pts) - 1, len(x_pts))]
+
+            tri_indices = np.array([c for c in itertools.combinations(index_list, 3)]).T
+            hkl = self.miller_list[plane.index]
+            hkl = unicodeify_spacegroup('(' + '%s' * len(hkl) % hkl + ')')
+            color = 'rgba(%.5f, %.5f, %.5f, %.5f)' % tuple(np.array(plane_color) * 255)
+
+            # note hoverinfo is incompatible with latex, need unicode instead
+            planes_data.append(go.Mesh3d(x=x_pts, y=y_pts, z=z_pts,
+                                         i=tri_indices[0], j=tri_indices[1], k=tri_indices[2],
+                                         hovertemplate="<br>%{text}<br>" +
+                                                       "%s=%.3f %s<br>" % (u"\u03b3", plane.e_surf,
+                                                                           units),
+                                         color=color, text=[r'Miller index: %s'
+                                                            % hkl] * len(x_pts),
+                                         hoverinfo='name', name=''))
+
+            # normalize surface energy from a scale of 0 to 1 for colorbar
+            norm_e = (plane.e_surf-min(e_surf_on_wulff))/(max(e_surf_on_wulff) - min(e_surf_on_wulff))
+            c = [norm_e, color]
+            if c not in color_scale:
+                color_scale.append(c)
+                ticktext.append("%.3f" % plane.e_surf)
+                tickvals.append(norm_e)
+
+        # Add colorbar
+        color_scale = sorted(color_scale, key=lambda c: c[0])
+        colorbar = go.Mesh3d(x=[0], y=[0], z=[0],
+                             colorbar=go.ColorBar(title={'text': r'Surface energy %s' % units,
+                                                         'side': 'right',
+                                                         'font': {'size': 25}},
+                                                  ticktext=ticktext, tickvals=tickvals),
+                             colorscale=[[0, 'rgb(255,255,255, 255)']] + color_scale,  # fix the scale
+                             intensity=[0, 0.33, 0.66, 1], i=[0],
+                             j=[0], k=[0], name='y', showscale=True)
+        planes_data.append(colorbar)
+
+        # Format aesthetics: background, axis, etc.
+        axis_dict = dict(title='', autorange=True, showgrid=False,
+                         zeroline=False, ticks="", showline=False,
+                         showticklabels=False, showbackground=False)
+        fig = go.Figure(data=planes_data)
+        fig.update_layout(dict(showlegend=True, scene=dict(xaxis=axis_dict,
+                                                           yaxis=axis_dict,
+                                                           zaxis=axis_dict)))
+
+        return fig
 
     def _get_azimuth_elev(self, miller_index):
         """

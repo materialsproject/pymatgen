@@ -8,12 +8,10 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.entries package &mdash; pymatgen 2020.1.10 documentation</title>
+  <title>pymatgen.entries package &mdash; pymatgen 2020.3.13 documentation</title>
   
 
   
-  
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
   
   
   
@@ -73,7 +71,7 @@
             
             
               <div class="version">
-                2020.1.10
+                2020.3.13
               </div>
             
           
@@ -119,6 +117,7 @@
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html">pymatgen.io package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.plugins.html">pymatgen.plugins package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
@@ -221,8 +220,89 @@
 </div>
 <div class="section" id="module-pymatgen.entries">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pymatgen.entries" title="Permalink to this headline">¶</a></h2>
-<p>This module contains entry related tools. Essentially, entries are containers
-for calculated information, which is used in many analyses.</p>
+<p>Entries are containers for calculated information, which is used in
+many analyses. This module contains entry related tools and implements
+the base Entry class, which is the basic entity that can be used to
+store calculated information. Other Entry classes such as ComputedEntry
+and PDEntry inherit from this class.</p>
+<dl class="class">
+<dt id="pymatgen.entries.Entry">
+<em class="property">class </em><code class="sig-name descname">Entry</code><span class="sig-paren">(</span><em class="sig-param">composition: pymatgen.core.composition.Composition</em>, <em class="sig-param">energy: float</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/entries/__init__.py#L26-L102"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.Entry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
+<p>A lightweight object containing the energy associated with
+a specific chemical composition. This base class is not
+intended to be instantiated directly. Note that classes
+which inherit from Entry must define a .energy property.</p>
+<p>Initializes an Entry.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>composition</strong> (<a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><em>Composition</em></a>) – Composition of the entry. For
+flexibility, this can take the form of all the typical input
+taken by a Composition, including a {symbol: amt} dict,
+a string formula, and others.</p></li>
+<li><p><strong>energy</strong> (<em>float</em>) – Energy of the entry.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.entries.Entry.as_dict">
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; dict<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/entries/__init__.py#L95-L102"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.Entry.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>MSONable dict.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.entries.Entry.energy">
+<em class="property">abstract property </em><code class="sig-name descname">energy</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/entries.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.Entry.energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>the energy of the entry.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.entries.Entry.energy_per_atom">
+<em class="property">property </em><code class="sig-name descname">energy_per_atom</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/entries.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.Entry.energy_per_atom" title="Permalink to this definition">¶</a></dt>
+<dd><p>the energy per atom of the entry.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.entries.Entry.is_element">
+<em class="property">property </em><code class="sig-name descname">is_element</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/entries.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.Entry.is_element" title="Permalink to this definition">¶</a></dt>
+<dd><p>Whether composition of entry is an element.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.entries.Entry.normalize">
+<code class="sig-name descname">normalize</code><span class="sig-paren">(</span><em class="sig-param">mode: str = 'formula_unit'</em><span class="sig-paren">)</span> &#x2192; None<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/entries/__init__.py#L75-L86"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.Entry.normalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalize the entry’s composition and energy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>mode</strong> – “formula_unit” is the default, which normalizes to
+composition.reduced_formula. The other option is “atom”, which
+normalizes such that the composition amounts sum to 1.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 </div>
 

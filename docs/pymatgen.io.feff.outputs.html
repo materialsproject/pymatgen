@@ -8,12 +8,10 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.io.feff.outputs module &mdash; pymatgen 2020.1.10 documentation</title>
+  <title>pymatgen.io.feff.outputs module &mdash; pymatgen 2020.3.13 documentation</title>
   
 
   
-  
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
   
   
   
@@ -73,7 +71,7 @@
             
             
               <div class="version">
-                2020.1.10
+                2020.3.13
               </div>
             
           
@@ -119,6 +117,7 @@
 <li class="toctree-l4 current"><a class="reference internal" href="pymatgen.io.html">pymatgen.io package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.plugins.html">pymatgen.plugins package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
@@ -207,36 +206,55 @@
             
   <div class="section" id="module-pymatgen.io.feff.outputs">
 <span id="pymatgen-io-feff-outputs-module"></span><h1>pymatgen.io.feff.outputs module<a class="headerlink" href="#module-pymatgen.io.feff.outputs" title="Permalink to this headline">¶</a></h1>
+<p>This module defines classes for parsing the FEFF output files.</p>
+<p>Currently supports the xmu.dat, ldos.dat output files are for non-spin case.</p>
 <dl class="class">
 <dt id="pymatgen.io.feff.outputs.Eels">
-<em class="property">class </em><code class="sig-name descname">Eels</code><span class="sig-paren">(</span><em class="sig-param">data</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/io/feff/outputs.py#L404-L454"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.outputs.Eels" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Eels</code><span class="sig-paren">(</span><em class="sig-param">data</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/io/feff/outputs.py#L407-L467"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.outputs.Eels" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Parse’eels.dat’ file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>data</em>) – Eels data.</p>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.io.feff.outputs.Eels.as_dict">
-<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/io/feff/outputs.py#L448-L454"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.outputs.Eels.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/io/feff/outputs.py#L461-L467"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.outputs.Eels.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns dict representations of Xmu object</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.feff.outputs.Eels.atomic_background">
-<em class="property">property </em><code class="sig-name descname">atomic_background</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/io/feff/outputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.outputs.Eels.atomic_background" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<em class="property">property </em><code class="sig-name descname">atomic_background</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/io/feff/outputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.outputs.Eels.atomic_background" title="Permalink to this definition">¶</a></dt>
+<dd><p>atomic background.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.feff.outputs.Eels.energies">
-<em class="property">property </em><code class="sig-name descname">energies</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/io/feff/outputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.outputs.Eels.energies" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">energies</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/io/feff/outputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.outputs.Eels.energies" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the energies in eV.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.feff.outputs.Eels.fine_structure">
-<em class="property">property </em><code class="sig-name descname">fine_structure</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/io/feff/outputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.outputs.Eels.fine_structure" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<em class="property">property </em><code class="sig-name descname">fine_structure</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/io/feff/outputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.outputs.Eels.fine_structure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fine structure of EELS.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.feff.outputs.Eels.from_file">
-<em class="property">static </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param">eels_dat_file='eels.dat'</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/io/feff/outputs.py#L434-L446"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.outputs.Eels.from_file" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param">eels_dat_file='eels.dat'</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/io/feff/outputs.py#L447-L459"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.outputs.Eels.from_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parse eels spectrum.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -250,7 +268,7 @@
 
 <dl class="method">
 <dt id="pymatgen.io.feff.outputs.Eels.total_spectrum">
-<em class="property">property </em><code class="sig-name descname">total_spectrum</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/io/feff/outputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.outputs.Eels.total_spectrum" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">total_spectrum</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/io/feff/outputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.outputs.Eels.total_spectrum" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the total eels spectrum.</p>
 </dd></dl>
 
@@ -258,7 +276,7 @@
 
 <dl class="class">
 <dt id="pymatgen.io.feff.outputs.LDos">
-<em class="property">class </em><code class="sig-name descname">LDos</code><span class="sig-paren">(</span><em class="sig-param">complete_dos</em>, <em class="sig-param">charge_transfer</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/io/feff/outputs.py#L34-L250"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.outputs.LDos" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">LDos</code><span class="sig-paren">(</span><em class="sig-param">complete_dos</em>, <em class="sig-param">charge_transfer</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/io/feff/outputs.py#L35-L252"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.outputs.LDos" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Parser for ldos files ldos01, ldos02, …..</p>
 <dl class="field-list simple">
@@ -272,7 +290,7 @@ dictionary</p></li>
 </dl>
 <dl class="method">
 <dt id="pymatgen.io.feff.outputs.LDos.charge_transfer_from_file">
-<em class="property">static </em><code class="sig-name descname">charge_transfer_from_file</code><span class="sig-paren">(</span><em class="sig-param">feff_inp_file</em>, <em class="sig-param">ldos_file</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/io/feff/outputs.py#L157-L236"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.outputs.LDos.charge_transfer_from_file" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">charge_transfer_from_file</code><span class="sig-paren">(</span><em class="sig-param">feff_inp_file</em>, <em class="sig-param">ldos_file</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/io/feff/outputs.py#L159-L238"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.outputs.LDos.charge_transfer_from_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get charge transfer from file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -291,15 +309,14 @@ i.e., ldos01.dat, ldos02.dat….</p></li>
 
 <dl class="method">
 <dt id="pymatgen.io.feff.outputs.LDos.charge_transfer_to_string">
-<code class="sig-name descname">charge_transfer_to_string</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/io/feff/outputs.py#L238-L250"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.outputs.LDos.charge_transfer_to_string" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">charge_transfer_to_string</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/io/feff/outputs.py#L240-L252"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.outputs.LDos.charge_transfer_to_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>returns shrage transfer as string</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.feff.outputs.LDos.from_file">
-<em class="property">static </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param">feff_inp_file='feff.inp'</em>, <em class="sig-param">ldos_file='ldos'</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/io/feff/outputs.py#L48-L155"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.outputs.LDos.from_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>”
-Creates LDos object from raw Feff ldos files by
+<em class="property">static </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param">feff_inp_file='feff.inp'</em>, <em class="sig-param">ldos_file='ldos'</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/io/feff/outputs.py#L50-L157"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.outputs.LDos.from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates LDos object from raw Feff ldos files by
 by assuming they are numbered consecutively, i.e. ldos01.dat
 ldos02.dat…</p>
 <dl class="field-list simple">
@@ -316,27 +333,17 @@ ldos02.dat…</p>
 
 <dl class="class">
 <dt id="pymatgen.io.feff.outputs.Xmu">
-<em class="property">class </em><code class="sig-name descname">Xmu</code><span class="sig-paren">(</span><em class="sig-param">header</em>, <em class="sig-param">parameters</em>, <em class="sig-param">absorbing_atom</em>, <em class="sig-param">data</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/io/feff/outputs.py#L253-L401"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.outputs.Xmu" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Xmu</code><span class="sig-paren">(</span><em class="sig-param">header</em>, <em class="sig-param">parameters</em>, <em class="sig-param">absorbing_atom</em>, <em class="sig-param">data</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/io/feff/outputs.py#L255-L404"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.outputs.Xmu" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Parser for data in ‘xmu.dat’ file.
 The file ‘xmu.dat’ contains XANES, EXAFS or NRIXS data depending on the
-situation; mu, mu_0, and chi = chi * mu_0/ mu_0/(edge+50eV) as
+situation; \mu, \mu_0, and \chi = \chi * \mu_0/ \mu_0/(edge+50eV) as
 functions of absolute energy E, relative energy E − E_f and wave number k.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>header</strong> – Header object</p></li>
-<li><p><strong>parameters</strong> – Tags object</p></li>
-<li><p><strong>absorbing_atom</strong> (<em>str/int</em>) – absorbing atom symbol or index</p></li>
-<li><p><strong>data</strong> (<em>numpy.ndarray</em><em>, </em><em>Nx6</em>) – cross_sections</p></li>
-</ul>
-</dd>
-</dl>
 <dl class="simple">
 <dt>Default attributes:</dt><dd><p>xmu: Photon absorption cross section of absorbing atom in material
 Energies: Energies of data point
 relative_energies: E - E_fermi
-wavenumber: k=sqrt(E −E_fermi)
+wavenumber: k=\sqrt(E −E_fermi)
 mu: The total absorption cross-section.
 mu0: The embedded atomic background absorption.
 chi: fine structure.
@@ -347,45 +354,55 @@ Source: Source of structure
 Calculation: Type of Feff calculation performed</p>
 </dd>
 </dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>header</strong> – Header object</p></li>
+<li><p><strong>parameters</strong> – Tags object</p></li>
+<li><p><strong>absorbing_atom</strong> (<em>str/int</em>) – absorbing atom symbol or index</p></li>
+<li><p><strong>data</strong> (<em>numpy.ndarray</em><em>, </em><em>Nx6</em>) – cross_sections</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="method">
 <dt id="pymatgen.io.feff.outputs.Xmu.as_dict">
-<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/io/feff/outputs.py#L395-L401"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.outputs.Xmu.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/io/feff/outputs.py#L398-L404"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.outputs.Xmu.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns dict representations of Xmu object</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.feff.outputs.Xmu.calc">
-<em class="property">property </em><code class="sig-name descname">calc</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/io/feff/outputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.outputs.Xmu.calc" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">calc</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/io/feff/outputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.outputs.Xmu.calc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns type of Feff calculation, XANES or EXAFS</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.feff.outputs.Xmu.chi">
-<em class="property">property </em><code class="sig-name descname">chi</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/io/feff/outputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.outputs.Xmu.chi" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">chi</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/io/feff/outputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.outputs.Xmu.chi" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the normalized fine structure.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.feff.outputs.Xmu.e_fermi">
-<em class="property">property </em><code class="sig-name descname">e_fermi</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/io/feff/outputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.outputs.Xmu.e_fermi" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">e_fermi</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/io/feff/outputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.outputs.Xmu.e_fermi" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the fermi level in eV.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.feff.outputs.Xmu.edge">
-<em class="property">property </em><code class="sig-name descname">edge</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/io/feff/outputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.outputs.Xmu.edge" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">edge</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/io/feff/outputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.outputs.Xmu.edge" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns excitation edge.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.feff.outputs.Xmu.energies">
-<em class="property">property </em><code class="sig-name descname">energies</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/io/feff/outputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.outputs.Xmu.energies" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">energies</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/io/feff/outputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.outputs.Xmu.energies" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the absolute energies in eV.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.feff.outputs.Xmu.from_file">
-<em class="property">static </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param">xmu_dat_file='xmu.dat'</em>, <em class="sig-param">feff_inp_file='feff.inp'</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/io/feff/outputs.py#L287-L309"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.outputs.Xmu.from_file" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param">xmu_dat_file='xmu.dat'</em>, <em class="sig-param">feff_inp_file='feff.inp'</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/io/feff/outputs.py#L290-L312"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.outputs.Xmu.from_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get Xmu from file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -402,39 +419,39 @@ Calculation: Type of Feff calculation performed</p>
 
 <dl class="method">
 <dt id="pymatgen.io.feff.outputs.Xmu.material_formula">
-<em class="property">property </em><code class="sig-name descname">material_formula</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/io/feff/outputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.outputs.Xmu.material_formula" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">material_formula</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/io/feff/outputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.outputs.Xmu.material_formula" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns chemical formula of material from feff.inp file</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.feff.outputs.Xmu.mu">
-<em class="property">property </em><code class="sig-name descname">mu</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/io/feff/outputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.outputs.Xmu.mu" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">mu</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/io/feff/outputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.outputs.Xmu.mu" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the total absorption cross-section.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.feff.outputs.Xmu.mu0">
-<em class="property">property </em><code class="sig-name descname">mu0</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/io/feff/outputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.outputs.Xmu.mu0" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">mu0</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/io/feff/outputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.outputs.Xmu.mu0" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the embedded atomic background absorption.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.feff.outputs.Xmu.relative_energies">
-<em class="property">property </em><code class="sig-name descname">relative_energies</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/io/feff/outputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.outputs.Xmu.relative_energies" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">relative_energies</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/io/feff/outputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.outputs.Xmu.relative_energies" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns energy with respect to the fermi level.
 E - E_f</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.feff.outputs.Xmu.source">
-<em class="property">property </em><code class="sig-name descname">source</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/io/feff/outputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.outputs.Xmu.source" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">source</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/io/feff/outputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.outputs.Xmu.source" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns source identification from Header file</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.feff.outputs.Xmu.wavenumber">
-<em class="property">property </em><code class="sig-name descname">wavenumber</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/io/feff/outputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.outputs.Xmu.wavenumber" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns The wave number in units of AA^-1. k=sqrt(E −E_f) where E is
+<em class="property">property </em><code class="sig-name descname">wavenumber</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/io/feff/outputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.outputs.Xmu.wavenumber" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns The wave number in units of \AA^-1. k=\sqrt(E −E_f) where E is
 the energy and E_f is the Fermi level computed from electron gas theory
 at the average interstitial charge density.</p>
 </dd></dl>

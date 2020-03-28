@@ -2,6 +2,9 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+This module implements a neutron diffraction (ND) pattern calculator.
+"""
 
 from math import sin, cos, asin, pi, degrees, radians
 import os
@@ -12,10 +15,6 @@ import json
 from .core import DiffractionPattern, AbstractDiffractionPatternCalculator, \
     get_unique_families
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-
-"""
-This module implements a neutron diffraction (ND) pattern calculator.
-"""
 
 __author__ = "Yuta Suzuki"
 __copyright__ = "Copyright 2018, The Materials Project"

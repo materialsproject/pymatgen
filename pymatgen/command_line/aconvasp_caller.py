@@ -114,6 +114,10 @@ class AconvaspError(Exception):
     """
 
     def __init__(self, msg):
+        """
+        Args:
+            msg (str): Error message
+        """
         self.msg = msg
 
     def __str__(self):

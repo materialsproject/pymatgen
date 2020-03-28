@@ -8,10 +8,13 @@ Module for interfacing with phonopy, see https://atztogo.github.io/phonopy/
 
 import numpy as np
 from pymatgen.core import Structure, Lattice
-from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
+from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine, \
+    PhononBandStructure
 from pymatgen.phonon.dos import PhononDos, CompletePhononDos
 from monty.serialization import loadfn
 from monty.dev import requires
+
+from pymatgen.symmetry.bandstructure import HighSymmKpath
 
 try:
     from phonopy import Phonopy
@@ -283,3 +286,144 @@ def get_displaced_structures(pmg_structure, atom_disp=0.01,
             structure_list.append(get_pmg_structure(c))
 
     return structure_list
+
+
+@requires(Phonopy, "phonopy is required to calculate phonon density of states")
+def get_phonon_dos_from_fc(
+    structure: Structure,
+    supercell_matrix: np.ndarray,
+    force_constants: np.ndarray,
+    mesh_density: float = 100.,
+    num_dos_steps: int = 200,
+    **kwargs
+) -> CompletePhononDos:
+    """
+    Get a projected phonon density of states from phonopy force constants.
+
+    Args:
+        structure: A structure.
+        supercell_matrix: The supercell matrix used to generate the force
+            constants.
+        force_constants: The force constants in phonopy format.
+        mesh_density: The density of the q-point mesh. See the docstring
+            for the ``mesh`` argument in Phonopy.init_mesh() for more details.
+        num_dos_steps: Number of frequency steps in the energy grid.
+        **kwargs: Additional kwargs passed to the Phonopy constructor.
+
+    Returns:
+        The density of states.
+    """
+    structure_phonopy = get_phonopy_structure(structure)
+    phonon = Phonopy(
+        structure_phonopy, supercell_matrix=supercell_matrix, **kwargs
+    )
+    phonon.set_force_constants(force_constants)
+    phonon.run_mesh(
+        mesh_density,
+        is_mesh_symmetry=False,
+        with_eigenvectors=True,
+        is_gamma_center=True,
+    )
+
+    # get min, max, step frequency
+    frequencies = phonon.get_mesh_dict()["frequencies"]
+    freq_min = frequencies.min()
+    freq_max = frequencies.max()
+    freq_pitch = (freq_max - freq_min) / num_dos_steps
+
+    phonon.run_projected_dos(
+        freq_min=freq_min, freq_max=freq_max, freq_pitch=freq_pitch
+    )
+
+    dos_raw = phonon.projected_dos.get_partial_dos()
+    pdoss = {s: dos for s, dos in zip(structure, dos_raw[1])}
+
+    total_dos = PhononDos(dos_raw[0], dos_raw[1].sum(axis=0))
+    return CompletePhononDos(structure, total_dos, pdoss)
+
+
+@requires(Phonopy, "phonopy is required to calculate phonon band structures")
+def get_phonon_band_structure_from_fc(
+    structure: Structure,
+    supercell_matrix: np.ndarray,
+    force_constants: np.ndarray,
+    mesh_density: float = 100.0,
+    **kwargs
+) -> PhononBandStructure:
+    """
+    Get a uniform phonon band structure from phonopy force constants.
+
+    Args:
+        structure: A structure.
+        supercell_matrix: The supercell matrix used to generate the force
+            constants.
+        force_constants: The force constants in phonopy format.
+        mesh_density: The density of the q-point mesh. See the docstring
+            for the ``mesh`` argument in Phonopy.init_mesh() for more details.
+        **kwargs: Additional kwargs passed to the Phonopy constructor.
+
+    Returns:
+        The uniform phonon band structure.
+    """
+    structure_phonopy = get_phonopy_structure(structure)
+    phonon = Phonopy(
+        structure_phonopy, supercell_matrix=supercell_matrix, **kwargs
+    )
+    phonon.set_force_constants(force_constants)
+    phonon.run_mesh(mesh_density, is_mesh_symmetry=False, is_gamma_center=True)
+    mesh = phonon.get_mesh_dict()
+
+    return PhononBandStructure(
+        mesh["qpoints"], mesh["frequencies"], structure.lattice
+    )
+
+
+@requires(Phonopy, "phonopy is required to calculate phonon band structures")
+def get_phonon_band_structure_symm_line_from_fc(
+    structure: Structure,
+    supercell_matrix: np.ndarray,
+    force_constants: np.ndarray,
+    line_density: float = 20.0,
+    symprec: float = 0.01,
+    **kwargs
+) -> PhononBandStructureSymmLine:
+    """
+    Get a phonon band structure along a high symmetry path from phonopy force
+    constants.
+
+    Args:
+        structure: A structure.
+        supercell_matrix: The supercell matrix used to generate the force
+            constants.
+        force_constants: The force constants in phonopy format.
+        line_density: The density along the high symmetry path.
+        symprec: Symmetry precision passed to phonopy and used for determining
+            the band structure path.
+        **kwargs: Additional kwargs passed to the Phonopy constructor.
+
+    Returns:
+        The line mode band structure.
+    """
+    structure_phonopy = get_phonopy_structure(structure)
+    phonon = Phonopy(
+        structure_phonopy,
+        supercell_matrix=supercell_matrix,
+        symprec=symprec,
+        **kwargs
+    )
+    phonon.set_force_constants(force_constants)
+
+    kpath = HighSymmKpath(structure, symprec=symprec)
+
+    kpoints, labels = kpath.get_kpoints(
+        line_density=line_density, coords_are_cartesian=False
+    )
+
+    phonon.run_qpoints(kpoints)
+    frequencies = phonon.qpoints.get_frequencies().T
+
+    labels_dict = dict([(a, k) for a, k in zip(labels, kpoints) if a != ""])
+
+    return PhononBandStructureSymmLine(
+        kpoints, frequencies, structure.lattice, labels_dict=labels_dict
+    )
