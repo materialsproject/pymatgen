@@ -17,8 +17,8 @@ from functools import lru_cache
 import numpy as np
 import scipy.constants as sc
 import pandas as pd
-import plotly.graph_objs as go
-import plotly.offline as poff
+import plotly.graph_objs as go  # type: ignore
+import plotly.offline as poff  # type: ignore
 from pymatgen.core.structure import Structure
 from pymatgen.analysis.diffraction.core import AbstractDiffractionPatternCalculator
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
