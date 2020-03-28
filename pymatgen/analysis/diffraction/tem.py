@@ -14,29 +14,27 @@ from collections import namedtuple
 from fractions import Fraction
 from typing import List, Dict, Tuple, cast
 from functools import lru_cache
-import numpy as np  # type: ignore
-import scipy.constants as sc  # type: ignore
-import pandas as pd  # type: ignore
-import plotly.graph_objs as go  # type: ignore
-import plotly.offline as poff  # type: ignore
-from IPython.display import set_matplotlib_formats  # type: ignore
-from pymatgen.core.structure import Structure  # type: ignore
-from pymatgen.analysis.diffraction.core import AbstractDiffractionPatternCalculator  # type: ignore
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer  # type: ignore
-from pymatgen.util.string import unicodeify_spacegroup, latexify_spacegroup  # type: ignore
+import numpy as np
+import scipy.constants as sc
+import pandas as pd
+import plotly.graph_objs as go
+import plotly.offline as poff
+from pymatgen.core.structure import Structure
+from pymatgen.analysis.diffraction.core import AbstractDiffractionPatternCalculator
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.util.string import unicodeify_spacegroup, latexify_spacegroup
 
 with open(os.path.join(os.path.dirname(__file__),
                        "atomic_scattering_params.json")) as f:
     ATOMIC_SCATTERING_PARAMS = json.load(f)
-set_matplotlib_formats('retina')
 poff.init_notebook_mode(connected=True)
 
 __author__ = "Frank Wan, Jason Liang"
 __copyright__ = "Copyright 2020, The Materials Project"
-__version__ = "0.201"
+__version__ = "0.21"
 __maintainer__ = "Jason Liang"
 __email__ = "fwan@berkeley.edu, yhljason@berkeley.edu"
-__date__ = "02/20/2020"
+__date__ = "03/21/2020"
 
 
 class TEMCalculator(AbstractDiffractionPatternCalculator):
@@ -179,7 +177,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             structure (Structure): The input structure.
             bragg_angles (Dict): Dictionary of hkl plane to Bragg angle.
         Returns:
-            A Dict of atomic symbol to another dict of hkl plane to x-ray factor (in angstroms).
+            dict of atomic symbol to another dict of hkl plane to x-ray factor (in angstroms).
         """
         x_ray_factors = {}
         s2 = self.get_s2(bragg_angles)
@@ -263,13 +261,13 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
     def get_pattern(self, structure: Structure, scaled: bool = None, two_theta_range: Tuple[float, float] = None) \
             -> pd.DataFrame:
         """
-            Returns all relevant TEM DP info in a pandas dataframe.
-            Args:
-                structure (Structure): The input structure.
-                scaled (boolean): Required value for inheritance, does nothing in TEM pattern
-                two_theta_range (Tuple): Required value for inheritance, does nothing in TEM pattern
-            Returns:
-                PandasDataFrame
+        Returns all relevant TEM DP info in a pandas dataframe.
+        Args:
+            structure (Structure): The input structure.
+            scaled (boolean): Required value for inheritance, does nothing in TEM pattern
+            two_theta_range (Tuple): Required value for inheritance, does nothing in TEM pattern
+        Returns:
+            PandasDataFrame
         """
         if self.symprec:
             finder = SpacegroupAnalyzer(structure, symprec=self.symprec)
@@ -303,17 +301,18 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             normalized_cell_intensity[plane] = cell_intensity[plane] * norm_factor
         return normalized_cell_intensity
 
-    def is_parallel(self, plane: Tuple[int, int, int], other_plane: Tuple[int, int, int]) \
+    def is_parallel(self, structure: Structure, plane: Tuple[int, int, int], other_plane: Tuple[int, int, int]) \
             -> bool:
         """
         Checks if two hkl planes are parallel in reciprocal space.
         Args:
+            structure (Structure): The input structure.
             plane (3-tuple): The first plane to be compared.
             other_plane (3-tuple): The other plane to be compared.
         Returns:
             boolean
         """
-        return np.array_equal(np.cross(np.asarray(plane), np.asarray(other_plane)), np.array([0, 0, 0]))
+        return self.get_interplanar_angle(structure, plane, other_plane) in (180, 0, np.NaN)
 
     def get_first_point(self, structure: Structure, points: list) -> Dict[Tuple[int, int, int], float]:
         """
@@ -322,7 +321,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             structure (Structure): The input structure.
             points (list): All points to be checked.
         Returns:
-            A dict of a hkl plane to max interplanar distance.
+            dict of a hkl plane to max interplanar distance.
         """
         max_d = -100.0
         max_d_plane = (0, 0, 1)
@@ -334,35 +333,69 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
                 max_d = spacings[plane]
         return {max_d_plane: max_d}
 
-    def get_plot_coeffs(self, p1: Tuple[int, int, int], p2: Tuple[int, int, int], p3: Tuple[int, int, int],
-                        denom: float, init_denom_0: bool) -> list:
+    def get_interplanar_angle(self, structure: Structure, p1: Tuple[int, int, int], p2: Tuple[int, int, int]) \
+            -> float:
         """
-        Calculates coefficients of the vector addition required to generate positions for each DP point.
+        Returns the interplanar angle (in degrees) between the normal of two crystal planes.
+        Formulas from International Tables for Crystallography Volume C pp. 2-9.
+        Args:
+            structure (Structure): The input structure.
+            p1 (3-tuple): plane 1
+            p2 (3-tuple): plane 2
+        Returns:
+            float
+        """
+        a, b, c = structure.lattice.a, structure.lattice.b, structure.lattice.c
+        alpha, beta, gamma = np.deg2rad(structure.lattice.alpha), np.deg2rad(structure.lattice.beta), \
+            np.deg2rad(structure.lattice.gamma)
+        v = structure.lattice.volume
+        a_star = b * c * np.sin(alpha) / v
+        b_star = a * c * np.sin(beta) / v
+        c_star = a * b * np.sin(gamma) / v
+        cos_alpha_star = (np.cos(beta) * np.cos(gamma) - np.cos(alpha)) / (np.sin(beta) * np.sin(gamma))
+        cos_beta_star = (np.cos(alpha) * np.cos(gamma) - np.cos(beta)) / (np.sin(alpha) * np.sin(gamma))
+        cos_gamma_star = (np.cos(alpha) * np.cos(beta) - np.cos(gamma)) / (np.sin(alpha) * np.sin(beta))
+        r1_norm = np.sqrt(
+            p1[0] ** 2 * a_star ** 2 + p1[1] ** 2 * b_star ** 2 + p1[2] ** 2 * c_star ** 2 + 2 * p1[0] * p1[1]
+            * a_star * b_star * cos_gamma_star + 2 * p1[0] * p1[2] * a_star * c_star
+            * cos_beta_star + 2 * p1[1] * p1[2] * b_star * c_star * cos_gamma_star
+        )
+        r2_norm = np.sqrt(
+            p2[0] ** 2 * a_star ** 2 + p2[1] ** 2 * b_star ** 2 + p2[2] ** 2 * c_star ** 2 + 2 * p2[0] * p2[1]
+            * a_star * b_star * cos_gamma_star + 2 * p2[0] * p2[2] * a_star * c_star
+            * cos_beta_star + 2 * p2[1] * p2[2] * b_star * c_star * cos_gamma_star
+        )
+        r1_dot_r2 = p1[0] * p2[0] * a_star ** 2 + p1[1] * p2[1] * b_star ** 2 + p1[2] * p2[2] * c_star ** 2 \
+            + (p1[0] * p2[1] + p2[0] * p1[1]) * a_star * b_star * cos_gamma_star \
+            + (p1[0] * p2[2] + p2[0] * p1[1]) * a_star * c_star * cos_beta_star \
+            + (p1[1] * p2[2] + p2[1] * p1[2]) * b_star * c_star * cos_alpha_star
+        phi = np.arccos(r1_dot_r2 / (r1_norm * r2_norm))
+        return np.rad2deg(phi)
+
+    def get_plot_coeffs(self, p1: Tuple[int, int, int], p2: Tuple[int, int, int], p3: Tuple[int, int, int]) \
+            -> np.ndarray:
+        """
+        Calculates coefficients of the vector addition required to generate positions for each DP point
+        by the Moore-Penrose inverse method.
         Args:
             p1 (3-tuple): The first point. Fixed.
             p2 (3-tuple): The second point. Fixed.
             p3 (3-tuple): The point whose coefficients are to be calculted.
-            denom (float): The denominator in the matrix calculation.
-            init_denom_0 (boolean): Whether or not the first calculated denominator was 0.
         Returns:
-            list of length 2 [x-coefficient, y-coefficient]
+            Numpy array
         """
-        coeffs = []
-        if init_denom_0:
-            a_num = np.array([[p3[0], p3[2]], [p2[0], p2[2]]])
-            b_num = np.array([[p1[0], p1[2]], [p3[0], p3[2]]])
-        else:
-            a_num = np.array([[p3[0], p3[1]], [p2[0], p2[1]]])
-            b_num = np.array([[p1[0], p1[1]], [p3[0], p3[1]]])
-        coeffs_0 = np.linalg.det(a_num) / denom
-        coeffs_1 = np.linalg.det(b_num) / denom
-        coeffs.append(coeffs_0)
-        coeffs.append(coeffs_1)
-        return coeffs
+        a = np.array([[p1[0], p2[0]],
+                      [p1[1], p2[1]],
+                      [p1[2], p2[2]]])
+        b = np.array([[p3[0], p3[1], p3[2]]]).T
+        a_pinv = np.linalg.pinv(a)
+        x = np.dot(a_pinv, b)
+        return np.ravel(x)
 
     def get_positions(self, structure: Structure, points: list) -> Dict[Tuple[int, int, int], list]:
         """
-        Calculates all the positions of each hkl point in the 2D diffraction pattern. Distance in centimeters.
+        Calculates all the positions of each hkl point in the 2D diffraction pattern by vector addition.
+        Distance in centimeters.
         Args:
             structure (Structure): The input structure.
             points (list): All points to be checked.
@@ -381,7 +414,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         # note 000 is "parallel" to every plane vector.
         for plane in sorted(spacings.keys()):
             second_point, second_d = plane, spacings[plane]
-            if not self.is_parallel(first_point, second_point):
+            if not self.is_parallel(structure, first_point, second_point):
                 break
         p1 = first_point
         p2 = second_point
@@ -393,15 +426,10 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         r1 = self.wavelength_rel() * self.camera_length / first_d
         positions[first_point] = np.array([r1, 0])
         r2 = self.wavelength_rel() * self.camera_length / second_d
-        phi = np.arccos(
-            np.dot(p1, np.transpose(p2)) / (np.sqrt(np.dot(p1, np.transpose(p1)) * np.dot(p2, np.transpose(p2)))))
+        phi = np.deg2rad(self.get_interplanar_angle(structure, p1, p2))
         positions[second_point] = np.array([r2 * np.cos(phi), r2 * np.sin(phi)])
-        denom = np.linalg.det(np.array([[p1[0], p1[1]], [p2[0], p2[1]]]))
-        init_denom_0 = (denom == 0)
-        if init_denom_0:
-            denom = np.linalg.det(np.array([[p1[0], p1[2]], [p2[0], p2[2]]]))
         for plane in points:
-            coeffs = self.get_plot_coeffs(p1, p2, plane, denom, init_denom_0)
+            coeffs = self.get_plot_coeffs(p1, p2, plane)
             pos = np.array([coeffs[0] * positions[first_point][0] + coeffs[1] * positions[second_point][0],
                             coeffs[0] * positions[first_point][1] + coeffs[1] * positions[second_point][1]])
             positions[plane] = pos
@@ -496,7 +524,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
                 color='#7f7f7f'),
             hovermode='closest',
             xaxis=dict(
-                range=[-5.5, 5.5],
+                autorange=True,
                 showgrid=False,
                 zeroline=False,
                 showline=False,
@@ -504,7 +532,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
                 showticklabels=False
             ),
             yaxis=dict(
-                range=[-5.5, 5.5],
+                autorange=True,
                 showgrid=False,
                 zeroline=False,
                 showline=False,

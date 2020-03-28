@@ -189,8 +189,9 @@ class XRDCalculatorTest(PymatgenTest):
 
     def test_is_parallel(self):
         c = TEMCalculator()
-        self.assertTrue(c.is_parallel((1, 0, 0), (3, 0, 0)))
-        self.assertFalse(c.is_parallel((1, 0, 0), (3, 0, 1)))
+        structure = self.get_structure("Si")
+        self.assertTrue(c.is_parallel(structure, (1, 0, 0), (3, 0, 0)))
+        self.assertFalse(c.is_parallel(structure, (1, 0, 0), (3, 0, 1)))
 
     def test_get_first_point(self):
         c = TEMCalculator()
@@ -200,11 +201,18 @@ class XRDCalculatorTest(PymatgenTest):
         first_pt = c.get_first_point(cubic, points)
         self.assertTrue(4.209 in first_pt.values())
 
+    def test_interplanar_angle(self):
+        c = TEMCalculator()
+        latt = Lattice.cubic(4.209)
+        cubic = Structure(latt, ["Cs", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]])
+        phi = c.get_interplanar_angle(cubic, (0, 0, -1), (0, -1, 0))
+        self.assertEqual(90, phi)
+
     def test_get_plot_coeffs(self):
         # Test if x * p1 + y * p2 yields p3.
         c = TEMCalculator()
-        coeffs = c.get_plot_coeffs((1, 1, 0), (1, -1, 0), (2, 0, 0), -2, False)
-        self.assertEqual([1, 1], coeffs)
+        coeffs = c.get_plot_coeffs((1, 1, 0), (1, -1, 0), (2, 0, 0))
+        self.assertArrayAlmostEqual(np.array([1., 1.]), coeffs)
 
     def test_get_positions(self):
         c = TEMCalculator()
