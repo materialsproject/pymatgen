@@ -802,7 +802,7 @@ class LammpsData(MSONable):
             "charge" (charged). Default to "charge".
 
         """
-        s = structure.get_sorted_structure()
+        s = structure.copy() 
         box, symmop = lattice_2_lmpbox(s.lattice)
         coords = symmop.operate_multi(s.cart_coords)
         site_properties = s.site_properties
@@ -1406,7 +1406,7 @@ def structure_2_lmpdata(structure, ff_elements=None, atom_style="charge"):
         LammpsData
 
     """
-    s = structure.get_sorted_structure()
+    s = structure.copy()
 
     a, b, c = s.lattice.abc
     m = s.lattice.matrix
