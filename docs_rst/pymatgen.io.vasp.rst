@@ -12,6 +12,7 @@ Submodules
 
 .. toctree::
 
+   pymatgen.io.vasp.help
    pymatgen.io.vasp.inputs
    pymatgen.io.vasp.outputs
    pymatgen.io.vasp.sets

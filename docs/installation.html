@@ -8,12 +8,10 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Installation &mdash; pymatgen 2020.1.10 documentation</title>
+  <title>Installation &mdash; pymatgen 2020.3.13 documentation</title>
   
 
   
-  
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
   
   
   
@@ -73,7 +71,7 @@
             
             
               <div class="version">
-                2020.1.10
+                2020.3.13
               </div>
             
           
@@ -220,7 +218,7 @@ package is incompatible with Python 3.x at the moment.</p></li>
 <li><p>Atomistic Simulation Environment or ASE 3.6+: Required for the usage of the
 adapters in pymatgen.io.aseio between pymatgen’s core Structure object and
 the Atoms object used by ASE. Get it at <a class="reference external" href="https://wiki.fysik.dtu.dk/ase/">https://wiki.fysik.dtu.dk/ase/</a>.
-Note that the ASE package is incompatible with Python 3.x at the moment.</p></li>
+Note that the ASE package is compatible with Python 3.5+ at the moment.</p></li>
 <li><p>OpenBabel with Python bindings (<a class="reference external" href="http://openbabel.org">http://openbabel.org</a>): Required for the
 usage of the adapters in pymatgen.io.babelio between pymatgen’s Molecule
 and OpenBabel’s OBMol. Opens up input and output support for the very large
@@ -245,8 +243,8 @@ used to completely enumerate all symmetrically distinct ordered structures
 of disordered structures via EnumerateStructureTransformation. Many other
 advanced transformations (e.g., MagOrderingTransformation) use
 EnumerateStructureTransformation. The enum.x and makestr.x
-executables must be in the path. Get it at <a class="reference external" href="http://enum.sourceforge.net">http://enum.sourceforge.net</a> and
-follow the instructions to compile multienum.x and makestr.x.</p></li>
+executables must be in the path. Get it at <a class="reference external" href="http://github.com/msg-byu/enumlib">http://github.com/msg-byu/enumlib</a> and
+follow the instructions to compile enum.x and makestr.x.</p></li>
 <li><p>bader: For use with <a class="reference internal" href="pymatgen.command_line.bader_caller.html#pymatgen.command_line.bader_caller.BaderAnalysis" title="pymatgen.command_line.bader_caller.BaderAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.command_line.bader_caller.BaderAnalysis</span></code></a>.
 This library by Henkelmann et al. provides a robust way to calculate the
 Bader analysis from a CHGCAR. The bader executable must be in the path.
@@ -624,9 +622,9 @@ Here are the steps you need to follow (thanks to Bharat)</p>
 </div>
 <p>To test that the installation worked, here is an example series of things you
 can do using pymatgen:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">In</span> <span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="kn">from</span> <span class="nn">pymatgen.analysis.defects.point_defects</span> <span class="k">import</span> <span class="n">Interstitial</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">In</span> <span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="kn">from</span> <span class="nn">pymatgen.analysis.defects.point_defects</span> <span class="kn">import</span> <span class="n">Interstitial</span>
 
-<span class="n">In</span> <span class="p">[</span><span class="mi">2</span><span class="p">]:</span> <span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">2</span><span class="p">]:</span> <span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">Structure</span>
 
 <span class="n">In</span> <span class="p">[</span><span class="mi">3</span><span class="p">]:</span> <span class="n">structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s1">&#39;/path/to/file&#39;</span><span class="p">)</span>
 

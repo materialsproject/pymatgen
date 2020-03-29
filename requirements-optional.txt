@@ -17,3 +17,5 @@ mypy==0.761
 pydocstyle==5.0.1
 flake8==3.7.9
 pylint==2.4.4
+hiphive==0.6
+seekpath==1.9.4

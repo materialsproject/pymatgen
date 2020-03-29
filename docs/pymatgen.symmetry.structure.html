@@ -8,12 +8,10 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.symmetry.structure module &mdash; pymatgen 2020.1.10 documentation</title>
+  <title>pymatgen.symmetry.structure module &mdash; pymatgen 2020.3.13 documentation</title>
   
 
   
-  
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
   
   
   
@@ -73,7 +71,7 @@
             
             
               <div class="version">
-                2020.1.10
+                2020.3.13
               </div>
             
           
@@ -119,6 +117,7 @@
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html">pymatgen.io package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.plugins.html">pymatgen.plugins package</a></li>
 <li class="toctree-l4 current"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
@@ -208,7 +207,7 @@
 <p>This module implements symmetry-related structure forms.</p>
 <dl class="class">
 <dt id="pymatgen.symmetry.structure.SymmetrizedStructure">
-<em class="property">class </em><code class="sig-name descname">SymmetrizedStructure</code><span class="sig-paren">(</span><em class="sig-param">structure: pymatgen.core.structure.Structure, spacegroup, equivalent_positions: Sequence[int], wyckoff_letters: Sequence[str]</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/symmetry/structure.py#L18-L145"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.structure.SymmetrizedStructure" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">SymmetrizedStructure</code><span class="sig-paren">(</span><em class="sig-param">structure: pymatgen.core.structure.Structure, spacegroup, equivalent_positions: Sequence[int], wyckoff_letters: Sequence[str]</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/symmetry/structure.py#L18-L145"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.structure.SymmetrizedStructure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.structure.Structure</span></code></a></p>
 <p>This class represents a symmetrized structure, i.e. a structure
 where the spacegroup and symmetry operations are defined. This class is
@@ -227,7 +226,7 @@ SpacegroupAnalyzer.</p></li>
 </dl>
 <dl class="method">
 <dt id="pymatgen.symmetry.structure.SymmetrizedStructure.as_dict">
-<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/symmetry/structure.py#L123-L132"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.structure.SymmetrizedStructure.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/symmetry/structure.py#L123-L132"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.structure.SymmetrizedStructure.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>MSONAble dict</p>
@@ -237,7 +236,7 @@ SpacegroupAnalyzer.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.symmetry.structure.SymmetrizedStructure.copy">
-<code class="sig-name descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/symmetry/structure.py#L63-L69"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.structure.SymmetrizedStructure.copy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/symmetry/structure.py#L63-L69"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.structure.SymmetrizedStructure.copy" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Copy of structure.</p>
@@ -247,7 +246,7 @@ SpacegroupAnalyzer.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.symmetry.structure.SymmetrizedStructure.find_equivalent_sites">
-<code class="sig-name descname">find_equivalent_sites</code><span class="sig-paren">(</span><em class="sig-param">site</em><span class="sig-paren">)</span> &#x2192; List[pymatgen.core.sites.PeriodicSite]<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/symmetry/structure.py#L71-L85"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.structure.SymmetrizedStructure.find_equivalent_sites" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">find_equivalent_sites</code><span class="sig-paren">(</span><em class="sig-param">site</em><span class="sig-paren">)</span> &#x2192; List[pymatgen.core.sites.PeriodicSite]<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/symmetry/structure.py#L71-L85"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.structure.SymmetrizedStructure.find_equivalent_sites" title="Permalink to this definition">¶</a></dt>
 <dd><p>Finds all symmetrically equivalent sites for a particular site</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -264,7 +263,7 @@ SpacegroupAnalyzer.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.symmetry.structure.SymmetrizedStructure.from_dict">
-<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/symmetry/structure.py#L134-L145"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.structure.SymmetrizedStructure.from_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/symmetry/structure.py#L134-L145"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.structure.SymmetrizedStructure.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>d</strong> – Dict representation</p>

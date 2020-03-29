@@ -965,6 +965,8 @@ class SlabGenerator:
                                                               "alpha": slab_l.alpha,
                                                               "beta": slab_l.beta,
                                                               "gamma": slab_l.gamma})
+            # Check this is the correct oriented unit cell
+            ouc = self.oriented_unit_cell if slab_l.a != ouc.lattice.a or slab_l.b != ouc.lattice.b else ouc
 
         return Slab(slab.lattice, slab.species_and_occu,
                     slab.frac_coords, self.miller_index,

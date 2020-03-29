@@ -12,6 +12,8 @@ All transformations should inherit the AbstractTransformation ABC.
 import logging
 
 from fractions import Fraction
+from typing import Optional, Union
+
 from numpy import around
 
 from pymatgen.analysis.bond_valence import BVAnalyzer
@@ -818,25 +820,30 @@ class PerturbStructureTransformation(AbstractTransformation):
     directions. Used for breaking symmetries.
     """
 
-    def __init__(self, distance=0.01, min_distance=None):
+    def __init__(
+        self,
+        distance: float = 0.01,
+        min_distance: Optional[Union[int, float]] = None,
+    ):
         """
         Args:
-            distance (float): Distance of perturbation in angstroms. All sites
-                will be perturbed by exactly that distance in a random direction.
-            min_distance (None, int, or float): if None, all displacements will be
-                equidistant. If int or float, perturb each site a
-                distance drawn from the uniform distribution between
-                'min_distance' and 'distance'.
+            distance: Distance of perturbation in angstroms. All sites
+                will be perturbed by exactly that distance in a random
+                direction.
+            min_distance: if None, all displacements will be equidistant. If int
+                or float, perturb each site a distance drawn from the uniform
+                distribution between 'min_distance' and 'distance'.
+
         """
         self.distance = distance
         self.min_distance = min_distance
 
-    def apply_transformation(self, structure):
+    def apply_transformation(self, structure: Structure) -> Structure:
         """
         Apply the transformation.
 
         Args:
-            structure (Structure): Input Structure
+            structure: Input Structure
 
         Returns:
             Structure with sites perturbed.

@@ -8,12 +8,10 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.command_line.mcsqs_caller module &mdash; pymatgen 2020.1.10 documentation</title>
+  <title>pymatgen.command_line.mcsqs_caller module &mdash; pymatgen 2020.3.13 documentation</title>
   
 
   
-  
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
   
   
   
@@ -73,7 +71,7 @@
             
             
               <div class="version">
-                2020.1.10
+                2020.3.13
               </div>
             
           
@@ -119,6 +117,7 @@
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html">pymatgen.io package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.plugins.html">pymatgen.plugins package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
@@ -208,7 +207,7 @@
 <p>Missing module doc.</p>
 <dl class="function">
 <dt id="pymatgen.command_line.mcsqs_caller.run_mcsqs">
-<code class="sig-name descname">run_mcsqs</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">clusters</em>, <em class="sig-param">supercell=None</em>, <em class="sig-param">total_atoms=None</em>, <em class="sig-param">search_time=0.01</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/command_line/mcsqs_caller.py#L11-L128"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.mcsqs_caller.run_mcsqs" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">run_mcsqs</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">clusters</em>, <em class="sig-param">supercell=None</em>, <em class="sig-param">total_atoms=None</em>, <em class="sig-param">search_time=0.01</em>, <em class="sig-param">keep_artifacts=False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/command_line/mcsqs_caller.py#L14-L99"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.mcsqs_caller.run_mcsqs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Helper function for calling mcsqs with different arguments</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -219,6 +218,7 @@
 <li><p><strong>total_atoms</strong> (<em>int</em>) – total number of atoms in the final SQS. Choose either</p></li>
 <li><p><strong>OR supercell</strong> (<em>this</em>) – </p></li>
 <li><p><strong>search_time</strong> (<em>int</em>) – The time spent looking for the ideal SQS in minutes</p></li>
+<li><p><strong>keep_artifacts</strong> (<em>bool</em>) – If True, retain mcsqs input and output files</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
