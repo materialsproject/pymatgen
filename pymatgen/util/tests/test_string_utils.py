@@ -36,7 +36,7 @@ class FuncTest(unittest.TestCase):
         self.assertRaises(ValueError, unicodeify,
                           "Li0.2Na0.8Cl")
         self.assertEqual(unicodeify_species("O2+"), "O²⁺")
-        self.assertEqual(unicodeify_spacegroup("F-3m"), "F̅3m")
+        self.assertEqual(unicodeify_spacegroup("F-3m"), "F3̅m")
 
     def test_formula_double_format(self):
         self.assertEqual(formula_double_format(1.00), "")

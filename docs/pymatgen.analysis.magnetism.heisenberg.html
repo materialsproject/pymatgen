@@ -8,12 +8,10 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.analysis.magnetism.heisenberg module &mdash; pymatgen 2020.1.10 documentation</title>
+  <title>pymatgen.analysis.magnetism.heisenberg module &mdash; pymatgen 2020.3.13 documentation</title>
   
 
   
-  
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
   
   
   
@@ -73,7 +71,7 @@
             
             
               <div class="version">
-                2020.1.10
+                2020.3.13
               </div>
             
           
@@ -119,6 +117,7 @@
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html">pymatgen.io package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.plugins.html">pymatgen.plugins package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
@@ -212,7 +211,7 @@ exchange parameters by mapping low energy magnetic orderings to a Heisenberg
 model.</p>
 <dl class="class">
 <dt id="pymatgen.analysis.magnetism.heisenberg.HeisenbergMapper">
-<em class="property">class </em><code class="sig-name descname">HeisenbergMapper</code><span class="sig-paren">(</span><em class="sig-param">ordered_structures</em>, <em class="sig-param">energies</em>, <em class="sig-param">cutoff=0.0</em>, <em class="sig-param">tol=0.02</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/analysis/magnetism/heisenberg.py#L34-L677"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.heisenberg.HeisenbergMapper" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">HeisenbergMapper</code><span class="sig-paren">(</span><em class="sig-param">ordered_structures</em>, <em class="sig-param">energies</em>, <em class="sig-param">cutoff=0.0</em>, <em class="sig-param">tol=0.02</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/magnetism/heisenberg.py#L37-L729"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.heisenberg.HeisenbergMapper" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class to compute exchange parameters from low energy magnetic orderings.</p>
 <p>Exchange parameters are computed by mapping to a classical Heisenberg
@@ -229,7 +228,7 @@ for these orderings.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>ordered_structures</strong> (<em>list</em>) – Structure objects with magmoms.</p></li>
-<li><p><strong>energies</strong> (<em>list</em>) – Energies of each relaxed magnetic structure.</p></li>
+<li><p><strong>energies</strong> (<em>list</em>) – Total energies of each relaxed magnetic structure.</p></li>
 <li><p><strong>cutoff</strong> (<em>float</em>) – Cutoff in Angstrom for nearest neighbor search.
 Defaults to 0 (only NN, no NNN, etc.)</p></li>
 <li><p><strong>tol</strong> (<em>float</em>) – Tolerance (in Angstrom) on nearest neighbor distances
@@ -252,15 +251,15 @@ graph.</p></li>
 </dl>
 <dl class="method">
 <dt id="pymatgen.analysis.magnetism.heisenberg.HeisenbergMapper.estimate_exchange">
-<code class="sig-name descname">estimate_exchange</code><span class="sig-paren">(</span><em class="sig-param">fm_struct=None</em>, <em class="sig-param">afm_struct=None</em>, <em class="sig-param">fm_e=None</em>, <em class="sig-param">afm_e=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/analysis/magnetism/heisenberg.py#L494-L534"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.heisenberg.HeisenbergMapper.estimate_exchange" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">estimate_exchange</code><span class="sig-paren">(</span><em class="sig-param">fm_struct=None</em>, <em class="sig-param">afm_struct=None</em>, <em class="sig-param">fm_e=None</em>, <em class="sig-param">afm_e=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/magnetism/heisenberg.py#L500-L540"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.heisenberg.HeisenbergMapper.estimate_exchange" title="Permalink to this definition">¶</a></dt>
 <dd><p>Estimate &lt;J&gt; for a structure based on low energy FM and AFM orderings.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>fm_struct</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – fm structure with ‘magmom’ site property</p></li>
 <li><p><strong>afm_struct</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – afm structure with ‘magmom’ site property</p></li>
-<li><p><strong>fm_e</strong> (<em>float</em>) – fm energy</p></li>
-<li><p><strong>afm_e</strong> (<em>float</em>) – afm energy</p></li>
+<li><p><strong>fm_e</strong> (<em>float</em>) – fm energy/atom</p></li>
+<li><p><strong>afm_e</strong> (<em>float</em>) – afm energy/atom</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -274,7 +273,7 @@ graph.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.analysis.magnetism.heisenberg.HeisenbergMapper.get_exchange">
-<code class="sig-name descname">get_exchange</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/analysis/magnetism/heisenberg.py#L386-L422"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.heisenberg.HeisenbergMapper.get_exchange" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_exchange</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/magnetism/heisenberg.py#L389-L425"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.heisenberg.HeisenbergMapper.get_exchange" title="Permalink to this definition">¶</a></dt>
 <dd><p>Take Heisenberg Hamiltonian and corresponding energy for each row and
 solve for the exchange parameters.</p>
 <dl class="field-list simple">
@@ -288,8 +287,22 @@ solve for the exchange parameters.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="pymatgen.analysis.magnetism.heisenberg.HeisenbergMapper.get_heisenberg_model">
+<code class="sig-name descname">get_heisenberg_model</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/magnetism/heisenberg.py#L685-L729"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.heisenberg.HeisenbergMapper.get_heisenberg_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save results of mapping to a HeisenbergModel object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>MSONable object.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>hmodel (<a class="reference internal" href="#pymatgen.analysis.magnetism.heisenberg.HeisenbergModel" title="pymatgen.analysis.magnetism.heisenberg.HeisenbergModel">HeisenbergModel</a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="pymatgen.analysis.magnetism.heisenberg.HeisenbergMapper.get_interaction_graph">
-<code class="sig-name descname">get_interaction_graph</code><span class="sig-paren">(</span><em class="sig-param">filename=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/analysis/magnetism/heisenberg.py#L583-L630"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.heisenberg.HeisenbergMapper.get_interaction_graph" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_interaction_graph</code><span class="sig-paren">(</span><em class="sig-param">filename=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/magnetism/heisenberg.py#L589-L636"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.heisenberg.HeisenbergMapper.get_interaction_graph" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a StructureGraph with edges and weights that correspond to exchange
 interactions and J_ij values, respectively.</p>
 <dl class="field-list simple">
@@ -307,7 +320,7 @@ interactions and J_ij values, respectively.</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.magnetism.heisenberg.HeisenbergMapper.get_low_energy_orderings">
-<code class="sig-name descname">get_low_energy_orderings</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/analysis/magnetism/heisenberg.py#L424-L492"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.heisenberg.HeisenbergMapper.get_low_energy_orderings" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_low_energy_orderings</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/magnetism/heisenberg.py#L427-L498"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.heisenberg.HeisenbergMapper.get_low_energy_orderings" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find lowest energy FM and AFM orderings to compute E_AFM - E_FM.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -324,7 +337,7 @@ afm_e (float): afm energy</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.magnetism.heisenberg.HeisenbergMapper.get_mft_temperature">
-<code class="sig-name descname">get_mft_temperature</code><span class="sig-paren">(</span><em class="sig-param">j_avg</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/analysis/magnetism/heisenberg.py#L536-L581"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.heisenberg.HeisenbergMapper.get_mft_temperature" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_mft_temperature</code><span class="sig-paren">(</span><em class="sig-param">j_avg</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/magnetism/heisenberg.py#L542-L587"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.heisenberg.HeisenbergMapper.get_mft_temperature" title="Permalink to this definition">¶</a></dt>
 <dd><p>Crude mean field estimate of critical temperature based on &lt;J&gt; for
 one sublattice, or solving the coupled equations for a multisublattice
 material.</p>
@@ -344,8 +357,52 @@ material.</p>
 </dd></dl>
 
 <dl class="class">
+<dt id="pymatgen.analysis.magnetism.heisenberg.HeisenbergModel">
+<em class="property">class </em><code class="sig-name descname">HeisenbergModel</code><span class="sig-paren">(</span><em class="sig-param">formula=None</em>, <em class="sig-param">structures=None</em>, <em class="sig-param">energies=None</em>, <em class="sig-param">cutoff=None</em>, <em class="sig-param">tol=None</em>, <em class="sig-param">sgraphs=None</em>, <em class="sig-param">unique_site_ids=None</em>, <em class="sig-param">wyckoff_ids=None</em>, <em class="sig-param">nn_interactions=None</em>, <em class="sig-param">dists=None</em>, <em class="sig-param">ex_mat=None</em>, <em class="sig-param">ex_params=None</em>, <em class="sig-param">javg=None</em>, <em class="sig-param">igraph=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/magnetism/heisenberg.py#L879-L1077"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.heisenberg.HeisenbergModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
+<p>Store a Heisenberg model fit to low-energy magnetic orderings.
+Intended to be generated by HeisenbergMapper.get_heisenberg_model().</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>formula</strong> (<em>str</em>) – Reduced formula of compound.</p></li>
+<li><p><strong>structures</strong> (<em>list</em>) – Structure objects with magmoms.</p></li>
+<li><p><strong>energies</strong> (<em>list</em>) – Energies of each relaxed magnetic structure.</p></li>
+<li><p><strong>cutoff</strong> (<em>float</em>) – Cutoff in Angstrom for nearest neighbor search.</p></li>
+<li><p><strong>tol</strong> (<em>float</em>) – Tolerance (in Angstrom) on nearest neighbor distances being equal.</p></li>
+<li><p><strong>sgraphs</strong> (<em>list</em>) – StructureGraph objects.</p></li>
+<li><p><strong>unique_site_ids</strong> (<em>dict</em>) – Maps each site to its unique numerical
+identifier.</p></li>
+<li><p><strong>wyckoff_ids</strong> (<em>dict</em>) – Maps unique numerical identifier to wyckoff
+position.</p></li>
+<li><p><strong>nn_interacations</strong> (<em>dict</em>) – {i: j} pairs of NN interactions
+between unique sites.</p></li>
+<li><p><strong>dists</strong> (<em>dict</em>) – NN, NNN, and NNNN interaction distances</p></li>
+<li><p><strong>ex_mat</strong> (<em>DataFrame</em>) – Invertible Heisenberg Hamiltonian for each
+graph.</p></li>
+<li><p><strong>ex_params</strong> (<em>dict</em>) – Exchange parameter values (meV/atom).</p></li>
+<li><p><strong>javg</strong> (<em>float</em>) – &lt;J&gt; exchange param (meV/atom).</p></li>
+<li><p><strong>igraph</strong> (<a class="reference internal" href="pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.StructureGraph" title="pymatgen.analysis.graphs.StructureGraph"><em>StructureGraph</em></a>) – Exchange interaction graph.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.analysis.magnetism.heisenberg.HeisenbergModel.as_dict">
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/magnetism/heisenberg.py#L941-L967"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.heisenberg.HeisenbergModel.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Because some dicts have tuple keys, some sanitization is required for json compatibility.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.magnetism.heisenberg.HeisenbergModel.from_dict">
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/magnetism/heisenberg.py#L969-L1031"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.heisenberg.HeisenbergModel.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a HeisenbergModel from a dict.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
 <dt id="pymatgen.analysis.magnetism.heisenberg.HeisenbergScreener">
-<em class="property">class </em><code class="sig-name descname">HeisenbergScreener</code><span class="sig-paren">(</span><em class="sig-param">structures</em>, <em class="sig-param">energies</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/analysis/magnetism/heisenberg.py#L680-L819"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.heisenberg.HeisenbergScreener" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">HeisenbergScreener</code><span class="sig-paren">(</span><em class="sig-param">structures</em>, <em class="sig-param">energies</em>, <em class="sig-param">screen=False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/magnetism/heisenberg.py#L732-L876"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.heisenberg.HeisenbergScreener" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class to clean and screen magnetic orderings.</p>
 <p>This class pre-processes magnetic orderings and energies for
@@ -355,13 +412,14 @@ localized magnetic moments.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>structures</strong> (<em>list</em>) – Structure objects with magnetic moments.</p></li>
-<li><p><strong>energies</strong> (<em>list</em>) – energies of magnetic orderings.</p></li>
+<li><p><strong>energies</strong> (<em>list</em>) – Energies/atom of magnetic orderings.</p></li>
+<li><p><strong>screen</strong> (<em>bool</em>) – Try to screen out high energy and low-spin configurations.</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="attribute">
 <dt id="pymatgen.analysis.magnetism.heisenberg.HeisenbergScreener.screened_structures">
-<code class="sig-name descname">screened_structures</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/analysis/magnetism/heisenberg.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.heisenberg.HeisenbergScreener.screened_structures" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">screened_structures</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/magnetism/heisenberg.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.heisenberg.HeisenbergScreener.screened_structures" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sorted structures.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -372,7 +430,7 @@ localized magnetic moments.</p>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.magnetism.heisenberg.HeisenbergScreener.screened_energies">
-<code class="sig-name descname">screened_energies</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/analysis/magnetism/heisenberg.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.heisenberg.HeisenbergScreener.screened_energies" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">screened_energies</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/magnetism/heisenberg.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.magnetism.heisenberg.HeisenbergScreener.screened_energies" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sorted energies.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>

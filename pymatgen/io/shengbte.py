@@ -33,29 +33,6 @@ class Control(MSONable, dict):
     Class for reading, updating, and writing ShengBTE CONTROL files.
     See  https://bitbucket.org/sousaw/shengbte/src/master/ for more
     detailed description and default values of CONTROL arguments.
-
-    Args:
-        ngrid: Reciprocal space grid density as a list of 3 ints.
-        temperature: The temperature to calculate the lattice thermal
-            conductivity for. Can be given as a single float, or a dictionary
-            with the keys "min", "max", "step".
-        **kwargs: Other ShengBTE parameters. Several parameters are required
-            for ShengBTE to run - we have listed these parameters below:
-
-            - nelements (int): number of different elements in the compound
-            - natoms (int): number of atoms in the unit cell
-            - lattvec (size 3x3 array): real-space lattice vectors, in units
-              of lfactor
-            - lfactor (float): unit of measurement for lattice vectors (nm).
-                I.e., set to 0.1 if lattvec given in Angstrom.
-            - types (size natom list): a vector of natom integers, ranging
-              from 1 to nelements, assigning an element to each atom in the
-              system
-            - elements (size natom list): a vector of element names
-            - positions (size natomx3 array): atomic positions in lattice
-              coordinates
-            - scell (size 3 list): supercell sizes along each crystal axis
-              used for the 2nd-order force constant calculation
     """
 
     required_params = [
@@ -112,6 +89,30 @@ class Control(MSONable, dict):
         temperature: Union[float, Dict[str, float]] = 300,
         **kwargs
     ):
+        """
+        Args:
+            ngrid: Reciprocal space grid density as a list of 3 ints.
+            temperature: The temperature to calculate the lattice thermal
+                conductivity for. Can be given as a single float, or a dictionary
+                with the keys "min", "max", "step".
+            **kwargs: Other ShengBTE parameters. Several parameters are required
+                for ShengBTE to run - we have listed these parameters below:
+
+                - nelements (int): number of different elements in the compound
+                - natoms (int): number of atoms in the unit cell
+                - lattvec (size 3x3 array): real-space lattice vectors, in units
+                  of lfactor
+                - lfactor (float): unit of measurement for lattice vectors (nm).
+                    I.e., set to 0.1 if lattvec given in Angstrom.
+                - types (size natom list): a vector of natom integers, ranging
+                  from 1 to nelements, assigning an element to each atom in the
+                  system
+                - elements (size natom list): a vector of element names
+                - positions (size natomx3 array): atomic positions in lattice
+                  coordinates
+                - scell (size 3 list): supercell sizes along each crystal axis
+                  used for the 2nd-order force constant calculation
+        """
         super().__init__()
         if ngrid is None:
             ngrid = [25, 25, 25]
@@ -290,6 +291,9 @@ class Control(MSONable, dict):
         return Structure(cell, species, self["positions"])
 
     def as_dict(self):
+        """
+        Returns: MSONAble dict
+        """
         return dict(self)
 
 

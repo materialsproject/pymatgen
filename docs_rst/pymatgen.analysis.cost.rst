@@ -1,21 +1,5 @@
-pymatgen.analysis.cost package
-==============================
-
-Subpackages
------------
-
-.. toctree::
-
-
-Submodules
-----------
-
-.. toctree::
-
-   pymatgen.analysis.cost.cost
-
-Module contents
----------------
+pymatgen.analysis.cost module
+=============================
 
 .. automodule:: pymatgen.analysis.cost
    :members:

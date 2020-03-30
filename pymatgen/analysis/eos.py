@@ -114,6 +114,13 @@ class EOSBase(metaclass=ABCMeta):
         return self._func(np.array(volume), self.eos_params)
 
     def __call__(self, volume):
+        """
+        Args:
+            volume (): Volume
+
+        Returns:
+            Compute EOS with this volume.
+        """
         return self.func(volume)
 
     @property
@@ -265,6 +272,9 @@ class EOSBase(metaclass=ABCMeta):
 
 
 class Murnaghan(EOSBase):
+    """
+    Murnaghan EOS.
+    """
 
     def _func(self, volume, params):
         """
@@ -277,6 +287,9 @@ class Murnaghan(EOSBase):
 
 
 class Birch(EOSBase):
+    """
+    Birch EOS.
+    """
 
     def _func(self, volume, params):
         """
@@ -293,6 +306,9 @@ class Birch(EOSBase):
 
 
 class BirchMurnaghan(EOSBase):
+    """
+    BirchMurnaghan EOS
+    """
 
     def _func(self, volume, params):
         """
@@ -306,6 +322,9 @@ class BirchMurnaghan(EOSBase):
 
 
 class PourierTarantola(EOSBase):
+    """
+    PourierTarantola EOS
+    """
 
     def _func(self, volume, params):
         """
@@ -318,6 +337,9 @@ class PourierTarantola(EOSBase):
 
 
 class Vinet(EOSBase):
+    """
+    Vinet EOS.
+    """
 
     def _func(self, volume, params):
         """
@@ -371,6 +393,9 @@ class PolynomialEOS(EOSBase):
 
 
 class DeltaFactor(PolynomialEOS):
+    """
+    Fitting a polynomial EOS using delta factor.
+    """
 
     def _func(self, volume, params):
         x = volume ** (-2. / 3.)
@@ -412,6 +437,9 @@ class DeltaFactor(PolynomialEOS):
 
 
 class NumericalEOS(PolynomialEOS):
+    """
+    A numerical EOS.
+    """
 
     def fit(self, min_ndata_factor=3, max_poly_order_factor=5, min_poly_order=2):
         """
@@ -560,6 +588,10 @@ class EOS:
     }
 
     def __init__(self, eos_name='murnaghan'):
+        """
+        Args:
+            eos_name (str): Type of EOS to fit.
+        """
         if eos_name not in self.MODELS:
             raise EOSError("The equation of state '{}' is not supported. "
                            "Please choose one from the following list: {}".
@@ -584,4 +616,7 @@ class EOS:
 
 
 class EOSError(Exception):
+    """
+    Error class for EOS fitting.
+    """
     pass

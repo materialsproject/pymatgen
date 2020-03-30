@@ -8,12 +8,10 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Introduction &mdash; pymatgen 2020.1.10 documentation</title>
+  <title>Introduction &mdash; pymatgen 2020.3.13 documentation</title>
   
 
   
-  
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
   
   
   
@@ -72,7 +70,7 @@
             
             
               <div class="version">
-                2020.1.10
+                2020.3.13
               </div>
             
           
@@ -291,10 +289,14 @@ other research groups.</p></li>
 <div class="section" id="change-log">
 <h2>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li><p>New connectivity analysis in Chemenv (&#64;davidwaroquiers)</p></li>
-<li><p>Improvements to DOSPlotter (&#64;uthpalah)</p></li>
-<li><p>Improvements to writing VASP input sets (&#64;rkingsbury)</p></li>
-<li><p>Bug fix for PhaseDiagram (&#64;montoyjh)</p></li>
+<li><p>Added angle_tolerance to CifWriter.</p></li>
+<li><p>Change default float precision in CifWriter to 8. Adds float_prec kwarg to
+allow setting of arbitrary precision.</p></li>
+<li><p>Rudimentary pymatgen.io.vasp.help.VaspDoc class for obtaining help from VASP wiki.</p></li>
+<li><p>Massive documentation cleanup.</p></li>
+<li><p>Reorganization of Entry, ComputedEntry (&#64;ayushsgupta).</p></li>
+<li><p>Bug fix for PourbaixDiagram (&#64;montoyjh).</p></li>
+<li><p>Read WAVECAR from gamma-point only VASP executable. (&#64;bernstei)</p></li>
 </ul>
 <p><a class="reference internal" href="change_log.html"><span class="doc">Older versions</span></a></p>
 </div>
@@ -393,12 +395,12 @@ manipulation or analyses.</p>
 <p>Useful aliases for commonly used objects are now provided. Supported objects
 include Element, Composition, Structure, Molecule, Spin and Orbital. Here are
 some quick examples of the core capabilities and objects:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pymatgen</span> <span class="kn">as</span> <span class="nn">mg</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pymatgen</span> <span class="k">as</span> <span class="nn">mg</span>
 <span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">si</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s2">&quot;Si&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">si</span><span class="o">.</span><span class="n">atomic_mass</span>
 <span class="go">28.0855</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">si</span><span class="o">.</span><span class="n">melting_point</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">si</span><span class="o">.</span><span class="n">melting_point</span><span class="p">)</span>
 <span class="go">1687.0 K</span>
 <span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">comp</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">Composition</span><span class="p">(</span><span class="s2">&quot;Fe2O3&quot;</span><span class="p">)</span>
@@ -450,7 +452,7 @@ some quick examples of the core capabilities and objects:</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Pythonic API for editing Structures and Molecules (v2.9.1 onwards)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Changing the specie of a site.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;F&quot;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
 <span class="go">Structure Summary (Cs1 F1)</span>
 <span class="go">Reduced Formula: CsF</span>
 <span class="go">abc   :   4.200000   4.200000   4.200000</span>
@@ -461,7 +463,7 @@ some quick examples of the core capabilities and objects:</p>
 <span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Changes species and coordinates (fractional assumed for structures)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Cl&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.51</span><span class="p">,</span> <span class="mf">0.51</span><span class="p">,</span> <span class="mf">0.51</span><span class="p">]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
 <span class="go">Structure Summary (Cs1 Cl1)</span>
 <span class="go">Reduced Formula: CsCl</span>
 <span class="go">abc   :   4.200000   4.200000   4.200000</span>
@@ -472,7 +474,7 @@ some quick examples of the core capabilities and objects:</p>
 <span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Replaces all Cs in the structure with K</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span><span class="p">[</span><span class="s2">&quot;Cs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;K&quot;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
 <span class="go">Structure Summary (K1 Cl1)</span>
 <span class="go">Reduced Formula: KCl</span>
 <span class="go">abc   :   4.200000   4.200000   4.200000</span>
@@ -484,7 +486,7 @@ some quick examples of the core capabilities and objects:</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Replaces all K in the structure with K: 0.5, Na: 0.5, i.e.,</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># a disordered structure is created.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span><span class="p">[</span><span class="s2">&quot;K&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;K0.5Na0.5&quot;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
 <span class="go">Full Formula (K0.5 Na0.5 Cl1)</span>
 <span class="go">Reduced Formula: K0.5Na0.5Cl1</span>
 <span class="go">abc   :   4.209000   4.209000   4.209000</span>
@@ -498,7 +500,7 @@ some quick examples of the core capabilities and objects:</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Because structure is like a list, it supports most list-like methods</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># such as sort, reverse, etc.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
 <span class="go">Structure Summary (Cs1 Cl1)</span>
 <span class="go">Reduced Formula: CsCl</span>
 <span class="go">abc   :   4.200000   4.200000   4.200000</span>

@@ -2,19 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-import numpy as np
-import warnings
-import scipy.constants as const
-
-from monty.json import MSONable
-
-from pymatgen.analysis.structure_matcher import StructureMatcher, \
-    OrderDisorderElementComparator
-from pymatgen.core.periodic_table import get_el_sp
-from pymatgen.core.structure import Structure
-from pymatgen.io.vasp.outputs import Vasprun
-from pymatgen.util.coord import pbc_diff
-
 """
 A module to perform diffusion analyses (e.g. calculating diffusivity from
 mean square displacements etc.). If you use this module, please consider
@@ -30,6 +17,20 @@ citing the following papers::
     Li10GeP2S12 Lithium Super Ionic Conductor Material. Chemistry of Materials,
     24(1), 15-17. doi:10.1021/cm203303y
 """
+
+import numpy as np
+import warnings
+import scipy.constants as const
+
+from monty.json import MSONable
+
+from pymatgen.analysis.structure_matcher import StructureMatcher, \
+    OrderDisorderElementComparator
+from pymatgen.core.periodic_table import get_el_sp
+from pymatgen.core.structure import Structure
+from pymatgen.io.vasp.outputs import Vasprun
+from pymatgen.util.coord import pbc_diff
+
 
 __author__ = "Will Richards, Shyue Ping Ong"
 __version__ = "0.2"
@@ -553,7 +554,7 @@ class DiffusionAnalyzer(MSONable):
     def from_structures(cls, structures, specie, temperature,
                         time_step, step_skip, initial_disp=None,
                         initial_structure=None, **kwargs):
-        """
+        r"""
         Convenient constructor that takes in a list of Structure objects to
         perform diffusion analysis.
 
@@ -617,7 +618,7 @@ class DiffusionAnalyzer(MSONable):
     @classmethod
     def from_vaspruns(cls, vaspruns, specie, initial_disp=None,
                       initial_structure=None, **kwargs):
-        """
+        r"""
         Convenient constructor that takes in a list of Vasprun objects to
         perform diffusion analysis.
 
@@ -673,7 +674,7 @@ class DiffusionAnalyzer(MSONable):
     @classmethod
     def from_files(cls, filepaths, specie, step_skip=10, ncores=None,
                    initial_disp=None, initial_structure=None, **kwargs):
-        """
+        r"""
         Convenient constructor that takes in a list of vasprun.xml paths to
         perform diffusion analysis.
 
@@ -734,6 +735,9 @@ class DiffusionAnalyzer(MSONable):
                 initial_structure=initial_structure, **kwargs)
 
     def as_dict(self):
+        """
+        Returns: MSONable dict
+        """
         return {
             "@module": self.__class__.__module__,
             "@class": self.__class__.__name__,
@@ -751,6 +755,12 @@ class DiffusionAnalyzer(MSONable):
 
     @classmethod
     def from_dict(cls, d):
+        """
+        Args:
+            d (dict): Dict representation
+
+        Returns: DiffusionAnalyzer
+        """
         structure = Structure.from_dict(d["structure"])
         return cls(structure, np.array(d["displacements"]), specie=d["specie"],
                    temperature=d["temperature"], time_step=d["time_step"],
@@ -863,7 +873,7 @@ def get_extrapolated_conductivity(temps, diffusivities, new_temp, structure,
 
 def get_arrhenius_plot(temps, diffusivities, diffusivity_errors=None,
                        **kwargs):
-    """
+    r"""
     Returns an Arrhenius plot.
 
     Args:
