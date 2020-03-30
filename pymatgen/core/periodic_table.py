@@ -1372,6 +1372,10 @@ class DummySpecie(Specie):
             oxidation_state (float): Oxidation state for dummy specie.
                 Defaults to zero.
         """
+        # enforce title case to match other elements, reduces confusion
+        # when multiple DummySpecie in a "formula" string
+        symbol = symbol.title()
+
         for i in range(1, min(2, len(symbol)) + 1):
             if Element.is_valid_symbol(symbol[:i]):
                 raise ValueError("{} contains {}, which is a valid element "
