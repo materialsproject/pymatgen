@@ -328,6 +328,7 @@ class CriticalPointType(Enum):
     bond = "bond"  # (3, -1)
     ring = "ring"  # (3, 1)
     cage = "cage"  # (3, 3)
+    nnattr = "nnattr"  # (3, -3), non-nuclear attractor
 
 
 class CriticalPoint(MSONable):
@@ -471,6 +472,8 @@ class Critic2Analysis(MSONable):
         else:
             raise ValueError("One of cpreport or stdout required.")
 
+        self._remap_indices()
+
     def structure_graph(
         self,
         edge_weight=None,
@@ -496,6 +499,7 @@ class Critic2Analysis(MSONable):
 
         structure = self.structure.copy()
 
+        point_idx_to_struct_idx = {}
         if include_critical_points:
             # atoms themselves don't have field information
             # so set to 0
@@ -516,6 +520,7 @@ class Critic2Analysis(MSONable):
                             "field": cp.field,
                         },
                     )
+                    point_idx_to_struct_idx[idx] = len(structure) - 1
 
         sg = StructureGraph.with_empty_graph(
             structure,
@@ -562,29 +567,43 @@ class Critic2Analysis(MSONable):
                 from_idx = edge["from_idx"]
                 to_idx = edge["to_idx"]
 
-                from_lvec = edge["from_lvec"]
-                to_lvec = edge["to_lvec"]
+                # have to also check bond is between nuclei if non-nuclear
+                # attractors not in structure
+                skip_bond = False
+                if include_critical_points and "nnattr" not in include_critical_points:
+                    from_type = self.critical_points[self.nodes[from_idx]["unique_idx"]].type
+                    to_type = self.critical_points[self.nodes[from_idx]["unique_idx"]].type
+                    skip_bond = (from_type != CriticalPointType.nucleus) or (to_type != CriticalPointType.nucleus)
 
-                relative_lvec = np.subtract(to_lvec, from_lvec)
+                if not skip_bond:
+                    from_lvec = edge["from_lvec"]
+                    to_lvec = edge["to_lvec"]
 
-                if edge_weight == "bond_length":
-                    weight = self.structure.get_distance(
-                        from_idx, to_idx, jimage=relative_lvec
+                    relative_lvec = np.subtract(to_lvec, from_lvec)
+
+                    # for edge case of including nnattrs in bonding graph when other critical
+                    # points also included, indices may get mixed
+                    struct_from_idx = point_idx_to_struct_idx.get(from_idx, from_idx)
+                    struct_to_idx = point_idx_to_struct_idx.get(to_idx, to_idx)
+
+                    if edge_weight == "bond_length":
+                        weight = self.structure.get_distance(
+                            struct_from_idx, struct_to_idx, jimage=relative_lvec
+                        )
+                    elif edge_weight:
+                        weight = getattr(
+                            self.critical_points[unique_idx], edge_weight, None
+                        )
+                    else:
+                        weight = None
+
+                    sg.add_edge(
+                        struct_from_idx,
+                        struct_to_idx,
+                        from_jimage=from_lvec,
+                        to_jimage=to_lvec,
+                        weight=weight,
                     )
-                elif edge_weight:
-                    weight = getattr(
-                        self.critical_points[unique_idx], edge_weight, None
-                    )
-                else:
-                    weight = None
-
-                sg.add_edge(
-                    from_idx,
-                    to_idx,
-                    from_jimage=from_lvec,
-                    to_jimage=to_lvec,
-                    weight=weight,
-                )
 
         return sg
 
@@ -610,7 +629,7 @@ class Critic2Analysis(MSONable):
         return self._node_values[n]
 
     def _parse_cpreport(self, cpreport):
-        def get_type(signature):
+        def get_type(signature: int, is_nucleus: bool):
             if signature == 3:
                 return "cage"
             elif signature == 1:
@@ -618,14 +637,17 @@ class Critic2Analysis(MSONable):
             elif signature == -1:
                 return "bond"
             elif signature == -3:
-                return "nucleus"
+                if is_nucleus:
+                    return "nucleus"
+                else:
+                    return "nnattr"
 
         bohr_to_angstrom = 0.529177
 
         self.critical_points = [
             CriticalPoint(
                 p["id"] - 1,
-                get_type(p["signature"]),
+                get_type(p["signature"], p["is_nucleus"]),
                 p["fractional_coordinates"],
                 p["point_group"],
                 p["multiplicity"],
@@ -653,6 +675,40 @@ class Critic2Analysis(MSONable):
                     to_idx=int(p["attractors"][1]["cell_id"]) - 1,
                     to_lvec=p["attractors"][1]["lvec"],
                 )
+
+    def _remap(self):
+        """
+        Re-maps indices on self.nodes and self.edges such that node indices match
+        that of structure, and then sorts self.nodes by index.
+        """
+
+        # Order of nuclei provided by critic2 doesn't
+        # necessarily match order of sites in Structure.
+        # This is because critic2 performs a symmetrization step.
+        # We perform a mapping from one to the other,
+        # and re-index all nodes accordingly.
+        node_mapping = {}  # critic2_index:structure_index
+        # ensure frac coords are in [0,1] range
+        frac_coords = np.array(self.structure.frac_coords) % 1
+        kd = KDTree(frac_coords)
+
+        node_mapping = {}
+        for idx, node in self.nodes.items():
+            if self.critical_points[node["unique_idx"]].type == CriticalPointType.nucleus:
+                node_mapping[idx] = kd.query(node["frac_coords"])[1]
+
+        if len(node_mapping) != len(self.structure):
+            warnings.warn(
+                 "Check that all sites in input structure ({}) have "
+                 "been detected by critic2 ({}).".format(len(self.structure),
+                                                         len(node_mapping))
+            )
+
+        self.nodes = {node_mapping.get(idx, idx): node for idx, node in self.nodes.items()}
+
+        for edge in self.edges.values():
+            edge["from_idx"] = node_mapping.get(edge["from_idx"], edge["from_idx"])
+            edge["to_idx"] = node_mapping.get(edge["to_idx"], edge["to_idx"])
 
     @staticmethod
     def _annotate_structure_with_yt(yt, structure, zpsp):
@@ -744,7 +800,7 @@ class Critic2Analysis(MSONable):
         # 2. We construct a list of nodes and edges describing
         #    all critical points in the crystal
 
-        # Steps 1. and 2. are essentially indepdendent, except
+        # Steps 1. and 2. are essentially independent, except
         # that the critical points in 2. have a pointer to their
         # associated unique critical point in 1. so that more
         # information on that point can be retrieved if necessary.
@@ -811,44 +867,19 @@ class Critic2Analysis(MSONable):
         # if start_i and end_i haven't been found, we
         # need to re-evaluate assumptions in this parser!
 
-        # Order of nuclei provided by critic2 doesn't
-        # necessarily match order of sites in Structure.
-        # We perform a mapping from one to the other,
-        # and re-index all nodes accordingly.
-        node_mapping = {}  # critic2_index:structure_index
-        # ensure frac coords are in [0,1] range
-        frac_coords = np.array(self.structure.frac_coords) % 1
-        kd = KDTree(frac_coords)
-        for i, line in enumerate(stdout):
-            if i >= start_i and i <= end_i:
-                l = line.split()
-                if l[2] == "n":
-                    critic2_idx = int(l[0]) - 1
-                    frac_coord = np.array([float(l[3]), float(l[4]), float(l[5])]) % 1
-                    node_mapping[critic2_idx] = kd.query(frac_coord)[1]
-
-        if len(node_mapping) != len(self.structure):
-            warnings.warn(
-                "Check that all sites in input structure have "
-                "been detected by critic2."
-            )
-
-        def _remap(critic2_idx):
-            return node_mapping.get(critic2_idx, critic2_idx)
-
         for i, line in enumerate(stdout):
             if i >= start_i and i <= end_i:
 
                 l = line.replace("(", "").replace(")", "").split()
 
-                idx = _remap(int(l[0]) - 1)
+                idx = int(l[0]) - 1
                 unique_idx = int(l[1]) - 1
                 frac_coords = [float(l[3]), float(l[4]), float(l[5])]
 
                 self._add_node(idx, unique_idx, frac_coords)
                 if len(l) > 6:
-                    from_idx = _remap(int(l[6]) - 1)
-                    to_idx = _remap(int(l[10]) - 1)
+                    from_idx = int(l[6]) - 1
+                    to_idx = int(l[10]) - 1
                     self._add_edge(
                         idx,
                         from_idx=from_idx,
@@ -857,7 +888,6 @@ class Critic2Analysis(MSONable):
                         to_lvec=(int(l[11]), int(l[12]), int(l[13])),
                     )
 
-        self._map = node_mapping
 
     def _add_node(self, idx, unique_idx, frac_coords):
         """
