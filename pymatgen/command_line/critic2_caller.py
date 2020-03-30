@@ -676,7 +676,7 @@ class Critic2Analysis(MSONable):
                     to_lvec=p["attractors"][1]["lvec"],
                 )
 
-    def _remap(self):
+    def _remap_indices(self):
         """
         Re-maps indices on self.nodes and self.edges such that node indices match
         that of structure, and then sorts self.nodes by index.
