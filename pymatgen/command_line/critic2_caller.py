@@ -509,7 +509,7 @@ class Critic2Analysis(MSONable):
                 cp = self.critical_points[node["unique_idx"]]
                 if cp.type.value in include_critical_points:
                     specie = DummySpecie(
-                        "{}cp".format(cp.type.value[0]), oxidation_state=None
+                        "X{}cp".format(cp.type.value[0]), oxidation_state=None
                     )
                     structure.append(
                         specie,
