@@ -572,6 +572,7 @@ class Global(Section):
         keywords = [
             Keyword("PROJECT_NAME", project_name),
             Keyword("RUN_TYPE", run_type),
+            Keyword("EXTENDED_FFT_LENGTHS", True)
         ]
 
         super().__init__(

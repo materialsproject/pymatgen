@@ -17,7 +17,6 @@ In order to implement a new Set within the current code structure, follow this 3
     (3) Call self.update(override_default_params) in order to allow user settings.
 """
 
-import math
 from pathlib import Path
 from pymatgen.io.cp2k.inputs import (
     Cp2kInput,
@@ -81,7 +80,6 @@ class Cp2kInputSet(Cp2kInput):
         self,
         structure,
         potential_and_basis={},
-        kppa=1000,
         multiplicity=0,
         project_name="CP2K",
         override_default_params={},
@@ -125,15 +123,6 @@ class Cp2kInputSet(Cp2kInput):
         self.multiplicity = multiplicity  # spin multiplicity = 2s+1
         self.override_default_params = override_default_params
         self.project_name = project_name
-        self.kppa = kppa
-
-        # This is a simple way to make a supercell according to the number of k-points / atom
-        # TODO: should be anisotropic, scaling the directions as needed
-        if kppa > 0:
-            # Only sample gamma point, need k-points / num_atoms to be < 8.
-            structure.make_supercell(
-                math.ceil(math.pow(kppa / structure.num_sites / 8, 1 / 3))
-            )
 
         cell = Cell(structure.lattice)
         subsys = Subsys(subsections={"CELL": cell})
@@ -159,6 +148,8 @@ class Cp2kInputSet(Cp2kInput):
                 magnetization = self.structure.site_properties["magmom"][
                     unique_kinds[k][0]
                 ]
+            else:
+                magnetization = 0
             subsys.insert(
                 Kind(
                     kind,
@@ -189,7 +180,7 @@ class Cp2kInputSet(Cp2kInput):
     def activate_hybrid(
         self,
         structure,
-        method="HSE06",
+        method="PBE0",
         hf_fraction=0.25,
         gga_x_fraction=0.75,
         gga_c_fraction=1,
@@ -259,11 +250,7 @@ class Cp2kInputSet(Cp2kInput):
             ip_keywords = [
                 Keyword("POTENTIAL_TYPE", "TRUNCATED"),
                 Keyword(
-                    "CUTOFF_RADIUS",
-                    structure.lattice.matrix[
-                        structure.lattice.matrix.nonzero()
-                    ].min()
-                    / 2,
+                    "CUTOFF_RADIUS", 8
                 ),
                 Keyword("T_C_G_DATA", "t_c_g.dat"),
             ]
@@ -281,7 +268,7 @@ class Cp2kInputSet(Cp2kInput):
             subsections={},
             keywords=[
                 Keyword("EPS_STORAGE_SCALING", 0.1),
-                Keyword("MAX_MEMORY", 5000),
+                Keyword("MAX_MEMORY", 7000),
             ],
         )
         hf = Section(
@@ -442,7 +429,7 @@ class DftSet(Cp2kInputSet):
         self["FORCE_EVAL"]["DFT"].insert(Section("PRINT", subsections={}))
 
         self.print_pdos()
-        self.print_ldos()
+        # self.print_ldos()
         self.print_mo_cubes()
 
         self.update(override_default_params)
@@ -470,7 +457,7 @@ class DftSet(Cp2kInputSet):
             self["FORCE_EVAL"]["DFT"]["PRINT"].insert(PDOS(nlumo=nlumo))
         for i in range(self.structure.num_sites):
             self["FORCE_EVAL"]["DFT"]["PRINT"]["PDOS"].insert(
-                LDOS(i, alias="LDOS {}".format(i), verbose=False)
+                LDOS(i+1, alias="LDOS {}".format(i+1), verbose=False)
             )
 
     def print_mo_cubes(self, write_cube=False, nlumo=1, nhomo=1):
@@ -591,7 +578,7 @@ class RelaxSet(DftSet):
         max_force=1e-3,
         max_iter=200,
         project_name="Relax",
-        optimizer="CG",
+        optimizer="BFGS",
         override_default_params={},
         **kwargs
     ):

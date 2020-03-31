@@ -642,6 +642,7 @@ class Cp2kOutput:
         valence_electrons = re.compile(
             r"Total number of valence electrons\s+(\d+)"
         )
+        pseudo_energy = re.compile(r"Total Pseudopotential Energy.+(-?\d+.\d+)")
         self.read_pattern(
             {
                 "kinds": kinds,
@@ -650,6 +651,7 @@ class Cp2kOutput:
                 "auxiliary_basis_set": auxiliary_basis_set,
                 "core_electrons": core_electrons,
                 "valence_electrons": valence_electrons,
+                "pseudo_energy": pseudo_energy
             },
             terminate_on_match=True,
             postprocess=str,
@@ -679,6 +681,13 @@ class Cp2kOutput:
                 ] = self.data.get("auxiliary_basis_set")[i]
             except (TypeError, IndexError):
                 atomic_kind_info[kind[0]]["auxiliary_basis_set"] = None
+            try:
+                atomic_kind_info[kind[0]][
+                    "total_pseudopotential_energy"
+                ] = self.data.get(
+                    "total_pseudopotential_energy")[i][0]*_hartree_to_ev_
+            except (TypeError, IndexError):
+                atomic_kind_info[kind[0]]["total_pseudopotential_energy"] = None
 
         self.data["atomic_kind_info"] = atomic_kind_info
 
@@ -1423,7 +1432,8 @@ class Cube:
         self.NZ = int(line[0])
         self.Z = np.array([0.529177 * float(l) for l in line[1:]])
 
-        self.volume = abs(np.dot(np.cross(self.X, self.Y), self.Z))
+        self.voxelVolume = abs(np.dot(np.cross(self.X, self.Y), self.Z))
+        self.volume = abs(np.dot(np.cross(self.X.dot(self.NZ), self.Y.dot(self.NY)), self.Z.dot(self.NZ)))
 
         # The last section in the header is one line for each atom consisting of 5 numbers,
         # the first is the atom number, second (?), the last three are the x,y,z coordinates of the atom center.
@@ -1472,7 +1482,20 @@ class Cube:
         """
         Integrate over the whole volume
         """
-        return ((self.data) ** 2).sum() * self.volume
+        return np.sum(self.data) * self.voxelVolume
+
+    def gradient(self):
+        """
+        Gradient of the data at each point
+        """
+        return np.gradient(self.data, np.linalg.norm(self.X), np.linalg.norm(self.Y), np.linalg.norm(self.Z))
+
+    def g_factor(self):
+        """
+        g_factor (see PHYSICAL REVIEW B 83, 035119 (2011))
+        """
+        warnings.warn("THIS HAS NOT BEEN TESTED AND IS STILL BEING DEVELOPED")
+        return np.sum(np.sqrt(np.divide(np.abs(self.gradient()), self.data)))*self.voxelVolume / self.volume
 
     def integrate_sphere(self, r, coord):
         """
