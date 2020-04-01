@@ -7,7 +7,6 @@ import os
 from subprocess import Popen, PIPE, TimeoutExpired
 from typing import Dict, Union, List, NamedTuple
 
-import numpy as np
 from monty.tempfile import ScratchDir
 from monty.dev import requires
 from monty.os.path import which
@@ -17,6 +16,9 @@ from pymatgen import Structure
 
 
 class Sqs(NamedTuple):
+    """
+    Return type for run_mcsqs.
+    """
     bestsqs: Structure
     objective_function: float
 
@@ -105,17 +107,13 @@ def run_mcsqs(
 
     # Run mcsqs to find clusters
     p = Popen(
-        mcsqs_generate_clusters_cmd,
-        # stdout=PIPE, stderr=PIPE,
-        # shell=True
+        mcsqs_generate_clusters_cmd
     )
     p.communicate()
 
     # Run mcsqs to find sqs structure
     p = Popen(
-        mcsqs_find_sqs_cmd,
-        # stdout=PIPE, stderr=PIPE,
-        # shell=True,
+        mcsqs_find_sqs_cmd
     )
 
     try:
@@ -146,3 +144,4 @@ def run_mcsqs(
 
         else:
             raise TimeoutError("Cluster expansion took too long.")
+
