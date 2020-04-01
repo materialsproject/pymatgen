@@ -16,8 +16,7 @@ from functools import lru_cache
 import numpy as np
 import scipy.constants as sc
 import pandas as pd
-import plotly.graph_objs as go  # type: ignore
-import plotly.offline as poff  # type: ignore
+import plotly.graph_objs as go
 from pymatgen.core.structure import Structure
 from pymatgen.analysis.diffraction.core import AbstractDiffractionPatternCalculator
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -26,7 +25,6 @@ from pymatgen.util.string import unicodeify_spacegroup, latexify_spacegroup
 with open(os.path.join(os.path.dirname(__file__),
                        "atomic_scattering_params.json")) as f:
     ATOMIC_SCATTERING_PARAMS = json.load(f)
-poff.init_notebook_mode(connected=True)
 
 __author__ = "Frank Wan, Jason Liang"
 __copyright__ = "Copyright 2020, The Materials Project"
@@ -544,7 +542,6 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             plot_bgcolor='black',
         )
         fig = go.Figure(data=data, layout=layout)
-        poff.iplot(fig, filename='diffpattern')
         return fig
 
     def get_plot_2d_concise(self, structure: Structure) -> go.Figure:

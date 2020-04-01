@@ -93,4 +93,4 @@ workflows:
   build_and_test:
     jobs:
       - py3test
-      - pmglint
+#      - pmglint

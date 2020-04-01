@@ -344,13 +344,13 @@ class BSPlotter:
         """
         distance = []
         energy = []
-        if self._bs.is_metal():
-            zero_energy = self._bs.efermi
-        else:
-            zero_energy = self._bs.get_vbm()['energy']
 
-        if not zero_to_efermi:
-            zero_energy = 0.0
+        zero_energy = 0.0
+        if zero_to_efermi:
+            if self._bs.is_metal():
+                zero_energy = self._bs.efermi
+            else:
+                zero_energy = self._bs.get_vbm()['energy']
 
         for b in self._bs.branches:
 
