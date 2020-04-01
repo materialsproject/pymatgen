@@ -1656,6 +1656,7 @@ class CubicSupercellTransformation(AbstractTransformation):
         self.min_length = min_length
         self.force_diagonal = force_diagonal
         self.transformation_matrix = None
+
     def apply_transformation(self, structure: Structure) -> Structure:
         """
         The algorithm solves for a transformation matrix that makes the
