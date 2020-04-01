@@ -9,7 +9,7 @@ Unit tests for TEM calculator.
 import unittest
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
-from pymatgen.analysis.diffraction.tem import TEMCalculator  # type: ignore
+from pymatgen.analysis.diffraction.tem import TEMCalculator
 from pymatgen.util.testing import PymatgenTest
 import numpy as np
 import pandas as pd
@@ -23,7 +23,8 @@ __email__ = "fwan@berkeley.edu, yhljason@berkeley.edu"
 __date__ = "2/20/20"
 
 
-class XRDCalculatorTest(PymatgenTest):
+class TEMCalculatorTest(PymatgenTest):
+
     def test_wavelength_rel(self):
         # Tests that the relativistic wavelength formula (for 200kv electron beam) is correct
         c = TEMCalculator()

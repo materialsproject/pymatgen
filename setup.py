@@ -101,7 +101,7 @@ who require Python 2.7 should install pymatgen v2018.x.
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="2020.3.2",
+    version="2020.3.13",
     cmdclass={'build_ext': build_ext},
     setup_requires=['numpy>=1.14.3', 'setuptools>=18.0'],
     python_requires='>=3.6',
@@ -119,7 +119,7 @@ setup(
             "dataclasses>=0.6",
         ]},
     package_data={
-        "pymatgen.core": ["*.json"],
+        "pymatgen.core": ["*.json", "py.typed"],
         "pymatgen.analysis": ["*.yaml", "*.json", "*.csv"],
         "pymatgen.analysis.chemenv.coordination_environments.coordination_geometries_files": ["*.txt", "*.json"],
         "pymatgen.analysis.chemenv.coordination_environments.strategy_files": ["*.json"],

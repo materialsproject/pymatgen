@@ -9,9 +9,12 @@ Parsers for Qchem output files.
 import re
 import logging
 import os
-import numpy as np
+import warnings
+from typing import List
 import math
 import copy
+
+import numpy as np
 
 from monty.io import zopen
 from monty.json import jsanitize
@@ -834,7 +837,7 @@ class QCOutput(MSONable):
             self.data["energy_trajectory"] = real_energy_trajectory
             self._read_geometries()
             if have_babel:
-                self.data["structure_change"] = _check_for_structure_changes(
+                self.data["structure_change"] = check_for_structure_changes(
                     self.data["initial_molecule"],
                     self.data["molecule_from_last_geometry"])
             self._read_gradients()
@@ -1166,7 +1169,27 @@ class QCOutput(MSONable):
         return jsanitize(d, strict=True)
 
 
-def _check_for_structure_changes(mol1, mol2):
+def check_for_structure_changes(mol1: Molecule, mol2: Molecule) -> str:
+    """
+    Compares connectivity of two molecules (using MoleculeGraph w/ OpenBabelNN).
+    This function will work with two molecules with different atom orderings,
+        but for proper treatment, atoms should be listed in the same order.
+    Possible outputs include:
+    - no_change: the bonding in the two molecules is identical
+    - unconnected_fragments: the MoleculeGraph of mol1 is connected, but the
+      MoleculeGraph is mol2 is not connected
+    - fewer_bonds: the MoleculeGraph of mol1 has more bonds (edges) than the
+      MoleculeGraph of mol2
+    - more_bonds: the MoleculeGraph of mol2 has more bonds (edges) than the
+      MoleculeGraph of mol1
+    - bond_change: this case catches any other non-identical MoleculeGraphs
+    Args:
+        mol1: Pymatgen Molecule object to be compared.
+        mol2: Pymatgen Molecule object to be compared.
+    Returns:
+        One of ["unconnected_fragments", "fewer_bonds", "more_bonds",
+        "bond_change", "no_change"]
+    """
     special_elements = ["Li", "Na", "Mg", "Ca", "Zn"]
     mol_list = [copy.deepcopy(mol1), copy.deepcopy(mol2)]
 
@@ -1175,16 +1198,18 @@ def _check_for_structure_changes(mol1, mol2):
 
     for ii, site in enumerate(mol1):
         if site.specie.symbol != mol2[ii].specie.symbol:
-            print(
-                "WARNING: Comparing molecules with different atom ordering! Turning off special treatment for "
-                "coordinating metals.")
+            warnings.warn(
+                "Comparing molecules with different atom ordering! "
+                "Turning off special treatment for coordinating metals."
+            )
             special_elements = []
 
-    special_sites = [[], []]
+    special_sites: List[List] = [[], []]
     for ii, mol in enumerate(mol_list):
         for jj, site in enumerate(mol):
             if site.specie.symbol in special_elements:
-                distances = [[kk, site.distance(other_site)] for kk, other_site in enumerate(mol)]
+                distances = [[kk, site.distance(other_site)]
+                             for kk, other_site in enumerate(mol)]
                 special_sites[ii].append([jj, site, distances])
         for jj, site in enumerate(mol):
             if site.specie.symbol in special_elements:
@@ -1201,7 +1226,8 @@ def _check_for_structure_changes(mol1, mol2):
     if initial_mol_graph.isomorphic_to(last_mol_graph):
         return "no_change"
     else:
-        if nx.is_connected(initial_graph.to_undirected()) and not nx.is_connected(last_graph.to_undirected()):
+        if (nx.is_connected(initial_graph.to_undirected()) and
+                not nx.is_connected(last_graph.to_undirected())):
             return "unconnected_fragments"
         elif last_graph.number_of_edges() < initial_graph.number_of_edges():
             return "fewer_bonds"
