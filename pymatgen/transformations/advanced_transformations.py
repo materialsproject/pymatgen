@@ -1626,6 +1626,7 @@ class CubicSupercellTransformation(AbstractTransformation):
     """
     A transformation that aims to generate a nearly cubic supercell structure
     from a structure.
+
     The algorithm solves for a transformation matrix that makes the supercell
     cubic. The matrix must have integer entries, so entries are rounded (in such
     a way that forces the matrix to be nonsingular). From the supercell
@@ -1636,6 +1637,7 @@ class CubicSupercellTransformation(AbstractTransformation):
     and the number of atoms in the supercell falls in the range
     ``min_atoms < n < max_atoms``.
     """
+
     def __init__(
         self,
         min_atoms: Optional[int] = None,
@@ -1669,9 +1671,11 @@ class CubicSupercellTransformation(AbstractTransformation):
         side length is at least 'num_nn_dists' times the nearest neighbor
         distance and the number of atoms in the supercell falls in the range
         defined by min_atoms and max_atoms.
+
         Returns:
             supercell: Transformed supercell.
         """
+
         lat_vecs = structure.lattice.matrix
 
         # boolean for if a sufficiently large supercell has been created
@@ -1697,10 +1701,12 @@ class CubicSupercellTransformation(AbstractTransformation):
             )
 
             proposed_sc_lat_vecs = self.transformation_matrix @ lat_vecs
+
             # Find the shortest dimension length and direction
             a = proposed_sc_lat_vecs[0]
             b = proposed_sc_lat_vecs[1]
             c = proposed_sc_lat_vecs[2]
+
             length1_vec = c - _proj(c, a)  # a-c plane
             length2_vec = a - _proj(a, c)
             length3_vec = b - _proj(b, a)  # b-a plane
