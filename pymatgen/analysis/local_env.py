@@ -3293,7 +3293,7 @@ class BrunnerNN_relative(NearNeighbors):
         ds = [i.nn_distance for i in neighs_dists]
         ds.sort()
 
-        ns = [ds[i] / ds[i + 1] for i in range(len(ds) - 1)]
+        ns = [ds[i + 1] / ds[i] for i in range(len(ds) - 1)]
 
         d_max = ds[ns.index(max(ns))]
         siw = []
@@ -3364,7 +3364,7 @@ class BrunnerNN_real(NearNeighbors):
         ds = [i.nn_distance for i in neighs_dists]
         ds.sort()
 
-        ns = [ds[i] - ds[i + 1] for i in range(len(ds) - 1)]
+        ns = [ds[i + 1] - ds[i] for i in range(len(ds) - 1)]
 
         d_max = ds[ns.index(max(ns))]
         siw = []
