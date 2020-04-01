@@ -262,6 +262,7 @@ class TEMCalculatorTest(PymatgenTest):
         width = fig.layout.width
         height = fig.layout.height
         self.assertTrue(width == 121 and height == 121)
+
         
 if __name__ == '__main__':
     unittest.main()
