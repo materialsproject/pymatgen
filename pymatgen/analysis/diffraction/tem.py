@@ -16,8 +16,8 @@ from functools import lru_cache
 import numpy as np
 import scipy.constants as sc
 import pandas as pd
-import plotly.graph_objs as go  # type: ignore
-import plotly.offline as poff  # type: ignore
+import plotly.graph_objs as go
+import plotly.offline as poff
 from pymatgen.core.structure import Structure
 from pymatgen.analysis.diffraction.core import AbstractDiffractionPatternCalculator
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -30,10 +30,10 @@ poff.init_notebook_mode(connected=True)
 
 __author__ = "Frank Wan, Jason Liang"
 __copyright__ = "Copyright 2020, The Materials Project"
-__version__ = "0.21"
+__version__ = "0.22"
 __maintainer__ = "Jason Liang"
 __email__ = "fwan@berkeley.edu, yhljason@berkeley.edu"
-__date__ = "03/21/2020"
+__date__ = "03/31/2020"
 
 
 class TEMCalculator(AbstractDiffractionPatternCalculator):
@@ -311,7 +311,8 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         Returns:
             boolean
         """
-        return self.get_interplanar_angle(structure, plane, other_plane) in (180, 0, np.NaN)
+        phi = self.get_interplanar_angle(structure, plane, other_plane)
+        return phi in (180, 0) or np.isnan(phi)
 
     def get_first_point(self, structure: Structure, points: list) -> Dict[Tuple[int, int, int], float]:
         """
@@ -425,7 +426,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         r1 = self.wavelength_rel() * self.camera_length / first_d
         positions[first_point] = np.array([r1, 0])
         r2 = self.wavelength_rel() * self.camera_length / second_d
-        phi = np.deg2rad(self.get_interplanar_angle(structure, p1, p2))
+        phi = np.deg2rad(self.get_interplanar_angle(structure, first_point, second_point))
         positions[second_point] = np.array([r2 * np.cos(phi), r2 * np.sin(phi)])
         for plane in points:
             coeffs = self.get_plot_coeffs(p1, p2, plane)
@@ -523,7 +524,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
                 color='#7f7f7f'),
             hovermode='closest',
             xaxis=dict(
-                autorange=True,
+                range=[-4, 4],
                 showgrid=False,
                 zeroline=False,
                 showline=False,
@@ -531,7 +532,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
                 showticklabels=False
             ),
             yaxis=dict(
-                autorange=True,
+                range=[-4, 4],
                 showgrid=False,
                 zeroline=False,
                 showline=False,
@@ -590,7 +591,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         ]
         layout = go.Layout(
             xaxis=dict(
-                autorange=True,
+                range=[-4, 4],
                 showgrid=False,
                 zeroline=False,
                 showline=False,
@@ -598,7 +599,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
                 showticklabels=False
             ),
             yaxis=dict(
-                autorange=True,
+                range=[-4, 4],
                 showgrid=False,
                 zeroline=False,
                 showline=False,

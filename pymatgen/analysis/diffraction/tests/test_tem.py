@@ -13,7 +13,7 @@ from pymatgen.analysis.diffraction.tem import TEMCalculator  # type: ignore
 from pymatgen.util.testing import PymatgenTest
 import numpy as np
 import pandas as pd
-import plotly.graph_objs as go  # type: ignore
+import plotly.graph_objs as go
 
 __author__ = "Frank Wan, Jason Liang"
 __copyright__ = "Copyright 2019, The Materials Project"
@@ -261,6 +261,7 @@ class XRDCalculatorTest(PymatgenTest):
         width = fig.layout.width
         height = fig.layout.height
         self.assertTrue(width == 121 and height == 121)
+
 
 
 if __name__ == '__main__':
