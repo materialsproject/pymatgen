@@ -13,6 +13,8 @@
 
   
   
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+  
   
   
     <link rel="canonical" href="https://pymatgen.orgpymatgen.util.provenance.html"/>
@@ -357,7 +359,7 @@ format with the following structure:</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>struct_or_mol</strong> – A pymatgen.core.structure Structure/Molecule object</p></li>
-<li><p><strong>authors</strong> – <em>List</em> of {“name”:’’, “email”:’’} dicts,
+<li><p><strong>authors</strong> – <em>List</em> of {“name”:’‘, “email”:’‘} dicts,
 <em>list</em> of Strings as ‘John Doe &lt;<a class="reference external" href="mailto:johndoe&#37;&#52;&#48;gmail&#46;com">johndoe<span>&#64;</span>gmail<span>&#46;</span>com</a>&gt;’,
 or a single String with commas separating authors</p></li>
 <li><p><strong>projects</strong> – List of Strings [‘Project A’, ‘Project B’]</p></li>
@@ -365,7 +367,7 @@ or a single String with commas separating authors</p></li>
 <li><p><strong>remarks</strong> – List of Strings [‘Remark A’, ‘Remark B’]</p></li>
 <li><p><strong>data</strong> – A free form dict. Namespaced at the root level with an
 underscore, e.g. {“_materialsproject”: &lt;custom data&gt;}</p></li>
-<li><p><strong>history</strong> – List of dicts - [{‘name’:’’, ‘url’:’’, ‘description’:{}}]</p></li>
+<li><p><strong>history</strong> – List of dicts - [{‘name’:’‘, ‘url’:’‘, ‘description’:{}}]</p></li>
 <li><p><strong>created_at</strong> – A datetime object</p></li>
 </ul>
 </dd>
@@ -399,7 +401,7 @@ is applied to all of the structures for ease of use.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>structures</strong> – A list of Structure objects</p></li>
-<li><p><strong>authors</strong> – <em>List</em> of {“name”:’’, “email”:’’} dicts,
+<li><p><strong>authors</strong> – <em>List</em> of {“name”:’‘, “email”:’‘} dicts,
 <em>list</em> of Strings as ‘John Doe &lt;<a class="reference external" href="mailto:johndoe&#37;&#52;&#48;gmail&#46;com">johndoe<span>&#64;</span>gmail<span>&#46;</span>com</a>&gt;’,
 or a single String with commas separating authors</p></li>
 <li><p><strong>projects</strong> – List of Strings [‘Project A’, ‘Project B’]. This
@@ -411,7 +413,7 @@ structures.</p></li>
 with an underscore, e.g. {“_materialsproject”:&lt;custom data&gt;}
 . The length of data should be the same as the list of
 structures if not None.</p></li>
-<li><p><strong>histories</strong> – List of list of dicts - [[{‘name’:’’, ‘url’:’’,
+<li><p><strong>histories</strong> – List of list of dicts - [[{‘name’:’‘, ‘url’:’‘,
 ‘description’:{}}], …] The length of histories should be the
 same as the list of structures if not None.</p></li>
 <li><p><strong>created_at</strong> – A datetime object</p></li>

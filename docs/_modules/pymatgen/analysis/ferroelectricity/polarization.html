@@ -13,6 +13,7 @@
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
  
@@ -94,8 +95,8 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 
-<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">Structure</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.lattice</span> <span class="kn">import</span> <span class="n">Lattice</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.lattice</span> <span class="k">import</span> <span class="n">Lattice</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Tess Smidt&quot;</span>
@@ -195,7 +196,7 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p_elecs</span><span class="p">,</span> <span class="n">p_ions</span><span class="p">,</span> <span class="n">structures</span><span class="p">,</span> <span class="n">p_elecs_in_cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">p_ions_in_cartesian</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p_elecs</span><span class="p">,</span> <span class="n">p_ions</span><span class="p">,</span> <span class="n">structures</span><span class="p">,</span> <span class="n">p_elecs_in_cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">p_ions_in_cartesian</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        p_elecs: np.array of electronic contribution to the polarization with shape [N, 3]</span>
 <span class="sd">        p_ions: np.array of ionic contribution to the polarization with shape [N, 3]</span>
@@ -435,7 +436,7 @@
 <span class="sd">        Fit splines to same branch polarization. This is used to assess any jumps</span>
 <span class="sd">        in the same branch polarizaiton.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="kn">import</span> <span class="n">UnivariateSpline</span>
+        <span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="k">import</span> <span class="n">UnivariateSpline</span>
         <span class="n">tot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_same_branch_polarization_data</span><span class="p">(</span>
             <span class="n">convert_to_muC_per_cm2</span><span class="o">=</span><span class="n">convert_to_muC_per_cm2</span><span class="p">,</span> <span class="n">all_in_polar</span><span class="o">=</span><span class="n">all_in_polar</span><span class="p">)</span>
         <span class="n">L</span> <span class="o">=</span> <span class="n">tot</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -490,7 +491,7 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Class for fitting trends to energies.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energies</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energies</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param energies: Energies</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -500,7 +501,7 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Fit spline to energy trend data.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="kn">import</span> <span class="n">UnivariateSpline</span>
+        <span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="k">import</span> <span class="n">UnivariateSpline</span>
         <span class="n">sp</span> <span class="o">=</span> <span class="n">UnivariateSpline</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">energies</span><span class="p">)),</span> <span class="bp">self</span><span class="o">.</span><span class="n">energies</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">sp</span></div>
 
@@ -578,7 +579,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

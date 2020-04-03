@@ -13,6 +13,7 @@
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
  
@@ -48,6 +49,19 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">scipy.constants</span> <span class="k">as</span> <span class="nn">const</span>
+
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.structure_matcher</span> <span class="k">import</span> <span class="n">StructureMatcher</span><span class="p">,</span> \
+    <span class="n">OrderDisorderElementComparator</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">get_el_sp</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.vasp.outputs</span> <span class="k">import</span> <span class="n">Vasprun</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.coord</span> <span class="k">import</span> <span class="n">pbc_diff</span>
+
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">A module to perform diffusion analyses (e.g. calculating diffusivity from</span>
 <span class="sd">mean square displacements etc.). If you use this module, please consider</span>
@@ -63,20 +77,6 @@
 <span class="sd">    Li10GeP2S12 Lithium Super Ionic Conductor Material. Chemistry of Materials,</span>
 <span class="sd">    24(1), 15-17. doi:10.1021/cm203303y</span>
 <span class="sd">&quot;&quot;&quot;</span>
-
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">warnings</span>
-<span class="kn">import</span> <span class="nn">scipy.constants</span> <span class="k">as</span> <span class="nn">const</span>
-
-<span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">MSONable</span>
-
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.structure_matcher</span> <span class="kn">import</span> <span class="n">StructureMatcher</span><span class="p">,</span> \
-    <span class="n">OrderDisorderElementComparator</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="kn">import</span> <span class="n">get_el_sp</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">Structure</span>
-<span class="kn">from</span> <span class="nn">pymatgen.io.vasp.outputs</span> <span class="kn">import</span> <span class="n">Vasprun</span>
-<span class="kn">from</span> <span class="nn">pymatgen.util.coord</span> <span class="kn">import</span> <span class="n">pbc_diff</span>
-
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Will Richards, Shyue Ping Ong&quot;</span>
 <span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.2&quot;</span>
@@ -174,7 +174,7 @@
 <span class="sd">        Haven ratio defined as diffusivity / chg_diffusivity.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">displacements</span><span class="p">,</span> <span class="n">specie</span><span class="p">,</span> <span class="n">temperature</span><span class="p">,</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">displacements</span><span class="p">,</span> <span class="n">specie</span><span class="p">,</span> <span class="n">temperature</span><span class="p">,</span>
                  <span class="n">time_step</span><span class="p">,</span> <span class="n">step_skip</span><span class="p">,</span> <span class="n">smoothed</span><span class="o">=</span><span class="s2">&quot;max&quot;</span><span class="p">,</span> <span class="n">min_obs</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
                  <span class="n">avg_nsteps</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">lattices</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -470,7 +470,7 @@
 <span class="sd">        Notes:</span>
 <span class="sd">            The method doesn&#39;t apply to NPT-AIMD simulation analysis.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span> <span class="nn">pymatgen.util.plotting</span> <span class="kn">import</span> <span class="n">pretty_plot</span>
+        <span class="kn">from</span> <span class="nn">pymatgen.util.plotting</span> <span class="k">import</span> <span class="n">pretty_plot</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattices</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lattices</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Note the method doesn&#39;t apply to NPT-AIMD &quot;</span>
                           <span class="s2">&quot;simulation analysis!&quot;</span><span class="p">)</span>
@@ -518,7 +518,7 @@
 <span class="sd">                or direction (default). If mode = &quot;mscd&quot;, the smoothed mscd vs.</span>
 <span class="sd">                time will be plotted.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span> <span class="nn">pymatgen.util.plotting</span> <span class="kn">import</span> <span class="n">pretty_plot</span>
+        <span class="kn">from</span> <span class="nn">pymatgen.util.plotting</span> <span class="k">import</span> <span class="n">pretty_plot</span>
         <span class="n">plt</span> <span class="o">=</span> <span class="n">pretty_plot</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="n">plt</span><span class="o">=</span><span class="n">plt</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">100000</span><span class="p">:</span>
             <span class="n">plot_dt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">/</span> <span class="mi">1000</span>
@@ -600,7 +600,7 @@
     <span class="k">def</span> <span class="nf">from_structures</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">structures</span><span class="p">,</span> <span class="n">specie</span><span class="p">,</span> <span class="n">temperature</span><span class="p">,</span>
                         <span class="n">time_step</span><span class="p">,</span> <span class="n">step_skip</span><span class="p">,</span> <span class="n">initial_disp</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                         <span class="n">initial_structure</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Convenient constructor that takes in a list of Structure objects to</span>
 <span class="sd">        perform diffusion analysis.</span>
 
@@ -664,7 +664,7 @@
 <div class="viewcode-block" id="DiffusionAnalyzer.from_vaspruns"><a class="viewcode-back" href="../../../pymatgen.analysis.diffusion_analyzer.html#pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer.from_vaspruns">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_vaspruns</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">vaspruns</span><span class="p">,</span> <span class="n">specie</span><span class="p">,</span> <span class="n">initial_disp</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                       <span class="n">initial_structure</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Convenient constructor that takes in a list of Vasprun objects to</span>
 <span class="sd">        perform diffusion analysis.</span>
 
@@ -720,7 +720,7 @@
 <div class="viewcode-block" id="DiffusionAnalyzer.from_files"><a class="viewcode-back" href="../../../pymatgen.analysis.diffusion_analyzer.html#pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer.from_files">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_files</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filepaths</span><span class="p">,</span> <span class="n">specie</span><span class="p">,</span> <span class="n">step_skip</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">ncores</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                    <span class="n">initial_disp</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">initial_structure</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Convenient constructor that takes in a list of vasprun.xml paths to</span>
 <span class="sd">        perform diffusion analysis.</span>
 
@@ -781,9 +781,6 @@
                 <span class="n">initial_structure</span><span class="o">=</span><span class="n">initial_structure</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="DiffusionAnalyzer.as_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.diffusion_analyzer.html#pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns: MSONable dict</span>
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">{</span>
             <span class="s2">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
             <span class="s2">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
@@ -801,12 +798,6 @@
 
 <div class="viewcode-block" id="DiffusionAnalyzer.from_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.diffusion_analyzer.html#pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Args:</span>
-<span class="sd">            d (dict): Dict representation</span>
-
-<span class="sd">        Returns: DiffusionAnalyzer</span>
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;structure&quot;</span><span class="p">])</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;displacements&quot;</span><span class="p">]),</span> <span class="n">specie</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;specie&quot;</span><span class="p">],</span>
                    <span class="n">temperature</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;temperature&quot;</span><span class="p">],</span> <span class="n">time_step</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;time_step&quot;</span><span class="p">],</span>
@@ -919,7 +910,7 @@
 
 <div class="viewcode-block" id="get_arrhenius_plot"><a class="viewcode-back" href="../../../pymatgen.analysis.diffusion_analyzer.html#pymatgen.analysis.diffusion_analyzer.get_arrhenius_plot">[docs]</a><span class="k">def</span> <span class="nf">get_arrhenius_plot</span><span class="p">(</span><span class="n">temps</span><span class="p">,</span> <span class="n">diffusivities</span><span class="p">,</span> <span class="n">diffusivity_errors</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                        <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Returns an Arrhenius plot.</span>
 
 <span class="sd">    Args:</span>
@@ -936,7 +927,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">Ea</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">fit_arrhenius</span><span class="p">(</span><span class="n">temps</span><span class="p">,</span> <span class="n">diffusivities</span><span class="p">)</span>
 
-    <span class="kn">from</span> <span class="nn">pymatgen.util.plotting</span> <span class="kn">import</span> <span class="n">pretty_plot</span>
+    <span class="kn">from</span> <span class="nn">pymatgen.util.plotting</span> <span class="k">import</span> <span class="n">pretty_plot</span>
     <span class="n">plt</span> <span class="o">=</span> <span class="n">pretty_plot</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
 
     <span class="c1"># log10 of the arrhenius fit</span>
@@ -996,7 +987,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

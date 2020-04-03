@@ -13,6 +13,8 @@
 
   
   
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+  
   
   
     <link rel="canonical" href="https://pymatgen.orgpymatgen.analysis.local_env.html"/>
@@ -209,7 +211,7 @@ the local environments (e.g., finding near neighbors)
 of single sites in molecules and structures.</p>
 <dl class="class">
 <dt id="pymatgen.analysis.local_env.BrunnerNN_real">
-<em class="property">class </em><code class="sig-name descname">BrunnerNN_real</code><span class="sig-paren">(</span><em class="sig-param">tol=0.0001</em>, <em class="sig-param">cutoff=8.0</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L3315-L3383"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.BrunnerNN_real" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">BrunnerNN_real</code><span class="sig-paren">(</span><em class="sig-param">tol=0.0001</em>, <em class="sig-param">cutoff=8.0</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L3312-L3380"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.BrunnerNN_real" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.local_env.NearNeighbors" title="pymatgen.analysis.local_env.NearNeighbors"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.local_env.NearNeighbors</span></code></a></p>
 <p>Determine coordination number using Brunner’s algorithm which counts the
 atoms that are within the largest gap in differences in real space
@@ -227,7 +229,7 @@ atoms. Defaults to 8.0.</p></li>
 </dl>
 <dl class="method">
 <dt id="pymatgen.analysis.local_env.BrunnerNN_real.get_nn_info">
-<code class="sig-name descname">get_nn_info</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L3350-L3383"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.BrunnerNN_real.get_nn_info" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_nn_info</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L3347-L3380"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.BrunnerNN_real.get_nn_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get all near-neighbor sites as well as the associated image locations
 and weights of the site with index n in structure.</p>
 <dl class="field-list simple">
@@ -280,7 +282,7 @@ objects?</p>
 
 <dl class="class">
 <dt id="pymatgen.analysis.local_env.BrunnerNN_reciprocal">
-<em class="property">class </em><code class="sig-name descname">BrunnerNN_reciprocal</code><span class="sig-paren">(</span><em class="sig-param">tol=0.0001</em>, <em class="sig-param">cutoff=8.0</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L3173-L3241"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.BrunnerNN_reciprocal" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">BrunnerNN_reciprocal</code><span class="sig-paren">(</span><em class="sig-param">tol=0.0001</em>, <em class="sig-param">cutoff=8.0</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L3170-L3238"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.BrunnerNN_reciprocal" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.local_env.NearNeighbors" title="pymatgen.analysis.local_env.NearNeighbors"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.local_env.NearNeighbors</span></code></a></p>
 <p>Determine coordination number using Brunner’s algorithm which counts the
 atoms that are within the largest gap in differences in real space
@@ -298,7 +300,7 @@ atoms. Defaults to 8.0.</p></li>
 </dl>
 <dl class="method">
 <dt id="pymatgen.analysis.local_env.BrunnerNN_reciprocal.get_nn_info">
-<code class="sig-name descname">get_nn_info</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L3208-L3241"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.BrunnerNN_reciprocal.get_nn_info" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_nn_info</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L3205-L3238"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.BrunnerNN_reciprocal.get_nn_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get all near-neighbor sites as well as the associated image locations
 and weights of the site with index n in structure.</p>
 <dl class="field-list simple">
@@ -351,7 +353,7 @@ objects?</p>
 
 <dl class="class">
 <dt id="pymatgen.analysis.local_env.BrunnerNN_relative">
-<em class="property">class </em><code class="sig-name descname">BrunnerNN_relative</code><span class="sig-paren">(</span><em class="sig-param">tol=0.0001</em>, <em class="sig-param">cutoff=8.0</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L3244-L3312"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.BrunnerNN_relative" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">BrunnerNN_relative</code><span class="sig-paren">(</span><em class="sig-param">tol=0.0001</em>, <em class="sig-param">cutoff=8.0</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L3241-L3309"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.BrunnerNN_relative" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.local_env.NearNeighbors" title="pymatgen.analysis.local_env.NearNeighbors"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.local_env.NearNeighbors</span></code></a></p>
 <p>Determine coordination number using Brunner’s algorithm which counts the
 atoms that are within the largest gap in differences in real space
@@ -369,7 +371,7 @@ atoms. Defaults to 8.0.</p></li>
 </dl>
 <dl class="method">
 <dt id="pymatgen.analysis.local_env.BrunnerNN_relative.get_nn_info">
-<code class="sig-name descname">get_nn_info</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L3279-L3312"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.BrunnerNN_relative.get_nn_info" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_nn_info</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L3276-L3309"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.BrunnerNN_relative.get_nn_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get all near-neighbor sites as well as the associated image locations
 and weights of the site with index n in structure.</p>
 <dl class="field-list simple">
@@ -422,7 +424,7 @@ objects?</p>
 
 <dl class="class">
 <dt id="pymatgen.analysis.local_env.CovalentBondNN">
-<em class="property">class </em><code class="sig-name descname">CovalentBondNN</code><span class="sig-paren">(</span><em class="sig-param">tol=0.2</em>, <em class="sig-param">order=True</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L1429-L1584"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.CovalentBondNN" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">CovalentBondNN</code><span class="sig-paren">(</span><em class="sig-param">tol=0.2</em>, <em class="sig-param">order=True</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L1426-L1581"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.CovalentBondNN" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.local_env.NearNeighbors" title="pymatgen.analysis.local_env.NearNeighbors"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.local_env.NearNeighbors</span></code></a></p>
 <p>Determine near-neighbor sites and bond orders using built-in
 pymatgen.Molecule CovalentBond functionality.</p>
@@ -452,7 +454,7 @@ for which molecules_allowed == False.</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.local_env.CovalentBondNN.get_bonded_structure">
-<code class="sig-name descname">get_bonded_structure</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">decorate=False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L1515-L1543"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.CovalentBondNN.get_bonded_structure" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_bonded_structure</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">decorate=False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L1512-L1540"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.CovalentBondNN.get_bonded_structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Obtain a MoleculeGraph object using this NearNeighbor
 class.</p>
 <dl class="field-list simple">
@@ -470,7 +472,7 @@ class.</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.local_env.CovalentBondNN.get_nn_info">
-<code class="sig-name descname">get_nn_info</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L1475-L1513"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.CovalentBondNN.get_nn_info" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_nn_info</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L1472-L1510"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.CovalentBondNN.get_nn_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get all near-neighbor sites and weights (orders) of bonds for a given
 atom.</p>
 <dl class="field-list simple">
@@ -489,7 +491,7 @@ bond present between site n and the neighboring site.</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.local_env.CovalentBondNN.get_nn_shell_info">
-<code class="sig-name descname">get_nn_shell_info</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">site_idx</em>, <em class="sig-param">shell</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L1545-L1584"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.CovalentBondNN.get_nn_shell_info" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_nn_shell_info</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">site_idx</em>, <em class="sig-param">shell</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L1542-L1581"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.CovalentBondNN.get_nn_shell_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a certain nearest neighbor shell for a certain site.</p>
 <p>Determines all non-backtracking paths through the neighbor network
 computed by <cite>get_nn_info</cite>. The weight is determined by multiplying
@@ -550,7 +552,7 @@ objects?</p>
 
 <dl class="class">
 <dt id="pymatgen.analysis.local_env.Critic2NN">
-<em class="property">class </em><code class="sig-name descname">Critic2NN</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L3997-L4094"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.Critic2NN" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Critic2NN</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L4072-L4169"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.Critic2NN" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.local_env.NearNeighbors" title="pymatgen.analysis.local_env.NearNeighbors"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.local_env.NearNeighbors</span></code></a></p>
 <p>Performs a topological analysis using critic2 to obtain
 neighbor information, using a sum of atomic charge
@@ -573,7 +575,7 @@ for which molecules_allowed == False.</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.local_env.Critic2NN.get_bonded_structure">
-<code class="sig-name descname">get_bonded_structure</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">decorate=False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L4042-L4068"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.Critic2NN.get_bonded_structure" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_bonded_structure</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">decorate=False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L4117-L4143"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.Critic2NN.get_bonded_structure" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -589,7 +591,7 @@ for which molecules_allowed == False.</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.local_env.Critic2NN.get_nn_info">
-<code class="sig-name descname">get_nn_info</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L4070-L4094"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.Critic2NN.get_nn_info" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_nn_info</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L4145-L4169"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.Critic2NN.get_nn_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get all near-neighbor sites as well as the associated image locations
 and weights of the site with index n in structure.</p>
 <dl class="field-list simple">
@@ -642,7 +644,7 @@ objects?</p>
 
 <dl class="class">
 <dt id="pymatgen.analysis.local_env.CrystalNN">
-<em class="property">class </em><code class="sig-name descname">CrystalNN</code><span class="sig-paren">(</span><em class="sig-param">weighted_cn=False</em>, <em class="sig-param">cation_anion=False</em>, <em class="sig-param">distance_cutoffs=(0.5</em>, <em class="sig-param">1)</em>, <em class="sig-param">x_diff_weight=3.0</em>, <em class="sig-param">porous_adjustment=True</em>, <em class="sig-param">search_cutoff=7</em>, <em class="sig-param">fingerprint_length=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L3468-L3861"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.CrystalNN" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">CrystalNN</code><span class="sig-paren">(</span><em class="sig-param">weighted_cn=False</em>, <em class="sig-param">cation_anion=False</em>, <em class="sig-param">distance_cutoffs=(0.5</em>, <em class="sig-param">1)</em>, <em class="sig-param">x_diff_weight=3.0</em>, <em class="sig-param">porous_adjustment=True</em>, <em class="sig-param">search_cutoff=7</em>, <em class="sig-param">fingerprint_length=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L3561-L3896"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.CrystalNN" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.local_env.NearNeighbors" title="pymatgen.analysis.local_env.NearNeighbors"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.local_env.NearNeighbors</span></code></a></p>
 <p>This is custom near neighbor method intended for use in all kinds of
 periodic structures (metals, minerals, porous structures, etc). It is based
@@ -689,7 +691,7 @@ desired from get_nn_data(), set this parameter</p></li>
 
 <dl class="method">
 <dt id="pymatgen.analysis.local_env.CrystalNN.get_cn">
-<code class="sig-name descname">get_cn</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">n</em>, <em class="sig-param">use_weights=False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L3715-L3733"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.CrystalNN.get_cn" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_cn</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">n</em>, <em class="sig-param">use_weights=False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L3808-L3826"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.CrystalNN.get_cn" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get coordination number, CN, of site with index n in structure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -713,7 +715,7 @@ weight).</p></li>
 
 <dl class="method">
 <dt id="pymatgen.analysis.local_env.CrystalNN.get_cn_dict">
-<code class="sig-name descname">get_cn_dict</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">n</em>, <em class="sig-param">use_weights=False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L3735-L3754"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.CrystalNN.get_cn_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_cn_dict</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">n</em>, <em class="sig-param">use_weights=False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L3828-L3847"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.CrystalNN.get_cn_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get coordination number, CN, of each element bonded to site with index n in structure</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -737,7 +739,7 @@ weight).</p></li>
 
 <dl class="method">
 <dt id="pymatgen.analysis.local_env.CrystalNN.get_nn_data">
-<code class="sig-name descname">get_nn_data</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">n</em>, <em class="sig-param">length=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L3576-L3713"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.CrystalNN.get_nn_data" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_nn_data</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">n</em>, <em class="sig-param">length=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L3669-L3806"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.CrystalNN.get_nn_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>The main logic of the method to compute near neighbor.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -763,7 +765,7 @@ weight).</p></li>
 
 <dl class="method">
 <dt id="pymatgen.analysis.local_env.CrystalNN.get_nn_info">
-<code class="sig-name descname">get_nn_info</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L3537-L3574"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.CrystalNN.get_nn_info" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_nn_info</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L3630-L3667"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.CrystalNN.get_nn_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get all near-neighbor information.
 :param structure: (Structure) pymatgen Structure
 :param n: (int) index of target site</p>
@@ -813,7 +815,7 @@ objects?</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.local_env.CrystalNN.transform_to_length">
-<em class="property">static </em><code class="sig-name descname">transform_to_length</code><span class="sig-paren">(</span><em class="sig-param">nndata</em>, <em class="sig-param">length</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L3843-L3861"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.CrystalNN.transform_to_length" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">transform_to_length</code><span class="sig-paren">(</span><em class="sig-param">nndata</em>, <em class="sig-param">length</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L3878-L3896"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.CrystalNN.transform_to_length" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given NNData, transforms data to the specified fingerprint length
 :param nndata: (NNData)
 :param length: (int) desired length of NNData</p>
@@ -823,7 +825,7 @@ objects?</p>
 
 <dl class="class">
 <dt id="pymatgen.analysis.local_env.CutOffDictNN">
-<em class="property">class </em><code class="sig-name descname">CutOffDictNN</code><span class="sig-paren">(</span><em class="sig-param">cut_off_dict=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L3883-L3994"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.CutOffDictNN" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">CutOffDictNN</code><span class="sig-paren">(</span><em class="sig-param">cut_off_dict=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L3958-L4069"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.CutOffDictNN" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.local_env.NearNeighbors" title="pymatgen.analysis.local_env.NearNeighbors"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.local_env.NearNeighbors</span></code></a></p>
 <p>A very basic NN class using a dictionary of fixed
 cut-off distances. Can also be used with no dictionary
@@ -856,7 +858,7 @@ for which molecules_allowed == False.</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.local_env.CutOffDictNN.from_preset">
-<em class="property">static </em><code class="sig-name descname">from_preset</code><span class="sig-paren">(</span><em class="sig-param">preset</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L3939-L3957"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.CutOffDictNN.from_preset" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">from_preset</code><span class="sig-paren">(</span><em class="sig-param">preset</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L4014-L4032"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.CutOffDictNN.from_preset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialise a CutOffDictNN according to a preset set of cut-offs.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -875,7 +877,7 @@ visualisation program.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.analysis.local_env.CutOffDictNN.get_nn_info">
-<code class="sig-name descname">get_nn_info</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L3959-L3994"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.CutOffDictNN.get_nn_info" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_nn_info</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L4034-L4069"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.CutOffDictNN.get_nn_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get all near-neighbor sites as well as the associated image locations
 and weights of the site with index n in structure.</p>
 <dl class="field-list simple">
@@ -928,22 +930,24 @@ objects?</p>
 
 <dl class="class">
 <dt id="pymatgen.analysis.local_env.EconNN">
-<em class="property">class </em><code class="sig-name descname">EconNN</code><span class="sig-paren">(</span><em class="sig-param">tol=0.0001</em>, <em class="sig-param">cutoff=10.0</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L3386-L3465"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.EconNN" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">EconNN</code><span class="sig-paren">(</span><em class="sig-param">tol: float = 0.2</em>, <em class="sig-param">cutoff: float = 10.0</em>, <em class="sig-param">cation_anion: bool = False</em>, <em class="sig-param">use_fictive_radius: bool = False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L3383-L3497"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.EconNN" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.local_env.NearNeighbors" title="pymatgen.analysis.local_env.NearNeighbors"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.local_env.NearNeighbors</span></code></a></p>
-<p>Determines the average effective coordination number for each cation in a given structure
-using Hoppe’s algorithm.</p>
-<p>This method finds all cation-centered polyhedrals in the structure, calculates the bond
-weight for each peripheral ion in the polyhedral, and sums up the bond weights
-to obtain the effective coordination number for each polyhedral. It then
-averages the effective coordination of all polyhedrals with the same cation at the
-central site.</p>
+<p>Determines the average effective coordination number for each cation in a
+given structure using Hoppe’s algorithm.</p>
+<p>This method follows the procedure outlined in:</p>
+<p>Hoppe, Rudolf. “Effective coordination numbers (ECoN) and mean fictive ionic
+radii (MEFIR).” Zeitschrift für Kristallographie-Crystalline Materials
+150.1-4 (1979): 23-52.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>tol</strong> (<em>float</em>) – tolerance parameter for bond determination
-(default: 1e-4).</p></li>
-<li><p><strong>cutoff</strong> (<em>float</em>) – cutoff radius in Angstrom to look for near-neighbor
-atoms. Defaults to 10.0.</p></li>
+<li><p><strong>tol</strong> – Tolerance parameter for bond determination.</p></li>
+<li><p><strong>cutoff</strong> – Cutoff radius in Angstrom to look for near-neighbor atoms.</p></li>
+<li><p><strong>cation_anion</strong> – If set to True, will restrict bonding targets to
+sites with opposite or zero charge. Requires an oxidation states
+on all sites in the structure.</p></li>
+<li><p><strong>use_fictive_radius</strong> – Whether to use the fictive radius in the
+EcoN calculation. If False, the bond distance will be used.</p></li>
 </ul>
 </dd>
 </dl>
@@ -962,7 +966,7 @@ for which molecules_allowed == False.</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.local_env.EconNN.get_nn_info">
-<code class="sig-name descname">get_nn_info</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L3434-L3465"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.EconNN.get_nn_info" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_nn_info</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L3442-L3497"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.EconNN.get_nn_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get all near-neighbor sites as well as the associated image locations
 and weights of the site with index n in structure.</p>
 <dl class="field-list simple">
@@ -1015,7 +1019,7 @@ objects?</p>
 
 <dl class="class">
 <dt id="pymatgen.analysis.local_env.JmolNN">
-<em class="property">class </em><code class="sig-name descname">JmolNN</code><span class="sig-paren">(</span><em class="sig-param">tol=0.56</em>, <em class="sig-param">min_bond_distance=0.4</em>, <em class="sig-param">el_radius_updates=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L1068-L1176"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.JmolNN" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">JmolNN</code><span class="sig-paren">(</span><em class="sig-param">tol=0.56</em>, <em class="sig-param">min_bond_distance=0.4</em>, <em class="sig-param">el_radius_updates=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L1065-L1173"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.JmolNN" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.local_env.NearNeighbors" title="pymatgen.analysis.local_env.NearNeighbors"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.local_env.NearNeighbors</span></code></a></p>
 <p>Determine near-neighbor sites and coordination number using an emulation
 of Jmol’s default autoBond() algorithm. This version of the algorithm
@@ -1046,7 +1050,7 @@ for which molecules_allowed == False.</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.local_env.JmolNN.get_max_bond_distance">
-<code class="sig-name descname">get_max_bond_distance</code><span class="sig-paren">(</span><em class="sig-param">el1_sym</em>, <em class="sig-param">el2_sym</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L1122-L1133"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.JmolNN.get_max_bond_distance" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_max_bond_distance</code><span class="sig-paren">(</span><em class="sig-param">el1_sym</em>, <em class="sig-param">el2_sym</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L1119-L1130"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.JmolNN.get_max_bond_distance" title="Permalink to this definition">¶</a></dt>
 <dd><p>Use Jmol algorithm to determine bond length from atomic parameters
 :param el1_sym: (str) symbol of atom 1
 :param el2_sym: (str) symbol of atom 2</p>
@@ -1055,7 +1059,7 @@ for which molecules_allowed == False.</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.local_env.JmolNN.get_nn_info">
-<code class="sig-name descname">get_nn_info</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L1135-L1176"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.JmolNN.get_nn_info" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_nn_info</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L1132-L1173"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.JmolNN.get_nn_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get all near-neighbor sites as well as the associated image locations
 and weights of the site with index n using the bond identification
 algorithm underlying Jmol.</p>
@@ -1109,7 +1113,7 @@ objects?</p>
 
 <dl class="class">
 <dt id="pymatgen.analysis.local_env.LocalStructOrderParams">
-<em class="property">class </em><code class="sig-name descname">LocalStructOrderParams</code><span class="sig-paren">(</span><em class="sig-param">types</em>, <em class="sig-param">parameters=None</em>, <em class="sig-param">cutoff=-10.0</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L2020-L3170"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.LocalStructOrderParams" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">LocalStructOrderParams</code><span class="sig-paren">(</span><em class="sig-param">types</em>, <em class="sig-param">parameters=None</em>, <em class="sig-param">cutoff=-10.0</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L2017-L3167"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.LocalStructOrderParams" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>This class permits the calculation of various types of local
 structure order parameters.</p>
@@ -1246,7 +1250,7 @@ VoronoiNN class.</p></li>
 </dl>
 <dl class="method">
 <dt id="pymatgen.analysis.local_env.LocalStructOrderParams.compute_trigonometric_terms">
-<code class="sig-name descname">compute_trigonometric_terms</code><span class="sig-paren">(</span><em class="sig-param">thetas</em>, <em class="sig-param">phis</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L2224-L2266"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.LocalStructOrderParams.compute_trigonometric_terms" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">compute_trigonometric_terms</code><span class="sig-paren">(</span><em class="sig-param">thetas</em>, <em class="sig-param">phis</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L2221-L2263"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.LocalStructOrderParams.compute_trigonometric_terms" title="Permalink to this definition">¶</a></dt>
 <dd><p>Computes trigonometric terms that are required to
 calculate bond orientational order parameters using
 internal variables.</p>
@@ -1271,7 +1275,7 @@ of neighbors in the list of polar angles.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.analysis.local_env.LocalStructOrderParams.get_order_parameters">
-<code class="sig-name descname">get_order_parameters</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">n</em>, <em class="sig-param">indices_neighs=None</em>, <em class="sig-param">tol=0.0</em>, <em class="sig-param">target_spec=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L2650-L3170"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.LocalStructOrderParams.get_order_parameters" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_order_parameters</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">n</em>, <em class="sig-param">indices_neighs=None</em>, <em class="sig-param">tol=0.0</em>, <em class="sig-param">target_spec=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L2647-L3167"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.LocalStructOrderParams.get_order_parameters" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute all order parameters of site n.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1327,7 +1331,7 @@ neighbors.</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.local_env.LocalStructOrderParams.get_parameters">
-<code class="sig-name descname">get_parameters</code><span class="sig-paren">(</span><em class="sig-param">index</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L2628-L2648"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.LocalStructOrderParams.get_parameters" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_parameters</code><span class="sig-paren">(</span><em class="sig-param">index</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L2625-L2645"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.LocalStructOrderParams.get_parameters" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns list of floats that represents
 the parameters associated
 with calculation of the order
@@ -1350,7 +1354,7 @@ are to be returned.</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.local_env.LocalStructOrderParams.get_q2">
-<code class="sig-name descname">get_q2</code><span class="sig-paren">(</span><em class="sig-param">thetas=None</em>, <em class="sig-param">phis=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L2268-L2335"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.LocalStructOrderParams.get_q2" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_q2</code><span class="sig-paren">(</span><em class="sig-param">thetas=None</em>, <em class="sig-param">phis=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L2265-L2332"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.LocalStructOrderParams.get_q2" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the value of the bond orientational order parameter of
 weight l=2.  If the function is called with non-empty lists of
 polar and azimuthal angles the corresponding trigonometric terms
@@ -1378,7 +1382,7 @@ compute_trigonometric_terms function has been just called.</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.local_env.LocalStructOrderParams.get_q4">
-<code class="sig-name descname">get_q4</code><span class="sig-paren">(</span><em class="sig-param">thetas=None</em>, <em class="sig-param">phis=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L2337-L2444"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.LocalStructOrderParams.get_q4" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_q4</code><span class="sig-paren">(</span><em class="sig-param">thetas=None</em>, <em class="sig-param">phis=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L2334-L2441"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.LocalStructOrderParams.get_q4" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the value of the bond orientational order parameter of
 weight l=4.  If the function is called with non-empty lists of
 polar and azimuthal angles the corresponding trigonometric terms
@@ -1406,7 +1410,7 @@ compute_trigonometric_terms function has been just called.</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.local_env.LocalStructOrderParams.get_q6">
-<code class="sig-name descname">get_q6</code><span class="sig-paren">(</span><em class="sig-param">thetas=None</em>, <em class="sig-param">phis=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L2446-L2609"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.LocalStructOrderParams.get_q6" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_q6</code><span class="sig-paren">(</span><em class="sig-param">thetas=None</em>, <em class="sig-param">phis=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L2443-L2606"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.LocalStructOrderParams.get_q6" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the value of the bond orientational order parameter of
 weight l=6.  If the function is called with non-empty lists of
 polar and azimuthal angles the corresponding trigonometric terms
@@ -1434,7 +1438,7 @@ compute_trigonometric_terms function has been just called.</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.local_env.LocalStructOrderParams.get_type">
-<code class="sig-name descname">get_type</code><span class="sig-paren">(</span><em class="sig-param">index</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L2611-L2626"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.LocalStructOrderParams.get_type" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_type</code><span class="sig-paren">(</span><em class="sig-param">index</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L2608-L2623"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.LocalStructOrderParams.get_type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return type of order parameter at the index provided and
 represented by a short string.</p>
 <dl class="field-list simple">
@@ -1477,7 +1481,7 @@ int: the number of different order parameters that are targeted</p>
 
 <dl class="class">
 <dt id="pymatgen.analysis.local_env.MinimumDistanceNN">
-<em class="property">class </em><code class="sig-name descname">MinimumDistanceNN</code><span class="sig-paren">(</span><em class="sig-param">tol=0.1</em>, <em class="sig-param">cutoff=10.0</em>, <em class="sig-param">get_all_sites=False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L1179-L1266"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.MinimumDistanceNN" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">MinimumDistanceNN</code><span class="sig-paren">(</span><em class="sig-param">tol=0.1</em>, <em class="sig-param">cutoff=10.0</em>, <em class="sig-param">get_all_sites=False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L1176-L1263"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.MinimumDistanceNN" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.local_env.NearNeighbors" title="pymatgen.analysis.local_env.NearNeighbors"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.local_env.NearNeighbors</span></code></a></p>
 <p>Determine near-neighbor sites and coordination number using the
 nearest neighbor(s) at distance, d_min, plus all neighbors
@@ -1510,7 +1514,7 @@ for which molecules_allowed == False.</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.local_env.MinimumDistanceNN.get_nn_info">
-<code class="sig-name descname">get_nn_info</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L1226-L1266"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.MinimumDistanceNN.get_nn_info" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_nn_info</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L1223-L1263"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.MinimumDistanceNN.get_nn_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get all near-neighbor sites as well as the associated image locations
 and weights of the site with index n using the closest neighbor
 distance-based method.</p>
@@ -1564,7 +1568,7 @@ objects?</p>
 
 <dl class="class">
 <dt id="pymatgen.analysis.local_env.MinimumOKeeffeNN">
-<em class="property">class </em><code class="sig-name descname">MinimumOKeeffeNN</code><span class="sig-paren">(</span><em class="sig-param">tol=0.1</em>, <em class="sig-param">cutoff=10.0</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L1587-L1678"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.MinimumOKeeffeNN" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">MinimumOKeeffeNN</code><span class="sig-paren">(</span><em class="sig-param">tol=0.1</em>, <em class="sig-param">cutoff=10.0</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L1584-L1675"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.MinimumOKeeffeNN" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.local_env.NearNeighbors" title="pymatgen.analysis.local_env.NearNeighbors"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.local_env.NearNeighbors</span></code></a></p>
 <p>Determine near-neighbor sites and coordination number using the
 neighbor(s) at closest relative distance, d_min_OKeffee, plus some
@@ -1596,7 +1600,7 @@ for which molecules_allowed == False.</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.local_env.MinimumOKeeffeNN.get_nn_info">
-<code class="sig-name descname">get_nn_info</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L1632-L1678"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.MinimumOKeeffeNN.get_nn_info" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_nn_info</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L1629-L1675"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.MinimumOKeeffeNN.get_nn_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get all near-neighbor sites as well as the associated image locations
 and weights of the site with index n using the closest relative
 neighbor distance-based method with O’Keeffe parameters.</p>
@@ -1650,7 +1654,7 @@ objects?</p>
 
 <dl class="class">
 <dt id="pymatgen.analysis.local_env.MinimumVIRENN">
-<em class="property">class </em><code class="sig-name descname">MinimumVIRENN</code><span class="sig-paren">(</span><em class="sig-param">tol=0.1</em>, <em class="sig-param">cutoff=10.0</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L1681-L1755"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.MinimumVIRENN" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">MinimumVIRENN</code><span class="sig-paren">(</span><em class="sig-param">tol=0.1</em>, <em class="sig-param">cutoff=10.0</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L1678-L1752"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.MinimumVIRENN" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.local_env.NearNeighbors" title="pymatgen.analysis.local_env.NearNeighbors"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.local_env.NearNeighbors</span></code></a></p>
 <p>Determine near-neighbor sites and coordination number using the
 neighbor(s) at closest relative distance, d_min_VIRE, plus some
@@ -1669,7 +1673,7 @@ near-neighbor sites (default: 10.0).</p></li>
 </dl>
 <dl class="method">
 <dt id="pymatgen.analysis.local_env.MinimumVIRENN.get_nn_info">
-<code class="sig-name descname">get_nn_info</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L1717-L1755"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.MinimumVIRENN.get_nn_info" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_nn_info</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L1714-L1752"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.MinimumVIRENN.get_nn_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get all near-neighbor sites as well as the associated image locations
 and weights of the site with index n using the closest relative
 neighbor distance-based method with VIRE atomic/ionic radii.</p>
@@ -1723,7 +1727,7 @@ objects?</p>
 
 <dl class="class">
 <dt id="pymatgen.analysis.local_env.NearNeighbors">
-<em class="property">class </em><code class="sig-name descname">NearNeighbors</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L222-L618"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.NearNeighbors" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">NearNeighbors</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L219-L615"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.NearNeighbors" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Base class to determine near neighbors that typically include nearest
 neighbors and others that are within some tolerable distance.</p>
@@ -1742,7 +1746,7 @@ for which molecules_allowed == False.</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.local_env.NearNeighbors.get_all_nn_info">
-<code class="sig-name descname">get_all_nn_info</code><span class="sig-paren">(</span><em class="sig-param">structure</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L383-L393"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.NearNeighbors.get_all_nn_info" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_all_nn_info</code><span class="sig-paren">(</span><em class="sig-param">structure</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L380-L390"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.NearNeighbors.get_all_nn_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a listing of all neighbors for all sites in a structure</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1760,7 +1764,7 @@ for which molecules_allowed == False.</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.local_env.NearNeighbors.get_bonded_structure">
-<code class="sig-name descname">get_bonded_structure</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">decorate=False</em>, <em class="sig-param">weights=True</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L547-L578"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.NearNeighbors.get_bonded_structure" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_bonded_structure</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">decorate=False</em>, <em class="sig-param">weights=True</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L544-L575"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.NearNeighbors.get_bonded_structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Obtain a StructureGraph object using this NearNeighbor
 class. Requires the optional dependency networkx
 (pip install networkx).</p>
@@ -1781,7 +1785,7 @@ class. Requires the optional dependency networkx
 
 <dl class="method">
 <dt id="pymatgen.analysis.local_env.NearNeighbors.get_cn">
-<code class="sig-name descname">get_cn</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">n</em>, <em class="sig-param">use_weights=False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L264-L280"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.NearNeighbors.get_cn" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_cn</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">n</em>, <em class="sig-param">use_weights=False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L261-L277"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.NearNeighbors.get_cn" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get coordination number, CN, of site with index n in structure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1805,7 +1809,7 @@ weight).</p></li>
 
 <dl class="method">
 <dt id="pymatgen.analysis.local_env.NearNeighbors.get_cn_dict">
-<code class="sig-name descname">get_cn_dict</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">n</em>, <em class="sig-param">use_weights=False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L282-L313"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.NearNeighbors.get_cn_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_cn_dict</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">n</em>, <em class="sig-param">use_weights=False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L279-L310"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.NearNeighbors.get_cn_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get coordination number, CN, of each element bonded to site with index n in structure</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1829,7 +1833,7 @@ weight).</p></li>
 
 <dl class="method">
 <dt id="pymatgen.analysis.local_env.NearNeighbors.get_local_order_parameters">
-<code class="sig-name descname">get_local_order_parameters</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L580-L618"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.NearNeighbors.get_local_order_parameters" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_local_order_parameters</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L577-L615"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.NearNeighbors.get_local_order_parameters" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate those local structure order parameters for
 the given site whose ideal CN corresponds to the
 underlying motif (e.g., CN=4, then calculate the
@@ -1852,7 +1856,7 @@ underlying motif type (keys; for example, tetrahedral).</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.local_env.NearNeighbors.get_nn">
-<code class="sig-name descname">get_nn</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L315-L327"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.NearNeighbors.get_nn" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_nn</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L312-L324"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.NearNeighbors.get_nn" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get near neighbors of site with index n in structure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1873,7 +1877,7 @@ neighbors.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.analysis.local_env.NearNeighbors.get_nn_images">
-<code class="sig-name descname">get_nn_images</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L343-L357"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.NearNeighbors.get_nn_images" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_nn_images</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L340-L354"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.NearNeighbors.get_nn_images" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get image location of all near neighbors of site with index n in
 structure.</p>
 <dl class="field-list simple">
@@ -1899,7 +1903,7 @@ location of near neighbors.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.analysis.local_env.NearNeighbors.get_nn_info">
-<code class="sig-name descname">get_nn_info</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L359-L381"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.NearNeighbors.get_nn_info" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_nn_info</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L356-L378"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.NearNeighbors.get_nn_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get all near-neighbor sites as well as the associated image locations
 and weights of the site with index n.</p>
 <dl class="field-list simple">
@@ -1931,7 +1935,7 @@ the original structure.</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.local_env.NearNeighbors.get_nn_shell_info">
-<code class="sig-name descname">get_nn_shell_info</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">site_idx</em>, <em class="sig-param">shell</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L395-L436"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.NearNeighbors.get_nn_shell_info" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_nn_shell_info</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">site_idx</em>, <em class="sig-param">shell</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L392-L433"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.NearNeighbors.get_nn_shell_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a certain nearest neighbor shell for a certain site.</p>
 <p>Determines all non-backtracking paths through the neighbor network
 computed by <cite>get_nn_info</cite>. The weight is determined by multiplying
@@ -1966,7 +1970,7 @@ information.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.analysis.local_env.NearNeighbors.get_weights_of_nn_sites">
-<code class="sig-name descname">get_weights_of_nn_sites</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L329-L341"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.NearNeighbors.get_weights_of_nn_sites" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_weights_of_nn_sites</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L326-L338"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.NearNeighbors.get_weights_of_nn_sites" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get weight associated with each near neighbor of site with
 index n in structure.</p>
 <dl class="field-list simple">
@@ -2013,7 +2017,7 @@ objects?</p>
 
 <dl class="class">
 <dt id="pymatgen.analysis.local_env.OpenBabelNN">
-<em class="property">class </em><code class="sig-name descname">OpenBabelNN</code><span class="sig-paren">(</span><em class="sig-param">order=True</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L1269-L1426"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.OpenBabelNN" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">OpenBabelNN</code><span class="sig-paren">(</span><em class="sig-param">order=True</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L1266-L1423"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.OpenBabelNN" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.local_env.NearNeighbors" title="pymatgen.analysis.local_env.NearNeighbors"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.local_env.NearNeighbors</span></code></a></p>
 <p>Determine near-neighbor sites and bond orders using OpenBabel API.</p>
 <p>NOTE: This strategy is only appropriate for molecules, and not for
@@ -2041,7 +2045,7 @@ for which molecules_allowed == False.</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.local_env.OpenBabelNN.get_bonded_structure">
-<code class="sig-name descname">get_bonded_structure</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">decorate=False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L1356-L1385"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.OpenBabelNN.get_bonded_structure" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_bonded_structure</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">decorate=False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L1353-L1382"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.OpenBabelNN.get_bonded_structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Obtain a MoleculeGraph object using this NearNeighbor
 class. Requires the optional dependency networkx
 (pip install networkx).</p>
@@ -2060,7 +2064,7 @@ class. Requires the optional dependency networkx
 
 <dl class="method">
 <dt id="pymatgen.analysis.local_env.OpenBabelNN.get_nn_info">
-<code class="sig-name descname">get_nn_info</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L1314-L1354"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.OpenBabelNN.get_nn_info" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_nn_info</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L1311-L1351"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.OpenBabelNN.get_nn_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get all near-neighbor sites and weights (orders) of bonds for a given
 atom.</p>
 <dl class="field-list simple">
@@ -2079,7 +2083,7 @@ bond present between site n and the neighboring site.</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.local_env.OpenBabelNN.get_nn_shell_info">
-<code class="sig-name descname">get_nn_shell_info</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">site_idx</em>, <em class="sig-param">shell</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L1387-L1426"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.OpenBabelNN.get_nn_shell_info" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_nn_shell_info</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">site_idx</em>, <em class="sig-param">shell</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L1384-L1423"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.OpenBabelNN.get_nn_shell_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a certain nearest neighbor shell for a certain site.</p>
 <p>Determines all non-backtracking paths through the neighbor network
 computed by <cite>get_nn_info</cite>. The weight is determined by multiplying
@@ -2140,7 +2144,7 @@ objects?</p>
 
 <dl class="class">
 <dt id="pymatgen.analysis.local_env.ValenceIonicRadiusEvaluator">
-<em class="property">class </em><code class="sig-name descname">ValenceIonicRadiusEvaluator</code><span class="sig-paren">(</span><em class="sig-param">structure</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L66-L219"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.ValenceIonicRadiusEvaluator" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">ValenceIonicRadiusEvaluator</code><span class="sig-paren">(</span><em class="sig-param">structure</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L63-L216"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.ValenceIonicRadiusEvaluator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Computes site valences and ionic radii for a structure using bond valence
 analyzer</p>
@@ -2171,7 +2175,7 @@ analyzer</p>
 
 <dl class="class">
 <dt id="pymatgen.analysis.local_env.VoronoiNN">
-<em class="property">class </em><code class="sig-name descname">VoronoiNN</code><span class="sig-paren">(</span><em class="sig-param">tol=0</em>, <em class="sig-param">targets=None</em>, <em class="sig-param">cutoff=13.0</em>, <em class="sig-param">allow_pathological=False</em>, <em class="sig-param">weight='solid_angle'</em>, <em class="sig-param">extra_nn_info=True</em>, <em class="sig-param">compute_adj_neighbors=True</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L621-L1040"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.VoronoiNN" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">VoronoiNN</code><span class="sig-paren">(</span><em class="sig-param">tol=0</em>, <em class="sig-param">targets=None</em>, <em class="sig-param">cutoff=13.0</em>, <em class="sig-param">allow_pathological=False</em>, <em class="sig-param">weight='solid_angle'</em>, <em class="sig-param">extra_nn_info=True</em>, <em class="sig-param">compute_adj_neighbors=True</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L618-L1037"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.VoronoiNN" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.local_env.NearNeighbors" title="pymatgen.analysis.local_env.NearNeighbors"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.local_env.NearNeighbors</span></code></a></p>
 <p>Uses a Voronoi algorithm to determine near neighbors for each site in a
 structure.</p>
@@ -2194,7 +2198,7 @@ determination of Voronoi coordination.</p></li>
 </dl>
 <dl class="method">
 <dt id="pymatgen.analysis.local_env.VoronoiNN.get_all_nn_info">
-<code class="sig-name descname">get_all_nn_info</code><span class="sig-paren">(</span><em class="sig-param">structure</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L993-L1003"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.VoronoiNN.get_all_nn_info" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_all_nn_info</code><span class="sig-paren">(</span><em class="sig-param">structure</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L990-L1000"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.VoronoiNN.get_all_nn_info" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – input structure.</p>
@@ -2207,7 +2211,7 @@ determination of Voronoi coordination.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.analysis.local_env.VoronoiNN.get_all_voronoi_polyhedra">
-<code class="sig-name descname">get_all_voronoi_polyhedra</code><span class="sig-paren">(</span><em class="sig-param">structure</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L741-L808"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.VoronoiNN.get_all_voronoi_polyhedra" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_all_voronoi_polyhedra</code><span class="sig-paren">(</span><em class="sig-param">structure</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L738-L805"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.VoronoiNN.get_all_voronoi_polyhedra" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the Voronoi polyhedra for all site in a simulation cell</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -2237,7 +2241,7 @@ n mapped to a directory containing statistics about the facet:</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.local_env.VoronoiNN.get_nn_info">
-<code class="sig-name descname">get_nn_info</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L970-L991"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.VoronoiNN.get_nn_info" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_nn_info</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L967-L988"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.VoronoiNN.get_nn_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get all near-neighbor sites as well as the associated image locations
 and weights of the site with index n in structure
 using Voronoi decomposition.</p>
@@ -2265,7 +2269,7 @@ and its weight.</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.local_env.VoronoiNN.get_voronoi_polyhedra">
-<code class="sig-name descname">get_voronoi_polyhedra</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L671-L739"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.VoronoiNN.get_voronoi_polyhedra" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_voronoi_polyhedra</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L668-L736"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.VoronoiNN.get_voronoi_polyhedra" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gives a weighted polyhedra around a site.</p>
 <p>See ref: A Proposed Rigorous Definition of Coordination Number,
 M. O’Keeffe, Acta Cryst. (1979). A35, 772-775</p>
@@ -2326,24 +2330,8 @@ objects?</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="pymatgen.analysis.local_env.calculate_weighted_avg">
-<code class="sig-name descname">calculate_weighted_avg</code><span class="sig-paren">(</span><em class="sig-param">bonds</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L3864-L3880"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.calculate_weighted_avg" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the weighted average bond length given by
-Hoppe’s effective coordination number formula.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>bonds</strong> (<em>list</em>) – list of floats that are the</p></li>
-<li><p><strong>distances between a cation and its</strong> (<em>bond</em>) – </p></li>
-<li><p><strong>ions</strong> (<em>peripheral</em>) – </p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
 <dt id="pymatgen.analysis.local_env.get_neighbors_of_site_with_index">
-<code class="sig-name descname">get_neighbors_of_site_with_index</code><span class="sig-paren">(</span><em class="sig-param">struct</em>, <em class="sig-param">n</em>, <em class="sig-param">approach='min_dist'</em>, <em class="sig-param">delta=0.1</em>, <em class="sig-param">cutoff=10.0</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L1894-L1927"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.get_neighbors_of_site_with_index" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_neighbors_of_site_with_index</code><span class="sig-paren">(</span><em class="sig-param">struct</em>, <em class="sig-param">n</em>, <em class="sig-param">approach='min_dist'</em>, <em class="sig-param">delta=0.1</em>, <em class="sig-param">cutoff=10.0</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L1891-L1924"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.get_neighbors_of_site_with_index" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the neighbors of a given site using a specific neighbor-finding
 method.</p>
 <dl class="field-list simple">
@@ -2366,7 +2354,7 @@ MinimumOKeeffe class, and “min_VIRE” the MinimumVIRENN class.</p></li>
 
 <dl class="function">
 <dt id="pymatgen.analysis.local_env.get_okeeffe_distance_prediction">
-<code class="sig-name descname">get_okeeffe_distance_prediction</code><span class="sig-paren">(</span><em class="sig-param">el1</em>, <em class="sig-param">el2</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L1868-L1891"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.get_okeeffe_distance_prediction" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_okeeffe_distance_prediction</code><span class="sig-paren">(</span><em class="sig-param">el1</em>, <em class="sig-param">el2</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L1865-L1888"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.get_okeeffe_distance_prediction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns an estimate of the bond valence parameter (bond length) using
 the derived parameters from ‘Atoms Sizes and Bond Lengths in Molecules
 and Crystals’ (O’Keeffe &amp; Brese, 1991). The estimate is based on two
@@ -2386,7 +2374,7 @@ are <em>not</em> generated from pymatgen, and are found in
 
 <dl class="function">
 <dt id="pymatgen.analysis.local_env.get_okeeffe_params">
-<code class="sig-name descname">get_okeeffe_params</code><span class="sig-paren">(</span><em class="sig-param">el_symbol</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L1844-L1865"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.get_okeeffe_params" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_okeeffe_params</code><span class="sig-paren">(</span><em class="sig-param">el_symbol</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L1841-L1862"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.get_okeeffe_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the elemental parameters related to atom size and
 electronegativity which are used for estimating bond-valence
 parameters (bond length) of pairs of atoms on the basis of data
@@ -2411,7 +2399,7 @@ provided in ‘Atoms Sizes and Bond Lengths in Molecules and Crystals’
 
 <dl class="function">
 <dt id="pymatgen.analysis.local_env.gramschmidt">
-<code class="sig-name descname">gramschmidt</code><span class="sig-paren">(</span><em class="sig-param">vin</em>, <em class="sig-param">uin</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L2000-L2017"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.gramschmidt" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">gramschmidt</code><span class="sig-paren">(</span><em class="sig-param">vin</em>, <em class="sig-param">uin</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L1997-L2014"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.gramschmidt" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns that part of the first input vector
 that is orthogonal to the second input vector.
 The output vector is not normalized.</p>
@@ -2427,7 +2415,7 @@ The output vector is not normalized.</p>
 
 <dl class="function">
 <dt id="pymatgen.analysis.local_env.site_is_of_motif_type">
-<code class="sig-name descname">site_is_of_motif_type</code><span class="sig-paren">(</span><em class="sig-param">struct</em>, <em class="sig-param">n</em>, <em class="sig-param">approach='min_dist'</em>, <em class="sig-param">delta=0.1</em>, <em class="sig-param">cutoff=10.0</em>, <em class="sig-param">thresh=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L1930-L1997"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.site_is_of_motif_type" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">site_is_of_motif_type</code><span class="sig-paren">(</span><em class="sig-param">struct</em>, <em class="sig-param">n</em>, <em class="sig-param">approach='min_dist'</em>, <em class="sig-param">delta=0.1</em>, <em class="sig-param">cutoff=10.0</em>, <em class="sig-param">thresh=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L1927-L1994"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.site_is_of_motif_type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the motif type of the site with index n in structure struct;
 currently featuring “tetrahedral”, “octahedral”, “bcc”, and “cp”
 (close-packed: fcc and hcp) as well as “square pyramidal” and
@@ -2457,7 +2445,7 @@ keys and their default values are “qtet”: 0.5,
 
 <dl class="function">
 <dt id="pymatgen.analysis.local_env.solid_angle">
-<code class="sig-name descname">solid_angle</code><span class="sig-paren">(</span><em class="sig-param">center</em>, <em class="sig-param">coords</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L1790-L1825"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.solid_angle" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">solid_angle</code><span class="sig-paren">(</span><em class="sig-param">center</em>, <em class="sig-param">coords</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L1787-L1822"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.solid_angle" title="Permalink to this definition">¶</a></dt>
 <dd><p>Helper method to calculate the solid angle of a set of coords from the
 center.</p>
 <dl class="field-list simple">
@@ -2475,7 +2463,7 @@ center.</p>
 
 <dl class="function">
 <dt id="pymatgen.analysis.local_env.vol_tetra">
-<code class="sig-name descname">vol_tetra</code><span class="sig-paren">(</span><em class="sig-param">vt1</em>, <em class="sig-param">vt2</em>, <em class="sig-param">vt3</em>, <em class="sig-param">vt4</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L1828-L1841"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.vol_tetra" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">vol_tetra</code><span class="sig-paren">(</span><em class="sig-param">vt1</em>, <em class="sig-param">vt2</em>, <em class="sig-param">vt3</em>, <em class="sig-param">vt4</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/local_env.py#L1825-L1838"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.vol_tetra" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the volume of a tetrahedron, given the four vertices of vt1,
 vt2, vt3 and vt4.
 :param vt1: coordinates of vertex 1.

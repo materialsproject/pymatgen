@@ -13,6 +13,8 @@
 
   
   
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+  
   
   
     <link rel="canonical" href="https://pymatgen.orgpymatgen.util.string.html"/>
@@ -207,7 +209,7 @@
 <p>This module provides utility classes for string operations.</p>
 <dl class="class">
 <dt id="pymatgen.util.string.StringColorizer">
-<em class="property">class </em><code class="sig-name descname">StringColorizer</code><span class="sig-paren">(</span><em class="sig-param">stream</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/util/string.py#L359-L391"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.string.StringColorizer" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">StringColorizer</code><span class="sig-paren">(</span><em class="sig-param">stream</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/util/string.py#L360-L392"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.string.StringColorizer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Provides coloring for strings in terminals.</p>
 <dl class="field-list simple">
@@ -224,7 +226,7 @@
 
 <dl class="function">
 <dt id="pymatgen.util.string.disordered_formula">
-<code class="sig-name descname">disordered_formula</code><span class="sig-paren">(</span><em class="sig-param">disordered_struct</em>, <em class="sig-param">symbols=('x'</em>, <em class="sig-param">'y'</em>, <em class="sig-param">'z')</em>, <em class="sig-param">fmt='plain'</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/util/string.py#L248-L356"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.string.disordered_formula" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">disordered_formula</code><span class="sig-paren">(</span><em class="sig-param">disordered_struct</em>, <em class="sig-param">symbols=('x'</em>, <em class="sig-param">'y'</em>, <em class="sig-param">'z')</em>, <em class="sig-param">fmt='plain'</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/util/string.py#L249-L357"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.string.disordered_formula" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a formula of a form like AxB1-x (x=0.5)
 for disordered structures. Will only return a
 formula for disordered structures with one
@@ -332,13 +334,13 @@ d,e,f
 
 <dl class="function">
 <dt id="pymatgen.util.string.stream_has_colours">
-<code class="sig-name descname">stream_has_colours</code><span class="sig-paren">(</span><em class="sig-param">stream</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/util/string.py#L196-L210"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.string.stream_has_colours" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">stream_has_colours</code><span class="sig-paren">(</span><em class="sig-param">stream</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/util/string.py#L197-L211"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.string.stream_has_colours" title="Permalink to this definition">¶</a></dt>
 <dd><p>True if stream supports colours. Python cookbook, #475186</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.util.string.transformation_to_string">
-<code class="sig-name descname">transformation_to_string</code><span class="sig-paren">(</span><em class="sig-param">matrix</em>, <em class="sig-param">translation_vec=(0</em>, <em class="sig-param">0</em>, <em class="sig-param">0)</em>, <em class="sig-param">components=('x'</em>, <em class="sig-param">'y'</em>, <em class="sig-param">'z')</em>, <em class="sig-param">c=''</em>, <em class="sig-param">delim='</em>, <em class="sig-param">'</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/util/string.py#L213-L245"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.string.transformation_to_string" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">transformation_to_string</code><span class="sig-paren">(</span><em class="sig-param">matrix</em>, <em class="sig-param">translation_vec=(0</em>, <em class="sig-param">0</em>, <em class="sig-param">0)</em>, <em class="sig-param">components=('x'</em>, <em class="sig-param">'y'</em>, <em class="sig-param">'z')</em>, <em class="sig-param">c=''</em>, <em class="sig-param">delim='</em>, <em class="sig-param">'</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/util/string.py#L214-L246"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.string.transformation_to_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenience method. Given matrix returns string, e.g. x+2y+1/4
 :param matrix
 :param translation_vec
@@ -365,7 +367,7 @@ to Fe₂O₃. Does not support formulae with decimal points.</p>
 
 <dl class="function">
 <dt id="pymatgen.util.string.unicodeify_spacegroup">
-<code class="sig-name descname">unicodeify_spacegroup</code><span class="sig-paren">(</span><em class="sig-param">spacegroup_symbol</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/util/string.py#L116-L157"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.string.unicodeify_spacegroup" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">unicodeify_spacegroup</code><span class="sig-paren">(</span><em class="sig-param">spacegroup_symbol</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/util/string.py#L116-L158"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.string.unicodeify_spacegroup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generates a unicode formatted spacegroup. E.g., P2$_{1}$/c is converted to
 P2₁/c and P$\overline{1}$ is converted to P̅1.</p>
 <dl class="field-list simple">
@@ -380,7 +382,7 @@ P2₁/c and P$\overline{1}$ is converted to P̅1.</p>
 
 <dl class="function">
 <dt id="pymatgen.util.string.unicodeify_species">
-<code class="sig-name descname">unicodeify_species</code><span class="sig-paren">(</span><em class="sig-param">specie_string</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/util/string.py#L160-L193"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.string.unicodeify_species" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">unicodeify_species</code><span class="sig-paren">(</span><em class="sig-param">specie_string</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/util/string.py#L161-L194"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.string.unicodeify_species" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generates a unicode formatted species string, with appropriate
 superscripts for oxidation states.</p>
 <dl class="field-list simple">

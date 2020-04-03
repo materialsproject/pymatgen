@@ -13,6 +13,8 @@
 
   
   
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+  
   
   
     <link rel="canonical" href="https://pymatgen.orgpymatgen.symmetry.groups.html"/>
@@ -39,7 +41,7 @@
   <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="pymatgen.symmetry.maggroups module" href="pymatgen.symmetry.maggroups.html" />
+    <link rel="next" title="pymatgen.symmetry.kpath module" href="pymatgen.symmetry.kpath.html" />
     <link rel="prev" title="pymatgen.symmetry.bandstructure module" href="pymatgen.symmetry.bandstructure.html" />
  
 <script type="text/javascript">
@@ -231,15 +233,11 @@ Groups.</p>
 <dd><p>Full set of symmetry operations as matrices.</p>
 </dd></dl>
 
-<p>Pass through…
-:param args:
-:param kwargs:
-:return:</p>
 </dd></dl>
 
 <dl class="class">
 <dt id="pymatgen.symmetry.groups.SpaceGroup">
-<em class="property">class </em><code class="sig-name descname">SpaceGroup</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/symmetry/groups.py#L167-L487"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.groups.SpaceGroup" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">SpaceGroup</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/symmetry/groups.py#L167-L489"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.groups.SpaceGroup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.symmetry.groups.SpaceGroup" title="pymatgen.symmetry.groups.SpaceGroup"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.symmetry.groups.SpaceGroup</span></code></a></p>
 <p>Class representing a SpaceGroup.</p>
 <dl class="attribute">
@@ -267,10 +265,6 @@ Groups.</p>
 <dd><p>Order of Space Group</p>
 </dd></dl>
 
-<p>Pass through…
-:param args:
-:param kwargs:
-:return:</p>
 </dd></dl>
 
 <dl class="class">
@@ -321,7 +315,7 @@ Groups.</p>
 
 <dl class="function">
 <dt id="pymatgen.symmetry.groups.in_array_list">
-<code class="sig-name descname">in_array_list</code><span class="sig-paren">(</span><em class="sig-param">array_list</em>, <em class="sig-param">a</em>, <em class="sig-param">tol=1e-05</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/symmetry/groups.py#L519-L540"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.groups.in_array_list" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">in_array_list</code><span class="sig-paren">(</span><em class="sig-param">array_list</em>, <em class="sig-param">a</em>, <em class="sig-param">tol=1e-05</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/symmetry/groups.py#L521-L542"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.groups.in_array_list" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extremely efficient nd-array comparison using numpy’s broadcasting. This
 function checks if a particular array a, is present in a list of arrays.
 It works for arrays of any size, e.g., even matrix searches.</p>
@@ -342,7 +336,7 @@ done.</p></li>
 
 <dl class="function">
 <dt id="pymatgen.symmetry.groups.sg_symbol_from_int_number">
-<code class="sig-name descname">sg_symbol_from_int_number</code><span class="sig-paren">(</span><em class="sig-param">int_number</em>, <em class="sig-param">hexagonal=True</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/symmetry/groups.py#L490-L516"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.groups.sg_symbol_from_int_number" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">sg_symbol_from_int_number</code><span class="sig-paren">(</span><em class="sig-param">int_number</em>, <em class="sig-param">hexagonal=True</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/symmetry/groups.py#L492-L518"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.groups.sg_symbol_from_int_number" title="Permalink to this definition">¶</a></dt>
 <dd><p>Obtains a SpaceGroup name from its international number.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>

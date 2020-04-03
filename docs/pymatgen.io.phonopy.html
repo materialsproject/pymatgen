@@ -13,6 +13,8 @@
 
   
   
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+  
   
   
     <link rel="canonical" href="https://pymatgen.orgpymatgen.io.phonopy.html"/>
@@ -246,7 +248,7 @@ the structure.</p>
 
 <dl class="function">
 <dt id="pymatgen.io.phonopy.get_displaced_structures">
-<code class="sig-name descname">get_displaced_structures</code><span class="sig-paren">(</span><em class="sig-param">pmg_structure</em>, <em class="sig-param">atom_disp=0.01</em>, <em class="sig-param">supercell_matrix=None</em>, <em class="sig-param">yaml_fname=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/../../../miniconda3/envs/py37/lib/python3.7/site-packages/monty-3.0.2-py3.7.egg/monty/dev.py#L236-L288"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.get_displaced_structures" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_displaced_structures</code><span class="sig-paren">(</span><em class="sig-param">pmg_structure</em>, <em class="sig-param">atom_disp=0.01</em>, <em class="sig-param">supercell_matrix=None</em>, <em class="sig-param">yaml_fname=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/../../../../../../usr/local/miniconda3/envs/py37/lib/python3.7/site-packages/monty/dev.py#L236-L288"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.get_displaced_structures" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate a set of symmetrically inequivalent displaced structures for
 phonon calculations.</p>
 <dl class="field-list simple">
@@ -328,7 +330,7 @@ Its value will replace the data contained in the band.yaml.</p></li>
 
 <dl class="function">
 <dt id="pymatgen.io.phonopy.get_phonon_band_structure_from_fc">
-<code class="sig-name descname">get_phonon_band_structure_from_fc</code><span class="sig-paren">(</span><em class="sig-param">structure: pymatgen.core.structure.Structure</em>, <em class="sig-param">supercell_matrix: numpy.ndarray</em>, <em class="sig-param">force_constants: numpy.ndarray</em>, <em class="sig-param">mesh_density: float = 100.0</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span> &#x2192; pymatgen.phonon.bandstructure.PhononBandStructure<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/../../../miniconda3/envs/py37/lib/python3.7/site-packages/monty-3.0.2-py3.7.egg/monty/dev.py#L345-L378"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.get_phonon_band_structure_from_fc" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_phonon_band_structure_from_fc</code><span class="sig-paren">(</span><em class="sig-param">structure: pymatgen.core.structure.Structure</em>, <em class="sig-param">supercell_matrix: numpy.ndarray</em>, <em class="sig-param">force_constants: numpy.ndarray</em>, <em class="sig-param">mesh_density: float = 100.0</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span> &#x2192; pymatgen.phonon.bandstructure.PhononBandStructure<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/../../../../../../usr/local/miniconda3/envs/py37/lib/python3.7/site-packages/monty/dev.py#L345-L378"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.get_phonon_band_structure_from_fc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a uniform phonon band structure from phonopy force constants.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -350,7 +352,7 @@ for the <code class="docutils literal notranslate"><span class="pre">mesh</span>
 
 <dl class="function">
 <dt id="pymatgen.io.phonopy.get_phonon_band_structure_symm_line_from_fc">
-<code class="sig-name descname">get_phonon_band_structure_symm_line_from_fc</code><span class="sig-paren">(</span><em class="sig-param">structure: pymatgen.core.structure.Structure</em>, <em class="sig-param">supercell_matrix: numpy.ndarray</em>, <em class="sig-param">force_constants: numpy.ndarray</em>, <em class="sig-param">line_density: float = 20.0</em>, <em class="sig-param">symprec: float = 0.01</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span> &#x2192; pymatgen.phonon.bandstructure.PhononBandStructureSymmLine<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/../../../miniconda3/envs/py37/lib/python3.7/site-packages/monty-3.0.2-py3.7.egg/monty/dev.py#L381-L429"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.get_phonon_band_structure_symm_line_from_fc" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_phonon_band_structure_symm_line_from_fc</code><span class="sig-paren">(</span><em class="sig-param">structure: pymatgen.core.structure.Structure</em>, <em class="sig-param">supercell_matrix: numpy.ndarray</em>, <em class="sig-param">force_constants: numpy.ndarray</em>, <em class="sig-param">line_density: float = 20.0</em>, <em class="sig-param">symprec: float = 0.01</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span> &#x2192; pymatgen.phonon.bandstructure.PhononBandStructureSymmLine<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/../../../../../../usr/local/miniconda3/envs/py37/lib/python3.7/site-packages/monty/dev.py#L381-L429"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.get_phonon_band_structure_symm_line_from_fc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a phonon band structure along a high symmetry path from phonopy force
 constants.</p>
 <dl class="field-list simple">
@@ -374,7 +376,7 @@ the band structure path.</p></li>
 
 <dl class="function">
 <dt id="pymatgen.io.phonopy.get_phonon_dos_from_fc">
-<code class="sig-name descname">get_phonon_dos_from_fc</code><span class="sig-paren">(</span><em class="sig-param">structure: pymatgen.core.structure.Structure</em>, <em class="sig-param">supercell_matrix: numpy.ndarray</em>, <em class="sig-param">force_constants: numpy.ndarray</em>, <em class="sig-param">mesh_density: float = 100.0</em>, <em class="sig-param">num_dos_steps: int = 200</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span> &#x2192; pymatgen.phonon.dos.CompletePhononDos<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/../../../miniconda3/envs/py37/lib/python3.7/site-packages/monty-3.0.2-py3.7.egg/monty/dev.py#L291-L342"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.get_phonon_dos_from_fc" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_phonon_dos_from_fc</code><span class="sig-paren">(</span><em class="sig-param">structure: pymatgen.core.structure.Structure</em>, <em class="sig-param">supercell_matrix: numpy.ndarray</em>, <em class="sig-param">force_constants: numpy.ndarray</em>, <em class="sig-param">mesh_density: float = 100.0</em>, <em class="sig-param">num_dos_steps: int = 200</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span> &#x2192; pymatgen.phonon.dos.CompletePhononDos<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/../../../../../../usr/local/miniconda3/envs/py37/lib/python3.7/site-packages/monty/dev.py#L291-L342"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.get_phonon_dos_from_fc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a projected phonon density of states from phonopy force constants.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -397,7 +399,7 @@ for the <code class="docutils literal notranslate"><span class="pre">mesh</span>
 
 <dl class="function">
 <dt id="pymatgen.io.phonopy.get_phonopy_structure">
-<code class="sig-name descname">get_phonopy_structure</code><span class="sig-paren">(</span><em class="sig-param">pmg_structure</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/../../../miniconda3/envs/py37/lib/python3.7/site-packages/monty-3.0.2-py3.7.egg/monty/dev.py#L49-L62"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.get_phonopy_structure" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_phonopy_structure</code><span class="sig-paren">(</span><em class="sig-param">pmg_structure</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/../../../../../../usr/local/miniconda3/envs/py37/lib/python3.7/site-packages/monty/dev.py#L49-L62"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.get_phonopy_structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert a pymatgen Structure object to a PhonopyAtoms object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -408,7 +410,7 @@ for the <code class="docutils literal notranslate"><span class="pre">mesh</span>
 
 <dl class="function">
 <dt id="pymatgen.io.phonopy.get_pmg_structure">
-<code class="sig-name descname">get_pmg_structure</code><span class="sig-paren">(</span><em class="sig-param">phonopy_structure</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/../../../miniconda3/envs/py37/lib/python3.7/site-packages/monty-3.0.2-py3.7.egg/monty/dev.py#L27-L46"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.get_pmg_structure" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_pmg_structure</code><span class="sig-paren">(</span><em class="sig-param">phonopy_structure</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/../../../../../../usr/local/miniconda3/envs/py37/lib/python3.7/site-packages/monty/dev.py#L27-L46"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.phonopy.get_pmg_structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert a PhonopyAtoms object to pymatgen Structure object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
