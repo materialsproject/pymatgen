@@ -43,13 +43,12 @@ def run_mcsqs(
     with ScratchDir(".", copy_to_current_on_exit=keep_artifacts):
         # Set supercell
         cell = np.eye(3)
-        text_file = open("sqscell.out", "w")
-        text_file.write("1\n")
-        for i in range(len(cell)):
-            text_file.write("\n")
-            for j in range(len(cell[i])):
-                text_file.write(str(cell[i][j]) + " ")
-        text_file.close()
+        with open("sqscell.out", "w") as text_file:
+            text_file.write("1\n")
+            for i in range(len(cell)):
+                text_file.write("\n")
+                for j in range(len(cell[i])):
+                    text_file.write(str(cell[i][j]) + " ")
         struccopy = structure.copy()
 
         if supercell:
@@ -59,9 +58,8 @@ def run_mcsqs(
             mcsqs_command = ["mcsqs", "-n {}".format(total_atoms)]
 
         struc = atat.Mcsqs(struccopy)
-        text_file = open("rndstr.in", "w")
-        text_file.write(struc.to_string())
-        text_file.close()
+        with open("rndstr.in", "w") as text_file:
+            text_file.write(struc.to_string())
 
         # Generate Clusters
         command = ["mcsqs"]
