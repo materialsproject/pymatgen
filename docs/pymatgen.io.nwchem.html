@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.io.nwchem module &mdash; pymatgen 2020.3.13 documentation</title>
+  <title>pymatgen.io.nwchem module &mdash; pymatgen 2020.4.2 documentation</title>
   
 
   
@@ -73,7 +73,7 @@
             
             
               <div class="version">
-                2020.3.13
+                2020.4.2
               </div>
             
           
@@ -231,7 +231,7 @@ is still ‘frequencies’.</p>
 </dl>
 <dl class="class">
 <dt id="pymatgen.io.nwchem.NwInput">
-<em class="property">class </em><code class="sig-name descname">NwInput</code><span class="sig-paren">(</span><em class="sig-param">mol</em>, <em class="sig-param">tasks</em>, <em class="sig-param">directives=None</em>, <em class="sig-param">geometry_options=('units'</em>, <em class="sig-param">'angstroms')</em>, <em class="sig-param">symmetry_options=None</em>, <em class="sig-param">memory_options=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/io/nwchem.py#L320-L519"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwInput" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">NwInput</code><span class="sig-paren">(</span><em class="sig-param">mol</em>, <em class="sig-param">tasks</em>, <em class="sig-param">directives=None</em>, <em class="sig-param">geometry_options=('units'</em>, <em class="sig-param">'angstroms')</em>, <em class="sig-param">symmetry_options=None</em>, <em class="sig-param">memory_options=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.2/pymatgen/io/nwchem.py#L320-L519"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwInput" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>An object representing a Nwchem input file, which is essentially a list
 of tasks on a particular molecule.</p>
@@ -256,13 +256,13 @@ E.g “total 1000 mb stack 400 mb”</p></li>
 </dl>
 <dl class="method">
 <dt id="pymatgen.io.nwchem.NwInput.as_dict">
-<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/io/nwchem.py#L387-L398"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwInput.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.2/pymatgen/io/nwchem.py#L387-L398"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwInput.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns: MSONable dict</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.nwchem.NwInput.from_dict">
-<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/io/nwchem.py#L400-L414"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwInput.from_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.2/pymatgen/io/nwchem.py#L400-L414"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwInput.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>d</strong> (<em>dict</em>) – Dict representation</p>
@@ -275,7 +275,7 @@ E.g “total 1000 mb stack 400 mb”</p></li>
 
 <dl class="method">
 <dt id="pymatgen.io.nwchem.NwInput.from_file">
-<em class="property">classmethod </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param">filename</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/io/nwchem.py#L506-L519"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwInput.from_file" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param">filename</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.2/pymatgen/io/nwchem.py#L506-L519"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwInput.from_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read an NwInput from a file. Currently tested to work with
 files generated from this class itself.</p>
 <dl class="field-list simple">
@@ -290,7 +290,7 @@ files generated from this class itself.</p>
 
 <dl class="method">
 <dt id="pymatgen.io.nwchem.NwInput.from_string">
-<em class="property">classmethod </em><code class="sig-name descname">from_string</code><span class="sig-paren">(</span><em class="sig-param">string_input</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/io/nwchem.py#L416-L504"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwInput.from_string" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_string</code><span class="sig-paren">(</span><em class="sig-param">string_input</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.2/pymatgen/io/nwchem.py#L416-L504"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwInput.from_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read an NwInput from a string. Currently tested to work with
 files generated from this class itself.</p>
 <dl class="field-list simple">
@@ -305,13 +305,13 @@ files generated from this class itself.</p>
 
 <dl class="method">
 <dt id="pymatgen.io.nwchem.NwInput.molecule">
-<em class="property">property </em><code class="sig-name descname">molecule</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/io/nwchem.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwInput.molecule" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">molecule</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.2/pymatgen/io/nwchem.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwInput.molecule" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns molecule associated with this GaussianInput.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.nwchem.NwInput.write_file">
-<code class="sig-name descname">write_file</code><span class="sig-paren">(</span><em class="sig-param">filename</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/io/nwchem.py#L379-L385"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwInput.write_file" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">write_file</code><span class="sig-paren">(</span><em class="sig-param">filename</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.2/pymatgen/io/nwchem.py#L379-L385"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwInput.write_file" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – Filename</p>
@@ -323,14 +323,14 @@ files generated from this class itself.</p>
 
 <dl class="exception">
 <dt id="pymatgen.io.nwchem.NwInputError">
-<em class="property">exception </em><code class="sig-name descname">NwInputError</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/io/nwchem.py#L522-L526"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwInputError" title="Permalink to this definition">¶</a></dt>
+<em class="property">exception </em><code class="sig-name descname">NwInputError</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.2/pymatgen/io/nwchem.py#L522-L526"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwInputError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
 <p>Error class for NwInput.</p>
 </dd></dl>
 
 <dl class="class">
 <dt id="pymatgen.io.nwchem.NwOutput">
-<em class="property">class </em><code class="sig-name descname">NwOutput</code><span class="sig-paren">(</span><em class="sig-param">filename</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/io/nwchem.py#L529-L951"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwOutput" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">NwOutput</code><span class="sig-paren">(</span><em class="sig-param">filename</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.2/pymatgen/io/nwchem.py#L529-L951"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwOutput" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A Nwchem output file parser. Very basic for now - supports only dft and
 only parses energies and geometries. Please note that Nwchem typically
@@ -343,7 +343,7 @@ eV in the parser.</p>
 </dl>
 <dl class="method">
 <dt id="pymatgen.io.nwchem.NwOutput.get_excitation_spectrum">
-<code class="sig-name descname">get_excitation_spectrum</code><span class="sig-paren">(</span><em class="sig-param">width=0.1</em>, <em class="sig-param">npoints=2000</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/io/nwchem.py#L611-L656"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwOutput.get_excitation_spectrum" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_excitation_spectrum</code><span class="sig-paren">(</span><em class="sig-param">width=0.1</em>, <em class="sig-param">npoints=2000</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.2/pymatgen/io/nwchem.py#L611-L656"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwOutput.get_excitation_spectrum" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate an excitation spectra from the singlet roots of TDDFT
 calculations.</p>
 <dl class="field-list simple">
@@ -366,7 +366,7 @@ curve.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.io.nwchem.NwOutput.parse_tddft">
-<code class="sig-name descname">parse_tddft</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/io/nwchem.py#L556-L609"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwOutput.parse_tddft" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">parse_tddft</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.2/pymatgen/io/nwchem.py#L556-L609"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwOutput.parse_tddft" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parses TDDFT roots. Adapted from nw_spectrum.py script.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -402,7 +402,7 @@ curve.</p></li>
 
 <dl class="class">
 <dt id="pymatgen.io.nwchem.NwTask">
-<em class="property">class </em><code class="sig-name descname">NwTask</code><span class="sig-paren">(</span><em class="sig-param">charge</em>, <em class="sig-param">spin_multiplicity</em>, <em class="sig-param">basis_set</em>, <em class="sig-param">basis_set_option='cartesian'</em>, <em class="sig-param">title=None</em>, <em class="sig-param">theory='dft'</em>, <em class="sig-param">operation='optimize'</em>, <em class="sig-param">theory_directives=None</em>, <em class="sig-param">alternate_directives=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/io/nwchem.py#L53-L317"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwTask" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">NwTask</code><span class="sig-paren">(</span><em class="sig-param">charge</em>, <em class="sig-param">spin_multiplicity</em>, <em class="sig-param">basis_set</em>, <em class="sig-param">basis_set_option='cartesian'</em>, <em class="sig-param">title=None</em>, <em class="sig-param">theory='dft'</em>, <em class="sig-param">operation='optimize'</em>, <em class="sig-param">theory_directives=None</em>, <em class="sig-param">alternate_directives=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.2/pymatgen/io/nwchem.py#L53-L317"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwTask" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Base task for Nwchem.</p>
 <p>Very flexible arguments to support many types of potential setups.
@@ -437,13 +437,13 @@ constant of 78, you’d supply {‘cosmo’: {“dielectric”: 78}}.</p></li>
 </dl>
 <dl class="method">
 <dt id="pymatgen.io.nwchem.NwTask.as_dict">
-<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/io/nwchem.py#L194-L206"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwTask.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.2/pymatgen/io/nwchem.py#L194-L206"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwTask.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns: MSONable dict.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.nwchem.NwTask.dft_task">
-<em class="property">classmethod </em><code class="sig-name descname">dft_task</code><span class="sig-paren">(</span><em class="sig-param">mol</em>, <em class="sig-param">xc='b3lyp'</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/io/nwchem.py#L289-L304"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwTask.dft_task" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">dft_task</code><span class="sig-paren">(</span><em class="sig-param">mol</em>, <em class="sig-param">xc='b3lyp'</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.2/pymatgen/io/nwchem.py#L289-L304"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwTask.dft_task" title="Permalink to this definition">¶</a></dt>
 <dd><p>A class method for quickly creating DFT tasks with optional
 cosmo parameter .</p>
 <dl class="field-list simple">
@@ -460,7 +460,7 @@ theory is always “dft” for a dft task.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.io.nwchem.NwTask.esp_task">
-<em class="property">classmethod </em><code class="sig-name descname">esp_task</code><span class="sig-paren">(</span><em class="sig-param">mol</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/io/nwchem.py#L306-L317"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwTask.esp_task" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">esp_task</code><span class="sig-paren">(</span><em class="sig-param">mol</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.2/pymatgen/io/nwchem.py#L306-L317"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwTask.esp_task" title="Permalink to this definition">¶</a></dt>
 <dd><p>A class method for quickly creating ESP tasks with RESP
 charge fitting.</p>
 <dl class="field-list simple">
@@ -476,7 +476,7 @@ theory is always “dft” for a dft task.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.io.nwchem.NwTask.from_dict">
-<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/io/nwchem.py#L208-L223"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwTask.from_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.2/pymatgen/io/nwchem.py#L208-L223"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwTask.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>d</strong> (<em>dict</em>) – Dict representation</p>
@@ -489,7 +489,7 @@ theory is always “dft” for a dft task.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.io.nwchem.NwTask.from_molecule">
-<em class="property">classmethod </em><code class="sig-name descname">from_molecule</code><span class="sig-paren">(</span><em class="sig-param">mol</em>, <em class="sig-param">theory</em>, <em class="sig-param">charge=None</em>, <em class="sig-param">spin_multiplicity=None</em>, <em class="sig-param">basis_set='6-31g'</em>, <em class="sig-param">basis_set_option='cartesian'</em>, <em class="sig-param">title=None</em>, <em class="sig-param">operation='optimize'</em>, <em class="sig-param">theory_directives=None</em>, <em class="sig-param">alternate_directives=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/io/nwchem.py#L225-L287"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwTask.from_molecule" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_molecule</code><span class="sig-paren">(</span><em class="sig-param">mol</em>, <em class="sig-param">theory</em>, <em class="sig-param">charge=None</em>, <em class="sig-param">spin_multiplicity=None</em>, <em class="sig-param">basis_set='6-31g'</em>, <em class="sig-param">basis_set_option='cartesian'</em>, <em class="sig-param">title=None</em>, <em class="sig-param">operation='optimize'</em>, <em class="sig-param">theory_directives=None</em>, <em class="sig-param">alternate_directives=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.2/pymatgen/io/nwchem.py#L225-L287"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwTask.from_molecule" title="Permalink to this definition">¶</a></dt>
 <dd><p>Very flexible arguments to support many types of potential setups.
 Users should use more friendly static methods unless they need the
 flexibility.</p>
@@ -526,12 +526,12 @@ example, to perform cosmo calculations with DFT, you’d supply
 
 <dl class="attribute">
 <dt id="pymatgen.io.nwchem.NwTask.operations">
-<code class="sig-name descname">operations</code><em class="property"> = {'': 'dummy', 'dynamics': 'Perform classical molecular dynamics.', 'energy': 'Evaluate the single point energy.', 'freq': 'Same as frequencies.', 'frequencies': 'Compute second derivatives and print out an analysis of molecular vibrations.', 'gradient': 'Evaluate the derivative of the energy with respect to nuclear coordinates.', 'hessian': 'Compute second derivatives.', 'optimize': 'Minimize the energy by varying the molecular structure.', 'property': 'Calculate the properties for the wave function.', 'saddle': 'Conduct a search for a transition state (or saddle point).', 'thermodynamics': 'Perform multi-configuration thermodynamic integration using classical MD.', 'vscf': 'Compute anharmonic contributions to the vibrational modes.'}</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/io/nwchem.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwTask.operations" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">operations</code><em class="property"> = {'': 'dummy', 'dynamics': 'Perform classical molecular dynamics.', 'energy': 'Evaluate the single point energy.', 'freq': 'Same as frequencies.', 'frequencies': 'Compute second derivatives and print out an analysis of molecular vibrations.', 'gradient': 'Evaluate the derivative of the energy with respect to nuclear coordinates.', 'hessian': 'Compute second derivatives.', 'optimize': 'Minimize the energy by varying the molecular structure.', 'property': 'Calculate the properties for the wave function.', 'saddle': 'Conduct a search for a transition state (or saddle point).', 'thermodynamics': 'Perform multi-configuration thermodynamic integration using classical MD.', 'vscf': 'Compute anharmonic contributions to the vibrational modes.'}</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.2/pymatgen/io/nwchem.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwTask.operations" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.nwchem.NwTask.theories">
-<code class="sig-name descname">theories</code><em class="property"> = {'band': 'Pseudopotential plane-wave DFT for solids using NWPW', 'ccsd': 'Coupled-cluster single and double excitations', 'ccsd(t)': 'Coupled-cluster linearized triples approximation', 'ccsd+t(ccsd)': 'Fourth order triples contribution', 'dft': 'DFT', 'direct_mp2': 'MP2 using a full-direct algorithm', 'esp': 'ESP', 'g3gn': 'some description', 'mcscf': 'Multiconfiguration SCF', 'md': 'Classical molecular dynamics simulation', 'mp2': 'MP2 using a semi-direct algorithm', 'pspw': 'Pseudopotential plane-wave DFT for molecules and insulating solids using NWPW', 'rimp2': 'MP2 using the RI approximation', 'scf': 'Hartree-Fock', 'selci': 'Selected CI with perturbation correction', 'sodft': 'Spin-Orbit DFT', 'tce': 'Tensor Contraction Engine', 'tddft': 'Time Dependent DFT'}</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/io/nwchem.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwTask.theories" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">theories</code><em class="property"> = {'band': 'Pseudopotential plane-wave DFT for solids using NWPW', 'ccsd': 'Coupled-cluster single and double excitations', 'ccsd(t)': 'Coupled-cluster linearized triples approximation', 'ccsd+t(ccsd)': 'Fourth order triples contribution', 'dft': 'DFT', 'direct_mp2': 'MP2 using a full-direct algorithm', 'esp': 'ESP', 'g3gn': 'some description', 'mcscf': 'Multiconfiguration SCF', 'md': 'Classical molecular dynamics simulation', 'mp2': 'MP2 using a semi-direct algorithm', 'pspw': 'Pseudopotential plane-wave DFT for molecules and insulating solids using NWPW', 'rimp2': 'MP2 using the RI approximation', 'scf': 'Hartree-Fock', 'selci': 'Selected CI with perturbation correction', 'sodft': 'Spin-Orbit DFT', 'tce': 'Tensor Contraction Engine', 'tddft': 'Time Dependent DFT'}</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.2/pymatgen/io/nwchem.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchem.NwTask.theories" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.analysis.xas.spectrum module &mdash; pymatgen 2020.3.13 documentation</title>
+  <title>pymatgen.analysis.xas.spectrum module &mdash; pymatgen 2020.4.2 documentation</title>
   
 
   
@@ -73,7 +73,7 @@
             
             
               <div class="version">
-                2020.3.13
+                2020.4.2
               </div>
             
           
@@ -211,7 +211,7 @@
 <p>This module defines classes to represent all xas and stitching methods</p>
 <dl class="class">
 <dt id="pymatgen.analysis.xas.spectrum.XAS">
-<em class="property">class </em><code class="sig-name descname">XAS</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">y</em>, <em class="sig-param">structure</em>, <em class="sig-param">absorbing_element</em>, <em class="sig-param">edge='K'</em>, <em class="sig-param">spectrum_type='XANES'</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/xas/spectrum.py#L23-L199"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.xas.spectrum.XAS" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">XAS</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">y</em>, <em class="sig-param">structure</em>, <em class="sig-param">absorbing_element</em>, <em class="sig-param">edge='K'</em>, <em class="sig-param">spectrum_type='XANES'</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.2/pymatgen/analysis/xas/spectrum.py#L23-L199"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.xas.spectrum.XAS" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.core.spectrum.html#pymatgen.core.spectrum.Spectrum" title="pymatgen.core.spectrum.Spectrum"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.spectrum.Spectrum</span></code></a></p>
 <p>Basic XAS object.</p>
 <dl class="field-list simple">
@@ -229,17 +229,17 @@
 <p>Initializes a spectrum object.</p>
 <dl class="attribute">
 <dt id="pymatgen.analysis.xas.spectrum.XAS.XLABEL">
-<code class="sig-name descname">XLABEL</code><em class="property"> = 'Energy'</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/xas/spectrum.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.xas.spectrum.XAS.XLABEL" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">XLABEL</code><em class="property"> = 'Energy'</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.2/pymatgen/analysis/xas/spectrum.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.xas.spectrum.XAS.XLABEL" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.xas.spectrum.XAS.YLABEL">
-<code class="sig-name descname">YLABEL</code><em class="property"> = 'Intensity'</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/xas/spectrum.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.xas.spectrum.XAS.YLABEL" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">YLABEL</code><em class="property"> = 'Intensity'</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.2/pymatgen/analysis/xas/spectrum.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.xas.spectrum.XAS.YLABEL" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.xas.spectrum.XAS.stitch">
-<code class="sig-name descname">stitch</code><span class="sig-paren">(</span><em class="sig-param">other: pymatgen.analysis.xas.spectrum.XAS</em>, <em class="sig-param">num_samples: int = 500</em>, <em class="sig-param">mode: str = 'XAFS'</em><span class="sig-paren">)</span> &#x2192; pymatgen.analysis.xas.spectrum.XAS<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/xas/spectrum.py#L81-L199"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.xas.spectrum.XAS.stitch" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">stitch</code><span class="sig-paren">(</span><em class="sig-param">other: pymatgen.analysis.xas.spectrum.XAS</em>, <em class="sig-param">num_samples: int = 500</em>, <em class="sig-param">mode: str = 'XAFS'</em><span class="sig-paren">)</span> &#x2192; pymatgen.analysis.xas.spectrum.XAS<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.2/pymatgen/analysis/xas/spectrum.py#L81-L199"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.xas.spectrum.XAS.stitch" title="Permalink to this definition">¶</a></dt>
 <dd><p>Stitch XAS objects to get the full XAFS spectrum or L23 edge XANES
 spectrum depending on the mode.</p>
 <ol class="arabic">
