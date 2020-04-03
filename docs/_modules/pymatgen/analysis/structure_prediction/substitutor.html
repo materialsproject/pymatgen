@@ -13,6 +13,7 @@
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
  
@@ -48,26 +49,25 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">This module provides classes for predicting new structures from existing ones.</span>
-<span class="sd">&quot;&quot;&quot;</span>
-
 <span class="kn">import</span> <span class="nn">itertools</span>
 <span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">operator</span> <span class="kn">import</span> <span class="n">mul</span>
+<span class="kn">from</span> <span class="nn">operator</span> <span class="k">import</span> <span class="n">mul</span>
 <span class="kn">import</span> <span class="nn">functools</span>
-<span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">MSONable</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
 
-<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="kn">import</span> <span class="n">get_el_sp</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">get_el_sp</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.structure_prediction.substitution_probability</span> \
     <span class="kn">import</span> <span class="nn">SubstitutionProbability</span>
 <span class="kn">from</span> <span class="nn">pymatgen.transformations.standard_transformations</span> \
     <span class="kn">import</span> <span class="nn">SubstitutionTransformation</span>
-<span class="kn">from</span> <span class="nn">pymatgen.alchemy.transmuters</span> <span class="kn">import</span> <span class="n">StandardTransmuter</span>
-<span class="kn">from</span> <span class="nn">pymatgen.alchemy.materials</span> <span class="kn">import</span> <span class="n">TransformedStructure</span>
-<span class="kn">from</span> <span class="nn">pymatgen.alchemy.filters</span> <span class="kn">import</span> <span class="n">RemoveDuplicatesFilter</span><span class="p">,</span> \
+<span class="kn">from</span> <span class="nn">pymatgen.alchemy.transmuters</span> <span class="k">import</span> <span class="n">StandardTransmuter</span>
+<span class="kn">from</span> <span class="nn">pymatgen.alchemy.materials</span> <span class="k">import</span> <span class="n">TransformedStructure</span>
+<span class="kn">from</span> <span class="nn">pymatgen.alchemy.filters</span> <span class="k">import</span> <span class="n">RemoveDuplicatesFilter</span><span class="p">,</span> \
     <span class="n">RemoveExistingFilter</span>
 
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module provides classes for predicting new structures from existing ones.</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Will Richards, Geoffroy Hautier&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2012, The Materials Project&quot;</span>
@@ -86,7 +86,7 @@
 <span class="sd">    Inorganic Chemistry, 50(2), 656-663. doi:10.1021/ic102031h</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This substitutor uses the substitution probability class to</span>
 <span class="sd">        find good substitutions for a given chemistry or structure.</span>
@@ -301,9 +301,6 @@
         <span class="k">return</span> <span class="n">output</span></div>
 
 <div class="viewcode-block" id="Substitutor.as_dict"><a class="viewcode-back" href="../../../../pymatgen.analysis.structure_prediction.substitutor.html#pymatgen.analysis.structure_prediction.substitutor.Substitutor.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns: MSONable dict</span>
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="n">__version__</span><span class="p">,</span>
                 <span class="s2">&quot;kwargs&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_kwargs</span><span class="p">,</span> <span class="s2">&quot;threshold&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_threshold</span><span class="p">,</span>
                 <span class="s2">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
@@ -311,13 +308,6 @@
 
 <div class="viewcode-block" id="Substitutor.from_dict"><a class="viewcode-back" href="../../../../pymatgen.analysis.structure_prediction.substitutor.html#pymatgen.analysis.structure_prediction.substitutor.Substitutor.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Args:</span>
-<span class="sd">            d (dict): Dict representation</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            Class</span>
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">t</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;threshold&#39;</span><span class="p">]</span>
         <span class="n">kwargs</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;kwargs&#39;</span><span class="p">]</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="n">t</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
@@ -359,7 +349,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

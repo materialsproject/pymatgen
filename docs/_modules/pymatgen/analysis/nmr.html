@@ -13,6 +13,7 @@
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
  
@@ -48,20 +49,19 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">A module for NMR analysis</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.tensors</span> <span class="k">import</span> <span class="n">SquareTensor</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">namedtuple</span>
 
-<span class="kn">from</span> <span class="nn">pymatgen.core.tensors</span> <span class="kn">import</span> <span class="n">SquareTensor</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">namedtuple</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.units</span> <span class="k">import</span> <span class="n">FloatWithUnit</span>
 
-<span class="kn">from</span> <span class="nn">pymatgen.core.units</span> <span class="kn">import</span> <span class="n">FloatWithUnit</span>
-
-<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="kn">import</span> <span class="n">Specie</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">Site</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">Specie</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Site</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">A module for NMR analysis</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Shyam Dwaraknath&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2016, The Materials Project&quot;</span>
@@ -87,7 +87,7 @@
     <span class="n">MehringNotation</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;MehringNotation&quot;</span><span class="p">,</span> <span class="s2">&quot;sigma_iso, sigma_11, sigma_22, sigma_33&quot;</span><span class="p">)</span>
     <span class="n">MarylandNotation</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;MarylandNotation&quot;</span><span class="p">,</span> <span class="s2">&quot;sigma_iso, omega, kappa&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">cs_matrix</span><span class="p">,</span> <span class="n">vscale</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">cs_matrix</span><span class="p">,</span> <span class="n">vscale</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a Chemical Shielding tensor.</span>
 <span class="sd">        Note that the constructor uses __new__</span>
@@ -157,17 +157,6 @@
 
 <div class="viewcode-block" id="ChemicalShielding.from_maryland_notation"><a class="viewcode-back" href="../../../pymatgen.analysis.nmr.html#pymatgen.analysis.nmr.ChemicalShielding.from_maryland_notation">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_maryland_notation</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">sigma_iso</span><span class="p">,</span> <span class="n">omega</span><span class="p">,</span> <span class="n">kappa</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Initialize from Maryland notation.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            sigma_iso ():</span>
-<span class="sd">            omega ():</span>
-<span class="sd">            kappa ():</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            ChemicalShielding</span>
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">sigma_22</span> <span class="o">=</span> <span class="n">sigma_iso</span> <span class="o">+</span> <span class="n">kappa</span> <span class="o">*</span> <span class="n">omega</span> <span class="o">/</span> <span class="mf">3.0</span>
         <span class="n">sigma_11</span> <span class="o">=</span> <span class="p">(</span><span class="mf">3.0</span> <span class="o">*</span> <span class="n">sigma_iso</span> <span class="o">-</span> <span class="n">omega</span> <span class="o">-</span> <span class="n">sigma_22</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span>
         <span class="n">sigma_33</span> <span class="o">=</span> <span class="mf">3.0</span> <span class="o">*</span> <span class="n">sigma_iso</span> <span class="o">-</span> <span class="n">sigma_22</span> <span class="o">-</span> <span class="n">sigma_11</span>
@@ -182,7 +171,7 @@
 <span class="sd">    Authors: Shyam Dwaraknath, Xiaohui Qu</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">efg_matrix</span><span class="p">,</span> <span class="n">vscale</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">efg_matrix</span><span class="p">,</span> <span class="n">vscale</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a Chemical Shielding tensor.</span>
 <span class="sd">        Note that the constructor uses __new__</span>
@@ -214,25 +203,16 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">V_xx</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns: First diagonal element</span>
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">diags</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">principal_axis_system</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">diags</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">V_yy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns: Second diagonal element</span>
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">diags</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">principal_axis_system</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">diags</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">V_zz</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns: Third diagonal element</span>
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">diags</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">principal_axis_system</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">diags</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">)[</span><span class="mi">2</span><span class="p">]</span>
 
@@ -328,7 +308,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

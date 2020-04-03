@@ -13,6 +13,7 @@
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
  
@@ -56,17 +57,17 @@
 <span class="kn">import</span> <span class="nn">itertools</span>
 <span class="kn">import</span> <span class="nn">abc</span>
 
-<span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">MSONable</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core</span> <span class="kn">import</span> <span class="n">PeriodicSite</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">Structure</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.lattice</span> <span class="kn">import</span> <span class="n">Lattice</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.composition</span> <span class="kn">import</span> <span class="n">Composition</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core</span> <span class="k">import</span> <span class="n">PeriodicSite</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.lattice</span> <span class="k">import</span> <span class="n">Lattice</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.composition</span> <span class="k">import</span> <span class="n">Composition</span>
 
-<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="kn">import</span> <span class="n">get_el_sp</span>
-<span class="kn">from</span> <span class="nn">pymatgen.optimization.linear_assignment</span> <span class="kn">import</span> <span class="n">LinearAssignment</span>  <span class="c1"># type: ignore</span>
-<span class="kn">from</span> <span class="nn">pymatgen.util.coord_cython</span> <span class="kn">import</span> <span class="n">pbc_shortest_vectors</span><span class="p">,</span> <span class="n">is_coord_subset_pbc</span>  <span class="c1"># type: ignore</span>
-<span class="kn">from</span> <span class="nn">pymatgen.util.coord</span> <span class="kn">import</span> <span class="n">lattice_points_in_supercell</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.defects.core</span> <span class="kn">import</span> <span class="n">Interstitial</span><span class="p">,</span> \
+<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">get_el_sp</span>
+<span class="kn">from</span> <span class="nn">pymatgen.optimization.linear_assignment</span> <span class="k">import</span> <span class="n">LinearAssignment</span>  <span class="c1"># type: ignore</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.coord_cython</span> <span class="k">import</span> <span class="n">pbc_shortest_vectors</span><span class="p">,</span> <span class="n">is_coord_subset_pbc</span>  <span class="c1"># type: ignore</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.coord</span> <span class="k">import</span> <span class="n">lattice_points_in_supercell</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.defects.core</span> <span class="k">import</span> <span class="n">Interstitial</span><span class="p">,</span> \
     <span class="n">Defect</span><span class="p">,</span> <span class="n">Vacancy</span><span class="p">,</span> <span class="n">Substitution</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;William Davidson Richards, Stephen Dacek, Shyue Ping Ong&quot;</span>
@@ -383,7 +384,7 @@
 <span class="sd">                    between the two structures)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ltol</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">stol</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">angle_tol</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">primitive_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ltol</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">stol</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">angle_tol</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">primitive_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                  <span class="n">scale</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">attempt_supercell</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">allow_subset</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">comparator</span><span class="o">=</span><span class="n">SpeciesComparator</span><span class="p">(),</span> <span class="n">supercell_size</span><span class="o">=</span><span class="s1">&#39;num_sites&#39;</span><span class="p">,</span>
                  <span class="n">ignored_species</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -1207,7 +1208,7 @@
 <span class="sd">    this comparator will break.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">check_charge</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">check_primitive_cell</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">check_charge</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">check_primitive_cell</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">check_lattice_scale</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
@@ -1317,7 +1318,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

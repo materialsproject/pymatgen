@@ -13,6 +13,7 @@
     <script type="text/javascript" src="../../../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../../search.html" />
  
@@ -66,16 +67,16 @@
 <span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Feb 20, 2016&quot;</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.sites</span> <span class="kn">import</span> <span class="n">PeriodicSite</span>
-<span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">MSONable</span><span class="p">,</span> <span class="n">MontyDecoder</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="kn">import</span> <span class="n">Element</span><span class="p">,</span> <span class="n">Specie</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">Structure</span>
-<span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">jsanitize</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.coordination_environments.voronoi</span> <span class="kn">import</span> <span class="n">DetailedVoronoiContainer</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.utils.chemenv_errors</span> <span class="kn">import</span> <span class="n">ChemenvError</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.coordination_environments.coordination_geometries</span> <span class="kn">import</span> <span class="n">AllCoordinationGeometries</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.utils.defs_utils</span> <span class="kn">import</span> <span class="n">AdditionalConditions</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.sites</span> <span class="k">import</span> <span class="n">PeriodicSite</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span><span class="p">,</span> <span class="n">MontyDecoder</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">Element</span><span class="p">,</span> <span class="n">Specie</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">jsanitize</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.coordination_environments.voronoi</span> <span class="k">import</span> <span class="n">DetailedVoronoiContainer</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.utils.chemenv_errors</span> <span class="k">import</span> <span class="n">ChemenvError</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.coordination_environments.coordination_geometries</span> <span class="k">import</span> <span class="n">AllCoordinationGeometries</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.utils.defs_utils</span> <span class="k">import</span> <span class="n">AdditionalConditions</span>
 
 <span class="n">allcg</span> <span class="o">=</span> <span class="n">AllCoordinationGeometries</span><span class="p">()</span>
 <span class="n">symbol_cn_mapping</span> <span class="o">=</span> <span class="n">allcg</span><span class="o">.</span><span class="n">get_symbol_cn_mapping</span><span class="p">()</span>
@@ -92,7 +93,7 @@
 <span class="sd">        Class used to store a given set of neighbors of a given site (based on the detailed_voronoi).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">isite</span><span class="p">,</span> <span class="n">detailed_voronoi</span><span class="p">,</span> <span class="n">site_voronoi_indices</span><span class="p">,</span> <span class="n">sources</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">isite</span><span class="p">,</span> <span class="n">detailed_voronoi</span><span class="p">,</span> <span class="n">site_voronoi_indices</span><span class="p">,</span> <span class="n">sources</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
             <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">            Constructor for NeighborsSet.</span>
 
@@ -412,19 +413,19 @@
             <span class="k">if</span> <span class="n">source</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">source</span><span class="p">)</span></div>
 
-        <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
             <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">site_voronoi_indices</span><span class="p">)</span>
 
-        <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
             <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">site_voronoi_indices</span><span class="p">)</span>
 
-        <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">isite</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">isite</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">site_voronoi_indices</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">site_voronoi_indices</span>
 
-        <span class="k">def</span> <span class="fm">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
             <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">other</span>
 
-        <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
             <span class="n">out</span> <span class="o">=</span> <span class="s1">&#39;Neighbors Set for site #</span><span class="si">{:d}</span><span class="s1"> :</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">isite</span><span class="p">)</span>
             <span class="n">out</span> <span class="o">+=</span> <span class="s1">&#39; - Coordination number : </span><span class="si">{:d}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
             <span class="n">out</span> <span class="o">+=</span> <span class="s1">&#39; - Voronoi indices : </span><span class="si">{}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s1">&#39;</span><span class="si">{:d}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">site_voronoi_index</span><span class="p">)</span>
@@ -463,7 +464,7 @@
                        <span class="n">site_voronoi_indices</span><span class="o">=</span><span class="n">dd</span><span class="p">[</span><span class="s1">&#39;site_voronoi_indices&#39;</span><span class="p">],</span>
                        <span class="n">sources</span><span class="o">=</span><span class="n">dd</span><span class="p">[</span><span class="s1">&#39;sources&#39;</span><span class="p">])</span></div></div>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">voronoi</span><span class="p">,</span> <span class="n">valences</span><span class="p">,</span> <span class="n">sites_map</span><span class="p">,</span> <span class="n">equivalent_sites</span><span class="p">,</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">voronoi</span><span class="p">,</span> <span class="n">valences</span><span class="p">,</span> <span class="n">sites_map</span><span class="p">,</span> <span class="n">equivalent_sites</span><span class="p">,</span>
                  <span class="n">ce_list</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">neighbors_sets</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">info</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Constructor for the StructureEnvironments object.</span>
@@ -712,7 +713,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-            <span class="kn">from</span> <span class="nn">matplotlib.gridspec</span> <span class="kn">import</span> <span class="n">GridSpec</span>
+            <span class="kn">from</span> <span class="nn">matplotlib.gridspec</span> <span class="k">import</span> <span class="n">GridSpec</span>
         <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Plotting Chemical Environments requires matplotlib ... exiting &quot;plot&quot; function&#39;</span><span class="p">)</span>
             <span class="k">return</span>
@@ -859,9 +860,9 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">mpl</span>
-            <span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">cm</span>
-            <span class="kn">from</span> <span class="nn">matplotlib.colors</span> <span class="kn">import</span> <span class="n">Normalize</span>
-            <span class="kn">from</span> <span class="nn">matplotlib.patches</span> <span class="kn">import</span> <span class="n">Polygon</span>
+            <span class="kn">from</span> <span class="nn">matplotlib</span> <span class="k">import</span> <span class="n">cm</span>
+            <span class="kn">from</span> <span class="nn">matplotlib.colors</span> <span class="k">import</span> <span class="n">Normalize</span>
+            <span class="kn">from</span> <span class="nn">matplotlib.patches</span> <span class="k">import</span> <span class="n">Polygon</span>
         <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Plotting Chemical Environments requires matplotlib ... exiting &quot;plot&quot; function&#39;</span><span class="p">)</span>
             <span class="k">return</span>
@@ -1136,7 +1137,7 @@
                                                 <span class="s1">&#39;other&#39;</span><span class="p">:</span> <span class="n">other_ce</span><span class="p">})</span>
         <span class="k">return</span> <span class="n">differences</span></div>
 
-    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ce_list</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">ce_list</span><span class="p">):</span>
             <span class="k">return</span> <span class="kc">False</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">voronoi</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">voronoi</span><span class="p">:</span>
@@ -1160,7 +1161,7 @@
                 <span class="k">return</span> <span class="kc">False</span>
         <span class="k">return</span> <span class="kc">True</span>
 
-    <span class="k">def</span> <span class="fm">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">other</span>
 
 <div class="viewcode-block" id="StructureEnvironments.as_dict"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.structure_environments.html#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1256,7 +1257,7 @@
 <span class="sd">        container is not part of the LightStructureEnvironments object).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">isite</span><span class="p">,</span> <span class="n">all_nbs_sites</span><span class="p">,</span> <span class="n">all_nbs_sites_indices</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">isite</span><span class="p">,</span> <span class="n">all_nbs_sites</span><span class="p">,</span> <span class="n">all_nbs_sites_indices</span><span class="p">):</span>
             <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">            Constructor for NeighborsSet.</span>
 
@@ -1307,19 +1308,19 @@
                      <span class="s1">&#39;image_cell&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_nbs_sites</span><span class="p">[</span><span class="n">inb</span><span class="p">][</span><span class="s1">&#39;image_cell&#39;</span><span class="p">]}</span>
                     <span class="k">for</span> <span class="n">inb</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_nbs_sites_indices_unsorted</span><span class="p">]</span>
 
-        <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
             <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all_nbs_sites_indices</span><span class="p">)</span>
 
-        <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
             <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all_nbs_sites_indices</span><span class="p">)</span>
 
-        <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">isite</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">isite</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_nbs_sites_indices</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">all_nbs_sites_indices</span>
 
-        <span class="k">def</span> <span class="fm">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
             <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">other</span>
 
-        <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
             <span class="n">out</span> <span class="o">=</span> <span class="s1">&#39;Neighbors Set for site #</span><span class="si">{:d}</span><span class="s1"> :</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">isite</span><span class="p">)</span>
             <span class="n">out</span> <span class="o">+=</span> <span class="s1">&#39; - Coordination number : </span><span class="si">{:d}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
             <span class="n">out</span> <span class="o">+=</span> <span class="s1">&#39; - Neighbors sites indices : </span><span class="si">{}</span><span class="s1">&#39;</span> \
@@ -1357,7 +1358,7 @@
                        <span class="n">all_nbs_sites</span><span class="o">=</span><span class="n">all_nbs_sites</span><span class="p">,</span>
                        <span class="n">all_nbs_sites_indices</span><span class="o">=</span><span class="n">dd</span><span class="p">[</span><span class="s1">&#39;all_nbs_sites_indices&#39;</span><span class="p">])</span></div></div>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">strategy</span><span class="p">,</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">strategy</span><span class="p">,</span>
                  <span class="n">coordination_environments</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">all_nbs_sites</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">neighbors_sets</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">structure</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">valences</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">valences_origin</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1831,7 +1832,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">strategy</span><span class="o">.</span><span class="n">uniquely_determines_coordination_environments</span>
 
-    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Equality method that checks if the LightStructureEnvironments object is equal to another</span>
 <span class="sd">        LightStructureEnvironments object. Two LightStructureEnvironments objects are equal if the strategy used</span>
@@ -1855,7 +1856,7 @@
         <span class="n">other_indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">ss</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">ss</span> <span class="ow">in</span> <span class="n">other</span><span class="o">.</span><span class="n">_all_nbs_sites</span><span class="p">]</span>
         <span class="k">return</span> <span class="p">(</span><span class="n">is_equal</span> <span class="ow">and</span> <span class="n">this_sites</span> <span class="o">==</span> <span class="n">other_sites</span> <span class="ow">and</span> <span class="n">this_indices</span> <span class="o">==</span> <span class="n">other_indices</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">other</span>
 
 <div class="viewcode-block" id="LightStructureEnvironments.as_dict"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.structure_environments.html#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1924,7 +1925,7 @@
 <span class="sd">    coordinated neighbours (internally called &quot;cn_map&quot;).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coord_geoms</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coord_geoms</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initializes the ChemicalEnvironments object containing all the information about the chemical</span>
 <span class="sd">        environment of a given site.</span>
@@ -1938,10 +1939,10 @@
             <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;Constructor for ChemicalEnvironments with the coord_geoms argument is not&#39;</span>
                                       <span class="s1">&#39;yet implemented&#39;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mp_symbol</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mp_symbol</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">coord_geoms</span><span class="p">[</span><span class="n">mp_symbol</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the number of coordination geometries in this ChemicalEnvironments object.</span>
 
@@ -1950,7 +1951,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coord_geoms</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">cg</span><span class="p">,</span> <span class="n">cg_dict</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">coord_geoms</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">yield</span> <span class="p">(</span><span class="n">cg</span><span class="p">,</span> <span class="n">cg_dict</span><span class="p">)</span>
 
@@ -2052,7 +2053,7 @@
                                            <span class="s1">&#39;rotation_matrix&#39;</span><span class="p">:</span> <span class="n">rotation_matrix</span><span class="p">,</span>
                                            <span class="s1">&#39;scaling_factor&#39;</span><span class="p">:</span> <span class="n">scaling_factor</span><span class="p">}</span></div>
 
-    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a string representation of the ChemicalEnvironments object.</span>
 
@@ -2108,7 +2109,7 @@
                     <span class="k">return</span> <span class="kc">False</span>
         <span class="k">return</span> <span class="kc">True</span></div>
 
-    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Equality method that checks if the ChemicalEnvironments object is equal to another ChemicalEnvironments.</span>
 <span class="sd">        object.</span>
@@ -2139,7 +2140,7 @@
                     <span class="k">return</span> <span class="kc">False</span>
         <span class="k">return</span> <span class="kc">True</span>
 
-    <span class="k">def</span> <span class="fm">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">other</span>
 
 <div class="viewcode-block" id="ChemicalEnvironments.as_dict"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.structure_environments.html#pymatgen.analysis.chemenv.coordination_environments.structure_environments.ChemicalEnvironments.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -2229,7 +2230,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking
