@@ -1692,7 +1692,7 @@ class CubicSupercellTransformation(AbstractTransformation):
         while sc_not_found:
             target_sc_lat_vecs = np.eye(3, 3) * target_sc_size
             self.transformation_matrix = (
-                    np.linalg.inv(lat_vecs) @ target_sc_lat_vecs
+                    target_sc_lat_vecs @ np.linalg.inv(lat_vecs)
             )
 
             # round the entries of T and force T to be nonsingular
