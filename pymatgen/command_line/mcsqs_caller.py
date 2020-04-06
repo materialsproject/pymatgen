@@ -4,10 +4,10 @@ https://www.brown.edu/Departments/Engineering/Labs/avdw/atat/
 """
 
 import os
+import warnings
 from subprocess import Popen, PIPE, TimeoutExpired
 from typing import Dict, Union, List, NamedTuple, Optional, AnyStr
 
-from monty.tempfile import ScratchDir
 from monty.dev import requires
 from monty.os.path import which
 import tempfile
@@ -23,6 +23,7 @@ class Sqs(NamedTuple):
     objective_function: float
     allsqs: List
     directory: AnyStr
+
 
 @requires(which("mcsqs") and which("str2cif"),
           "run_mcsqs requires first installing AT-AT, "
@@ -157,7 +158,10 @@ def run_mcsqs(
                 shell=True
             )
             p.communicate()
-            bestsqs = Structure.from_file("bestsqs.cif")
+
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                bestsqs = Structure.from_file("bestsqs.cif")
 
             # Get best SQS objective function
             with open('bestcorr.out', 'r') as f:
@@ -167,15 +171,17 @@ def run_mcsqs(
             # Get all SQS structures and objective functions
             allsqs = []
             for i in range(instances):
-                sqs_out = 'bestsqs' + str(i+1) + '.out'
-                sqs_cif = 'bestsqs' + str(i+1) + '.cif'
-                corr_out = 'bestcorr' + str(i+1) + '.out'
+                sqs_out = 'bestsqs{}.out'.format(i + 1)
+                sqs_cif = 'bestsqs{}.cif'.format(i + 1)
+                corr_out = 'bestcorr{}.out'.format(i + 1)
                 p = Popen(
                     "str2cif <" + sqs_out + ">" + sqs_cif,
                     shell=True
                 )
                 p.communicate()
-                sqs = Structure.from_file(sqs_cif)
+                with warnings.catch_warnings():
+                    warnings.simplefilter("ignore")
+                    sqs = Structure.from_file(sqs_cif)
                 with open(corr_out, 'r') as f:
                     lines = f.readlines()
                 obj = float(lines[-1].split('=')[-1].strip())
