@@ -3011,16 +3011,17 @@ class VolumetricData(MSONable):
                 original_line = line
                 line = line.strip()
                 if read_dataset:
-                    toks = line.split()
-                    for tok in toks:
+                    for tok in line.split():
                         if data_count < ngrid_pts:
                             # This complicated procedure is necessary because
                             # vasp outputs x as the fastest index, followed by y
                             # then z.
-                            x = data_count % dim[0]
-                            y = int(math.floor(data_count / dim[0])) % dim[1]
-                            z = int(math.floor(data_count / dim[0] / dim[1]))
-                            dataset[x, y, z] = float(tok)
+                            no_x = data_count // dim[0]
+                            dataset[
+                                data_count % dim[0],
+                                no_x % dim[1],
+                                no_x // dim[1]
+                            ] = float(tok)
                             data_count += 1
                     if data_count >= ngrid_pts:
                         read_dataset = False

@@ -13,6 +13,7 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
  
@@ -58,7 +59,7 @@
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">import</span> <span class="nn">ruamel.yaml</span> <span class="k">as</span> <span class="nn">yaml</span>
-<span class="kn">from</span> <span class="nn">fnmatch</span> <span class="kn">import</span> <span class="n">fnmatch</span>
+<span class="kn">from</span> <span class="nn">fnmatch</span> <span class="k">import</span> <span class="n">fnmatch</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Pymatgen Development Team&quot;</span>
 <span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;pymatgen@googlegroups.com&quot;</span>
@@ -88,16 +89,16 @@
 <span class="n">SETTINGS</span> <span class="o">=</span> <span class="n">_load_pmg_settings</span><span class="p">()</span>
 
 
-<span class="kn">from</span> <span class="nn">.core.periodic_table</span> <span class="kn">import</span> <span class="n">Element</span><span class="p">,</span> <span class="n">Specie</span><span class="p">,</span> <span class="n">DummySpecie</span>
-<span class="kn">from</span> <span class="nn">.core.composition</span> <span class="kn">import</span> <span class="n">Composition</span>
-<span class="kn">from</span> <span class="nn">.core.structure</span> <span class="kn">import</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">IStructure</span><span class="p">,</span> <span class="n">Molecule</span><span class="p">,</span> <span class="n">IMolecule</span>
-<span class="kn">from</span> <span class="nn">.core.lattice</span> <span class="kn">import</span> <span class="n">Lattice</span>
-<span class="kn">from</span> <span class="nn">.core.sites</span> <span class="kn">import</span> <span class="n">Site</span><span class="p">,</span> <span class="n">PeriodicSite</span>
-<span class="kn">from</span> <span class="nn">.core.operations</span> <span class="kn">import</span> <span class="n">SymmOp</span>
-<span class="kn">from</span> <span class="nn">.core.units</span> <span class="kn">import</span> <span class="n">Unit</span><span class="p">,</span> <span class="n">FloatWithUnit</span><span class="p">,</span> <span class="n">ArrayWithUnit</span>
-<span class="kn">from</span> <span class="nn">.electronic_structure.core</span> <span class="kn">import</span> <span class="n">Spin</span><span class="p">,</span> <span class="n">Orbital</span>
-<span class="kn">from</span> <span class="nn">.ext.matproj</span> <span class="kn">import</span> <span class="n">MPRester</span>
-<span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">MontyEncoder</span><span class="p">,</span> <span class="n">MontyDecoder</span><span class="p">,</span> <span class="n">MSONable</span>
+<span class="kn">from</span> <span class="nn">.core.periodic_table</span> <span class="k">import</span> <span class="n">Element</span><span class="p">,</span> <span class="n">Specie</span><span class="p">,</span> <span class="n">DummySpecie</span>
+<span class="kn">from</span> <span class="nn">.core.composition</span> <span class="k">import</span> <span class="n">Composition</span>
+<span class="kn">from</span> <span class="nn">.core.structure</span> <span class="k">import</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">IStructure</span><span class="p">,</span> <span class="n">Molecule</span><span class="p">,</span> <span class="n">IMolecule</span>
+<span class="kn">from</span> <span class="nn">.core.lattice</span> <span class="k">import</span> <span class="n">Lattice</span>
+<span class="kn">from</span> <span class="nn">.core.sites</span> <span class="k">import</span> <span class="n">Site</span><span class="p">,</span> <span class="n">PeriodicSite</span>
+<span class="kn">from</span> <span class="nn">.core.operations</span> <span class="k">import</span> <span class="n">SymmOp</span>
+<span class="kn">from</span> <span class="nn">.core.units</span> <span class="k">import</span> <span class="n">Unit</span><span class="p">,</span> <span class="n">FloatWithUnit</span><span class="p">,</span> <span class="n">ArrayWithUnit</span>
+<span class="kn">from</span> <span class="nn">.electronic_structure.core</span> <span class="k">import</span> <span class="n">Spin</span><span class="p">,</span> <span class="n">Orbital</span>
+<span class="kn">from</span> <span class="nn">.ext.matproj</span> <span class="k">import</span> <span class="n">MPRester</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MontyEncoder</span><span class="p">,</span> <span class="n">MontyDecoder</span><span class="p">,</span> <span class="n">MSONable</span>
 
 
 <div class="viewcode-block" id="get_structure_from_mp"><a class="viewcode-back" href="../pymatgen.html#pymatgen.get_structure_from_mp">[docs]</a><span class="k">def</span> <span class="nf">get_structure_from_mp</span><span class="p">(</span><span class="n">formula</span><span class="p">):</span>
@@ -142,10 +143,10 @@
             <span class="s2">&quot;.cif&quot;</span> <span class="ow">in</span> <span class="n">fname</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span> <span class="ow">or</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s2">&quot;*.vasp&quot;</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s2">&quot;*vasprun*&quot;</span><span class="p">):</span>
-        <span class="kn">from</span> <span class="nn">pymatgen.io.vasp</span> <span class="kn">import</span> <span class="n">Vasprun</span>
+        <span class="kn">from</span> <span class="nn">pymatgen.io.vasp</span> <span class="k">import</span> <span class="n">Vasprun</span>
         <span class="k">return</span> <span class="n">Vasprun</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s2">&quot;*.json*&quot;</span><span class="p">):</span>
-        <span class="kn">from</span> <span class="nn">monty.serialization</span> <span class="kn">import</span> <span class="n">loadfn</span>
+        <span class="kn">from</span> <span class="nn">monty.serialization</span> <span class="k">import</span> <span class="n">loadfn</span>
         <span class="k">return</span> <span class="n">loadfn</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span></div>
 </pre></div>
 
@@ -184,7 +185,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

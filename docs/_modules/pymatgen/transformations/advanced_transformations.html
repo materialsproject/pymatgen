@@ -13,6 +13,7 @@
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
  
@@ -51,46 +52,46 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">This module implements more advanced transformations.</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Optional</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">fractions</span> <span class="kn">import</span> <span class="n">Fraction</span>
-<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">gcd</span>
-<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">groupby</span><span class="p">,</span> <span class="n">product</span>
-<span class="kn">from</span> <span class="nn">string</span> <span class="kn">import</span> <span class="n">ascii_lowercase</span>
-<span class="kn">from</span> <span class="nn">warnings</span> <span class="kn">import</span> <span class="n">warn</span>
+<span class="kn">from</span> <span class="nn">fractions</span> <span class="k">import</span> <span class="n">Fraction</span>
+<span class="kn">from</span> <span class="nn">math</span> <span class="k">import</span> <span class="n">gcd</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="k">import</span> <span class="n">groupby</span><span class="p">,</span> <span class="n">product</span>
+<span class="kn">from</span> <span class="nn">string</span> <span class="k">import</span> <span class="n">ascii_lowercase</span>
+<span class="kn">from</span> <span class="nn">warnings</span> <span class="k">import</span> <span class="n">warn</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">math</span>
 
 <span class="kn">import</span> <span class="nn">warnings</span>
 
-<span class="kn">from</span> <span class="nn">monty.dev</span> <span class="kn">import</span> <span class="n">requires</span>
-<span class="kn">from</span> <span class="nn">monty.fractions</span> <span class="kn">import</span> <span class="n">lcm</span>
-<span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">MSONable</span>
+<span class="kn">from</span> <span class="nn">monty.dev</span> <span class="k">import</span> <span class="n">requires</span>
+<span class="kn">from</span> <span class="nn">monty.fractions</span> <span class="k">import</span> <span class="n">lcm</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
 
-<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="kn">import</span> <span class="n">Element</span><span class="p">,</span> <span class="n">Specie</span><span class="p">,</span> <span class="n">get_el_sp</span><span class="p">,</span> <span class="n">DummySpecie</span>
-<span class="kn">from</span> <span class="nn">pymatgen.io.ase</span> <span class="kn">import</span> <span class="n">AseAtomsAdaptor</span>
-<span class="kn">from</span> <span class="nn">pymatgen.transformations.transformation_abc</span> <span class="kn">import</span> <span class="n">AbstractTransformation</span>
-<span class="kn">from</span> <span class="nn">pymatgen.transformations.standard_transformations</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">Element</span><span class="p">,</span> <span class="n">Specie</span><span class="p">,</span> <span class="n">get_el_sp</span><span class="p">,</span> <span class="n">DummySpecie</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.ase</span> <span class="k">import</span> <span class="n">AseAtomsAdaptor</span>
+<span class="kn">from</span> <span class="nn">pymatgen.transformations.transformation_abc</span> <span class="k">import</span> <span class="n">AbstractTransformation</span>
+<span class="kn">from</span> <span class="nn">pymatgen.transformations.standard_transformations</span> <span class="k">import</span> <span class="p">(</span>
     <span class="n">SubstitutionTransformation</span><span class="p">,</span>
     <span class="n">OrderDisorderedStructureTransformation</span><span class="p">,</span>
     <span class="n">SupercellTransformation</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">pymatgen.command_line.enumlib_caller</span> <span class="kn">import</span> <span class="n">EnumlibAdaptor</span><span class="p">,</span> <span class="n">EnumError</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.ewald</span> <span class="kn">import</span> <span class="n">EwaldSummation</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">Structure</span>
-<span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="kn">import</span> <span class="n">SpacegroupAnalyzer</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.structure_prediction.substitution_probability</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span> <span class="nn">pymatgen.command_line.enumlib_caller</span> <span class="k">import</span> <span class="n">EnumlibAdaptor</span><span class="p">,</span> <span class="n">EnumError</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.ewald</span> <span class="k">import</span> <span class="n">EwaldSummation</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
+<span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="k">import</span> <span class="n">SpacegroupAnalyzer</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.structure_prediction.substitution_probability</span> <span class="k">import</span> <span class="p">(</span>
     <span class="n">SubstitutionPredictor</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.structure_matcher</span> <span class="kn">import</span> <span class="n">StructureMatcher</span><span class="p">,</span> <span class="n">SpinComparator</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.energy_models</span> <span class="kn">import</span> <span class="n">SymmetryModel</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.bond_valence</span> <span class="kn">import</span> <span class="n">BVAnalyzer</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.surface</span> <span class="kn">import</span> <span class="n">SlabGenerator</span>
-<span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.core</span> <span class="kn">import</span> <span class="n">Spin</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.gb.grain</span> <span class="kn">import</span> <span class="n">GrainBoundaryGenerator</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.adsorption</span> <span class="kn">import</span> <span class="n">AdsorbateSiteFinder</span>
-<span class="kn">from</span> <span class="nn">pymatgen.command_line.mcsqs_caller</span> <span class="kn">import</span> <span class="n">run_mcsqs</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.structure_matcher</span> <span class="k">import</span> <span class="n">StructureMatcher</span><span class="p">,</span> <span class="n">SpinComparator</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.energy_models</span> <span class="k">import</span> <span class="n">SymmetryModel</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.bond_valence</span> <span class="k">import</span> <span class="n">BVAnalyzer</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.surface</span> <span class="k">import</span> <span class="n">SlabGenerator</span>
+<span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.core</span> <span class="k">import</span> <span class="n">Spin</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.gb.grain</span> <span class="k">import</span> <span class="n">GrainBoundaryGenerator</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.adsorption</span> <span class="k">import</span> <span class="n">AdsorbateSiteFinder</span>
+<span class="kn">from</span> <span class="nn">pymatgen.command_line.mcsqs_caller</span> <span class="k">import</span> <span class="n">run_mcsqs</span>
 
 <span class="k">try</span><span class="p">:</span>
     <span class="kn">import</span> <span class="nn">hiphive</span>  <span class="c1"># type: ignore</span>
@@ -114,7 +115,7 @@
 <span class="sd">    balanced, given an oxidation state-decorated structure.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">charge_balance_sp</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">charge_balance_sp</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            charge_balance_sp: specie to add or remove. Currently only removal</span>
@@ -146,12 +147,12 @@
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">trans</span><span class="o">.</span><span class="n">apply_transformation</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;Charge Balance Transformation : &quot;</span> <span class="o">+</span> <span class="s2">&quot;Species to remove = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
             <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">charge_balance_sp</span><span class="p">)</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
 
     <span class="nd">@property</span>
@@ -173,7 +174,7 @@
 <span class="sd">    object.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transformations</span><span class="p">,</span> <span class="n">nstructures_per_trans</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transformations</span><span class="p">,</span> <span class="n">nstructures_per_trans</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            transformations ([transformations]): List of transformations to apply</span>
@@ -220,12 +221,12 @@
                 <span class="p">)</span>
         <span class="k">return</span> <span class="n">structures</span></div>
 
-    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;Super Transformation : Transformations = &quot;</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
             <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_transformations</span><span class="p">])</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
 
     <span class="nd">@property</span>
@@ -253,7 +254,7 @@
 <span class="sd">        removal of species.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">sp_to_replace</span><span class="p">,</span>
         <span class="n">r_fraction</span><span class="p">,</span>
@@ -334,12 +335,12 @@
                 <span class="n">outputs</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;structure&quot;</span><span class="p">:</span> <span class="n">new_structure</span><span class="p">})</span>
         <span class="k">return</span> <span class="n">outputs</span></div>
 
-    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;Multiple Substitution Transformation : Substitution on &quot;</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">sp_to_replace</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
 
     <span class="nd">@property</span>
@@ -360,7 +361,7 @@
 <span class="sd">    transformation, and at a much faster speed.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">min_cell_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
         <span class="n">max_cell_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
@@ -548,10 +549,10 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_all_structures</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;structure&quot;</span><span class="p">]</span></div>
 
-    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;EnumerateStructureTransformation&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
 
     <span class="nd">@property</span>
@@ -571,7 +572,7 @@
 <span class="sd">    prediction module to find likely site substitutions.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">1e-2</span><span class="p">,</span> <span class="n">scale_volumes</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">1e-2</span><span class="p">,</span> <span class="n">scale_volumes</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            threshold: Threshold for substitution.</span>
@@ -621,10 +622,10 @@
             <span class="n">outputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">outputs</span></div>
 
-    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;SubstitutionPredictorTransformation&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
 
     <span class="nd">@property</span>
@@ -647,7 +648,7 @@
 <span class="sd">    might order on certain motifs, with the global order parameter</span>
 <span class="sd">    dependent on how many sites satisfy that motif.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">order_parameter</span><span class="p">,</span>
         <span class="n">species_constraints</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -718,7 +719,7 @@
 <span class="sd">    approximation first.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">mag_species_spin</span><span class="p">,</span>
         <span class="n">order_parameter</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
@@ -1042,10 +1043,10 @@
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_all_structures</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">num_to_return</span><span class="p">]</span></div>
 
-    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;MagOrderingTransformation&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
 
     <span class="nd">@property</span>
@@ -1095,7 +1096,7 @@
 <span class="sd">    A transformation that performs doping of a structure.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">dopant</span><span class="p">,</span>
         <span class="n">ionic_radius_tol</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">),</span>
@@ -1322,7 +1323,7 @@
 <span class="sd">    A transformation that creates a slab from a structure.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">miller_index</span><span class="p">,</span>
         <span class="n">min_slab_size</span><span class="p">,</span>
@@ -1408,7 +1409,7 @@
 <span class="sd">    substitutions or alloying additions.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_sites_to_merge</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_sites_to_merge</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            max_sites_to_merge: only merge this number of sites together</span>
@@ -1548,7 +1549,7 @@
 <span class="sd">    A transformation that creates a gb from a bulk structure.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                  <span class="n">rotation_axis</span><span class="p">,</span>
                  <span class="n">rotation_angle</span><span class="p">,</span>
                  <span class="n">expand_times</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
@@ -1682,23 +1683,22 @@
 <span class="sd">    until the largest inscribed cube&#39;s side length is at least &#39;min_length&#39;</span>
 <span class="sd">    and the number of atoms in the supercell falls in the range</span>
 <span class="sd">    ``min_atoms &lt; n &lt; max_atoms``.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        max_atoms: Maximum number of atoms allowed in the supercell.</span>
+<span class="sd">        min_atoms: Minimum number of atoms allowed in the supercell.</span>
+<span class="sd">        min_length: Minimum length of the smallest supercell lattice vector.</span>
+<span class="sd">        force_diagonal: If True, return a transformation with a diagonal</span>
+<span class="sd">            transformation matrix.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">min_atoms</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">max_atoms</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">min_length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">15.</span><span class="p">,</span>
         <span class="n">force_diagonal</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Args:</span>
-<span class="sd">            max_atoms: Maximum number of atoms allowed in the supercell.</span>
-<span class="sd">            min_atoms: Minimum number of atoms allowed in the supercell.</span>
-<span class="sd">            min_length: Minimum length of the smallest supercell lattice vector.</span>
-<span class="sd">            force_diagonal: If True, return a transformation with a diagonal</span>
-<span class="sd">                transformation matrix.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">min_atoms</span> <span class="o">=</span> <span class="n">min_atoms</span> <span class="k">if</span> <span class="n">min_atoms</span> <span class="k">else</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">Inf</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_atoms</span> <span class="o">=</span> <span class="n">max_atoms</span> <span class="k">if</span> <span class="n">max_atoms</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">Inf</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">min_length</span> <span class="o">=</span> <span class="n">min_length</span>
@@ -1834,18 +1834,10 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns:</span>
-<span class="sd">            None</span>
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="kc">None</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">is_one_to_many</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns:</span>
-<span class="sd">            False</span>
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="kc">False</span></div>
 
 
@@ -1853,7 +1845,7 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create absorbate structures.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">adsorbate</span><span class="p">,</span>
         <span class="n">selective_dynamics</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
@@ -2029,7 +2021,7 @@
 <span class="sd">    and returns all possible configurations where one dopant is substituted</span>
 <span class="sd">    per surface. Can substitute one surface or both.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">atom</span><span class="p">,</span>
         <span class="n">selective_dynamics</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
@@ -2127,7 +2119,7 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A transformation that creates a SQS from a structure with partial occupancies.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">clusters</span><span class="p">,</span> <span class="n">supercell</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">total_atoms</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">search_time</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">clusters</span><span class="p">,</span> <span class="n">supercell</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">total_atoms</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">search_time</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            clusters (dict): dictionary of cluster interactions with entries in the form</span>
@@ -2173,7 +2165,7 @@
 
 <div class="viewcode-block" id="MonteCarloRattleTransformation"><a class="viewcode-back" href="../../../pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.MonteCarloRattleTransformation">[docs]</a><span class="nd">@requires</span><span class="p">(</span><span class="n">hiphive</span><span class="p">,</span> <span class="s2">&quot;hiphive is required for MonteCarloRattleTransformation&quot;</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">MonteCarloRattleTransformation</span><span class="p">(</span><span class="n">AbstractTransformation</span><span class="p">):</span>
-    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Uses a Monte Carlo rattle procedure to randomly perturb the sites in a</span>
 <span class="sd">    structure.</span>
 
@@ -2187,29 +2179,28 @@
 <span class="sd">    This process is repeated for each atom a number of times meaning</span>
 <span class="sd">    the magnitude of the final displacements is not *directly*</span>
 <span class="sd">    connected to `rattle_std`.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        rattle_std: Rattle amplitude (standard deviation in normal</span>
+<span class="sd">            distribution). Note: this value is not *directly* connected to the</span>
+<span class="sd">            final average displacement for the structures</span>
+<span class="sd">        min_distance: Interatomic distance used for computing the probability</span>
+<span class="sd">            for each rattle move.</span>
+<span class="sd">        seed: Seed for setting up NumPy random state from which random numbers</span>
+<span class="sd">            are generated. If ``None``, a random seed will be generated</span>
+<span class="sd">            (default). This option allows the output of this transformation</span>
+<span class="sd">            to be deterministic.</span>
+<span class="sd">        **kwargs: Additional keyword arguments to be passed to the hiPhive</span>
+<span class="sd">            mc_rattle function.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">rattle_std</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">min_distance</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">seed</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Args:</span>
-<span class="sd">            rattle_std: Rattle amplitude (standard deviation in normal</span>
-<span class="sd">                distribution). Note: this value is not *directly* connected to the</span>
-<span class="sd">                final average displacement for the structures</span>
-<span class="sd">            min_distance: Interatomic distance used for computing the probability</span>
-<span class="sd">                for each rattle move.</span>
-<span class="sd">            seed: Seed for setting up NumPy random state from which random numbers</span>
-<span class="sd">                are generated. If ``None``, a random seed will be generated</span>
-<span class="sd">                (default). This option allows the output of this transformation</span>
-<span class="sd">                to be deterministic.</span>
-<span class="sd">            **kwargs: Additional keyword arguments to be passed to the hiPhive</span>
-<span class="sd">                mc_rattle function.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rattle_std</span> <span class="o">=</span> <span class="n">rattle_std</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">min_distance</span> <span class="o">=</span> <span class="n">min_distance</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">seed</span> <span class="o">=</span> <span class="n">seed</span>
@@ -2232,7 +2223,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            Structure with sites perturbed.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span> <span class="nn">hiphive.structure_generation.rattle</span> <span class="kn">import</span> <span class="p">(</span>  <span class="c1"># type: ignore</span>
+        <span class="kn">from</span> <span class="nn">hiphive.structure_generation.rattle</span> <span class="k">import</span> <span class="p">(</span>  <span class="c1"># type: ignore</span>
             <span class="n">mc_rattle</span>
         <span class="p">)</span>
 
@@ -2251,10 +2242,10 @@
 
         <span class="k">return</span> <span class="n">transformed_structure</span>
 
-    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> : rattle_std = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="vm">__name__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rattle_std</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
 
     <span class="nd">@property</span>
@@ -2308,7 +2299,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

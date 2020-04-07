@@ -10,20 +10,34 @@ of single sites in molecules and structures.
 
 import math
 import warnings
-from collections import namedtuple, defaultdict
-from functools import lru_cache
-from typing import Union
-
-import ruamel.yaml as yaml
 import os
 import json
+
+import ruamel.yaml as yaml
+import numpy as np
+
 from copy import deepcopy
+from math import pow, pi, asin, sqrt, exp, sin, cos, acos, fabs, atan2
+from collections import namedtuple, defaultdict
+from functools import lru_cache
+from typing import Union, List, Optional
+from bisect import bisect_left
 
+from scipy.spatial import Voronoi
 from monty.dev import deprecated
+from monty.dev import requires
+from monty.serialization import loadfn
 
+from pymatgen import Element, Structure, IStructure
+from pymatgen.analysis.bond_valence import BV_PARAMS, BVAnalyzer
+from pymatgen.core.structure import PeriodicNeighbor
 from pymatgen.analysis.molecule_structure_comparator import CovalentRadius
 from pymatgen.core.sites import PeriodicSite, Site
 
+try:
+    from openbabel import openbabel as ob
+except Exception:
+    ob = None
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Sai Jayaraman," + \
              " Nils E. R. Zimmermann, Bharat Medasani, Evan Spotte-Smith"
@@ -33,23 +47,6 @@ __maintainer__ = "Nils E. R. Zimmermann"
 __email__ = "nils.e.r.zimmermann@gmail.com"
 __status__ = "Production"
 __date__ = "August 17, 2017"
-
-from math import pow, pi, asin, sqrt, exp, sin, cos, acos, fabs, atan2
-import numpy as np
-
-try:
-    from openbabel import openbabel as ob
-except Exception:
-    ob = None
-
-from monty.dev import requires
-from monty.serialization import loadfn
-
-from bisect import bisect_left
-from scipy.spatial import Voronoi
-
-from pymatgen import Element, Structure, IStructure
-from pymatgen.analysis.bond_valence import BV_PARAMS, BVAnalyzer
 
 _directory = os.path.join(os.path.dirname(__file__))
 
@@ -3296,7 +3293,7 @@ class BrunnerNN_relative(NearNeighbors):
         ds = [i.nn_distance for i in neighs_dists]
         ds.sort()
 
-        ns = [ds[i] / ds[i + 1] for i in range(len(ds) - 1)]
+        ns = [ds[i + 1] / ds[i] for i in range(len(ds) - 1)]
 
         d_max = ds[ns.index(max(ns))]
         siw = []
@@ -3367,7 +3364,7 @@ class BrunnerNN_real(NearNeighbors):
         ds = [i.nn_distance for i in neighs_dists]
         ds.sort()
 
-        ns = [ds[i] - ds[i + 1] for i in range(len(ds) - 1)]
+        ns = [ds[i + 1] - ds[i] for i in range(len(ds) - 1)]
 
         d_max = ds[ns.index(max(ns))]
         siw = []
@@ -3385,26 +3382,37 @@ class BrunnerNN_real(NearNeighbors):
 
 class EconNN(NearNeighbors):
     """
-    Determines the average effective coordination number for each cation in a given structure
-    using Hoppe's algorithm.
+    Determines the average effective coordination number for each cation in a
+    given structure using Hoppe's algorithm.
 
-    This method finds all cation-centered polyhedrals in the structure, calculates the bond
-    weight for each peripheral ion in the polyhedral, and sums up the bond weights
-    to obtain the effective coordination number for each polyhedral. It then
-    averages the effective coordination of all polyhedrals with the same cation at the
-    central site.
+    This method follows the procedure outlined in:
+
+    Hoppe, Rudolf. "Effective coordination numbers (ECoN) and mean fictive ionic
+    radii (MEFIR)." Zeitschrift für Kristallographie-Crystalline Materials
+    150.1-4 (1979): 23-52.
     """
 
-    def __init__(self, tol=1.0e-4, cutoff=10.0):
+    def __init__(
+        self,
+        tol: float = 0.2,
+        cutoff: float = 10.0,
+        cation_anion: bool = False,
+        use_fictive_radius: bool = False
+    ):
         """
         Args:
-            tol (float): tolerance parameter for bond determination
-                (default: 1e-4).
-            cutoff (float): cutoff radius in Angstrom to look for near-neighbor
-                atoms. Defaults to 10.0.
+            tol: Tolerance parameter for bond determination.
+            cutoff: Cutoff radius in Angstrom to look for near-neighbor atoms.
+            cation_anion: If set to True, will restrict bonding targets to
+                sites with opposite or zero charge. Requires an oxidation states
+                on all sites in the structure.
+            use_fictive_radius: Whether to use the fictive radius in the
+                EcoN calculation. If False, the bond distance will be used.
         """
         self.tol = tol
         self.cutoff = cutoff
+        self.cation_anion = cation_anion
+        self.use_fictive_radius = use_fictive_radius
 
     @property
     def structures_allowed(self):
@@ -3447,22 +3455,107 @@ class EconNN(NearNeighbors):
                 and its weight.
         """
         site = structure[n]
-        neighs_dists = structure.get_neighbors(site, self.cutoff)
-        all_bond_lengths = [i.nn_distance for i in neighs_dists]
-        weighted_avg = calculate_weighted_avg(all_bond_lengths)
+        neighbors = structure.get_neighbors(site, self.cutoff)
+
+        if self.cation_anion and hasattr(site.specie, "oxi_state"):
+            # filter out neighbor of like charge (except for neutral sites)
+            if site.specie.oxi_state >= 0:
+                neighbors = [n for n in neighbors if n.oxi_state <= 0]
+            elif site.specie.oxi_state <= 0:
+                neighbors = [n for n in neighbors if n.oxi_state >= 0]
+
+        if self.use_fictive_radius:
+            # calculate fictive ionic radii
+            firs = [_get_fictive_ionic_radius(site, neighbor)
+                    for neighbor in neighbors]
+        else:
+            # just use the bond distance
+            firs = [neighbor.nn_distance for neighbor in neighbors]
+
+        # calculate mean fictive ionic radius
+        mefir = _get_mean_fictive_ionic_radius(firs)
+
+        # # iteratively solve MEFIR; follows equation 4 in Hoppe's EconN paper
+        prev_mefir = float("inf")
+        while abs(prev_mefir - mefir) > 1e-4:
+            # this is guaranteed to converge
+            prev_mefir = mefir
+            mefir = _get_mean_fictive_ionic_radius(firs, minimum_fir=mefir)
 
         siw = []
-        for nn in neighs_dists:
-            s, dist = nn, nn.nn_distance
-            if dist < self.cutoff:
-                w = exp(1 - (dist / weighted_avg) ** 6)
+        for nn, fir in zip(neighbors, firs):
+            if nn.nn_distance < self.cutoff:
+                w = exp(1 - (fir / mefir) ** 6)
                 if w > self.tol:
-                    siw.append({'site': s,
-                                'image': self._get_image(structure, s),
-                                'weight': w,
-                                'site_index': self._get_original_site(structure,
-                                                                      s)})
+                    bonded_site = {
+                        'site': nn,
+                        'image': self._get_image(structure, nn),
+                        'weight': w,
+                        'site_index': self._get_original_site(structure, nn)
+                    }
+                    siw.append(bonded_site)
         return siw
+
+
+def _get_fictive_ionic_radius(site: Site, neighbor: PeriodicNeighbor) -> float:
+    """
+    Get fictive ionic radius.
+
+    Follows equation 1 of:
+
+    Hoppe, Rudolf. "Effective coordination numbers (ECoN) and mean fictive ionic
+    radii (MEFIR)." Zeitschrift für Kristallographie-Crystalline Materials
+    150.1-4 (1979): 23-52.
+
+    Args:
+        site: The central site.
+        neighbor neighboring site.
+
+    Returns:
+        Hoppe's fictive ionic radius.
+    """
+    r_h = _get_radius(site)
+    if r_h == 0:
+        r_h = _get_default_radius(site)
+
+    r_i = _get_radius(neighbor)
+    if r_i == 0:
+        r_i = _get_default_radius(neighbor)
+
+    return neighbor.nn_distance * (r_h / (r_h + r_i))
+
+
+def _get_mean_fictive_ionic_radius(
+        fictive_ionic_radii: List[float],
+        minimum_fir: Optional[float] = None,
+) -> float:
+    """
+    Returns the mean fictive ionic radius.
+
+    Follows equation 2:
+
+    Hoppe, Rudolf. "Effective coordination numbers (ECoN) and mean fictive ionic
+    radii (MEFIR)." Zeitschrift für Kristallographie-Crystalline Materials
+    150.1-4 (1979): 23-52.
+
+    Args:
+        fictive_ionic_radii: List of fictive ionic radii for a center site
+            and its neighbors.
+        minimum_fir: Minimum fictive ionic radius to use.
+
+    Returns:
+        Hoppe's mean fictive ionic radius.
+    """
+    if not minimum_fir:
+        minimum_fir = min(fictive_ionic_radii)
+
+    weighted_sum = 0.0
+    total_sum = 0.0
+    for fir in fictive_ionic_radii:
+        weighted_sum += fir * exp(1 - (fir / minimum_fir) ** 6)
+        total_sum += exp(1 - (fir / minimum_fir) ** 6)
+
+    return weighted_sum / total_sum
 
 
 class CrystalNN(NearNeighbors):
@@ -3643,9 +3736,9 @@ class CrystalNN(NearNeighbors):
 
         # adjust solid angle weights based on distance
         if self.distance_cutoffs:
-            r1 = self._get_radius(structure[n])
+            r1 = _get_radius(structure[n])
             for entry in nn:
-                r2 = self._get_radius(entry["site"])
+                r2 = _get_radius(entry["site"])
                 if r1 > 0 and r2 > 0:
                     d = r1 + r2
                 else:
@@ -3653,8 +3746,8 @@ class CrystalNN(NearNeighbors):
                         "CrystalNN: cannot locate an appropriate radius, "
                         "covalent or atomic radii will be used, this can lead "
                         "to non-optimal results.")
-                    d = CrystalNN._get_default_radius(structure[n]) + \
-                        CrystalNN._get_default_radius(entry["site"])
+                    d = _get_default_radius(structure[n]) + \
+                        _get_default_radius(entry["site"])
 
                 dist = np.linalg.norm(
                     structure[n].coords - entry["site"].coords)
@@ -3783,64 +3876,6 @@ class CrystalNN(NearNeighbors):
         return (area1 - area2) / (0.25 * math.pi * r ** 2)
 
     @staticmethod
-    def _get_default_radius(site):
-        """
-        An internal method to get a "default" covalent/element radius
-
-        Args:
-            site: (Site)
-
-        Returns:
-            Covalent radius of element on site, or Atomic radius if unavailable
-        """
-        try:
-            return CovalentRadius.radius[site.specie.symbol]
-        except Exception:
-            return site.specie.atomic_radius
-
-    @staticmethod
-    def _get_radius(site):
-        """
-        An internal method to get the expected radius for a site with
-        oxidation state.
-        Args:
-            site: (Site)
-
-        Returns:
-            Oxidation-state dependent radius: ionic, covalent, or atomic.
-            Returns 0 if no oxidation state or appropriate radius is found.
-        """
-        if hasattr(site.specie, 'oxi_state'):
-            el = site.specie.element
-            oxi = site.specie.oxi_state
-
-            if oxi == 0:
-                return CrystalNN._get_default_radius(site)
-
-            elif oxi in el.ionic_radii:
-                return el.ionic_radii[oxi]
-
-            # e.g., oxi = 2.667, average together 2+ and 3+ radii
-            elif int(math.floor(oxi)) in el.ionic_radii and \
-                    int(math.ceil(oxi)) in el.ionic_radii:
-                oxi_low = el.ionic_radii[int(math.floor(oxi))]
-                oxi_high = el.ionic_radii[int(math.ceil(oxi))]
-                x = oxi - int(math.floor(oxi))
-                return (1 - x) * oxi_low + x * oxi_high
-
-            elif oxi > 0 and el.average_cationic_radius > 0:
-                return el.average_cationic_radius
-
-            elif oxi < 0 and el.average_anionic_radius > 0:
-                return el.average_anionic_radius
-
-        else:
-            warnings.warn("CrystalNN: distance cutoffs set but no oxidation "
-                          "states specified on sites! For better results, set "
-                          "the site oxidation states in the structure.")
-        return 0
-
-    @staticmethod
     def transform_to_length(nndata, length):
         """
         Given NNData, transforms data to the specified fingerprint length
@@ -3861,23 +3896,63 @@ class CrystalNN(NearNeighbors):
         return nndata
 
 
-def calculate_weighted_avg(bonds):
+def _get_default_radius(site):
     """
-    Returns the weighted average bond length given by
-    Hoppe's effective coordination number formula.
+    An internal method to get a "default" covalent/element radius
 
     Args:
-        bonds (list): list of floats that are the
-        bond distances between a cation and its
-        peripheral ions
+        site: (Site)
+
+    Returns:
+        Covalent radius of element on site, or Atomic radius if unavailable
     """
-    minimum_bond = min(bonds)
-    weighted_sum = 0.0
-    total_sum = 0.0
-    for entry in bonds:
-        weighted_sum += entry * exp(1 - (entry / minimum_bond) ** 6)
-        total_sum += exp(1 - (entry / minimum_bond) ** 6)
-    return weighted_sum / total_sum
+    try:
+        return CovalentRadius.radius[site.specie.symbol]
+    except Exception:
+        return site.specie.atomic_radius
+
+
+def _get_radius(site):
+    """
+    An internal method to get the expected radius for a site with
+    oxidation state.
+    Args:
+        site: (Site)
+
+    Returns:
+        Oxidation-state dependent radius: ionic, covalent, or atomic.
+        Returns 0 if no oxidation state or appropriate radius is found.
+    """
+    if hasattr(site.specie, 'oxi_state'):
+        el = site.specie.element
+        oxi = site.specie.oxi_state
+
+        if oxi == 0:
+            return _get_default_radius(site)
+
+        elif oxi in el.ionic_radii:
+            return el.ionic_radii[oxi]
+
+        # e.g., oxi = 2.667, average together 2+ and 3+ radii
+        elif int(math.floor(oxi)) in el.ionic_radii and \
+                int(math.ceil(oxi)) in el.ionic_radii:
+            oxi_low = el.ionic_radii[int(math.floor(oxi))]
+            oxi_high = el.ionic_radii[int(math.ceil(oxi))]
+            x = oxi - int(math.floor(oxi))
+            return (1 - x) * oxi_low + x * oxi_high
+
+        elif oxi > 0 and el.average_cationic_radius > 0:
+            return el.average_cationic_radius
+
+        elif el.average_anionic_radius > 0 > oxi:
+            return el.average_anionic_radius
+
+    else:
+        warnings.warn(
+            "No oxidation states specified on sites! For better results, set "
+            "the site oxidation states in the structure."
+        )
+    return 0
 
 
 class CutOffDictNN(NearNeighbors):

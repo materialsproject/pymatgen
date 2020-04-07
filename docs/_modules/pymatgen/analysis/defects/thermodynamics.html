@@ -13,6 +13,7 @@
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
  
@@ -48,20 +49,16 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Defect thermodynamics, such as defect phase diagrams, etc.</span>
-<span class="sd">&quot;&quot;&quot;</span>
-
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">MSONable</span>
-<span class="kn">from</span> <span class="nn">scipy.spatial</span> <span class="kn">import</span> <span class="n">HalfspaceIntersection</span>
-<span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">bisect</span>
-<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">chain</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
+<span class="kn">from</span> <span class="nn">scipy.spatial</span> <span class="k">import</span> <span class="n">HalfspaceIntersection</span>
+<span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="k">import</span> <span class="n">bisect</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="k">import</span> <span class="n">chain</span>
 
-<span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.dos</span> <span class="kn">import</span> <span class="n">FermiDos</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.defects.core</span> <span class="kn">import</span> <span class="n">DefectEntry</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.structure_matcher</span> <span class="kn">import</span> <span class="n">PointDefectComparator</span>
+<span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.dos</span> <span class="k">import</span> <span class="n">FermiDos</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.defects.core</span> <span class="k">import</span> <span class="n">DefectEntry</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.structure_matcher</span> <span class="k">import</span> <span class="n">PointDefectComparator</span>
 
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">matplotlib.cm</span> <span class="k">as</span> <span class="nn">cm</span>
@@ -89,28 +86,27 @@
 <span class="sd">        a) stability of charge states for a given defect,</span>
 <span class="sd">        b) list of all formation ens</span>
 <span class="sd">        c) transition levels in the gap</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        dentries ([DefectEntry]): A list of DefectEntry objects</span>
+<span class="sd">        vbm (float): Valence Band energy to use for all defect entries.</span>
+<span class="sd">            NOTE if using band shifting-type correction then this VBM</span>
+<span class="sd">            should still be that of the GGA calculation</span>
+<span class="sd">            (the bandedgeshifting_correction accounts for shift&#39;s</span>
+<span class="sd">            contribution to formation energy).</span>
+<span class="sd">        band_gap (float): Band gap to use for all defect entries.</span>
+<span class="sd">            NOTE if using band shifting-type correction then this gap</span>
+<span class="sd">            should still be that of the Hybrid calculation you are shifting to.</span>
+<span class="sd">        filter_compatible (bool): Whether to consider entries which were ruled</span>
+<span class="sd">            incompatible by the DefectComaptibility class. Note this must be set to False</span>
+<span class="sd">            if you desire a suggestion for larger supercell sizes.</span>
+<span class="sd">            Default is True (to omit calculations which have &quot;is_compatible&quot;=False in</span>
+<span class="sd">                DefectEntry&#39;sparameters)</span>
+<span class="sd">        metadata (dict): Dictionary of metadata to store with the PhaseDiagram. Has</span>
+<span class="sd">            no impact on calculations.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entries</span><span class="p">,</span> <span class="n">vbm</span><span class="p">,</span> <span class="n">band_gap</span><span class="p">,</span> <span class="n">filter_compatible</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Args:</span>
-<span class="sd">            dentries ([DefectEntry]): A list of DefectEntry objects</span>
-<span class="sd">            vbm (float): Valence Band energy to use for all defect entries.</span>
-<span class="sd">                NOTE if using band shifting-type correction then this VBM</span>
-<span class="sd">                should still be that of the GGA calculation</span>
-<span class="sd">                (the bandedgeshifting_correction accounts for shift&#39;s</span>
-<span class="sd">                contribution to formation energy).</span>
-<span class="sd">            band_gap (float): Band gap to use for all defect entries.</span>
-<span class="sd">                NOTE if using band shifting-type correction then this gap</span>
-<span class="sd">                should still be that of the Hybrid calculation you are shifting to.</span>
-<span class="sd">            filter_compatible (bool): Whether to consider entries which were ruled</span>
-<span class="sd">                incompatible by the DefectComaptibility class. Note this must be set to False</span>
-<span class="sd">                if you desire a suggestion for larger supercell sizes.</span>
-<span class="sd">                Default is True (to omit calculations which have &quot;is_compatible&quot;=False in</span>
-<span class="sd">                    DefectEntry&#39;sparameters)</span>
-<span class="sd">            metadata (dict): Dictionary of metadata to store with the PhaseDiagram. Has</span>
-<span class="sd">                no impact on calculations</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entries</span><span class="p">,</span> <span class="n">vbm</span><span class="p">,</span> <span class="n">band_gap</span><span class="p">,</span> <span class="n">filter_compatible</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="p">{}):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">vbm</span> <span class="o">=</span> <span class="n">vbm</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">band_gap</span> <span class="o">=</span> <span class="n">band_gap</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">filter_compatible</span> <span class="o">=</span> <span class="n">filter_compatible</span>
@@ -128,13 +124,12 @@
                 <span class="n">new_ent</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;vbm&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">vbm</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">entries</span><span class="p">[</span><span class="n">ent_ind</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_ent</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="n">metadata</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="n">metadata</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">find_stable_charges</span><span class="p">()</span>
 
 <div class="viewcode-block" id="DefectPhaseDiagram.as_dict"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.thermodynamics.html#pymatgen.analysis.defects.thermodynamics.DefectPhaseDiagram.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns:</span>
-<span class="sd">            Json-serializable dict representation of DefectPhaseDiagram</span>
+<span class="sd">        Json-serializable dict representation of DefectPhaseDiagram</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
              <span class="s2">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
@@ -760,7 +755,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking
