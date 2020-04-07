@@ -395,7 +395,7 @@ class CorrectionCalculator:
         # PRB 2012 85(23)
 
         # uncorrected DFT energy of H2O = -14.885 eV/H2O (mp-697111)
-        # corrected DFT energy of H2O = -15.969 eV/H2O (mp-697111)
+        # corrected DFT energy of H2O = -15.974 eV/H2O (mp-697111)
         # T delta S for H2O = -0.215891 eV/H2O
         # corrected DFT energy of O2 = -4.9276 eV/atom (mp-12957)
         # T delta S for O2 = -0.316732 eV/atom as shown above
@@ -404,7 +404,7 @@ class CorrectionCalculator:
         from pymatgen.analysis.pourbaix_diagram import MU_H2O
 
         aqueous["H2"] = round(
-            0.5 * (-15.969 - -0.215891 - -4.9276 - aqueous["O2"] - MU_H2O), 6
+            0.5 * (-15.974 - -0.215891 - -4.9276 - aqueous["O2"] - MU_H2O), 6
         )
 
         # Ensure that the H2O energy is corrected to produce a gibbs formation
