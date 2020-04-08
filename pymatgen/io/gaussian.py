@@ -1115,7 +1115,7 @@ class GaussianOutput:
                         line = f.readline()
                         if " -- Stationary point found." not in line:
                             warnings.warn("\n" + self.filename +
-                                ": Optimization complete but this is not a stationary point")
+                                          ": Optimization complete but this is not a stationary point")
                         opt_structures.append(input_structures[-1])
                     elif not read_eigen and orbital_patt.search(line):
                         eigen_txt.append(line)
@@ -1444,7 +1444,7 @@ class GaussianOutput:
         d, plt = self.get_spectre_plot(sigma, step)
         plt.savefig(filename, format=img_format)
 
-    def to_input(self, mol=None,  charge=None,
+    def to_input(self, mol=None, charge=None,
                  spin_multiplicity=None, title=None, functional=None,
                  basis_set=None, route_parameters=None, input_parameters=None,
                  link0_parameters=None, dieze_tag=None, cart_coords=False):
