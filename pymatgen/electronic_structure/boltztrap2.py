@@ -26,7 +26,7 @@ TODO:
 - read first derivative of the eigenvalues from vasprun.xml (mommat)
 - handle magnetic moments (magmom)
 """
-
+from tqdm import tqdm
 import numpy as np
 import matplotlib.pyplot as plt
 from monty.serialization import dumpfn
@@ -59,12 +59,14 @@ __date__ = "August 2018"
 class BandstructureLoader:
     """Loader for Bandsstrcture object"""
 
-    def __init__(self, bs_obj, structure=None, nelect=None, spin=None):
+    def __init__(self, bs_obj, structure=None, nelect=None, mommat=None, magmom=None):
         """
         :param bs_obj:
         :param structure:
         :param nelect:
         :param spin:
+        :param momat:
+        :param magmom:
         """
         self.kpoints = np.array([kp.frac_coords for kp in bs_obj.kpoints])
 
@@ -74,43 +76,27 @@ class BandstructureLoader:
             self.structure = structure
 
         self.atoms = AseAtomsAdaptor.get_atoms(self.structure)
-        self.proj = None
+        self.proj_all = None
         if bs_obj.projections:
-            self.proj = {sp:p.transpose((1, 0, 3, 2)) for sp,p in bs_obj.projections.items()}
+            self.proj_all = {sp:p.transpose((1, 0, 3, 2)) for sp,p in bs_obj.projections.items()}
             
         e = np.array(list(bs_obj.bands.values()))
         e = e.reshape(-1,e.shape[-1])
-        self.ebands = e * units.eV
+        self.ebands_all = e * units.eV
 
+        self.is_spin_polarized = bs_obj.is_spin_polarized
+        
         if bs_obj.is_spin_polarized:
             self.dosweight = 1.
         else:
             self.dosweight = 2.
         
-        # if len(bs_obj.bands) == 1:
-        #     e = np.array(bs_obj.bands.values())
-        #     self.ebands = e * units.eV
-        #     self.dosweight = 2.0
-        #     if bs_obj.projections:
-        #         self.proj = bs_obj.projections[Spin.up].transpose((1, 0, 3, 2))
-
-        # elif len(bs_obj.bands) == 2:
-        #     if not spin:
-        #         raise BaseException("spin-polarized bs, you need to select a spin")
-        #     elif spin in (-1, 1):
-        #         e = bs_obj.bands[Spin(spin)]
-        #         self.ebands = e * units.eV
-        #         self.dosweight = 1.0
-        #         if bs_obj.projections:
-        #             self.proj = bs_obj.projections[Spin(spin)].transpose((1, 0, 3, 2))
-
         self.lattvec = self.atoms.get_cell().T * units.Angstrom
-        self.mommat = None
-        self.magmom = None
+        self.mommat_all = mommat # not implemented yet
+        self.mommat = mommat # not implemented yet
+        self.magmom = magmom # not implemented yet
         self.fermi = bs_obj.efermi * units.eV
         self.UCvol = self.structure.volume * units.Angstrom ** 3
-
-#        self.spin = spin
 
         if not bs_obj.is_metal():
             self.vbm_idx = max(bs_obj.get_vbm()['band_index'][Spin.up] +
@@ -119,13 +105,13 @@ class BandstructureLoader:
                                bs_obj.get_cbm()['band_index'][Spin.down])
             self.vbm = bs_obj.get_vbm()['energy']
             self.cbm = bs_obj.get_cbm()['energy']
-            self.nelect = self.vbm_idx * self.dosweight
+            self.nelect_all = self.vbm_idx * self.dosweight
         else:
             self.vbm_idx = None
             self.cbm_idx = None
             self.vbm = self.fermi
             self.cbm = self.fermi
-            self.nelect = nelect
+            self.nelect_all = nelect
             
     def get_lattvec(self):
         """
@@ -139,38 +125,28 @@ class BandstructureLoader:
 
     def bandana(self, emin=-np.inf, emax=np.inf):
         """Cut out bands outside the range (emin,emax)"""
-        bandmin = np.min(self.ebands, axis=1)
-        bandmax = np.max(self.ebands, axis=1)
+        bandmin = np.min(self.ebands_all, axis=1)
+        bandmax = np.max(self.ebands_all, axis=1)
         ntoolow = np.count_nonzero(bandmax <= emin)
         accepted = np.logical_and(bandmin < emax, bandmax > emin)
-        self.ebands = self.ebands[accepted]
+        # self.data_bkp = np.copy(self.data.ebands)
+        self.ebands = self.ebands_all[accepted]
 
-        
-        #ii = np.nonzero(bandmin < emax)
-        # nemax = ii[0][-1]
-        # ii = np.nonzero(bandmax > emin)
-        # nemin = ii[0][0]
-        # # BoltzTraP2.misc.info("BANDANA output")
-        # # for iband in range(len(self.ebands)):
-        # # BoltzTraP2.misc.info(iband, bandmin[iband], bandmax[iband], (
-        # # (bandmin[iband] < emax) & (bandmax[iband] > emin)))
-        # self.ebands = self.ebands[emin:nemax + 1]
-
-        if self.proj:
-            if len(self.proj) == 2:
+        self.proj = {}
+        if self.proj_all:
+            if len(self.proj_all) == 2:
                 h = int(len(accepted)/2)
-                self.proj[Spin.up] = self.proj[Spin.up][:, accepted[:h], :, :]
-                self.proj[Spin.down] = self.proj[Spin.down][:, accepted[h:], :, :]
+                self.proj[Spin.up] = self.proj_all[Spin.up][:, accepted[:h], :, :]
+                self.proj[Spin.down] = self.proj_all[Spin.down][:, accepted[h:], :, :]
             elif len(self.proj) == 1:
-                self.proj[Spin.up] = self.proj[Spin.up][:, accepted, :, :]
+                self.proj[Spin.up] = self.proj_all[Spin.up][:, accepted, :, :]
 
-#            self.proj = self.proj[:, nemin:nemax + 1, :, :]
-
-        if self.mommat is not None:
+        if self.mommat_all:
             self.mommat = self.mommat[:, accepted, :]
         # Removing bands may change the number of valence electrons
-        if self.nelect is not None:
-            self.nelect -= self.dosweight * ntoolow
+        if self.nelect_all:
+            self.nelect = self.nelect_all - self.dosweight * ntoolow
+            
         return accepted
 
     def set_upper_lower_bands(self, e_lower, e_upper):
@@ -334,7 +310,7 @@ class BztInterpolator:
         self.eband, self.vvband, self.cband = fite.getBTPbands(self.equivalences,
                                                                self.coeffs, self.data.lattvec,
                                                                curvature=curvature)
-
+        
     def get_band_structure(self):
         """Return a BandStructureSymmLine object interpolating bands along a
         High symmetry path calculated from the structure using HighSymmKpath function"""
@@ -352,8 +328,16 @@ class BztInterpolator:
 
         lattvec = self.data.get_lattvec()
         egrid, vgrid = fite.getBands(kpoints, self.equivalences, lattvec, self.coeffs)
-
-        bands_dict = {Spin.up: (egrid / units.eV)}
+        print(egrid.shape)
+        if self.data.is_spin_polarized:
+            h = sum(np.array_split(self.accepted,2)[0])
+            egrid = np.array_split(egrid,[h],axis=0)
+            bands_dict = {
+                Spin.up: (egrid[0] / units.eV),
+                Spin.down: (egrid[1] / units.eV)
+            }
+        else:
+            bands_dict = {Spin.up: (egrid / units.eV)}
 
         sbs = BandStructureSymmLine(kpoints, bands_dict,
                                     self.data.structure.lattice.reciprocal_lattice,
@@ -361,7 +345,7 @@ class BztInterpolator:
                                     labels_dict=labels_dict)
         return sbs
 
-    def get_dos(self, partial_dos=False, npts_mu=10000, T=None):
+    def get_dos(self, partial_dos=False, npts_mu=10000, T=None, progress=False):
         """
             Return a Dos object interpolating bands
 
@@ -372,21 +356,36 @@ class BztInterpolator:
                 npts_mu: number of energy points of the Dos
                 T: parameter used to smooth the Dos
         """
-        spin = self.data.spin if isinstance(self.data.spin, int) else 1
+        dos_dict = {}
+        enr = (self.eband.min(),self.eband.max())
+        if self.data.is_spin_polarized:
+            h = sum(np.array_split(self.accepted,2)[0])
+            eband_ud = np.array_split(self.eband,[h],axis=0)
+            vvband_ud =  np.array_split(self.vvband,[h],axis=0)
+            spins = [Spin.up, Spin.down]
+        else:
+            eband_ud = self.eband
+            vvband_ud = self.vvband
+            spins = [Spin.up]
+            
+        for spin,eb,vvb in zip(spins,eband_ud, vvband_ud):
+            energies, densities, vvdos, cdos = BL.BTPDOS(eb, vvb, npts=npts_mu,erange=enr)
 
-        energies, densities, vvdos, cdos = BL.BTPDOS(self.eband, self.vvband, npts=npts_mu)
-        if T is not None:
-            densities = BL.smoothen_DOS(energies, densities, T)
+            if T:
+                densities = BL.smoothen_DOS(energies, densities, T)
 
+            dos_dict.setdefault(spin,densities)
+            
         tdos = Dos(self.efermi / units.eV, energies / units.eV,
-                   {Spin(spin): densities})
+                   dos_dict)
 
         if partial_dos:
-            tdos = self.get_partial_doses(tdos=tdos, npts_mu=npts_mu, T=T)
+            tdos = self.get_partial_doses(tdos, eband_ud, spins,
+                                          enr, npts_mu, T,progress)
 
         return tdos
 
-    def get_partial_doses(self, tdos, npts_mu, T):
+    def get_partial_doses(self, tdos, eband_ud, spins, enr, npts_mu, T, progress):
         """
         Return a CompleteDos object interpolating the projections
 
@@ -394,36 +393,39 @@ class BztInterpolator:
         npts_mu: number of energy points of the Dos
         T: parameter used to smooth the Dos
         """
-        spin = self.data.spin if isinstance(self.data.spin, int) else 1
-
-        if not isinstance(self.data.proj, np.ndarray):
+        if not self.data.proj:
             raise BoltztrapError("No projections loaded.")
 
         bkp_data_ebands = np.copy(self.data.ebands)
 
         pdoss = {}
-        # for spin in self.data.proj:
-        for isite, site in enumerate(self.data.structure.sites):
-            if site not in pdoss:
-                pdoss[site] = {}
-            for iorb, orb in enumerate(Orbital):
-                if iorb == self.data.proj.shape[-1]:
-                    break
+        if progress:
+            n_iter = np.prod(np.sum([np.array(i.shape)[2:] for i in self.data.proj.values()]))
+            t = tqdm(total=n_iter*2)
+        for spin, eb in zip(spins, eband_ud):
+            for isite, site in enumerate(self.data.structure.sites):
+                if site not in pdoss:
+                    pdoss[site] = {}
+                for iorb, orb in enumerate(Orbital):
+                    if progress: t.update()
+                    if iorb == self.data.proj[spin].shape[-1]:
+                        break
 
-                if orb not in pdoss[site]:
-                    pdoss[site][orb] = {}
+                    if orb not in pdoss[site]:
+                        pdoss[site][orb] = {}
 
-                self.data.ebands = self.data.proj[:, :, isite, iorb].T
-                coeffs = fite.fitde3D(self.data, self.equivalences)
-                proj, vvproj, cproj = fite.getBTPbands(self.equivalences,
-                                                       coeffs, self.data.lattvec)
+                    self.data.ebands = self.data.proj[spin][:, :, isite, iorb].T
+                    coeffs = fite.fitde3D(self.data, self.equivalences)
+                    proj, vvproj, cproj = fite.getBTPbands(self.equivalences,
+                                                           coeffs, self.data.lattvec)
 
-                edos, pdos = BL.DOS(self.eband, npts=npts_mu, weights=np.abs(proj.real))
+                    edos, pdos = BL.DOS(eb, npts=npts_mu,
+                                        weights=np.abs(proj.real),erange=enr)
 
-                if T is not None:
-                    pdos = BL.smoothen_DOS(edos, pdos, T)
-
-                pdoss[site][orb][Spin(spin)] = pdos
+                    if T:
+                        pdos = BL.smoothen_DOS(edos, pdos, T)
+                    
+                    pdoss[site][orb][spin] = pdos
 
         self.data.ebands = bkp_data_ebands
 
