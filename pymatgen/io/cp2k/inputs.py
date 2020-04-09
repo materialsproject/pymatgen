@@ -624,6 +624,7 @@ class Dft(Section):
         basis_set_filename="BASIS_MOLOPT",
         potential_filename="GTH_POTENTIALS",
         uks=True,
+        wfn_restart_file_name=None,
         **kwargs
     ):
         """
@@ -641,8 +642,11 @@ class Dft(Section):
         keywords = [
             Keyword("BASIS_SET_FILE_NAME", basis_set_filename),
             Keyword("POTENTIAL_FILE_NAME", potential_filename),
-            Keyword("UKS", uks),
+            Keyword("UKS", uks)
         ]
+
+        if wfn_restart_file_name:
+            keywords.append(Keyword('WFN_RESTART_FILE_NAME', wfn_restart_file_name))
 
         super().__init__(
             "DFT",

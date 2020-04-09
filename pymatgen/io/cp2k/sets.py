@@ -179,11 +179,12 @@ class Cp2kInputSet(Cp2kInput):
 
     def activate_hybrid(
         self,
-        structure,
         method="PBE0",
         hf_fraction=0.25,
         gga_x_fraction=0.75,
         gga_c_fraction=1,
+        max_memory=1000,
+        cutoff_radius=8
     ):
 
         """
@@ -250,7 +251,7 @@ class Cp2kInputSet(Cp2kInput):
             ip_keywords = [
                 Keyword("POTENTIAL_TYPE", "TRUNCATED"),
                 Keyword(
-                    "CUTOFF_RADIUS", 8
+                    "CUTOFF_RADIUS", cutoff_radius
                 ),
                 Keyword("T_C_G_DATA", "t_c_g.dat"),
             ]
@@ -268,7 +269,7 @@ class Cp2kInputSet(Cp2kInput):
             subsections={},
             keywords=[
                 Keyword("EPS_STORAGE_SCALING", 0.1),
-                Keyword("MAX_MEMORY", 7000),
+                Keyword("MAX_MEMORY", max_memory),
             ],
         )
         hf = Section(
@@ -338,6 +339,7 @@ class DftSet(Cp2kInputSet):
         ngrids=5,
         progression_factor=3,
         override_default_params={},
+        wfn_restart_file_name=None,
         **kwargs
     ):
         """
@@ -419,6 +421,7 @@ class DftSet(Cp2kInputSet):
             basis_set_filename=self.basis_set_file_name,
             potential_filename=self.potential_file_name,
             subsections={"QS": qs, "SCF": scf, "MGRID": mgrid},
+            wfn_restart_file_name=wfn_restart_file_name
         )
 
         # Create subsections and insert into them
@@ -645,7 +648,7 @@ class HybridStaticSet(StaticSet):
     def __init__(
         self,
         structure,
-        method="HSE06",
+        method="PBE0",
         hf_fraction=0.25,
         project_name="Hybrid-Static",
         gga_x_fraction=0.75,
@@ -667,11 +670,10 @@ class HybridStaticSet(StaticSet):
             structure, project_name=project_name, **kwargs
         )
         self.activate_hybrid(
-            structure,
             method=method,
             hf_fraction=hf_fraction,
             gga_x_fraction=gga_x_fraction,
-            gga_c_fraction=gga_c_fraction,
+            gga_c_fraction=gga_c_fraction
         )
         self.update(override_default_params)
 
@@ -685,7 +687,7 @@ class HybridRelaxSet(RelaxSet):
     def __init__(
         self,
         structure,
-        method="HSE06",
+        method="PBE0",
         hf_fraction=0.25,
         project_name="Hybrid-Relax",
         gga_x_fraction=0.75,
@@ -711,6 +713,6 @@ class HybridRelaxSet(RelaxSet):
             method=method,
             hf_fraction=hf_fraction,
             gga_x_fraction=gga_x_fraction,
-            gga_c_fraction=gga_c_fraction,
+            gga_c_fraction=gga_c_fraction
         )
         self.update(override_default_params)

@@ -44,7 +44,6 @@ _static_run_names_ = [
 _bohr_to_angstrom_ = 5.29177208590000e-01
 
 
-# TODO This might need more testing
 def _postprocessor(s):
     """
     Helper function to post process the results of the pattern matching functions in Cp2kOutput and turn them to
@@ -200,7 +199,9 @@ class Cp2kOutput:
         """
         Was a band gap found? i.e. is it a metal
         """
-        if self.band_gap <= 0:
+        if self.band_gap is None:
+            return True
+        elif self.band_gap <= 0:
             return True
         return False
 
@@ -924,10 +925,10 @@ class Cp2kOutput:
         band_gap = []
         efermi = []
 
-        try:
-            with zopen(self.filename, "rt") as f:
-                lines = iter(f.readlines())
-                for line in lines:
+        with zopen(self.filename, "rt") as f:
+            lines = iter(f.readlines())
+            for line in lines:
+                try:
                     if line.__contains__(" occupied subspace spin"):
                         eigenvalues.append(
                             {
@@ -993,10 +994,10 @@ class Cp2kOutput:
                                         for l in line.split()
                                     ]
                                 )
-        except ValueError:
-            eigenvalues = [{'occupied': {Spin.up: None, Spin.down: None},
-                            'unoccupied': {Spin.up: None, Spin.down: None}}]
-            warnings.warn('Convergence of eigenvalues  for one or more subspaces did NOT converge')
+                except ValueError:
+                    eigenvalues = [{'occupied': {Spin.up: None, Spin.down: None},
+                                    'unoccupied': {Spin.up: None, Spin.down: None}}]
+                    warnings.warn('Convergence of eigenvalues  for one or more subspaces did NOT converge')
 
         self.data["eigenvalues"] = eigenvalues
         self.data["band_gap"] = band_gap
@@ -1507,3 +1508,10 @@ class Cube:
         """
         mask = self.mask_sphere(r, coord)
         return ((mask * self.data) ** 2).sum() * self.volume
+
+    def planar_average(self):
+        """
+        Planar average in X,Y,Z direction
+        """
+        a = np.arange(self.NX * self.NY * self.NZ).reshape(self.NX, self.NY, self.NZ)
+        return np.array([a.mean(axis=(1, 2)), a.mean(axis=(0, 2)), a.mean(axis=(0, 1))])
