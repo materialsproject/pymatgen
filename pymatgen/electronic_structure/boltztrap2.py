@@ -32,7 +32,7 @@ import matplotlib.pyplot as plt
 from monty.serialization import dumpfn
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 from pymatgen.electronic_structure.bandstructure import \
-    BandStructureSymmLine, Kpoint, Spin
+    BandStructureSymmLine, BandStructure, Kpoint, Spin
 from pymatgen.io.vasp import Vasprun
 from pymatgen.io.ase import AseAtomsAdaptor
 from pymatgen.electronic_structure.dos import Dos, CompleteDos, Orbital
@@ -55,6 +55,106 @@ __email__ = "frankyricci@gmail.com"
 __status__ = "Development"
 __date__ = "August 2018"
 
+
+class PMGLoader:
+    """Loader for Bandstructure and Vasprun pmg objects"""
+
+    def __init__(self, obj, structure=None, nelect=None, mommat=None, magmom=None):
+        if isinstance(obj, Vasprun):
+            structure = obj.final_structure
+            nelect = obj.parameters['NELECT']
+            bs_obj = obj.get_band_structure()
+        elif isinstance(obj, BandStructure):
+            bs_obj = obj
+        else:
+            raise BoltztrapError('The object provided is not a Bandstructure or a Vasprun.')
+
+        self.kpoints = np.array([kp.frac_coords for kp in bs_obj.kpoints])
+
+        if bs_obj.structure:
+            self.structure = bs_obj.structure
+        elif structure:
+            self.structure = structure
+        else:
+            raise BoltztrapError('A structure must be given.')
+        
+        self.atoms = AseAtomsAdaptor.get_atoms(self.structure)
+        self.proj_all = None
+        if bs_obj.projections:
+            self.proj_all = {sp:p.transpose((1, 0, 3, 2)) for sp,p in bs_obj.projections.items()}
+            
+        e = np.array(list(bs_obj.bands.values()))
+        e = e.reshape(-1,e.shape[-1])
+        self.ebands_all = e * units.eV
+
+        self.is_spin_polarized = bs_obj.is_spin_polarized
+        
+        if bs_obj.is_spin_polarized:
+            self.dosweight = 1.
+        else:
+            self.dosweight = 2.
+        
+        self.lattvec = self.atoms.get_cell().T * units.Angstrom
+        self.mommat_all = mommat # not implemented yet
+        self.mommat = mommat # not implemented yet
+        self.magmom = magmom # not implemented yet
+        self.fermi = bs_obj.efermi * units.eV
+        self.UCvol = self.structure.volume * units.Angstrom ** 3
+
+        if nelect:
+            self.nelect_all = nelect
+        elif not bs_obj.is_metal():
+            self.vbm_idx = max(bs_obj.get_vbm()['band_index'][Spin.up] +
+                               bs_obj.get_vbm()['band_index'][Spin.down])
+            self.cbm_idx = min(bs_obj.get_cbm()['band_index'][Spin.up] +
+                               bs_obj.get_cbm()['band_index'][Spin.down])
+            self.vbm = bs_obj.get_vbm()['energy']
+            self.cbm = bs_obj.get_cbm()['energy']
+            self.nelect_all = self.vbm_idx * self.dosweight
+        else:
+            raise BoltztrapError('nelect must be given.')
+
+    @classmethod
+    def from_file(cls, vasprun_file):
+        """Get a vasprun.xml file and return a PMGLoader"""
+        vrun_obj = Vasprun(vasprun_file, parse_projected_eigen=True)
+        return cls(vrun_obj)
+        
+    def get_lattvec(self):
+        """
+        :return: The lattice vectors.
+        """
+        try:
+            self.lattvec
+        except AttributeError:
+            self.lattvec = self.atoms.get_cell().T * units.Angstrom
+        return self.lattvec
+
+    def bandana(self, emin=-np.inf, emax=np.inf):
+        """Cut out bands outside the range (emin,emax)"""
+        bandmin = np.min(self.ebands_all, axis=1)
+        bandmax = np.max(self.ebands_all, axis=1)
+        ntoolow = np.count_nonzero(bandmax <= emin)
+        accepted = np.logical_and(bandmin < emax, bandmax > emin)
+        # self.data_bkp = np.copy(self.data.ebands)
+        self.ebands = self.ebands_all[accepted]
+
+        self.proj = {}
+        if self.proj_all:
+            if len(self.proj_all) == 2:
+                h = int(len(accepted)/2)
+                self.proj[Spin.up] = self.proj_all[Spin.up][:, accepted[:h], :, :]
+                self.proj[Spin.down] = self.proj_all[Spin.down][:, accepted[h:], :, :]
+            elif len(self.proj) == 1:
+                self.proj[Spin.up] = self.proj_all[Spin.up][:, accepted, :, :]
+
+        if self.mommat_all:
+            self.mommat = self.mommat[:, accepted, :]
+        # Removing bands may change the number of valence electrons
+        if self.nelect_all:
+            self.nelect = self.nelect_all - self.dosweight * ntoolow
+            
+        return accepted
 
 class BandstructureLoader:
     """Loader for Bandsstrcture object"""
@@ -210,19 +310,19 @@ class VasprunLoader:
             self.nelect = vrun_obj.parameters['NELECT']
             self.UCvol = self.structure.volume * units.Angstrom ** 3
 
-        bs_obj = vrun_obj.get_band_structure()
-        if not bs_obj.is_metal():
-            self.vbm_idx = max(bs_obj.get_vbm()['band_index'][Spin.up] +
-                               bs_obj.get_vbm()['band_index'][Spin.down])
-            self.cbm_idx = min(bs_obj.get_cbm()['band_index'][Spin.up] +
-                               bs_obj.get_cbm()['band_index'][Spin.down])
-            self.vbm = bs_obj.get_vbm()['energy']
-            self.cbm = bs_obj.get_cbm()['energy']
-        else:
-            self.vbm_idx = None
-            self.cbm_idx = None
-            self.vbm = self.fermi
-            self.cbm = self.fermi
+            bs_obj = vrun_obj.get_band_structure()
+            if not bs_obj.is_metal():
+                self.vbm_idx = max(bs_obj.get_vbm()['band_index'][Spin.up] +
+                                   bs_obj.get_vbm()['band_index'][Spin.down])
+                self.cbm_idx = min(bs_obj.get_cbm()['band_index'][Spin.up] +
+                                   bs_obj.get_cbm()['band_index'][Spin.down])
+                self.vbm = bs_obj.get_vbm()['energy']
+                self.cbm = bs_obj.get_cbm()['energy']
+            else:
+                self.vbm_idx = None
+                self.cbm_idx = None
+                self.vbm = self.fermi
+                self.cbm = self.fermi
 
     def from_file(self, vasprun_file):
         """Get a vasprun.xml file and return a VasprunLoader"""
@@ -289,7 +389,8 @@ class BztInterpolator:
                 the number of kpoints given in reciprocal space.
             energy_range: usually the interpolation is not needed on the entire energy
                 range but on a specific range around the fermi level.
-                This energy in eV fix the range around the fermi level (E_fermi-energy_range,E_fermi+energy_range) of
+                This energy in eV fix the range around the fermi level 
+                (E_fermi-energy_range,E_fermi+energy_range) of
                 bands that will be interpolated
                 and taken into account to calculate the transport properties.
             curvature: boolean value to enable/disable the calculation of second
@@ -369,7 +470,7 @@ class BztInterpolator:
             spins = [Spin.up]
             
         for spin,eb,vvb in zip(spins,eband_ud, vvband_ud):
-            energies, densities, vvdos, cdos = BL.BTPDOS(eb, vvb, npts=npts_mu,erange=enr)
+            energies, densities, vvdos, cdos = BL.BTPDOS(eb, vvb, npts=npts_mu, erange=enr)
 
             if T:
                 densities = BL.smoothen_DOS(energies, densities, T)
