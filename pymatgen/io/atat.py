@@ -6,7 +6,9 @@
 Classes for reading/writing mcsqs files following the rndstr.in format.
 """
 
-from pymatgen import Structure, Lattice, Specie, DummySpecie
+from pymatgen.core.structure import Structure
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.periodic_table import get_el_sp, Specie
 import numpy as np
 
 
@@ -118,10 +120,7 @@ class Mcsqs:
                 if len(species_str) == 1:
                     # assume occupancy is 1.0
                     species_str = [species_str[0], 1.0]
-                try:
-                    species[Specie(species_str[0])] = float(species_str[1])
-                except Exception:
-                    species[DummySpecie(species_str[0])] = float(species_str[1])
+                species[get_el_sp(species_str[0])] = float(species_str[1])
 
             all_species.append(species)
 
