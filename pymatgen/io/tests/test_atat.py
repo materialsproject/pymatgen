@@ -4,8 +4,8 @@
 
 import os
 from pymatgen.util.testing import PymatgenTest
-
 from pymatgen.io.atat import Mcsqs
+from pymatgen.core.structure import Structure
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         "test_files", "mcsqs")
@@ -86,3 +86,13 @@ class AtatTest(PymatgenTest):
 0.500000 0.000000 0.000000 O=1.0"""
 
         self.assertEqual(Mcsqs(s).to_string(), ref_string)
+
+    def test_mcsqs_cif(self):
+
+        # cif file from str2cif (utility distributed with atat)
+        struc_from_cif = Structure.from_file(os.path.join(test_dir, "bestsqs_nacl.cif"))
+
+        # output file directly from mcsqs
+        struc_from_out = Structure.from_file(os.path.join(test_dir, "bestsqs_nacl.out"))
+
+        self.assertTrue(struc_from_cif.matches(struc_from_out))
