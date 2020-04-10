@@ -8,10 +8,10 @@ from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.atat import Mcsqs
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                        'test_files', "atat")
+                        "test_files", "mcsqs")
 
 
-class McsqsTest(PymatgenTest):
+class AtatTest(PymatgenTest):
 
     def test_mcsqs_import(self):
         test_string = """1.000000 0.000000 0.000000
