@@ -6,10 +6,11 @@
 Classes for reading/writing mcsqs files following the rndstr.in format.
 """
 
+import os
+import numpy as np
 from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import get_el_sp, Specie
-import numpy as np
 
 
 __author__ = "Matthew Horton"
@@ -107,7 +108,9 @@ class Mcsqs:
         all_species = []
         for l in data[first_species_line:]:
 
-            all_coords.append(np.array([l[0], l[1], l[2]], dtype=float))
+            coords = np.array([l[0], l[1], l[2]], dtype=float)
+            scaled_coords = np.matmul(coords, np.linalg.inv(lattice_vecs))
+            all_coords.append(scaled_coords)
 
             species_strs = "".join(l[3:])  # join multiple strings back together
             species_strs = species_strs.replace(" ", "")  # trim any white space

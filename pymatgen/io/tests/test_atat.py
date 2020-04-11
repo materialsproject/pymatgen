@@ -96,3 +96,5 @@ class AtatTest(PymatgenTest):
         struc_from_out = Structure.from_file(os.path.join(test_dir, "bestsqs_nacl.out"))
 
         self.assertTrue(struc_from_cif.matches(struc_from_out))
+        self.assertArrayAlmostEqual(struc_from_out.lattice.parameters, struc_from_cif.lattice.parameters,
+                                    decimal=4)
