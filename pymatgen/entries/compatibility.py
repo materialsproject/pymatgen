@@ -414,14 +414,6 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
     of entries. All Compatibility classes must implement .process_entries and
     .explain methods.
     """
-    @abc.abstractmethod
-    def __init__(self):
-        """
-        Args:
-            corrections: List of corrections to apply.
-        """
-        pass
-
 
     @abc.abstractmethod
     def process_entries(self, entries):
@@ -432,7 +424,7 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
             entries: A sequence of entries.
 
         Returns:
-            An list of adjusted entries.  Entries in the original list which
+            A list of adjusted entries.  Entries in the original list which
             are not compatible are excluded.
         """
         pass
@@ -440,9 +432,9 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def explain(self, entry):
         """
-        Prints an explanation of the corrections that are being applied for a
-        given compatibility scheme. Inspired by the "explain" methods in many
-        database methodologies.
+        Print an explanation of the corrections that are being applied to an
+        entry for a given compatibility scheme. Inspired by the "explain" methods
+        in many database methodologies.
 
         Args:
             entry: A ComputedEntry.
@@ -450,9 +442,9 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
         pass
 
 
-class MITMPOldCompatibility(Compatibility):
+class MITMPCompatibility(Compatibility):
     """
-    The MITMPOldCompatibility class combines a list of corrections to be applied to
+    The MITMPCompatibility class combines a list of corrections to be applied to
     an entry or a set of entries. Note that some of the Corrections have
     interdependencies. For example, PotcarCorrection must always be used
     before any other compatibility. Also, GasCorrection("MP") must be used
@@ -578,7 +570,7 @@ class MITMPOldCompatibility(Compatibility):
             "corrected_energy"])
 
 
-class MaterialsProjectCompatibility(MITMPOldCompatibility):
+class MaterialsProjectCompatibility(MITMPCompatibility):
     """
     This class implements the GGA/GGA+U mixing scheme, which allows mixing of
     entries. Note that this should only be used for VASP calculations using the
@@ -613,7 +605,7 @@ class MaterialsProjectCompatibility(MITMPOldCompatibility):
              UCorrection(fp, MPRelaxSet, compat_type)])
 
 
-class MITCompatibility(MITMPOldCompatibility):
+class MITCompatibility(MITMPCompatibility):
     """
     This class implements the GGA/GGA+U mixing scheme, which allows mixing of
     entries. Note that this should only be used for VASP calculations using the
@@ -647,7 +639,7 @@ class MITCompatibility(MITMPOldCompatibility):
              UCorrection(fp, MITRelaxSet, compat_type)])
 
 
-class MITAqueousCompatibility(MITMPOldCompatibility):
+class MITAqueousCompatibility(MITMPCompatibility):
     """
     This class implements the GGA/GGA+U mixing scheme, which allows mixing of
     entries. Note that this should only be used for VASP calculations using the
@@ -681,7 +673,7 @@ class MITAqueousCompatibility(MITMPOldCompatibility):
              UCorrection(fp, MITRelaxSet, compat_type), AqueousCorrection(fp)])
 
 
-class MaterialsProjectAqueousCompatibility(MITMPOldCompatibility):
+class MaterialsProjectAqueousCompatibility(MITMPCompatibility):
     """
     This class implements the GGA/GGA+U mixing scheme, which allows mixing of
     entries. Note that this should only be used for VASP calculations using the
