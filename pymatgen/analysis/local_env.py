@@ -1015,6 +1015,8 @@ class VoronoiNN(NearNeighbors):
         else:
             targets = self.targets
 
+        assert len(nns.values()) > 1, "Failed to find Voronoi neighbours [fix WIP]"
+
         # Extract the NN info
         siw = []
         max_weight = max(nn[self.weight] for nn in nns.values())
