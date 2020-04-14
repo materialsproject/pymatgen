@@ -13,6 +13,7 @@
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
  
@@ -93,19 +94,19 @@
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">re</span>
 
-<span class="kn">from</span> <span class="nn">monty.io</span> <span class="kn">import</span> <span class="n">zopen</span>
-<span class="kn">from</span> <span class="nn">monty.dev</span> <span class="kn">import</span> <span class="n">requires</span>
-<span class="kn">from</span> <span class="nn">monty.tempfile</span> <span class="kn">import</span> <span class="n">ScratchDir</span>
+<span class="kn">from</span> <span class="nn">monty.io</span> <span class="k">import</span> <span class="n">zopen</span>
+<span class="kn">from</span> <span class="nn">monty.dev</span> <span class="k">import</span> <span class="n">requires</span>
+<span class="kn">from</span> <span class="nn">monty.tempfile</span> <span class="k">import</span> <span class="n">ScratchDir</span>
 
-<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">Molecule</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.lattice</span> <span class="kn">import</span> <span class="n">Lattice</span>
-<span class="kn">from</span> <span class="nn">pymatgen.io.cssr</span> <span class="kn">import</span> <span class="n">Cssr</span>
-<span class="kn">from</span> <span class="nn">pymatgen.io.xyz</span> <span class="kn">import</span> <span class="n">XYZ</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">Molecule</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.lattice</span> <span class="k">import</span> <span class="n">Lattice</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.cssr</span> <span class="k">import</span> <span class="n">Cssr</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.xyz</span> <span class="k">import</span> <span class="n">XYZ</span>
 
 <span class="k">try</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">zeo.netstorage</span> <span class="kn">import</span> <span class="n">AtomNetwork</span>
-    <span class="kn">from</span> <span class="nn">zeo.area_volume</span> <span class="kn">import</span> <span class="n">volume</span><span class="p">,</span> <span class="n">surface_area</span>
-    <span class="kn">from</span> <span class="nn">zeo.cluster</span> <span class="kn">import</span> <span class="n">prune_voronoi_network_close_node</span>
+    <span class="kn">from</span> <span class="nn">zeo.netstorage</span> <span class="k">import</span> <span class="n">AtomNetwork</span>
+    <span class="kn">from</span> <span class="nn">zeo.area_volume</span> <span class="k">import</span> <span class="n">volume</span><span class="p">,</span> <span class="n">surface_area</span>
+    <span class="kn">from</span> <span class="nn">zeo.cluster</span> <span class="k">import</span> <span class="n">prune_voronoi_network_close_node</span>
 
     <span class="n">zeo_found</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
@@ -127,14 +128,14 @@
 <span class="sd">    of Zeo++ (x-axis) for structurural modifications.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            structure: A structure to create ZeoCssr object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        CSSR.__str__ method is modified to padd 0&#39;s to the CSSR site data.</span>
 <span class="sd">        The padding is to conform with the CSSR format supported Zeo++.</span>
@@ -225,7 +226,7 @@
 <span class="sd">    The voronoi node radius is represented by the site property voronoi_radius.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mol</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mol</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            mol: Input molecule holding the voronoi node information</span>
@@ -279,7 +280,7 @@
         <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">ZeoVoronoiXYZ</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span></div>
 
-    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">output</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mols</span><span class="p">[</span><span class="mi">0</span><span class="p">])),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mols</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">formula</span><span class="p">]</span>
         <span class="n">fmtstr</span> <span class="o">=</span> <span class="s2">&quot;{{}} {{:.</span><span class="si">{0}</span><span class="s2">f}} {{:.</span><span class="si">{0}</span><span class="s2">f}} {{:.</span><span class="si">{0}</span><span class="s2">f}} {{:.</span><span class="si">{0}</span><span class="s2">f}}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">precision</span>
@@ -583,7 +584,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

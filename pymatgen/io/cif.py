@@ -1208,17 +1208,21 @@ class CifWriter:
     """
     A wrapper around CifFile to write CIF files from pymatgen structures.
     """
-    def __init__(self, struct, symprec=None, write_magmoms=False, significant_figures=8):
+    def __init__(self, struct, symprec=None, write_magmoms=False,
+                 significant_figures=8, angle_tolerance=5.0):
         """
         Args:
             struct (Structure): structure to write
             symprec (float): If not none, finds the symmetry of the structure
                 and writes the cif with symmetry information. Passes symprec
-                to the SpacegroupAnalyzer
+                to the SpacegroupAnalyzer.
             write_magmoms (bool): If True, will write magCIF file. Incompatible
                 with symprec
             significant_figures (int): Specifies precision for formatting of floats.
                 Defaults to 8.
+            angle_tolerance (float): Angle tolerance for symmetry finding. Passes
+                angle_tolerance to the SpacegroupAnalyzer. Used only if symprec
+                is not None.
         """
 
         if write_magmoms and symprec:
@@ -1233,7 +1237,7 @@ class CifWriter:
         loops = []
         spacegroup = ("P 1", 1)
         if symprec is not None:
-            sf = SpacegroupAnalyzer(struct, symprec)
+            sf = SpacegroupAnalyzer(struct, symprec, angle_tolerance=angle_tolerance)
             spacegroup = (sf.get_space_group_symbol(),
                           sf.get_space_group_number())
             # Needs the refined struture when using symprec. This converts
@@ -1377,6 +1381,13 @@ class CifWriter:
         d = OrderedDict()
         d[comp.reduced_formula] = CifBlock(block, loops, comp.reduced_formula)
         self._cf = CifFile(d)
+
+    @property
+    def ciffile(self):
+        """
+        Returns: CifFile associated with the CifWriter.
+        """
+        return self._cf
 
     def __str__(self):
         """

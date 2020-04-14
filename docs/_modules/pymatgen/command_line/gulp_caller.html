@@ -13,6 +13,7 @@
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
  
@@ -67,13 +68,13 @@
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">re</span>
 
-<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="kn">import</span> <span class="n">Element</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.lattice</span> <span class="kn">import</span> <span class="n">Lattice</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">Structure</span>
-<span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="kn">import</span> <span class="n">SpacegroupAnalyzer</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.bond_valence</span> <span class="kn">import</span> <span class="n">BVAnalyzer</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">Element</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.lattice</span> <span class="k">import</span> <span class="n">Lattice</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
+<span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="k">import</span> <span class="n">SpacegroupAnalyzer</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.bond_valence</span> <span class="k">import</span> <span class="n">BVAnalyzer</span>
 
-<span class="kn">from</span> <span class="nn">monty.tempfile</span> <span class="kn">import</span> <span class="n">ScratchDir</span>
+<span class="kn">from</span> <span class="nn">monty.tempfile</span> <span class="k">import</span> <span class="n">ScratchDir</span>
 
 <span class="n">_anions</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">Element</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="s2">&quot;S&quot;</span><span class="p">,</span> <span class="s2">&quot;F&quot;</span><span class="p">,</span> <span class="s2">&quot;Cl&quot;</span><span class="p">,</span> <span class="s2">&quot;Br&quot;</span><span class="p">,</span> <span class="s2">&quot;N&quot;</span><span class="p">,</span> <span class="s2">&quot;P&quot;</span><span class="p">]))</span>
 <span class="n">_cations</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">Element</span><span class="p">,</span> <span class="p">[</span>
@@ -128,7 +129,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="GulpIO.keyword_line"><a class="viewcode-back" href="../../../pymatgen.command_line.gulp_caller.html#pymatgen.command_line.gulp_caller.GulpIO.keyword_line">[docs]</a>    <span class="k">def</span> <span class="nf">keyword_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
-        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Checks if the input args are proper gulp keywords and</span>
 <span class="sd">        generates the 1st line of gulp input. Full keywords are expected.</span>
 
@@ -201,7 +202,7 @@
         <span class="k">return</span> <span class="n">gin</span></div>
 
 <div class="viewcode-block" id="GulpIO.specie_potential_lines"><a class="viewcode-back" href="../../../pymatgen.command_line.gulp_caller.html#pymatgen.command_line.gulp_caller.GulpIO.specie_potential_lines">[docs]</a>    <span class="k">def</span> <span class="nf">specie_potential_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">potential</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generates GULP input specie and potential string for pymatgen</span>
 <span class="sd">        structure.</span>
 
@@ -408,13 +409,6 @@
         <span class="k">return</span> <span class="n">gin</span></div>
 
 <div class="viewcode-block" id="GulpIO.get_energy"><a class="viewcode-back" href="../../../pymatgen.command_line.gulp_caller.html#pymatgen.command_line.gulp_caller.GulpIO.get_energy">[docs]</a>    <span class="k">def</span> <span class="nf">get_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gout</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Args:</span>
-<span class="sd">            gout ():</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            Energy</span>
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">energy</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">gout</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">):</span>
             <span class="k">if</span> <span class="s2">&quot;Total lattice energy&quot;</span> <span class="ow">in</span> <span class="n">line</span> <span class="ow">and</span> <span class="s2">&quot;eV&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
@@ -427,13 +421,6 @@
             <span class="k">raise</span> <span class="n">GulpError</span><span class="p">(</span><span class="s2">&quot;Energy not found in Gulp output&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="GulpIO.get_relaxed_structure"><a class="viewcode-back" href="../../../pymatgen.command_line.gulp_caller.html#pymatgen.command_line.gulp_caller.GulpIO.get_relaxed_structure">[docs]</a>    <span class="k">def</span> <span class="nf">get_relaxed_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gout</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Args:</span>
-<span class="sd">            gout ():</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            (Structure) relaxed structure.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Find the structure lines</span>
         <span class="n">structure_lines</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">cell_param_lines</span> <span class="o">=</span> <span class="p">[]</span>
@@ -524,7 +511,7 @@
 <span class="sd">    Class to run gulp from commandline</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmd</span><span class="o">=</span><span class="s1">&#39;gulp&#39;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmd</span><span class="o">=</span><span class="s1">&#39;gulp&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize with the executable if not in the standard path</span>
 
@@ -662,14 +649,10 @@
 <span class="sd">    Raised when the GULP gives an error</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Args:</span>
-<span class="sd">            msg (str): Message</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">msg</span> <span class="o">=</span> <span class="n">msg</span>
 
-    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;GulpError : &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">msg</span></div>
 
 
@@ -680,14 +663,10 @@
 <span class="sd">    defect energy optimisation procedure in GULP</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Args:</span>
-<span class="sd">            msg (str): Message</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">msg</span> <span class="o">=</span> <span class="n">msg</span>
 
-    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">msg</span></div>
 
 
@@ -702,11 +681,7 @@
 <span class="sd">    1149-1161 (1985)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bush_lewis_flag</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Args:</span>
-<span class="sd">            bush_lewis_flag (str): Flag for using Bush or Lewis potential.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bush_lewis_flag</span><span class="p">):</span>
         <span class="k">assert</span> <span class="n">bush_lewis_flag</span> <span class="ow">in</span> <span class="p">{</span><span class="s1">&#39;bush&#39;</span><span class="p">,</span> <span class="s1">&#39;lewis&#39;</span><span class="p">}</span>
         <span class="n">pot_file</span> <span class="o">=</span> <span class="s2">&quot;bush.lib&quot;</span> <span class="k">if</span> <span class="n">bush_lewis_flag</span> <span class="o">==</span> <span class="s2">&quot;bush&quot;</span> <span class="k">else</span> <span class="s2">&quot;lewis.lib&quot;</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;GULP_LIB&quot;</span><span class="p">],</span> <span class="n">pot_file</span><span class="p">),</span> <span class="s1">&#39;rt&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
@@ -777,10 +752,7 @@
 <span class="sd">    Generate Tersoff Potential Table from &quot;OxideTersoffPotentialentials&quot; file</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Init TersoffPotential</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">module_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">module_dir</span><span class="p">,</span> <span class="s2">&quot;OxideTersoffPotentials&quot;</span><span class="p">),</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">data</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
@@ -827,7 +799,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

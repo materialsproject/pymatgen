@@ -1,9 +1,13 @@
 Change log
 ==========
 
-v2020.3.2
+v2020.4.2
 ---------
-* New MonteCarloRattleTransformation and phonopy integration (@utf)
-* New structure connectivity features in Chemenv analysis (@davidwaroquiers)
-* Bug fixes (@richardtran415, @chc273, @JaGeo, @dskoda, @rkingsbury, 
-  @jmmshn, @espottesmith, @gVallverdu, @yimingchen95, @fraricci)
+* New high-symmetry k-path algorithm (@munrojm, @kt-latimer)
+* New TEM diffraction calculator (@welltemperedpaprika, @thefrankwan, @shyamd)
+* New plotly plotting option for Wulff shapes (@richardtran415)
+* Improvements to SQS caller (@rwoodsrobinson)
+* Various bug fixes and improvements (@mfherbst, @chc273,
+  @jacksund, @espottesmith, @hongyi-zhao, @montoyjh,
+  @dongsenfo, @dynikon) including significant BrunnerNN, EconNN fixes (@utf),
+  see individual pull requests for details.

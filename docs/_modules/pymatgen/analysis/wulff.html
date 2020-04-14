@@ -13,6 +13,7 @@
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
  
@@ -64,10 +65,10 @@
 <span class="sd">(2016). Surface energies of elemental crystals. Scientific Data.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">Structure</span>
-<span class="kn">from</span> <span class="nn">pymatgen.util.coord</span> <span class="kn">import</span> <span class="n">get_angle</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.coord</span> <span class="k">import</span> <span class="n">get_angle</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">scipy.spatial</span> <span class="kn">import</span> <span class="n">ConvexHull</span>
+<span class="kn">from</span> <span class="nn">scipy.spatial</span> <span class="k">import</span> <span class="n">ConvexHull</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 
@@ -118,7 +119,7 @@
 <span class="sd">    Helper container for each Wulff plane.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">normal</span><span class="p">,</span> <span class="n">e_surf</span><span class="p">,</span> <span class="n">normal_pt</span><span class="p">,</span> <span class="n">dual_pt</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">m_ind_orig</span><span class="p">,</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">normal</span><span class="p">,</span> <span class="n">e_surf</span><span class="p">,</span> <span class="n">normal_pt</span><span class="p">,</span> <span class="n">dual_pt</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">m_ind_orig</span><span class="p">,</span>
                  <span class="n">miller</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param normal:</span>
@@ -208,7 +209,7 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">miller_list</span><span class="p">,</span> <span class="n">e_surf_list</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">miller_list</span><span class="p">,</span> <span class="n">e_surf_list</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            lattice: Lattice object of the conventional unit cell</span>
@@ -723,7 +724,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

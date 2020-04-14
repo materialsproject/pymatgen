@@ -13,6 +13,7 @@
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
  
@@ -56,16 +57,16 @@
 <span class="sd">@gmatteo but has since undergone major refactoring.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
-<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABCMeta</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="k">import</span> <span class="n">deepcopy</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="k">import</span> <span class="n">ABCMeta</span><span class="p">,</span> <span class="n">abstractmethod</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">leastsq</span><span class="p">,</span> <span class="n">minimize</span>
+<span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="k">import</span> <span class="n">leastsq</span><span class="p">,</span> <span class="n">minimize</span>
 
-<span class="kn">from</span> <span class="nn">pymatgen.core.units</span> <span class="kn">import</span> <span class="n">FloatWithUnit</span>
-<span class="kn">from</span> <span class="nn">pymatgen.util.plotting</span> <span class="kn">import</span> <span class="n">pretty_plot</span><span class="p">,</span> <span class="n">add_fig_kwargs</span><span class="p">,</span> <span class="n">get_ax_fig_plt</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.units</span> <span class="k">import</span> <span class="n">FloatWithUnit</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.plotting</span> <span class="k">import</span> <span class="n">pretty_plot</span><span class="p">,</span> <span class="n">add_fig_kwargs</span><span class="p">,</span> <span class="n">get_ax_fig_plt</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Kiran Mathew, gmatteo&quot;</span>
 <span class="n">__credits__</span> <span class="o">=</span> <span class="s2">&quot;Cormac Toher&quot;</span>
@@ -79,7 +80,7 @@
 <span class="sd">    implementations.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">volumes</span><span class="p">,</span> <span class="n">energies</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">volumes</span><span class="p">,</span> <span class="n">energies</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">         Args:</span>
 <span class="sd">             volumes (list/numpy.array): volumes in Ang^3</span>
@@ -159,14 +160,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_func</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">volume</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">eos_params</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">volume</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Args:</span>
-<span class="sd">            volume (): Volume</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            Compute EOS with this volume.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">volume</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="n">volume</span><span class="p">)</span>
 
     <span class="nd">@property</span>
@@ -318,9 +312,6 @@
 
 
 <div class="viewcode-block" id="Murnaghan"><a class="viewcode-back" href="../../../pymatgen.analysis.eos.html#pymatgen.analysis.eos.Murnaghan">[docs]</a><span class="k">class</span> <span class="nc">Murnaghan</span><span class="p">(</span><span class="n">EOSBase</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Murnaghan EOS.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">_func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">volume</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -333,9 +324,6 @@
 
 
 <div class="viewcode-block" id="Birch"><a class="viewcode-back" href="../../../pymatgen.analysis.eos.html#pymatgen.analysis.eos.Birch">[docs]</a><span class="k">class</span> <span class="nc">Birch</span><span class="p">(</span><span class="n">EOSBase</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Birch EOS.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">_func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">volume</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -352,9 +340,6 @@
 
 
 <div class="viewcode-block" id="BirchMurnaghan"><a class="viewcode-back" href="../../../pymatgen.analysis.eos.html#pymatgen.analysis.eos.BirchMurnaghan">[docs]</a><span class="k">class</span> <span class="nc">BirchMurnaghan</span><span class="p">(</span><span class="n">EOSBase</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    BirchMurnaghan EOS</span>
-<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">_func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">volume</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -368,9 +353,6 @@
 
 
 <div class="viewcode-block" id="PourierTarantola"><a class="viewcode-back" href="../../../pymatgen.analysis.eos.html#pymatgen.analysis.eos.PourierTarantola">[docs]</a><span class="k">class</span> <span class="nc">PourierTarantola</span><span class="p">(</span><span class="n">EOSBase</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    PourierTarantola EOS</span>
-<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">_func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">volume</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -383,9 +365,6 @@
 
 
 <div class="viewcode-block" id="Vinet"><a class="viewcode-back" href="../../../pymatgen.analysis.eos.html#pymatgen.analysis.eos.Vinet">[docs]</a><span class="k">class</span> <span class="nc">Vinet</span><span class="p">(</span><span class="n">EOSBase</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Vinet EOS.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">_func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">volume</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -439,9 +418,6 @@
 
 
 <div class="viewcode-block" id="DeltaFactor"><a class="viewcode-back" href="../../../pymatgen.analysis.eos.html#pymatgen.analysis.eos.DeltaFactor">[docs]</a><span class="k">class</span> <span class="nc">DeltaFactor</span><span class="p">(</span><span class="n">PolynomialEOS</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Fitting a polynomial EOS using delta factor.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">_func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">volume</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
         <span class="n">x</span> <span class="o">=</span> <span class="n">volume</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="mf">2.</span> <span class="o">/</span> <span class="mf">3.</span><span class="p">)</span>
@@ -483,9 +459,6 @@
 
 
 <div class="viewcode-block" id="NumericalEOS"><a class="viewcode-back" href="../../../pymatgen.analysis.eos.html#pymatgen.analysis.eos.NumericalEOS">[docs]</a><span class="k">class</span> <span class="nc">NumericalEOS</span><span class="p">(</span><span class="n">PolynomialEOS</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A numerical EOS.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="NumericalEOS.fit"><a class="viewcode-back" href="../../../pymatgen.analysis.eos.html#pymatgen.analysis.eos.NumericalEOS.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_ndata_factor</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">max_poly_order_factor</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">min_poly_order</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -633,11 +606,7 @@
         <span class="s2">&quot;numerical_eos&quot;</span><span class="p">:</span> <span class="n">NumericalEOS</span>
     <span class="p">}</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eos_name</span><span class="o">=</span><span class="s1">&#39;murnaghan&#39;</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Args:</span>
-<span class="sd">            eos_name (str): Type of EOS to fit.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eos_name</span><span class="o">=</span><span class="s1">&#39;murnaghan&#39;</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">eos_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">MODELS</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">EOSError</span><span class="p">(</span><span class="s2">&quot;The equation of state &#39;</span><span class="si">{}</span><span class="s2">&#39; is not supported. &quot;</span>
                            <span class="s2">&quot;Please choose one from the following list: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span>
@@ -662,9 +631,6 @@
 
 
 <div class="viewcode-block" id="EOSError"><a class="viewcode-back" href="../../../pymatgen.analysis.eos.html#pymatgen.analysis.eos.EOSError">[docs]</a><span class="k">class</span> <span class="nc">EOSError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Error class for EOS fitting.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">pass</span></div>
 </pre></div>
 
@@ -704,7 +670,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

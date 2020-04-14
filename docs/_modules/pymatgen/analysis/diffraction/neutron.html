@@ -13,6 +13,7 @@
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
  
@@ -48,19 +49,20 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">This module implements a neutron diffraction (ND) pattern calculator.</span>
-<span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">sin</span><span class="p">,</span> <span class="n">cos</span><span class="p">,</span> <span class="n">asin</span><span class="p">,</span> <span class="n">pi</span><span class="p">,</span> <span class="n">degrees</span><span class="p">,</span> <span class="n">radians</span>
+<span class="kn">from</span> <span class="nn">math</span> <span class="k">import</span> <span class="n">sin</span><span class="p">,</span> <span class="n">cos</span><span class="p">,</span> <span class="n">asin</span><span class="p">,</span> <span class="n">pi</span><span class="p">,</span> <span class="n">degrees</span><span class="p">,</span> <span class="n">radians</span>
 <span class="kn">import</span> <span class="nn">os</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">json</span>
 
-<span class="kn">from</span> <span class="nn">.core</span> <span class="kn">import</span> <span class="n">DiffractionPattern</span><span class="p">,</span> <span class="n">AbstractDiffractionPatternCalculator</span><span class="p">,</span> \
+<span class="kn">from</span> <span class="nn">.core</span> <span class="k">import</span> <span class="n">DiffractionPattern</span><span class="p">,</span> <span class="n">AbstractDiffractionPatternCalculator</span><span class="p">,</span> \
     <span class="n">get_unique_families</span>
-<span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="kn">import</span> <span class="n">SpacegroupAnalyzer</span>
+<span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="k">import</span> <span class="n">SpacegroupAnalyzer</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module implements a neutron diffraction (ND) pattern calculator.</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Yuta Suzuki&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2018, The Materials Project&quot;</span>
@@ -91,7 +93,7 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wavelength</span><span class="o">=</span><span class="mf">1.54184</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wavelength</span><span class="o">=</span><span class="mf">1.54184</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
                  <span class="n">debye_waller_factors</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initializes the ND calculator with a given radiation.</span>
@@ -283,7 +285,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking
