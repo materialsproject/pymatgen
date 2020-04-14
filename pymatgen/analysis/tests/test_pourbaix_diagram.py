@@ -4,6 +4,7 @@
 
 
 import unittest
+import pytest
 import os
 from monty.serialization import loadfn
 import warnings
@@ -14,6 +15,7 @@ import logging
 from pymatgen.analysis.pourbaix_diagram import PourbaixDiagram, PourbaixEntry, \
     PourbaixPlotter, IonEntry, MultiEntry
 from pymatgen.entries.computed_entries import ComputedEntry
+from pymatgen.entries.compatibility import MaterialsProjectAqueousCompatibility2020
 from pymatgen.core.ion import Ion
 from pymatgen import SETTINGS
 
@@ -284,6 +286,10 @@ class PourbaixDiagramTest(unittest.TestCase):
             all(['Bi' in entry.composition and 'V' in entry.composition
                  for entry in pbx.all_entries])
         )
+
+        # Test compatiblity warning
+        with pytest.warns(match="not yet compatible"):
+            mpr.get_pourbaix_entries(["Sn", "C", "Na"], compat=MaterialsProjectAqueousCompatibility2020())
 
 
 class PourbaixPlotterTest(unittest.TestCase):

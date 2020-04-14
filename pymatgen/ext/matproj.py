@@ -35,7 +35,8 @@ from pymatgen.core.surface import get_symmetrically_equivalent_miller_indices
 from pymatgen.entries.computed_entries import ComputedEntry, \
     ComputedStructureEntry
 from pymatgen.entries.exp_entries import ExpEntry
-from pymatgen.entries.compatibility import MaterialsProjectAqueousCompatibility
+from pymatgen.entries.compatibility import MaterialsProjectAqueousCompatibility, \
+    MaterialsProjectAqueousCompatibility2020
 
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
@@ -475,7 +476,7 @@ class MPRester:
             chemsys ([str]): A list of elements comprising the chemical
                 system, e.g. ['Li', 'Fe']
             compat: Compatibility object used to process the entries returned 
-                by MPRester.
+                by MPRester. Default: MaterialsProjectAqueousCompatibility
         """
         from pymatgen.analysis.pourbaix_diagram import PourbaixEntry, IonEntry
         from pymatgen.analysis.phase_diagram import PhaseDiagram
@@ -493,6 +494,10 @@ class MPRester:
         ion_ref_entries = self.get_entries_in_chemsys(
             list(set([str(e) for e in ion_ref_elts] + ['O', 'H'])),
             property_data=['e_above_hull'], compatible_only=False)
+        if compat == MaterialsProjectAqueousCompatibility2020():
+            warnings.warn("pymatgen's Pourbaix diagrams are not yet fully"
+                          "compatible with MaterialsProjectAqueousCompatibility2020"
+                          "Hydride energies may be incorrect.")
         ion_ref_entries = compat.process_entries(ion_ref_entries)
         ion_ref_pd = PhaseDiagram(ion_ref_entries)
 
