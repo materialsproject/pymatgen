@@ -4,7 +4,7 @@
 
 
 import unittest
-import pytest
+import pytest  # type: ignore  # Ignore pytest import for mypy
 import os
 from monty.serialization import loadfn
 import warnings
