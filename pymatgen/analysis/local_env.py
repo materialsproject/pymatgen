@@ -962,6 +962,8 @@ class VoronoiNN(NearNeighbors):
             for key, neighbors in adj_neighbors.items():
                 resultweighted[key]['adj_neighbors'] = neighbors
 
+        assert len(resultweighted) > 0, "Failed to find Voronoi neighbours [fix WIP]"
+
         return resultweighted
 
     def get_nn_info(self, structure, n):
@@ -1014,8 +1016,6 @@ class VoronoiNN(NearNeighbors):
             targets = structure.composition.elements
         else:
             targets = self.targets
-
-        assert len(nns.values()) > 1, "Failed to find Voronoi neighbours [fix WIP]"
 
         # Extract the NN info
         siw = []
