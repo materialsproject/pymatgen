@@ -13,8 +13,9 @@ import warnings as w
 from typing import List, Dict, Tuple
 from monty.serialization import loadfn
 
-from pymatgen import Composition
+from pymatgen import Element, Composition
 from pymatgen.analysis.reaction_calculator import ComputedReaction
+from pymatgen.analysis.structure_analyzer import sulfide_type
 
 
 def func(x, *m):
@@ -45,12 +46,12 @@ class CorrectionCalculator:
         "oxide",
         "peroxide",
         "superoxide",
+        "sulfide",
         "F",
         "Cl",
         "Br",
         "I",
         "N",
-        "S",
         "Se",
         "Si",
         "Sb",
@@ -73,7 +74,13 @@ class CorrectionCalculator:
 
         Args:
             exp_gz: name of gzip file that contains experimental data
+                    data in gzip file should be a list of dictionary objects with the following keys/values:
+                    {"formula": chemical formula, "exp energy": formation energy in eV/formula unit,
+                    "uncertainty": uncertainty in formation energy, "warnings": {"polyanion": str describing
+                    polyanions in compound or None, "large_uncertainty": str describing if compound has a large
+                    uncertainty value or None, "unstable": str describing if compound has high e above hull or None}}
             comp_gz: name of gzip file that contains computed entries
+                    data in gzip file should be a dictionary of {chemical formula: ComputedEntry}
         """
 
         self.exp_compounds = loadfn(exp_gz)  # experimental data
@@ -88,6 +95,7 @@ class CorrectionCalculator:
         self.oxides: List[str] = []
         self.peroxides: List[str] = []
         self.superoxides: List[str] = []
+        self.sulfides: List[str] = []
 
     def compute_corrections(
         self,
@@ -155,7 +163,22 @@ class CorrectionCalculator:
                     self.superoxides.append(name)
                 else:
                     coeff = [0, 0, 0]
-                coeff += [comp[elem] for elem in self.species[3:]]
+
+                if Element("S") in comp:
+                    sf_type = "sulfide"
+                    if compound.data.get("sulfide_type"):
+                        sf_type = compound.data["sulfide_type"]
+                    elif hasattr(compound, "structure"):
+                        sf_type = sulfide_type(compound.structure)
+                    if sf_type == "sulfide":
+                        coeff += [comp["S"]]
+                        self.sulfides.append(name)
+                    else:
+                        coeff += [0]
+                else:
+                    coeff += [0]
+
+                coeff += [comp[elem] for elem in self.species[4:]]
 
                 self.names.append(name)
                 self.diffs.append((cmpd_info["exp energy"] - energy) / comp.num_atoms)
@@ -265,13 +288,20 @@ class CorrectionCalculator:
         diffs_cpy = self.diffs.copy()
         num = len(labels_species)
 
-        if specie == "oxide" or specie == "peroxide" or specie == "superoxide":
+        if (
+            specie == "oxide"
+            or specie == "peroxide"
+            or specie == "superoxide"
+            or specie == "sulfide"
+        ):
             if specie == "oxide":
                 compounds = self.oxides
             elif specie == "peroxide":
                 compounds = self.peroxides
-            else:
+            elif specie == "superoxides":
                 compounds = self.superoxides
+            else:
+                compounds = self.sulfides
             for i in range(num):
                 if labels_species[num - i - 1] not in compounds:
                     del labels_species[num - i - 1]
@@ -349,8 +379,8 @@ class CorrectionCalculator:
         comp_corr_error["superoxide"] = self.corrections_dict["superoxide"][1]
         comp_corr_error["ozonide"] = 0  # do i need this??
 
-        comp_corr["sulfide"] = self.corrections_dict["S"][0]
-        comp_corr_error["sulfide"] = self.corrections_dict["S"][1]
+        comp_corr["sulfide"] = self.corrections_dict["sulfide"][0]
+        comp_corr_error["sulfide"] = self.corrections_dict["sulfide"][1]
 
         for elem in ["Br", "I", "Se", "Si", "Sb", "Te", "F", "Cl", "N", "H"]:
             comp_corr[elem] = self.corrections_dict[elem][0]
