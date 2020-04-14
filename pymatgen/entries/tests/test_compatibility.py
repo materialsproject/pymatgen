@@ -1669,11 +1669,11 @@ class MPAqueousCorrection2020Test(unittest.TestCase):
 
         entry = ComputedEntry(Composition("H2O"), -16)
         entry = self.corr.correct_entry(entry)
-        self.assertAlmostEqual(entry.energy, -15.7581, 4)
+        self.assertAlmostEqual(entry.energy, -15.7603, 4)
 
         entry = ComputedEntry(Composition("H2O"), -24)
         entry = self.corr.correct_entry(entry)
-        self.assertAlmostEqual(entry.energy, -15.7581, 4)
+        self.assertAlmostEqual(entry.energy, -15.7603, 4)
 
         entry = ComputedEntry(Composition("Cl"), -24)
         entry = self.corr.correct_entry(entry)
