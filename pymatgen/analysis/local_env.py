@@ -870,7 +870,7 @@ class VoronoiNN(NearNeighbors):
         # Iterate through all the faces in the tessellation
         results = {}
         for nn, vind in voro.ridge_dict.items():
-            # Get only those that include the cite in question
+            # Get only those that include the site in question
             if site_idx in nn:
                 other_site = nn[0] if nn[1] == site_idx else nn[1]
                 if -1 in vind:
@@ -924,6 +924,11 @@ class VoronoiNN(NearNeighbors):
                 if compute_adj_neighbors:
                     results[other_site]['verts'] = vind
 
+        # all sites should have atleast two connected ridges in periodic system
+        if not bool(results): 
+            raise ValueError("results is empty dictionary - unphysical result,"
+                                "all sites should have connected ridges.") 
+
         # Get only target elements
         resultweighted = {}
         for nn_index, nstats in results.items():
@@ -961,8 +966,6 @@ class VoronoiNN(NearNeighbors):
             # Store the results in the nn_info
             for key, neighbors in adj_neighbors.items():
                 resultweighted[key]['adj_neighbors'] = neighbors
-
-        assert len(resultweighted) > 0, "Failed to find Voronoi neighbours [fix WIP]"
 
         return resultweighted
 
