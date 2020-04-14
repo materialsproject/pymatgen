@@ -783,8 +783,6 @@ class VoronoiNN(NearNeighbors):
             sites.extend([x[0] for x in neighs])
             indices.extend([(x[2],) + x[3] for x in neighs])
 
-        ## The bug is probaly somewhere here
-
         # Get the non-duplicates (using the site indices for performance/numerical stability)
         indices = np.array(indices, dtype=np.int)
         indices, uniq_inds = np.unique(indices, return_index=True, axis=0)
@@ -794,8 +792,6 @@ class VoronoiNN(NearNeighbors):
         #   Exploit the fact that the array is sorted by the unique operation such that
         #   the images associated with atom 0 are first, followed by atom 1, etc.
         root_images, = np.nonzero(np.abs(indices[:, 1:]).max(axis=1) == 0)
-
-        ## End of section
 
         del indices  # Save memory (tessellations can be costly)
 
