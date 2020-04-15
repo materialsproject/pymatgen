@@ -13,6 +13,7 @@
     <script type="text/javascript" src="../../../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../../search.html" />
  
@@ -64,16 +65,16 @@
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">Structure</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.sites</span> <span class="kn">import</span> <span class="n">PeriodicSite</span>
-<span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">MSONable</span>
-<span class="kn">from</span> <span class="nn">scipy.spatial</span> <span class="kn">import</span> <span class="n">Voronoi</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.sites</span> <span class="k">import</span> <span class="n">PeriodicSite</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
+<span class="kn">from</span> <span class="nn">scipy.spatial</span> <span class="k">import</span> <span class="n">Voronoi</span>
 
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.utils.coordination_geometry_utils</span> <span class="kn">import</span> <span class="n">my_solid_angle</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.utils.coordination_geometry_utils</span> <span class="kn">import</span> <span class="n">get_lower_and_upper_f</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.utils.coordination_geometry_utils</span> <span class="kn">import</span> <span class="n">rectangle_surface_intersection</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.utils.defs_utils</span> <span class="kn">import</span> <span class="n">AdditionalConditions</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.utils.math_utils</span> <span class="kn">import</span> <span class="n">normal_cdf_step</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.utils.coordination_geometry_utils</span> <span class="k">import</span> <span class="n">my_solid_angle</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.utils.coordination_geometry_utils</span> <span class="k">import</span> <span class="n">get_lower_and_upper_f</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.utils.coordination_geometry_utils</span> <span class="k">import</span> <span class="n">rectangle_surface_intersection</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.utils.defs_utils</span> <span class="k">import</span> <span class="n">AdditionalConditions</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.utils.math_utils</span> <span class="k">import</span> <span class="n">normal_cdf_step</span>
 
 
 <div class="viewcode-block" id="from_bson_voronoi_list2"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.voronoi.html#pymatgen.analysis.chemenv.coordination_environments.voronoi.from_bson_voronoi_list2">[docs]</a><span class="k">def</span> <span class="nf">from_bson_voronoi_list2</span><span class="p">(</span><span class="n">bson_nb_voro_list2</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
@@ -111,7 +112,7 @@
     <span class="n">default_normalized_distance_tolerance</span> <span class="o">=</span> <span class="mf">1e-5</span>
     <span class="n">default_normalized_angle_tolerance</span> <span class="o">=</span> <span class="mf">1e-3</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">voronoi_list2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">voronoi_list2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">voronoi_cutoff</span><span class="o">=</span><span class="n">default_voronoi_cutoff</span><span class="p">,</span> <span class="n">isites</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">normalized_distance_tolerance</span><span class="o">=</span><span class="n">default_normalized_distance_tolerance</span><span class="p">,</span>
                  <span class="n">normalized_angle_tolerance</span><span class="o">=</span><span class="n">default_normalized_angle_tolerance</span><span class="p">,</span>
@@ -844,7 +845,7 @@
 
         <span class="k">return</span> <span class="n">fig</span></div>
 
-    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">normalized_angle_tolerance</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">normalized_angle_tolerance</span> <span class="ow">and</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">normalized_distance_tolerance</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">normalized_distance_tolerance</span> <span class="ow">and</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">additional_conditions</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">additional_conditions</span> <span class="ow">and</span>
@@ -852,7 +853,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">voronoi_list2</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">voronoi_list2</span> <span class="ow">and</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">structure</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">structure</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">other</span>
 
 <div class="viewcode-block" id="DetailedVoronoiContainer.to_bson_voronoi_list2"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.voronoi.html#pymatgen.analysis.chemenv.coordination_environments.voronoi.DetailedVoronoiContainer.to_bson_voronoi_list2">[docs]</a>    <span class="k">def</span> <span class="nf">to_bson_voronoi_list2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -963,7 +964,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

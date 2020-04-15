@@ -13,6 +13,7 @@
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
  
@@ -48,21 +49,29 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
+<span class="kn">from</span> <span class="nn">scipy.constants</span> <span class="k">import</span> <span class="n">N_A</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">Element</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.units</span> <span class="k">import</span> <span class="n">Charge</span><span class="p">,</span> <span class="n">Time</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.reaction_calculator</span> <span class="k">import</span> <span class="n">BalancedReaction</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.composition</span> <span class="k">import</span> <span class="n">Composition</span>
+<span class="kn">from</span> <span class="nn">pymatgen.apps.battery.battery_abc</span> <span class="k">import</span> <span class="n">AbstractElectrode</span><span class="p">,</span> \
+    <span class="n">AbstractVoltagePair</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.phase_diagram</span> <span class="k">import</span> <span class="n">PhaseDiagram</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MontyDecoder</span>
+
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">This module contains the classes to build a ConversionElectrode.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">scipy.constants</span> <span class="kn">import</span> <span class="n">N_A</span>
-
-<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="kn">import</span> <span class="n">Element</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.units</span> <span class="kn">import</span> <span class="n">Charge</span><span class="p">,</span> <span class="n">Time</span>
-
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.reaction_calculator</span> <span class="kn">import</span> <span class="n">BalancedReaction</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.composition</span> <span class="kn">import</span> <span class="n">Composition</span>
-<span class="kn">from</span> <span class="nn">pymatgen.apps.battery.battery_abc</span> <span class="kn">import</span> <span class="n">AbstractElectrode</span><span class="p">,</span> \
-    <span class="n">AbstractVoltagePair</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.phase_diagram</span> <span class="kn">import</span> <span class="n">PhaseDiagram</span>
-<span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">MontyDecoder</span>
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2012, The Materials Project&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.1&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;shyuep@gmail.com&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Feb 1, 2012&quot;</span>
+<span class="n">__status__</span> <span class="o">=</span> <span class="s2">&quot;Beta&quot;</span>
 
 
 <div class="viewcode-block" id="ConversionElectrode"><a class="viewcode-back" href="../../../../pymatgen.apps.battery.conversion_battery.html#pymatgen.apps.battery.conversion_battery.ConversionElectrode">[docs]</a><span class="k">class</span> <span class="nc">ConversionElectrode</span><span class="p">(</span><span class="n">AbstractElectrode</span><span class="p">):</span>
@@ -70,7 +79,7 @@
 <span class="sd">    Class representing a ConversionElectrode.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">voltage_pairs</span><span class="p">,</span> <span class="n">working_ion_entry</span><span class="p">,</span> <span class="n">initial_comp</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">voltage_pairs</span><span class="p">,</span> <span class="n">working_ion_entry</span><span class="p">,</span> <span class="n">initial_comp</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        General constructor for ConversionElectrode. However, it is usually</span>
 <span class="sd">        easier to construct a ConversionElectrode using one of the static</span>
@@ -187,14 +196,11 @@
         <span class="k">return</span> <span class="n">sub_electrodes</span></div>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">composition</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Composition</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns: Composition</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">composition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_composition</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">working_ion</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Element</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">working_ion</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The working ion as an Element object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -202,16 +208,10 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">working_ion_entry</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns: Working ion as an entry.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_working_ion_entry</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">voltage_pairs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns: All voltage pairs.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vpairs</span>
 
 <div class="viewcode-block" id="ConversionElectrode.is_super_electrode"><a class="viewcode-back" href="../../../../pymatgen.apps.battery.conversion_battery.html#pymatgen.apps.battery.conversion_battery.ConversionElectrode.is_super_electrode">[docs]</a>    <span class="k">def</span> <span class="nf">is_super_electrode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conversion_electrode</span><span class="p">):</span>
@@ -239,7 +239,7 @@
                 <span class="k">return</span> <span class="kc">False</span>
         <span class="k">return</span> <span class="kc">True</span></div>
 
-    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conversion_electrode</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conversion_electrode</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Check if two electrodes are exactly the same:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -262,13 +262,13 @@
                 <span class="k">return</span> <span class="kc">False</span>
         <span class="k">return</span> <span class="kc">True</span>
 
-    <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="mi">7</span>
 
-    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">output</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Conversion electrode with formula </span><span class="si">{}</span><span class="s2"> and nsteps </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                       <span class="bp">self</span><span class="o">.</span><span class="n">_composition</span><span class="o">.</span><span class="n">reduced_formula</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_steps</span><span class="p">),</span>
                   <span class="s2">&quot;Avg voltage </span><span class="si">{}</span><span class="s2"> V, min voltage </span><span class="si">{}</span><span class="s2"> V, max voltage </span><span class="si">{}</span><span class="s2"> V&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
@@ -281,22 +281,12 @@
 
 <div class="viewcode-block" id="ConversionElectrode.from_dict"><a class="viewcode-back" href="../../../../pymatgen.apps.battery.conversion_battery.html#pymatgen.apps.battery.conversion_battery.ConversionElectrode.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Args:</span>
-<span class="sd">            d (dict): Dict representation</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            ConversionElectrode</span>
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">dec</span> <span class="o">=</span> <span class="n">MontyDecoder</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">dec</span><span class="o">.</span><span class="n">process_decoded</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;voltage_pairs&quot;</span><span class="p">]),</span>
                    <span class="n">dec</span><span class="o">.</span><span class="n">process_decoded</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;working_ion_entry&quot;</span><span class="p">]),</span>
                    <span class="n">Composition</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;initial_comp&quot;</span><span class="p">]))</span></div>
 
 <div class="viewcode-block" id="ConversionElectrode.as_dict"><a class="viewcode-back" href="../../../../pymatgen.apps.battery.conversion_battery.html#pymatgen.apps.battery.conversion_battery.ConversionElectrode.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns: MSONable dict.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
                 <span class="s2">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
                 <span class="s2">&quot;voltage_pairs&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">v</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vpairs</span><span class="p">],</span>
@@ -365,26 +355,25 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A VoltagePair representing a Conversion Reaction with a defined voltage.</span>
 <span class="sd">    Typically not initialized directly but rather used by ConversionElectrode.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        balanced_rxn (BalancedReaction): BalancedReaction for the step</span>
+<span class="sd">        voltage (float): Voltage for the step</span>
+<span class="sd">        mAh (float): Capacity of the step</span>
+<span class="sd">        vol_charge (float): Volume of charged state</span>
+<span class="sd">        vol_discharge (float): Volume of discharged state</span>
+<span class="sd">        mass_charge (float): Mass of charged state</span>
+<span class="sd">        mass_discharge (float): Mass of discharged state</span>
+<span class="sd">        frac_charge (float): Fraction of working ion in the charged state</span>
+<span class="sd">        frac_discharge (float): Fraction of working ion in the discharged state</span>
+<span class="sd">        entries_charge ([ComputedEntry]): Entries in the charged state</span>
+<span class="sd">        entries_discharge ([ComputedEntry]): Entries in discharged state</span>
+<span class="sd">        working_ion_entry (ComputedEntry): Entry of the working ion.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">balanced_rxn</span><span class="p">,</span> <span class="n">voltage</span><span class="p">,</span> <span class="n">mAh</span><span class="p">,</span> <span class="n">vol_charge</span><span class="p">,</span> <span class="n">vol_discharge</span><span class="p">,</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">balanced_rxn</span><span class="p">,</span> <span class="n">voltage</span><span class="p">,</span> <span class="n">mAh</span><span class="p">,</span> <span class="n">vol_charge</span><span class="p">,</span> <span class="n">vol_discharge</span><span class="p">,</span>
                  <span class="n">mass_charge</span><span class="p">,</span> <span class="n">mass_discharge</span><span class="p">,</span> <span class="n">frac_charge</span><span class="p">,</span> <span class="n">frac_discharge</span><span class="p">,</span>
                  <span class="n">entries_charge</span><span class="p">,</span> <span class="n">entries_discharge</span><span class="p">,</span> <span class="n">working_ion_entry</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Args:</span>
-<span class="sd">            balanced_rxn (BalancedReaction): BalancedReaction for the step</span>
-<span class="sd">            voltage (float): Voltage for the step</span>
-<span class="sd">            mAh (float): Capacity of the step</span>
-<span class="sd">            vol_charge (float): Volume of charged state</span>
-<span class="sd">            vol_discharge (float): Volume of discharged state</span>
-<span class="sd">            mass_charge (float): Mass of charged state</span>
-<span class="sd">            mass_discharge (float): Mass of discharged state</span>
-<span class="sd">            frac_charge (float): Fraction of working ion in the charged state</span>
-<span class="sd">            frac_discharge (float): Fraction of working ion in the discharged state</span>
-<span class="sd">            entries_charge ([ComputedEntry]): Entries in the charged state</span>
-<span class="sd">            entries_discharge ([ComputedEntry]): Entries in discharged state</span>
-<span class="sd">            working_ion_entry (ComputedEntry): Entry of the working ion.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_working_ion_entry</span> <span class="o">=</span> <span class="n">working_ion_entry</span>
         <span class="n">working_ion</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_working_ion_entry</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">elements</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">symbol</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_voltage</span> <span class="o">=</span> <span class="n">voltage</span>
@@ -478,96 +467,57 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">working_ion</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns: working ion</span>
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_working_ion</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">entries_charge</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns: Entries pertaining to charged electrode.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_entries_charge</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">entries_discharge</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns: Entries pertaining to discharged electrode.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_entries_discharge</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">frac_charge</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns: Amount of working ion at charge</span>
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frac_charge</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">frac_discharge</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns: Amount of working ion at discharge</span>
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frac_discharge</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">rxn</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns: Reaction representing the conversion.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rxn</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">voltage</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns: Voltage of electrode</span>
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_voltage</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">mAh</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns: Energy in mAh.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mAh</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">mass_charge</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns: Mass of charged electrode.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mass_charge</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">mass_discharge</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns: Mass of discharged electrode.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mass_discharge</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">vol_charge</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns: Volume of charged electrode.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vol_charge</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">vol_discharge</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns: Volume of discharged electrode.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vol_discharge</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">working_ion_entry</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns: Working ion entry</span>
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_working_ion_entry</span>
 
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">output</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Conversion voltage pair with working ion </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                       <span class="bp">self</span><span class="o">.</span><span class="n">_working_ion_entry</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_formula</span><span class="p">),</span>
                   <span class="s2">&quot;Reaction : </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_rxn</span><span class="p">),</span>
@@ -580,18 +530,11 @@
                       <span class="bp">self</span><span class="o">.</span><span class="n">vol_charge</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">vol_discharge</span><span class="p">)]</span>
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">()</span>
 
 <div class="viewcode-block" id="ConversionVoltagePair.from_dict"><a class="viewcode-back" href="../../../../pymatgen.apps.battery.conversion_battery.html#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Args:</span>
-<span class="sd">            d (dict): Dict representation</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            ConversionVoltagePair</span>
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">dec</span> <span class="o">=</span> <span class="n">MontyDecoder</span><span class="p">()</span>
         <span class="n">working_ion_entry</span> <span class="o">=</span> <span class="n">dec</span><span class="o">.</span><span class="n">process_decoded</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;working_ion_entry&quot;</span><span class="p">])</span>
         <span class="n">balanced_rxn</span> <span class="o">=</span> <span class="n">dec</span><span class="o">.</span><span class="n">process_decoded</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;balanced_rxn&quot;</span><span class="p">])</span>
@@ -605,9 +548,6 @@
                                      <span class="n">working_ion_entry</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ConversionVoltagePair.as_dict"><a class="viewcode-back" href="../../../../pymatgen.apps.battery.conversion_battery.html#pymatgen.apps.battery.conversion_battery.ConversionVoltagePair.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns: MSONable dict</span>
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
                 <span class="s2">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
                 <span class="s2">&quot;working_ion_entry&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_working_ion_entry</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(),</span>
@@ -660,7 +600,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

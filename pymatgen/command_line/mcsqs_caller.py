@@ -64,7 +64,6 @@ def run_mcsqs(
             mcsqs_find_sqs_cmd = ["mcsqs", "-n {}".format(scaling*num_atoms)]
 
         else:
-
             # Set supercell to identity (will make supercell with pymatgen)
             with open("sqscell.out", "w") as f:
                 f.write("1\n"

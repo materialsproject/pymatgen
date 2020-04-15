@@ -13,6 +13,7 @@
     <script type="text/javascript" src="../../../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../../search.html" />
  
@@ -71,39 +72,39 @@
 <span class="kn">import</span> <span class="nn">itertools</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
-<span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="n">shuffle</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span>
+<span class="kn">from</span> <span class="nn">random</span> <span class="k">import</span> <span class="n">shuffle</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">numpy.linalg</span> <span class="kn">import</span> <span class="n">norm</span>
-<span class="kn">from</span> <span class="nn">numpy.linalg</span> <span class="kn">import</span> <span class="n">svd</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.bond_valence</span> <span class="kn">import</span> <span class="n">BVAnalyzer</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies</span> <span class="kn">import</span> \
+<span class="kn">from</span> <span class="nn">numpy.linalg</span> <span class="k">import</span> <span class="n">norm</span>
+<span class="kn">from</span> <span class="nn">numpy.linalg</span> <span class="k">import</span> <span class="n">svd</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.bond_valence</span> <span class="k">import</span> <span class="n">BVAnalyzer</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies</span> <span class="k">import</span> \
     <span class="n">MultiWeightsChemenvStrategy</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.coordination_environments.coordination_geometries</span> <span class="kn">import</span> \
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.coordination_environments.coordination_geometries</span> <span class="k">import</span> \
     <span class="n">AllCoordinationGeometries</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.coordination_environments.coordination_geometries</span> <span class="kn">import</span> \
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.coordination_environments.coordination_geometries</span> <span class="k">import</span> \
     <span class="n">EXPLICIT_PERMUTATIONS</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.coordination_environments.coordination_geometries</span> <span class="kn">import</span> \
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.coordination_environments.coordination_geometries</span> <span class="k">import</span> \
     <span class="n">SEPARATION_PLANE</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.coordination_environments.structure_environments</span> <span class="kn">import</span> \
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.coordination_environments.structure_environments</span> <span class="k">import</span> \
     <span class="n">ChemicalEnvironments</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.coordination_environments.structure_environments</span> <span class="kn">import</span> \
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.coordination_environments.structure_environments</span> <span class="k">import</span> \
     <span class="n">LightStructureEnvironments</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.coordination_environments.structure_environments</span> <span class="kn">import</span> \
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.coordination_environments.structure_environments</span> <span class="k">import</span> \
     <span class="n">StructureEnvironments</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.coordination_environments.voronoi</span> <span class="kn">import</span> \
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.coordination_environments.voronoi</span> <span class="k">import</span> \
     <span class="n">DetailedVoronoiContainer</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.utils.coordination_geometry_utils</span> <span class="kn">import</span> <span class="n">Plane</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.utils.coordination_geometry_utils</span> <span class="kn">import</span> \
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.utils.coordination_geometry_utils</span> <span class="k">import</span> <span class="n">Plane</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.utils.coordination_geometry_utils</span> <span class="k">import</span> \
     <span class="n">collinear</span><span class="p">,</span> <span class="n">separation_in_list</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.utils.coordination_geometry_utils</span> <span class="kn">import</span> \
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.utils.coordination_geometry_utils</span> <span class="k">import</span> \
     <span class="n">sort_separation</span><span class="p">,</span> <span class="n">sort_separation_tuple</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.utils.defs_utils</span> <span class="kn">import</span> <span class="n">chemenv_citations</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.lattice</span> <span class="kn">import</span> <span class="n">Lattice</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">Structure</span>
-<span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="kn">import</span> <span class="n">SpacegroupAnalyzer</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="kn">import</span> <span class="n">Specie</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.utils.defs_utils</span> <span class="k">import</span> <span class="n">chemenv_citations</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.lattice</span> <span class="k">import</span> <span class="n">Lattice</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
+<span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="k">import</span> <span class="n">SpacegroupAnalyzer</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">Specie</span>
 
 <span class="n">debug</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="n">DIST_TOLERANCES</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.02</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">]</span>
@@ -114,7 +115,7 @@
 <span class="sd">    Class used to describe a geometry (perfect or distorted)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">central_site</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">bare_coords</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">central_site</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">bare_coords</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">centering_type</span><span class="o">=</span><span class="s1">&#39;standard&#39;</span><span class="p">,</span>
                  <span class="n">include_central_site_in_centroid</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">optimization</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -191,7 +192,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">coords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_coords</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">bare_coords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bare_coords</span>
 
-    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        String representation of the AbstractGeometry</span>
 <span class="sd">        :return: String representation of the AbstractGeometry</span>
@@ -385,7 +386,7 @@
                            <span class="s1">&#39;voronoi_normalized_angle_tolerance&#39;</span><span class="p">:</span> <span class="mf">0.03</span><span class="p">,</span>
                            <span class="s1">&#39;optimization&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">}}</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">permutations_safe_override</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">permutations_safe_override</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">plane_ordering_override</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">debug_level</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">plane_safe_permutations</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">only_symbols</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -1969,7 +1970,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking
