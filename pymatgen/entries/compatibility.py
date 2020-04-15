@@ -438,9 +438,9 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
         # apply the correction
         entry.correction = correction
 
-        # Add all applied corrections to Entry.data["Energy Adjustments"]
+        # Add all applied corrections to Entry.data["energy_adjustments"]
         # for transparency and documentation
-        entry.data["Energy Adjustments"] = {self.__class__.__name__: {"Correction1": correction}}
+        entry.data["energy_adjustments"] = {self.__class__.__name__: {"Correction1": correction}}
 
         return entry
 
@@ -460,19 +460,19 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
     def validate_corrections(self, entry):
         """
         Verify that the value of an Entry's correction is equal to the sum of
-        the corrections documented in Entry.data["Energy Adjustments"]
+        the corrections documented in Entry.data["energy_adjustments"]
         """
         # verify that all previously-applied corrections are listed in the data dict
         documented_correction = 0
-        if entry.data.get("Energy Adjustments"):
-            for k1, v1 in entry.data.get("Energy Adjustments").items():
+        if entry.data.get("energy_adjustments"):
+            for k1, v1 in entry.data.get("energy_adjustments").items():
                 for k2, v2 in v1.items():
                     documented_correction += v2
 
         if entry.correction != documented_correction:
             warnings.warn("The provenance of the energy correction of {:.3f} "
                           "eV ({:.3f} eV/atom) for entry {} is unknown! The contents of "
-                          "entry.data['Energy Adjustments'] contain total corrections "
+                          "entry.data['energy_adjustments'] contain total corrections "
                           "of {:.3f} eV ({:.3f} eV/atom). Consider re-applying all energy "
                           "corrections and proceed with caution.".format(
                               entry.correction,
@@ -509,7 +509,7 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
 
         if entry.data.get("Energy Adjustments"):
             print("The following energy adjustments have been applied to this entry:")
-            for k1, v1 in entry.data["Energy Adjustments"].items():
+            for k1, v1 in entry.data["energy_adjustments"].items():
                 print("\t{}:".format(k1))
                 for k2, v2 in v1.items():
                     print("\t\t{}: {:.3f} eV ({:.3f} eV/atom)".format(k2, v2,
@@ -559,14 +559,14 @@ class MITMPCompatibility(Compatibility):
         # remove any previously documented corrections from the entry
         entry.correction = 0
         try:
-            del entry.data["Energy Adjustments"]
+            del entry.data["energy_adjustments"]
         except KeyError:
             pass
 
         try:
             corrections = self.get_corrections_dict(entry)
             # Add the corrections dict to entry.data for transparency
-            entry.data["Energy Adjustments"] = {self.__class__.__name__: corrections}
+            entry.data["energy_adjustments"] = {self.__class__.__name__: corrections}
         except CompatibilityError:
             return None
         entry.correction = sum(corrections.values())
