@@ -101,7 +101,7 @@ DERIVED_UNITS = {
         "Ry": {"kg": 1, "m": 2, "s": -2, const.e * Ry_to_eV: 1},
         "J": {"kg": 1, "m": 2, "s": -2},
         "kJ": {"kg": 1, "m": 2, "s": -2, 1000: 1},
-        "kCal": {"kg": 1, "m": 2, "s": -2, 1000: 1, kCal_to_kJ:1}
+        "kCal": {"kg": 1, "m": 2, "s": -2, 1000: 1, kCal_to_kJ: 1}
     },
     "charge": {
         "C": {"A": 1, "s": 1},
