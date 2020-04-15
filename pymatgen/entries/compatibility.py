@@ -411,38 +411,66 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
     """
     Abstract Compatibility class, not intended for direct use.
     Compatibility classes are used to correct the energies of an entry or a set
-    of entries. All Compatibility classes must implement .process_entries and
-    .explain methods.
+    of entries. All Compatibility classes must implement .get_correction method.
     """
+    def __init__(self, clean: bool = False):
+        """
+        Args:
+            clean: bool, whether to remove any previously-applied energy adjustments.
+            If True, Entry.correction is set to zero before each Entry
+            is processed. Default is False.
+        """
+        self.clean = clean
 
     @abc.abstractmethod
-    def process_entry(self, entry):
+    def get_corrections_dict(self, entry):
         """
-        Apply the energy adjustment to a single entry. 
-
-        If an Entry is not compatible with the selected scheme (e.g., wrong
-        functional or POTCAR) then None should be returned.
+        Returns a dict of energy adjustments to be applied to a particular entry.
 
         Args:
             entry: A ComputedEntry object.
 
         Returns:
+            ({correction_name: value})
+
+        Raises:
+            CompatibilityError if the entry is not compatible
+        """
+        return
+
+    def process_entry(self, entry):
+        """
+        Apply the energy adjustment to a single entry.
+
+        If an Entry is not compatible with the selected scheme (e.g., wrong
+        functional or POTCAR) then None should be returned.
+
+        Returns:
             ComputedEntry: An adjusted entry or None
         """
+        if self.clean:
+            # remove any previously documented corrections from the entry
+            entry.correction = 0
+            try:
+                del entry.data["energy_adjustments"]
+            except KeyError:
+                pass
+
         # verify that all previuosly-applied corrections are documented
         self.validate_corrections(entry)
 
-        # implement class-specific energy adjustments here
-        correction = 0 
+        # apply the corrections
+        try:
+            corrections = self.get_corrections_dict(entry)
+            for k, v in corrections.items():
+                # Apply the correction
+                entry.correction += v
+                # Add the corrections dict to entry.data for transparency and documentation
+                entry.data["energy_adjustments"] = {self.__class__.__name__: {"k": v}}
 
-        # apply the correction
-        entry.correction = correction
-
-        # Add all applied corrections to Entry.data["energy_adjustments"]
-        # for transparency and documentation
-        entry.data["energy_adjustments"] = {self.__class__.__name__: {"Correction1": correction}}
-
-        return entry
+            return entry
+        except CompatibilityError:
+            return None
 
     def process_entries(self, entries):
         """
@@ -502,8 +530,8 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
                 print("-------------------------------------------------------------------")
 
         print("The uncorrected energy of {} is {:.3f} eV ({:.3f} eV/atom).".format(
-                entry.composition, 
-                entry.uncorrected_energy, 
+                entry.composition,
+                entry.uncorrected_energy,
                 entry.uncorrected_energy / entry.composition.num_atoms)
               )
 
@@ -519,14 +547,14 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
             print("No energy adjustments have been applied to this entry.")
 
         print("The final energy after adjustments is {:.3f} eV ({:.3f} eV/atom).".format(
-                entry.energy, 
+                entry.energy,
                 entry.energy_per_atom)
               )
 
 
-class MITMPCompatibility(Compatibility):
+class CorrectionsList(Compatibility):
     """
-    The MITMPCompatibility class combines a list of corrections to be applied to
+    The CorrectionsList class combines a list of corrections to be applied to
     an entry or a set of entries. Note that some of the Corrections have
     interdependencies. For example, PotcarCorrection must always be used
     before any other compatibility. Also, GasCorrection("MP") must be used
@@ -535,42 +563,16 @@ class MITMPCompatibility(Compatibility):
     MITCompatibility subclasses instead.
     """
 
-    def __init__(self, corrections: Sequence):
+    def __init__(self, corrections: Sequence, clean: bool = True):
         """
         Args:
             corrections: List of corrections to apply.
+            clean: bool, whether to remove any previously-applied energy adjustments.
+            If True, Entry.correction is set to zero before each Entry
+            is processed. Default is True.
         """
+        super().__init__(clean)
         self.corrections = corrections
-
-    def process_entry(self, entry):
-        """
-        Process a single entry with the chosen Corrections.
-
-        Args:
-            entry: A ComputedEntry object.
-
-        Returns:
-            An adjusted entry if entry is compatible, otherwise None is
-            returned.
-        """
-        # verify that all previuosly-applied corrections are documented
-        self.validate_corrections(entry)
-
-        # remove any previously documented corrections from the entry
-        entry.correction = 0
-        try:
-            del entry.data["energy_adjustments"]
-        except KeyError:
-            pass
-
-        try:
-            corrections = self.get_corrections_dict(entry)
-            # Add the corrections dict to entry.data for transparency
-            entry.data["energy_adjustments"] = {self.__class__.__name__: corrections}
-        except CompatibilityError:
-            return None
-        entry.correction = sum(corrections.values())
-        return entry
 
     def get_corrections_dict(self, entry):
         """
@@ -588,19 +590,6 @@ class MITMPCompatibility(Compatibility):
             if val != 0:
                 corrections[str(c)] = val
         return corrections
-
-    def process_entries(self, entries):
-        """
-        Process a sequence of entries with the chosen Compatibility scheme.
-
-        Args:
-            entries: A sequence of entries.
-
-        Returns:
-            An list of adjusted entries.  Entries in the original list which
-            are not compatible are excluded.
-        """
-        return list(filter(None, map(self.process_entry, entries)))
 
     def get_explanation_dict(self, entry):
         """
@@ -664,7 +653,7 @@ class MITMPCompatibility(Compatibility):
             "corrected_energy"])
 
 
-class MaterialsProjectCompatibility(MITMPCompatibility):
+class MaterialsProjectCompatibility(CorrectionsList):
     """
     This class implements the GGA/GGA+U mixing scheme, which allows mixing of
     entries. Note that this should only be used for VASP calculations using the
@@ -699,7 +688,7 @@ class MaterialsProjectCompatibility(MITMPCompatibility):
              UCorrection(fp, MPRelaxSet, compat_type)])
 
 
-class MITCompatibility(MITMPCompatibility):
+class MITCompatibility(CorrectionsList):
     """
     This class implements the GGA/GGA+U mixing scheme, which allows mixing of
     entries. Note that this should only be used for VASP calculations using the
@@ -733,7 +722,7 @@ class MITCompatibility(MITMPCompatibility):
              UCorrection(fp, MITRelaxSet, compat_type)])
 
 
-class MITAqueousCompatibility(MITMPCompatibility):
+class MITAqueousCompatibility(CorrectionsList):
     """
     This class implements the GGA/GGA+U mixing scheme, which allows mixing of
     entries. Note that this should only be used for VASP calculations using the
@@ -767,7 +756,7 @@ class MITAqueousCompatibility(MITMPCompatibility):
              UCorrection(fp, MITRelaxSet, compat_type), AqueousCorrection(fp)])
 
 
-class MaterialsProjectAqueousCompatibility(MITMPCompatibility):
+class MaterialsProjectAqueousCompatibility(CorrectionsList):
     """
     This class implements the GGA/GGA+U mixing scheme, which allows mixing of
     entries. Note that this should only be used for VASP calculations using the
