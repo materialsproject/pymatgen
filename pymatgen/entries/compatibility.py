@@ -416,6 +416,34 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
+    def process_entry(self, entry):
+        """
+        Apply the energy adjustment to a single entry. 
+
+        If an Entry is not compatible with the selected scheme (e.g., wrong
+        functional or POTCAR) then None should be returned.
+
+        Args:
+            entry: A ComputedEntry object.
+
+        Returns:
+            ComputedEntry: An adjusted entry or None
+        """
+        # verify that all previuosly-applied corrections are documented
+        self.validate_corrections(entry)
+
+        # implement class-specific energy adjustments here
+        correction = 0 
+
+        # apply the correction
+        entry.correction = correction
+
+        # Add all applied corrections to Entry.data["Energy Adjustments"]
+        # for transparency and documentation
+        entry.data["Energy Adjustments"] = {self.__class__.__name__: {"Correction1": correction}}
+
+        return entry
+
     def process_entries(self, entries):
         """
         Process a sequence of entries with the chosen Compatibility scheme.
@@ -424,22 +452,76 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
             entries: A sequence of entries.
 
         Returns:
-            A list of adjusted entries.  Entries in the original list which
+            An list of adjusted entries.  Entries in the original list which
             are not compatible are excluded.
         """
-        pass
+        return list(filter(None, map(self.process_entry, entries)))
 
-    @abc.abstractmethod
+    def validate_corrections(self, entry):
+        """
+        Verify that the value of an Entry's correction is equal to the sum of
+        the corrections documented in Entry.data["Energy Adjustments"]
+        """
+        # verify that all previously-applied corrections are listed in the data dict
+        documented_correction = 0
+        if entry.data.get("Energy Adjustments"):
+            for k1, v1 in entry.data.get("Energy Adjustments").items():
+                for k2, v2 in v1.items():
+                    documented_correction += v2
+
+        if entry.correction != documented_correction:
+            warnings.warn("The provenance of the energy correction of {:.3f} "
+                          "eV ({:.3f} eV/atom) for entry {} is unknown! The contents of "
+                          "entry.data['Energy Adjustments'] contain total corrections "
+                          "of {:.3f} eV ({:.3f} eV/atom). Consider re-applying all energy "
+                          "corrections and proceed with caution.".format(
+                              entry.correction,
+                              entry.correction / entry.composition.num_atoms,
+                              entry.entry_id,
+                              documented_correction,
+                              documented_correction / entry.composition.num_atoms
+                            )
+                          )
+
     def explain(self, entry):
         """
-        Print an explanation of the corrections that are being applied to an
-        entry for a given compatibility scheme. Inspired by the "explain" methods
-        in many database methodologies.
+        Prints an explanation of the energy adjustments applied by the
+        Compatibility class. Inspired by the "explain" methods in many database
+        methodologies.
 
         Args:
             entry: A ComputedEntry.
         """
-        pass
+        # verify that all previuosly-applied corrections are documented
+        # if there is a warning, make sure to print it before any other output.
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            self.validate_corrections(entry)
+            if len(w) > 0:
+                print("WARNING!", str(w[-1].message))
+                print("-------------------------------------------------------------------")
+
+        print("The uncorrected energy of {} is {:.3f} eV ({:.3f} eV/atom).".format(
+                entry.composition, 
+                entry.uncorrected_energy, 
+                entry.uncorrected_energy / entry.composition.num_atoms)
+              )
+
+        if entry.data.get("Energy Adjustments"):
+            print("The following energy adjustments have been applied to this entry:")
+            for k1, v1 in entry.data["Energy Adjustments"].items():
+                print("\t {}:").format(k1)
+                for k2, v2 in v1.items():
+                    print("\t\t{}: {:.3f} eV ({:.3f} eV/atom)".format(k2, v2,
+                                                                      v2 / entry.composition.num_atoms)
+                          )
+        elif entry.corrections == 0:
+            print("No energy adjustments have been applied to this entry.")
+
+        print("The final energy after adjustments is {:.3f} eV ({:.3f} eV/atom).".format(
+                entry.uncorrected_energy, 
+                entry.uncorrected_energy / entry.composition.num_atoms)
+              )
 
 
 class MITMPCompatibility(Compatibility):
