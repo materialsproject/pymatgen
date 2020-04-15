@@ -553,8 +553,20 @@ class MITMPCompatibility(Compatibility):
             An adjusted entry if entry is compatible, otherwise None is
             returned.
         """
+        # verify that all previuosly-applied corrections are documented
+        self.validate_corrections(entry)
+
+        # remove any previously documented corrections from the entry
+        entry.correction = 0
+        try:
+            del entry.data["Energy Adjustments"]
+        except KeyError:
+            pass
+
         try:
             corrections = self.get_corrections_dict(entry)
+            # Add the corrections dict to entry.data for transparency
+            entry.data["Energy Adjustments"] = {self.__class__.__name__:corrections}
         except CompatibilityError:
             return None
         entry.correction = sum(corrections.values())
