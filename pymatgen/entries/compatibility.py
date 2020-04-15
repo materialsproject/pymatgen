@@ -510,7 +510,7 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
         if entry.data.get("Energy Adjustments"):
             print("The following energy adjustments have been applied to this entry:")
             for k1, v1 in entry.data["Energy Adjustments"].items():
-                print("\t {}:").format(k1)
+                print("\t{}:".format(k1))
                 for k2, v2 in v1.items():
                     print("\t\t{}: {:.3f} eV ({:.3f} eV/atom)".format(k2, v2,
                                                                       v2 / entry.composition.num_atoms)
@@ -519,8 +519,8 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
             print("No energy adjustments have been applied to this entry.")
 
         print("The final energy after adjustments is {:.3f} eV ({:.3f} eV/atom).".format(
-                entry.uncorrected_energy, 
-                entry.uncorrected_energy / entry.composition.num_atoms)
+                entry.energy, 
+                entry.energy_per_atom)
               )
 
 
