@@ -566,7 +566,7 @@ class MITMPCompatibility(Compatibility):
         try:
             corrections = self.get_corrections_dict(entry)
             # Add the corrections dict to entry.data for transparency
-            entry.data["Energy Adjustments"] = {self.__class__.__name__:corrections}
+            entry.data["Energy Adjustments"] = {self.__class__.__name__: corrections}
         except CompatibilityError:
             return None
         entry.correction = sum(corrections.values())
