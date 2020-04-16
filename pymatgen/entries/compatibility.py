@@ -488,17 +488,17 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
                             # Apply the correction
                             entry.correction += v
                             # Add the corrections dict to entry.data for transparency and documentation
-                            entry.data["energy_adjustments"] = {self.__class__.__name__: {"k": v}}
+                            entry.data["energy_adjustments"][self.__class__.__name__][k] = v
                     else:
                         # Apply the correction
                         entry.correction += v
                         # Add the corrections dict to entry.data for transparency and documentation
-                        entry.data["energy_adjustments"] = {self.__class__.__name__: {"k": v}}                        
+                        entry.data["energy_adjustments"][self.__class__.__name__] = {k: v}
                 else:
                     # Apply the correction
                     entry.correction += v
                     # Add the corrections dict to entry.data for transparency and documentation
-                    entry.data["energy_adjustments"] = {self.__class__.__name__: {"k": v}}
+                    entry.data["energy_adjustments"] = {self.__class__.__name__: {k: v}}
 
             return entry
         except CompatibilityError:
@@ -575,7 +575,7 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
                     print("\t\t{}: {:.3f} eV ({:.3f} eV/atom)".format(k2, v2,
                                                                       v2 / entry.composition.num_atoms)
                           )
-        elif entry.corrections == 0:
+        elif entry.correction == 0:
             print("No energy adjustments have been applied to this entry.")
 
         print("The final energy after adjustments is {:.3f} eV ({:.3f} eV/atom).".format(
