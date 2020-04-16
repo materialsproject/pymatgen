@@ -485,10 +485,10 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
                                                                  )
                                                          )
                         else:
-                # Apply the correction
-                entry.correction += v
-                # Add the corrections dict to entry.data for transparency and documentation
-                entry.data["energy_adjustments"] = {self.__class__.__name__: {"k": v}}
+                            # Apply the correction
+                            entry.correction += v
+                            # Add the corrections dict to entry.data for transparency and documentation
+                            entry.data["energy_adjustments"] = {self.__class__.__name__: {"k": v}}
                     else:
                         # Apply the correction
                         entry.correction += v
