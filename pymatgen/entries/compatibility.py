@@ -819,9 +819,9 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         from pymatgen.analysis.pourbaix_diagram import MU_H2O
         self.MU_H2O = MU_H2O
 
-        ## The three variables below are specific to the MaterialsProjectCompatibility
-        ## energy correction scheme! They must be adjusted periodically as new
-        ## Calculations or correction schemes are introduced!
+        # The three variables below are specific to the MaterialsProjectCompatibility
+        # energy correction scheme! They must be adjusted periodically as new
+        # Calculations or correction schemes are introduced!
 
         # uncorrected DFT energy of H2O = -14.8852 eV/H2O (mp-697111)
         self.h2o_energy = -14.8852
@@ -899,8 +899,8 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         elif rform in self.cpd_entropies and rform != "H2O":
             entropy = -1 * self.cpd_entropies[rform] * comp.num_atoms
 
-        ## TODO - detection of embedded water molecules is not very sophisticated
-        ## Should be replaced with some kind of actual structure detection
+        # TODO - detection of embedded water molecules is not very sophisticated
+        # Should be replaced with some kind of actual structure detection
 
         # For any compound except water, check to see if it is a hydrate (contains)
         # H2O in its structure. If so, adjust the energy to remove MU_H2O ev per
