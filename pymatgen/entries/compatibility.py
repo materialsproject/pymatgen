@@ -463,10 +463,42 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
         try:
             corrections = self.get_corrections_dict(entry)
             for k, v in corrections.items():
+                # Has this correction already been applied?
+                if entry.data.get("energy_adjustments"):
+                    if entry.data["energy_adjustments"].get(self.__class__.__name__):
+                        if entry.data["energy_adjustments"][self.__class__.__name__].get(k):
+                            if entry.data["energy_adjustments"].get(k) == v:
+                                # we already applied this exact correction. Do nothing.
+                                pass
+                            else:
+                                # we already applied a correction with the same name
+                                # but a different value. Something is wrong.
+                                raise CompatibilityError("Entry {} already has an energy "
+                                                         "adjustment called {}, but its "
+                                                         "value of {:.3f} eV/atom differs"
+                                                         "from the value of {:.3f} calculated "
+                                                         "here. This entry will be discarded."
+                                                         .format(entry.entry_id,
+                                                                 k,
+                                                                 entry.data["energy_adjustments"].get(k),
+                                                                 v
+                                                                 )
+                                                         )
+                        else:
                 # Apply the correction
                 entry.correction += v
                 # Add the corrections dict to entry.data for transparency and documentation
                 entry.data["energy_adjustments"] = {self.__class__.__name__: {"k": v}}
+                    else:
+                        # Apply the correction
+                        entry.correction += v
+                        # Add the corrections dict to entry.data for transparency and documentation
+                        entry.data["energy_adjustments"] = {self.__class__.__name__: {"k": v}}                        
+                else:
+                    # Apply the correction
+                    entry.correction += v
+                    # Add the corrections dict to entry.data for transparency and documentation
+                    entry.data["energy_adjustments"] = {self.__class__.__name__: {"k": v}}
 
             return entry
         except CompatibilityError:
@@ -571,8 +603,8 @@ class CorrectionsList(Compatibility):
             If True, Entry.correction is set to zero before each Entry
             is processed. Default is True.
         """
-        super().__init__(clean)
         self.corrections = corrections
+        super().__init__(clean)
 
     def get_corrections_dict(self, entry):
         """

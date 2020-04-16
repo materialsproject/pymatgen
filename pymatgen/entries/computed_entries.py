@@ -88,6 +88,10 @@ class ComputedEntry(Entry):
         factor = self._normalization_factor(mode)
         self.correction /= factor
         self.uncorrected_energy /= factor
+        if 'energy_adjustments' in self.data.keys():
+            for k1, v1 in self.data["energy_adjustments"].items():
+                for k2, v2 in v1.items():
+                    self.data["energy_adjustments"][k1][k2] /= factor
         super().normalize(mode)
 
     def __repr__(self):
