@@ -788,36 +788,144 @@ class MITAqueousCompatibility(CorrectionsList):
              UCorrection(fp, MITRelaxSet, compat_type), AqueousCorrection(fp)])
 
 
-class MaterialsProjectAqueousCompatibility(CorrectionsList):
+class MaterialsProjectAqueousCompatibility(Compatibility):
     """
-    This class implements the GGA/GGA+U mixing scheme, which allows mixing of
-    entries. Note that this should only be used for VASP calculations using the
-    MaterialsProject parameters (see pymatgen.io.vaspio_set.MPVaspInputSet).
-    Using this compatibility scheme on runs with different parameters is not
-    valid.
+    This class implements the Aqueous energy referencing scheme for constructing
+    Pourbaix diagrams from DFT energies, as described in Persson et al.
+
+    This scheme must be used with Entries that have already been processed
+    with the MaterialsProjectCompatibility class and will raise a
+    CompatibilityError for Entries that have not.
+
+    These scheme depends implicitly on the corrected DFT energies of O2
+    and H2O. These are set to the following values from the Materials Project
+    as of April 2020:
+
+    H2O: -14.8852 eV/H2O (mp-697111)
+    O2: -4.9276 eV/atom (mp-12957)
+
+    References:
+        K.A. Persson, B. Waldwick, P. Lazic, G. Ceder, Prediction of solid-aqueous
+        equilibria: Scheme to combine first-principles calculations of solids with
+        experimental aqueous states, Phys. Rev. B - Condens. Matter Mater. Phys.
+        85 (2012) 1–12. doi:10.1103/PhysRevB.85.235438.
     """
 
-    def __init__(self, compat_type="Advanced", correct_peroxide=True,
-                 check_potcar_hash=False):
+    def __init__(self, clean=False):
         """
         Args:
-            compat_type: Two options, GGA or Advanced.  GGA means all GGA+U
-                entries are excluded.  Advanced means mixing scheme is
-                implemented to make entries compatible with each other,
-                but entries which are supposed to be done in GGA+U will have the
-                equivalent GGA entries excluded. For example, Fe oxides should
-                have a U value under the Advanced scheme. A GGA Fe oxide run
-                will therefore be excluded under the scheme.
-            correct_peroxide: Specify whether peroxide/superoxide/ozonide
-                corrections are to be applied or not.
-            check_potcar_hash (bool): Use potcar hash to verify potcars are correct.
+
         """
-        self.compat_type = compat_type
-        self.correct_peroxide = correct_peroxide
-        self.check_potcar_hash = check_potcar_hash
-        fp = os.path.join(MODULE_DIR, "MPCompatibility.yaml")
-        super().__init__(
-            [PotcarCorrection(MPRelaxSet, check_hash=check_potcar_hash),
-             GasCorrection(fp),
-             AnionCorrection(fp, correct_peroxide=correct_peroxide),
-             UCorrection(fp, MPRelaxSet, compat_type), AqueousCorrection(fp)])
+        from pymatgen.analysis.pourbaix_diagram import MU_H2O
+        self.MU_H2O = MU_H2O
+
+        ## The three variables below are specific to the MaterialsProjectCompatibility
+        ## energy correction scheme! They must be adjusted periodically as new
+        ## Calculations or correction schemes are introduced!
+
+        # uncorrected DFT energy of H2O = -14.8852 eV/H2O (mp-697111)
+        self.h2o_energy = -14.8852
+
+        # corrected DFT energy of O2 = -4.9276 eV/atom (mp-12957)
+        self.o2_energy = -4.9276
+
+        # total energy corrections applied to H2O (eV/H2O)
+        self.previous_correction_per_h2o = -0.70229
+
+        # Standard state entropy of molecular-like compounds at 298K (-T delta S)
+        # from Kubaschewski Tables (eV/atom)
+        self.cpd_entropies = {"O2": 0.316731,
+                              "N2": 0.295729,
+                              "F2": 0.313025,
+                              "Cl2": 0.344373,
+                              "Br": 0.235039,
+                              "Hg": 0.234421,
+                              "H2O": 0.215891,
+                              }
+
+        # compute the free energies of H2 and H2O (eV/atom) to guarantee that the 
+        # formationfree energy of H2O is equal to -2.4583 eV/H2O from experiments
+        # (MU_H2O from pourbaix module)
+        # Free energy of H2, fitted using Eq. 40 of Persson et al. PRB 2012 85(23)
+        # for this calculation ONLY, we need the DFT energy of water
+        self.h2_energy = round(
+            0.5 * ((self.h2o_energy - self.cpd_entropies["H2O"]) -
+                   (self.o2_energy - self.cpd_entropies["O2"]) -
+                   MU_H2O
+                   ), 6
+        )
+
+        # Free energy of H2O, fitted for consistency with the O2 and H2 energies.
+        self.fit_h2o_energy = round((2 * self.h2_energy +
+                                    (self.o2_energy - self.cpd_entropies["O2"]) +
+                                    MU_H2O
+                                     ) / 3,
+                                    6
+                                    )
+
+        self.name = "MP Aqueous free energy adjustment"
+        super().__init__(clean)
+
+    def get_corrections_dict(self, entry):
+        """
+        Returns the corrections applied to a particular entry.
+
+        Args:
+            entry: A ComputedEntry object.
+
+        Returns:
+            {"MP Aqueous free energy adjustment": value,
+             "Compound entropy adjustment": value
+             }
+        """
+        # if not entry.energy_adjustments.get("MP Gas Correction"):
+        #     raise CompatibilityError("work in progress")
+
+        comp = entry.composition
+        rform = comp.reduced_formula
+
+        aq_adjustment = 0
+        entropy = 0
+        hydrate_adjustment = 0
+
+        # pin the energy of all H2 entries to h2_energy
+        if rform == "H2":
+            aq_adjustment = self.h2_energy * comp.num_atoms - entry.energy
+        # pin the energy of all H2O entries to fit_h2o_energy
+        elif rform == "H2O":
+            aq_adjustment = self.fit_h2o_energy * comp.num_atoms - entry.energy
+        # add minus T delta S to the DFT energy (enthalpy) of compounds that are
+        # molecular-like at room temperature
+        elif rform in self.cpd_entropies and rform != "H2O":
+            entropy = -1 * self.cpd_entropies[rform] * comp.num_atoms
+
+        ## TODO - detection of embedded water molecules is not very sophisticated
+        ## Should be replaced with some kind of actual structure detection
+
+        # For any compound except water, check to see if it is a hydrate (contains)
+        # H2O in its structure. If so, adjust the energy to remove MU_H2O ev per
+        # embedded water molecule.
+        # in other words, we assume that the DFT energy of such a compound is really
+        # a superposition of the "real" solid DFT energy (FeO in this case) and the free
+        # energy of some water molecules
+        # e.g. that E_FeO.nH2O = E_FeO + n * g_H2O
+        # so, to get the most accurate gibbs free energy, we want to replace
+        # g_FeO.nH2O = E_FeO.nH2O + dE_Fe + (n+1) * dE_O + 2n dE_H
+        # with
+        # g_FeO = E_FeO.nH2O + dE_Fe + dE_O + n g_H2O
+        # where E is DFT energy, dE is an energy correction, and g is gibbs free energy
+        # This means we have to 1) remove energy corrections associated with H and O in water
+        # and then 2) remove the free energy of the water molecules
+        if not rform == "H2O":
+            # count the number of whole water molecules in the composition
+            nH2O = int(min(comp["H"] / 2.0, comp["O"]))
+            if nH2O > 0:
+                # first, remove any H or O corrections already applied to H2O in the
+                # formation energy so that we don't double count them
+                aq_adjustment += -1 * self.previous_correction_per_h2o
+                # next, remove MU_H2O for each water molecule present
+                aq_adjustment += -1*self.MU_H2O * nH2O
+
+        return {"Fit H2 and H2O energy to experiment": aq_adjustment,
+                "Compound entropy at room temperature": entropy,
+                "Hydrate energy adjustment": hydrate_adjustment}
