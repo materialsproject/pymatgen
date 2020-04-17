@@ -142,7 +142,13 @@ class ComputedEntry(Entry):
                                                  self.composition.formula),
                   "Energy = {:.4f}".format(self._energy),
                   "Correction = {:.4f}".format(self.correction),
-                  "Parameters:"]
+                  "Energy Adjustments:"
+                  ]
+        for e in self.energy_adjustments:
+            output.append("{}: {:.3f} eV ({:.3f} eV/atom)".format(e.name,
+                                                                  e.value,
+                                                                  e.value / self.composition.num_atoms))
+        output.append("Parameters:")
         for k, v in self.parameters.items():
             output.append("{} = {}".format(k, v))
         output.append("Data:")
@@ -157,19 +163,35 @@ class ComputedEntry(Entry):
         :return: ComputedEntry
         """
         dec = MontyDecoder()
-        return cls(d["composition"], d["energy"], d["correction"],
-                   parameters={k: dec.process_decoded(v)
-                               for k, v in d.get("parameters", {}).items()},
-                   data={k: dec.process_decoded(v)
-                         for k, v in d.get("data", {}).items()},
-                   entry_id=d.get("entry_id", None))
+        # the first block here is for legacy ComputedEntry that were 
+        # serialized before we had the energy_adjustments attribute.
+        if d["correction"] != 0 and not d.get("energy_adjustments"):
+            return cls(d["composition"], d["energy"], d["correction"],
+                       parameters={k: dec.process_decoded(v)
+                                   for k, v in d.get("parameters", {}).items()},
+                       data={k: dec.process_decoded(v)
+                             for k, v in d.get("data", {}).items()},
+                       entry_id=d.get("entry_id", None))
+        # this is the preferred / modern way of instantiating ComputedEntry
+        # we don't pass correction explicitly because it will be calculated
+        # on the fly from energy_adjustments
+        else:
+            return cls(d["composition"], d["energy"], correction=0,
+                       energy_adjustments=[dec.process_decoded(e)
+                                           for e in d.get("energy_adjustments", {})],
+                       parameters={k: dec.process_decoded(v)
+                                   for k, v in d.get("parameters", {}).items()},
+                       data={k: dec.process_decoded(v)
+                             for k, v in d.get("data", {}).items()},
+                       entry_id=d.get("entry_id", None))
 
     def as_dict(self) -> dict:
         """
         :return: MSONable dict.
         """
         return_dict = super().as_dict()
-        return_dict.update({"parameters": json.loads(json.dumps(self.parameters, cls=MontyEncoder)),
+        return_dict.update({"energy_adjustments": json.loads(json.dumps(self.energy_adjustments, cls=MontyEncoder)),
+                            "parameters": json.loads(json.dumps(self.parameters, cls=MontyEncoder)),
                             "data": json.loads(json.dumps(self.data, cls=MontyEncoder)),
                             "entry_id": self.entry_id,
                             "correction": self.correction})
