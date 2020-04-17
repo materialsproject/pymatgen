@@ -870,6 +870,12 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
                 # next, remove MU_H2O for each water molecule present
                 aq_adjustment += -1*self.MU_H2O * nH2O
 
-        return {"Fit H2 and H2O energy to experiment": aq_adjustment,
-                "Compound entropy at room temperature": entropy,
-                "Hydrate energy adjustment": hydrate_adjustment}
+        return_dict = {}
+        if aq_adjustment != 0:
+            return_dict["Fit H2 and H2O energy to experiment"] = aq_adjustment
+        if entropy != 0:
+            return_dict["Compound entropy at room temperature"] = entropy
+        if hydrate_adjustment != 0:
+            return_dict.update["Hydrate energy adjustment"] = hydrate_adjustment
+
+        return return_dict

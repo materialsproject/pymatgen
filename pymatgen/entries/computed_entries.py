@@ -145,15 +145,15 @@ class ComputedEntry(Entry):
                   "Energy Adjustments:"
                   ]
         for e in self.energy_adjustments:
-            output.append("{}: {:.3f} eV ({:.3f} eV/atom)".format(e.name,
-                                                                  e.value,
-                                                                  e.value / self.composition.num_atoms))
+            output.append("\t{}: {:.3f} eV ({:.3f} eV/atom)".format(e.name,
+                                                                    e.value,
+                                                                    e.value / self.composition.num_atoms))
         output.append("Parameters:")
         for k, v in self.parameters.items():
-            output.append("{} = {}".format(k, v))
+            output.append("\t{} = {}".format(k, v))
         output.append("Data:")
         for k, v in self.data.items():
-            output.append("{} = {}".format(k, v))
+            output.append("\t{} = {}".format(k, v))
         return "\n".join(output)
 
     @classmethod
