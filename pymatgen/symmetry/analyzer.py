@@ -1557,8 +1557,8 @@ class SpacegroupOperations(list):
         symmetrically distinct arrangements of atoms.
 
         Args:
-            sites1 ([Site]): 1st set of sites
-            sites2 ([Site]): 2nd set of sites
+            sites1 ([PeriodicSite]): 1st set of sites
+            sites2 ([PeriodicSite]): 2nd set of sites
             symm_prec (float): Tolerance in atomic distance to test if atoms
                 are symmetrically similar.
 
