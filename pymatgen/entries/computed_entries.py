@@ -31,7 +31,7 @@ __date__ = "April 2020"
 
 class EnergyAdjustment(MSONable):
     """
-    Lightweight class to contain information about an energy adjustment or 
+    Lightweight class to contain information about an energy adjustment or
     energy correction.
     """
     def __init__(self, name, value, cls="None", version=CURRENT_VERSION):
@@ -47,7 +47,7 @@ class EnergyAdjustment(MSONable):
         self.value = value
         self.cls = cls
         self.version = version
-    
+
     def __repr__(self):
         output = ["EnergyAdjustment:",
                   "  Name: {}".format(self.name),
@@ -59,8 +59,8 @@ class EnergyAdjustment(MSONable):
 
 class ComputedEntry(Entry):
     """
-    Lightweight Entry object for computed data. Contains facilities 
-    for applying corrections to the .energy attribute and for storing 
+    Lightweight Entry object for computed data. Contains facilities
+    for applying corrections to the .energy attribute and for storing
     calculation parameters.
 
     """
@@ -148,11 +148,17 @@ class ComputedEntry(Entry):
     def __repr__(self):
         n_atoms = self.composition.num_atoms
         output = ["ComputedEntry {:<10} - {:<12} ({})".format(self.entry_id,
-                                                      self.composition.formula,
-                                                      self.composition.reduced_formula),
-                  "{:<24} = {:>9.4f} eV ({:<8.4f} eV/atom)".format("Uncorrected Energy", self._energy, self._energy / n_atoms),
-                  "{:<24} = {:>9.4f} eV ({:<8.4f} eV/atom)".format("Correction", self.correction, self.correction / n_atoms),
-                  "{:<24} = {:>9.4f} eV ({:<8.4f} eV/atom)".format("Final Energy", self.energy, self.energy_per_atom),
+                                                              self.composition.formula,
+                                                              self.composition.reduced_formula),
+                  "{:<24} = {:>9.4f} eV ({:<8.4f} eV/atom)".format("Uncorrected Energy",
+                                                                   self._energy,
+                                                                   self._energy / n_atoms),
+                  "{:<24} = {:>9.4f} eV ({:<8.4f} eV/atom)".format("Correction",
+                                                                   self.correction,
+                                                                   self.correction / n_atoms),
+                  "{:<24} = {:>9.4f} eV ({:<8.4f} eV/atom)".format("Final Energy",
+                                                                   self.energy,
+                                                                   self.energy_per_atom),
                   "Energy Adjustments:"
                   ]
         if len(self.energy_adjustments) == 0:
@@ -160,8 +166,8 @@ class ComputedEntry(Entry):
         else:
             for e in self.energy_adjustments:
                 output.append("  {:<23}: {:<9.4f} eV ({:<8.4f} eV/atom)".format(e.name,
-                                                                        e.value,
-                                                                        e.value / n_atoms))
+                                                                                e.value,
+                                                                                e.value / n_atoms))
         output.append("Parameters:")
         for k, v in self.parameters.items():
             output.append("  {} = {}".format(k, v))
@@ -177,7 +183,7 @@ class ComputedEntry(Entry):
         :return: ComputedEntry
         """
         dec = MontyDecoder()
-        # the first block here is for legacy ComputedEntry that were 
+        # the first block here is for legacy ComputedEntry that were
         # serialized before we had the energy_adjustments attribute.
         if d["correction"] != 0 and not d.get("energy_adjustments"):
             return cls(d["composition"], d["energy"], d["correction"],
