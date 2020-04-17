@@ -8,13 +8,24 @@ import os
 
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.entries.computed_entries import ComputedEntry, \
-    ComputedStructureEntry
+    ComputedStructureEntry, EnergyAdjustment, CURRENT_VERSION
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 
 filepath = os.path.join(test_dir, 'vasprun.xml')
 vasprun = Vasprun(filepath)
+
+
+def testEnergyAdjustment():
+    ea = EnergyAdjustment("example", 10)
+    assert ea.name == "example"
+    assert ea.value == 10
+    assert ea.cls == "None"
+    assert ea.version == CURRENT_VERSION
+    ead = ea.as_dict()
+    ea2 = EnergyAdjustment.from_dict(ead)
+    assert str(ead) == str(ea2.as_dict())
 
 
 class ComputedEntryTest(unittest.TestCase):

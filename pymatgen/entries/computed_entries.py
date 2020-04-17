@@ -11,20 +11,42 @@ diagram analysis.
 """
 
 import json
+import warnings
 
-from monty.json import MontyEncoder, MontyDecoder
+from monty.json import MontyEncoder, MontyDecoder, MSONable
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.structure import Structure
 from pymatgen.entries import Entry
+from pymatgen import __version__ as CURRENT_VERSION
 
-__author__ = "Shyue Ping Ong, Anubhav Jain"
+__author__ = "Ryan Kingsbury, Shyue Ping Ong, Anubhav Jain"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __status__ = "Production"
-__date__ = "Apr 30, 2012"
+__date__ = "April 2020"
+
+
+class EnergyAdjustment(MSONable):
+    """
+    Lightweight class to contain information about an energy adjustment or 
+    energy correction.
+    """
+    def __init__(self, name, value, cls="None", version=CURRENT_VERSION):
+        """
+        Args:
+            name: str, human-readable name of the energy adjustment.
+            value: float, value of the energy adjustment in eV
+            cls: str, the name of the Compatibility class used to generate the
+                energy adjustment. (Default: None)
+            version: str, pymatgen version used to calculate the energy adjustment.
+        """
+        self.name = name
+        self.value = value
+        self.cls = cls
+        self.version = version
 
 
 class ComputedEntry(Entry):
@@ -39,6 +61,7 @@ class ComputedEntry(Entry):
                  composition: Composition,
                  energy: float,
                  correction: float = 0.0,
+                 energy_adjustments: list = [],
                  parameters: dict = None,
                  data: dict = None,
                  entry_id: object = None):
@@ -52,9 +75,9 @@ class ComputedEntry(Entry):
                 a string formula, and others.
             energy (float): Energy of the entry. Usually the final calculated
                 energy from VASP or other electronic structure codes.
-            correction (float): A correction to be applied to the energy.
-                This is used to modify the energy for certain analyses.
-                Defaults to 0.0.
+            energy_adjustments (dict): An optional list of EnergyAdjustment to
+                be applied to the energy. This is used to modify the energy for
+                certain analyses.
             parameters (dict): An optional dict of parameters associated with
                 the entry. Defaults to None.
             data (dict): An optional dict of any additional data associated
@@ -63,7 +86,16 @@ class ComputedEntry(Entry):
         """
         super().__init__(composition, energy)
         self.uncorrected_energy = self._energy
-        self.correction = correction
+        self.energy_adjustments = energy_adjustments
+        if correction:
+            warnings.warn("Setting an Entry's correction manually is no longer"
+                          "recommended and may be deprecated in a future version."
+                          )
+            if energy_adjustments != []:
+                raise ValueError("Argument conflict! Setting correction = {:.3f} conflicts"
+                                 "with energy_adjustments. Can only specify one ore the"
+                                 "other".format(correction))
+            self.correction = correction
         self.parameters = parameters if parameters else {}
         self.data = data if data else {}
         self.entry_id = entry_id
@@ -76,6 +108,20 @@ class ComputedEntry(Entry):
         """
         return self._energy + self.correction
 
+    @property
+    def correction(self) -> float:
+        """
+        Returns:
+            float: the total energy correction / adjustment applied to the entry,
+                in eV.
+        """
+        return sum([e.value for e in self.energy_adjustments])
+
+    @correction.setter
+    def correction(self, x: float) -> None:
+        corr = EnergyAdjustment("Manual correction", x)
+        self.energy_adjustments = [corr]
+
     def normalize(self, mode: str = "formula_unit") -> None:
         """
         Normalize the entry's composition and energy.
@@ -86,12 +132,9 @@ class ComputedEntry(Entry):
                 normalizes such that the composition amounts sum to 1.
         """
         factor = self._normalization_factor(mode)
-        self.correction /= factor
         self.uncorrected_energy /= factor
-        if 'energy_adjustments' in self.data.keys():
-            for k1, v1 in self.data["energy_adjustments"].items():
-                for k2, v2 in v1.items():
-                    self.data["energy_adjustments"][k1][k2] /= factor
+        for e in self.energy_adjustments:
+            e.value /= factor
         super().normalize(mode)
 
     def __repr__(self):

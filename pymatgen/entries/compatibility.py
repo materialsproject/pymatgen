@@ -19,6 +19,7 @@ from monty.json import MSONable
 from pymatgen.io.vasp.sets import MITRelaxSet, MPRelaxSet
 from pymatgen.core.periodic_table import Element
 from pymatgen.analysis.structure_analyzer import oxide_type, sulfide_type
+from pymatgen.entries.computed_entries import EnergyAdjustment
 
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -451,54 +452,33 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
         if self.clean:
             # remove any previously documented corrections from the entry
             entry.correction = 0
-            try:
-                del entry.data["energy_adjustments"]
-            except KeyError:
-                pass
-
-        # verify that all previuosly-applied corrections are documented
-        self.validate_corrections(entry)
 
         # apply the corrections
         try:
             corrections = self.get_corrections_dict(entry)
             for k, v in corrections.items():
+                ea = EnergyAdjustment(k, v, self.__class__.__name__)
                 # Has this correction already been applied?
-                if entry.data.get("energy_adjustments"):
-                    if entry.data["energy_adjustments"].get(self.__class__.__name__):
-                        if entry.data["energy_adjustments"][self.__class__.__name__].get(k):
-                            if entry.data["energy_adjustments"].get(k) == v:
-                                # we already applied this exact correction. Do nothing.
-                                pass
-                            else:
-                                # we already applied a correction with the same name
-                                # but a different value. Something is wrong.
-                                raise CompatibilityError("Entry {} already has an energy "
-                                                         "adjustment called {}, but its "
-                                                         "value of {:.3f} eV/atom differs"
-                                                         "from the value of {:.3f} calculated "
-                                                         "here. This entry will be discarded."
-                                                         .format(entry.entry_id,
-                                                                 k,
-                                                                 entry.data["energy_adjustments"].get(k),
-                                                                 v
-                                                                 )
-                                                         )
-                        else:
-                            # Apply the correction
-                            entry.correction += v
-                            # Add the corrections dict to entry.data for transparency and documentation
-                            entry.data["energy_adjustments"][self.__class__.__name__][k] = v
+                if ea.name in [e.name for e in entry.energy_adjustments]:
+                    if ea.value in [e.value for e in entry.energy_adjustments]:
+                        # we already applied this exact correction. Do nothing.
+                        pass
                     else:
-                        # Apply the correction
-                        entry.correction += v
-                        # Add the corrections dict to entry.data for transparency and documentation
-                        entry.data["energy_adjustments"][self.__class__.__name__] = {k: v}
+                        # we already applied a correction with the same name
+                        # but a different value. Something is wrong.
+                        raise CompatibilityError("Entry {} already has an energy "
+                                                 "adjustment called {}, but its "
+                                                 "value differs from the value of"
+                                                 "{:.3f} calculated here. This"
+                                                 "Entry will be discarded."
+                                                 .format(entry.entry_id,
+                                                         ea.name,
+                                                         ea.value
+                                                         )
+                                                 )
                 else:
-                    # Apply the correction
-                    entry.correction += v
-                    # Add the corrections dict to entry.data for transparency and documentation
-                    entry.data["energy_adjustments"] = {self.__class__.__name__: {k: v}}
+                    # Add the correction to the energy_adjustments list
+                    entry.energy_adjustments.append(ea)
 
             return entry
         except CompatibilityError:
@@ -517,32 +497,6 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
         """
         return list(filter(None, map(self.process_entry, entries)))
 
-    def validate_corrections(self, entry):
-        """
-        Verify that the value of an Entry's correction is equal to the sum of
-        the corrections documented in Entry.data["energy_adjustments"]
-        """
-        # verify that all previously-applied corrections are listed in the data dict
-        documented_correction = 0
-        if entry.data.get("energy_adjustments"):
-            for k1, v1 in entry.data.get("energy_adjustments").items():
-                for k2, v2 in v1.items():
-                    documented_correction += v2
-
-        if entry.correction != documented_correction:
-            warnings.warn("The provenance of the energy correction of {:.3f} "
-                          "eV ({:.3f} eV/atom) for entry {} is unknown! The contents of "
-                          "entry.data['energy_adjustments'] contain total corrections "
-                          "of {:.3f} eV ({:.3f} eV/atom). Consider re-applying all energy "
-                          "corrections and proceed with caution.".format(
-                              entry.correction,
-                              entry.correction / entry.composition.num_atoms,
-                              entry.entry_id,
-                              documented_correction,
-                              documented_correction / entry.composition.num_atoms
-                            )
-                          )
-
     def explain(self, entry):
         """
         Prints an explanation of the energy adjustments applied by the
@@ -552,29 +506,19 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
         Args:
             entry: A ComputedEntry.
         """
-        # verify that all previuosly-applied corrections are documented
-        # if there is a warning, make sure to print it before any other output.
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-            self.validate_corrections(entry)
-            if len(w) > 0:
-                print("WARNING!", str(w[-1].message))
-                print("-------------------------------------------------------------------")
-
         print("The uncorrected energy of {} is {:.3f} eV ({:.3f} eV/atom).".format(
                 entry.composition,
                 entry.uncorrected_energy,
                 entry.uncorrected_energy / entry.composition.num_atoms)
               )
 
-        if entry.data.get("Energy Adjustments"):
+        if len(entry.energy_adjustments) >0:
             print("The following energy adjustments have been applied to this entry:")
-            for k1, v1 in entry.data["energy_adjustments"].items():
-                print("\t{}:".format(k1))
-                for k2, v2 in v1.items():
-                    print("\t\t{}: {:.3f} eV ({:.3f} eV/atom)".format(k2, v2,
-                                                                      v2 / entry.composition.num_atoms)
-                          )
+            for e in entry.energy_adjustments:
+                print("\t\t{}: {:.3f} eV ({:.3f} eV/atom)".format(e.name,
+                                                                  e.value,
+                                                                  e.value / entry.composition.num_atoms)
+                      )
         elif entry.correction == 0:
             print("No energy adjustments have been applied to this entry.")
 
