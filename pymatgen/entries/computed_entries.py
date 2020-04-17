@@ -150,13 +150,13 @@ class ComputedEntry(Entry):
         output = ["ComputedEntry {:<10} - {:<12} ({})".format(self.entry_id,
                                                               self.composition.formula,
                                                               self.composition.reduced_formula),
-                  "{:<24} = {:>9.4f} eV ({:<8.4f} eV/atom)".format("Uncorrected Energy",
+                  "{:<24} = {:>9.4f} eV ({:<8.4f} eV/atom)".format("Energy (Uncorrected)",
                                                                    self._energy,
                                                                    self._energy / n_atoms),
                   "{:<24} = {:>9.4f} eV ({:<8.4f} eV/atom)".format("Correction",
                                                                    self.correction,
                                                                    self.correction / n_atoms),
-                  "{:<24} = {:>9.4f} eV ({:<8.4f} eV/atom)".format("Final Energy",
+                  "{:<24} = {:>9.4f} eV ({:<8.4f} eV/atom)".format("Energy (Final)",
                                                                    self.energy,
                                                                    self.energy_per_atom),
                   "Energy Adjustments:"
@@ -170,10 +170,10 @@ class ComputedEntry(Entry):
                                                                                 e.value / n_atoms))
         output.append("Parameters:")
         for k, v in self.parameters.items():
-            output.append("  {} = {}".format(k, v))
+            output.append("  {:<22} = {}".format(k, v))
         output.append("Data:")
         for k, v in self.data.items():
-            output.append("  {} = {}".format(k, v))
+            output.append("  {:<22} = {}".format(k, v))
         return "\n".join(output)
 
     @classmethod
