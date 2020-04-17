@@ -147,7 +147,7 @@ class ComputedEntry(Entry):
 
     def __repr__(self):
         n_atoms = self.composition.num_atoms
-        output = ["ComputedEntry {:<10} - {:<12} ({})".format(self.entry_id,
+        output = ["ComputedEntry {:<10} - {:<12} ({})".format(str(self.entry_id),
                                                               self.composition.formula,
                                                               self.composition.reduced_formula),
                   "{:<24} = {:>9.4f} eV ({:<8.4f} eV/atom)".format("Energy (Uncorrected)",
