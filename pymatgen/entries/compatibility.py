@@ -451,7 +451,7 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
         """
         if self.clean:
             # remove any previously documented corrections from the entry
-            entry.correction = 0
+            entry.energy_adjustments = []
 
         # apply the corrections
         try:

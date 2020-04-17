@@ -478,7 +478,7 @@ class MPRester:
         from pymatgen.analysis.phase_diagram import PhaseDiagram
         from pymatgen.core.ion import Ion
         from pymatgen.entries.compatibility import \
-            MaterialsProjectAqueousCompatibility
+            MaterialsProjectCompatibility, MaterialsProjectAqueousCompatibility
 
         pbx_entries = []
 
@@ -492,8 +492,12 @@ class MPRester:
         ion_ref_entries = self.get_entries_in_chemsys(
             list(set([str(e) for e in ion_ref_elts] + ['O', 'H'])),
             property_data=['e_above_hull'], compatible_only=False)
-        compat = MaterialsProjectAqueousCompatibility("Advanced")
-        ion_ref_entries = compat.process_entries(ion_ref_entries)
+        # first correct solid DFT energies
+        compat1 = MaterialsProjectCompatibility()
+        ion_ref_entries = compat1.process_entries(ion_ref_entries)
+        # then adjust them to Gibbs formation energies at room temp
+        compat2 = MaterialsProjectAqueousCompatibility()
+        ion_ref_entries = compat2.process_entries(ion_ref_entries)
         ion_ref_pd = PhaseDiagram(ion_ref_entries)
 
         # position the ion energies relative to most stable reference state
