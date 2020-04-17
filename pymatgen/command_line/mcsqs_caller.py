@@ -6,7 +6,9 @@ https://www.brown.edu/Departments/Engineering/Labs/avdw/atat/
 import os
 import warnings
 from subprocess import Popen, PIPE, TimeoutExpired
-from typing import Dict, Union, List, NamedTuple, Optional, AnyStr
+from typing import Dict, Union, List, NamedTuple, Optional
+from typing_extensions import Literal
+from pathlib import Path
 
 from monty.dev import requires
 from monty.os.path import which
@@ -20,9 +22,9 @@ class Sqs(NamedTuple):
     Return type for run_mcsqs.
     """
     bestsqs: Structure
-    objective_function: float
+    objective_function: Union[float, Literal["Perfect_match"]]
     allsqs: List
-    directory: AnyStr
+    directory: str
 
 
 @requires(which("mcsqs") and which("str2cif"),
@@ -125,19 +127,35 @@ def run_mcsqs(
               ]
 
     mcsqs_find_sqs_processes = []
-    for i in range(instances):
-        instance_cmd = ["-ip {}".format(i + 1)]
-        cmd = mcsqs_find_sqs_cmd + add_ons + instance_cmd
+    if instances > 1:
+        # if multiple instances, run a range of commands using "-ip"
+        for i in range(instances):
+            instance_cmd = ["-ip {}".format(i + 1)]
+            cmd = mcsqs_find_sqs_cmd + add_ons + instance_cmd
+            p = Popen(cmd)
+            mcsqs_find_sqs_processes.append(p)
+    else:
+        # run normal mcsqs command
+        cmd = mcsqs_find_sqs_cmd + add_ons
         p = Popen(cmd)
         mcsqs_find_sqs_processes.append(p)
 
     try:
         for idx, p in enumerate(mcsqs_find_sqs_processes):
-            # print("Starting comm with {}".format(idx))
             p.communicate(timeout=search_time * 60)
-            # print("Finish comm with {}".format(idx))
-            os.chdir(original_directory)
-            raise Exception("mcsqs exited before timeout reached")
+
+        if instances > 1:
+            p = Popen(
+                ["mcsqs", "-best"]
+            )
+            p.communicate()
+
+        if os.path.exists("bestsqs.out") and os.path.exists("bestcorr.out"):
+            sqs = _parse_sqs_path(".")
+            return sqs
+
+        raise Exception("mcsqs exited before timeout reached")
+
     except TimeoutExpired:
         for p in mcsqs_find_sqs_processes:
             p.kill()
@@ -151,53 +169,82 @@ def run_mcsqs(
             p.communicate()
 
         if os.path.exists("bestsqs.out") and os.path.exists("bestcorr.out"):
-
-            # Convert best SQS structure to cif file and pymatgen Structure
-            p = Popen(
-                "str2cif < bestsqs.out > bestsqs.cif",
-                shell=True
-            )
-            p.communicate()
-
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore")
-                bestsqs = Structure.from_file("bestsqs.cif")
-
-            # Get best SQS objective function
-            with open('bestcorr.out', 'r') as f:
-                lines = f.readlines()
-            objective_function = float(lines[-1].split('=')[-1].strip())
-
-            # Get all SQS structures and objective functions
-            allsqs = []
-            for i in range(instances):
-                sqs_out = 'bestsqs{}.out'.format(i + 1)
-                sqs_cif = 'bestsqs{}.cif'.format(i + 1)
-                corr_out = 'bestcorr{}.out'.format(i + 1)
-                p = Popen(
-                    "str2cif <" + sqs_out + ">" + sqs_cif,
-                    shell=True
-                )
-                p.communicate()
-                with warnings.catch_warnings():
-                    warnings.simplefilter("ignore")
-                    sqs = Structure.from_file(sqs_cif)
-                with open(corr_out, 'r') as f:
-                    lines = f.readlines()
-                obj = float(lines[-1].split('=')[-1].strip())
-                allsqs.append({'structure': sqs, 'objective_function': obj})
-
-            # Change back to original directory
-            os.chdir(original_directory)
-
-            return Sqs(
-                bestsqs=bestsqs,
-                objective_function=objective_function,
-                allsqs=allsqs,
-                directory=directory
-            )
+            sqs = _parse_sqs_path(".")
+            return sqs
 
         else:
             os.chdir(original_directory)
             raise TimeoutError("Cluster expansion took too long.")
 
+
+def _parse_sqs_path(path) -> Sqs:
+    """
+    Private function to parse mcsqs output directory
+    Args:
+        path: directory to perform parsing
+
+    Returns:
+        Tuple of Pymatgen structure SQS of the input structure, the mcsqs objective function,
+            list of all SQS structures, and the directory where calculations are run
+    """
+
+    path = Path(path)
+
+    # instances will be 0 if mcsqs was run in parallel, or number of instances
+    instances = len(list(path.glob('bestsqs*[0-9]*')))
+
+    # Convert best SQS structure to cif file and pymatgen Structure
+    p = Popen(
+        "str2cif < bestsqs.out > bestsqs.cif",
+        shell=True,
+        cwd=path
+    )
+    p.communicate()
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        bestsqs = Structure.from_file(path / "bestsqs.cif")
+
+    # Get best SQS objective function
+    with open(path / 'bestcorr.out', 'r') as f:
+        lines = f.readlines()
+    # objective_function = float(lines[-1].split('=')[-1].strip())
+    # TODO: account for "Perfect_match" objective function
+    objective_function = lines[-1].split('=')[-1].strip()
+    if objective_function != 'Perfect_match':
+        objective_function = float(objective_function)
+
+    # Get all SQS structures and objective functions
+    allsqs = []
+
+    for i in range(instances):
+        sqs_out = 'bestsqs{}.out'.format(i + 1)
+        sqs_cif = 'bestsqs{}.cif'.format(i + 1)
+        corr_out = 'bestcorr{}.out'.format(i + 1)
+        p = Popen(
+            "str2cif <" + sqs_out + ">" + sqs_cif,
+            shell=True,
+            cwd=path
+        )
+        p.communicate()
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            sqs = Structure.from_file(sqs_cif)
+        with open(path / corr_out, 'r') as f:
+            lines = f.readlines()
+
+        # obj = float(lines[-1].split('=')[-1].strip())
+        # TODO: account for "Perfect_match" objective function
+        obj = lines[-1].split('=')[-1].strip()
+        if obj == 'Perfect_match':
+            obj = objective_function
+        else:
+            obj = float(obj)
+        allsqs.append({'structure': sqs, 'objective_function': obj})
+
+    return Sqs(
+        bestsqs=bestsqs,
+        objective_function=objective_function,
+        allsqs=allsqs,
+        directory=path
+    )
