@@ -129,6 +129,10 @@ class VasprunTest(PymatgenTest):
         self.assertEqual(29, len(vasprun.ionic_steps))
         self.assertEqual(len(vasprun.structures), len(vasprun.ionic_steps))
 
+        trajectory = vasprun.get_trajectory()
+        self.assertEqual(len(trajectory), len(vasprun.ionic_steps))
+        self.assertIn("forces", trajectory[0].site_properties)
+
         for i, step in enumerate(vasprun.ionic_steps):
             self.assertEqual(vasprun.structures[i], step["structure"])
 
