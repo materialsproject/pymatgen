@@ -476,19 +476,12 @@ class Critic2Analysis(MSONable):
 
     def structure_graph(
         self,
-        edge_weight=None,
-        edge_weight_units=None,
         include_critical_points=("bond", "ring", "cage"),
     ):
         """
         A StructureGraph object describing bonding information
-        in the crystal. Lazily constructed.
+        in the crystal.
         Args:
-            edge_weight: a value to store on the Graph edges,
-            by default this is "bond_length" but other supported
-            values are any of the attributes of CriticalPoint
-            edge_weight_units: optional metadata for
-            book-keeping (e.g. Å for "bond_length" edge weight)
             include_critical_points: add DummySpecie for
             the critical points themselves, a list of
             "nucleus", "bond", "ring", "cage", set to None
@@ -521,6 +514,9 @@ class Critic2Analysis(MSONable):
                         },
                     )
                     point_idx_to_struct_idx[idx] = len(structure) - 1
+
+        edge_weight = "bond_length"
+        edge_weight_units = "Å"
 
         sg = StructureGraph.with_empty_graph(
             structure,
@@ -586,16 +582,18 @@ class Critic2Analysis(MSONable):
                     struct_from_idx = point_idx_to_struct_idx.get(from_idx, from_idx)
                     struct_to_idx = point_idx_to_struct_idx.get(to_idx, to_idx)
 
-                    if edge_weight == "bond_length":
-                        weight = self.structure.get_distance(
+                    weight = self.structure.get_distance(
                             struct_from_idx, struct_to_idx, jimage=relative_lvec
-                        )
-                    elif edge_weight:
-                        weight = getattr(
-                            self.critical_points[unique_idx], edge_weight, None
-                        )
-                    else:
-                        weight = None
+                    )
+
+                    crit_point = self.critical_points[unique_idx]
+
+                    edge_properties = {
+                        "field":  crit_point.field,
+                        "laplacian":  crit_point.laplacian,
+                        "ellipticity":  crit_point.ellipticity,
+                        "frac_coords": self.nodes[idx]["frac_coords"]
+                    }
 
                     sg.add_edge(
                         struct_from_idx,
@@ -603,6 +601,7 @@ class Critic2Analysis(MSONable):
                         from_jimage=from_lvec,
                         to_jimage=to_lvec,
                         weight=weight,
+                        edge_properties=edge_properties
                     )
 
         return sg
