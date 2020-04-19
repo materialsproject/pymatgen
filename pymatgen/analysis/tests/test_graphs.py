@@ -113,7 +113,7 @@ class StructureGraphTest(PymatgenTest):
         )
         c2o = Critic2Analysis(self.structure, reference_stdout)
         self.mos2_sg = c2o.structure_graph(
-            edge_weight="bond_length", edge_weight_units="Å", include_critical_points=False
+            include_critical_points=False
         )
 
         latt = Lattice.cubic(4.17)
