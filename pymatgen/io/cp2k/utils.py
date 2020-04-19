@@ -13,6 +13,38 @@ from pymatgen import SETTINGS
 MODULE_DIR = Path(__file__).resolve().parent
 
 
+def _postprocessor(s):
+    """
+    Helper function to post process the results of the pattern matching functions in Cp2kOutput and turn them to
+    python types.
+    """
+    s = s.rstrip()  # Remove leading/trailing whitespace
+    s = s.lower()  # Turn to lower case for convenience
+    s = s.replace(" ", "_")  # Remove whitespaces
+
+    if s == "no" or s == "none":
+        return False
+    elif s == "yes":
+        return True
+    elif re.match(r"^-?\d+$", s):
+        try:
+            return int(s)
+        except ValueError:
+            raise IOError("Error in parsing CP2K output file.")
+    elif re.match(r"^[+\-]?(?=.)(?:0|[1-9]\d*)?(?:\.\d*)?(?:\d[eE][+\-]?\d+)?$", s):
+        try:
+            return float(s)
+        except ValueError:
+            raise IOError("Error in parsing CP2K output file.")
+    elif re.match(r"\*+", s):
+        try:
+            return np.NaN
+        except ValueError:
+            raise IOError("Error in parsing CP2K output file.")
+    else:
+        return s
+
+
 # TODO: Setting the default basis set to triple zeta double valence potential (highest accuracy). Check this.
 def get_basis_and_potential(
     species, functional="PBE", basis_type="MOLOPT", cardinality="DZVP"

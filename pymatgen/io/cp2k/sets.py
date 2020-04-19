@@ -183,7 +183,7 @@ class Cp2kInputSet(Cp2kInput):
         hf_fraction=0.25,
         gga_x_fraction=0.75,
         gga_c_fraction=1,
-        max_memory=1000,
+        max_memory=2000,
         cutoff_radius=8
     ):
 
@@ -308,7 +308,7 @@ class Cp2kInputSet(Cp2kInput):
             self.insert(Section("MOTION", subsections={}))
         self["MOTION"].insert(Section("PRINT", subsections={}))
         self["MOTION"]["PRINT"].insert(
-            Section("TRAJECTORY", section_parameters=["HIGH"], subsections={})
+            Section("TRAJECTORY", section_parameters=["ON"], subsections={})
         )
         self["MOTION"]["PRINT"].insert(Section("CELL", subsections={}))
         self["MOTION"]["PRINT"].insert(Section("FORCES", subsections={}))
@@ -327,7 +327,7 @@ class DftSet(Cp2kInputSet):
         structure,
         ot=True,
         band_gap=0.01,
-        eps_default=1e-12,
+        eps_default=1e-10,
         eps_scf=1e-7,
         max_scf=50,
         minimizer="DIIS",
@@ -431,10 +431,23 @@ class DftSet(Cp2kInputSet):
         self["FORCE_EVAL"]["DFT"].insert(xc)
         self["FORCE_EVAL"]["DFT"].insert(Section("PRINT", subsections={}))
 
-        self.print_pdos()
-        # self.print_ldos()
-        self.print_mo_cubes()
-
+        # TODO: Ugly workaround...
+        if kwargs.get('print_pdos', True):
+            self.print_pdos()
+        if kwargs.get('print_ldos', False):
+            self.print_ldos()
+        if kwargs.get('print_mo_cubes', True):
+            self.print_mo_cubes()
+        if kwargs.get('print_hartree_potential', False):
+            self.print_hartree_potential()
+        if kwargs.get('print_e_density', False):
+            self.print_e_density()
+        if kwargs.get('activate_fast_minimization', False):
+            self.activate_fast_minimization()
+        if kwargs.get('activate_robust_minimization', False):
+            self.activate_robust_minimization()
+        if kwargs.get('activate_very_strict_minimization', False):
+            self.activate_very_strict_minimization()
         self.update(override_default_params)
 
     def print_pdos(self, nlumo=-1):

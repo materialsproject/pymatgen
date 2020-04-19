@@ -26,7 +26,8 @@ from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.electronic_structure.dos import Dos, CompleteDos, add_densities
 from pymatgen.io.xyz import XYZ
 
-from pymatgen.io.cp2k.inputs import Cp2kInput
+from pymatgen.io.cp2k.sets import Cp2kInput
+from pymatgen.io.cp2k.utils import _postprocessor
 
 __author__ = "Nicholas Winner"
 __version__ = "0.1"
@@ -42,38 +43,6 @@ _static_run_names_ = [
     "WFN_OPT",
 ]
 _bohr_to_angstrom_ = 5.29177208590000e-01
-
-
-def _postprocessor(s):
-    """
-    Helper function to post process the results of the pattern matching functions in Cp2kOutput and turn them to
-    python types.
-    """
-    s = s.rstrip()  # Remove leading/trailing whitespace
-    s = s.lower()  # Turn to lower case for convenience
-    s = s.replace(" ", "_")  # Remove whitespaces
-
-    if s == "no" or s == "none":
-        return False
-    elif s == "yes":
-        return True
-    elif re.match(r"^-?\d+\.\d+", s) or re.match(r"^-?\.\d+", s):
-        try:
-            return float(s)
-        except ValueError:
-            raise IOError("Error in parsing CP2K output file.")
-    elif re.match(r"^-?\d+", s):
-        try:
-            return int(s)
-        except ValueError:
-            raise IOError("Error in parsing CP2K output file.")
-    elif re.match(r"\*+", s):
-        try:
-            return np.NaN
-        except ValueError:
-            raise IOError("Error in parsing CP2K output file.")
-    else:
-        return s
 
 
 class Cp2kOutput:
@@ -224,7 +193,15 @@ class Cp2kOutput:
         self.filenames["trajectory"] = glob.glob(
             os.path.join(self.dir, "*pos*.xyz*")
         )
-        self.filenames["cell"] = glob.glob(os.path.join(self.dir, "*.cell*"))
+        self.filenames['forces'] = glob.glob(
+            os.path.join(self.dir, "*frc*.xyz*")
+        )
+        self.filenames['stress'] = glob.glob(
+            os.path.join(self.dir, "*stress*")
+        )
+        self.filenames["cell"] = glob.glob(
+            os.path.join(self.dir, "*.cell*")
+        )
         self.filenames["electron_density"] = glob.glob(
             os.path.join(self.dir, "*ELECTRON_DENSITY*.cube*")
         )
@@ -234,7 +211,20 @@ class Cp2kOutput:
         self.filenames["v_hartree"] = glob.glob(
             os.path.join(self.dir, "*HARTREE*.cube*")
         )
-
+        restart = glob.glob(os.path.join(self.dir, "*restart*"))
+        self.filenames['restart.bak'] = []
+        for r in restart:
+            if r.split("/")[-1].__contains__("bak"):
+                self.filenames["restart.bak"].append(r)
+            else:
+                self.filenames["restart"] = r
+        wfn = glob.glob(os.path.join(self.dir, "*wfn*"))
+        self.filenames['wfn.bak'] = []
+        for w in wfn:
+            if w.split("/")[-1].__contains__("bak"):
+                self.filenames["wfn.bak"].append(w)
+            else:
+                self.filenames["wfn"] = w
         for k, v in self.filenames.items():
             print("Finding {} files... found {} files.".format(k, len(v)))
         print("-" * 50)
@@ -307,6 +297,7 @@ class Cp2kOutput:
                     )
                 )
             self.final_structure = self.structures[-1]
+            self.final_structure.set_charge(self.initial_structure.charge)
 
     # TODO There seems to be a regex exponential explosion that happens with table parsing the initial coordinates
     # as the structure gets large. This should work around that
@@ -344,7 +335,7 @@ class Cp2kOutput:
                 [float(i[4]), float(i[5]), float(i[6])] for i in coord_table
             ], coords_are_cartesian=True
         )
-
+        self.initial_structure.set_charge(self.input['FORCE_EVAL']['DFT']['CHARGE'])
         self.composition = self.initial_structure.composition
         return self.initial_structure
 
@@ -1001,6 +992,10 @@ class Cp2kOutput:
 
         self.data["eigenvalues"] = eigenvalues
         self.data["band_gap"] = band_gap
+
+        if len(eigenvalues) == 0:
+            warnings.warn('No MO eigenvalues detected.')
+            return
 
         # self.data will always contained the eigenvalues resolved by spin channel. The average vbm, cbm, gap,
         # and fermi are saved as class attributes, as there is (usually) no assymmetry in these values for

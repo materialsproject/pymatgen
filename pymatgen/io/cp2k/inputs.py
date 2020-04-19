@@ -18,6 +18,7 @@ import copy
 import textwrap
 from monty.json import MSONable
 from monty.io import zopen
+from pymatgen.io.cp2k.utils import _postprocessor
 
 __author__ = "Nicholas Winner"
 __version__ = "0.2"
@@ -117,6 +118,9 @@ class Section(MSONable):
         return Section.from_dict(copy.deepcopy(self.as_dict()))
 
     def __getitem__(self, d):
+        for k in self.keywords:
+            if k.name.upper() == d.upper():
+                return k.values[0] if len(k.values) == 1 else k.values
         return self.subsections[d]
 
     def __setitem__(self, key, value):
@@ -253,6 +257,8 @@ class Section(MSONable):
                 if k not in list(d1.subsections.keys()):
                     d1.insert(Section(k, subsections={}))
                 return Section._update(d1.subsections[k], v)
+            elif isinstance(v, Section):
+                d1.insert(v)
 
     def insert(self, d):
         """
@@ -528,7 +534,7 @@ class Cp2kInput(Section):
                 self.by_path(current).insert(s)
                 current = current + "/" + name
             else:
-                args = line.split()
+                args = map(_postprocessor, line.split())
                 self.by_path(current).keywords.append(Keyword(*args))
 
     def write_file(
