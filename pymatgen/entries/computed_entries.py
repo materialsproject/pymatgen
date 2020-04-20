@@ -34,17 +34,18 @@ class EnergyAdjustment(MSONable):
     Lightweight class to contain information about an energy adjustment or
     energy correction.
     """
-    def __init__(self, name, value, cls="None", version=CURRENT_VERSION):
+    def __init__(self, value, name="Manual adjustment", cls="None", version=CURRENT_VERSION):
         """
         Args:
-            name: str, human-readable name of the energy adjustment.
             value: float, value of the energy adjustment in eV
+            name: str, human-readable name of the energy adjustment.
+                (Default: Manual adjustment)
             cls: str, the name of the Compatibility class used to generate the
                 energy adjustment. (Default: None)
             version: str, pymatgen version used to calculate the energy adjustment.
         """
-        self.name = name
         self.value = value
+        self.name = name
         self.cls = cls
         self.version = version
 
@@ -127,7 +128,7 @@ class ComputedEntry(Entry):
 
     @correction.setter
     def correction(self, x: float) -> None:
-        corr = EnergyAdjustment("Manual correction", x)
+        corr = EnergyAdjustment(x)
         self.energy_adjustments = [corr]
 
     def normalize(self, mode: str = "formula_unit") -> None:
