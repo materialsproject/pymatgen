@@ -97,9 +97,6 @@ class ComputedEntry(Entry):
         self.energy_adjustments = energy_adjustments if energy_adjustments else []
 
         if correction:
-            warnings.warn("Setting an Entry's correction manually is no longer"
-                          "recommended and may be deprecated in a future version."
-                          )
             if energy_adjustments:
                 raise ValueError("Argument conflict! Setting correction = {:.3f} conflicts "
                                  "with setting energy_adjustments. Specify one or the "
