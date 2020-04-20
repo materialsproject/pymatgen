@@ -101,7 +101,7 @@ class ComputedEntry(Entry):
             if energy_adjustments:
                 raise ValueError("Argument conflict! Setting correction = {:.3f} conflicts "
                                  "with setting energy_adjustments. Specify one or the "
-                                 "other".format(correction))
+                                 "other.".format(correction))
             self.correction = correction
 
         self.energy_adjustments = energy_adjustments if energy_adjustments else []
