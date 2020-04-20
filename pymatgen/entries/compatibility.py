@@ -481,7 +481,8 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
                     entry.energy_adjustments.append(ea)
 
             return entry
-        except CompatibilityError:
+        except CompatibilityError as exc:
+            print(exc)
             return None
 
     def process_entries(self, entries):
@@ -822,8 +823,13 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
              "Compound entropy adjustment": value
              }
         """
-        # if not entry.energy_adjustments.get("MP Gas Correction"):
-        #     raise CompatibilityError("work in progress")
+        # confirm that entry has already been processed by 
+        # MaterialsProjectCompatibility
+        if "MaterialsProjectCompatibility" not in [e.cls for e in entry.energy_adjustments]:
+            raise CompatibilityError("Discarding Entry {} because it has not been processed by "
+                                     "MaterialsProjectCompatibility. MaterialsProjectAqueousCompatibility "
+                                     "requires that all entries first be processed by "
+                                     "MaterialsProjectCompatibility.".format(entry.entry_id))
 
         comp = entry.composition
         rform = comp.reduced_formula
