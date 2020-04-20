@@ -457,7 +457,7 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
         try:
             corrections = self.get_corrections_dict(entry)
             for k, v in corrections.items():
-                ea = EnergyAdjustment(k, v, self.__class__.__name__)
+                ea = EnergyAdjustment(v, k, self.as_dict())
                 # Has this correction already been applied?
                 if ea.name in [e.name for e in entry.energy_adjustments]:
                     if ea.value in [e.value for e in entry.energy_adjustments]:
