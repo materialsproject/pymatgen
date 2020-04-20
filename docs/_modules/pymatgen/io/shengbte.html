@@ -13,6 +13,7 @@
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
  
@@ -53,14 +54,14 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">warnings</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Any</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Any</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">monty.dev</span> <span class="kn">import</span> <span class="n">requires</span>
-<span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">MSONable</span>
+<span class="kn">from</span> <span class="nn">monty.dev</span> <span class="k">import</span> <span class="n">requires</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
 
-<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">Structure</span>
-<span class="kn">from</span> <span class="nn">pymatgen.io.vasp</span> <span class="kn">import</span> <span class="n">Kpoints</span>
+<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="k">import</span> <span class="n">Structure</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.vasp</span> <span class="k">import</span> <span class="n">Kpoints</span>
 
 <span class="k">try</span><span class="p">:</span>
     <span class="kn">import</span> <span class="nn">f90nml</span>
@@ -79,6 +80,29 @@
 <span class="sd">    Class for reading, updating, and writing ShengBTE CONTROL files.</span>
 <span class="sd">    See  https://bitbucket.org/sousaw/shengbte/src/master/ for more</span>
 <span class="sd">    detailed description and default values of CONTROL arguments.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        ngrid: Reciprocal space grid density as a list of 3 ints.</span>
+<span class="sd">        temperature: The temperature to calculate the lattice thermal</span>
+<span class="sd">            conductivity for. Can be given as a single float, or a dictionary</span>
+<span class="sd">            with the keys &quot;min&quot;, &quot;max&quot;, &quot;step&quot;.</span>
+<span class="sd">        **kwargs: Other ShengBTE parameters. Several parameters are required</span>
+<span class="sd">            for ShengBTE to run - we have listed these parameters below:</span>
+
+<span class="sd">            - nelements (int): number of different elements in the compound</span>
+<span class="sd">            - natoms (int): number of atoms in the unit cell</span>
+<span class="sd">            - lattvec (size 3x3 array): real-space lattice vectors, in units</span>
+<span class="sd">              of lfactor</span>
+<span class="sd">            - lfactor (float): unit of measurement for lattice vectors (nm).</span>
+<span class="sd">                I.e., set to 0.1 if lattvec given in Angstrom.</span>
+<span class="sd">            - types (size natom list): a vector of natom integers, ranging</span>
+<span class="sd">              from 1 to nelements, assigning an element to each atom in the</span>
+<span class="sd">              system</span>
+<span class="sd">            - elements (size natom list): a vector of element names</span>
+<span class="sd">            - positions (size natomx3 array): atomic positions in lattice</span>
+<span class="sd">              coordinates</span>
+<span class="sd">            - scell (size 3 list): supercell sizes along each crystal axis</span>
+<span class="sd">              used for the 2nd-order force constant calculation</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">required_params</span> <span class="o">=</span> <span class="p">[</span>
@@ -129,36 +153,12 @@
         <span class="s2">&quot;espresso&quot;</span><span class="p">,</span>
     <span class="p">]</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">ngrid</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">temperature</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="mi">300</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Args:</span>
-<span class="sd">            ngrid: Reciprocal space grid density as a list of 3 ints.</span>
-<span class="sd">            temperature: The temperature to calculate the lattice thermal</span>
-<span class="sd">                conductivity for. Can be given as a single float, or a dictionary</span>
-<span class="sd">                with the keys &quot;min&quot;, &quot;max&quot;, &quot;step&quot;.</span>
-<span class="sd">            **kwargs: Other ShengBTE parameters. Several parameters are required</span>
-<span class="sd">                for ShengBTE to run - we have listed these parameters below:</span>
-
-<span class="sd">                - nelements (int): number of different elements in the compound</span>
-<span class="sd">                - natoms (int): number of atoms in the unit cell</span>
-<span class="sd">                - lattvec (size 3x3 array): real-space lattice vectors, in units</span>
-<span class="sd">                  of lfactor</span>
-<span class="sd">                - lfactor (float): unit of measurement for lattice vectors (nm).</span>
-<span class="sd">                    I.e., set to 0.1 if lattvec given in Angstrom.</span>
-<span class="sd">                - types (size natom list): a vector of natom integers, ranging</span>
-<span class="sd">                  from 1 to nelements, assigning an element to each atom in the</span>
-<span class="sd">                  system</span>
-<span class="sd">                - elements (size natom list): a vector of element names</span>
-<span class="sd">                - positions (size natomx3 array): atomic positions in lattice</span>
-<span class="sd">                  coordinates</span>
-<span class="sd">                - scell (size 3 list): supercell sizes along each crystal axis</span>
-<span class="sd">                  used for the 2nd-order force constant calculation</span>
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">ngrid</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">ngrid</span> <span class="o">=</span> <span class="p">[</span><span class="mi">25</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">25</span><span class="p">]</span>
@@ -337,9 +337,6 @@
         <span class="k">return</span> <span class="n">Structure</span><span class="p">(</span><span class="n">cell</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;positions&quot;</span><span class="p">])</span></div>
 
 <div class="viewcode-block" id="Control.as_dict"><a class="viewcode-back" href="../../../pymatgen.io.shengbte.html#pymatgen.io.shengbte.Control.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns: MSONAble dict</span>
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div></div>
 
 
@@ -388,7 +385,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

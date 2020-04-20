@@ -870,7 +870,7 @@ class VoronoiNN(NearNeighbors):
         # Iterate through all the faces in the tessellation
         results = {}
         for nn, vind in voro.ridge_dict.items():
-            # Get only those that include the cite in question
+            # Get only those that include the site in question
             if site_idx in nn:
                 other_site = nn[0] if nn[1] == site_idx else nn[1]
                 if -1 in vind:
@@ -923,6 +923,10 @@ class VoronoiNN(NearNeighbors):
                 # If we are computing which neighbors are adjacent, store the vertices
                 if compute_adj_neighbors:
                     results[other_site]['verts'] = vind
+
+        # all sites should have atleast two connected ridges in periodic system
+        if not results:
+            raise ValueError("No Voronoi neighbours found for site - try increasing cutoff")
 
         # Get only target elements
         resultweighted = {}
@@ -3293,7 +3297,7 @@ class BrunnerNN_relative(NearNeighbors):
         ds = [i.nn_distance for i in neighs_dists]
         ds.sort()
 
-        ns = [ds[i] / ds[i + 1] for i in range(len(ds) - 1)]
+        ns = [ds[i + 1] / ds[i] for i in range(len(ds) - 1)]
 
         d_max = ds[ns.index(max(ns))]
         siw = []
@@ -3364,7 +3368,7 @@ class BrunnerNN_real(NearNeighbors):
         ds = [i.nn_distance for i in neighs_dists]
         ds.sort()
 
-        ns = [ds[i] - ds[i + 1] for i in range(len(ds) - 1)]
+        ns = [ds[i + 1] - ds[i] for i in range(len(ds) - 1)]
 
         d_max = ds[ns.index(max(ns))]
         siw = []

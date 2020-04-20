@@ -416,10 +416,10 @@ class StructureMatcher(MSONable):
                 s2comp += s2.composition[el]
             fu = s2comp / s1comp
         else:
-            try:
-                el = get_el_sp(self._supercell_size)
+            el = get_el_sp(self._supercell_size)
+            if (el in s2.composition) and (el in s1.composition):
                 fu = s2.composition[el] / s1.composition[el]
-            except ValueError:
+            else:
                 raise ValueError('Invalid argument for supercell_size.')
 
         if fu < 2 / 3:

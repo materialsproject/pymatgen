@@ -4,7 +4,7 @@
 
 
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.analysis.aflow_prototypes import AflowPrototypeMatcher
+from pymatgen.analysis.prototypes import AflowPrototypeMatcher
 
 
 class AflowPrototypeMatcherTest(PymatgenTest):

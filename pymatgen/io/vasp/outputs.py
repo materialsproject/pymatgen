@@ -922,6 +922,25 @@ class Vasprun(MSONable):
 
         return potcar
 
+    def get_trajectory(self):
+        """
+        This method returns a Trajectory object, which is an alternative
+        representation of self.structures into a single object. Forces are
+        added to the Trajectory as site properties.
+
+        Returns: a Trajectory
+        """
+        # required due to circular imports
+        # TODO: fix pymatgen.core.trajectory so it does not load from io.vasp(!)
+        from pymatgen.core.trajectory import Trajectory
+
+        structs = []
+        for step in self.ionic_steps:
+            struct = step['structure'].copy()
+            struct.add_site_property('forces', step['forces'])
+            structs.append(struct)
+        return Trajectory.from_structures(structs, constant_lattice=False)
+
     def update_potcar_spec(self, path):
         """
         :param path: Path to search for POTCARs
@@ -3011,16 +3030,17 @@ class VolumetricData(MSONable):
                 original_line = line
                 line = line.strip()
                 if read_dataset:
-                    toks = line.split()
-                    for tok in toks:
+                    for tok in line.split():
                         if data_count < ngrid_pts:
                             # This complicated procedure is necessary because
                             # vasp outputs x as the fastest index, followed by y
                             # then z.
-                            x = data_count % dim[0]
-                            y = int(math.floor(data_count / dim[0])) % dim[1]
-                            z = int(math.floor(data_count / dim[0] / dim[1]))
-                            dataset[x, y, z] = float(tok)
+                            no_x = data_count // dim[0]
+                            dataset[
+                                data_count % dim[0],
+                                no_x % dim[1],
+                                no_x // dim[1]
+                            ] = float(tok)
                             data_count += 1
                     if data_count >= ngrid_pts:
                         read_dataset = False

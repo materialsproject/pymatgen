@@ -1103,7 +1103,7 @@ class CifParser:
             List of Structures.
         """
         structures = []
-        for d in self._cif.data.values():
+        for i, d in enumerate(self._cif.data.values()):
             try:
                 s = self._get_structure(d, primitive)
                 if s:
@@ -1113,7 +1113,10 @@ class CifParser:
                 # A user reported a problem with cif files produced by Avogadro
                 # in which the atomic coordinates are in Cartesian coords.
                 self.warnings.append(str(exc))
-                warnings.warn(str(exc))
+                warnings.warn("No structure parsed for %d structure in CIF. Section of CIF file below." % (i + 1))
+                warnings.warn(str(d))
+                warnings.warn("Error is %s." % str(exc))
+
         if self.warnings:
             warnings.warn("Issues encountered while parsing CIF: %s" % "\n".join(self.warnings))
         if len(structures) == 0:

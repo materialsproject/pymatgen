@@ -1682,31 +1682,23 @@ class CubicSupercellTransformation(AbstractTransformation):
         sc_not_found = True
 
         if self.force_diagonal:
-            # trans_mat_diagonal holds the diagonal of the trans_mat
-            trans_mat_diagonal = np.array([0, 0, 0])
-            trans_mat_diagonal_update = np.array([1, 1, 1])
-        else:
-            # target_threshold is used as the desired cubic side lengths
-            target_sc_size = self.min_length
+            scale = self.min_length / np.array(structure.lattice.abc)
+            self.transformation_matrix = np.diag(np.ceil(scale).astype(int))
+            st = SupercellTransformation(self.transformation_matrix)
+            return st.apply_transformation(structure)
 
+        # target_threshold is used as the desired cubic side lengths
+        target_sc_size = self.min_length
         while sc_not_found:
-            if self.force_diagonal:
-                # Update trans_mat (with diagonal constraint)
-                trans_mat_diagonal += trans_mat_diagonal_update
-                self.transformation_matrix = np.diag(trans_mat_diagonal)
+            target_sc_lat_vecs = np.eye(3, 3) * target_sc_size
+            self.transformation_matrix = (
+                    target_sc_lat_vecs @ np.linalg.inv(lat_vecs)
+            )
 
-            else:
-                # Update trans_mat (without diagonal constraint)
-                target_sc_lat_vecs = np.eye(3, 3) * target_sc_size
-
-                self.transformation_matrix = (
-                        np.linalg.inv(lat_vecs) @ target_sc_lat_vecs
-                )
-
-                # round the entries of T and force T to be nonsingular
-                self.transformation_matrix = _round_and_make_arr_singular(
-                    self.transformation_matrix
-                )
+            # round the entries of T and force T to be nonsingular
+            self.transformation_matrix = _round_and_make_arr_singular(
+                self.transformation_matrix
+            )
 
             proposed_sc_lat_vecs = self.transformation_matrix @ lat_vecs
 
@@ -1732,12 +1724,6 @@ class CubicSupercellTransformation(AbstractTransformation):
                 ]
             )
 
-            lengths = np.linalg.norm(length_vecs, axis=1)
-            smallest_dim = np.amin(lengths)  # shortest length
-            smallest_dim_idx = np.argmin(lengths)
-            # shortest direction
-            smallest_dim_vec = length_vecs[smallest_dim_idx]
-
             # Get number of atoms
             st = SupercellTransformation(self.transformation_matrix)
             superstructure = st.apply_transformation(structure)
@@ -1745,39 +1731,13 @@ class CubicSupercellTransformation(AbstractTransformation):
 
             # Check if constraints are satisfied
             if (
-                smallest_dim >= self.min_length
+                np.min(np.linalg.norm(length_vecs, axis=1)) >= self.min_length
                 and self.min_atoms <= num_at <= self.max_atoms
             ):
                 return superstructure
             else:
                 # Increase threshold until proposed supercell meets requirements
-                if self.force_diagonal:
-                    # Find which supercell lattice vector contributes most to
-                    # the shortest dimension
-                    sc_latvec1_proj_mag = np.linalg.norm(
-                        _proj(proposed_sc_lat_vecs[0], smallest_dim_vec)
-                    )
-                    sc_latvec2_proj_mag = np.linalg.norm(
-                        _proj(proposed_sc_lat_vecs[1], smallest_dim_vec)
-                    )
-                    sc_latvec3_proj_mag = np.linalg.norm(
-                        _proj(proposed_sc_lat_vecs[2], smallest_dim_vec)
-                    )
-                    sc_latvec_proj_mags = [
-                        sc_latvec1_proj_mag,
-                        sc_latvec2_proj_mag,
-                        sc_latvec3_proj_mag,
-                    ]
-                    sc_proj_max_idx = sc_latvec_proj_mags.index(
-                        max(sc_latvec_proj_mags)
-                    )
-
-                    # Increase the corresponding supercell lattice vector size
-                    trans_mat_diagonal_update = np.array([0, 0, 0])
-                    np.put(trans_mat_diagonal_update, sc_proj_max_idx, 1)
-                else:
-                    target_sc_size += 0.1
-
+                target_sc_size += 0.1
                 if num_at > self.max_atoms:
                     raise AttributeError(
                         "While trying to solve for the supercell, the max "
