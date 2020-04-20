@@ -116,7 +116,7 @@ def get_basis_and_potential(
     return basis_and_potential
 
 
-def get_aux_basis(species, basis_filename=[], basis_type="cpFIT"):
+def get_aux_basis(species, basis_filename=[], basis_type="cFIT"):
     """
     Get auxiliary basis info for a list of species
 

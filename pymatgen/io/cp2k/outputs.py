@@ -420,6 +420,7 @@ class Cp2kOutput:
             postprocess=float,
             reverse=False,
         )
+        self.data['total_energy'] = np.multiply(self.data.get('total_energy', []), _hartree_to_ev_)
         self.final_energy = self.data.get("total_energy", [])[-1][-1]
 
     def parse_forces(self):
@@ -1342,8 +1343,6 @@ class Cp2kOutput:
             self.data[attribute_name] = retained_data
         return retained_data
 
-    # TODO: for modularity, maybe this should return a raw dict instead of data dict
-    # and the data dict can be created by the drone
     def as_dict(self):
         """
         Return dictionary representation of the output
@@ -1510,3 +1509,9 @@ class Cube:
         """
         a = np.arange(self.NX * self.NY * self.NZ).reshape(self.NX, self.NY, self.NZ)
         return np.array([a.mean(axis=(1, 2)), a.mean(axis=(0, 2)), a.mean(axis=(0, 1))])
+
+    def planar_grid(self):
+        """
+        Cartesian grid (XYZ) in Angstroms of dimension.
+        """
+        return self.X[0]*np.arange(0, self.NX), self.Y[1]*np.arange(0, self.NY), self.Z[2]*np.arange(0, self.NZ)

@@ -189,6 +189,34 @@ class Cp2kInputSet(Cp2kInput):
 
         """
         Basic set for activating hybrid DFT calculation using Auxiliary Density Matrix Method.
+
+        Note 1: When running ADMM with cp2k, memory is very important. If the memory requirements exceed
+        what is available (see max_memory), then CP2K will have to calculate the 4-electron integrals
+        for HFX during each step of the SCF cycle. ADMM provides a huge speed up by making the memory
+        requirements *feasible* to fit into RAM, which means you only need to calculate the integrals
+        once each SCF cycle. But, this only works if it fits into memory. When setting up ADMM
+        calculations, we recommend doing whatever is possible to fit all the 4EI into memory.
+
+        Note 2: This set is designed for reliable high-throughput calculations, NOT for extreme
+        accuracy. Please review the in-line comments in this method if you want more control.
+
+        Args:
+            method (str): Type of hybrid functional. This set supports HSE (screened) and PBE0
+                (truncated). Default is PBE0, which converges easier in the GPW basis used by
+                cp2k.
+            hf_fraction (float): fraction of exact HF exchange energy to mix. Default: 0.25
+            gga_x_fraction (float): fraction of gga exchange energy to retain. Default: 0.75
+            gga_c_fraction (float): fraction of gga correlation energy to retain. Default: 1.0
+            max_memory (int): Maximum memory available to each MPI process (in Mb) in the calculation.
+                Most modern computing nodes will have ~2Gb per core, or 2048 Mb. This value should
+                be as large as possible while still leaving some memory for the other parts of cp2k.
+                Important: If this value is set larger than the memory limits,
+                CP2K will likely seg-fault.
+                Default: 2000
+            cutoff_radius (float): for truncated hybrid functional (i.e. PBE0), this is the cutoff
+                radius. The default is selected as that which generally gives convergence, but
+                maybe too low (if you want very high accuracy) or too high (if you want a quick
+                screening). Default: 8 angstroms
         """
         basis = get_aux_basis(self.structure.symbol_set)
         self["FORCE_EVAL"]["DFT"].keywords.extend(
@@ -203,8 +231,8 @@ class Cp2kInputSet(Cp2kInput):
                 )
 
         aux_matrix_params = [
-            Keyword("ADMM_PURIFICATION_METHOD", "MO_DIAG"),
-            Keyword("METHOD", "BASIS_PROJECTION"),
+            Keyword("ADMM_PURIFICATION_METHOD", "NONE"),  # Use NONE for accurate eigenvalues (static calcs)
+            Keyword("METHOD", "BASIS_PROJECTION"),  # Don't change unless you know what you're doing
         ]
         aux_matrix = Section(
             "AUXILIARY_DENSITY_MATRIX_METHOD",
@@ -222,10 +250,10 @@ class Cp2kInputSet(Cp2kInput):
             "SCREENING",
             subsections={},
             keywords=[
-                Keyword("EPS_SCHWARZ", 1e-7),
-                Keyword("EPS_SCHWARZ_FORCES", 1e-7),
-                Keyword("SCREEN_ON_INITIAL_P", True),
-                Keyword("SCREEN_P_FORCES", True),
+                Keyword("EPS_SCHWARZ", 1e-6),  # Aggressive screening for high throughput
+                Keyword("EPS_SCHWARZ_FORCES", 1e-6),  # Aggressive screening for high throughput
+                Keyword("SCREEN_ON_INITIAL_P", True),  # Better performance. Requires decent starting wfn
+                Keyword("SCREEN_P_FORCES", True),  # Better performance. Requires decent starting wfn
             ],
         )
 
@@ -244,8 +272,8 @@ class Cp2kInputSet(Cp2kInput):
             ip_keywords = [
                 Keyword("POTENTIAL_TYPE", "SHORTRANGE"),
                 Keyword(
-                    "OMEGA", 0.11
-                ),  # TODO This value should be tested, can we afford to increase it to an opt val?
+                    "OMEGA", 0.11  # HSE06 screening parameter
+                ),
             ]
         elif method == "PBE0":
             ip_keywords = [
@@ -268,7 +296,7 @@ class Cp2kInputSet(Cp2kInput):
             "MEMORY",
             subsections={},
             keywords=[
-                Keyword("EPS_STORAGE_SCALING", 0.1),
+                Keyword("EPS_STORAGE_SCALING", 0.1),  # squashes the integrals for efficient storage
                 Keyword("MAX_MEMORY", max_memory),
             ],
         )
