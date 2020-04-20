@@ -209,7 +209,7 @@ class Cp2kOutput:
             os.path.join(self.dir, "*SPIN_DENSITY*.cube*")
         )
         self.filenames["v_hartree"] = glob.glob(
-            os.path.join(self.dir, "*HARTREE*.cube*")
+            os.path.join(self.dir, "*hartree*.cube*")
         )
         restart = glob.glob(os.path.join(self.dir, "*restart*"))
         self.filenames['restart.bak'] = []
