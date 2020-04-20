@@ -474,10 +474,7 @@ class Critic2Analysis(MSONable):
 
         self._remap_indices()
 
-    def structure_graph(
-        self,
-        include_critical_points=("bond", "ring", "cage"),
-    ):
+    def structure_graph(self, include_critical_points=("bond", "ring", "cage")):
         """
         A StructureGraph object describing bonding information
         in the crystal.
@@ -567,9 +564,15 @@ class Critic2Analysis(MSONable):
                 # attractors not in structure
                 skip_bond = False
                 if include_critical_points and "nnattr" not in include_critical_points:
-                    from_type = self.critical_points[self.nodes[from_idx]["unique_idx"]].type
-                    to_type = self.critical_points[self.nodes[from_idx]["unique_idx"]].type
-                    skip_bond = (from_type != CriticalPointType.nucleus) or (to_type != CriticalPointType.nucleus)
+                    from_type = self.critical_points[
+                        self.nodes[from_idx]["unique_idx"]
+                    ].type
+                    to_type = self.critical_points[
+                        self.nodes[from_idx]["unique_idx"]
+                    ].type
+                    skip_bond = (from_type != CriticalPointType.nucleus) or (
+                        to_type != CriticalPointType.nucleus
+                    )
 
                 if not skip_bond:
                     from_lvec = edge["from_lvec"]
@@ -583,16 +586,16 @@ class Critic2Analysis(MSONable):
                     struct_to_idx = point_idx_to_struct_idx.get(to_idx, to_idx)
 
                     weight = self.structure.get_distance(
-                            struct_from_idx, struct_to_idx, jimage=relative_lvec
+                        struct_from_idx, struct_to_idx, jimage=relative_lvec
                     )
 
                     crit_point = self.critical_points[unique_idx]
 
                     edge_properties = {
-                        "field":  crit_point.field,
-                        "laplacian":  crit_point.laplacian,
-                        "ellipticity":  crit_point.ellipticity,
-                        "frac_coords": self.nodes[idx]["frac_coords"]
+                        "field": crit_point.field,
+                        "laplacian": crit_point.laplacian,
+                        "ellipticity": crit_point.ellipticity,
+                        "frac_coords": self.nodes[idx]["frac_coords"],
                     }
 
                     sg.add_edge(
@@ -601,7 +604,7 @@ class Critic2Analysis(MSONable):
                         from_jimage=from_lvec,
                         to_jimage=to_lvec,
                         weight=weight,
-                        edge_properties=edge_properties
+                        edge_properties=edge_properties,
                     )
 
         return sg
@@ -693,17 +696,23 @@ class Critic2Analysis(MSONable):
 
         node_mapping = {}
         for idx, node in self.nodes.items():
-            if self.critical_points[node["unique_idx"]].type == CriticalPointType.nucleus:
+            if (
+                self.critical_points[node["unique_idx"]].type
+                == CriticalPointType.nucleus
+            ):
                 node_mapping[idx] = kd.query(node["frac_coords"])[1]
 
         if len(node_mapping) != len(self.structure):
             warnings.warn(
-                 "Check that all sites in input structure ({}) have "
-                 "been detected by critic2 ({}).".format(len(self.structure),
-                                                         len(node_mapping))
+                "Check that all sites in input structure ({}) have "
+                "been detected by critic2 ({}).".format(
+                    len(self.structure), len(node_mapping)
+                )
             )
 
-        self.nodes = {node_mapping.get(idx, idx): node for idx, node in self.nodes.items()}
+        self.nodes = {
+            node_mapping.get(idx, idx): node for idx, node in self.nodes.items()
+        }
 
         for edge in self.edges.values():
             edge["from_idx"] = node_mapping.get(edge["from_idx"], edge["from_idx"])
@@ -886,7 +895,6 @@ class Critic2Analysis(MSONable):
                         to_idx=to_idx,
                         to_lvec=(int(l[11]), int(l[12]), int(l[13])),
                     )
-
 
     def _add_node(self, idx, unique_idx, frac_coords):
         """
