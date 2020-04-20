@@ -69,7 +69,7 @@ class ComputedEntry(Entry):
                  composition: Composition,
                  energy: float,
                  correction: float = 0.0,
-                 energy_adjustments: list = [],
+                 energy_adjustments: list = None,
                  parameters: dict = None,
                  data: dict = None,
                  entry_id: object = None):
@@ -85,7 +85,7 @@ class ComputedEntry(Entry):
                 energy from VASP or other electronic structure codes.
             energy_adjustments (dict): An optional list of EnergyAdjustment to
                 be applied to the energy. This is used to modify the energy for
-                certain analyses.
+                certain analyses. Defaults to None.
             parameters (dict): An optional dict of parameters associated with
                 the entry. Defaults to None.
             data (dict): An optional dict of any additional data associated
@@ -94,16 +94,17 @@ class ComputedEntry(Entry):
         """
         super().__init__(composition, energy)
         self.uncorrected_energy = self._energy
-        self.energy_adjustments = energy_adjustments
         if correction:
             warnings.warn("Setting an Entry's correction manually is no longer"
                           "recommended and may be deprecated in a future version."
                           )
-            if energy_adjustments != []:
-                raise ValueError("Argument conflict! Setting correction = {:.3f} conflicts"
-                                 "with energy_adjustments. Can only specify one ore the"
+            if energy_adjustments:
+                raise ValueError("Argument conflict! Setting correction = {:.3f} conflicts "
+                                 "with setting energy_adjustments. Specify one or the "
                                  "other".format(correction))
             self.correction = correction
+
+        self.energy_adjustments = energy_adjustments if energy_adjustments else []
         self.parameters = parameters if parameters else {}
         self.data = data if data else {}
         self.entry_id = entry_id
@@ -150,13 +151,13 @@ class ComputedEntry(Entry):
         output = ["ComputedEntry {:<10} - {:<12} ({})".format(str(self.entry_id),
                                                               self.composition.formula,
                                                               self.composition.reduced_formula),
-                  "{:<24} = {:>9.4f} eV ({:<8.4f} eV/atom)".format("Energy (Uncorrected)",
+                  "{:<24} = {:<9.4f} eV ({:<8.4f} eV/atom)".format("Energy (Uncorrected)",
                                                                    self._energy,
                                                                    self._energy / n_atoms),
-                  "{:<24} = {:>9.4f} eV ({:<8.4f} eV/atom)".format("Correction",
+                  "{:<24} = {:<9.4f} eV ({:<8.4f} eV/atom)".format("Correction",
                                                                    self.correction,
                                                                    self.correction / n_atoms),
-                  "{:<24} = {:>9.4f} eV ({:<8.4f} eV/atom)".format("Energy (Final)",
+                  "{:<24} = {:<9.4f} eV ({:<8.4f} eV/atom)".format("Energy (Final)",
                                                                    self.energy,
                                                                    self.energy_per_atom),
                   "Energy Adjustments:"
