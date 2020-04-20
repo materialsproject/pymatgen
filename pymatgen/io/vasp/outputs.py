@@ -922,6 +922,25 @@ class Vasprun(MSONable):
 
         return potcar
 
+    def get_trajectory(self):
+        """
+        This method returns a Trajectory object, which is an alternative
+        representation of self.structures into a single object. Forces are
+        added to the Trajectory as site properties.
+
+        Returns: a Trajectory
+        """
+        # required due to circular imports
+        # TODO: fix pymatgen.core.trajectory so it does not load from io.vasp(!)
+        from pymatgen.core.trajectory import Trajectory
+
+        structs = []
+        for step in self.ionic_steps:
+            struct = step['structure'].copy()
+            struct.add_site_property('forces', step['forces'])
+            structs.append(struct)
+        return Trajectory.from_structures(structs, constant_lattice=False)
+
     def update_potcar_spec(self, path):
         """
         :param path: Path to search for POTCARs
