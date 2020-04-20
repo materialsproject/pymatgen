@@ -564,8 +564,7 @@ class CorrectionsList(Compatibility):
         corrections = {}
         for c in self.corrections:
             val = c.get_correction(entry)
-            if val != 0:
-                corrections[str(c)] = val
+            corrections[str(c)] = val
         return corrections
 
     def get_explanation_dict(self, entry):
@@ -877,11 +876,8 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
                 aq_adjustment += -1*self.MU_H2O * nH2O
 
         return_dict = {}
-        if aq_adjustment != 0:
-            return_dict["Fit H2 and H2O energy to experiment"] = aq_adjustment
-        if entropy != 0:
-            return_dict["Compound entropy at room temperature"] = entropy
-        if hydrate_adjustment != 0:
-            return_dict.update["Hydrate energy adjustment"] = hydrate_adjustment
+        return_dict["Fit H2 and H2O energy to experiment"] = aq_adjustment
+        return_dict["Compound entropy at room temperature"] = entropy
+        return_dict["Hydrate energy adjustment"] = hydrate_adjustment
 
         return return_dict

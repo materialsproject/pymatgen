@@ -94,6 +94,8 @@ class ComputedEntry(Entry):
         """
         super().__init__(composition, energy)
         self.uncorrected_energy = self._energy
+        self.energy_adjustments = energy_adjustments if energy_adjustments else []
+
         if correction:
             warnings.warn("Setting an Entry's correction manually is no longer"
                           "recommended and may be deprecated in a future version."
@@ -102,9 +104,9 @@ class ComputedEntry(Entry):
                 raise ValueError("Argument conflict! Setting correction = {:.3f} conflicts "
                                  "with setting energy_adjustments. Specify one or the "
                                  "other.".format(correction))
+
             self.correction = correction
 
-        self.energy_adjustments = energy_adjustments if energy_adjustments else []
         self.parameters = parameters if parameters else {}
         self.data = data if data else {}
         self.entry_id = entry_id
