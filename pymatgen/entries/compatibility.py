@@ -824,7 +824,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         """
         # confirm that entry has already been processed by 
         # MaterialsProjectCompatibility
-        if "MaterialsProjectCompatibility" not in [e.cls for e in entry.energy_adjustments]:
+        if "MaterialsProjectCompatibility" not in [e.cls.get("@class") for e in entry.energy_adjustments]:
             raise CompatibilityError("Discarding Entry {} because it has not been processed by "
                                      "MaterialsProjectCompatibility. MaterialsProjectAqueousCompatibility "
                                      "requires that all entries first be processed by "
