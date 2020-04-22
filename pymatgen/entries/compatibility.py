@@ -554,11 +554,10 @@ class CorrectionsList(Compatibility):
         # try:
         corrections = self.get_corrections_dict(entry)
         for k, v in corrections.items():
-            adjustment_list.append(CompositionEnergyAdjustment(v,
-                                                               name=k,
-                                                               cls=self.as_dict(),
-                                                               description=k
-                                                               )
+            adjustment_list.append(ConstantEnergyAdjustment(v,
+                                                            name=k,
+                                                            cls=self.as_dict(),
+                                                            )
                                    )
 
         return adjustment_list
