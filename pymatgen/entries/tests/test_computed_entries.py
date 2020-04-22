@@ -10,7 +10,8 @@ import os
 from collections import defaultdict
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.entries.computed_entries import ComputedEntry, \
-    ComputedStructureEntry, EnergyAdjustment, ConstantEnergyAdjustment
+    ComputedStructureEntry, EnergyAdjustment, ConstantEnergyAdjustment, \
+    CompositionEnergyAdjustment, TempEnergyAdjustment, ManualEnergyAdjustment
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
@@ -22,12 +23,41 @@ vasprun = Vasprun(filepath)
 def testEnergyAdjustment():
     ea = EnergyAdjustment(10)
     assert ea.name == "Manual adjustment"
-    assert ea.value == 10
     assert ea.cls == "None"
     assert ea.description == ""
     ead = ea.as_dict()
     ea2 = EnergyAdjustment.from_dict(ead)
     assert str(ead) == str(ea2.as_dict())
+
+
+def testManualEnergyAdjustment():
+    ea = ManualEnergyAdjustment(10)
+    assert ea.name == "Manual energy adjustment"
+    assert ea.value == 10
+    assert ea.description == "Manual energy adjustment (10.000 eV)"
+
+
+def testConstantEnergyAdjustment():
+    ea = ConstantEnergyAdjustment(8)
+    assert ea.name == "Constant energy adjustment"
+    assert ea.value == 8
+    assert ea.description == "Constant energy adjustment (8.000 eV)"
+
+
+def testCompositionEnergyAdjustment():
+    ea = CompositionEnergyAdjustment(2, 2, "H")
+    assert ea.name == "H composition energy adjustment"
+    assert ea.value == 4
+    assert ea.description == "H Composition-based energy adjustment (2.000 eV/atom x 2 atoms)"
+
+
+def testTempEnergyAdjustment():
+    ea = TempEnergyAdjustment(-0.1, 298, 5, "entropy")
+    assert ea.name == "entropy"
+    assert ea.value == -0.1 * 298 * 5
+    assert ea.n_atoms == 5
+    assert ea.temp == 298
+    assert ea.description == "Temperature-based entropy adjustment (-0.1000 eV/K/atom x 298 K x 5 atoms)"
 
 
 class ComputedEntryTest(unittest.TestCase):
@@ -70,6 +100,19 @@ class ComputedEntryTest(unittest.TestCase):
         self.assertAlmostEqual(entry.correction, 1 / 15)
         self.assertAlmostEqual(entry.energy * 15, 6.9 + 1)
         self.assertAlmostEqual(entry.energy_adjustments[0].value, 1/15)
+    
+    def test_normalize_energy_adjustments(self):
+        ealist = [ManualEnergyAdjustment(5),
+                  ConstantEnergyAdjustment(5),
+                  CompositionEnergyAdjustment(1, 5, "Na"),
+                  TempEnergyAdjustment(0.005, 100, 10)
+                  ]
+        entry = ComputedEntry("Na5Cl5", 6.9, energy_adjustments=ealist)
+        assert entry.correction == 20
+        entry.normalize()
+        assert entry.correction == 4
+        for ea in entry.energy_adjustments:
+            assert ea.value == 1
 
     def test_to_from_dict(self):
         d = self.entry.as_dict()

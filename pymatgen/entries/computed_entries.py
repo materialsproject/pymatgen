@@ -11,6 +11,7 @@ diagram analysis.
 """
 
 import json
+import abc
 
 from monty.json import MontyEncoder, MontyDecoder, MSONable
 
@@ -42,10 +43,17 @@ class EnergyAdjustment(MSONable):
                 energy adjustment. (Default: None)
             description: str, human-readable explanation of the energy adjustment.
         """
-        self.value = value
+        self._value = value
         self.name = name
         self.cls = cls
         self.description = description
+
+        @abc.abstractmethod
+        def value(self):
+            """
+            Return the value of the energy correction in eV
+            """
+            return
 
     def __repr__(self):
         output = ["{}:".format(self.__class__.__name__),
@@ -61,7 +69,54 @@ class ConstantEnergyAdjustment(EnergyAdjustment):
     A constant energy adjustment applied to a ComputedEntry. Useful in energy referencing
     schemes such as the Aqueous energy referencing scheme.
     """
-    pass
+    def __init__(self, value, name="Constant energy adjustment", cls="None"):
+        """
+        Args:
+            value: float, value of the energy adjustment in eV
+            name: str, human-readable name of the energy adjustment.
+                (Default: Constant energy adjustment)
+            cls: str, the name of the Compatibility class used to generate the
+                energy adjustment. (Default: None)
+        """
+        description = "Constant energy adjustment ({:.3f} eV)".format(value)
+        super().__init__(value, name, cls, description)
+
+    @property
+    def value(self):
+        """
+        Return the value of the energy correction in eV.
+        """
+        return self._value
+
+    @value.setter
+    def value(self, x):
+        self._value = x  
+
+
+class ManualEnergyAdjustment(EnergyAdjustment):
+    """
+    A manual energy adjustment applied to a ComputedEntry. 
+    """
+    def __init__(self, value):
+        """
+        Args:
+            value: float, value of the energy adjustment in eV
+        """
+        name = "Manual energy adjustment"
+        description = "Manual energy adjustment ({:.3f} eV)".format(value)
+
+        super().__init__(value, name, cls="None", description=description)
+    
+    @property
+    def value(self):
+        """
+        Return the value of the energy correction in eV.
+        """
+        return self._value
+
+    @value.setter
+    def value(self, x):
+        self._value = x
 
 
 class CompositionEnergyAdjustment(EnergyAdjustment):
@@ -69,7 +124,31 @@ class CompositionEnergyAdjustment(EnergyAdjustment):
     An energy adjustment applied to a ComputedEntry based on the atomic composition.
     Used in various DFT energy correction schemes.
     """
-    pass
+    def __init__(self, adj_per_atom, n_atoms, specie, cls="None"):
+        """
+        Args:
+            adj_per_atom: float, energy adjustment to apply per atom, in eV/atom
+            n_atoms: float or int, number of atoms
+            specie: str, the specie to which the correction is applied. Used to
+                populate the name and description attributes. 
+            cls: str, the name of the Compatibility class used to generate the
+                energy adjustment. (Default: None)
+        """
+        self._value = adj_per_atom
+        self.n_atoms = n_atoms
+        self.cls = cls
+        self.name = "{} composition energy adjustment".format(specie)
+        self.description = "{} Composition-based energy adjustment ({:.3f} eV/atom x {} atoms)".format(specie,
+                                                                                                       self._value,
+                                                                                                       self.n_atoms
+                                                                                                       )
+    
+    @property
+    def value(self):
+        """
+        Return the value of the energy adjustment in eV.
+        """
+        return self._value * self.n_atoms
 
 
 class TempEnergyAdjustment(EnergyAdjustment):
@@ -77,7 +156,34 @@ class TempEnergyAdjustment(EnergyAdjustment):
     An energy adjustment applied to a ComputedEntry based on the temperature.
     Used, for example, to add entropy to DFT energies.
     """
-    pass
+    def __init__(self, adj_per_deg, temp, n_atoms, name="", cls="None"):
+        """
+        Args:
+            adj_per_deg: float, energy adjustment to apply per degree K, in eV/atom
+            temp: float, temperature in Kelvin
+            n_atoms: float or int, number of atoms
+            name: str, human-readable name of the energy adjustment.
+                (Default: "")
+            cls: str, the name of the Compatibility class used to generate the
+                energy adjustment. (Default: None)
+        """
+        self._value = adj_per_deg
+        self.temp = temp
+        self.n_atoms = n_atoms
+        self.name = name
+        self.cls = cls
+        self.description = "Temperature-based {} adjustment ({:.4f} eV/K/atom x {} K x {} atoms)".format(self.name,
+                                                                                                         self._value,
+                                                                                                         self.temp,
+                                                                                                         self.n_atoms,
+                                                                                                         )
+    
+    @property
+    def value(self):
+        """
+        Return the value of the energy correction in eV.
+        """
+        return self._value * self.temp * self.n_atoms
 
 
 class ComputedEntry(Entry):
@@ -150,7 +256,7 @@ class ComputedEntry(Entry):
 
     @correction.setter
     def correction(self, x: float) -> None:
-        corr = EnergyAdjustment(x)
+        corr = ManualEnergyAdjustment(x)
         self.energy_adjustments = [corr]
 
     def normalize(self, mode: str = "formula_unit") -> None:
@@ -165,7 +271,12 @@ class ComputedEntry(Entry):
         factor = self._normalization_factor(mode)
         self.uncorrected_energy /= factor
         for e in self.energy_adjustments:
-            e.value /= factor
+            if isinstance(e, (CompositionEnergyAdjustment, TempEnergyAdjustment)):
+                e.n_atoms /= factor
+            elif isinstance(e, (ManualEnergyAdjustment, ConstantEnergyAdjustment)):
+                e.value /= factor
+            else:
+                continue
         super().normalize(mode)
 
     def __repr__(self):
