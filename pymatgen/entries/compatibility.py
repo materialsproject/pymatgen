@@ -816,6 +816,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         Returns:
             [EnergyAdjustment]: Energy adjustments to be applied to entry.
         """
+        adjustments = []
         # uncorrected DFT energy of H2O = -14.8852 eV/H2O (mp-697111)
         self.h2o_energy = -14.8852
 
@@ -849,20 +850,39 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         comp = entry.composition
         rform = comp.reduced_formula
 
-        aq_adjustment = 0
-        entropy = 0
-        hydrate_adjustment = 0
-
         # pin the energy of all H2 entries to h2_energy
         if rform == "H2":
-            aq_adjustment = self.h2_energy * comp.num_atoms - entry.energy
+            adjustments.append(
+                ConstantEnergyAdjustment(self.h2_energy * comp.num_atoms - entry.energy,
+                                         name="MP Aqueous H2 / H2O referencing",
+                                         cls=self.as_dict(),
+                                         description="Adjusts the H2 and H2O energy to reproduce the experimental "
+                                                     "Gibbs formation free energy of H2O, based on the DFT energy "
+                                                     "of Oxygen"
+                                         ))
+
         # pin the energy of all H2O entries to fit_h2o_energy
         elif rform == "H2O":
-            aq_adjustment = self.fit_h2o_energy * comp.num_atoms - entry.energy
+            adjustments.append(
+                ConstantEnergyAdjustment(self.fit_h2o_energy * comp.num_atoms - entry.energy,
+                                         name="MP Aqueous H2 / H2O referencing",
+                                         cls=self.as_dict(),
+                                         description="Adjusts the H2 and H2O energy to reproduce the experimental "
+                                                     "Gibbs formation free energy of H2O, based on the DFT energy "
+                                                     "of Oxygen"
+                                         ))
+
         # add minus T delta S to the DFT energy (enthalpy) of compounds that are
         # molecular-like at room temperature
         elif rform in self.cpd_entropies and rform != "H2O":
-            entropy = -1 * self.cpd_entropies[rform] * comp.num_atoms
+            adjustments.append(
+                TempEnergyAdjustment(-1 * self.cpd_entropies[rform] / 298, 298,
+                                     comp.num_atoms,
+                                     name="Compound entropy at room temperature",
+                                     cls=self.as_dict(),
+                                     description="Adds the entropy (T delta S) to energies of compounds that "
+                                                 "are gaseous or liquid at standard state"
+                                     ))
 
         # TODO - detection of embedded water molecules is not very sophisticated
         # Should be replaced with some kind of actual structure detection
@@ -887,29 +907,21 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
             if nH2O > 0:
                 # first, remove any H or O corrections already applied to H2O in the
                 # formation energy so that we don't double count them
-                aq_adjustment += -1 * self.previous_correction_per_h2o
                 # next, remove MU_H2O for each water molecule present
-                aq_adjustment += -1*self.MU_H2O * nH2O
+                hydrate_adjustment = -1 * (self.previous_correction_per_h2o + self.MU_H2O)
 
-        return [ConstantEnergyAdjustment(aq_adjustment,
-                                         name="MP Aqueous H2 / H2O referencing",
-                                         cls=self.as_dict(),
-                                         description="Adjusts the H2 and H2O energy to reproduce the experimental "
-                                                     "Gibbs formation free energy of H2O, based on the DFT energy "
-                                                     "of Oxygen"
-                                         ),
-                TempEnergyAdjustment(entropy,
-                                     name="Compound entropy at room temperature",
-                                     cls=self.as_dict(),
-                                     description="Adds the entropy (T delta S) to energies of compounds that "
-                                                 "are gaseous or liquid at standard state"
-                                     ),
-                CompositionEnergyAdjustment(hydrate_adjustment,
-                                            name="MP Aqueous hydrate adjustments",
-                                            cls=self.as_dict(),
-                                            description="Adjust the energy of solid hydrate compounds (compounds "
-                                                        "containing H2O molecules in their structure) so that the "
-                                                        "free energies of embedded H2O molecules match the experimental"
-                                                        " value enforced by the MP Aqueous energy referencing scheme."
-                                            ),
-                ]
+                adjustments.append(
+                    CompositionEnergyAdjustment(
+                        hydrate_adjustment,
+                        nH2O,
+                        "H2O",
+                        name="MP Aqueous hydrate adjustments",
+                        cls=self.as_dict(),
+                        description="Adjust the energy of solid hydrate compounds (compounds "
+                                    "containing H2O molecules in their structure) so that the "
+                                    "free energies of embedded H2O molecules match the experimental"
+                                    " value enforced by the MP Aqueous energy referencing scheme."
+                        )
+                )
+
+        return adjustments

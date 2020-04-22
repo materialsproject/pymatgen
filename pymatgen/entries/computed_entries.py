@@ -90,12 +90,12 @@ class ConstantEnergyAdjustment(EnergyAdjustment):
 
     @value.setter
     def value(self, x):
-        self._value = x  
+        self._value = x
 
 
 class ManualEnergyAdjustment(EnergyAdjustment):
     """
-    A manual energy adjustment applied to a ComputedEntry. 
+    A manual energy adjustment applied to a ComputedEntry.
     """
     def __init__(self, value):
         """
@@ -106,7 +106,7 @@ class ManualEnergyAdjustment(EnergyAdjustment):
         description = "Manual energy adjustment ({:.3f} eV)".format(value)
 
         super().__init__(value, name, cls="None", description=description)
-    
+
     @property
     def value(self):
         """
@@ -130,7 +130,7 @@ class CompositionEnergyAdjustment(EnergyAdjustment):
             adj_per_atom: float, energy adjustment to apply per atom, in eV/atom
             n_atoms: float or int, number of atoms
             specie: str, the specie to which the correction is applied. Used to
-                populate the name and description attributes. 
+                populate the name and description attributes.
             cls: str, the name of the Compatibility class used to generate the
                 energy adjustment. (Default: None)
         """
@@ -142,7 +142,7 @@ class CompositionEnergyAdjustment(EnergyAdjustment):
                                                                                                        self._value,
                                                                                                        self.n_atoms
                                                                                                        )
-    
+
     @property
     def value(self):
         """
@@ -177,7 +177,7 @@ class TempEnergyAdjustment(EnergyAdjustment):
                                                                                                          self.temp,
                                                                                                          self.n_atoms,
                                                                                                          )
-    
+
     @property
     def value(self):
         """

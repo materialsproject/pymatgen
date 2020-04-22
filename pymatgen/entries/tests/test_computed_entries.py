@@ -100,7 +100,7 @@ class ComputedEntryTest(unittest.TestCase):
         self.assertAlmostEqual(entry.correction, 1 / 15)
         self.assertAlmostEqual(entry.energy * 15, 6.9 + 1)
         self.assertAlmostEqual(entry.energy_adjustments[0].value, 1/15)
-    
+
     def test_normalize_energy_adjustments(self):
         ealist = [ManualEnergyAdjustment(5),
                   ConstantEnergyAdjustment(5),
@@ -118,7 +118,7 @@ class ComputedEntryTest(unittest.TestCase):
         d = self.entry.as_dict()
         e = ComputedEntry.from_dict(d)
         self.assertAlmostEqual(e.energy, -269.38319884)
-    
+
     def test_to_from_dict_with_adjustment(self):
         """
         Legacy case where adjustment was provided manually
@@ -127,7 +127,7 @@ class ComputedEntryTest(unittest.TestCase):
         e = ComputedEntry.from_dict(d)
         self.assertAlmostEqual(e.uncorrected_energy, 6.9)
         self.assertEqual(e.energy_adjustments[0].value, self.entry6.energy_adjustments[0].value)
-    
+
     def test_to_from_dict_with_adjustment_2(self):
         """
         Modern case where correction was provided manually
@@ -136,7 +136,7 @@ class ComputedEntryTest(unittest.TestCase):
         e = ComputedEntry.from_dict(d)
         self.assertAlmostEqual(e.uncorrected_energy, 6.9)
         self.assertEqual(e.energy_adjustments[0].value, self.entry7.energy_adjustments[0].value)
-    
+
     def test_to_from_dict_with_adjustment_3(self):
         """
         Legacy case where the entry was serialized before the energy_adjustment
@@ -155,7 +155,7 @@ class ComputedEntryTest(unittest.TestCase):
         self.assertAlmostEqual(e.uncorrected_energy, 6.9)
         self.assertAlmostEqual(e.correction, -10)
         assert len(e.energy_adjustments) == 1
-    
+
     def test_conflicting_correction_adjustment(self):
         """
         Should raise a ValueError if a user tries to manually set both the correction

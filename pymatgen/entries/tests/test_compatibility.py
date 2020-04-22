@@ -5,11 +5,10 @@
 import warnings
 import os
 import unittest
-import pytest 
 
 from monty.json import MontyDecoder
-from pymatgen.entries.compatibility import Compatibility, CompatibilityError, MaterialsProjectCompatibility, \
-    MITCompatibility, AqueousCorrection, MITAqueousCompatibility, MaterialsProjectAqueousCompatibility
+from pymatgen.entries.compatibility import Compatibility, MaterialsProjectCompatibility, \
+    MITCompatibility, AqueousCorrection, MITAqueousCompatibility
 from pymatgen.entries.computed_entries import ComputedEntry, \
     ComputedStructureEntry, ConstantEnergyAdjustment
 from pymatgen import Composition, Lattice, Structure, Element
