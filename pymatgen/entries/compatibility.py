@@ -478,7 +478,7 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
                             raise CompatibilityError("Entry {} already has an energy "
                                                      "adjustment called {}, but its "
                                                      "value differs from the value of"
-                                                     "{:.3f} calculated here. This"
+                                                     "{:.3f} calculated here. This "
                                                      "Entry will be discarded."
                                                      .format(entry.entry_id,
                                                              ea.name,

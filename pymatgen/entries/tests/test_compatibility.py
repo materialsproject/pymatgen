@@ -5,13 +5,102 @@
 import warnings
 import os
 import unittest
+import pytest 
 
 from monty.json import MontyDecoder
-from pymatgen.entries.compatibility import MaterialsProjectCompatibility, \
-    MITCompatibility, AqueousCorrection, MITAqueousCompatibility
+from pymatgen.entries.compatibility import Compatibility, CompatibilityError, MaterialsProjectCompatibility, \
+    MITCompatibility, AqueousCorrection, MITAqueousCompatibility, MaterialsProjectAqueousCompatibility
 from pymatgen.entries.computed_entries import ComputedEntry, \
-    ComputedStructureEntry
+    ComputedStructureEntry, ConstantEnergyAdjustment
 from pymatgen import Composition, Lattice, Structure, Element
+
+
+# abstract Compatibility tests
+class DummyCompatibility(Compatibility):
+    """
+    Dummy class to test abstract Compatibility interface
+    """
+    def get_adjustments(self, entry):
+        return [ConstantEnergyAdjustment(-10, name="Dummy adjustment")]
+
+
+def test_process_entries_return_type():
+    """
+    process_entries should accept single entries or a list, and always return a list
+    """
+    entry = ComputedEntry("Fe2O3", -2)
+    compat = DummyCompatibility()
+
+    assert isinstance(compat.process_entries(entry), list)
+    assert isinstance(compat.process_entries([entry]), list)
+
+
+def test_no_duplicate_corrections():
+    """
+    Compatibility should never apply the same correction twice
+    """    
+    entry = ComputedEntry("Fe2O3", -2)
+    compat = DummyCompatibility()
+
+    assert entry.correction == 0
+    compat.process_entries(entry)
+    assert entry.correction == -10
+    compat.process_entries(entry)
+    assert entry.correction == -10
+    compat.process_entries(entry, clean=True)
+    assert entry.correction == -10
+
+
+def test_clean_arg():
+    """
+    clean=False should preserve existing corrections, clean=True should delete
+    them before processing
+    """    
+    entry = ComputedEntry("Fe2O3", -2, correction=-4)
+    compat = DummyCompatibility()
+
+    assert entry.correction == -4
+    compat.process_entries(entry)
+    assert entry.correction == -14
+    compat.process_entries(entry, clean=True)
+    assert entry.correction == -10
+
+
+def test_energy_adjustment_normalize():
+    """
+    Both manual and automatically generated energy adjustments should be scaled
+    by the normalize method
+    """
+    entry = ComputedEntry("Fe4O6", -2, correction=-4)
+    compat = DummyCompatibility()
+    entry = compat.process_entries(entry)[0]
+    entry.normalize()
+    assert entry.correction == -7
+    for ea in entry.energy_adjustments:
+        if "Manual" in ea.name:
+            assert ea.value == -2
+        elif "Dummy" in ea.name:
+            assert ea.value == -5
+
+
+def test_overlapping_adjustments(capsys):
+    """
+    Compatibility should raise a CompatibilityError if there is already a 
+    correction with the same name, but a different value, and process_entries
+    should skip that entry.
+    """
+    ea = ConstantEnergyAdjustment(-5, name="Dummy adjustment")
+    entry = ComputedEntry("Fe2O3", -2, energy_adjustments=[ea])
+    compat = DummyCompatibility()
+
+    assert entry.correction == -5
+
+    # in case of CompatibilityError, pytest catches and prints the message
+    # use pytest to capture and read stdout for this test
+    processed = compat.process_entries(entry)
+    captured = capsys.readouterr()
+    assert "already has an energy adjustment called Dummy" in captured.out
+    assert len(processed) == 0
 
 
 class MaterialsProjectCompatibilityTest(unittest.TestCase):
