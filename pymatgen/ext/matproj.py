@@ -492,9 +492,11 @@ class MPRester:
         ion_ref_entries = self.get_entries_in_chemsys(
             list(set([str(e) for e in ion_ref_elts] + ['O', 'H'])),
             property_data=['e_above_hull'], compatible_only=False)
+
         # first correct solid DFT energies
         compat1 = MaterialsProjectCompatibility()
         ion_ref_entries = compat1.process_entries(ion_ref_entries)
+
         # then adjust them to Gibbs formation energies at room temp
         compat2 = MaterialsProjectAqueousCompatibility()
         ion_ref_entries = compat2.process_entries(ion_ref_entries)

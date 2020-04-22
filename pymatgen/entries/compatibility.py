@@ -11,7 +11,7 @@ import abc
 import warnings
 
 from collections import defaultdict
-from typing import Sequence
+from typing import Sequence, Union
 from monty.design_patterns import cached_class
 from monty.serialization import loadfn
 from monty.json import MSONable
@@ -19,7 +19,8 @@ from monty.json import MSONable
 from pymatgen.io.vasp.sets import MITRelaxSet, MPRelaxSet
 from pymatgen.core.periodic_table import Element
 from pymatgen.analysis.structure_analyzer import oxide_type, sulfide_type
-from pymatgen.entries.computed_entries import EnergyAdjustment
+from pymatgen.entries.computed_entries import ComputedEntry, \
+    ConstantEnergyAdjustment, CompositionEnergyAdjustment, TempEnergyAdjustment
 
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -414,89 +415,90 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
     Compatibility classes are used to correct the energies of an entry or a set
     of entries. All Compatibility classes must implement .get_correction method.
     """
-    def __init__(self, clean: bool = False):
+    def __init__(self):
         """
-        Args:
-            clean: bool, whether to remove any previously-applied energy adjustments.
-            If True, Entry.correction is set to zero before each Entry
-            is processed. Default is False.
         """
-        self.clean = clean
 
     @abc.abstractmethod
-    def get_corrections_dict(self, entry):
+    def get_adjustments(self, entry):
         """
-        Returns a dict of energy adjustments to be applied to a particular entry.
+        Get the energy adjustments for a ComputedEntry.
+
+        This method must generate a list of EnergyAdjustment objects
+        of the appropriate type (constant, composition-based, or temperature-based)
+        to be applied to the ComputedEntry, and must raise a CompatibilityError
+        if the entry is not compatible.
 
         Args:
             entry: A ComputedEntry object.
 
         Returns:
-            ({correction_name: value})
+            [EnergyAdjustment]: A list of EnergyAdjustment to be applied to the 
+                Entry.
 
         Raises:
             CompatibilityError if the entry is not compatible
         """
         return
 
-    def process_entry(self, entry):
-        """
-        Apply the energy adjustment to a single entry.
-
-        If an Entry is not compatible with the selected scheme (e.g., wrong
-        functional or POTCAR) then None should be returned.
-
-        Returns:
-            ComputedEntry: An adjusted entry or None
-        """
-        if self.clean:
-            # remove any previously documented corrections from the entry
-            entry.energy_adjustments = []
-
-        # apply the corrections
-        try:
-            corrections = self.get_corrections_dict(entry)
-            for k, v in corrections.items():
-                ea = EnergyAdjustment(v, k, self.as_dict())
-                # Has this correction already been applied?
-                if ea.name in [e.name for e in entry.energy_adjustments]:
-                    if ea.value in [e.value for e in entry.energy_adjustments]:
-                        # we already applied this exact correction. Do nothing.
-                        pass
-                    else:
-                        # we already applied a correction with the same name
-                        # but a different value. Something is wrong.
-                        raise CompatibilityError("Entry {} already has an energy "
-                                                 "adjustment called {}, but its "
-                                                 "value differs from the value of"
-                                                 "{:.3f} calculated here. This"
-                                                 "Entry will be discarded."
-                                                 .format(entry.entry_id,
-                                                         ea.name,
-                                                         ea.value
-                                                         )
-                                                 )
-                else:
-                    # Add the correction to the energy_adjustments list
-                    entry.energy_adjustments.append(ea)
-
-            return entry
-        except CompatibilityError as exc:
-            print(exc)
-            return None
-
-    def process_entries(self, entries):
+    def process_entries(self, entries: Union[ComputedEntry, list], clean: bool = False):
         """
         Process a sequence of entries with the chosen Compatibility scheme.
 
         Args:
-            entries: A sequence of entries.
+            entries: ComputedEntry or [ComputedEntry]
+            clean: bool, whether to remove any previously-applied energy adjustments.
+                If True, all EnergyAdjustment EXCEPT manually-applied EnergyAdjustment
+                are removed prior to processing the Entry. Default is False.
 
         Returns:
             An list of adjusted entries.  Entries in the original list which
             are not compatible are excluded.
         """
-        return list(filter(None, map(self.process_entry, entries)))
+        # convert input arg to a list if not already
+        if isinstance(entries, ComputedEntry):
+            entries = [entries]
+
+        processed_entry_list = []
+
+        if clean:
+            for e in entries:
+                # remove any previously documented corrections from the entry
+                e.energy_adjustments = []
+
+        # apply the corrections
+        for entry in entries:
+            try:
+                adjustments = self.get_adjustments(entry)
+                for ea in adjustments:
+                    # Has this correction already been applied?
+                    if ea.name in [e.name for e in entry.energy_adjustments]:
+                        if ea.value in [e.value for e in entry.energy_adjustments]:
+                            # we already applied this exact correction. Do nothing.
+                            pass
+                        else:
+                            # we already applied a correction with the same name
+                            # but a different value. Something is wrong.
+                            raise CompatibilityError("Entry {} already has an energy "
+                                                     "adjustment called {}, but its "
+                                                     "value differs from the value of"
+                                                     "{:.3f} calculated here. This"
+                                                     "Entry will be discarded."
+                                                     .format(entry.entry_id,
+                                                             ea.name,
+                                                             ea.value
+                                                             )
+                                                     )
+                    else:
+                        # Add the correction to the energy_adjustments list
+                        entry.energy_adjustments.append(ea)
+
+                processed_entry_list.append(entry)
+            except CompatibilityError as exc:
+                print(exc)
+                continue
+
+        return processed_entry_list
 
     def explain(self, entry):
         """
@@ -540,16 +542,44 @@ class CorrectionsList(Compatibility):
     MITCompatibility subclasses instead.
     """
 
-    def __init__(self, corrections: Sequence, clean: bool = True):
+    def __init__(self, corrections: Sequence):
         """
         Args:
             corrections: List of corrections to apply.
-            clean: bool, whether to remove any previously-applied energy adjustments.
-            If True, Entry.correction is set to zero before each Entry
-            is processed. Default is True.
         """
         self.corrections = corrections
-        super().__init__(clean)
+        super().__init__()
+
+    def get_adjustments(self, entry):
+        """
+        Get the list of energy adjustments to be applied to an entry.
+        """
+        adjustment_list = []
+        # try:
+        corrections = self.get_corrections_dict(entry)
+        for k, v in corrections.items():
+            adjustment_list.append(CompositionEnergyAdjustment(v,
+                                                               name=k,
+                                                               cls=self.as_dict(),
+                                                               description=k
+                                                               )
+                                   )
+
+        return adjustment_list
+
+    def _process_entry(self, entry):
+        """
+        Process a single entry with the chosen Corrections.
+        Args:
+            entry: A ComputedEntry object.
+        Returns:
+            An adjusted entry if entry is compatible, otherwise None is
+            returned.
+        """
+        if self.process_entries(entry):
+            return self.process_entries(entry)[0]
+        else:
+            return None
 
     def get_corrections_dict(self, entry):
         """
@@ -584,7 +614,7 @@ class CorrectionsList(Compatibility):
             "Corrections": [{"Name of Correction": {
             "Value": float, "Explanation": "string"}]}
         """
-        centry = self.process_entry(entry)
+        centry = self._process_entry(entry)
         if centry is None:
             uncorrected_energy = entry.uncorrected_energy
             corrected_energy = None
@@ -755,26 +785,17 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         85 (2012) 1–12. doi:10.1103/PhysRevB.85.235438.
     """
 
-    def __init__(self, clean=False):
+    def __init__(self, solid_compat=MaterialsProjectCompatibility()):
         """
         Args:
-
+            solid_compat: Compatibility, Compatibility class used to pre-process solid
+                DFT energies before applying the Aqueous energy referencing scheme.
+                (Default: MaterialsProjectCompatibility())
         """
         from pymatgen.analysis.pourbaix_diagram import MU_H2O
         self.MU_H2O = MU_H2O
 
-        # The three variables below are specific to the MaterialsProjectCompatibility
-        # energy correction scheme! They must be adjusted periodically as new
-        # Calculations or correction schemes are introduced!
-
-        # uncorrected DFT energy of H2O = -14.8852 eV/H2O (mp-697111)
-        self.h2o_energy = -14.8852
-
-        # corrected DFT energy of O2 = -4.9276 eV/atom (mp-12957)
-        self.o2_energy = -4.9276
-
-        # total energy corrections applied to H2O (eV/H2O)
-        self.previous_correction_per_h2o = -0.70229
+        self.solid_compat = solid_compat
 
         # Standard state entropy of molecular-like compounds at 298K (-T delta S)
         # from Kubaschewski Tables (eV/atom)
@@ -786,31 +807,10 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
                               "Hg": 0.234421,
                               "H2O": 0.215891,
                               }
-
-        # compute the free energies of H2 and H2O (eV/atom) to guarantee that the 
-        # formationfree energy of H2O is equal to -2.4583 eV/H2O from experiments
-        # (MU_H2O from pourbaix module)
-        # Free energy of H2, fitted using Eq. 40 of Persson et al. PRB 2012 85(23)
-        # for this calculation ONLY, we need the DFT energy of water
-        self.h2_energy = round(
-            0.5 * ((self.h2o_energy - self.cpd_entropies["H2O"]) -
-                   (self.o2_energy - self.cpd_entropies["O2"]) -
-                   MU_H2O
-                   ), 6
-        )
-
-        # Free energy of H2O, fitted for consistency with the O2 and H2 energies.
-        self.fit_h2o_energy = round((2 * self.h2_energy +
-                                    (self.o2_energy - self.cpd_entropies["O2"]) +
-                                    MU_H2O
-                                     ) / 3,
-                                    6
-                                    )
-
         self.name = "MP Aqueous free energy adjustment"
-        super().__init__(clean)
+        super().__init__()
 
-    def get_corrections_dict(self, entry):
+    def get_adjustments(self, entry):
         """
         Returns the corrections applied to a particular entry.
 
@@ -818,17 +818,37 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
             entry: A ComputedEntry object.
 
         Returns:
-            {"MP Aqueous free energy adjustment": value,
-             "Compound entropy adjustment": value
-             }
+            [EnergyAdjustment]: Energy adjustments to be applied to entry.
         """
-        # confirm that entry has already been processed by 
-        # MaterialsProjectCompatibility
-        if "MaterialsProjectCompatibility" not in [e.cls.get("@class") for e in entry.energy_adjustments]:
-            raise CompatibilityError("Discarding Entry {} because it has not been processed by "
-                                     "MaterialsProjectCompatibility. MaterialsProjectAqueousCompatibility "
-                                     "requires that all entries first be processed by "
-                                     "MaterialsProjectCompatibility.".format(entry.entry_id))
+        # uncorrected DFT energy of H2O = -14.8852 eV/H2O (mp-697111)
+        self.h2o_energy = -14.8852
+
+        # corrected DFT energy of O2 = -4.9276 eV/atom (mp-12957)
+        self.o2_energy = -4.9276
+
+        # total energy corrections applied to H2O (eV/H2O)
+        self.previous_correction_per_h2o = -0.70229
+
+        # compute the free energies of H2 and H2O (eV/atom) to guarantee that the 
+        # formationfree energy of H2O is equal to -2.4583 eV/H2O from experiments
+        # (MU_H2O from pourbaix module)
+
+        # Free energy of H2, fitted using Eq. 40 of Persson et al. PRB 2012 85(23)
+        # for this calculation ONLY, we need the DFT energy of water
+        self.h2_energy = round(
+            0.5 * ((self.h2o_energy - self.cpd_entropies["H2O"]) -
+                   (self.o2_energy - self.cpd_entropies["O2"]) -
+                   self.MU_H2O
+                   ), 6
+        )
+
+        # Free energy of H2O, fitted for consistency with the O2 and H2 energies.
+        self.fit_h2o_energy = round((2 * self.h2_energy +
+                                    (self.o2_energy - self.cpd_entropies["O2"]) +
+                                    self.MU_H2O
+                                     ) / 3,
+                                    6
+                                    )
 
         comp = entry.composition
         rform = comp.reduced_formula
@@ -875,9 +895,25 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
                 # next, remove MU_H2O for each water molecule present
                 aq_adjustment += -1*self.MU_H2O * nH2O
 
-        return_dict = {}
-        return_dict["Fit H2 and H2O energy to experiment"] = aq_adjustment
-        return_dict["Compound entropy at room temperature"] = entropy
-        return_dict["Hydrate energy adjustment"] = hydrate_adjustment
-
-        return return_dict
+        return [ConstantEnergyAdjustment(aq_adjustment,
+                                         name="MP Aqueous H2 / H2O referencing",
+                                         cls=self.as_dict(),
+                                         description="Adjusts the H2 and H2O energy to reproduce the experimental "
+                                                     "Gibbs formation free energy of H2O, based on the DFT energy "
+                                                     "of Oxygen"
+                                         ),
+                TempEnergyAdjustment(entropy,
+                                     name="Compound entropy at room temperature",
+                                     cls=self.as_dict(),
+                                     description="Adds the entropy (T delta S) to energies of compounds that "
+                                                 "are gaseous or liquid at standard state"
+                                     ),
+                CompositionEnergyAdjustment(hydrate_adjustment,
+                                            name="MP Aqueous hydrate adjustments",
+                                            cls=self.as_dict(),
+                                            description="Adjust the energy of solid hydrate compounds (compounds "
+                                                        "containing H2O molecules in their structure) so that the "
+                                                        "free energies of embedded H2O molecules match the experimental"
+                                                        " value enforced by the MP Aqueous energy referencing scheme."
+                                            ),
+                ]
