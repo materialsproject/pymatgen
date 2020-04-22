@@ -413,12 +413,8 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
     """
     Abstract Compatibility class, not intended for direct use.
     Compatibility classes are used to correct the energies of an entry or a set
-    of entries. All Compatibility classes must implement .get_correction method.
+    of entries. All Compatibility classes must implement .get_adjustments method.
     """
-    def __init__(self):
-        """
-        """
-
     @abc.abstractmethod
     def get_adjustments(self, entry):
         """
@@ -448,11 +444,11 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
         Args:
             entries: ComputedEntry or [ComputedEntry]
             clean: bool, whether to remove any previously-applied energy adjustments.
-                If True, all EnergyAdjustment EXCEPT manually-applied EnergyAdjustment
-                are removed prior to processing the Entry. Default is False.
+                If True, all EnergyAdjustment are removed prior to processing the Entry.
+                Default is False.
 
         Returns:
-            An list of adjusted entries.  Entries in the original list which
+            A list of adjusted entries.  Entries in the original list which
             are not compatible are excluded.
         """
         # convert input arg to a list if not already
