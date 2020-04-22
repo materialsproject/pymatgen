@@ -967,7 +967,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
         all_matches = list(set(all_matches))
         # sort matches by rank descending
         all_matches = sorted(all_matches,
-                             key=lambda match: match[1], reverse=True)
+                             key=lambda match: (match[1], match[0]), reverse=True)
         all_matches = [m[0] for m in all_matches]
         return all_matches
 
