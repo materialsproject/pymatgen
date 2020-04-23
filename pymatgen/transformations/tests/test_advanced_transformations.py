@@ -22,6 +22,7 @@ from pymatgen.transformations.advanced_transformations import \
     AddAdsorbateTransformation, SubstituteSurfaceSiteTransformation, \
     SQSTransformation, MonteCarloRattleTransformation
 
+from monty.serialization import loadfn
 from monty.os.path import which
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.cif import CifParser
@@ -617,22 +618,34 @@ class SQSTransformationTest(PymatgenTest):
 
     def test_apply_transformation(self):
         # non-sensical example just for testing purposes
-        self.pztstrings = np.load(os.path.join(test_dir, "mcsqs/pztstrings.npy"), allow_pickle=True)
-        self.struct = self.get_structure('Pb2TiZrO6')
+        pztstructs = loadfn(
+            os.path.join(test_dir, "mcsqs/pztstructs.json"))
+        self.struc = self.get_structure('Pb2TiZrO6')
 
-        trans = SQSTransformation({2: 6, 3: 4}, supercell=[2, 1, 1], total_atoms=None, search_time=0.01)
-        struct = self.struct.copy()
-        struct.replace_species({'Ti': {'Ti': 0.5, 'Zr': 0.5}, 'Zr': {'Ti': 0.5, 'Zr': 0.5}})
-        sqs = trans.apply_transformation(struct)
-        self.assertEqual(atat.Mcsqs(sqs).to_string() in self.pztstrings, True)
-        os.remove('sqscell.out')
-        os.remove('rndstrgrp.out')
-        os.remove('bestcorr.out')
-        os.remove('rndstr.in')
-        os.remove('sym.out')
-        os.remove('mcsqs.log')
-        os.remove('bestsqs.out')
-        os.remove('clusters.out')
+        trans = SQSTransformation(scaling=[2, 1, 1], search_time=0.01,
+                                  instances=1, wd=0)
+        struc = self.struc.copy()
+        struc.replace_species({'Ti': {'Ti': 0.5, 'Zr': 0.5}, 'Zr': {'Ti': 0.5, 'Zr': 0.5}})
+        struc_out = trans.apply_transformation(struc)
+        # print(trans.last_used_clusters)
+        matches = [struc_out.matches(s) for s in pztstructs]
+        self.assertIn(True, matches)
+
+    def test_return_ranked_list(self):
+        # list of structures
+        pztstructs2 = loadfn(
+            os.path.join(test_dir, "mcsqs/pztstructs2.json"))
+        self.struc = self.get_structure('Pb2TiZrO6')
+
+        trans = SQSTransformation(scaling=2, search_time=0.01,
+                                  instances=8, wd=0)
+        struc = self.struc.copy()
+        struc.replace_species(
+            {"Ti": {"Ti": 0.5, "Zr": 0.5}, "Zr": {"Ti": 0.5, "Zr": 0.5}}
+        )
+        ranked_list_out = trans.apply_transformation(struc, return_ranked_list=True)
+        matches = [ranked_list_out[0]['structure'].matches(s) for s in pztstructs2]
+        self.assertIn(True, matches)
 
 
 class CubicSupercellTransformationTest(PymatgenTest):

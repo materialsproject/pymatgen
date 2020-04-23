@@ -34,7 +34,8 @@ class McsqsCallerTest(PymatgenTest):
             {"Ti": {"Ti": 0.5, "Zr": 0.5}, "Zr": {"Ti": 0.5, "Zr": 0.5}}
         )
         sqs = run_mcsqs(
-            struc, {2: 6, 3: 4}, scaling=[2, 1, 1], search_time=0.01
+            struc, {2: 6, 3: 4}, scaling=[2, 1, 1], search_time=0.01,
+            instances=1
         )
 
         matches = [sqs.bestsqs.matches(s) for s in self.pztstructs]

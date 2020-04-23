@@ -34,13 +34,13 @@ def run_mcsqs(
     structure: Structure,
     clusters: Dict[int, float],
     scaling: Union[int, List[int]],
-    search_time: float = 0.01,
+    search_time: float = 60,
     directory: Optional[str] = None,
     instances: Optional[int] = None,
     temperature: Union[int, float] = 1,
     wr: float = 1,
     wn: float = 1,
-    wd: float = 0,
+    wd: float = 0.5,
     tol: float = 1e-3
 ) -> Sqs:
     """
@@ -55,8 +55,8 @@ def run_mcsqs(
                 b. A sequence of three scaling factors, e.g., [2, 1, 1], which
                    specifies that the supercell should have dimensions 2a x b x c
     Keyword Args:
-        search_time (int): Time spent looking for the ideal SQS in minutes (default: 0.1)
-        directory (str): Directory to reun mcsqs calculation and store files (default: None
+        search_time (float): Time spent looking for the ideal SQS in minutes (default: 60)
+        directory (str): Directory to run mcsqs calculation and store files (default: None
             runs calculations in a temp directory)
         instances (int): Specifies the number of parallel instances of mcsqs to run
             (default: number of cpu cores detected by Python)
@@ -64,7 +64,7 @@ def run_mcsqs(
         wr (int or float): Weight assigned to range of perfect correlation match in objective
             function (default = 1)
         wn (int or float): Multiplicative decrease in weight per additional point in cluster (default: 1)
-        wd (int or float): Exponent of decay in weight as function of cluster diameter (default: 0)
+        wd (int or float): Exponent of decay in weight as function of cluster diameter (default: 0.5)
         tol (int or float): Tolerance for matching correlations (default: 1e-3)
 
     Returns:
@@ -246,5 +246,5 @@ def _parse_sqs_path(path) -> Sqs:
         bestsqs=bestsqs,
         objective_function=objective_function,
         allsqs=allsqs,
-        directory=path
+        directory=str(path.resolve())
     )
