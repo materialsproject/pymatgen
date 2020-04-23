@@ -46,9 +46,9 @@ def testConstantEnergyAdjustment():
 
 def testCompositionEnergyAdjustment():
     ea = CompositionEnergyAdjustment(2, 2, "H")
-    assert ea.name == "H composition energy adjustment"
+    assert ea.name == "H"
     assert ea.value == 4
-    assert ea.description == "H Composition-based energy adjustment (2.000 eV/atom x 2 atoms)"
+    assert ea.description == "Composition-based energy adjustment (2.000 eV/atom x 2 atoms)"
 
 
 def testTempEnergyAdjustment():
@@ -57,7 +57,7 @@ def testTempEnergyAdjustment():
     assert ea.value == -0.1 * 298 * 5
     assert ea.n_atoms == 5
     assert ea.temp == 298
-    assert ea.description == "Temperature-based entropy adjustment (-0.1000 eV/K/atom x 298 K x 5 atoms)"
+    assert ea.description == "Temperature-based energy adjustment (-0.1000 eV/K/atom x 298 K x 5 atoms)"
 
 
 class ComputedEntryTest(unittest.TestCase):

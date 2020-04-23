@@ -69,7 +69,7 @@ class ConstantEnergyAdjustment(EnergyAdjustment):
     A constant energy adjustment applied to a ComputedEntry. Useful in energy referencing
     schemes such as the Aqueous energy referencing scheme.
     """
-    def __init__(self, value, name="Constant energy adjustment", cls="None"):
+    def __init__(self, value, name="Constant energy adjustment", cls="None", description="Constant energy adjustment"):
         """
         Args:
             value: float, value of the energy adjustment in eV
@@ -77,8 +77,9 @@ class ConstantEnergyAdjustment(EnergyAdjustment):
                 (Default: Constant energy adjustment)
             cls: str, the name of the Compatibility class used to generate the
                 energy adjustment. (Default: None)
+            description: str, human-readable explanation of the energy adjustment.
         """
-        description = "Constant energy adjustment ({:.3f} eV)".format(value)
+        description = description + " ({:.3f} eV)".format(value)
         super().__init__(value, name, cls, description)
 
     @property
@@ -124,24 +125,24 @@ class CompositionEnergyAdjustment(EnergyAdjustment):
     An energy adjustment applied to a ComputedEntry based on the atomic composition.
     Used in various DFT energy correction schemes.
     """
-    def __init__(self, adj_per_atom, n_atoms, specie, cls="None"):
+    def __init__(self, adj_per_atom, n_atoms, name, cls="None", description="Composition-based energy adjustment"):
         """
         Args:
             adj_per_atom: float, energy adjustment to apply per atom, in eV/atom
             n_atoms: float or int, number of atoms
-            specie: str, the specie to which the correction is applied. Used to
-                populate the name and description attributes.
+            name: str, human-readable name of the energy adjustment.
+                (Default: "")
             cls: str, the name of the Compatibility class used to generate the
                 energy adjustment. (Default: None)
+            description: str, human-readable explanation of the energy adjustment.
         """
         self._value = adj_per_atom
         self.n_atoms = n_atoms
         self.cls = cls
-        self.name = "{} composition energy adjustment".format(specie)
-        self.description = "{} Composition-based energy adjustment ({:.3f} eV/atom x {} atoms)".format(specie,
-                                                                                                       self._value,
-                                                                                                       self.n_atoms
-                                                                                                       )
+        self.name = name
+        self.description = description + " ({:.3f} eV/atom x {} atoms)".format(self._value,
+                                                                               self.n_atoms
+                                                                               )
 
     @property
     def value(self):
@@ -156,7 +157,8 @@ class TempEnergyAdjustment(EnergyAdjustment):
     An energy adjustment applied to a ComputedEntry based on the temperature.
     Used, for example, to add entropy to DFT energies.
     """
-    def __init__(self, adj_per_deg, temp, n_atoms, name="", cls="None"):
+    def __init__(self, adj_per_deg, temp, n_atoms, name="", cls="None", 
+                 description="Temperature-based energy adjustment"):
         """
         Args:
             adj_per_deg: float, energy adjustment to apply per degree K, in eV/atom
@@ -166,17 +168,17 @@ class TempEnergyAdjustment(EnergyAdjustment):
                 (Default: "")
             cls: str, the name of the Compatibility class used to generate the
                 energy adjustment. (Default: None)
+            description: str, human-readable explanation of the energy adjustment.
         """
         self._value = adj_per_deg
         self.temp = temp
         self.n_atoms = n_atoms
         self.name = name
         self.cls = cls
-        self.description = "Temperature-based {} adjustment ({:.4f} eV/K/atom x {} K x {} atoms)".format(self.name,
-                                                                                                         self._value,
-                                                                                                         self.temp,
-                                                                                                         self.n_atoms,
-                                                                                                         )
+        self.description = description + " ({:.4f} eV/K/atom x {} K x {} atoms)".format(self._value,
+                                                                                        self.temp,
+                                                                                        self.n_atoms,
+                                                                                        )
 
     @property
     def value(self):

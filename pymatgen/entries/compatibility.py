@@ -762,16 +762,21 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
     This class implements the Aqueous energy referencing scheme for constructing
     Pourbaix diagrams from DFT energies, as described in Persson et al.
 
-    This scheme must be used with Entries that have already been processed
-    with the MaterialsProjectCompatibility class and will raise a
-    CompatibilityError for Entries that have not.
+    This scheme applies various energy adjustments to convert DFT energies into
+    Gibbs free energies of formation at 298 K and to guarantee that the experimental
+    formation free energy of H2O is reproduced. Briefly, the steps are:
 
-    These scheme depends implicitly on the corrected DFT energies of O2
-    and H2O. These are set to the following values from the Materials Project
-    as of April 2020:
+        1. Beginning with the DFT energy of O2, adjust the energy of H2 so that
+           the experimental reaction energy of -2.458 eV/H2O is reproduced.
+        2. Add entropy to the DFT energy of any compounds that are liquid or 
+           gaseous at room temperature
+        3. Adjust the energy of H2O for consistency with the adjusted H2 energy.
+        4. Adjust the DFT energies of solid hydrate compounds (compounds that
+           contain water, e.g. FeO.nH2O) such that the energies of the embedded
+           H2O molecules are equal to the experimental free energy
 
-    H2O: -14.8852 eV/H2O (mp-697111)
-    O2: -4.9276 eV/atom (mp-12957)
+    The above energy adjustments are computed dynamically based on the input
+    Entries.    
 
     References:
         K.A. Persson, B. Waldwick, P. Lazic, G. Ceder, Prediction of solid-aqueous
@@ -913,8 +918,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
                     CompositionEnergyAdjustment(
                         hydrate_adjustment,
                         nH2O,
-                        "H2O",
-                        name="MP Aqueous hydrate adjustments",
+                        name="MP Aqueous hydrate",
                         cls=self.as_dict(),
                         description="Adjust the energy of solid hydrate compounds (compounds "
                                     "containing H2O molecules in their structure) so that the "
