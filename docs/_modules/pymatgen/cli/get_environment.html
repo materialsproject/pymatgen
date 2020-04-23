@@ -13,6 +13,7 @@
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
  
@@ -46,13 +47,9 @@
   <h1>Source code for pymatgen.cli.get_environment</h1><div class="highlight"><pre>
 <span></span><span class="ch">#!/usr/bin/env python</span>
 
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Implementation for get_environment CLI.</span>
-<span class="sd">&quot;&quot;&quot;</span>
-
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.utils.scripts_utils</span> <span class="kn">import</span> <span class="n">compute_environments</span><span class="p">,</span> <span class="n">welcome</span><span class="p">,</span> <span class="n">thankyou</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.utils.chemenv_config</span> <span class="kn">import</span> <span class="n">ChemEnvConfig</span>
-<span class="kn">from</span> <span class="nn">argparse</span> <span class="kn">import</span> <span class="n">ArgumentParser</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.utils.scripts_utils</span> <span class="k">import</span> <span class="n">compute_environments</span><span class="p">,</span> <span class="n">welcome</span><span class="p">,</span> <span class="n">thankyou</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.utils.chemenv_config</span> <span class="k">import</span> <span class="n">ChemEnvConfig</span>
+<span class="kn">from</span> <span class="nn">argparse</span> <span class="k">import</span> <span class="n">ArgumentParser</span>
 
 <span class="kn">import</span> <span class="nn">logging</span>
 
@@ -60,9 +57,6 @@
 
 
 <div class="viewcode-block" id="main"><a class="viewcode-back" href="../../../pymatgen.cli.get_environment.html#pymatgen.cli.get_environment.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Main function.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">m_description</span> <span class="o">=</span> <span class="s1">&#39;Welcome to the Chemical Environment Package.&#39;</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="n">m_description</span><span class="p">)</span>
     <span class="n">setup_help</span> <span class="o">=</span> <span class="s1">&#39;Used to setup the configuration of the package &#39;</span>
@@ -124,7 +118,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

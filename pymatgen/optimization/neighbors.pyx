@@ -96,7 +96,7 @@ def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coor
     matmul(all_fcoords, lattice, coords_in_cell)
 
     # Get translated images, coordinates and indices
-    cdef long natoms = nlattice * n_total
+    cdef long natoms = n_total
     cdef double *offsets_p_temp = <double*> safe_malloc(natoms * 3 * sizeof(double))
     cdef double *expanded_coords_p_temp = <double *> safe_malloc(natoms * 3 * sizeof(double))
     cdef long *indices_p_temp = <long*> safe_malloc(natoms * sizeof(long))
@@ -108,8 +108,8 @@ def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coor
             for k in range(min_bounds[2], max_bounds[2]):
                 for l in range(n_total):
                     for m in range(3):
-                        coord_temp[m] = i * lattice[0, m] + <double>j * lattice[1, m] + \
-                            k * lattice[2, m] + coords_in_cell[l, m]
+                        coord_temp[m] = <double>i * lattice[0, m] + <double>j * lattice[1, m] + \
+                            <double>k * lattice[2, m] + coords_in_cell[l, m]
                     if (coord_temp[0] > valid_min[0]) & (coord_temp[0] < valid_max[0]) & \
                         (coord_temp[1] > valid_min[1]) & (coord_temp[1] < valid_max[1]) & \
                         (coord_temp[2] > valid_min[2]) & (coord_temp[2] < valid_max[2]):
@@ -121,6 +121,11 @@ def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coor
                         expanded_coords_p_temp[3*count+1] = coord_temp[1]
                         expanded_coords_p_temp[3*count+2] = coord_temp[2]
                         count += 1
+                        if count >= natoms:  # exceeding current memory
+                            natoms += natoms
+                            offsets_p_temp = <double*>safe_realloc(offsets_p_temp, natoms * 3 * sizeof(double))
+                            expanded_coords_p_temp = <double*>safe_realloc(expanded_coords_p_temp, natoms * 3 * sizeof(double))
+                            indices_p_temp = <long*>safe_realloc(indices_p_temp, natoms * sizeof(long))
 
     # if no valid neighbors were found return empty
     if count == 0:

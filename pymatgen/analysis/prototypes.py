@@ -3,8 +3,11 @@
 # Distributed under the terms of the MIT License.
 
 """
-This module uses data from the AFLOW LIBRARY OF CRYSTALLOGRAPHIC PROTOTYPES.
-If using this module, please cite their publication appropriately:
+This module is intended to match crystal structures against known crystallographic "prototype"
+structures.
+
+In this module, the AflowPrototypeMatcher uses the AFLOW LIBRARY OF CRYSTALLOGRAPHIC PROTOTYPES.
+If using this particular class, please cite their publication appropriately:
 
 Mehl, M. J., Hicks, D., Toher, C., Levy, O., Hanson, R. M., Hart, G., & Curtarolo, S. (2017).
 The AFLOW library of crystallographic prototypes: part 1.
