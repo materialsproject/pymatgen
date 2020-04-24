@@ -7,12 +7,12 @@ from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.atat import Mcsqs
 from pymatgen.core.structure import Structure
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                        "test_files", "mcsqs")
+test_dir = os.path.join(
+    os.path.dirname(__file__), "..", "..", "..", "test_files", "mcsqs"
+)
 
 
 class AtatTest(PymatgenTest):
-
     def test_mcsqs_import(self):
         test_string = """1.000000 0.000000 0.000000
 0.000000 1.000000 0.000000
@@ -70,8 +70,8 @@ class AtatTest(PymatgenTest):
         self.assertAlmostEqual(s.lattice.c, 1.73205080757)
 
     def test_mcsqs_export(self):
-        s = self.get_structure('SrTiO3')
-        s.replace_species({'Sr2+': {'Sr2+': 0.5, 'Ca2+': 0.5}})
+        s = self.get_structure("SrTiO3")
+        s.replace_species({"Sr2+": {"Sr2+": 0.5, "Ca2+": 0.5}})
 
         ref_string = """3.905000 0.000000 0.000000
 -0.000000 3.905000 0.000000
@@ -96,5 +96,8 @@ class AtatTest(PymatgenTest):
         struc_from_out = Structure.from_file(os.path.join(test_dir, "bestsqs_nacl.out"))
 
         self.assertTrue(struc_from_cif.matches(struc_from_out))
-        self.assertArrayAlmostEqual(struc_from_out.lattice.parameters, struc_from_cif.lattice.parameters,
-                                    decimal=4)
+        self.assertArrayAlmostEqual(
+            struc_from_out.lattice.parameters,
+            struc_from_cif.lattice.parameters,
+            decimal=4,
+        )

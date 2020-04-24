@@ -53,8 +53,9 @@ try:
 except ImportError:
     hiphive = None
 
-__author__ = "Shyue Ping Ong, Stephen Dacek, Anubhav Jain, Matthew Horton, " \
-             "Alex Ganose"
+__author__ = (
+    "Shyue Ping Ong, Stephen Dacek, Anubhav Jain, Matthew Horton, " "Alex Ganose"
+)
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
@@ -603,6 +604,7 @@ class MagOrderParameterConstraint(MSONable):
     might order on certain motifs, with the global order parameter
     dependent on how many sites satisfy that motif.
     """
+
     def __init__(
         self,
         order_parameter,
@@ -1436,7 +1438,7 @@ class DisorderOrderedTransformation(AbstractTransformation):
             for smaller in _partition(collection[1:]):
                 # insert `first` in each of the subpartition's subsets
                 for n, subset in enumerate(smaller):
-                    yield smaller[:n] + [[first] + subset] + smaller[n + 1:]
+                    yield smaller[:n] + [[first] + subset] + smaller[n + 1 :]
                 # put `first` in its own subset
                 yield [[first]] + smaller
 
@@ -1504,19 +1506,21 @@ class GrainBoundaryTransformation(AbstractTransformation):
     A transformation that creates a gb from a bulk structure.
     """
 
-    def __init__(self,
-                 rotation_axis,
-                 rotation_angle,
-                 expand_times=4,
-                 vacuum_thickness=0.0,
-                 ab_shift=[0, 0],
-                 normal=False,
-                 ratio=None,
-                 plane=None,
-                 max_search=20,
-                 tol_coi=1.0e-8,
-                 rm_ratio=0.7,
-                 quick_gen=False):
+    def __init__(
+        self,
+        rotation_axis,
+        rotation_angle,
+        expand_times=4,
+        vacuum_thickness=0.0,
+        ab_shift=[0, 0],
+        normal=False,
+        ratio=None,
+        plane=None,
+        max_search=20,
+        tol_coi=1.0e-8,
+        rm_ratio=0.7,
+        quick_gen=False,
+    ):
         """
         Args:
             rotation_axis (list): Rotation axis of GB in the form of a list of integer
@@ -1644,7 +1648,7 @@ class CubicSupercellTransformation(AbstractTransformation):
         self,
         min_atoms: Optional[int] = None,
         max_atoms: Optional[int] = None,
-        min_length: float = 15.,
+        min_length: float = 15.0,
         force_diagonal: bool = False,
     ):
         """
@@ -1693,9 +1697,7 @@ class CubicSupercellTransformation(AbstractTransformation):
         target_sc_size = self.min_length
         while sc_not_found:
             target_sc_lat_vecs = np.eye(3, 3) * target_sc_size
-            self.transformation_matrix = (
-                    target_sc_lat_vecs @ np.linalg.inv(lat_vecs)
-            )
+            self.transformation_matrix = target_sc_lat_vecs @ np.linalg.inv(lat_vecs)
 
             # round the entries of T and force T to be nonsingular
             self.transformation_matrix = _round_and_make_arr_singular(
@@ -1769,6 +1771,7 @@ class AddAdsorbateTransformation(AbstractTransformation):
     """
     Create absorbate structures.
     """
+
     def __init__(
         self,
         adsorbate,
@@ -1886,6 +1889,7 @@ def _round_and_make_arr_singular(arr: np.ndarray) -> np.ndarray:
     Returns:
         Transformed matrix.
     """
+
     def round_away_from_zero(x):
         """
         Returns 'x' rounded to the next integer away from 0.
@@ -1945,6 +1949,7 @@ class SubstituteSurfaceSiteTransformation(AbstractTransformation):
     and returns all possible configurations where one dopant is substituted
     per surface. Can substitute one surface or both.
     """
+
     def __init__(
         self,
         atom,
@@ -2043,20 +2048,23 @@ class SQSTransformation(AbstractTransformation):
     """
     A transformation that creates a special quasirandom structure (SQS) from a structure with partial occupancies.
     """
-    def __init__(self,
-                 scaling,
-                 cluster_size_and_shell=None,
-                 search_time=60,
-                 directory=None,
-                 instances=None,
-                 temperature=1,
-                 wr=1,
-                 wn=1,
-                 wd=0.5,
-                 tol=1e-3,
-                 best_only=True,
-                 remove_duplicate_structures=True,
-                 reduction_algo='LLL'):
+
+    def __init__(
+        self,
+        scaling,
+        cluster_size_and_shell=None,
+        search_time=60,
+        directory=None,
+        instances=None,
+        temperature=1,
+        wr=1,
+        wn=1,
+        wd=0.5,
+        tol=1e-3,
+        best_only=True,
+        remove_duplicate_structures=True,
+        reduction_algo="LLL",
+    ):
         """
         Args:
             structure (Structure): Disordered pymatgen Structure object
@@ -2119,8 +2127,8 @@ class SQSTransformation(AbstractTransformation):
         for site_num, site in enumerate(struc):
             shell_info = mdnn.get_nn_shell_info(struc, site_num, shell)
             for entry in shell_info:
-                image = entry['image']
-                distance = site.distance(struc[entry['site_index']], jimage=image)
+                image = entry["image"]
+                distance = site.distance(struc[entry["site_index"]], jimage=image)
                 distances.append(distance)
 
         return max(distances)
@@ -2147,7 +2155,9 @@ class SQSTransformation(AbstractTransformation):
         return disordered_substructure
 
     @staticmethod
-    def _sqs_cluster_estimate(struc_disordered, cluster_size_and_shell: Optional[Dict[int, int]] = None):
+    def _sqs_cluster_estimate(
+        struc_disordered, cluster_size_and_shell: Optional[Dict[int, int]] = None
+    ):
         """
         Set up an ATAT cluster.out file for a given structure and set of constraints
         Args:
@@ -2159,11 +2169,15 @@ class SQSTransformation(AbstractTransformation):
 
         cluster_size_and_shell = cluster_size_and_shell or {2: 3, 3: 2, 4: 1}
 
-        disordered_substructure = SQSTransformation._get_disordered_substructure(struc_disordered)
+        disordered_substructure = SQSTransformation._get_disordered_substructure(
+            struc_disordered
+        )
 
         clusters = {}
         for cluster_size, shell in cluster_size_and_shell.items():
-            max_distance = SQSTransformation._get_max_neighbor_distance(disordered_substructure, shell)
+            max_distance = SQSTransformation._get_max_neighbor_distance(
+                disordered_substructure, shell
+            )
             clusters[cluster_size] = max_distance + 0.01  # add small tolerance
 
         return clusters
@@ -2180,9 +2194,14 @@ class SQSTransformation(AbstractTransformation):
 
         if return_ranked_list and self.instances is None:
             raise ValueError("mcsqs has no instances, so cannot return a ranked list")
-        if isinstance(return_ranked_list, int) and isinstance(self.instances, int)\
-                and return_ranked_list > self.instances:
-            raise ValueError("return_ranked_list cannot be less that number of instances")
+        if (
+            isinstance(return_ranked_list, int)
+            and isinstance(self.instances, int)
+            and return_ranked_list > self.instances
+        ):
+            raise ValueError(
+                "return_ranked_list cannot be less that number of instances"
+            )
 
         clusters = self._sqs_cluster_estimate(structure, self.cluster_size_and_shell)
 
@@ -2200,22 +2219,21 @@ class SQSTransformation(AbstractTransformation):
             wr=self.wr,
             wn=self.wn,
             wd=self.wd,
-            tol=self.tol
+            tol=self.tol,
         )
 
-        return self._get_unique_bestsqs_strucs(sqs,
-                                               best_only=self.best_only,
-                                               return_ranked_list=return_ranked_list,
-                                               remove_duplicate_structures=self.remove_duplicate_structures,
-                                               reduction_algo=self.reduction_algo)
+        return self._get_unique_bestsqs_strucs(
+            sqs,
+            best_only=self.best_only,
+            return_ranked_list=return_ranked_list,
+            remove_duplicate_structures=self.remove_duplicate_structures,
+            reduction_algo=self.reduction_algo,
+        )
 
     @staticmethod
-    def _get_unique_bestsqs_strucs(sqs,
-                                   best_only,
-                                   return_ranked_list,
-                                   remove_duplicate_structures,
-                                   reduction_algo
-                                   ):
+    def _get_unique_bestsqs_strucs(
+        sqs, best_only, return_ranked_list, remove_duplicate_structures, reduction_algo
+    ):
         """
         Gets unique sqs structures with lowest objective function. Requires an mcsqs output that has been run
             in parallel, otherwise returns Sqs.bestsqs
@@ -2242,7 +2260,9 @@ class SQSTransformation(AbstractTransformation):
             strucs = []
             for d in sqs.allsqs:
                 # filter for best structures only if enabled, else use full sqs.all_sqs list
-                if (not best_only) or (best_only and d["objective_function"] == sqs.objective_function):
+                if (not best_only) or (
+                    best_only and d["objective_function"] == sqs.objective_function
+                ):
                     struc = d["structure"]
                     # add temporary objective_function attribute to access objective_function after grouping
                     struc.objective_function = d["objective_function"]
@@ -2256,12 +2276,16 @@ class SQSTransformation(AbstractTransformation):
                 strucs = [group[0] for group in unique_strucs_grouped]
 
             # sort structures by objective function
-            strucs.sort(key=lambda x: x.objective_function if isinstance(x.objective_function, float) else -np.inf)
+            strucs.sort(
+                key=lambda x: x.objective_function
+                if isinstance(x.objective_function, float)
+                else -np.inf
+            )
 
-            to_return = [{
-                "structure": struc,
-                "objective_function": struc.objective_function
-            } for struc in strucs]
+            to_return = [
+                {"structure": struc, "objective_function": struc.objective_function}
+                for struc in strucs
+            ]
 
             for d in to_return:
 
@@ -2270,7 +2294,9 @@ class SQSTransformation(AbstractTransformation):
 
                 # reduce structure
                 if reduction_algo:
-                    d["structure"] = d["structure"].get_reduced_structure(reduction_algo=reduction_algo)
+                    d["structure"] = d["structure"].get_reduced_structure(
+                        reduction_algo=reduction_algo
+                    )
 
             if isinstance(return_ranked_list, int):
                 return to_return[:return_ranked_list]
@@ -2350,7 +2376,7 @@ class MonteCarloRattleTransformation(AbstractTransformation):
             Structure with sites perturbed.
         """
         from hiphive.structure_generation.rattle import (  # type: ignore
-            mc_rattle
+            mc_rattle,
         )
 
         atoms = AseAtomsAdaptor.get_atoms(structure)
@@ -2363,7 +2389,7 @@ class MonteCarloRattleTransformation(AbstractTransformation):
             structure.lattice,
             structure.species,
             structure.cart_coords + displacements,
-            coords_are_cartesian=True
+            coords_are_cartesian=True,
         )
 
         return transformed_structure
