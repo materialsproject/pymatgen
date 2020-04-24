@@ -104,7 +104,7 @@ class ManualEnergyAdjustment(ConstantEnergyAdjustment):
             value: float, value of the energy adjustment in eV
         """
         name = "Manual energy adjustment"
-        description = "Manual energy adjustment".format(value)
+        description = "Manual energy adjustment"
         super().__init__(value, name, cls="None", description=description)
 
 
