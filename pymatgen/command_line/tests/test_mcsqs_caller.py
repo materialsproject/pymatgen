@@ -52,6 +52,17 @@ class McsqsCallerTest(PymatgenTest):
         matches = [sqs.bestsqs.matches(s) for s in self.pztstructs2]
         self.assertIn(True, matches)
 
+    def test_mcsqs_caller_total_atoms_auto_instances(self):
+        struc = self.struc.copy()
+        struc.replace_species(
+            {"Ti": {"Ti": 0.5, "Zr": 0.5}, "Zr": {"Ti": 0.5, "Zr": 0.5}}
+        )
+        sqs = run_mcsqs(struc, {2: 6, 3: 4}, scaling=2, search_time=0.01,
+                        instances=None)
+
+        matches = [sqs.bestsqs.matches(s) for s in self.pztstructs2]
+        self.assertIn(True, matches)
+
     def test_mcsqs_caller_parallel(self):
         # explicitly test with four instances
 
@@ -81,7 +92,7 @@ class McsqsCallerTest(PymatgenTest):
 
         self.assertEqual(sqs.objective_function, "Perfect_match")
 
-    def test_mcsqs_caller_timeout_error(self):
+    def test_mcsqs_caller_runtime_error(self):
         struc = self.struc.copy()
         struc.replace_species(
             {"Ti": {"Ti": 0.5, "Zr": 0.5}, "Zr": {"Ti": 0.5, "Zr": 0.5}}
@@ -89,5 +100,5 @@ class McsqsCallerTest(PymatgenTest):
         struc.replace_species({"Pb": {"Ti": 0.2, "Pb": 0.8}})
         struc.replace_species({"O": {"F": 0.8, "O": 0.2}})
         self.assertRaises(
-            TimeoutError, run_mcsqs, struc, {2: 6, 3: 4}, 10, 0.000001
+            RuntimeError, run_mcsqs, struc, {2: 6, 3: 4}, 10, 0.000001
         )

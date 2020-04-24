@@ -627,7 +627,6 @@ class SQSTransformationTest(PymatgenTest):
         struc = self.struc.copy()
         struc.replace_species({'Ti': {'Ti': 0.5, 'Zr': 0.5}, 'Zr': {'Ti': 0.5, 'Zr': 0.5}})
         struc_out = trans.apply_transformation(struc)
-        # print(trans.last_used_clusters)
         matches = [struc_out.matches(s) for s in pztstructs]
         self.assertIn(True, matches)
 

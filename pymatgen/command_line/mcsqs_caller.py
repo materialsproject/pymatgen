@@ -78,9 +78,8 @@ def run_mcsqs(
         raise ValueError("Pick a disordered structure")
 
     if instances is None:
+        # os.cpu_count() can return None if detection fails
         instances = os.cpu_count()
-
-    # TODO: figure out how to handle instances=1 (doesn't generate bestsqs)
 
     original_directory = os.getcwd()
     if not directory:
@@ -119,15 +118,15 @@ def run_mcsqs(
 
     # Generate SQS structures
     add_ons = [
-                  "-T {}".format(temperature),
-                  "-wr {}".format(wr),
-                  "-wn {}".format(wn),
-                  "-wd {}".format(wd),
-                  "-tol {}".format(tol)
-              ]
+        "-T {}".format(temperature),
+        "-wr {}".format(wr),
+        "-wn {}".format(wn),
+        "-wd {}".format(wd),
+        "-tol {}".format(tol)
+    ]
 
     mcsqs_find_sqs_processes = []
-    if instances > 1:
+    if instances and instances > 1:
         # if multiple instances, run a range of commands using "-ip"
         for i in range(instances):
             instance_cmd = ["-ip {}".format(i + 1)]
@@ -144,15 +143,14 @@ def run_mcsqs(
         for idx, p in enumerate(mcsqs_find_sqs_processes):
             p.communicate(timeout=search_time * 60)
 
-        if instances > 1:
+        if instances and instances > 1:
             p = Popen(
                 ["mcsqs", "-best"]
             )
             p.communicate()
 
         if os.path.exists("bestsqs.out") and os.path.exists("bestcorr.out"):
-            sqs = _parse_sqs_path(".")
-            return sqs
+            return _parse_sqs_path(".")
 
         raise RuntimeError("mcsqs exited before timeout reached")
 
@@ -162,7 +160,7 @@ def run_mcsqs(
             p.communicate()
 
         # Find the best sqs structures
-        if instances > 1:
+        if instances and instances > 1:
 
             if not os.path.exists("bestcorr1.out"):
                 raise RuntimeError("mcsqs did not generate output files, "
@@ -195,8 +193,8 @@ def _parse_sqs_path(path) -> Sqs:
 
     path = Path(path)
 
-    # instances will be 0 if mcsqs was run in parallel, or number of instances
-    instances = len(list(path.glob('bestsqs*[0-9]*')))
+    # detected instances will be 0 if mcsqs was run in series, or number of instances
+    detected_instances = len(list(path.glob('bestsqs*[0-9]*')))
 
     # Convert best SQS structure to cif file and pymatgen Structure
     p = Popen(
@@ -213,16 +211,18 @@ def _parse_sqs_path(path) -> Sqs:
     # Get best SQS objective function
     with open(path / 'bestcorr.out', 'r') as f:
         lines = f.readlines()
-    # objective_function = float(lines[-1].split('=')[-1].strip())
-    # TODO: account for "Perfect_match" objective function
-    objective_function = lines[-1].split('=')[-1].strip()
-    if objective_function != 'Perfect_match':
-        objective_function = float(objective_function)
+
+    objective_function_str = lines[-1].split('=')[-1].strip()
+    objective_function: Union[float, Literal["Perfect_match"]]
+    if objective_function_str != 'Perfect_match':
+        objective_function = float(objective_function_str)
+    else:
+        objective_function = "Perfect_match"
 
     # Get all SQS structures and objective functions
     allsqs = []
 
-    for i in range(instances):
+    for i in range(detected_instances):
         sqs_out = 'bestsqs{}.out'.format(i + 1)
         sqs_cif = 'bestsqs{}.cif'.format(i + 1)
         corr_out = 'bestcorr{}.out'.format(i + 1)
@@ -238,13 +238,12 @@ def _parse_sqs_path(path) -> Sqs:
         with open(path / corr_out, 'r') as f:
             lines = f.readlines()
 
-        # obj = float(lines[-1].split('=')[-1].strip())
-        # TODO: account for "Perfect_match" objective function
-        obj = lines[-1].split('=')[-1].strip()
-        if obj == 'Perfect_match':
-            obj = objective_function
+        objective_function_str = lines[-1].split('=')[-1].strip()
+        obj: Union[float, Literal["Perfect_match"]]
+        if objective_function_str != 'Perfect_match':
+            obj = float(objective_function_str)
         else:
-            obj = float(obj)
+            obj = "Perfect_match"
         allsqs.append({'structure': sqs, 'objective_function': obj})
 
     return Sqs(
