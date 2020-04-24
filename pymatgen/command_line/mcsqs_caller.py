@@ -5,7 +5,7 @@ https://www.brown.edu/Departments/Engineering/Labs/avdw/atat/
 
 import os
 import warnings
-from subprocess import Popen, PIPE, TimeoutExpired
+from subprocess import Popen, TimeoutExpired
 from typing import Dict, Union, List, NamedTuple, Optional
 from typing_extensions import Literal
 from pathlib import Path

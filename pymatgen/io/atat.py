@@ -6,7 +6,6 @@
 Classes for reading/writing mcsqs files following the rndstr.in format.
 """
 
-import os
 import numpy as np
 from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice

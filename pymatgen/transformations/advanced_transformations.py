@@ -6,7 +6,6 @@
 This module implements more advanced transformations.
 """
 from typing import Optional, Dict
-from typing_extensions import Literal
 
 import numpy as np
 from fractions import Fraction
