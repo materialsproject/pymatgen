@@ -207,6 +207,87 @@ class ComputedStructureEntryTest(unittest.TestCase):
     def test_str(self):
         self.assertIsNotNone(str(self.entry))
 
+    def test_to_from_dict_structure_with_adjustment_3(self):
+        """
+        Legacy case where the structure entry was serialized before the energy_adjustment
+        attribute was part of ComputedEntry
+        """
+        # ComputedStructureEntry for Oxygen, mp-12957, as of April 2020
+        # with an arbitrary 1 eV correction added
+        d = {'@module': 'pymatgen.entries.computed_entries',
+             '@class': 'ComputedStructureEntry',
+             'energy': -39.42116819,
+             'composition': defaultdict(float, {'O': 8.0}),
+             'parameters': {'run_type': 'GGA',
+                            'is_hubbard': False,
+                            'pseudo_potential': {'functional': 'PBE',
+                                                 'labels': ['O'],
+                                                 'pot_type': 'paw'},
+                            'hubbards': {},
+                            'potcar_symbols': ['PBE O'],
+                            'oxide_type': 'None'},
+             'data': {'oxide_type': 'None'},
+             'entry_id': 'mp-12957',
+             'correction': 1,
+             'structure': {'@module': 'pymatgen.core.structure',
+                           '@class': 'Structure',
+                           'charge': None,
+                           'lattice': {'matrix': [[-1.7795583, 0.0, 3.86158265],
+                                                  [4.17564656, -3.03266995, -0.01184798],
+                                                  [4.17564656, 3.03266995, -0.01184798]],
+                                       'a': 4.251899376264673,
+                                       'b': 5.160741380296335,
+                                       'c': 5.160741380296335,
+                                       'alpha': 71.97975354157973,
+                                       'beta': 109.9211782454931,
+                                       'gamma': 109.9211782454931,
+                                       'volume': 97.67332322031668},
+                           'sites': [{'species': [{'element': 'O', 'occu': 1}],
+                                      'abc': [0.8531272, 0.15466029, 0.15466029],
+                                      'xyz': [-0.22657617390155504, -1.750215367360042e-17, 3.2907563697176516],
+                                      'label': 'O',
+                                      'properties': {'magmom': 0.002}},
+                                     {'species': [{'element': 'O', 'occu': 1}],
+                                      'abc': [0.84038763, 0.71790132, 0.21754949],
+                                      'xyz': [2.410593174641884, -1.5174019592685084, 3.234143088794756],
+                                      'label': 'O',
+                                      'properties': {'magmom': -0.002}},
+                                     {'species': [{'element': 'O', 'occu': 1}],
+                                      'abc': [0.17255465, 0.21942628, 0.21942628],
+                                      'xyz': [1.5254221229000986, -2.121360826524921e-18, 0.6611345262629937],
+                                      'label': 'O',
+                                      'properties': {'magmom': 0.002}},
+                                     {'species': [{'element': 'O', 'occu': 1}],
+                                      'abc': [0.15961237, 0.78245051, 0.28209968],
+                                      'xyz': [4.161145821004675, -1.5173989265985586, 0.6037435893572642],
+                                      'label': 'O',
+                                      'properties': {'magmom': -0.002}},
+                                     {'species': [{'element': 'O', 'occu': 1}],
+                                      'abc': [0.84038763, 0.21754949, 0.71790132],
+                                      'xyz': [2.410593174641884, 1.5174019592685082, 3.234143088794756],
+                                      'label': 'O',
+                                      'properties': {'magmom': -0.002}},
+                                     {'species': [{'element': 'O', 'occu': 1}],
+                                      'abc': [0.82744535, 0.78057372, 0.78057372],
+                                      'xyz': [5.046312697099901, -1.3574974398403584e-16, 3.176752163737006],
+                                      'label': 'O',
+                                      'properties': {'magmom': 0.002}},
+                                     {'species': [{'element': 'O', 'occu': 1}],
+                                      'abc': [0.15961237, 0.28209968, 0.78245051],
+                                      'xyz': [4.161145821004675, 1.5173989265985584, 0.6037435893572642],
+                                      'label': 'O',
+                                      'properties': {'magmom': -0.002}},
+                                     {'species': [{'element': 'O', 'occu': 1}],
+                                      'abc': [0.1468728, 0.84533971, 0.84533971],
+                                      'xyz': [6.798310993901555, -1.7769364890338579e-16, 0.5471303202823484],
+                                      'label': 'O',
+                                      'properties': {'magmom': 0.002}}]}}
+        e = ComputedEntry.from_dict(d)
+        self.assertAlmostEqual(e.uncorrected_energy, -39.42116819)
+        self.assertAlmostEqual(e.energy, -38.42116819)
+        self.assertAlmostEqual(e.correction, 1)
+        assert len(e.energy_adjustments) == 1
+
 
 if __name__ == "__main__":
     # import sys;sys.argv = ['', 'Test.testName']

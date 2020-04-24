@@ -43,17 +43,16 @@ class EnergyAdjustment(MSONable):
                 energy adjustment. (Default: None)
             description: str, human-readable explanation of the energy adjustment.
         """
-        self._value = value
         self.name = name
         self.cls = cls
         self.description = description
 
-        @abc.abstractmethod
-        def value(self):
-            """
-            Return the value of the energy correction in eV
-            """
-            return
+    @property
+    @abc.abstractmethod
+    def value(self):
+        """
+        Return the value of the energy correction in eV
+        """
 
     def __repr__(self):
         output = ["{}:".format(self.__class__.__name__),
@@ -81,6 +80,7 @@ class ConstantEnergyAdjustment(EnergyAdjustment):
         """
         description = description + " ({:.3f} eV)".format(value)
         super().__init__(value, name, cls, description)
+        self._value = value
 
     @property
     def value(self):
@@ -94,7 +94,7 @@ class ConstantEnergyAdjustment(EnergyAdjustment):
         self._value = x
 
 
-class ManualEnergyAdjustment(EnergyAdjustment):
+class ManualEnergyAdjustment(ConstantEnergyAdjustment):
     """
     A manual energy adjustment applied to a ComputedEntry.
     """
@@ -104,20 +104,8 @@ class ManualEnergyAdjustment(EnergyAdjustment):
             value: float, value of the energy adjustment in eV
         """
         name = "Manual energy adjustment"
-        description = "Manual energy adjustment ({:.3f} eV)".format(value)
-
+        description = "Manual energy adjustment".format(value)
         super().__init__(value, name, cls="None", description=description)
-
-    @property
-    def value(self):
-        """
-        Return the value of the energy correction in eV.
-        """
-        return self._value
-
-    @value.setter
-    def value(self, x):
-        self._value = x
 
 
 class CompositionEnergyAdjustment(EnergyAdjustment):
@@ -214,20 +202,20 @@ class ComputedEntry(Entry):
                 a string formula, and others.
             energy (float): Energy of the entry. Usually the final calculated
                 energy from VASP or other electronic structure codes.
-            energy_adjustments (dict): An optional list of EnergyAdjustment to
+            energy_adjustments: An optional list of EnergyAdjustment to
                 be applied to the energy. This is used to modify the energy for
                 certain analyses. Defaults to None.
-            parameters (dict): An optional dict of parameters associated with
+            parameters: An optional dict of parameters associated with
                 the entry. Defaults to None.
-            data (dict): An optional dict of any additional data associated
+            data: An optional dict of any additional data associated
                 with the entry. Defaults to None.
-            entry_id (obj): An optional id to uniquely identify the entry.
+            entry_id: An optional id to uniquely identify the entry.
         """
         super().__init__(composition, energy)
         self.uncorrected_energy = self._energy
         self.energy_adjustments = energy_adjustments if energy_adjustments else []
 
-        if correction:
+        if correction != 0.0:
             if energy_adjustments:
                 raise ValueError("Argument conflict! Setting correction = {:.3f} conflicts "
                                  "with setting energy_adjustments. Specify one or the "
@@ -283,9 +271,10 @@ class ComputedEntry(Entry):
 
     def __repr__(self):
         n_atoms = self.composition.num_atoms
-        output = ["ComputedEntry {:<10} - {:<12} ({})".format(str(self.entry_id),
-                                                              self.composition.formula,
-                                                              self.composition.reduced_formula),
+        output = ["{} {:<10} - {:<12} ({})".format(str(self.entry_id),
+                                                   type(self).__name__,
+                                                   self.composition.formula,
+                                                   self.composition.reduced_formula),
                   "{:<24} = {:<9.4f} eV ({:<8.4f} eV/atom)".format("Energy (Uncorrected)",
                                                                    self._energy,
                                                                    self._energy / n_atoms),
@@ -311,6 +300,9 @@ class ComputedEntry(Entry):
         for k, v in self.data.items():
             output.append("  {:<22} = {}".format(k, v))
         return "\n".join(output)
+
+    def __str__(self):
+        return self.__repr__()
 
     @classmethod
     def from_dict(cls, d) -> 'ComputedEntry':
@@ -364,6 +356,7 @@ class ComputedStructureEntry(ComputedEntry):
                  structure: Structure,
                  energy: float,
                  correction: float = 0.0,
+                 energy_adjustments: list = None,
                  parameters: dict = None,
                  data: dict = None,
                  entry_id: object = None):
@@ -374,34 +367,19 @@ class ComputedStructureEntry(ComputedEntry):
             structure (Structure): The actual structure of an entry.
             energy (float): Energy of the entry. Usually the final calculated
                 energy from VASP or other electronic structure codes.
-            correction (float): A correction to be applied to the energy.
-                This is used to modify the energy for certain analyses.
-                Defaults to 0.0.
-            parameters (dict): An optional dict of parameters associated with
+            energy_adjustments: An optional list of EnergyAdjustment to
+                be applied to the energy. This is used to modify the energy for
+                certain analyses. Defaults to None.
+            parameters: An optional dict of parameters associated with
                 the entry. Defaults to None.
-            data (dict): An optional dict of any additional data associated
+            data: An optional dict of any additional data associated
                 with the entry. Defaults to None.
-            entry_id (obj): An optional id to uniquely identify the entry.
+            entry_id: An optional id to uniquely identify the entry.
         """
         super().__init__(
-            structure.composition, energy, correction=correction,
+            structure.composition, energy, correction=correction, energy_adjustments=energy_adjustments,
             parameters=parameters, data=data, entry_id=entry_id)
         self.structure = structure
-
-    def __repr__(self):
-        output = ["ComputedStructureEntry {} - {}".format(
-            self.entry_id, self.composition.formula),
-                  "Energy = {:.4f}".format(self.uncorrected_energy),
-                  "Correction = {:.4f}".format(self.correction), "Parameters:"]
-        for k, v in self.parameters.items():
-            output.append("{} = {}".format(k, v))
-        output.append("Data:")
-        for k, v in self.data.items():
-            output.append("{} = {}".format(k, v))
-        return "\n".join(output)
-
-    def __str__(self):
-        return self.__repr__()
 
     def as_dict(self) -> dict:
         """
@@ -420,10 +398,24 @@ class ComputedStructureEntry(ComputedEntry):
         :return: ComputedStructureEntry
         """
         dec = MontyDecoder()
-        return cls(dec.process_decoded(d["structure"]),
-                   d["energy"], d["correction"],
-                   parameters={k: dec.process_decoded(v)
-                               for k, v in d.get("parameters", {}).items()},
-                   data={k: dec.process_decoded(v)
-                         for k, v in d.get("data", {}).items()},
-                   entry_id=d.get("entry_id", None))
+        # the first block here is for legacy ComputedEntry that were
+        # serialized before we had the energy_adjustments attribute.
+        if d["correction"] != 0 and not d.get("energy_adjustments"):
+            return cls(dec.process_decoded(d["structure"]), d["energy"], d["correction"],
+                       parameters={k: dec.process_decoded(v)
+                                   for k, v in d.get("parameters", {}).items()},
+                       data={k: dec.process_decoded(v)
+                             for k, v in d.get("data", {}).items()},
+                       entry_id=d.get("entry_id", None))
+        # this is the preferred / modern way of instantiating ComputedEntry
+        # we don't pass correction explicitly because it will be calculated
+        # on the fly from energy_adjustments
+        else:
+            return cls(dec.process_decoded(d["structure"]), d["energy"], correction=0,
+                       energy_adjustments=[dec.process_decoded(e)
+                                           for e in d.get("energy_adjustments", {})],
+                       parameters={k: dec.process_decoded(v)
+                                   for k, v in d.get("parameters", {}).items()},
+                       data={k: dec.process_decoded(v)
+                             for k, v in d.get("data", {}).items()},
+                       entry_id=d.get("entry_id", None))
