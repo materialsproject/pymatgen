@@ -5,10 +5,12 @@
 import warnings
 import os
 import unittest
+import pytest
 
 from monty.json import MontyDecoder
 from pymatgen.entries.compatibility import Compatibility, MaterialsProjectCompatibility, \
-    MITCompatibility, AqueousCorrection, MITAqueousCompatibility
+    MITCompatibility, AqueousCorrection, MITAqueousCompatibility, MaterialsProjectAqueousCompatibility, \
+    CompatibilityError
 from pymatgen.entries.computed_entries import ComputedEntry, \
     ComputedStructureEntry, ConstantEnergyAdjustment
 from pymatgen import Composition, Lattice, Structure, Element
@@ -37,7 +39,7 @@ def test_process_entries_return_type():
 def test_no_duplicate_corrections():
     """
     Compatibility should never apply the same correction twice
-    """    
+    """
     entry = ComputedEntry("Fe2O3", -2)
     compat = DummyCompatibility()
 
@@ -54,7 +56,7 @@ def test_clean_arg():
     """
     clean=False should preserve existing corrections, clean=True should delete
     them before processing
-    """    
+    """
     entry = ComputedEntry("Fe2O3", -2, correction=-4)
     compat = DummyCompatibility()
 
@@ -84,7 +86,7 @@ def test_energy_adjustment_normalize():
 
 def test_overlapping_adjustments(capsys):
     """
-    Compatibility should raise a CompatibilityError if there is already a 
+    Compatibility should raise a CompatibilityError if there is already a
     correction with the same name, but a different value, and process_entries
     should skip that entry.
     """
@@ -722,6 +724,98 @@ class OxideTypeCorrectionNoPeroxideCorrTest(unittest.TestCase):
 
         lio3_entry_corrected = self.compat._process_entry(lio3_entry)
         self.assertAlmostEqual(lio3_entry_corrected.energy, -3.0 - 3 * 0.66975)
+
+
+class TestMaterialsProjectAqueousCompatibility():
+    """
+    Test MaterialsProjectAqueousCompatibility
+
+    -x- formation energy of H2O should always be -2.458 eV/H2O
+    -x- H2 energy should always be the same value
+    -x- H2O energy should always be the same value
+    -x- Should get warnings if you init without all energy args
+    -x- Should get CompatibilityError if you get_entry without all energy args
+    -x- energy args should auto-populate from entries passed to process_entries
+    -x- check compound entropies appropriately added
+    -x- check hydrate adjustment appropriately applied
+
+    Notes:
+        Argument values from MaterialsProjectCompatibility as of April 2020:
+            corrected DFT energy of H2O = -15.5875 eV/H2O (mp-697111) or -5.195 eV/atom
+            corrected DFT energy of O2 = -4.9276 eV/atom (mp-12957)
+            total energy corrections applied to H2O (eV/H2O) -0.70229 eV/H2O or -0.234 eV/atom
+    """
+    def test_MPAqeous_H_H2O_energy_with_args(self):
+
+        compat = MaterialsProjectAqueousCompatibility(o2_energy=-4.9276, h2o_energy=-5.195, h2o_adjustments=-0.234)
+
+        h2o_entry_1 = ComputedEntry(Composition("H2O"), -16)
+        h2o_entry_2 = ComputedEntry(Composition("H4O2"), -10)
+        h2_entry_1 = ComputedEntry(Composition("H2"), -16)
+        h2_entry_2 = ComputedEntry(Composition("H8"), -100)
+
+        for entry in [h2o_entry_1, h2o_entry_2, h2_entry_1, h2_entry_2]:
+            compat.process_entries(entry)
+
+        assert h2o_entry_1.energy_per_atom == h2o_entry_2.energy_per_atom
+        assert h2_entry_1.energy_per_atom == h2_entry_2.energy_per_atom
+
+        o2_entry_1 = ComputedEntry(Composition("O2"), -4.9276 * 2)
+        o2_entry_1 = compat.process_entries(o2_entry_1)[0]
+
+        h2o_form_e = 3 * h2o_entry_2.energy_per_atom - 2 * h2_entry_2.energy_per_atom - o2_entry_1.energy_per_atom
+        assert h2o_form_e == pytest.approx(compat.MU_H2O)
+
+    def test_MPAqeous_H_H2O_energy_no_args(self):
+
+        with pytest.warns(UserWarning, match="You did not provide the required O2 and H2O energies."):
+            compat = MaterialsProjectAqueousCompatibility()
+
+        h2o_entry_1 = ComputedEntry(Composition("H2O"), (-5.195 + 0.234)*3, correction=-0.234 * 3)
+        h2o_entry_2 = ComputedEntry(Composition("H4O2"), -10)
+        h2_entry_1 = ComputedEntry(Composition("H2"), -16)
+        h2_entry_2 = ComputedEntry(Composition("H8"), -100)
+        o2_entry_1 = ComputedEntry(Composition("O2"), -4.9276 * 2)
+
+        with pytest.raises(CompatibilityError, match="Either specify the energies as arguments to "):
+            compat.get_adjustments(h2_entry_1)
+
+        entries = compat.process_entries([h2o_entry_1, h2o_entry_2, h2_entry_1, h2_entry_2, o2_entry_1])
+
+        assert compat.o2_energy == -4.9276
+        assert compat.h2o_energy == -5.195
+        assert compat.h2o_adjustments == -0.234
+
+        h2o_entries = [e for e in entries if e.composition.reduced_formula == 'H2O']
+        h2_entries = [e for e in entries if e.composition.reduced_formula == 'H2']
+
+        assert h2o_entries[0].energy_per_atom == h2o_entries[1].energy_per_atom
+        assert h2_entries[0].energy_per_atom == h2_entries[1].energy_per_atom
+
+        h2o_form_e = 3 * h2o_entries[1].energy_per_atom - 2 * h2_entries[0].energy_per_atom - o2_entry_1.energy_per_atom
+        assert h2o_form_e == pytest.approx(compat.MU_H2O)
+
+    def test_compound_entropy(self):
+        compat = MaterialsProjectAqueousCompatibility(o2_energy=-10, h2o_energy=-20, h2o_adjustments=-0.5)
+
+        o2_entry_1 = ComputedEntry(Composition("O2"), -4.9276 * 2)
+
+        initial_energy = o2_entry_1.energy_per_atom
+        o2_entry_1 = compat.process_entries(o2_entry_1)[0]
+        processed_energy = o2_entry_1.energy_per_atom
+
+        assert initial_energy - processed_energy == pytest.approx(compat.cpd_entropies["O2"])
+
+    def test_hydrate_adjustment(self):
+        compat = MaterialsProjectAqueousCompatibility(o2_energy=-10, h2o_energy=-20, h2o_adjustments=-0.5)
+
+        hydrate_entry = ComputedEntry(Composition("FeH4O2"), -10)
+
+        initial_energy = hydrate_entry.energy
+        hydrate_entry = compat.process_entries(hydrate_entry)[0]
+        processed_energy = hydrate_entry.energy
+
+        assert initial_energy - processed_energy == 2*(compat.h2o_adjustments * 3 + compat.MU_H2O)
 
 
 class AqueousCorrectionTest(unittest.TestCase):

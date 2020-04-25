@@ -416,7 +416,7 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
     of entries. All Compatibility classes must implement .get_adjustments method.
     """
     @abc.abstractmethod
-    def get_adjustments(self, entry):
+    def get_adjustments(self, entry: ComputedEntry):
         """
         Get the energy adjustments for a ComputedEntry.
 
@@ -429,7 +429,7 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
             entry: A ComputedEntry object.
 
         Returns:
-            [EnergyAdjustment]: A list of EnergyAdjustment to be applied to the 
+            [EnergyAdjustment]: A list of EnergyAdjustment to be applied to the
                 Entry.
 
         Raises:
@@ -768,7 +768,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
 
         1. Beginning with the DFT energy of O2, adjust the energy of H2 so that
            the experimental reaction energy of -2.458 eV/H2O is reproduced.
-        2. Add entropy to the DFT energy of any compounds that are liquid or 
+        2. Add entropy to the DFT energy of any compounds that are liquid or
            gaseous at room temperature
         3. Adjust the energy of H2O for consistency with the adjusted H2 energy.
         4. Adjust the DFT energies of solid hydrate compounds (compounds that
@@ -776,7 +776,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
            H2O molecules are equal to the experimental free energy
 
     The above energy adjustments are computed dynamically based on the input
-    Entries.    
+    Entries.
 
     References:
         K.A. Persson, B. Waldwick, P. Lazic, G. Ceder, Prediction of solid-aqueous
@@ -785,17 +785,34 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         85 (2012) 1–12. doi:10.1103/PhysRevB.85.235438.
     """
 
-    def __init__(self, solid_compat=MaterialsProjectCompatibility()):
+    def __init__(self, o2_energy: float = None, h2o_energy: float = None, h2o_adjustments: float = None):
         """
+        Initialize the MaterialsProjectAqueousCompatibility class.
+
+        Note that this class requires as inputs the ground-state DFT energies of O2 and H2O, plus the value of any
+        energy adjustments applied to an H2O molecule. If these parameters are not provided in __init__, they can
+        be automatically populated by included ComputedEntry for the ground state of O2 and H2O in a list of entries
+        passed to process_entries. process_entries will fail if one or the other is not provided.
+
         Args:
-            solid_compat: Compatibility, Compatibility class used to pre-process solid
-                DFT energies before applying the Aqueous energy referencing scheme.
-                (Default: MaterialsProjectCompatibility())
+            o2_energy: The ground-state DFT energy of oxygen gas, including any adjustments or corrections, in eV/atom.
+                Default: None
+            h2o_energy: The ground-state DFT energy of water, including any adjstments or corrections, in eV/atom.
+                Default: None
+            h2o_adjustments: Total energy adjustments applied to one water molecule, in eV/atom.
+                Default: None
         """
         from pymatgen.analysis.pourbaix_diagram import MU_H2O
         self.MU_H2O = MU_H2O
+        self.o2_energy = o2_energy
+        self.h2o_energy = h2o_energy
+        self.h2o_adjustments = h2o_adjustments
 
-        self.solid_compat = solid_compat
+        if not all([self.o2_energy, self.h2o_energy, self.h2o_adjustments]):
+            warnings.warn("You did not provide the required O2 and H2O energies. {} "
+                          "needs these energies in order to compute the appropriate energy adjustments. It will try "
+                          "to infer the values from ComputedEntry for O2 and H2O passed to process_entries, but will "
+                          "fail if these entries are not provided.".format(type(self).__name__))
 
         # Standard state entropy of molecular-like compounds at 298K (-T delta S)
         # from Kubaschewski Tables (eV/atom)
@@ -810,7 +827,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         self.name = "MP Aqueous free energy adjustment"
         super().__init__()
 
-    def get_adjustments(self, entry):
+    def get_adjustments(self, entry: ComputedEntry):
         """
         Returns the corrections applied to a particular entry.
 
@@ -819,25 +836,27 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
 
         Returns:
             [EnergyAdjustment]: Energy adjustments to be applied to entry.
+
+        Raises:
+            CompatibilityError if the required O2 and H2O energies have not been provided to
+            MaterialsProjectAqueousCompatibility during init or in the list of entries passed to process_entries.
         """
         adjustments = []
-        # uncorrected DFT energy of H2O = -14.8852 eV/H2O (mp-697111)
-        self.h2o_energy = -14.8852
+        if not all([self.o2_energy, self.h2o_energy, self.h2o_adjustments]):
+            raise CompatibilityError("You did not provide the required O2 and H2O energies. "
+                                     "{} needs these energies in order to compute "
+                                     "the appropriate energy adjustments. Either specify the energies as arguments "
+                                     "to {}.__init__ or run process_entries on a list that includes ComputedEntry for "
+                                     "the ground state of O2 and H2O.".format(type(self).__name__, type(self).__name__))
 
-        # corrected DFT energy of O2 = -4.9276 eV/atom (mp-12957)
-        self.o2_energy = -4.9276
-
-        # total energy corrections applied to H2O (eV/H2O)
-        self.previous_correction_per_h2o = -0.70229
-
-        # compute the free energies of H2 and H2O (eV/atom) to guarantee that the 
+        # compute the free energies of H2 and H2O (eV/atom) to guarantee that the
         # formationfree energy of H2O is equal to -2.4583 eV/H2O from experiments
         # (MU_H2O from pourbaix module)
 
         # Free energy of H2, fitted using Eq. 40 of Persson et al. PRB 2012 85(23)
         # for this calculation ONLY, we need the DFT energy of water
         self.h2_energy = round(
-            0.5 * ((self.h2o_energy - self.cpd_entropies["H2O"]) -
+            0.5 * ((self.h2o_energy * 3 - self.cpd_entropies["H2O"]) -
                    (self.o2_energy - self.cpd_entropies["O2"]) -
                    self.MU_H2O
                    ), 6
@@ -912,7 +931,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
                 # first, remove any H or O corrections already applied to H2O in the
                 # formation energy so that we don't double count them
                 # next, remove MU_H2O for each water molecule present
-                hydrate_adjustment = -1 * (self.previous_correction_per_h2o + self.MU_H2O)
+                hydrate_adjustment = -1 * (self.h2o_adjustments * 3 + self.MU_H2O)
 
                 adjustments.append(
                     CompositionEnergyAdjustment(
@@ -928,3 +947,36 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
                 )
 
         return adjustments
+
+    def process_entries(self, entries: Union[ComputedEntry, list], clean: bool = False):
+        """
+        Process a sequence of entries with the chosen Compatibility scheme.
+
+        Args:
+            entries: ComputedEntry or [ComputedEntry]
+            clean: bool, whether to remove any previously-applied energy adjustments.
+                If True, all EnergyAdjustment are removed prior to processing the Entry.
+                Default is False.
+
+        Returns:
+            A list of adjusted entries.  Entries in the original list which
+            are not compatible are excluded.
+        """
+        # convert input arg to a list if not already
+        if isinstance(entries, ComputedEntry):
+            entries = [entries]
+
+        # extract the DFT energies of oxygen and water from the list of entries, if present
+        if not self.o2_energy:
+            o2_entries = [e for e in entries if e.composition.reduced_formula == 'O2']
+            if o2_entries:
+                self.o2_energy = min(e.energy_per_atom for e in o2_entries)
+
+        if not self.h2o_energy and not self.h2o_adjustments:
+            h2o_entries = [e for e in entries if e.composition.reduced_formula == 'H2O']
+            if h2o_entries:
+                h2o_entries = sorted(h2o_entries, key=lambda e: e.energy_per_atom)
+                self.h2o_energy = h2o_entries[0].energy_per_atom
+                self.h2o_adjustments = h2o_entries[0].correction / h2o_entries[0].composition.num_atoms
+
+        return super().process_entries(entries)
