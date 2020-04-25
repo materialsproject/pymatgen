@@ -1907,6 +1907,7 @@ class Outcar:
                              r"DIELECTRIC FUNCTION \(independent particle, " \
                              r"no local field effects\)(\sdensity-density)*$"
         row_pattern = r"\s+".join([r"([\.\-\d]+)"] * 3)
+        re_pattern_sci = r"([\.\-\d]+)E[\+\-]\d{2}"  # scientific notation, no spaces
         plasma_frequencies = collections.defaultdict(list)
         read_plasma = False
         read_dielectric = False
@@ -1927,6 +1928,9 @@ class Outcar:
                 if read_plasma and re.match(row_pattern, l):
                     plasma_frequencies[read_plasma].append(
                         [float(t) for t in l.strip().split()])
+                elif read_plasma and re.findall(re_pattern_sci, l):
+                    plasma_frequencies[read_plasma].append(
+                        [float(t) for t in re.findall(re_pattern_sci, l)])
                 elif read_dielectric:
                     if re.match(row_pattern, l.strip()):
                         toks = l.strip().split()
