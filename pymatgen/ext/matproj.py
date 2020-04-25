@@ -498,7 +498,19 @@ class MPRester:
         ion_ref_entries = compat1.process_entries(ion_ref_entries)
 
         # then adjust them to Gibbs formation energies at room temp
-        compat2 = MaterialsProjectAqueousCompatibility()
+        # extract the AqueousCompatibility fit parameters from the O2 and H2O entries in ion_ref_entries
+        # extract the DFT energies of oxygen and water from the list of entries, if present
+        o2_entries = [e for e in ion_ref_entries if e.composition.reduced_formula == 'O2']
+        o2_energy = min(e.energy_per_atom for e in o2_entries)
+
+        h2o_entries = [e for e in ion_ref_entries if e.composition.reduced_formula == 'H2O']
+        h2o_entries = sorted(h2o_entries, key=lambda e: e.energy_per_atom)
+        h2o_energy = h2o_entries[0].energy_per_atom
+        h2o_adjustments = h2o_entries[0].correction / h2o_entries[0].composition.num_atoms
+
+        compat2 = MaterialsProjectAqueousCompatibility(o2_energy=o2_energy,
+                                                       h2o_energy=h2o_energy,
+                                                       h2o_adjustments=h2o_adjustments)
         ion_ref_entries = compat2.process_entries(ion_ref_entries)
         ion_ref_pd = PhaseDiagram(ion_ref_entries)
 
