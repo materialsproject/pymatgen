@@ -210,7 +210,7 @@ class XAS(Spectrum):
         raise ValueError("Invalid mode. Only XAFS and L23 are supported.")
 
 
-def site_weighted_spectrum(xas_list: list('XAS'), num_samples: int = 500) -> 'XAS':
+def site_weighted_spectrum(xas_list: List['XAS'], num_samples: int = 500) -> 'XAS':
     """
         Obtain site-weighted XAS object based on site multiplicity for each
         absorbing index and its corresponding site-wise spectrum.
