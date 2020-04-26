@@ -2,7 +2,7 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from pymatgen.analysis.xas.spectrum import XAS
+from pymatgen.analysis.xas.spectrum import XAS, site_weighted_spectrum
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.core import Element
 from monty.json import MontyDecoder
@@ -22,6 +22,10 @@ with open(os.path.join(test_dir, 'ZnO_l2_xanes.json')) as fp:
     l2_xanes_dict = json.load(fp, cls=MontyDecoder)
 with open(os.path.join(test_dir, 'ZnO_l3_xanes.json')) as fp:
     l3_xanes_dict = json.load(fp, cls=MontyDecoder)
+with open(os.path.join(test_dir, 'site1_k_xanes.json')) as fp:
+    site1_xanes_dict = json.load(fp, cls=MontyDecoder)
+with open(os.path.join(test_dir, 'site2_k_xanes.json')) as fp:
+    site2_xanes_dict = json.load(fp, cls=MontyDecoder)
 
 
 class XASTest(PymatgenTest):
@@ -30,6 +34,8 @@ class XASTest(PymatgenTest):
         self.k_exafs = XAS.from_dict(k_exafs_dict)
         self.l2_xanes = XAS.from_dict(l2_xanes_dict)
         self.l3_xanes = XAS.from_dict(l3_xanes_dict)
+        self.site1_xanes = XAS.from_dict(site1_xanes_dict)
+        self.site2_xanes = XAS.from_dict(site2_xanes_dict)
 
     def test_e0(self):
         self.assertAlmostEqual(7728.565, self.k_xanes.e0)
@@ -99,6 +105,21 @@ class XASTest(PymatgenTest):
                           self.l2_xanes, self.l3_xanes, mode="L23")
         self.assertRaises(ValueError, XAS.stitch,
                           self.k_xanes, self.l3_xanes, mode="L23")
+
+    def test_site_weighted_spectrum(self):
+        weighted_spectrum = site_weighted_spectrum([self.site1_xanes,
+                                                    self.site2_xanes])
+        self.assertIsInstance(weighted_spectrum, XAS)
+        self.assertTrue(len(weighted_spectrum.x), 500)
+        # The site multiplicities for site1 and site2 are 4 and 2, respectively.
+        self.assertAlmostEqual(weighted_spectrum.y[0], (4*self.site1_xanes.y[0] +
+                               2*self.site2_xanes.y[0])/6, 2)
+        self.assertEqual(min(weighted_spectrum.x),
+                         max(min(self.site1_xanes.x), min(self.site2_xanes.x)))
+        self.site2_xanes.absorbing_index = self.site1_xanes.absorbing_index
+        self.assertRaises(ValueError, site_weighted_spectrum,
+                          [self.site1_xanes, self.site2_xanes])
+
 
 
 if __name__ == '__main__':

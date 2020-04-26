@@ -11,6 +11,7 @@ import numpy as np
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.spectrum import Spectrum
 from typing import List
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 __author__ = "Chen Zheng, Yiming Chen"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -31,6 +32,9 @@ class XAS(Spectrum):
         absorbing_element (Element): Element associated with the spectrum
         edge (str): Absorption edge associated with the spectrum
         spectrum_type (str): 'XANES' or 'EXAFS'
+        absorbing_index (None or int): If None, the spectrum is assumed to be a
+         site-weighted spectrum, which is comparable to experimental one.
+         Otherwise, it indicates the absorbing_index for a site-wise spectrum.
 
 
     .. attribute: x
@@ -48,12 +52,17 @@ class XAS(Spectrum):
     .. attribute: spectrum_type
         XANES or EXAFS spectrum
 
+    .. attribute: absorbing_index
+        The absorbing_index of the spectrum
+
+
+
     """
     XLABEL = 'Energy'
     YLABEL = 'Intensity'
 
     def __init__(self, x, y, structure, absorbing_element, edge="K",
-                 spectrum_type="XANES"):
+                 spectrum_type="XANES", absorbing_index=None):
         """
         Initializes a spectrum object.
         """
@@ -70,6 +79,7 @@ class XAS(Spectrum):
         #             k^2=2*m/(hbar)^2*(E-E0)
         self.k = [np.sqrt((i-self.e0) / 3.8537) if i > self.e0 else
                   -np.sqrt((self.e0-i) / 3.8537) for i in self.x]
+        self.absorbing_index = absorbing_index
 
     def __str__(self):
         return "%s %s Edge %s for %s: %s" % (
@@ -110,6 +120,8 @@ class XAS(Spectrum):
                 "The input structures from spectra mismatch")
         if not self.absorbing_element == other.absorbing_element:
             raise ValueError("The absorbing element from spectra are different")
+        if not self.absorbing_index == other.absorbing_index:
+            raise ValueError("The absorbing index from spectra are different")
 
         if mode == "XAFS":
             if not self.edge == other.edge:
@@ -197,3 +209,58 @@ class XAS(Spectrum):
 
         else:
             raise ValueError("Invalid mode. Only XAFS and L23 are supported.")
+
+
+def site_weighted_spectrum(xas_list: list('XAS'), num_samples: int = 500):
+    """
+        Obtain site-weighted XAS object based on site multiplicity for each
+        absorbing index and its corresponding site-wise spectrum.
+
+        Args:
+            xas_list([XAS]): List of XAS object to be weighted.
+            num_samples(int): Number of samples for interpolation.
+
+        Returns:
+            XAS object: The site-weighted spectrum.
+    """
+    m = StructureMatcher()
+    groups = m.group_structures([i.structure for i in xas_list])
+    if len(groups) > 1:
+        raise ValueError("The input structures mismatch")
+    if not len(set([i.absorbing_element for i in xas_list])) == \
+           len(set([i.edge for i in xas_list])) == 1:
+        raise ValueError("Can only perform site-weighting for spectra with "
+                         "same absorbing element and same absorbing edge.")
+    if len(set([i.absorbing_index for i in xas_list])) <= 1:
+        raise ValueError("Only one absorbing index exists. No need to do "
+                         "site-weighting")
+
+    sa = SpacegroupAnalyzer(groups[0][0])
+    ss = sa.get_symmetrized_structure()
+    maxes, mines = [], []
+    fs = []
+    multiplicities = []
+
+    for xas in xas_list:
+        multiplicity = len(
+            ss.find_equivalent_sites(ss[xas.absorbing_index]))
+        multiplicities.append(multiplicity)
+        maxes.append(max(xas.x))
+        mines.append(min(xas.x))
+        # use 3rd-order spline interpolation for mu (idx 3) vs energy (idx 0).
+        f = interp1d(
+            np.asarray(xas.x),
+            np.asarray(xas.y), bounds_error=False, fill_value=0,
+            kind='cubic')
+        fs.append(f)
+    # Interpolation within the intersection of x-axis ranges.
+    x_axis = np.linspace(max(mines),min(maxes), num=num_samples)
+    weighted_spectrum = np.zeros(num_samples)
+    sum_multiplicities = sum(multiplicities)
+
+    for i in range(len(multiplicities)):
+        weighted_spectrum += (multiplicities[i] * fs[i](x_axis)) \
+                             / sum_multiplicities
+
+    return XAS(x_axis, weighted_spectrum, ss, xas.absorbing_element, xas.edge,
+               xas.spectrum_type)
