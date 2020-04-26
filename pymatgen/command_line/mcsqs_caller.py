@@ -218,11 +218,11 @@ def _parse_sqs_path(path) -> Sqs:
         sqs_out = "bestsqs{}.out".format(i + 1)
         sqs_cif = "bestsqs{}.cif".format(i + 1)
         corr_out = "bestcorr{}.out".format(i + 1)
-        p = Popen("str2cif <" + sqs_out + ">" + sqs_cif, shell=True, cwd=path)
+        p = Popen("str2cif < {} > {}".format(sqs_out, sqs_cif), shell=True, cwd=path)
         p.communicate()
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            sqs = Structure.from_file(sqs_cif)
+            sqs = Structure.from_file(path / sqs_cif)
         with open(path / corr_out, "r") as f:
             lines = f.readlines()
 
