@@ -125,6 +125,15 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
                                         {'titel': 'PAW_PBE S 08Apr2002',
                                          'hash': '7a25bc5b9a5393f46600a4939d357982'}]})
 
+        self.entry4 = ComputedEntry(
+            'H8', -27.1, 0.0,
+            parameters={'run_type': 'None or LDA+rVV10',
+                        'is_hubbard': False,
+                        'pseudo_potential': {'functional': 'PBE', 'labels': ['H'], 'pot_type': 'paw'},
+                        'hubbards': {},
+                        'potcar_symbols': ['PBE H'],
+                        'oxide_type': 'None'})
+        
         self.entry2 = ComputedEntry(
             'Fe3O4', -2, 0.0,
             parameters={'is_hubbard': True, 'hubbards': {'Fe': 5.3, 'O': 0},
@@ -305,7 +314,8 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
     def test_process_entries(self):
         entries = self.compat.process_entries([self.entry1,
                                                self.entry2,
-                                               self.entry3])
+                                               self.entry3,
+                                               self.entry4])
         self.assertEqual(len(entries), 2)
 
     def test_msonable(self):
@@ -757,8 +767,8 @@ class TestMaterialsProjectAqueousCompatibility():
         for entry in [h2o_entry_1, h2o_entry_2, h2_entry_1, h2_entry_2]:
             compat.process_entries(entry)
 
-        assert h2o_entry_1.energy_per_atom == h2o_entry_2.energy_per_atom
-        assert h2_entry_1.energy_per_atom == h2_entry_2.energy_per_atom
+        assert h2o_entry_1.energy_per_atom == pytest.approx(h2o_entry_2.energy_per_atom)
+        assert h2_entry_1.energy_per_atom == pytest.approx(h2_entry_2.energy_per_atom)
 
         o2_entry_1 = ComputedEntry(Composition("O2"), -4.9276 * 2)
         o2_entry_1 = compat.process_entries(o2_entry_1)[0]
@@ -789,8 +799,8 @@ class TestMaterialsProjectAqueousCompatibility():
         h2o_entries = [e for e in entries if e.composition.reduced_formula == 'H2O']
         h2_entries = [e for e in entries if e.composition.reduced_formula == 'H2']
 
-        assert h2o_entries[0].energy_per_atom == h2o_entries[1].energy_per_atom
-        assert h2_entries[0].energy_per_atom == h2_entries[1].energy_per_atom
+        assert h2o_entries[0].energy_per_atom == pytest.approx(h2o_entries[1].energy_per_atom)
+        assert h2_entries[0].energy_per_atom == pytest.approx(h2_entries[1].energy_per_atom)
 
         h2o_form_e = 3 * h2o_entries[1].energy_per_atom - 2 * h2_entries[0].energy_per_atom - o2_entry_1.energy_per_atom
         assert h2o_form_e == pytest.approx(compat.MU_H2O)
@@ -815,7 +825,7 @@ class TestMaterialsProjectAqueousCompatibility():
         hydrate_entry = compat.process_entries(hydrate_entry)[0]
         processed_energy = hydrate_entry.energy
 
-        assert initial_energy - processed_energy == 2*(compat.h2o_adjustments * 3 + compat.MU_H2O)
+        assert initial_energy - processed_energy == pytest.approx(2*(compat.h2o_adjustments * 3 + compat.MU_H2O))
 
 
 class AqueousCorrectionTest(unittest.TestCase):

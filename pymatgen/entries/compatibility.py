@@ -380,8 +380,10 @@ class UCorrection(Correction):
         :param entry: A ComputedEntry/ComputedStructureEntry
         :return: Correction.
         """
-        if entry.parameters.get("run_type", "GGA") == "HF":
-            raise CompatibilityError('Invalid run type')
+        if entry.parameters.get("run_type") not in ["GGA", "GGA+U"]:
+            raise CompatibilityError('Entry {} has invalid run type {}. Discarding.'
+                                     .format(entry.entry_id,
+                                                                                    entry.parameters.get("run_type")))
 
         calc_u = entry.parameters.get("hubbards", None)
         calc_u = defaultdict(int) if calc_u is None else calc_u
