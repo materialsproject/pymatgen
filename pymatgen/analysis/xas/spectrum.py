@@ -6,11 +6,11 @@
 This module defines classes to represent all xas and stitching methods
 """
 import math
+from typing import List
 from scipy.interpolate import interp1d
 import numpy as np
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.spectrum import Spectrum
-from typing import List
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 __author__ = "Chen Zheng, Yiming Chen"
@@ -18,7 +18,7 @@ __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "3.0"
 __maintainer__ = "Yiming Chen"
 __email__ = "chz022@ucsd.edu, yic111@ucsd.edu"
-__date__ = "Jan 26, 2020"
+__date__ = "April 25, 2020"
 
 
 class XAS(Spectrum):
@@ -117,11 +117,11 @@ class XAS(Spectrum):
         m = StructureMatcher()
         if not m.fit(self.structure, other.structure):
             raise ValueError(
-                "The input structures from spectra mismatch")
+                "The input structures for spectra mismatch")
         if not self.absorbing_element == other.absorbing_element:
-            raise ValueError("The absorbing element from spectra are different")
+            raise ValueError("The absorbing elements for spectra are different")
         if not self.absorbing_index == other.absorbing_index:
-            raise ValueError("The absorbing index from spectra are different")
+            raise ValueError("The absorbing indexes for spectra are different")
 
         if mode == "XAFS":
             if not self.edge == other.edge:
@@ -180,8 +180,8 @@ class XAS(Spectrum):
                        self.absorbing_element, xanes.edge, "XAFS")
 
         if mode == "L23":
-            if not self.spectrum_type == "XANES" and \
-                    other.spectrum_type == "XANES":
+            if self.spectrum_type != "XANES" or \
+                    other.spectrum_type != "XANES":
                 raise ValueError("Only XANES spectrum can be stitched in "
                                  "L23 mode.")
             if self.edge not in ["L2", "L3"] or other.edge not in ["L2", "L3"] \
@@ -207,32 +207,32 @@ class XAS(Spectrum):
             return XAS(energy, mu, self.structure, self.absorbing_element,
                        "L23", "XANES")
 
-        else:
-            raise ValueError("Invalid mode. Only XAFS and L23 are supported.")
+        raise ValueError("Invalid mode. Only XAFS and L23 are supported.")
 
 
-def site_weighted_spectrum(xas_list: list('XAS'), num_samples: int = 500):
+def site_weighted_spectrum(xas_list: list('XAS'), num_samples: int = 500) -> 'XAS':
     """
         Obtain site-weighted XAS object based on site multiplicity for each
         absorbing index and its corresponding site-wise spectrum.
 
         Args:
-            xas_list([XAS]): List of XAS object to be weighted.
-            num_samples(int): Number of samples for interpolation.
+            xas_list([XAS]): List of XAS object to be weighted
+            num_samples(int): Number of samples for interpolation
 
         Returns:
-            XAS object: The site-weighted spectrum.
+            XAS object: The site-weighted spectrum
     """
     m = StructureMatcher()
     groups = m.group_structures([i.structure for i in xas_list])
     if len(groups) > 1:
         raise ValueError("The input structures mismatch")
-    if not len(set([i.absorbing_element for i in xas_list])) == \
-           len(set([i.edge for i in xas_list])) == 1:
+    if not len({i.absorbing_element for i in xas_list}) == \
+            len({i.edge for i in xas_list}) == 1:
         raise ValueError("Can only perform site-weighting for spectra with "
                          "same absorbing element and same absorbing edge.")
-    if len(set([i.absorbing_index for i in xas_list])) <= 1:
-        raise ValueError("Only one absorbing index exists. No need to do "
+    if len({i.absorbing_index for i in xas_list}) == 1 or \
+            None in {i.absorbing_index for i in xas_list}:
+        raise ValueError("Need at least two site-wise spectra to perform "
                          "site-weighting")
 
     sa = SpacegroupAnalyzer(groups[0][0])
@@ -254,7 +254,7 @@ def site_weighted_spectrum(xas_list: list('XAS'), num_samples: int = 500):
             kind='cubic')
         fs.append(f)
     # Interpolation within the intersection of x-axis ranges.
-    x_axis = np.linspace(max(mines),min(maxes), num=num_samples)
+    x_axis = np.linspace(max(mines), min(maxes), num=num_samples)
     weighted_spectrum = np.zeros(num_samples)
     sum_multiplicities = sum(multiplicities)
 

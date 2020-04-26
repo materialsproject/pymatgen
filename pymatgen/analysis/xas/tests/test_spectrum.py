@@ -121,6 +121,5 @@ class XASTest(PymatgenTest):
                           [self.site1_xanes, self.site2_xanes])
 
 
-
 if __name__ == '__main__':
     unittest.main()
