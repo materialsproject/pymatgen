@@ -383,7 +383,7 @@ class UCorrection(Correction):
         if entry.parameters.get("run_type") not in ["GGA", "GGA+U"]:
             raise CompatibilityError('Entry {} has invalid run type {}. Discarding.'
                                      .format(entry.entry_id,
-                                                                                    entry.parameters.get("run_type")))
+                                             entry.parameters.get("run_type")))
 
         calc_u = entry.parameters.get("hubbards", None)
         calc_u = defaultdict(int) if calc_u is None else calc_u
@@ -824,7 +824,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
                               "Cl2": 0.344373,
                               "Br": 0.235039,
                               "Hg": 0.234421,
-                              "H2O": 0.215891,
+                              "H2O": 0.071963,  # 0.215891 eV/H2O
                               }
         self.name = "MP Aqueous free energy adjustment"
         super().__init__()
@@ -856,10 +856,13 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
             # formationfree energy of H2O is equal to -2.4583 eV/H2O from experiments
             # (MU_H2O from pourbaix module)
 
-            # Free energy of H2, fitted using Eq. 40 of Persson et al. PRB 2012 85(23)
+            # Free energy of H2 in eV/atom, fitted using Eq. 40 of Persson et al. PRB 2012 85(23)
             # for this calculation ONLY, we need the DFT energy of water
+            # The purpose of the DFT water here is to characterize the energy scale of the DFT functional used 
+            # (the difference between O2 and H2O within a specific pseudopotential). Hence, the uncorrected energy
+            # should be used.
             self.h2_energy = round(
-                0.5 * ((self.h2o_energy * 3 - self.cpd_entropies["H2O"]) -
+                0.5 * (3 * (self.h2o_energy - self.h2o_adjustments - self.cpd_entropies["H2O"]) -
                        (self.o2_energy - self.cpd_entropies["O2"]) -
                        self.MU_H2O
                        ), 6
