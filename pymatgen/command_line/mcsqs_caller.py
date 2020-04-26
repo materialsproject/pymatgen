@@ -190,7 +190,7 @@ def _parse_sqs_path(path) -> Sqs:
     path = Path(path)
 
     # detected instances will be 0 if mcsqs was run in series, or number of instances
-    detected_instances = len(list(path.glob("bestsqs*[0-9]*")))
+    detected_instances = len(list(path.glob("bestsqs*[0-9]*.out")))
 
     # Convert best SQS structure to cif file and pymatgen Structure
     p = Popen("str2cif < bestsqs.out > bestsqs.cif", shell=True, cwd=path)
