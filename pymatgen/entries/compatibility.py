@@ -846,7 +846,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
             MaterialsProjectAqueousCompatibility during init or in the list of entries passed to process_entries.
         """
         adjustments = []
-        if self.o2_energy is not None and self.h2o_energy is not None and self.h2o_adjustments is not None:
+        if self.o2_energy is None or self.h2o_energy is None or self.h2o_adjustments is None:
             raise CompatibilityError("You did not provide the required O2 and H2O energies. "
                                      "{} needs these energies in order to compute "
                                      "the appropriate energy adjustments. Either specify the energies as arguments "
