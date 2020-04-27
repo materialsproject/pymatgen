@@ -36,7 +36,7 @@ jobs:
         flake8 --count --exit-zero --max-complexity=20 --statistics pymatgen
     - name: Lint with pylint
       run: |
-        pip install pylint --upgrade
+        pip install --upgrade "pylint!=2.5" 
         export MODIFIED_FILES=`git diff --diff-filter=ACMRTUXB --name-only HEAD v2019.9.16 | grep -E 'pymatgen.*\.(py)$' | sed '/test_/d' | tr '\n' ' '`
         echo "Linting $MODIFIED_FILES"
         # stop the build if there are Python syntax errors or undefined names
