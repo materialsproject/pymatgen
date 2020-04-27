@@ -26,12 +26,12 @@ from pymatgen.entries.computed_entries import ComputedEntry, \
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 MU_H2O = -2.4583  # Free energy of formation of water, eV/H2O, used by MaterialsProjectAqueousCompatibility
 
-__author__ = "Shyue Ping Ong, Anubhav Jain, Stephen Dacek, Sai Jayaraman"
-__copyright__ = "Copyright 2012, The Materials Project"
+__author__ = "Ryan Kingsbury, Shyue Ping Ong, Anubhav Jain, Stephen Dacek, Sai Jayaraman"
+__copyright__ = "Copyright 2012-2020, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
-__date__ = "Mar 19, 2012"
+__date__ = "April 2020"
 
 
 class CompatibilityError(Exception):

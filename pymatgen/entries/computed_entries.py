@@ -20,7 +20,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.entries import Entry
 
 __author__ = "Ryan Kingsbury, Shyue Ping Ong, Anubhav Jain"
-__copyright__ = "Copyright 2011, The Materials Project"
+__copyright__ = "Copyright 2011-2020, The Materials Project"
 __version__ = "1.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
