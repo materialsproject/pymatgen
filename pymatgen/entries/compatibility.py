@@ -11,7 +11,7 @@ import abc
 import warnings
 
 from collections import defaultdict
-from typing import Sequence, Union
+from typing import Sequence, Union, Optional
 from monty.design_patterns import cached_class
 from monty.serialization import loadfn
 from monty.json import MSONable
@@ -787,7 +787,9 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         85 (2012) 1–12. doi:10.1103/PhysRevB.85.235438.
     """
 
-    def __init__(self, o2_energy: float = None, h2o_energy: float = None, h2o_adjustments: float = None):
+    def __init__(self, o2_energy: Optional[float] = None,
+                 h2o_energy: Optional[float] = None,
+                 h2o_adjustments: Optional[float] = None):
         """
         Initialize the MaterialsProjectAqueousCompatibility class.
 
@@ -844,7 +846,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
             MaterialsProjectAqueousCompatibility during init or in the list of entries passed to process_entries.
         """
         adjustments = []
-        if not all([self.o2_energy, self.h2o_energy, self.h2o_adjustments]):
+        if self.o2_energy is not None and self.h2o_energy is not None and self.h2o_adjustments is not None:
             raise CompatibilityError("You did not provide the required O2 and H2O energies. "
                                      "{} needs these energies in order to compute "
                                      "the appropriate energy adjustments. Either specify the energies as arguments "
