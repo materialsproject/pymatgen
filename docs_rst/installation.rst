@@ -203,6 +203,29 @@ to see full list of choices.
     from these other functionals with Materials Project data. For up-to-date information
     on this, please consult the Materials Project documentation.
 
+PyPy Support
+============
+
+`PyPy <https://www.pypy.org>`_ is an alternative Python interpreter for running Python code
+and comes with significant speed improvements for common applications. However, historically,
+fewer packages offer PyPy support.
+
+It is possible to install and use pymatgen with the PyPy interpreter
+but it comes with some important caveats:
+
+* While it is usable, PyPy is not officially supported by pymatgen. We do not run our
+  full test suite on PyPy and it's possible some parts of pymatgen will be broken.
+* All of pymatgen's dependencies now support PyPy including numpy, scipy, and pandas,
+  however matplotlib is difficult to install. If trying PyPy, the current advice
+  is to remove the matplotlib dependency, however this means any modules using matplotlib 
+  will not be importable. The easiest way to install dependencies is using the
+  `PyPy builds on conda-forge <https://conda-forge.org/blog/2020/03/10/pypy>`_. For spglib,
+  cloning the repository and running ``python setup.py install`` manually is advised.
+* Performance improvements are unpredictible. Since pymatgen makes heavy use of numpy
+  and custom extensions where appropriate, many code hot spots have already been optimized.
+
+We welcome any developers interested in expanding our PyPy support.
+
 Setup for Developers (using GitHub)
 ===================================
 

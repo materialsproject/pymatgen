@@ -767,7 +767,7 @@ class StructureMatcher(MSONable):
 
         Args:
             s_list ([Structure]): List of structures to be grouped
-            anonymous (bool): Wheher to use anonymous mode.
+            anonymous (bool): Whether to use anonymous mode.
 
         Returns:
             A list of lists of matched structures
