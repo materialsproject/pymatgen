@@ -24,6 +24,7 @@ from pymatgen.entries.computed_entries import ComputedEntry, \
 
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+MU_H2O = -2.4583  # Free energy of formation of water, eV/H2O, used by MaterialsProjectAqueousCompatibility
 
 __author__ = "Shyue Ping Ong, Anubhav Jain, Stephen Dacek, Sai Jayaraman"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -806,8 +807,6 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
             h2o_adjustments: Total energy adjustments applied to one water molecule, in eV/atom.
                 Default: None
         """
-        from pymatgen.analysis.pourbaix_diagram import MU_H2O
-        self.MU_H2O = MU_H2O
         self.o2_energy = o2_energy
         self.h2o_energy = h2o_energy
         self.h2o_adjustments = h2o_adjustments
@@ -853,7 +852,6 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
                                      "to {}.__init__ or run process_entries on a list that includes ComputedEntry for "
                                      "the ground state of O2 and H2O.".format(type(self).__name__, type(self).__name__))
 
-        else:
             # compute the free energies of H2 and H2O (eV/atom) to guarantee that the
             # formationfree energy of H2O is equal to -2.4583 eV/H2O from experiments
             # (MU_H2O from pourbaix module)
@@ -866,14 +864,14 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
             self.h2_energy = round(
                 0.5 * (3 * (self.h2o_energy - self.h2o_adjustments - self.cpd_entropies["H2O"]) -
                        (self.o2_energy - self.cpd_entropies["O2"]) -
-                       self.MU_H2O
+                   MU_H2O
                        ), 6
             )
 
             # Free energy of H2O, fitted for consistency with the O2 and H2 energies.
             self.fit_h2o_energy = round((2 * self.h2_energy +
                                         (self.o2_energy - self.cpd_entropies["O2"]) +
-                                        self.MU_H2O
+                                    MU_H2O
                                          ) / 3,
                                         6
                                         )
@@ -939,7 +937,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
                     # first, remove any H or O corrections already applied to H2O in the
                     # formation energy so that we don't double count them
                     # next, remove MU_H2O for each water molecule present
-                    hydrate_adjustment = -1 * (self.h2o_adjustments * 3 + self.MU_H2O)
+                hydrate_adjustment = -1 * (self.h2o_adjustments * 3 + MU_H2O)
 
                     adjustments.append(
                         CompositionEnergyAdjustment(

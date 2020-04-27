@@ -10,7 +10,7 @@ import pytest
 from monty.json import MontyDecoder
 from pymatgen.entries.compatibility import Compatibility, MaterialsProjectCompatibility, \
     MITCompatibility, AqueousCorrection, MITAqueousCompatibility, MaterialsProjectAqueousCompatibility, \
-    CompatibilityError
+    CompatibilityError, MU_H2O
 from pymatgen.entries.computed_entries import ComputedEntry, \
     ComputedStructureEntry, ConstantEnergyAdjustment
 from pymatgen import Composition, Lattice, Structure, Element
@@ -55,7 +55,7 @@ def test_no_duplicate_corrections():
 def test_clean_arg():
     """
     clean=False should preserve existing corrections, clean=True should delete
-    them before processing
+    them before processing, except for manual corrections
     """
     entry = ComputedEntry("Fe2O3", -2, correction=-4)
     compat = DummyCompatibility()
@@ -64,7 +64,7 @@ def test_clean_arg():
     compat.process_entries(entry)
     assert entry.correction == -14
     compat.process_entries(entry, clean=True)
-    assert entry.correction == -10
+    assert entry.correction == -14
 
 
 def test_energy_adjustment_normalize():
@@ -774,7 +774,7 @@ class TestMaterialsProjectAqueousCompatibility():
         o2_entry_1 = compat.process_entries(o2_entry_1)[0]
 
         h2o_form_e = 3 * h2o_entry_2.energy_per_atom - 2 * h2_entry_2.energy_per_atom - o2_entry_1.energy_per_atom
-        assert h2o_form_e == pytest.approx(compat.MU_H2O)
+        assert h2o_form_e == pytest.approx(MU_H2O)
 
     def test_MPAqeous_H_H2O_energy_no_args(self):
 
@@ -803,7 +803,7 @@ class TestMaterialsProjectAqueousCompatibility():
         assert h2_entries[0].energy_per_atom == pytest.approx(h2_entries[1].energy_per_atom)
 
         h2o_form_e = 3 * h2o_entries[1].energy_per_atom - 2 * h2_entries[0].energy_per_atom - o2_entry_1.energy_per_atom
-        assert h2o_form_e == pytest.approx(compat.MU_H2O)
+        assert h2o_form_e == pytest.approx(MU_H2O)
 
     def test_compound_entropy(self):
         compat = MaterialsProjectAqueousCompatibility(o2_energy=-10, h2o_energy=-20, h2o_adjustments=-0.5)
@@ -825,7 +825,7 @@ class TestMaterialsProjectAqueousCompatibility():
         hydrate_entry = compat.process_entries(hydrate_entry)[0]
         processed_energy = hydrate_entry.energy
 
-        assert initial_energy - processed_energy == pytest.approx(2*(compat.h2o_adjustments * 3 + compat.MU_H2O))
+        assert initial_energy - processed_energy == pytest.approx(2*(compat.h2o_adjustments * 3 + MU_H2O))
 
 
 class AqueousCorrectionTest(unittest.TestCase):
