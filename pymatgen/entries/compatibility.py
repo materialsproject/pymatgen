@@ -460,39 +460,48 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
 
         processed_entry_list = []
 
-        if clean:
-            for e in entries:
-                # remove any previously documented corrections from the entry
-                e.energy_adjustments = []
-
-        # apply the corrections
         for entry in entries:
+            # if clean is True, remove all previous adjustments, other than Manual adjustments, from the entry
+            if clean:
+                for ea in entry.energy_adjustments:
+                    if ea.__class__.__name__ == 'ManualEnergyAdjustment':
+                        pass
+                    else:
+                        entry.energy_adjustments.remove(ea)
+
+            # get the energy adjustments
             try:
                 adjustments = self.get_adjustments(entry)
+            except CompatibilityError as exc:
+                print(exc)
+                continue
+
+            try:
+                # apply the adjustment to the entry, ensuring there are no duplicates
                 for ea in adjustments:
                     # Has this correction already been applied?
-                    if ea.name in [e.name for e in entry.energy_adjustments]:
-                        if ea.value in [e.value for e in entry.energy_adjustments]:
-                            # we already applied this exact correction. Do nothing.
-                            pass
-                        else:
-                            # we already applied a correction with the same name
-                            # but a different value. Something is wrong.
-                            raise CompatibilityError("Entry {} already has an energy "
-                                                     "adjustment called {}, but its "
-                                                     "value differs from the value of"
-                                                     "{:.3f} calculated here. This "
-                                                     "Entry will be discarded."
-                                                     .format(entry.entry_id,
-                                                             ea.name,
-                                                             ea.value
-                                                             )
-                                                     )
+                    if (ea.name, ea.cls, ea.value) in [(ea.name, ea.cls, ea.value) for ea in entry.energy_adjustments]:
+                        # we already applied this exact correction. Do nothing.
+                        pass
+                    elif (ea.name, ea.cls) in [(ea.name, ea.cls) for ea in entry.energy_adjustments]:
+                        # we already applied a correction with the same name
+                        # but a different value. Something is wrong.
+                        raise CompatibilityError("Entry {} already has an energy "
+                                                 "adjustment called {}, but its "
+                                                 "value differs from the value of"
+                                                 "{:.3f} calculated here. This "
+                                                 "Entry will be discarded."
+                                                 .format(entry.entry_id,
+                                                         ea.name,
+                                                         ea.value
+                                                         )
+                                                 )
                     else:
                         # Add the correction to the energy_adjustments list
                         entry.energy_adjustments.append(ea)
 
                 processed_entry_list.append(entry)
+
             except CompatibilityError as exc:
                 print(exc)
                 continue
@@ -852,105 +861,105 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
                                      "to {}.__init__ or run process_entries on a list that includes ComputedEntry for "
                                      "the ground state of O2 and H2O.".format(type(self).__name__, type(self).__name__))
 
-            # compute the free energies of H2 and H2O (eV/atom) to guarantee that the
-            # formationfree energy of H2O is equal to -2.4583 eV/H2O from experiments
-            # (MU_H2O from pourbaix module)
+        # compute the free energies of H2 and H2O (eV/atom) to guarantee that the
+        # formationfree energy of H2O is equal to -2.4583 eV/H2O from experiments
+        # (MU_H2O from pourbaix module)
 
-            # Free energy of H2 in eV/atom, fitted using Eq. 40 of Persson et al. PRB 2012 85(23)
-            # for this calculation ONLY, we need the DFT energy of water
-            # The purpose of the DFT water here is to characterize the energy scale of the DFT functional used 
-            # (the difference between O2 and H2O within a specific pseudopotential). Hence, the uncorrected energy
-            # should be used.
-            self.h2_energy = round(
-                0.5 * (3 * (self.h2o_energy - self.h2o_adjustments - self.cpd_entropies["H2O"]) -
-                       (self.o2_energy - self.cpd_entropies["O2"]) -
+        # Free energy of H2 in eV/atom, fitted using Eq. 40 of Persson et al. PRB 2012 85(23)
+        # for this calculation ONLY, we need the DFT energy of water
+        # The purpose of the DFT water here is to characterize the energy scale of the DFT functional used 
+        # (the difference between O2 and H2O within a specific pseudopotential). Hence, the uncorrected energy
+        # should be used.
+        self.h2_energy = round(
+            0.5 * (3 * (self.h2o_energy - self.h2o_adjustments - self.cpd_entropies["H2O"]) -
+                   (self.o2_energy - self.cpd_entropies["O2"]) -
                    MU_H2O
-                       ), 6
-            )
+                   ), 6
+        )
 
-            # Free energy of H2O, fitted for consistency with the O2 and H2 energies.
-            self.fit_h2o_energy = round((2 * self.h2_energy +
-                                        (self.o2_energy - self.cpd_entropies["O2"]) +
+        # Free energy of H2O, fitted for consistency with the O2 and H2 energies.
+        self.fit_h2o_energy = round((2 * self.h2_energy +
+                                    (self.o2_energy - self.cpd_entropies["O2"]) +
                                     MU_H2O
-                                         ) / 3,
-                                        6
-                                        )
+                                     ) / 3,
+                                    6
+                                    )
 
-            comp = entry.composition
-            rform = comp.reduced_formula
+        comp = entry.composition
+        rform = comp.reduced_formula
 
-            # pin the energy of all H2 entries to h2_energy
-            if rform == "H2":
-                adjustments.append(
-                    ConstantEnergyAdjustment(self.h2_energy * comp.num_atoms - entry.energy,
-                                             name="MP Aqueous H2 / H2O referencing",
-                                             cls=self.as_dict(),
-                                             description="Adjusts the H2 and H2O energy to reproduce the experimental "
-                                                         "Gibbs formation free energy of H2O, based on the DFT energy "
-                                                         "of Oxygen"
-                                             ))
-
-            # pin the energy of all H2O entries to fit_h2o_energy
-            elif rform == "H2O":
-                adjustments.append(
-                    ConstantEnergyAdjustment(self.fit_h2o_energy * comp.num_atoms - entry.energy,
-                                             name="MP Aqueous H2 / H2O referencing",
-                                             cls=self.as_dict(),
-                                             description="Adjusts the H2 and H2O energy to reproduce the experimental "
-                                                         "Gibbs formation free energy of H2O, based on the DFT energy "
-                                                         "of Oxygen"
-                                             ))
-
-            # add minus T delta S to the DFT energy (enthalpy) of compounds that are
-            # molecular-like at room temperature
-            elif rform in self.cpd_entropies and rform != "H2O":
-                adjustments.append(
-                    TempEnergyAdjustment(-1 * self.cpd_entropies[rform] / 298, 298,
-                                         comp.num_atoms,
-                                         name="Compound entropy at room temperature",
+        # pin the energy of all H2 entries to h2_energy
+        if rform == "H2":
+            adjustments.append(
+                ConstantEnergyAdjustment(self.h2_energy * comp.num_atoms - entry.energy,
+                                         name="MP Aqueous H2 / H2O referencing",
                                          cls=self.as_dict(),
-                                         description="Adds the entropy (T delta S) to energies of compounds that "
-                                                     "are gaseous or liquid at standard state"
+                                         description="Adjusts the H2 and H2O energy to reproduce the experimental "
+                                                     "Gibbs formation free energy of H2O, based on the DFT energy "
+                                                     "of Oxygen"
                                          ))
 
-            # TODO - detection of embedded water molecules is not very sophisticated
-            # Should be replaced with some kind of actual structure detection
+        # pin the energy of all H2O entries to fit_h2o_energy
+        elif rform == "H2O":
+            adjustments.append(
+                ConstantEnergyAdjustment(self.fit_h2o_energy * comp.num_atoms - entry.energy,
+                                         name="MP Aqueous H2 / H2O referencing",
+                                         cls=self.as_dict(),
+                                         description="Adjusts the H2 and H2O energy to reproduce the experimental "
+                                                     "Gibbs formation free energy of H2O, based on the DFT energy "
+                                                     "of Oxygen"
+                                         ))
 
-            # For any compound except water, check to see if it is a hydrate (contains)
-            # H2O in its structure. If so, adjust the energy to remove MU_H2O ev per
-            # embedded water molecule.
-            # in other words, we assume that the DFT energy of such a compound is really
-            # a superposition of the "real" solid DFT energy (FeO in this case) and the free
-            # energy of some water molecules
-            # e.g. that E_FeO.nH2O = E_FeO + n * g_H2O
-            # so, to get the most accurate gibbs free energy, we want to replace
-            # g_FeO.nH2O = E_FeO.nH2O + dE_Fe + (n+1) * dE_O + 2n dE_H
-            # with
-            # g_FeO = E_FeO.nH2O + dE_Fe + dE_O + n g_H2O
-            # where E is DFT energy, dE is an energy correction, and g is gibbs free energy
-            # This means we have to 1) remove energy corrections associated with H and O in water
-            # and then 2) remove the free energy of the water molecules
-            if not rform == "H2O":
-                # count the number of whole water molecules in the composition
-                nH2O = int(min(comp["H"] / 2.0, comp["O"]))
-                if nH2O > 0:
-                    # first, remove any H or O corrections already applied to H2O in the
-                    # formation energy so that we don't double count them
-                    # next, remove MU_H2O for each water molecule present
+        # add minus T delta S to the DFT energy (enthalpy) of compounds that are
+        # molecular-like at room temperature
+        elif rform in self.cpd_entropies and rform != "H2O":
+            adjustments.append(
+                TempEnergyAdjustment(-1 * self.cpd_entropies[rform] / 298, 298,
+                                     comp.num_atoms,
+                                     name="Compound entropy at room temperature",
+                                     cls=self.as_dict(),
+                                     description="Adds the entropy (T delta S) to energies of compounds that "
+                                                 "are gaseous or liquid at standard state"
+                                     ))
+
+        # TODO - detection of embedded water molecules is not very sophisticated
+        # Should be replaced with some kind of actual structure detection
+
+        # For any compound except water, check to see if it is a hydrate (contains)
+        # H2O in its structure. If so, adjust the energy to remove MU_H2O ev per
+        # embedded water molecule.
+        # in other words, we assume that the DFT energy of such a compound is really
+        # a superposition of the "real" solid DFT energy (FeO in this case) and the free
+        # energy of some water molecules
+        # e.g. that E_FeO.nH2O = E_FeO + n * g_H2O
+        # so, to get the most accurate gibbs free energy, we want to replace
+        # g_FeO.nH2O = E_FeO.nH2O + dE_Fe + (n+1) * dE_O + 2n dE_H
+        # with
+        # g_FeO = E_FeO.nH2O + dE_Fe + dE_O + n g_H2O
+        # where E is DFT energy, dE is an energy correction, and g is gibbs free energy
+        # This means we have to 1) remove energy corrections associated with H and O in water
+        # and then 2) remove the free energy of the water molecules
+        if not rform == "H2O":
+            # count the number of whole water molecules in the composition
+            nH2O = int(min(comp["H"] / 2.0, comp["O"]))
+            if nH2O > 0:
+                # first, remove any H or O corrections already applied to H2O in the
+                # formation energy so that we don't double count them
+                # next, remove MU_H2O for each water molecule present
                 hydrate_adjustment = -1 * (self.h2o_adjustments * 3 + MU_H2O)
 
-                    adjustments.append(
-                        CompositionEnergyAdjustment(
-                            hydrate_adjustment,
-                            nH2O,
-                            name="MP Aqueous hydrate",
-                            cls=self.as_dict(),
-                            description="Adjust the energy of solid hydrate compounds (compounds "
-                                        "containing H2O molecules in their structure) so that the "
-                                        "free energies of embedded H2O molecules match the experimental"
-                                        " value enforced by the MP Aqueous energy referencing scheme."
-                            )
-                    )
+                adjustments.append(
+                    CompositionEnergyAdjustment(
+                        hydrate_adjustment,
+                        nH2O,
+                        name="MP Aqueous hydrate",
+                        cls=self.as_dict(),
+                        description="Adjust the energy of solid hydrate compounds (compounds "
+                                    "containing H2O molecules in their structure) so that the "
+                                    "free energies of embedded H2O molecules match the experimental"
+                                    " value enforced by the MP Aqueous energy referencing scheme."
+                        )
+                )
 
         return adjustments
 
