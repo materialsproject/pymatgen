@@ -797,7 +797,9 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         85 (2012) 1–12. doi:10.1103/PhysRevB.85.235438.
     """
 
-    def __init__(self, o2_energy: Optional[float] = None,
+    def __init__(self, 
+                 solid_compat: Optional[Compatibility] = None,
+                 o2_energy: Optional[float] = None,
                  h2o_energy: Optional[float] = None,
                  h2o_adjustments: Optional[float] = None):
         """
@@ -809,13 +811,19 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         passed to process_entries. process_entries will fail if one or the other is not provided.
 
         Args:
+            solid_compat: Compatiblity scheme used to pre-process solid DFT energies prior to applying aqueous
+                energy adjustments. Default: MaterialsProjectCompatibility.
             o2_energy: The ground-state DFT energy of oxygen gas, including any adjustments or corrections, in eV/atom.
+                If not set, this value will be determined from any O2 entries passed to process_entries. 
                 Default: None
             h2o_energy: The ground-state DFT energy of water, including any adjstments or corrections, in eV/atom.
+                If not set, this value will be determined from any H2O entries passed to process_entries.
                 Default: None
             h2o_adjustments: Total energy adjustments applied to one water molecule, in eV/atom.
+                If not set, this value will be determined from any H2O entries passed to process_entries.
                 Default: None
         """
+        self.solid_compat = solid_compat
         self.o2_energy = o2_energy
         self.h2o_energy = h2o_energy
         self.h2o_adjustments = h2o_adjustments
@@ -823,8 +831,8 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         if not all([self.o2_energy, self.h2o_energy, self.h2o_adjustments]):
             warnings.warn("You did not provide the required O2 and H2O energies. {} "
                           "needs these energies in order to compute the appropriate energy adjustments. It will try "
-                          "to infer the values from ComputedEntry for O2 and H2O passed to process_entries, but will "
-                          "fail if these entries are not provided.".format(type(self).__name__))
+                          "to determine the values from ComputedEntry for O2 and H2O passed to process_entries, but "
+                          "will fail if these entries are not provided.".format(type(self).__name__))
 
         # Standard state entropy of molecular-like compounds at 298K (-T delta S)
         # from Kubaschewski Tables (eV/atom)
@@ -980,6 +988,10 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         # convert input arg to a list if not already
         if isinstance(entries, ComputedEntry):
             entries = [entries]
+
+        # pre-process entries with the given solid compatibility class
+        if self.solid_compat:
+            entries = self.solid_compat.process_entries(entries, clean=True)
 
         # extract the DFT energies of oxygen and water from the list of entries, if present
         if not self.o2_energy:
