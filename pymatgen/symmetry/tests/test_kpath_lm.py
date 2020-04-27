@@ -51,7 +51,7 @@ class KPathLatimerMunroTest(PymatgenTest):
             struct = Structure.from_spacegroup(sg_num, lattice, species, coords)
             kpath = KPathLatimerMunro(struct)  # Throws error if something doesn't work, causing test to fail.
 
-        sstruct_file_path = os.path.join(test_dir_structs, "AgO_kpath_test.cif")
+        struct_file_path = os.path.join(test_dir_structs, "AgO_kpath_test.cif")
         struct = Structure.from_file(struct_file_path)
         kpath = KPathLatimerMunro(struct)  # Throws error if something doesn't work, causing test to fail.
 
