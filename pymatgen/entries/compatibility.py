@@ -852,7 +852,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
                                      "the appropriate energy adjustments. Either specify the energies as arguments "
                                      "to {}.__init__ or run process_entries on a list that includes ComputedEntry for "
                                      "the ground state of O2 and H2O.".format(type(self).__name__, type(self).__name__))
-        
+
         else:
             # compute the free energies of H2 and H2O (eV/atom) to guarantee that the
             # formationfree energy of H2O is equal to -2.4583 eV/H2O from experiments

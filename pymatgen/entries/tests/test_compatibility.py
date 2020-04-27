@@ -133,7 +133,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
                         'hubbards': {},
                         'potcar_symbols': ['PBE H'],
                         'oxide_type': 'None'})
-        
+
         self.entry2 = ComputedEntry(
             'Fe3O4', -2, 0.0,
             parameters={'is_hubbard': True, 'hubbards': {'Fe': 5.3, 'O': 0},
