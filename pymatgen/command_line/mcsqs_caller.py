@@ -6,7 +6,7 @@ https://www.brown.edu/Departments/Engineering/Labs/avdw/atat/
 import os
 import warnings
 from subprocess import Popen, TimeoutExpired
-from typing import Dict, Union, List, NamedTuple, Optional, Literal
+from typing import Dict, Union, List, NamedTuple, Optional
 from pathlib import Path
 
 from monty.dev import requires
@@ -22,7 +22,7 @@ class Sqs(NamedTuple):
     """
 
     bestsqs: Structure
-    objective_function: Union[float, Literal["Perfect_match"]]
+    objective_function: Union[float, str]
     allsqs: List
     directory: str
 
@@ -204,7 +204,7 @@ def _parse_sqs_path(path) -> Sqs:
         lines = f.readlines()
 
     objective_function_str = lines[-1].split("=")[-1].strip()
-    objective_function: Union[float, Literal["Perfect_match"]]
+    objective_function: Union[float, str]
     if objective_function_str != "Perfect_match":
         objective_function = float(objective_function_str)
     else:
@@ -226,7 +226,7 @@ def _parse_sqs_path(path) -> Sqs:
             lines = f.readlines()
 
         objective_function_str = lines[-1].split("=")[-1].strip()
-        obj: Union[float, Literal["Perfect_match"]]
+        obj: Union[float, str]
         if objective_function_str != "Perfect_match":
             obj = float(objective_function_str)
         else:
