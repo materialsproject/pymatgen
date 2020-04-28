@@ -5,7 +5,6 @@
 """
 Classes for reading/writing mcsqs files following the rndstr.in format.
 """
-import warnings
 
 import numpy as np
 from pymatgen.core.structure import Structure
@@ -55,7 +54,7 @@ class Mcsqs:
             for sp, occu in sorted(site.species.items()):
                 sp = str(sp)
                 if ("," in sp) or ("=" in sp):
-                    warnings.warn("Invalid species string for AT-AT input, try using a DummySpecie instead.")
+                    # Invalid species string for AT-AT input, so modify
                     sp = sp.replace(",", "__").replace("=", "___")
                 species_str.append("{}={}".format(sp, occu))
             species_str = ",".join(species_str)
@@ -132,19 +131,22 @@ class Mcsqs:
 
             species = {}
 
-            for species_str in species_strs:
-                species_str = species_str.split("=")
+            for species_occ in species_strs:
 
-                if "_" in species_str:
+                # gets a species, occupancy pair
+                species_occ = species_occ.split("=")
+
+                if len(species_occ) == 1:
+                    # assume occupancy is 1.0
+                    species_occ = [species_occ[0], 1.0]
+
+                if "_" in species_occ[0]:
                     # see to_string() method in this file, since , and = are not valid
                     # species names in AT-AT we replace "," with "__" and "=" with "___",
                     # for pymatgen to parse these back correctly we have to replace them back
-                    species_str = species_str.replace("___", "=").replace("__", ",")
+                    species_occ[0] = species_occ[0].replace("___", "=").replace("__", ",")
 
-                if len(species_str) == 1:
-                    # assume occupancy is 1.0
-                    species_str = [species_str[0], 1.0]
-                species[get_el_sp(species_str[0])] = float(species_str[1])
+                species[get_el_sp(species_occ[0])] = float(species_occ[1])
 
             all_species.append(species)
 
