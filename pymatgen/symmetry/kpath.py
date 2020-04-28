@@ -6,8 +6,6 @@
 Provides classes for generating high-symmetry k-paths using different conventions.
 """
 
-from __future__ import division, unicode_literals
-
 import abc
 from math import cos, sin, tan, e, pi, ceil
 import itertools
