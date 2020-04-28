@@ -1895,6 +1895,23 @@ class Outcar:
 
         self.electrostatic_potential = [float(f) for f in pots]
 
+    @staticmethod
+    def _parse_sci_notation(line):
+        """
+        Method to parse lines with values in scientific notation and potentially
+        without spaces in between the values. This assumes that the scientific
+        notation always lists two digits for the exponent, e.g. 3.535E-02
+        Args:
+            line: line to parse
+
+        Returns: an array of numbers if found, or empty array if not
+
+        """
+        m = re.findall(r"[\.\-\d]+E[\+\-]\d{2}", line)
+        if m:
+            return [float(t) for t in m]
+        return []
+
     def read_freq_dielectric(self):
         """
         Parses the frequency dependent dielectric function (obtained with
@@ -1927,6 +1944,9 @@ class Outcar:
                 if read_plasma and re.match(row_pattern, l):
                     plasma_frequencies[read_plasma].append(
                         [float(t) for t in l.strip().split()])
+                elif read_plasma and Outcar._parse_sci_notation(l):
+                    plasma_frequencies[read_plasma].append(
+                        Outcar._parse_sci_notation(l))
                 elif read_dielectric:
                     if re.match(row_pattern, l.strip()):
                         toks = l.strip().split()
