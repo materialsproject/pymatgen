@@ -5,6 +5,7 @@
 """
 Classes for reading/writing mcsqs files following the rndstr.in format.
 """
+import warnings
 
 import numpy as np
 from pymatgen.core.structure import Structure
@@ -52,8 +53,10 @@ class Mcsqs:
         for site in self.structure:
             species_str = []
             for sp, occu in sorted(site.species.items()):
-                if isinstance(sp, Specie):
-                    sp = sp.element
+                sp = str(sp)
+                if ("," in sp) or ("=" in sp):
+                    warnings.warn("Invalid species string for AT-AT input, try using a DummySpecie instead.")
+                    sp = sp.replace(",", "__").replace("=", "___")
                 species_str.append("{}={}".format(sp, occu))
             species_str = ",".join(species_str)
             output.append(
@@ -126,6 +129,12 @@ class Mcsqs:
             species_strs = "".join(l[3:])  # join multiple strings back together
             species_strs = species_strs.replace(" ", "")  # trim any white space
             species_strs = species_strs.split(",")  # comma-delimited
+
+            if "_" in species_str:
+                # see to_string() method in this file, since , and = are not valid
+                # species names in AT-AT we replace "," with "__" and "=" with "___",
+                # for pymatgen to parse these back correctly we have to replace them back
+                species_str = species_str.replace("___", "=").replace("__", ",")
 
             species = {}
 
