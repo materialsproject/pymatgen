@@ -34,6 +34,7 @@ from pymatgen.core.surface import get_symmetrically_equivalent_miller_indices
 
 from pymatgen.entries.computed_entries import ComputedEntry, \
     ComputedStructureEntry
+from pymatgen.entries.compatibility import MaterialsProjectCompatibility, MaterialsProjectAqueousCompatibility
 from pymatgen.entries.exp_entries import ExpEntry
 
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -465,7 +466,7 @@ class MPRester:
             entries = sorted(entries, key=lambda entry: entry.data["e_above_hull"])
         return entries
 
-    def get_pourbaix_entries(self, chemsys):
+    def get_pourbaix_entries(self, chemsys, solid_compat=MaterialsProjectCompatibility()):
         """
         A helper function to get all entries necessary to generate
         a pourbaix diagram from the rest interface.
@@ -473,12 +474,12 @@ class MPRester:
         Args:
             chemsys ([str]): A list of elements comprising the chemical
                 system, e.g. ['Li', 'Fe']
+            solid_compat: Compatiblity scheme used to pre-process solid DFT energies prior to applying aqueous
+                energy adjustments. Default: MaterialsProjectCompatibility().
         """
         from pymatgen.analysis.pourbaix_diagram import PourbaixEntry, IonEntry
         from pymatgen.analysis.phase_diagram import PhaseDiagram
         from pymatgen.core.ion import Ion
-        from pymatgen.entries.compatibility import \
-            MaterialsProjectCompatibility, MaterialsProjectAqueousCompatibility
 
         pbx_entries = []
 
@@ -493,22 +494,7 @@ class MPRester:
             list(set([str(e) for e in ion_ref_elts] + ['O', 'H'])),
             property_data=['e_above_hull'], compatible_only=False)
 
-        # # first correct solid DFT energies
-        # compat1 = MaterialsProjectCompatibility()
-        # ion_ref_entries = compat1.process_entries(ion_ref_entries)
-
-        # # then adjust them to Gibbs formation energies at room temp
-        # # extract the AqueousCompatibility fit parameters from the O2 and H2O entries in ion_ref_entries
-        # # extract the DFT energies of oxygen and water from the list of entries, if present
-        # o2_entries = [e for e in ion_ref_entries if e.composition.reduced_formula == 'O2']
-        # o2_energy = min(e.energy_per_atom for e in o2_entries)
-
-        # h2o_entries = [e for e in ion_ref_entries if e.composition.reduced_formula == 'H2O']
-        # h2o_entries = sorted(h2o_entries, key=lambda e: e.energy_per_atom)
-        # h2o_energy = h2o_entries[0].energy_per_atom
-        # h2o_adjustments = h2o_entries[0].correction / h2o_entries[0].composition.num_atoms
-
-        compat = MaterialsProjectAqueousCompatibility(solid_compat=MaterialsProjectCompatibility())
+        compat = MaterialsProjectAqueousCompatibility(solid_compat=solid_compat)
         ion_ref_entries = compat.process_entries(ion_ref_entries)
         ion_ref_pd = PhaseDiagram(ion_ref_entries)
 
