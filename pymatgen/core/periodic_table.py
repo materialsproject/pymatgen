@@ -3,7 +3,7 @@
 # Distributed under the terms of the MIT License.
 
 """Module contains classes presenting Element and Specie (Element + oxidation state) and PeriodicTable."""
-
+import ast
 import re
 import json
 import warnings
@@ -1190,15 +1190,36 @@ class Specie(MSONable):
         Raises:
             ValueError if species_string cannot be intepreted.
         """
-        m = re.search(r"([A-Z][a-z]*)([0-9.]*)([+\-])(.*)", species_string)
+
+        # e.g. Fe2+,spin=5
+        # 1st group: ([A-Z][a-z]*)    --> Fe
+        # 2nd group: ([0-9.]*)        --> "2"
+        # 3rd group: ([+\-])          --> +
+        # 4th group: (.*)             --> everything else, ",spin=5"
+
+        m = re.search(r"([A-Z][a-z]*)([0-9.]*)([+\-]*)(.*)", species_string)
         if m:
+
+            # parse symbol
             sym = m.group(1)
-            oxi = 1 if m.group(2) == "" else float(m.group(2))
-            oxi = -oxi if m.group(3) == "-" else oxi
+
+            # parse oxidation state (optional)
+            if not m.group(2) and not m.group(3):
+                oxi = None
+            else:
+                oxi = 1 if m.group(2) == "" else float(m.group(2))
+                oxi = -oxi if m.group(3) == "-" else oxi
+
+            # parse properties (optional)
             properties = None
             if m.group(4):
                 toks = m.group(4).replace(",", "").split("=")
-                properties = {toks[0]: float(toks[1])}
+                properties = {toks[0]: ast.literal_eval(toks[1])}
+
+            # but we need either an oxidation state or a property
+            if oxi is None and properties is None:
+                raise ValueError("Invalid Species String")
+
             return Specie(sym, oxi, properties)
         raise ValueError("Invalid Species String")
 
