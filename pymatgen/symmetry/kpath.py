@@ -2195,6 +2195,8 @@ class KPathLatimerMunro(KPathBase):
                         if max_cosine_orbits_copy[grouped_ind][j][0] not in initial_max_cosine_label_inds:
                             next_choices.append(max_cosine_orbits_copy[grouped_ind][j][1])
                             break
+                        else:
+                            j += 1
                 worst_next_choice = next_choices.index(min(next_choices))
                 for grouped_ind in grouped_inds[i]:
                     if grouped_ind != worst_next_choice:
