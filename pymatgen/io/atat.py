@@ -130,16 +130,17 @@ class Mcsqs:
             species_strs = species_strs.replace(" ", "")  # trim any white space
             species_strs = species_strs.split(",")  # comma-delimited
 
-            if "_" in species_str:
-                # see to_string() method in this file, since , and = are not valid
-                # species names in AT-AT we replace "," with "__" and "=" with "___",
-                # for pymatgen to parse these back correctly we have to replace them back
-                species_str = species_str.replace("___", "=").replace("__", ",")
-
             species = {}
 
             for species_str in species_strs:
                 species_str = species_str.split("=")
+
+                if "_" in species_str:
+                    # see to_string() method in this file, since , and = are not valid
+                    # species names in AT-AT we replace "," with "__" and "=" with "___",
+                    # for pymatgen to parse these back correctly we have to replace them back
+                    species_str = species_str.replace("___", "=").replace("__", ",")
+
                 if len(species_str) == 1:
                     # assume occupancy is 1.0
                     species_str = [species_str[0], 1.0]
