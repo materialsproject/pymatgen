@@ -494,7 +494,11 @@ class MPRester:
             list(set([str(e) for e in ion_ref_elts] + ['O', 'H'])),
             property_data=['e_above_hull'], compatible_only=False)
 
-        compat = MaterialsProjectAqueousCompatibility(solid_compat=solid_compat)
+        # suppress the warning about supplying the required energies; they will be calculated from the
+        # entries we get from MPRester
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", message="You did not provide the required O2 and H2O energies.")
+            compat = MaterialsProjectAqueousCompatibility(solid_compat=solid_compat)
         ion_ref_entries = compat.process_entries(ion_ref_entries)
         ion_ref_pd = PhaseDiagram(ion_ref_entries)
 
