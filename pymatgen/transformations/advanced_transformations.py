@@ -1511,9 +1511,9 @@ class GrainBoundaryTransformation(AbstractTransformation):
         rotation_angle,
         expand_times=4,
         vacuum_thickness=0.0,
-        ab_shift=[0, 0],
+        ab_shift=None,
         normal=False,
-        ratio=None,
+        ratio=True,
         plane=None,
         max_search=20,
         tol_coi=1.0e-8,
@@ -1542,19 +1542,19 @@ class GrainBoundaryTransformation(AbstractTransformation):
                 determine if need to require the c axis of top grain (first transformation matrix)
                 perperdicular to the surface or not.
                 default to false.
-            ratio (list of integers):
-                    lattice axial ratio.
-                    For cubic system, ratio is not needed.
-                    For tetragonal system, ratio = [mu, mv], list of two integers,
-                    that is, mu/mv = c2/a2. If it is irrational, set it to none.
-                    For orthorhombic system, ratio = [mu, lam, mv], list of three integers,
+            ratio (list of integers): lattice axial ratio.
+                If True, will try to determine automatically from structure.
+                For cubic system, ratio is not needed and can be set to None.
+                For tetragonal system, ratio = [mu, mv], list of two integers,
+                that is, mu/mv = c2/a2. If it is irrational, set it to None.
+                For orthorhombic system, ratio = [mu, lam, mv], list of three integers,
                     that is, mu:lam:mv = c2:b2:a2. If irrational for one axis, set it to None.
-                    e.g. mu:lam:mv = c2,None,a2, means b2 is irrational.
-                    For rhombohedral system, ratio = [mu, mv], list of two integers,
-                    that is, mu/mv is the ratio of (1+2*cos(alpha))/cos(alpha).
-                    If irrational, set it to None.
-                    For hexagonal system, ratio = [mu, mv], list of two integers,
-                    that is, mu/mv = c2/a2. If it is irrational, set it to none.
+                e.g. mu:lam:mv = c2,None,a2, means b2 is irrational.
+                For rhombohedral system, ratio = [mu, mv], list of two integers,
+                that is, mu/mv is the ratio of (1+2*cos(alpha))/cos(alpha).
+                If irrational, set it to None.
+                For hexagonal system, ratio = [mu, mv], list of two integers,
+                that is, mu/mv = c2/a2. If it is irrational, set it to none.
             plane (list): Grain boundary plane in the form of a list of integers
                 e.g.: [1, 2, 3]. If none, we set it as twist GB. The plane will be perpendicular
                 to the rotation axis.
@@ -1579,7 +1579,7 @@ class GrainBoundaryTransformation(AbstractTransformation):
         self.rotation_angle = rotation_angle
         self.expand_times = expand_times
         self.vacuum_thickness = vacuum_thickness
-        self.ab_shift = ab_shift
+        self.ab_shift = ab_shift or [0, 0]
         self.normal = normal
         self.ratio = ratio
         self.plane = plane
@@ -1603,16 +1603,16 @@ class GrainBoundaryTransformation(AbstractTransformation):
         gb_struct = gbg.gb_from_parameters(
             self.rotation_axis,
             self.rotation_angle,
-            self.expand_times,
-            self.vacuum_thickness,
-            self.ab_shift,
-            self.normal,
-            self.ratio,
-            self.plane,
-            self.max_search,
-            self.tol_coi,
-            self.rm_ratio,
-            self.quick_gen,
+            expand_times=self.expand_times,
+            vacuum_thickness=self.vacuum_thickness,
+            ab_shift=self.ab_shift,
+            normal=self.normal,
+            ratio=gbg.get_ratio() if self.ratio is True else self.ratio,
+            plane=self.plane,
+            max_search=self.max_search,
+            tol_coi=self.tol_coi,
+            rm_ratio=self.rm_ratio,
+            quick_gen=self.quick_gen,
         )
         return gb_struct
 

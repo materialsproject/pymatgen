@@ -6,8 +6,6 @@ Provides a class for interacting with KPath classes to
 generate high-symmetry k-paths using different conventions.
 """
 
-from __future__ import division, unicode_literals
-
 import itertools
 import numpy as np
 import networkx as nx
