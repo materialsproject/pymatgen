@@ -922,6 +922,25 @@ class Vasprun(MSONable):
 
         return potcar
 
+    def get_trajectory(self):
+        """
+        This method returns a Trajectory object, which is an alternative
+        representation of self.structures into a single object. Forces are
+        added to the Trajectory as site properties.
+
+        Returns: a Trajectory
+        """
+        # required due to circular imports
+        # TODO: fix pymatgen.core.trajectory so it does not load from io.vasp(!)
+        from pymatgen.core.trajectory import Trajectory
+
+        structs = []
+        for step in self.ionic_steps:
+            struct = step['structure'].copy()
+            struct.add_site_property('forces', step['forces'])
+            structs.append(struct)
+        return Trajectory.from_structures(structs, constant_lattice=False)
+
     def update_potcar_spec(self, path):
         """
         :param path: Path to search for POTCARs
@@ -1876,6 +1895,23 @@ class Outcar:
 
         self.electrostatic_potential = [float(f) for f in pots]
 
+    @staticmethod
+    def _parse_sci_notation(line):
+        """
+        Method to parse lines with values in scientific notation and potentially
+        without spaces in between the values. This assumes that the scientific
+        notation always lists two digits for the exponent, e.g. 3.535E-02
+        Args:
+            line: line to parse
+
+        Returns: an array of numbers if found, or empty array if not
+
+        """
+        m = re.findall(r"[\.\-\d]+E[\+\-]\d{2}", line)
+        if m:
+            return [float(t) for t in m]
+        return []
+
     def read_freq_dielectric(self):
         """
         Parses the frequency dependent dielectric function (obtained with
@@ -1908,6 +1944,9 @@ class Outcar:
                 if read_plasma and re.match(row_pattern, l):
                     plasma_frequencies[read_plasma].append(
                         [float(t) for t in l.strip().split()])
+                elif read_plasma and Outcar._parse_sci_notation(l):
+                    plasma_frequencies[read_plasma].append(
+                        Outcar._parse_sci_notation(l))
                 elif read_dielectric:
                     if re.match(row_pattern, l.strip()):
                         toks = l.strip().split()
