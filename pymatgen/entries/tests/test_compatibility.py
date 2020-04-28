@@ -55,7 +55,7 @@ def test_no_duplicate_corrections():
 def test_clean_arg():
     """
     clean=False should preserve existing corrections, clean=True should delete
-    them before processing, except for manual corrections
+    them before processing
     """
     entry = ComputedEntry("Fe2O3", -2, correction=-4)
     compat = DummyCompatibility()
@@ -64,7 +64,7 @@ def test_clean_arg():
     compat.process_entries(entry)
     assert entry.correction == -14
     compat.process_entries(entry, clean=True)
-    assert entry.correction == -14
+    assert entry.correction == -10
 
 
 def test_energy_adjustment_normalize():
@@ -84,7 +84,7 @@ def test_energy_adjustment_normalize():
             assert ea.value == -5
 
 
-def test_overlapping_adjustments(capsys):
+def test_overlapping_adjustments():
     """
     Compatibility should raise a CompatibilityError if there is already a
     correction with the same name, but a different value, and process_entries
@@ -96,11 +96,10 @@ def test_overlapping_adjustments(capsys):
 
     assert entry.correction == -5
 
-    # in case of CompatibilityError, pytest catches and prints the message
-    # use pytest to capture and read stdout for this test
-    processed = compat.process_entries(entry)
-    captured = capsys.readouterr()
-    assert "already has an energy adjustment called Dummy" in captured.out
+    # in case of a collision between EnergyAdjustment, check for a UserWarning
+    with pytest.warns(UserWarning, match="already has an energy adjustment called Dummy"):
+        processed = compat.process_entries(entry)
+
     assert len(processed) == 0
 
 

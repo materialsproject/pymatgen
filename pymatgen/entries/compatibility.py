@@ -461,50 +461,43 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
         processed_entry_list = []
 
         for entry in entries:
+            ignore_entry = False
             # if clean is True, remove all previous adjustments, other than Manual adjustments, from the entry
             if clean:
                 for ea in entry.energy_adjustments:
-                    if ea.__class__.__name__ == 'ManualEnergyAdjustment':
-                        pass
-                    else:
-                        entry.energy_adjustments.remove(ea)
+                    entry.energy_adjustments.remove(ea)
 
             # get the energy adjustments
             try:
                 adjustments = self.get_adjustments(entry)
             except CompatibilityError as exc:
+                ignore_entry = True
                 print(exc)
                 continue
 
-            try:
-                # apply the adjustment to the entry, ensuring there are no duplicates
-                for ea in adjustments:
-                    # Has this correction already been applied?
-                    if (ea.name, ea.cls, ea.value) in [(ea.name, ea.cls, ea.value) for ea in entry.energy_adjustments]:
-                        # we already applied this exact correction. Do nothing.
-                        pass
-                    elif (ea.name, ea.cls) in [(ea.name, ea.cls) for ea in entry.energy_adjustments]:
-                        # we already applied a correction with the same name
-                        # but a different value. Something is wrong.
-                        raise CompatibilityError("Entry {} already has an energy "
-                                                 "adjustment called {}, but its "
-                                                 "value differs from the value of"
-                                                 "{:.3f} calculated here. This "
-                                                 "Entry will be discarded."
-                                                 .format(entry.entry_id,
-                                                         ea.name,
-                                                         ea.value
-                                                         )
-                                                 )
-                    else:
-                        # Add the correction to the energy_adjustments list
-                        entry.energy_adjustments.append(ea)
+            for ea in adjustments:
+                # Has this correction already been applied?
+                if (ea.name, ea.cls, ea.value) in [(ea.name, ea.cls, ea.value) for ea in entry.energy_adjustments]:
+                    # we already applied this exact correction. Do nothing.
+                    pass
+                elif (ea.name, ea.cls) in [(ea.name, ea.cls) for ea in entry.energy_adjustments]:
+                    # we already applied a correction with the same name
+                    # but a different value. Something is wrong.
+                    ignore_entry = True
+                    warnings.warn("Entry {} already has an energy adjustment called {}, but its "
+                                  "value differs from the value of {:.3f} calculated here. This "
+                                  "Entry will be discarded."
+                                  .format(entry.entry_id,
+                                          ea.name,
+                                          ea.value
+                                          )
+                                  )
+                else:
+                    # Add the correction to the energy_adjustments list
+                    entry.energy_adjustments.append(ea)
 
+            if not ignore_entry:
                 processed_entry_list.append(entry)
-
-            except CompatibilityError as exc:
-                print(exc)
-                continue
 
         return processed_entry_list
 
