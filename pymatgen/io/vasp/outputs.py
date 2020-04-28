@@ -1895,7 +1895,6 @@ class Outcar:
 
         self.electrostatic_potential = [float(f) for f in pots]
 
-
     @staticmethod
     def _parse_sci_notation(line):
         """
@@ -1912,7 +1911,6 @@ class Outcar:
         if m:
             return [float(t) for t in m]
         return []
-
 
     def read_freq_dielectric(self):
         """
