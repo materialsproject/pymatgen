@@ -14,3 +14,4 @@ networkx==2.4
 dataclasses>=0.6; python_version < '3.7'
 plotly==4.5.0
 beautifulsoup4==4.8.2
+typing-extensions==3.7.4.2 
