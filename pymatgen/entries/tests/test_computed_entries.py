@@ -23,7 +23,7 @@ vasprun = Vasprun(filepath)
 def testEnergyAdjustment():
     ea = EnergyAdjustment(10)
     assert ea.name == "Manual adjustment"
-    assert ea.cls == "None"
+    assert ea.cls == {}
     assert ea.description == ""
     ead = ea.as_dict()
     ea2 = EnergyAdjustment.from_dict(ead)
