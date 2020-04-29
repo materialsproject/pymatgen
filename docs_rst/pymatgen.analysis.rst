@@ -22,7 +22,6 @@ Submodules
 .. toctree::
 
    pymatgen.analysis.adsorption
-   pymatgen.analysis.aflow_prototypes
    pymatgen.analysis.bond_dissociation
    pymatgen.analysis.bond_valence
    pymatgen.analysis.cost
@@ -48,6 +47,7 @@ Submodules
    pymatgen.analysis.piezo
    pymatgen.analysis.piezo_sensitivity
    pymatgen.analysis.pourbaix_diagram
+   pymatgen.analysis.prototypes
    pymatgen.analysis.quasiharmonic
    pymatgen.analysis.reaction_calculator
    pymatgen.analysis.structure_analyzer
