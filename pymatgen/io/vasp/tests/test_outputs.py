@@ -234,7 +234,7 @@ class VasprunTest(PymatgenTest):
 
         entry = vasprun_dfpt.get_computed_entry()
         entry = MaterialsProjectCompatibility(
-            check_potcar_hash=False).process_entry(entry)
+            check_potcar_hash=False)._process_entry(entry)
         self.assertAlmostEqual(entry.uncorrected_energy + entry.correction,
                                entry.energy)
 

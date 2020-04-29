@@ -38,6 +38,7 @@ from pymatgen.core.periodic_table import Element
 from pymatgen.core.composition import Composition
 from pymatgen.core.ion import Ion
 from pymatgen.entries.computed_entries import ComputedEntry
+from pymatgen.entries.compatibility import MU_H2O
 from pymatgen.analysis.reaction_calculator import Reaction, ReactionError
 from pymatgen.analysis.phase_diagram import PhaseDiagram, PDEntry
 from tqdm import tqdm
@@ -53,7 +54,6 @@ __date__ = "Nov 1, 2012"
 
 logger = logging.getLogger(__name__)
 
-MU_H2O = -2.4583  # experimental free energy of formation of water, eV/H2O
 PREFAC = 0.0591
 
 
