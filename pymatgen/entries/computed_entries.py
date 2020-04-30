@@ -42,8 +42,7 @@ class EnergyAdjustment(MSONable):
             uncertainty: float, uncertaint of the energy adjustment in eV. Default: np.nan
             name: str, human-readable name of the energy adjustment.
                 (Default: Manual adjustment)
-            cls: dict, Serialized Compatibility class used to generate the
-                energy adjustment. (Default: None)
+            cls: dict, Serialized Compatibility class used to generate the energy adjustment. (Default: None)
             description: str, human-readable explanation of the energy adjustment.
         """
         self.name = name
@@ -95,8 +94,7 @@ class ConstantEnergyAdjustment(EnergyAdjustment):
             value: float, value of the energy adjustment in eV
             name: str, human-readable name of the energy adjustment.
                 (Default: Constant energy adjustment)
-            cls: dict, Serialized Compatibility class used to generate the
-                energy adjustment. (Default: None)
+            cls: dict, Serialized Compatibility class used to generate the energy adjustment. (Default: None)
             description: str, human-readable explanation of the energy adjustment.
         """
         description = description + " ({:.3f} eV)".format(value)
@@ -326,6 +324,20 @@ class ComputedEntry(Entry):
             [ufloat(ea.value, ea.uncertainty) for ea in self.energy_adjustments]
         )
         return unc.std_dev
+
+    @property
+    def correction(self) -> float:
+        """
+        Returns:
+            float: the total energy correction / adjustment applied to the entry,
+                in eV.
+        """
+        return sum([e.value for e in self.energy_adjustments])
+
+    @correction.setter
+    def correction(self, x: float) -> None:
+        corr = ManualEnergyAdjustment(x)
+        self.energy_adjustments = [corr]
 
     def normalize(self, mode: str = "formula_unit") -> None:
         """

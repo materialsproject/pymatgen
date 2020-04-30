@@ -179,6 +179,15 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
                         'potcar_symbols': ['PBE H'],
                         'oxide_type': 'None'})
 
+        self.entry4 = ComputedEntry(
+            'H8', -27.1, 0.0,
+            parameters={'run_type': 'None or LDA+rVV10',
+                        'is_hubbard': False,
+                        'pseudo_potential': {'functional': 'PBE', 'labels': ['H'], 'pot_type': 'paw'},
+                        'hubbards': {},
+                        'potcar_symbols': ['PBE H'],
+                        'oxide_type': 'None'})
+
         self.entry2 = ComputedEntry(
             "Fe3O4",
             -2,
@@ -902,73 +911,40 @@ class MITCompatibilityTest(unittest.TestCase):
 
         # MIT should not have a U value for Ni containing sulfides
         entry = ComputedEntry(
-            "NiS2",
-            -2,
-            0.0,
-            parameters={
-                "is_hubbard": True,
-                "hubbards": {"Ni": 1.9, "S": 0},
-                "run_type": "GGA+U",
-                "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Ni 06Sep2000",
-                        "hash": "653f5772e68b2c7fd87ffd1086c0d710",
-                    },
-                    {
-                        "titel": "PAW_PBE S 08Apr2002",
-                        "hash": "d368db6899d8839859bbee4811a42a88",
-                    },
-                ],
-            },
-        )
+            'NiS2', -2, 0.0,
+            parameters={'is_hubbard': True,
+                        'hubbards': {'Ni': 1.9, 'S': 0},
+                        'run_type': 'GGA+U',
+                        'potcar_spec': [{'titel': 'PAW_PBE Ni 06Sep2000',
+                                         'hash': '653f5772e68b2c7fd87ffd1086c0d710'},
+                                        {'titel': 'PAW_PBE S 08Apr2002',
+                                         'hash': 'd368db6899d8839859bbee4811a42a88'}]})
 
         self.assertIsNone(self.compat._process_entry(entry))
 
         entry = ComputedEntry(
-            "NiS2",
-            -2,
-            0.0,
-            parameters={
-                "is_hubbard": True,
-                "hubbards": None,
-                "run_type": "GGA",
-                "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Ni 06Sep2000",
-                        "hash": "653f5772e68b2c7fd87ffd1086c0d710",
-                    },
-                    {
-                        "titel": "PAW_PBE S 08Apr2002",
-                        "hash": "d368db6899d8839859bbee4811a42a88",
-                    },
-                ],
-            },
-        )
+            'NiS2', -2, 0.0,
+            parameters={'is_hubbard': True,
+                        'hubbards': None,
+                        'run_type': 'GGA',
+                        'potcar_spec': [{'titel': 'PAW_PBE Ni 06Sep2000',
+                                         'hash': '653f5772e68b2c7fd87ffd1086c0d710'},
+                                        {'titel': 'PAW_PBE S 08Apr2002',
+                                         'hash': 'd368db6899d8839859bbee4811a42a88'}]})
 
         self.assertIsNotNone(self.ggacompat._process_entry(entry))
 
     def test_wrong_U_value(self):
         # Wrong U value
         entry = ComputedEntry(
-            "Fe2O3",
-            -1,
-            0.0,
-            parameters={
-                "is_hubbard": True,
-                "hubbards": {"Fe": 5.2, "O": 0},
-                "run_type": "GGA+U",
-                "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Fe 06Sep2000",
-                        "hash": "9530da8244e4dac17580869b4adab115",
-                    },
-                    {
-                        "titel": "PAW_PBE O 08Apr2002",
-                        "hash": "7a25bc5b9a5393f46600a4939d357982",
-                    },
-                ],
-            },
-        )
+            'Fe2O3', -1, 0.0,
+            parameters={'is_hubbard': True,
+                        'hubbards': {'Fe': 5.2, 'O': 0},
+                        'run_type': 'GGA+U',
+                        'potcar_spec': [{'titel': 'PAW_PBE Fe 06Sep2000',
+                                         'hash': '9530da8244e4dac17580869b4adab115'},
+                                        {'titel': 'PAW_PBE O 08Apr2002',
+                                         'hash': '7a25bc5b9a5393f46600a4939d357982'}]})
 
         self.assertIsNone(self.compat._process_entry(entry))
 
@@ -1059,16 +1035,11 @@ class MITCompatibilityTest(unittest.TestCase):
         # Test that you can revert to potcar_symbols if potcar_spec is not present
         compat = MITCompatibility()
         entry = ComputedEntry(
-            "Fe2O3",
-            -1,
-            0.0,
-            parameters={
-                "is_hubbard": True,
-                "hubbards": {"Fe": 4.0, "O": 0},
-                "run_type": "GGA+U",
-                "potcar_symbols": ["PAW_PBE Fe 06Sep2000", "PAW_PBE O 08Apr2002"],
-            },
-        )
+            'Fe2O3', -1, 0.0,
+            parameters={'is_hubbard': True,
+                        'hubbards': {'Fe': 4.0, 'O': 0},
+                        'run_type': 'GGA+U',
+                        'potcar_symbols': ['PAW_PBE Fe 06Sep2000', 'PAW_PBE O 08Apr2002']})
 
         self.assertIsNotNone(compat._process_entry(entry))
         # raise if check_potcar_hash is set
@@ -1077,32 +1048,23 @@ class MITCompatibilityTest(unittest.TestCase):
     def test_potcar_doenst_match_structure(self):
         compat = MITCompatibility()
         entry = ComputedEntry(
-            "Li2O3",
-            -1,
-            0.0,
-            parameters={
-                "is_hubbard": True,
-                "hubbards": {"Fe": 4.0, "O": 0},
-                "run_type": "GGA+U",
-                "potcar_symbols": ["PAW_PBE Fe_pv 06Sep2000", "PAW_PBE O 08Apr2002"],
-            },
-        )
+            'Li2O3', -1, 0.0,
+            parameters={'is_hubbard': True,
+                        'hubbards': {'Fe': 4.0, 'O': 0},
+                        'run_type': 'GGA+U',
+                        'potcar_symbols': ['PAW_PBE Fe_pv 06Sep2000',
+                                           'PAW_PBE O 08Apr2002']})
 
         self.assertIsNone(compat._process_entry(entry))
 
     def test_potcar_spec_is_none(self):
         compat = MITCompatibility(check_potcar_hash=True)
         entry = ComputedEntry(
-            "Li2O3",
-            -1,
-            0.0,
-            parameters={
-                "is_hubbard": True,
-                "hubbards": {"Fe": 4.0, "O": 0},
-                "run_type": "GGA+U",
-                "potcar_spec": [None, None],
-            },
-        )
+            'Li2O3', -1, 0.0,
+            parameters={'is_hubbard': True,
+                        'hubbards': {'Fe': 4.0, 'O': 0},
+                        'run_type': 'GGA+U',
+                        'potcar_spec': [None, None]})
 
         self.assertIsNone(compat._process_entry(entry))
 
@@ -1148,26 +1110,15 @@ class OxideTypeCorrectionTest(unittest.TestCase):
         self.compat = MITCompatibility(check_potcar_hash=True)
 
     def test_no_struct_compat(self):
-        lio2_entry_nostruct = ComputedEntry(
-            Composition("Li2O4"),
-            -3,
-            data={"oxide_type": "superoxide"},
-            parameters={
-                "is_hubbard": False,
-                "hubbards": None,
-                "run_type": "GGA",
-                "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Li 17Jan2003",
-                        "hash": "65e83282d1707ec078c1012afbd05be8",
-                    },
-                    {
-                        "titel": "PAW_PBE O 08Apr2002",
-                        "hash": "7a25bc5b9a5393f46600a4939d357982",
-                    },
-                ],
-            },
-        )
+        lio2_entry_nostruct = ComputedEntry(Composition("Li2O4"), -3,
+                                            data={"oxide_type": "superoxide"},
+                                            parameters={'is_hubbard': False,
+                                                        'hubbards': None,
+                                                        'run_type': 'GGA',
+                                                        'potcar_spec': [{'titel': 'PAW_PBE Li 17Jan2003',
+                                                                         'hash': '65e83282d1707ec078c1012afbd05be8'},
+                                                                        {'titel': 'PAW_PBE O 08Apr2002',
+                                                                         'hash': '7a25bc5b9a5393f46600a4939d357982'}]})
 
         lio2_entry_corrected = self.compat._process_entry(lio2_entry_nostruct)
         self.assertAlmostEqual(lio2_entry_corrected.energy, -3 - 0.13893 * 4, 4)
@@ -1187,25 +1138,14 @@ class OxideTypeCorrectionTest(unittest.TestCase):
         coords.append([0.132568, 0.414910, 0.000000])
         coords.append([0.867432, 0.585090, 0.000000])
         struct = Structure(latt, elts, coords)
-        lio2_entry = ComputedStructureEntry(
-            struct,
-            -3,
-            parameters={
-                "is_hubbard": False,
-                "hubbards": None,
-                "run_type": "GGA",
-                "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Li 17Jan2003",
-                        "hash": "65e83282d1707ec078c1012afbd05be8",
-                    },
-                    {
-                        "titel": "PAW_PBE O 08Apr2002",
-                        "hash": "7a25bc5b9a5393f46600a4939d357982",
-                    },
-                ],
-            },
-        )
+        lio2_entry = ComputedStructureEntry(struct, -3,
+                                            parameters={'is_hubbard': False,
+                                                        'hubbards': None,
+                                                        'run_type': 'GGA',
+                                                        'potcar_spec': [{'titel': 'PAW_PBE Li 17Jan2003',
+                                                                         'hash': '65e83282d1707ec078c1012afbd05be8'},
+                                                                        {'titel': 'PAW_PBE O 08Apr2002',
+                                                                         'hash': '7a25bc5b9a5393f46600a4939d357982'}]})
 
         lio2_entry_corrected = self.compat._process_entry(lio2_entry)
         self.assertAlmostEqual(lio2_entry_corrected.energy, -3 - 0.13893 * 4, 4)
@@ -1228,25 +1168,14 @@ class OxideTypeCorrectionTest(unittest.TestCase):
             [0.666665, 0.666684, 0.149189],
         ]
         struct = Structure(latt, elts, coords)
-        li2o2_entry = ComputedStructureEntry(
-            struct,
-            -3,
-            parameters={
-                "is_hubbard": False,
-                "hubbards": None,
-                "run_type": "GGA",
-                "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Li 17Jan2003",
-                        "hash": "65e83282d1707ec078c1012afbd05be8",
-                    },
-                    {
-                        "titel": "PAW_PBE O 08Apr2002",
-                        "hash": "7a25bc5b9a5393f46600a4939d357982",
-                    },
-                ],
-            },
-        )
+        li2o2_entry = ComputedStructureEntry(struct, -3,
+                                             parameters={'is_hubbard': False,
+                                                         'hubbards': None,
+                                                         'run_type': 'GGA',
+                                                         'potcar_spec': [{'titel': 'PAW_PBE Li 17Jan2003',
+                                                                          'hash': '65e83282d1707ec078c1012afbd05be8'},
+                                                                         {'titel': 'PAW_PBE O 08Apr2002',
+                                                                          'hash': '7a25bc5b9a5393f46600a4939d357982'}]})
 
         li2o2_entry_corrected = self.compat._process_entry(li2o2_entry)
         self.assertAlmostEqual(li2o2_entry_corrected.energy, -3 - 0.44317 * 4, 4)
@@ -1265,25 +1194,14 @@ class OxideTypeCorrectionTest(unittest.TestCase):
             [0.099587, 0.874790, 0.224797],
         ]
         struct = Structure(latt, elts, coords)
-        lio3_entry = ComputedStructureEntry(
-            struct,
-            -3,
-            parameters={
-                "is_hubbard": False,
-                "hubbards": None,
-                "run_type": "GGA",
-                "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Li 17Jan2003",
-                        "hash": "65e83282d1707ec078c1012afbd05be8",
-                    },
-                    {
-                        "titel": "PAW_PBE O 08Apr2002",
-                        "hash": "7a25bc5b9a5393f46600a4939d357982",
-                    },
-                ],
-            },
-        )
+        lio3_entry = ComputedStructureEntry(struct, -3,
+                                            parameters={'is_hubbard': False,
+                                                        'hubbards': None,
+                                                        'run_type': 'GGA',
+                                                        'potcar_spec': [{'titel': 'PAW_PBE Li 17Jan2003',
+                                                                         'hash': '65e83282d1707ec078c1012afbd05be8'},
+                                                                        {'titel': 'PAW_PBE O 08Apr2002',
+                                                                         'hash': '7a25bc5b9a5393f46600a4939d357982'}]})
 
         lio3_entry_corrected = self.compat._process_entry(lio3_entry)
         self.assertAlmostEqual(lio3_entry_corrected.energy, -3.0)
@@ -1295,25 +1213,14 @@ class OxideTypeCorrectionTest(unittest.TestCase):
         latt = Lattice.from_parameters(3.278, 3.278, 3.278, 60, 60, 60)
         coords = [[0.25, 0.25, 0.25], [0.75, 0.75, 0.75], [0.0, 0.0, 0.0]]
         struct = Structure(latt, elts, coords)
-        li2o_entry = ComputedStructureEntry(
-            struct,
-            -3,
-            parameters={
-                "is_hubbard": False,
-                "hubbards": None,
-                "run_type": "GGA",
-                "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Li 17Jan2003",
-                        "hash": "65e83282d1707ec078c1012afbd05be8",
-                    },
-                    {
-                        "titel": "PAW_PBE O 08Apr2002",
-                        "hash": "7a25bc5b9a5393f46600a4939d357982",
-                    },
-                ],
-            },
-        )
+        li2o_entry = ComputedStructureEntry(struct, -3,
+                                            parameters={'is_hubbard': False,
+                                                        'hubbards': None,
+                                                        'run_type': 'GGA',
+                                                        'potcar_spec': [{'titel': 'PAW_PBE Li 17Jan2003',
+                                                                         'hash': '65e83282d1707ec078c1012afbd05be8'},
+                                                                        {'titel': 'PAW_PBE O 08Apr2002',
+                                                                         'hash': '7a25bc5b9a5393f46600a4939d357982'}]})
 
         li2o_entry_corrected = self.compat._process_entry(li2o_entry)
         self.assertAlmostEqual(li2o_entry_corrected.energy, -3.0 - 0.66975, 4)
@@ -1495,25 +1402,14 @@ class OxideTypeCorrectionNoPeroxideCorrTest(unittest.TestCase):
         latt = Lattice.from_parameters(3.278, 3.278, 3.278, 60, 60, 60)
         coords = [[0.25, 0.25, 0.25], [0.75, 0.75, 0.75], [0.0, 0.0, 0.0]]
         struct = Structure(latt, elts, coords)
-        li2o_entry = ComputedStructureEntry(
-            struct,
-            -3,
-            parameters={
-                "is_hubbard": False,
-                "hubbards": None,
-                "run_type": "GGA",
-                "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Li 17Jan2003",
-                        "hash": "65e83282d1707ec078c1012afbd05be8",
-                    },
-                    {
-                        "titel": "PAW_PBE O 08Apr2002",
-                        "hash": "7a25bc5b9a5393f46600a4939d357982",
-                    },
-                ],
-            },
-        )
+        li2o_entry = ComputedStructureEntry(struct, -3,
+                                            parameters={'is_hubbard': False,
+                                                        'hubbards': None,
+                                                        'run_type': 'GGA',
+                                                        'potcar_spec': [{'titel': 'PAW_PBE Li 17Jan2003',
+                                                                         'hash': '65e83282d1707ec078c1012afbd05be8'},
+                                                                        {'titel': 'PAW_PBE O 08Apr2002',
+                                                                         'hash': '7a25bc5b9a5393f46600a4939d357982'}]})
 
         li2o_entry_corrected = self.compat._process_entry(li2o_entry)
         self.assertAlmostEqual(li2o_entry_corrected.energy, -3.0 - 0.66975, 4)
@@ -1536,25 +1432,14 @@ class OxideTypeCorrectionNoPeroxideCorrTest(unittest.TestCase):
             [0.666665, 0.666684, 0.149189],
         ]
         struct = Structure(latt, elts, coords)
-        li2o2_entry = ComputedStructureEntry(
-            struct,
-            -3,
-            parameters={
-                "is_hubbard": False,
-                "hubbards": None,
-                "run_type": "GGA",
-                "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Li 17Jan2003",
-                        "hash": "65e83282d1707ec078c1012afbd05be8",
-                    },
-                    {
-                        "titel": "PAW_PBE O 08Apr2002",
-                        "hash": "7a25bc5b9a5393f46600a4939d357982",
-                    },
-                ],
-            },
-        )
+        li2o2_entry = ComputedStructureEntry(struct, -3,
+                                             parameters={'is_hubbard': False,
+                                                         'hubbards': None,
+                                                         'run_type': 'GGA',
+                                                         'potcar_spec': [{'titel': 'PAW_PBE Li 17Jan2003',
+                                                                          'hash': '65e83282d1707ec078c1012afbd05be8'},
+                                                                         {'titel': 'PAW_PBE O 08Apr2002',
+                                                                          'hash': '7a25bc5b9a5393f46600a4939d357982'}]})
 
         li2o2_entry_corrected = self.compat._process_entry(li2o2_entry)
         self.assertRaises(AssertionError, self.assertAlmostEqual,
@@ -1575,25 +1460,14 @@ class OxideTypeCorrectionNoPeroxideCorrTest(unittest.TestCase):
             [0.099587, 0.874790, 0.224797],
         ]
         struct = Structure(latt, elts, coords)
-        lio3_entry = ComputedStructureEntry(
-            struct,
-            -3,
-            parameters={
-                "is_hubbard": False,
-                "hubbards": None,
-                "run_type": "GGA",
-                "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Li 17Jan2003",
-                        "hash": "65e83282d1707ec078c1012afbd05be8",
-                    },
-                    {
-                        "titel": "PAW_PBE O 08Apr2002",
-                        "hash": "7a25bc5b9a5393f46600a4939d357982",
-                    },
-                ],
-            },
-        )
+        lio3_entry = ComputedStructureEntry(struct, -3,
+                                            parameters={'is_hubbard': False,
+                                                        'hubbards': None,
+                                                        'run_type': 'GGA',
+                                                        'potcar_spec': [{'titel': 'PAW_PBE Li 17Jan2003',
+                                                                         'hash': '65e83282d1707ec078c1012afbd05be8'},
+                                                                        {'titel': 'PAW_PBE O 08Apr2002',
+                                                                         'hash': '7a25bc5b9a5393f46600a4939d357982'}]})
 
         lio3_entry_corrected = self.compat._process_entry(lio3_entry)
         self.assertAlmostEqual(lio3_entry_corrected.energy, -3.0 - 3 * 0.66975)

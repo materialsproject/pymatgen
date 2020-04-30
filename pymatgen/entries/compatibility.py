@@ -1206,12 +1206,9 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         # (MU_H2O from pourbaix module)
 
         # Free energy of H2 in eV/atom, fitted using Eq. 40 of Persson et al. PRB 2012 85(23)
-        # for this calculation ONLY, we need the DFT energy of water
-        # The purpose of the DFT water here is to characterize the energy scale of the DFT functional used
-        # (the difference between O2 and H2O within a specific pseudopotential). Hence, the uncorrected energy
-        # should be used.
+        # for this calculation ONLY, we need the (corrected) DFT energy of water
         self.h2_energy = round(
-            0.5 * (3 * (self.h2o_energy - self.h2o_adjustments - self.cpd_entropies["H2O"]) -
+            0.5 * (3 * (self.h2o_energy - self.cpd_entropies["H2O"]) -
                    (self.o2_energy - self.cpd_entropies["O2"]) -
                    MU_H2O
                    ), 6
