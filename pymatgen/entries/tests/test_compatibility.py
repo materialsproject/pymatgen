@@ -754,7 +754,7 @@ class TestMaterialsProjectAqueousCompatibility():
             corrected DFT energy of O2 = -4.9276 eV/atom (mp-12957)
             total energy corrections applied to H2O (eV/H2O) -0.70229 eV/H2O or -0.234 eV/atom
     """
-    def test_MPAqeous_H_H2O_energy_with_args(self):
+    def test_h_h2o_energy_with_args(self):
 
         compat = MaterialsProjectAqueousCompatibility(o2_energy=-4.9276, h2o_energy=-5.195, h2o_adjustments=-0.234)
 
@@ -775,7 +775,7 @@ class TestMaterialsProjectAqueousCompatibility():
         h2o_form_e = 3 * h2o_entry_2.energy_per_atom - 2 * h2_entry_2.energy_per_atom - o2_entry_1.energy_per_atom
         assert h2o_form_e == pytest.approx(MU_H2O)
 
-    def test_MPAqeous_H_H2O_energy_no_args(self):
+    def test_h_h2o_energy_no_args(self):
 
         with pytest.warns(UserWarning, match="You did not provide the required O2 and H2O energies."):
             compat = MaterialsProjectAqueousCompatibility()
