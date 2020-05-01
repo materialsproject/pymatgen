@@ -11,7 +11,7 @@ from collections import defaultdict
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.entries.computed_entries import ComputedEntry, \
     ComputedStructureEntry, EnergyAdjustment, ConstantEnergyAdjustment, \
-    CompositionEnergyAdjustment, TempEnergyAdjustment, ManualEnergyAdjustment
+    CompositionEnergyAdjustment, TemperatureEnergyAdjustment, ManualEnergyAdjustment
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
@@ -52,7 +52,7 @@ def testCompositionEnergyAdjustment():
 
 
 def testTempEnergyAdjustment():
-    ea = TempEnergyAdjustment(-0.1, 298, 5, "entropy")
+    ea = TemperatureEnergyAdjustment(-0.1, 298, 5, "entropy")
     assert ea.name == "entropy"
     assert ea.value == -0.1 * 298 * 5
     assert ea.n_atoms == 5
@@ -105,7 +105,7 @@ class ComputedEntryTest(unittest.TestCase):
         ealist = [ManualEnergyAdjustment(5),
                   ConstantEnergyAdjustment(5),
                   CompositionEnergyAdjustment(1, 5, "Na"),
-                  TempEnergyAdjustment(0.005, 100, 10)
+                  TemperatureEnergyAdjustment(0.005, 100, 10)
                   ]
         entry = ComputedEntry("Na5Cl5", 6.9, energy_adjustments=ealist)
         assert entry.correction == 20
