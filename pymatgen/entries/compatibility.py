@@ -439,6 +439,21 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
             CompatibilityError if the entry is not compatible
         """
         return
+    
+    def process_entry(self, entry):
+        """
+        Process a single entry with the chosen Corrections.
+
+        Args:
+            entry: A ComputedEntry object.
+        Returns:
+            An adjusted entry if entry is compatible, otherwise None is
+            returned.
+        """
+        if self.process_entries(entry):
+            return self.process_entries(entry)[0]
+        else:
+            return None
 
     def process_entries(self, entries: Union[ComputedEntry, list], clean: bool = False):
         """
@@ -566,21 +581,6 @@ class CorrectionsList(Compatibility):
                                    )
 
         return adjustment_list
-
-    def process_entry(self, entry):
-        """
-        Process a single entry with the chosen Corrections.
-
-        Args:
-            entry: A ComputedEntry object.
-        Returns:
-            An adjusted entry if entry is compatible, otherwise None is
-            returned.
-        """
-        if self.process_entries(entry):
-            return self.process_entries(entry)[0]
-        else:
-            return None
 
     def get_corrections_dict(self, entry):
         """
