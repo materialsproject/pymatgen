@@ -439,7 +439,7 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
             CompatibilityError if the entry is not compatible
         """
         return
-    
+
     def process_entry(self, entry):
         """
         Process a single entry with the chosen Corrections.
