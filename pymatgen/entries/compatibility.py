@@ -567,9 +567,10 @@ class CorrectionsList(Compatibility):
 
         return adjustment_list
 
-    def _process_entry(self, entry):
+    def process_entry(self, entry):
         """
         Process a single entry with the chosen Corrections.
+
         Args:
             entry: A ComputedEntry object.
         Returns:
@@ -614,7 +615,7 @@ class CorrectionsList(Compatibility):
             "Corrections": [{"Name of Correction": {
             "Value": float, "Explanation": "string"}]}
         """
-        centry = self._process_entry(entry)
+        centry = self.process_entry(entry)
         if centry is None:
             uncorrected_energy = entry.uncorrected_energy
             corrected_energy = None
@@ -790,7 +791,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         85 (2012) 1–12. doi:10.1103/PhysRevB.85.235438.
     """
 
-    def __init__(self, 
+    def __init__(self,
                  solid_compat: Optional[Compatibility] = None,
                  o2_energy: Optional[float] = None,
                  h2o_energy: Optional[float] = None,
@@ -807,7 +808,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
             solid_compat: Compatiblity scheme used to pre-process solid DFT energies prior to applying aqueous
                 energy adjustments. Default: MaterialsProjectCompatibility.
             o2_energy: The ground-state DFT energy of oxygen gas, including any adjustments or corrections, in eV/atom.
-                If not set, this value will be determined from any O2 entries passed to process_entries. 
+                If not set, this value will be determined from any O2 entries passed to process_entries.
                 Default: None
             h2o_energy: The ground-state DFT energy of water, including any adjstments or corrections, in eV/atom.
                 If not set, this value will be determined from any H2O entries passed to process_entries.
