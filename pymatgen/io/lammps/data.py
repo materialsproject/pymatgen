@@ -1385,6 +1385,21 @@ class CombinedData(LammpsData):
         lines.insert(1, info)
         return "\n".join(lines)
 
+    def as_lammpsdata(self):
+        """
+        Convert a CombinedData object to a LammpsData object.
+
+        """
+        items = dict()
+        items["box"] = self.box
+        items["masses"] = self.masses
+        items["atoms"] = self.atoms
+        items["atom_style"] = self.atom_style
+        items["velocities"] = self.velocities
+        items["force_field"] = self.force_field
+        items["topology"] = self.topology
+        return LammpsData(**items)
+
 
 @deprecated(LammpsData.from_structure,
             "structure_2_lmpdata has been deprecated "
