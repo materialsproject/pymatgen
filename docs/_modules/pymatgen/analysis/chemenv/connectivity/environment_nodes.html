@@ -1,0 +1,326 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>pymatgen.analysis.chemenv.connectivity.environment_nodes &#8212; pymatgen 2020.3.2 documentation</title>
+    <link rel="stylesheet" href="../../../../../_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../../../" src="../../../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.analysis.chemenv.connectivity.environment_nodes</h1><div class="highlight"><pre>
+<span></span><span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;waroquiers&#39;</span>
+
+<span class="kn">import</span> <span class="nn">abc</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
+
+
+<div class="viewcode-block" id="AbstractEnvironmentNode"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.connectivity.environment_nodes.html#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode">[docs]</a><span class="k">class</span> <span class="nc">AbstractEnvironmentNode</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Abstract class used to define an environment as a node in a graph.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">COORDINATION_ENVIRONMENT</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">NUMBER_OF_NEIGHBORING_COORDINATION_ENVIRONMENTS</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">NUMBER_OF_NEIGHBORING_CES</span> <span class="o">=</span> <span class="n">NUMBER_OF_NEIGHBORING_COORDINATION_ENVIRONMENTS</span>
+    <span class="n">NEIGHBORING_COORDINATION_ENVIRONMENTS</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">NEIGHBORING_CES</span> <span class="o">=</span> <span class="n">NEIGHBORING_COORDINATION_ENVIRONMENTS</span>
+    <span class="n">NUMBER_OF_LIGANDS_FOR_EACH_NEIGHBORING_COORDINATION_ENVIRONMENT</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">NUMBER_OF_LIGANDS_FOR_EACH_NEIGHBORING_CE</span> <span class="o">=</span> <span class="n">NUMBER_OF_LIGANDS_FOR_EACH_NEIGHBORING_COORDINATION_ENVIRONMENT</span>
+    <span class="n">LIGANDS_ARRANGEMENT</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="n">NEIGHBORS_LIGANDS_ARRANGEMENT</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="n">ATOM</span> <span class="o">=</span> <span class="mi">6</span>
+    <span class="n">CE_NNBCES_NBCES_LIGANDS</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="n">DEFAULT_EXTENSIONS</span> <span class="o">=</span> <span class="p">(</span><span class="n">ATOM</span><span class="p">,</span> <span class="n">COORDINATION_ENVIRONMENT</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">central_site</span><span class="p">,</span> <span class="n">i_central_site</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructor for the AbstractEnvironmentNode object.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            central_site (Site or subclass of Site): central site as a pymatgen Site or</span>
+<span class="sd">                                                     subclass of Site (e.g. PeriodicSite, ...).</span>
+<span class="sd">            i_central_site (int): Index of the central site in the structure.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">central_site</span> <span class="o">=</span> <span class="n">central_site</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">i_central_site</span> <span class="o">=</span> <span class="n">i_central_site</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">isite</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Index of the central site.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">i_central_site</span>
+
+    <span class="k">def</span> <span class="nf">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Simple hash function based on the hash function of the central site.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">central_site</span><span class="o">.</span><span class="fm">__hash__</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="c1"># When relabelling nodes from a str or int to an EnvironmentNode in-place in a graph (e.g. in a</span>
+        <span class="c1"># ConnectedComponent), the comparison should return False when comparing the already relabelled nodes (e.g. as</span>
+        <span class="c1"># an EnvironmentNode) with those not yet relabelled (e.g. a str representing the isite). This is useful for</span>
+        <span class="c1"># serialization as a json/bson object.</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="vm">__class__</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">isite</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">isite</span>
+
+    <span class="k">def</span> <span class="nf">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="c1"># This simple &quot;Less Than&quot; operator allows to strictly sort environment nodes in a graph.</span>
+        <span class="c1"># This is useful (and actually neeeded) in the definition of the cycles but does not have</span>
+        <span class="c1"># any real meaning of a &quot;lower value&quot; environment node.</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">isite</span> <span class="o">&lt;</span> <span class="n">other</span><span class="o">.</span><span class="n">isite</span>
+
+<div class="viewcode-block" id="AbstractEnvironmentNode.everything_equal"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.connectivity.environment_nodes.html#pymatgen.analysis.chemenv.connectivity.environment_nodes.AbstractEnvironmentNode.everything_equal">[docs]</a>    <span class="k">def</span> <span class="nf">everything_equal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Checks equality with respect to another AbstractEnvironmentNode using the index of the central site</span>
+<span class="sd">        as well as the central site itself.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">central_site</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">central_site</span></div>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">coordination_environment</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span>
+
+    <span class="c1"># def number_of_neighboring_coordination_environments(self, environments_subgraph):</span>
+    <span class="c1">#     # One cannot use the MultiGraph.neighbors(self) method because for self-loops,</span>
+    <span class="c1">#     # it yields the neighbor only once</span>
+    <span class="c1">#     incident_edges = environments_subgraph.edges(self)</span>
+    <span class="c1">#     count = 0</span>
+    <span class="c1">#     for edge in incident_edges:</span>
+    <span class="c1">#         count += 1</span>
+    <span class="c1">#         if edge[0] == edge[1]:</span>
+    <span class="c1">#             count += 1</span>
+    <span class="c1">#     return str(count)</span>
+    <span class="c1">#</span>
+    <span class="c1"># def neighboring_coordination_environments(self, environments_subgraph):</span>
+    <span class="c1">#     pass</span>
+    <span class="c1">#     # neighboring_environments_nodes = environments_subgraph.neighbors(self)</span>
+    <span class="c1">#     # return str(len(neighboring_environments_nodes))</span>
+    <span class="c1">#</span>
+    <span class="c1"># def descriptor(self, extensions=DEFAULT_EXTENSIONS, **kwargs):</span>
+    <span class="c1">#     return self.ce_extended(extensions, **kwargs)</span>
+    <span class="c1">#</span>
+    <span class="c1"># def ce_extended(self, extensions=DEFAULT_EXTENSIONS, **kwargs):</span>
+    <span class="c1">#     npoints = max(extensions)</span>
+    <span class="c1">#     res = [&#39;&#39;]*(npoints + 1)</span>
+    <span class="c1">#     for extension in extensions:</span>
+    <span class="c1">#         res[extension] = self.get_descriptor(extension, **kwargs)</span>
+    <span class="c1">#     return &#39;.&#39;.join(res)</span>
+    <span class="c1">#</span>
+    <span class="c1"># def get_descriptor(self, extension, **kwargs):</span>
+    <span class="c1">#     if extension == AbstractEnvironmentNode.COORDINATION_ENVIRONMENT:</span>
+    <span class="c1">#         return self.coordination_environment</span>
+    <span class="c1">#     elif extension == AbstractEnvironmentNode.NUMBER_OF_NEIGHBORING_CES:</span>
+    <span class="c1">#         env_subgraph = kwargs[&#39;environments_subgraph&#39;]</span>
+    <span class="c1">#         return self.number_of_neighboring_coordination_environments(environments_subgraph=env_subgraph)</span>
+    <span class="c1">#     elif extension == AbstractEnvironmentNode.CE_NNBCES_NBCES_LIGANDS:</span>
+    <span class="c1">#         descr = str(self.coordination_environment)</span>
+    <span class="c1">#         descr += &#39;.&#39;</span>
+    <span class="c1">#         env_subgraph = kwargs[&#39;environments_subgraph&#39;]</span>
+    <span class="c1">#         neighboring_ces_nodes = env_subgraph.neighbors(self)</span>
+    <span class="c1">#         if len(list(neighboring_ces_nodes)) == 0:</span>
+    <span class="c1">#             descr += &#39;0-..&#39;</span>
+    <span class="c1">#         else:</span>
+    <span class="c1">#             my_neighboring_nodes = []</span>
+    <span class="c1">#             for ces_node in neighboring_ces_nodes:</span>
+    <span class="c1">#                 for iedge in env_subgraph[self][ces_node]:</span>
+    <span class="c1">#                     my_neighboring_nodes.append({&#39;neighbor&#39;: ces_node,</span>
+    <span class="c1">#                                                  &#39;edge_data&#39;: env_subgraph[self][ces_node][iedge]})</span>
+    <span class="c1">#                     # Special case for self-loops :</span>
+    <span class="c1">#                     if ces_node == self:</span>
+    <span class="c1">#                         opposed_data = dict(env_subgraph[self][ces_node][iedge])</span>
+    <span class="c1">#                         opposed_data[&#39;delta&#39;] = tuple([-ii for ii in opposed_data[&#39;delta&#39;]])</span>
+    <span class="c1">#                         my_neighboring_nodes.append({&#39;neighbor&#39;: ces_node,</span>
+    <span class="c1">#                                                      &#39;edge_data&#39;: opposed_data})</span>
+    <span class="c1">#             my_neighboring_nodes.sort(key=lambda x: len(x[&#39;edge_data&#39;][&#39;ligands&#39;]))</span>
+    <span class="c1">#             descr += str(len(my_neighboring_nodes))</span>
+    <span class="c1">#             descr += &#39;-&#39;</span>
+    <span class="c1">#             descr += &#39;,&#39;.join([str(len(nn[&#39;edge_data&#39;][&#39;ligands&#39;])) for nn in my_neighboring_nodes])</span>
+    <span class="c1">#             descr += &#39;.&#39;</span>
+    <span class="c1">#             descr += &#39;,&#39;.join([str(nn[&#39;neighbor&#39;].coordination_environment) for nn in my_neighboring_nodes])</span>
+    <span class="c1">#             #TODO: check sorting according to the nomenclature !</span>
+    <span class="c1">#         return descr</span>
+    <span class="c1">#     elif extension == AbstractEnvironmentNode.ATOM:</span>
+    <span class="c1">#         return self.atom_symbol</span>
+    <span class="c1">#     else:</span>
+    <span class="c1">#         return &#39;NULL&#39;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ce</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">coordination_environment</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">mp_symbol</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">coordination_environment</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ce_symbol</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">coordination_environment</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">atom_symbol</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Symbol of the atom on the central site.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">central_site</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">symbol</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;String representation of the AbstractEnvironmentNode.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s1">&#39;Node #</span><span class="si">{:d}</span><span class="s1"> </span><span class="si">{}</span><span class="s1"> (</span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">isite</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">atom_symbol</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">coordination_environment</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="EnvironmentNode"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.connectivity.environment_nodes.html#pymatgen.analysis.chemenv.connectivity.environment_nodes.EnvironmentNode">[docs]</a><span class="k">class</span> <span class="nc">EnvironmentNode</span><span class="p">(</span><span class="n">AbstractEnvironmentNode</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class used to define an environment as a node in a graph.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">central_site</span><span class="p">,</span> <span class="n">i_central_site</span><span class="p">,</span> <span class="n">ce_symbol</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructor for the EnvironmentNode object.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            central_site (Site or subclass of Site): central site as a pymatgen Site or</span>
+<span class="sd">                                                     subclass of Site (e.g. PeriodicSite, ...).</span>
+<span class="sd">            i_central_site (int): Index of the central site in the structure.</span>
+<span class="sd">            ce_symbol (str): Symbol of the identified environment.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">AbstractEnvironmentNode</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">central_site</span><span class="p">,</span> <span class="n">i_central_site</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ce_symbol</span> <span class="o">=</span> <span class="n">ce_symbol</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">coordination_environment</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ce_symbol</span>
+
+<div class="viewcode-block" id="EnvironmentNode.everything_equal"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.connectivity.environment_nodes.html#pymatgen.analysis.chemenv.connectivity.environment_nodes.EnvironmentNode.everything_equal">[docs]</a>    <span class="k">def</span> <span class="nf">everything_equal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">everything_equal</span><span class="p">(</span><span class="n">other</span><span class="p">)</span> <span class="ow">and</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">coordination_environment</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">coordination_environment</span><span class="p">)</span></div></div>
+
+
+<span class="c1"># Keep these as they might come in handy later on if we decide to implement specific descriptors</span>
+<span class="c1"># for specific environments</span>
+<span class="c1"># class OctahedralEnvironmentNode(AbstractEnvironmentNode):</span>
+<span class="c1">#</span>
+<span class="c1">#     CG = AllCoordinationGeometries().get_geometry_from_mp_symbol(&#39;O:6&#39;)</span>
+<span class="c1">#</span>
+<span class="c1">#     def __init__(self, central_site, i_central_site):</span>
+<span class="c1">#         AbstractEnvironmentNode.__init__(self, central_site, i_central_site)</span>
+<span class="c1">#</span>
+<span class="c1">#     @property</span>
+<span class="c1">#     def coordination_environment(self):</span>
+<span class="c1">#         return self.CG.mp_symbol</span>
+<span class="c1">#</span>
+<span class="c1">#</span>
+<span class="c1"># class TetrahedralEnvironmentNode(AbstractEnvironmentNode):</span>
+<span class="c1">#</span>
+<span class="c1">#     CG = AllCoordinationGeometries().get_geometry_from_mp_symbol(&#39;T:4&#39;)</span>
+<span class="c1">#</span>
+<span class="c1">#     def __init__(self, central_site, i_central_site):</span>
+<span class="c1">#         AbstractEnvironmentNode.__init__(self, central_site, i_central_site)</span>
+<span class="c1">#</span>
+<span class="c1">#     @property</span>
+<span class="c1">#     def coordination_environment(self):</span>
+<span class="c1">#         return self.CG.mp_symbol</span>
+<span class="c1">#</span>
+<span class="c1">#</span>
+<span class="c1"># allowed_environment_nodes = {&#39;O:6&#39;: OctahedralEnvironmentNode,</span>
+<span class="c1">#                              &#39;T:4&#39;: TetrahedralEnvironmentNode}</span>
+
+
+<div class="viewcode-block" id="get_environment_node"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.connectivity.environment_nodes.html#pymatgen.analysis.chemenv.connectivity.environment_nodes.get_environment_node">[docs]</a><span class="k">def</span> <span class="nf">get_environment_node</span><span class="p">(</span><span class="n">central_site</span><span class="p">,</span> <span class="n">i_central_site</span><span class="p">,</span> <span class="n">ce_symbol</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the EnvironmentNode class or subclass for the given site and symbol.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        central_site (Site or subclass of Site): Central site of the environment.</span>
+<span class="sd">        i_central_site (int): Index of the central site in the structure.</span>
+<span class="sd">        ce_symbol: Symbol of the environment.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        An EnvironmentNode object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">EnvironmentNode</span><span class="p">(</span><span class="n">central_site</span><span class="o">=</span><span class="n">central_site</span><span class="p">,</span> <span class="n">i_central_site</span><span class="o">=</span><span class="n">i_central_site</span><span class="p">,</span> <span class="n">ce_symbol</span><span class="o">=</span><span class="n">ce_symbol</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../../pymatgen.html" >pymatgen</a> &#187;</li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

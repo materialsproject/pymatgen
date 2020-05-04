@@ -2,6 +2,10 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+A module for NMR analysis
+"""
+
 from pymatgen.core.tensors import SquareTensor
 from collections import namedtuple
 
@@ -12,9 +16,6 @@ from pymatgen.core.structure import Site
 
 import numpy as np
 
-"""
-A module for NMR analysis
-"""
 
 __author__ = "Shyam Dwaraknath"
 __copyright__ = "Copyright 2016, The Materials Project"
@@ -110,6 +111,17 @@ class ChemicalShielding(SquareTensor):
 
     @classmethod
     def from_maryland_notation(cls, sigma_iso, omega, kappa):
+        """
+        Initialize from Maryland notation.
+
+        Args:
+            sigma_iso ():
+            omega ():
+            kappa ():
+
+        Returns:
+            ChemicalShielding
+        """
         sigma_22 = sigma_iso + kappa * omega / 3.0
         sigma_11 = (3.0 * sigma_iso - omega - sigma_22) / 2.0
         sigma_33 = 3.0 * sigma_iso - sigma_22 - sigma_11
@@ -156,16 +168,25 @@ class ElectricFieldGradient(SquareTensor):
 
     @property
     def V_xx(self):
+        """
+        Returns: First diagonal element
+        """
         diags = np.diag(self.principal_axis_system)
         return sorted(diags, key=np.abs)[0]
 
     @property
     def V_yy(self):
+        """
+        Returns: Second diagonal element
+        """
         diags = np.diag(self.principal_axis_system)
         return sorted(diags, key=np.abs)[1]
 
     @property
     def V_zz(self):
+        """
+        Returns: Third diagonal element
+        """
         diags = np.diag(self.principal_axis_system)
         return sorted(diags, key=np.abs)[2]
 

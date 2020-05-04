@@ -1,0 +1,293 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>pymatgen.phonon.ir_spectra &#8212; pymatgen 2020.3.2 documentation</title>
+    <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.phonon.ir_spectra</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Pymatgen Development Team.</span>
+<span class="c1"># Distributed under the terms of the MIT License.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module provides classes to handle the calculation of the IR spectra</span>
+<span class="sd">This implementation is adapted from Abipy</span>
+<span class="sd">https://github.com/abinit/abipy</span>
+<span class="sd">where it was originally done by Guido Petretto and Matteo Giantomassi</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">unicode_literals</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.spectrum</span> <span class="k">import</span> <span class="n">Spectrum</span>
+<span class="kn">from</span> <span class="nn">pymatgen.vis.plotters</span> <span class="k">import</span> <span class="n">SpectrumPlotter</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.plotting</span> <span class="k">import</span> <span class="n">add_fig_kwargs</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Henrique Miranda, Guido Petretto, Matteo Giantomassi&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2018, The Materials Project&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.1&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Henrique Miranda&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;miranda.henrique@gmail.com&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Oct 31, 2018&quot;</span>
+
+
+<div class="viewcode-block" id="IRDielectricTensor"><a class="viewcode-back" href="../../../pymatgen.phonon.ir_spectra.html#pymatgen.phonon.ir_spectra.IRDielectricTensor">[docs]</a><span class="k">class</span> <span class="nc">IRDielectricTensor</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class to handle the Ionic Dielectric Tensor</span>
+<span class="sd">    The implementation is adapted from Abipy</span>
+<span class="sd">    See the definitions Eq.(53-54) in :cite:`Gonze1997` PRB55, 10355 (1997).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">oscillator_strength</span><span class="p">,</span> <span class="n">ph_freqs_gamma</span><span class="p">,</span> <span class="n">epsilon_infinity</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            oscillatator_strength: IR oscillator strengths as defined</span>
+<span class="sd">                                   in Eq. 54 in :cite:`Gonze1997` PRB55, 10355 (1997).</span>
+<span class="sd">            ph_freqs_gamma: Phonon frequencies at the Gamma point</span>
+<span class="sd">            epsilon_infinity: electronic susceptibility as defined in Eq. 29.</span>
+<span class="sd">            structure: A Structure object corresponding to the structure used for the calculation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">structure</span> <span class="o">=</span> <span class="n">structure</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">oscillator_strength</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">oscillator_strength</span><span class="p">)</span><span class="o">.</span><span class="n">real</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ph_freqs_gamma</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ph_freqs_gamma</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">epsilon_infinity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">epsilon_infinity</span><span class="p">)</span>
+
+<div class="viewcode-block" id="IRDielectricTensor.from_dict"><a class="viewcode-back" href="../../../pymatgen.phonon.ir_spectra.html#pymatgen.phonon.ir_spectra.IRDielectricTensor.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns IRDielectricTensor from dict representation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;structure&#39;</span><span class="p">])</span>
+        <span class="n">oscillator_strength</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;oscillator_strength&#39;</span><span class="p">]</span>
+        <span class="n">ph_freqs_gamma</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;ph_freqs_gamma&#39;</span><span class="p">]</span>
+        <span class="n">epsilon_infinity</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;epsilon_infinity&#39;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">oscillator_strength</span><span class="p">,</span> <span class="n">ph_freqs_gamma</span><span class="p">,</span> <span class="n">epsilon_infinity</span><span class="p">,</span> <span class="n">structure</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">max_phfreq</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Maximum phonon frequency&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ph_freqs_gamma</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">nph_freqs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Number of phonon frequencies&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ph_freqs_gamma</span><span class="p">)</span>
+
+<div class="viewcode-block" id="IRDielectricTensor.as_dict"><a class="viewcode-back" href="../../../pymatgen.phonon.ir_spectra.html#pymatgen.phonon.ir_spectra.IRDielectricTensor.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Json-serializable dict representation of IRDielectricTensor.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
+                <span class="s2">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+                <span class="s2">&quot;oscillator_strength&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">oscillator_strength</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+                <span class="s2">&quot;ph_freqs_gamma&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ph_freqs_gamma</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+                <span class="s2">&quot;structure&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(),</span>
+                <span class="s2">&quot;epsilon_infinity&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">epsilon_infinity</span><span class="o">.</span><span class="n">tolist</span><span class="p">()}</span></div>
+
+<div class="viewcode-block" id="IRDielectricTensor.write_json"><a class="viewcode-back" href="../../../pymatgen.phonon.ir_spectra.html#pymatgen.phonon.ir_spectra.IRDielectricTensor.write_json">[docs]</a>    <span class="k">def</span> <span class="nf">write_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Save a json file with this data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">import</span> <span class="nn">json</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(),</span> <span class="n">f</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="IRDielectricTensor.get_ir_spectra"><a class="viewcode-back" href="../../../pymatgen.phonon.ir_spectra.html#pymatgen.phonon.ir_spectra.IRDielectricTensor.get_ir_spectra">[docs]</a>    <span class="k">def</span> <span class="nf">get_ir_spectra</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">broad</span><span class="o">=</span><span class="mf">0.00005</span><span class="p">,</span> <span class="n">emin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">emax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">divs</span><span class="o">=</span><span class="mi">500</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The IR spectra is obtained for the different directions</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            broad: a list of broadenings or a single broadening for the phonon peaks</span>
+<span class="sd">            emin, emax: minimum and maximum energy in which to obtain the spectra</span>
+<span class="sd">            divs: number of frequency samples between emin and emax</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            frequencies: divs array with the frequencies at which the</span>
+<span class="sd">                         dielectric tensor is calculated</span>
+<span class="sd">            dielectric_tensor: divsx3x3 numpy array with the dielectric tensor</span>
+<span class="sd">                         for the range of frequencies</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">broad</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+            <span class="n">broad</span> <span class="o">=</span> <span class="p">[</span><span class="n">broad</span><span class="p">]</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">nph_freqs</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">broad</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">broad</span><span class="p">)</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nph_freqs</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;The number of elements in the broad_list &#39;</span>
+                             <span class="s1">&#39;is not the same as the number of frequencies&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">emax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">emax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_phfreq</span> <span class="o">+</span> <span class="nb">max</span><span class="p">(</span><span class="n">broad</span><span class="p">)</span><span class="o">*</span><span class="mi">20</span>
+        <span class="n">frequencies</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">emin</span><span class="p">,</span> <span class="n">emax</span><span class="p">,</span> <span class="n">divs</span><span class="p">)</span>
+
+        <span class="n">na</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span>
+        <span class="n">dielectric_tensor</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">divs</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ph_freqs_gamma</span><span class="p">)):</span>
+            <span class="n">g</span> <span class="o">=</span> <span class="n">broad</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ph_freqs_gamma</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">num</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oscillator_strength</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
+            <span class="n">den</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ph_freqs_gamma</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="n">frequencies</span><span class="p">[:,</span> <span class="n">na</span><span class="p">,</span> <span class="n">na</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">g</span><span class="p">)</span>
+            <span class="n">dielectric_tensor</span> <span class="o">+=</span> <span class="n">num</span> <span class="o">/</span> <span class="n">den</span>
+        <span class="n">dielectric_tensor</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">epsilon_infinity</span><span class="p">[</span><span class="n">na</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
+
+        <span class="k">return</span> <span class="n">frequencies</span><span class="p">,</span> <span class="n">dielectric_tensor</span></div>
+
+<div class="viewcode-block" id="IRDielectricTensor.plot"><a class="viewcode-back" href="../../../pymatgen.phonon.ir_spectra.html#pymatgen.phonon.ir_spectra.IRDielectricTensor.plot">[docs]</a>    <span class="nd">@add_fig_kwargs</span>
+    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">components</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;xx&#39;</span><span class="p">,),</span> <span class="n">reim</span><span class="o">=</span><span class="s2">&quot;reim&quot;</span><span class="p">,</span> <span class="n">show_phonon_frequencies</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">xlim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Helper function to generate the Spectrum plotter and directly plot the results</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            components: A list with the components of the dielectric tensor to plot.</span>
+<span class="sd">                        Can be either two indexes or a string like &#39;xx&#39; to plot the (0,0) component</span>
+<span class="sd">            reim: If &#39;re&#39; (im) is present in the string plots the real (imaginary) part of the dielectric tensor</span>
+<span class="sd">            show_phonon_frequencies: plot a dot where the phonon frequencies are to help identify IR inactive modes</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">plotter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_plotter</span><span class="p">(</span><span class="n">components</span><span class="o">=</span><span class="n">components</span><span class="p">,</span> <span class="n">reim</span><span class="o">=</span><span class="n">reim</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">plt</span> <span class="o">=</span> <span class="n">plotter</span><span class="o">.</span><span class="n">get_plot</span><span class="p">(</span><span class="n">xlim</span><span class="o">=</span><span class="n">xlim</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="n">ylim</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">show_phonon_frequencies</span><span class="p">:</span>
+            <span class="n">ph_freqs_gamma</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ph_freqs_gamma</span><span class="p">[</span><span class="mi">3</span><span class="p">:]</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">ph_freqs_gamma</span><span class="o">*</span><span class="mi">1000</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">ph_freqs_gamma</span><span class="p">))</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$\epsilon(\omega)$&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Frequency (meV)&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">plt</span></div>
+
+<div class="viewcode-block" id="IRDielectricTensor.get_spectrum"><a class="viewcode-back" href="../../../pymatgen.phonon.ir_spectra.html#pymatgen.phonon.ir_spectra.IRDielectricTensor.get_spectrum">[docs]</a>    <span class="k">def</span> <span class="nf">get_spectrum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">reim</span><span class="p">,</span> <span class="n">broad</span><span class="o">=</span><span class="mf">0.00005</span><span class="p">,</span> <span class="n">emin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">emax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">divs</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            component: either two indexes or a string like &#39;xx&#39; to plot the (0,0) component</span>
+<span class="sd">            reim: only &quot;re&quot; or &quot;im&quot;</span>
+<span class="sd">            broad: a list of broadenings or a single broadening for the phonon peaks</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># some check on component and reim value? but not really necessary maybe</span>
+
+        <span class="n">directions_map</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="mi">2</span><span class="p">}</span>
+        <span class="n">functions_map</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;re&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">real</span><span class="p">,</span> <span class="s1">&#39;im&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">imag</span><span class="p">}</span>
+        <span class="n">reim_label</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;re&#39;</span><span class="p">:</span> <span class="s1">&#39;Re&#39;</span><span class="p">,</span> <span class="s1">&#39;im&#39;</span><span class="p">:</span> <span class="s1">&#39;Im&#39;</span><span class="p">}</span>
+        <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="p">[</span><span class="n">directions_map</span><span class="p">[</span><span class="n">direction</span><span class="p">]</span> <span class="k">for</span> <span class="n">direction</span> <span class="ow">in</span> <span class="n">component</span><span class="p">]</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">{$\epsilon_{</span><span class="si">%s%s</span><span class="s2">}$}&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">reim_label</span><span class="p">[</span><span class="n">reim</span><span class="p">],</span> <span class="s1">&#39;xyz&#39;</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="s1">&#39;xyz&#39;</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+
+        <span class="n">frequencies</span><span class="p">,</span> <span class="n">dielectric_tensor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_ir_spectra</span><span class="p">(</span><span class="n">broad</span><span class="o">=</span><span class="n">broad</span><span class="p">,</span> <span class="n">emin</span><span class="o">=</span><span class="n">emin</span><span class="p">,</span> <span class="n">emax</span><span class="o">=</span><span class="n">emax</span><span class="p">,</span> <span class="n">divs</span><span class="o">=</span><span class="n">divs</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">functions_map</span><span class="p">[</span><span class="n">reim</span><span class="p">](</span><span class="n">dielectric_tensor</span><span class="p">[:,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">Spectrum</span><span class="p">(</span><span class="n">frequencies</span><span class="o">*</span><span class="mi">1000</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="IRDielectricTensor.get_plotter"><a class="viewcode-back" href="../../../pymatgen.phonon.ir_spectra.html#pymatgen.phonon.ir_spectra.IRDielectricTensor.get_plotter">[docs]</a>    <span class="k">def</span> <span class="nf">get_plotter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">components</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;xx&#39;</span><span class="p">,),</span> <span class="n">reim</span><span class="o">=</span><span class="s2">&quot;reim&quot;</span><span class="p">,</span> <span class="n">broad</span><span class="o">=</span><span class="mf">0.00005</span><span class="p">,</span> <span class="n">emin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">emax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">divs</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return an instance of the Spectrum plotter containing the different requested components</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            components: A list with the components of the dielectric tensor to plot.</span>
+<span class="sd">                        Can be either two indexes or a string like &#39;xx&#39; to plot the (0,0) component</span>
+<span class="sd">            reim: If &#39;re&#39; (im) is present in the string plots the real (imaginary) part of the dielectric tensor</span>
+<span class="sd">            emin, emax: minimum and maximum energy in which to obtain the spectra</span>
+<span class="sd">            divs: number of frequency samples between emin and emax</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">directions_map</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="mi">2</span><span class="p">}</span>
+        <span class="n">reim_label</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;re&#39;</span><span class="p">:</span> <span class="s1">&#39;Re&#39;</span><span class="p">,</span> <span class="s1">&#39;im&#39;</span><span class="p">:</span> <span class="s1">&#39;Im&#39;</span><span class="p">}</span>
+
+        <span class="n">plotter</span> <span class="o">=</span> <span class="n">SpectrumPlotter</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="n">components</span><span class="p">:</span>
+            <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="p">[</span><span class="n">directions_map</span><span class="p">[</span><span class="n">direction</span><span class="p">]</span> <span class="k">for</span> <span class="n">direction</span> <span class="ow">in</span> <span class="n">component</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">fstr</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;re&quot;</span><span class="p">,</span> <span class="s2">&quot;im&quot;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">fstr</span> <span class="ow">in</span> <span class="n">reim</span><span class="p">:</span>
+                    <span class="n">label</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">{$\epsilon_{</span><span class="si">%s%s</span><span class="s2">}$}&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">reim_label</span><span class="p">[</span><span class="n">fstr</span><span class="p">],</span> <span class="s1">&#39;xyz&#39;</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="s1">&#39;xyz&#39;</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+                    <span class="n">spectrum</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_spectrum</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="n">fstr</span><span class="p">,</span> <span class="n">broad</span><span class="o">=</span><span class="n">broad</span><span class="p">,</span> <span class="n">emin</span><span class="o">=</span><span class="n">emin</span><span class="p">,</span> <span class="n">emax</span><span class="o">=</span><span class="n">emax</span><span class="p">,</span> <span class="n">divs</span><span class="o">=</span><span class="n">divs</span><span class="p">)</span>
+                    <span class="n">spectrum</span><span class="o">.</span><span class="n">XLABEL</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;Frequency (meV)&#39;</span>
+                    <span class="n">spectrum</span><span class="o">.</span><span class="n">YLABEL</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;$\epsilon(\omega)$&#39;</span>
+                    <span class="n">plotter</span><span class="o">.</span><span class="n">add_spectrum</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">spectrum</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">plotter</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

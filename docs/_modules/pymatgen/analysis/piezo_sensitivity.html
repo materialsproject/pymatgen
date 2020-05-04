@@ -1,0 +1,937 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>pymatgen.analysis.piezo_sensitivity &#8212; pymatgen 2020.3.2 documentation</title>
+    <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.analysis.piezo_sensitivity</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Piezo sensitivity analysis module.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.core.tensors</span> <span class="k">import</span> <span class="n">Tensor</span>
+<span class="kn">import</span> <span class="nn">pymatgen.io.phonopy</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="k">import</span> <span class="n">SpacegroupAnalyzer</span> <span class="k">as</span> <span class="n">sga</span>
+<span class="kn">from</span> <span class="nn">monty.dev</span> <span class="k">import</span> <span class="n">requires</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">phonopy</span> <span class="k">import</span> <span class="n">Phonopy</span>
+    <span class="kn">from</span> <span class="nn">phonopy.harmonic</span> <span class="k">import</span> <span class="n">dynmat_to_fc</span> <span class="k">as</span> <span class="n">dyntofc</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">Phonopy</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Handong Ling&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2019, The Materials Project&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;1.0&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Handong Ling&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;hling@lbl.gov&quot;</span>
+<span class="n">__status__</span> <span class="o">=</span> <span class="s2">&quot;Development&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Feb, 2019&quot;</span>
+
+
+<div class="viewcode-block" id="BornEffectiveCharge"><a class="viewcode-back" href="../../../pymatgen.analysis.piezo_sensitivity.html#pymatgen.analysis.piezo_sensitivity.BornEffectiveCharge">[docs]</a><span class="k">class</span> <span class="nc">BornEffectiveCharge</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class describes the Nx3x3 born effective charge tensor</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">bec</span><span class="p">,</span> <span class="n">pointops</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create an BornEffectiveChargeTensor object defined by a</span>
+<span class="sd">        structure, point operations of the structure&#39;s atomic sites.</span>
+<span class="sd">        Note that the constructor uses __new__ rather than __init__</span>
+<span class="sd">        according to the standard method ofsubclassing numpy ndarrays.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            input_matrix (Nx3x3 array-like): the Nx3x3 array-like</span>
+<span class="sd">                representing the born effective charge tensor</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">structure</span> <span class="o">=</span> <span class="n">structure</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bec</span> <span class="o">=</span> <span class="n">bec</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pointops</span> <span class="o">=</span> <span class="n">pointops</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">BEC_operations</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bec</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">tol</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;Input born effective charge tensor does &quot;</span>
+                <span class="s2">&quot;not satisfy charge neutrality&quot;</span>
+            <span class="p">)</span>
+
+<div class="viewcode-block" id="BornEffectiveCharge.get_BEC_operations"><a class="viewcode-back" href="../../../pymatgen.analysis.piezo_sensitivity.html#pymatgen.analysis.piezo_sensitivity.BornEffectiveCharge.get_BEC_operations">[docs]</a>    <span class="k">def</span> <span class="nf">get_BEC_operations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eigtol</span><span class="o">=</span><span class="mf">1e-05</span><span class="p">,</span> <span class="n">opstol</span><span class="o">=</span><span class="mf">1e-03</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the symmetry operations which maps the tensors</span>
+<span class="sd">        belonging to equivalent sites onto each other in the form</span>
+<span class="sd">        [site index 1, site index 2, [Symmops mapping from site</span>
+<span class="sd">        index 1 to site index 2]]</span>
+
+
+<span class="sd">        Args:</span>
+<span class="sd">            eigtol (float): tolerance for determining if two sites are</span>
+<span class="sd">            related by symmetry</span>
+<span class="sd">            opstol (float): tolerance for determining if a symmetry</span>
+<span class="sd">            operation relates two sites</span>
+
+<span class="sd">        Return:</span>
+<span class="sd">            list of symmetry operations mapping equivalent sites and</span>
+<span class="sd">            the indexes of those sites.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">bec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bec</span>
+        <span class="n">struc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span>
+        <span class="n">ops</span> <span class="o">=</span> <span class="n">sga</span><span class="p">(</span><span class="n">struc</span><span class="p">)</span><span class="o">.</span><span class="n">get_symmetry_operations</span><span class="p">(</span><span class="n">cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">uniquepointops</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">ops</span><span class="p">:</span>
+            <span class="n">uniquepointops</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">op</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pointops</span><span class="p">)):</span>
+            <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pointops</span><span class="p">[</span><span class="n">atom</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">op</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">uniquepointops</span><span class="p">:</span>
+                    <span class="n">uniquepointops</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">op</span><span class="p">)</span>
+
+        <span class="n">passed</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">relations</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bec</span><span class="p">)):</span>
+            <span class="n">unique</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">eig1</span><span class="p">,</span> <span class="n">vecs1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eig</span><span class="p">(</span><span class="n">bec</span><span class="p">[</span><span class="n">site</span><span class="p">])</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">eig1</span><span class="p">)</span>
+            <span class="n">neweig</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">([</span><span class="n">eig1</span><span class="p">[</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="n">eig1</span><span class="p">[</span><span class="n">index</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="n">eig1</span><span class="p">[</span><span class="n">index</span><span class="p">[</span><span class="mi">2</span><span class="p">]]])</span>
+            <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">passed</span><span class="p">)):</span>
+
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">neweig</span><span class="p">,</span> <span class="n">passed</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="n">atol</span><span class="o">=</span><span class="n">eigtol</span><span class="p">):</span>
+                    <span class="n">relations</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">site</span><span class="p">,</span> <span class="n">index</span><span class="p">])</span>
+                    <span class="n">unique</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="n">passed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">site</span><span class="p">,</span> <span class="n">passed</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">neweig</span><span class="p">])</span>
+                    <span class="k">break</span>
+            <span class="k">if</span> <span class="n">unique</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">relations</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">site</span><span class="p">,</span> <span class="n">site</span><span class="p">])</span>
+                <span class="n">passed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">site</span><span class="p">,</span> <span class="n">neweig</span><span class="p">])</span>
+        <span class="n">BEC_operations</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">relations</span><span class="p">)):</span>
+            <span class="n">BEC_operations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">relations</span><span class="p">[</span><span class="n">atom</span><span class="p">])</span>
+            <span class="n">BEC_operations</span><span class="p">[</span><span class="n">atom</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
+
+            <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">uniquepointops</span><span class="p">:</span>
+                <span class="n">new</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">transform_tensor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bec</span><span class="p">[</span><span class="n">relations</span><span class="p">[</span><span class="n">atom</span><span class="p">][</span><span class="mi">1</span><span class="p">]])</span>
+
+                <span class="c1"># Check the matrix it references</span>
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">new</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bec</span><span class="p">[</span><span class="n">relations</span><span class="p">[</span><span class="n">atom</span><span class="p">][</span><span class="mi">0</span><span class="p">]],</span> <span class="n">atol</span><span class="o">=</span><span class="n">opstol</span><span class="p">):</span>
+                    <span class="n">BEC_operations</span><span class="p">[</span><span class="n">atom</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">op</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">BEC_operations</span> <span class="o">=</span> <span class="n">BEC_operations</span></div>
+
+<div class="viewcode-block" id="BornEffectiveCharge.get_rand_BEC"><a class="viewcode-back" href="../../../pymatgen.analysis.piezo_sensitivity.html#pymatgen.analysis.piezo_sensitivity.BornEffectiveCharge.get_rand_BEC">[docs]</a>    <span class="k">def</span> <span class="nf">get_rand_BEC</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_charge</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate a random born effective charge tensor which obeys a structure&#39;s</span>
+<span class="sd">        symmetry and the acoustic sum rule</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            max_charge (float): maximum born effective charge value</span>
+
+<span class="sd">        Return:</span>
+<span class="sd">            np.array Born effective charge tensor</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">struc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span>
+        <span class="n">symstruc</span> <span class="o">=</span> <span class="n">sga</span><span class="p">(</span><span class="n">struc</span><span class="p">)</span>
+        <span class="n">symstruc</span> <span class="o">=</span> <span class="n">symstruc</span><span class="o">.</span><span class="n">get_symmetrized_structure</span><span class="p">()</span>
+
+        <span class="n">l</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">struc</span><span class="p">)</span>
+        <span class="n">BEC</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">l</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">BEC_operations</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">BEC_operations</span><span class="p">[</span><span class="n">atom</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">BEC_operations</span><span class="p">[</span><span class="n">atom</span><span class="p">][</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="n">temp_tensor</span> <span class="o">=</span> <span class="n">Tensor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">)</span>
+                <span class="n">temp_tensor</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span>
+                    <span class="p">[</span><span class="n">temp_tensor</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">symm_op</span><span class="p">)</span> <span class="k">for</span> <span class="n">symm_op</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pointops</span><span class="p">[</span><span class="n">atom</span><span class="p">]]</span>
+                <span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pointops</span><span class="p">[</span><span class="n">atom</span><span class="p">])</span>
+                <span class="n">BEC</span><span class="p">[</span><span class="n">atom</span><span class="p">]</span> <span class="o">=</span> <span class="n">temp_tensor</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">tempfcm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+                <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">BEC_operations</span><span class="p">[</span><span class="n">atom</span><span class="p">][</span><span class="mi">2</span><span class="p">]:</span>
+
+                    <span class="n">tempfcm</span> <span class="o">+=</span> <span class="n">op</span><span class="o">.</span><span class="n">transform_tensor</span><span class="p">(</span><span class="n">BEC</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">BEC_operations</span><span class="p">[</span><span class="n">atom</span><span class="p">][</span><span class="mi">1</span><span class="p">]])</span>
+                <span class="n">BEC</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">BEC_operations</span><span class="p">[</span><span class="n">atom</span><span class="p">][</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">tempfcm</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">BEC_operations</span><span class="p">[</span><span class="n">atom</span><span class="p">][</span><span class="mi">2</span><span class="p">])</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">BEC</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">BEC_operations</span><span class="p">[</span><span class="n">atom</span><span class="p">][</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">BEC</span><span class="p">[</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">BEC_operations</span><span class="p">[</span><span class="n">atom</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="p">]</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">BEC_operations</span><span class="p">[</span><span class="n">atom</span><span class="p">][</span><span class="mi">2</span><span class="p">])</span>
+
+        <span class="c1">#     Enforce Acoustic Sum</span>
+        <span class="n">disp_charge</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">&quot;ijk-&gt;jk&quot;</span><span class="p">,</span> <span class="n">BEC</span><span class="p">)</span> <span class="o">/</span> <span class="n">l</span>
+        <span class="n">add</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">l</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+
+        <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">BEC_operations</span><span class="p">)):</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">BEC_operations</span><span class="p">[</span><span class="n">atom</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">BEC_operations</span><span class="p">[</span><span class="n">atom</span><span class="p">][</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="n">temp_tensor</span> <span class="o">=</span> <span class="n">Tensor</span><span class="p">(</span><span class="n">disp_charge</span><span class="p">)</span>
+                <span class="n">temp_tensor</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span>
+                    <span class="p">[</span><span class="n">temp_tensor</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">symm_op</span><span class="p">)</span> <span class="k">for</span> <span class="n">symm_op</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pointops</span><span class="p">[</span><span class="n">atom</span><span class="p">]]</span>
+                <span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pointops</span><span class="p">[</span><span class="n">atom</span><span class="p">])</span>
+                <span class="n">add</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">BEC_operations</span><span class="p">[</span><span class="n">atom</span><span class="p">][</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">temp_tensor</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">temp_tensor</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+                <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">BEC_operations</span><span class="p">[</span><span class="n">atom</span><span class="p">][</span><span class="mi">2</span><span class="p">]:</span>
+
+                    <span class="n">temp_tensor</span> <span class="o">+=</span> <span class="n">op</span><span class="o">.</span><span class="n">transform_tensor</span><span class="p">(</span>
+                        <span class="n">add</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">BEC_operations</span><span class="p">[</span><span class="n">atom</span><span class="p">][</span><span class="mi">1</span><span class="p">]]</span>
+                    <span class="p">)</span>
+
+                <span class="n">add</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">BEC_operations</span><span class="p">[</span><span class="n">atom</span><span class="p">][</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">temp_tensor</span>
+
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">BEC_operations</span><span class="p">[</span><span class="n">atom</span><span class="p">])</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">add</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">BEC_operations</span><span class="p">[</span><span class="n">atom</span><span class="p">][</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">add</span><span class="p">[</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">BEC_operations</span><span class="p">[</span><span class="n">atom</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="p">]</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">BEC_operations</span><span class="p">[</span><span class="n">atom</span><span class="p">][</span><span class="mi">2</span><span class="p">])</span>
+
+        <span class="n">BEC</span> <span class="o">=</span> <span class="n">BEC</span> <span class="o">-</span> <span class="n">add</span>
+
+        <span class="k">return</span> <span class="n">BEC</span> <span class="o">*</span> <span class="n">max_charge</span></div></div>
+
+
+<div class="viewcode-block" id="InternalStrainTensor"><a class="viewcode-back" href="../../../pymatgen.analysis.piezo_sensitivity.html#pymatgen.analysis.piezo_sensitivity.InternalStrainTensor">[docs]</a><span class="k">class</span> <span class="nc">InternalStrainTensor</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class describes the Nx3x3x3 internal tensor defined by a</span>
+<span class="sd">    structure, point operations of the structure&#39;s atomic sites.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">ist</span><span class="p">,</span> <span class="n">pointops</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create an InternalStrainTensor object.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            input_matrix (Nx3x3x3 array-like): the Nx3x3x3 array-like</span>
+<span class="sd">                representing the internal strain tensor</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">structure</span> <span class="o">=</span> <span class="n">structure</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ist</span> <span class="o">=</span> <span class="n">ist</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pointops</span> <span class="o">=</span> <span class="n">pointops</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">IST_operations</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ist</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">obj</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span> <span class="o">&lt;</span> <span class="n">tol</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;Input internal strain tensor does &quot;</span> <span class="s2">&quot;not satisfy standard symmetries&quot;</span>
+            <span class="p">)</span>
+
+<div class="viewcode-block" id="InternalStrainTensor.get_IST_operations"><a class="viewcode-back" href="../../../pymatgen.analysis.piezo_sensitivity.html#pymatgen.analysis.piezo_sensitivity.InternalStrainTensor.get_IST_operations">[docs]</a>    <span class="k">def</span> <span class="nf">get_IST_operations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">opstol</span><span class="o">=</span><span class="mf">1e-03</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the symmetry operations which maps the tensors</span>
+<span class="sd">        belonging to equivalent sites onto each other in the form</span>
+<span class="sd">        [site index 1, site index 2, [Symmops mapping from site</span>
+<span class="sd">        index 1 to site index 2]]</span>
+
+
+<span class="sd">        Args:</span>
+<span class="sd">            opstol (float): tolerance for determining if a symmetry</span>
+<span class="sd">            operation relates two sites</span>
+
+<span class="sd">        Return:</span>
+<span class="sd">            list of symmetry operations mapping equivalent sites and</span>
+<span class="sd">            the indexes of those sites.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">struc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span>
+        <span class="n">ops</span> <span class="o">=</span> <span class="n">sga</span><span class="p">(</span><span class="n">struc</span><span class="p">)</span><span class="o">.</span><span class="n">get_symmetry_operations</span><span class="p">(</span><span class="n">cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">uniquepointops</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">ops</span><span class="p">:</span>
+            <span class="n">uniquepointops</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">op</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pointops</span><span class="p">)):</span>
+            <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pointops</span><span class="p">[</span><span class="n">atom</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">op</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">uniquepointops</span><span class="p">:</span>
+                    <span class="n">uniquepointops</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">op</span><span class="p">)</span>
+
+        <span class="n">IST_operations</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ist</span><span class="p">)):</span>
+            <span class="n">IST_operations</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">atom</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">uniquepointops</span><span class="p">:</span>
+                    <span class="n">new</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">transform_tensor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ist</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+
+                    <span class="c1"># Check the matrix it references</span>
+                    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">new</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ist</span><span class="p">[</span><span class="n">atom</span><span class="p">],</span> <span class="n">atol</span><span class="o">=</span><span class="n">opstol</span><span class="p">):</span>
+                        <span class="n">IST_operations</span><span class="p">[</span><span class="n">atom</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">j</span><span class="p">,</span> <span class="n">op</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">IST_operations</span> <span class="o">=</span> <span class="n">IST_operations</span></div>
+
+<div class="viewcode-block" id="InternalStrainTensor.get_rand_IST"><a class="viewcode-back" href="../../../pymatgen.analysis.piezo_sensitivity.html#pymatgen.analysis.piezo_sensitivity.InternalStrainTensor.get_rand_IST">[docs]</a>    <span class="k">def</span> <span class="nf">get_rand_IST</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_force</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate a random internal strain tensor which obeys a structure&#39;s</span>
+<span class="sd">        symmetry and the acoustic sum rule</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            max_force(float): maximum born effective charge value</span>
+
+<span class="sd">        Return:</span>
+<span class="sd">            InternalStrainTensor object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">l</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">)</span>
+        <span class="n">IST</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">l</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">IST_operations</span><span class="p">)):</span>
+            <span class="n">temp_tensor</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">IST_operations</span><span class="p">[</span><span class="n">atom</span><span class="p">]:</span>
+                <span class="n">temp_tensor</span> <span class="o">+=</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">transform_tensor</span><span class="p">(</span><span class="n">IST</span><span class="p">[</span><span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">IST_operations</span><span class="p">[</span><span class="n">atom</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">temp_tensor</span> <span class="o">=</span> <span class="n">Tensor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">dim</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+                    <span class="n">temp_tensor</span><span class="p">[</span><span class="n">dim</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">temp_tensor</span><span class="p">[</span><span class="n">dim</span><span class="p">]</span> <span class="o">+</span> <span class="n">temp_tensor</span><span class="p">[</span><span class="n">dim</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+                <span class="n">temp_tensor</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span>
+                    <span class="p">[</span><span class="n">temp_tensor</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">symm_op</span><span class="p">)</span> <span class="k">for</span> <span class="n">symm_op</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pointops</span><span class="p">[</span><span class="n">atom</span><span class="p">]]</span>
+                <span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pointops</span><span class="p">[</span><span class="n">atom</span><span class="p">])</span>
+            <span class="n">IST</span><span class="p">[</span><span class="n">atom</span><span class="p">]</span> <span class="o">=</span> <span class="n">temp_tensor</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">IST_operations</span><span class="p">[</span><span class="n">atom</span><span class="p">])</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">IST</span><span class="p">[</span><span class="n">atom</span><span class="p">]</span> <span class="o">=</span> <span class="n">IST</span><span class="p">[</span><span class="n">atom</span><span class="p">]</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">IST_operations</span><span class="p">[</span><span class="n">atom</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">IST</span> <span class="o">*</span> <span class="n">max_force</span></div></div>
+
+
+<div class="viewcode-block" id="ForceConstantMatrix"><a class="viewcode-back" href="../../../pymatgen.analysis.piezo_sensitivity.html#pymatgen.analysis.piezo_sensitivity.ForceConstantMatrix">[docs]</a><span class="k">class</span> <span class="nc">ForceConstantMatrix</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class describes the NxNx3x3 force constant matrix defined by a</span>
+<span class="sd">    structure, point operations of the structure&#39;s atomic sites, and the</span>
+<span class="sd">    shared symmetry operations between pairs of atomic sites.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">fcm</span><span class="p">,</span> <span class="n">pointops</span><span class="p">,</span> <span class="n">sharedops</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create an ForceConstantMatrix object.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            input_matrix (NxNx3x3 array-like): the NxNx3x3 array-like</span>
+<span class="sd">                representing the force constant matrix</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">structure</span> <span class="o">=</span> <span class="n">structure</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fcm</span> <span class="o">=</span> <span class="n">fcm</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pointops</span> <span class="o">=</span> <span class="n">pointops</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sharedops</span> <span class="o">=</span> <span class="n">sharedops</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">FCM_operations</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="ForceConstantMatrix.get_FCM_operations"><a class="viewcode-back" href="../../../pymatgen.analysis.piezo_sensitivity.html#pymatgen.analysis.piezo_sensitivity.ForceConstantMatrix.get_FCM_operations">[docs]</a>    <span class="k">def</span> <span class="nf">get_FCM_operations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eigtol</span><span class="o">=</span><span class="mf">1e-05</span><span class="p">,</span> <span class="n">opstol</span><span class="o">=</span><span class="mf">1e-05</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the symmetry operations which maps the tensors</span>
+<span class="sd">        belonging to equivalent sites onto each other in the form</span>
+<span class="sd">        [site index 1a, site index 1b, site index 2a, site index 2b,</span>
+<span class="sd">        [Symmops mapping from site index 1a, 1b to site index 2a, 2b]]</span>
+
+
+<span class="sd">        Args:</span>
+<span class="sd">            eigtol (float): tolerance for determining if two sites are</span>
+<span class="sd">            related by symmetry</span>
+<span class="sd">            opstol (float): tolerance for determining if a symmetry</span>
+<span class="sd">            operation relates two sites</span>
+
+<span class="sd">        Return:</span>
+<span class="sd">            list of symmetry operations mapping equivalent sites and</span>
+<span class="sd">            the indexes of those sites.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">struc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span>
+        <span class="n">ops</span> <span class="o">=</span> <span class="n">sga</span><span class="p">(</span><span class="n">struc</span><span class="p">)</span><span class="o">.</span><span class="n">get_symmetry_operations</span><span class="p">(</span><span class="n">cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">uniquepointops</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">ops</span><span class="p">:</span>
+            <span class="n">uniquepointops</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">op</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pointops</span><span class="p">)):</span>
+            <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pointops</span><span class="p">[</span><span class="n">atom</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">op</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">uniquepointops</span><span class="p">:</span>
+                    <span class="n">uniquepointops</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">op</span><span class="p">)</span>
+
+        <span class="n">passed</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">relations</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">atom1</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fcm</span><span class="p">)):</span>
+            <span class="k">for</span> <span class="n">atom2</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">atom1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fcm</span><span class="p">)):</span>
+                <span class="n">unique</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="n">eig1</span><span class="p">,</span> <span class="n">vecs1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eig</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fcm</span><span class="p">[</span><span class="n">atom1</span><span class="p">][</span><span class="n">atom2</span><span class="p">])</span>
+                <span class="n">index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">eig1</span><span class="p">)</span>
+                <span class="n">neweig</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">([</span><span class="n">eig1</span><span class="p">[</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="n">eig1</span><span class="p">[</span><span class="n">index</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="n">eig1</span><span class="p">[</span><span class="n">index</span><span class="p">[</span><span class="mi">2</span><span class="p">]]])</span>
+
+                <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">passed</span><span class="p">)):</span>
+                    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">neweig</span><span class="p">,</span> <span class="n">passed</span><span class="p">[</span><span class="n">entry</span><span class="p">][</span><span class="mi">2</span><span class="p">],</span> <span class="n">atol</span><span class="o">=</span><span class="n">eigtol</span><span class="p">):</span>
+                        <span class="n">relations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                            <span class="p">[</span><span class="n">atom1</span><span class="p">,</span> <span class="n">atom2</span><span class="p">,</span> <span class="n">passed</span><span class="p">[</span><span class="n">entry</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">passed</span><span class="p">[</span><span class="n">entry</span><span class="p">][</span><span class="mi">1</span><span class="p">]]</span>
+                        <span class="p">)</span>
+                        <span class="n">unique</span> <span class="o">=</span> <span class="mi">0</span>
+                        <span class="k">break</span>
+                <span class="k">if</span> <span class="n">unique</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">relations</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">atom1</span><span class="p">,</span> <span class="n">atom2</span><span class="p">,</span> <span class="n">atom2</span><span class="p">,</span> <span class="n">atom1</span><span class="p">])</span>
+                    <span class="n">passed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">atom1</span><span class="p">,</span> <span class="n">atom2</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">neweig</span><span class="p">)])</span>
+        <span class="n">FCM_operations</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">relations</span><span class="p">)):</span>
+            <span class="n">good</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">FCM_operations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">relations</span><span class="p">[</span><span class="n">entry</span><span class="p">])</span>
+            <span class="n">FCM_operations</span><span class="p">[</span><span class="n">entry</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
+
+            <span class="n">good</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">uniquepointops</span><span class="p">:</span>
+                <span class="n">new</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">transform_tensor</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">fcm</span><span class="p">[</span><span class="n">relations</span><span class="p">[</span><span class="n">entry</span><span class="p">][</span><span class="mi">2</span><span class="p">]][</span><span class="n">relations</span><span class="p">[</span><span class="n">entry</span><span class="p">][</span><span class="mi">3</span><span class="p">]]</span>
+                <span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span>
+                    <span class="n">new</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fcm</span><span class="p">[</span><span class="n">relations</span><span class="p">[</span><span class="n">entry</span><span class="p">][</span><span class="mi">0</span><span class="p">]][</span><span class="n">relations</span><span class="p">[</span><span class="n">entry</span><span class="p">][</span><span class="mi">1</span><span class="p">]],</span> <span class="n">atol</span><span class="o">=</span><span class="n">opstol</span>
+                <span class="p">):</span>
+                    <span class="n">FCM_operations</span><span class="p">[</span><span class="n">entry</span><span class="p">][</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">op</span><span class="p">)</span>
+                    <span class="n">good</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="n">relations</span><span class="p">[</span><span class="n">entry</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">relations</span><span class="p">[</span><span class="n">entry</span><span class="p">][</span><span class="mi">3</span><span class="p">]</span>
+                <span class="ow">and</span> <span class="n">relations</span><span class="p">[</span><span class="n">entry</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">relations</span><span class="p">[</span><span class="n">entry</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span>
+            <span class="p">):</span>
+                <span class="n">good</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="n">relations</span><span class="p">[</span><span class="n">entry</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">relations</span><span class="p">[</span><span class="n">entry</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span>
+                <span class="ow">and</span> <span class="n">relations</span><span class="p">[</span><span class="n">entry</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">relations</span><span class="p">[</span><span class="n">entry</span><span class="p">][</span><span class="mi">3</span><span class="p">]</span>
+            <span class="p">):</span>
+                <span class="n">good</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">good</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">FCM_operations</span><span class="p">[</span><span class="n">entry</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="n">relations</span><span class="p">[</span><span class="n">entry</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="n">relations</span><span class="p">[</span><span class="n">entry</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
+                    <span class="n">relations</span><span class="p">[</span><span class="n">entry</span><span class="p">][</span><span class="mi">3</span><span class="p">],</span>
+                    <span class="n">relations</span><span class="p">[</span><span class="n">entry</span><span class="p">][</span><span class="mi">2</span><span class="p">],</span>
+                <span class="p">]</span>
+                <span class="n">FCM_operations</span><span class="p">[</span><span class="n">entry</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
+                <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">uniquepointops</span><span class="p">:</span>
+                    <span class="n">new</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">transform_tensor</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">fcm</span><span class="p">[</span><span class="n">relations</span><span class="p">[</span><span class="n">entry</span><span class="p">][</span><span class="mi">2</span><span class="p">]][</span><span class="n">relations</span><span class="p">[</span><span class="n">entry</span><span class="p">][</span><span class="mi">3</span><span class="p">]]</span>
+                    <span class="p">)</span>
+                    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span>
+                        <span class="n">new</span><span class="o">.</span><span class="n">T</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">fcm</span><span class="p">[</span><span class="n">relations</span><span class="p">[</span><span class="n">entry</span><span class="p">][</span><span class="mi">0</span><span class="p">]][</span><span class="n">relations</span><span class="p">[</span><span class="n">entry</span><span class="p">][</span><span class="mi">1</span><span class="p">]],</span>
+                        <span class="n">atol</span><span class="o">=</span><span class="n">opstol</span><span class="p">,</span>
+                    <span class="p">):</span>
+                        <span class="n">FCM_operations</span><span class="p">[</span><span class="n">entry</span><span class="p">][</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">op</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">FCM_operations</span> <span class="o">=</span> <span class="n">FCM_operations</span>
+        <span class="k">return</span> <span class="n">FCM_operations</span></div>
+
+<div class="viewcode-block" id="ForceConstantMatrix.get_unstable_FCM"><a class="viewcode-back" href="../../../pymatgen.analysis.piezo_sensitivity.html#pymatgen.analysis.piezo_sensitivity.ForceConstantMatrix.get_unstable_FCM">[docs]</a>    <span class="k">def</span> <span class="nf">get_unstable_FCM</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_force</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate an unsymmeterized force constant matrix</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            max_charge (float): maximum born effective charge value</span>
+
+<span class="sd">        Return:</span>
+<span class="sd">            numpy array representing the force constant matrix</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">struc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span>
+        <span class="n">operations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">FCM_operations</span>
+        <span class="c1"># set max force in reciprocal space</span>
+        <span class="n">numsites</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">struc</span><span class="o">.</span><span class="n">sites</span><span class="p">)</span>
+        <span class="n">D</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">max_force</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">([</span><span class="n">numsites</span> <span class="o">*</span> <span class="mi">3</span><span class="p">,</span> <span class="n">numsites</span> <span class="o">*</span> <span class="mi">3</span><span class="p">]))</span>
+        <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">operations</span><span class="p">:</span>
+            <span class="n">same</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">transpose</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">if</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">and</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">op</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="ow">and</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">op</span><span class="p">[</span><span class="mi">3</span><span class="p">]:</span>
+                <span class="n">same</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">op</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="ow">and</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">op</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span>
+                <span class="n">transpose</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">transpose</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">same</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">D</span><span class="p">[</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
+                    <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+                <span class="p">)</span>
+                <span class="n">D</span><span class="p">[</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
+                    <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+                <span class="p">)</span>
+
+                <span class="k">for</span> <span class="n">symop</span> <span class="ow">in</span> <span class="n">op</span><span class="p">[</span><span class="mi">4</span><span class="p">]:</span>
+
+                    <span class="n">tempfcm</span> <span class="o">=</span> <span class="n">D</span><span class="p">[</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">3</span><span class="p">]:</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span><span class="p">]</span>
+                    <span class="n">tempfcm</span> <span class="o">=</span> <span class="n">symop</span><span class="o">.</span><span class="n">transform_tensor</span><span class="p">(</span><span class="n">tempfcm</span><span class="p">)</span>
+                    <span class="n">D</span><span class="p">[</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span><span class="p">]</span> <span class="o">+=</span> <span class="n">tempfcm</span>
+
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">op</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">D</span><span class="p">[</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">D</span><span class="p">[</span>
+                        <span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span>
+                    <span class="p">]</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">op</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
+
+                <span class="n">D</span><span class="p">[</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">D</span><span class="p">[</span>
+                    <span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span>
+                <span class="p">]</span><span class="o">.</span><span class="n">T</span>
+                <span class="k">continue</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">temp_tensor</span> <span class="o">=</span> <span class="n">Tensor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">*</span> <span class="n">max_force</span>
+
+                <span class="n">temp_tensor_sum</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="n">temp_tensor</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">symm_op</span><span class="p">)</span>
+                        <span class="k">for</span> <span class="n">symm_op</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sharedops</span><span class="p">[</span><span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+                    <span class="p">]</span>
+                <span class="p">)</span>
+                <span class="n">temp_tensor_sum</span> <span class="o">=</span> <span class="n">temp_tensor_sum</span> <span class="o">/</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sharedops</span><span class="p">[</span><span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]]))</span>
+                <span class="k">if</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                    <span class="k">for</span> <span class="n">pair</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">op</span><span class="p">[</span><span class="mi">4</span><span class="p">])):</span>
+
+                        <span class="n">temp_tensor2</span> <span class="o">=</span> <span class="n">temp_tensor_sum</span><span class="o">.</span><span class="n">T</span>
+                        <span class="n">temp_tensor2</span> <span class="o">=</span> <span class="n">op</span><span class="p">[</span><span class="mi">4</span><span class="p">][</span><span class="n">pair</span><span class="p">]</span><span class="o">.</span><span class="n">transform_tensor</span><span class="p">(</span><span class="n">temp_tensor2</span><span class="p">)</span>
+                        <span class="n">temp_tensor_sum</span> <span class="o">=</span> <span class="p">(</span><span class="n">temp_tensor_sum</span> <span class="o">+</span> <span class="n">temp_tensor2</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">temp_tensor_sum</span> <span class="o">=</span> <span class="p">(</span><span class="n">temp_tensor_sum</span> <span class="o">+</span> <span class="n">temp_tensor_sum</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+
+                <span class="n">D</span><span class="p">[</span>
+                    <span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span>
+                <span class="p">]</span> <span class="o">=</span> <span class="n">temp_tensor_sum</span>
+                <span class="n">D</span><span class="p">[</span>
+                    <span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span>
+                <span class="p">]</span> <span class="o">=</span> <span class="n">temp_tensor_sum</span><span class="o">.</span><span class="n">T</span>
+
+        <span class="k">return</span> <span class="n">D</span></div>
+
+<div class="viewcode-block" id="ForceConstantMatrix.get_symmetrized_FCM"><a class="viewcode-back" href="../../../pymatgen.analysis.piezo_sensitivity.html#pymatgen.analysis.piezo_sensitivity.ForceConstantMatrix.get_symmetrized_FCM">[docs]</a>    <span class="k">def</span> <span class="nf">get_symmetrized_FCM</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">unsymmetrized_fcm</span><span class="p">,</span> <span class="n">max_force</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate a symmeterized force constant matrix from an unsymmeterized matrix</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            unsymmetrized_fcm (numpy array): unsymmeterized force constant matrix</span>
+<span class="sd">            max_charge (float): maximum born effective charge value</span>
+
+<span class="sd">        Return:</span>
+<span class="sd">            3Nx3N numpy array representing the force constant matrix</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">operations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">FCM_operations</span>
+        <span class="n">D</span> <span class="o">=</span> <span class="n">unsymmetrized_fcm</span>
+        <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">operations</span><span class="p">:</span>
+            <span class="n">same</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">transpose</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">if</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">and</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">operations</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="ow">and</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">op</span><span class="p">[</span><span class="mi">3</span><span class="p">]:</span>
+                <span class="n">same</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">op</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="ow">and</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">op</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span>
+                <span class="n">transpose</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">transpose</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">same</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">D</span><span class="p">[</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
+                    <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+                <span class="p">)</span>
+
+                <span class="k">for</span> <span class="n">symop</span> <span class="ow">in</span> <span class="n">op</span><span class="p">[</span><span class="mi">4</span><span class="p">]:</span>
+
+                    <span class="n">tempfcm</span> <span class="o">=</span> <span class="n">D</span><span class="p">[</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">3</span><span class="p">]:</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span><span class="p">]</span>
+                    <span class="n">tempfcm</span> <span class="o">=</span> <span class="n">symop</span><span class="o">.</span><span class="n">transform_tensor</span><span class="p">(</span><span class="n">tempfcm</span><span class="p">)</span>
+
+                    <span class="n">D</span><span class="p">[</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span><span class="p">]</span> <span class="o">+=</span> <span class="n">tempfcm</span>
+
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">op</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">D</span><span class="p">[</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">D</span><span class="p">[</span>
+                        <span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span>
+                    <span class="p">]</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">op</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
+                <span class="n">D</span><span class="p">[</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">D</span><span class="p">[</span>
+                    <span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span>
+                <span class="p">]</span><span class="o">.</span><span class="n">T</span>
+                <span class="k">continue</span>
+            <span class="k">else</span><span class="p">:</span>
+
+                <span class="n">temp_tensor</span> <span class="o">=</span> <span class="n">Tensor</span><span class="p">(</span>
+                    <span class="n">D</span><span class="p">[</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span><span class="p">]</span>
+                <span class="p">)</span>
+                <span class="n">temp_tensor_sum</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="n">temp_tensor</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">symm_op</span><span class="p">)</span>
+                        <span class="k">for</span> <span class="n">symm_op</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sharedops</span><span class="p">[</span><span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+                    <span class="p">]</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sharedops</span><span class="p">[</span><span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">temp_tensor_sum</span> <span class="o">=</span> <span class="n">temp_tensor_sum</span> <span class="o">/</span> <span class="p">(</span>
+                        <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sharedops</span><span class="p">[</span><span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
+                    <span class="p">)</span>
+
+                <span class="c1"># Apply the proper transformation if there is an equivalent already</span>
+                <span class="k">if</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+
+                    <span class="k">for</span> <span class="n">pair</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">op</span><span class="p">[</span><span class="mi">4</span><span class="p">])):</span>
+
+                        <span class="n">temp_tensor2</span> <span class="o">=</span> <span class="n">temp_tensor_sum</span><span class="o">.</span><span class="n">T</span>
+                        <span class="n">temp_tensor2</span> <span class="o">=</span> <span class="n">op</span><span class="p">[</span><span class="mi">4</span><span class="p">][</span><span class="n">pair</span><span class="p">]</span><span class="o">.</span><span class="n">transform_tensor</span><span class="p">(</span><span class="n">temp_tensor2</span><span class="p">)</span>
+                        <span class="n">temp_tensor_sum</span> <span class="o">=</span> <span class="p">(</span><span class="n">temp_tensor_sum</span> <span class="o">+</span> <span class="n">temp_tensor2</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">temp_tensor_sum</span> <span class="o">=</span> <span class="p">(</span><span class="n">temp_tensor_sum</span> <span class="o">+</span> <span class="n">temp_tensor_sum</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+
+            <span class="n">D</span><span class="p">[</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">temp_tensor_sum</span>
+            <span class="n">D</span><span class="p">[</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">temp_tensor_sum</span><span class="o">.</span><span class="n">T</span>
+
+        <span class="k">return</span> <span class="n">D</span></div>
+
+<div class="viewcode-block" id="ForceConstantMatrix.get_stable_FCM"><a class="viewcode-back" href="../../../pymatgen.analysis.piezo_sensitivity.html#pymatgen.analysis.piezo_sensitivity.ForceConstantMatrix.get_stable_FCM">[docs]</a>    <span class="k">def</span> <span class="nf">get_stable_FCM</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fcm</span><span class="p">,</span> <span class="n">fcmasum</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate a symmeterized force constant matrix that obeys the objects symmetry</span>
+<span class="sd">        constraints, has no unstable modes and also obeys the acoustic sum rule through an</span>
+<span class="sd">        iterative procedure</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            fcm (numpy array): unsymmeterized force constant matrix</span>
+<span class="sd">            fcmasum (int): number of iterations to attempt to obey the acoustic sum</span>
+<span class="sd">                rule</span>
+
+<span class="sd">        Return:</span>
+<span class="sd">            3Nx3N numpy array representing the force constant matrix</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">check</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="n">check</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># if resymmetrizing brings back unstable modes 20 times, the method breaks</span>
+            <span class="k">if</span> <span class="n">count</span> <span class="o">&gt;</span> <span class="mi">20</span><span class="p">:</span>
+                <span class="n">check</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="k">break</span>
+
+            <span class="n">eigs</span><span class="p">,</span> <span class="n">vecs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eig</span><span class="p">(</span><span class="n">fcm</span><span class="p">)</span>
+
+            <span class="n">maxeig</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="n">eigs</span><span class="p">)</span>
+            <span class="n">eigsort</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">eigs</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">eigs</span><span class="p">)):</span>
+                <span class="k">if</span> <span class="n">eigs</span><span class="p">[</span><span class="n">eigsort</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">&gt;</span> <span class="mf">1e-06</span><span class="p">:</span>
+                    <span class="n">eigs</span><span class="p">[</span><span class="n">eigsort</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="n">maxeig</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">()</span>
+            <span class="n">diag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">fcm</span><span class="p">))</span> <span class="o">*</span> <span class="n">eigs</span><span class="p">)</span>
+
+            <span class="n">fcm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">vecs</span><span class="p">,</span> <span class="n">diag</span><span class="p">),</span> <span class="n">vecs</span><span class="o">.</span><span class="n">T</span><span class="p">))</span>
+            <span class="n">fcm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_symmetrized_FCM</span><span class="p">(</span><span class="n">fcm</span><span class="p">)</span>
+            <span class="n">fcm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_asum_FCM</span><span class="p">(</span><span class="n">fcm</span><span class="p">)</span>
+            <span class="n">eigs</span><span class="p">,</span> <span class="n">vecs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eig</span><span class="p">(</span><span class="n">fcm</span><span class="p">)</span>
+            <span class="n">unstable_modes</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">eigsort</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">eigs</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">eigs</span><span class="p">)):</span>
+                <span class="k">if</span> <span class="n">eigs</span><span class="p">[</span><span class="n">eigsort</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">&gt;</span> <span class="mf">1e-06</span><span class="p">:</span>
+                    <span class="n">unstable_modes</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">unstable_modes</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">count</span> <span class="o">=</span> <span class="n">count</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="k">continue</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">check</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="k">return</span> <span class="n">fcm</span></div>
+
+    <span class="c1"># acoustic sum</span>
+
+<div class="viewcode-block" id="ForceConstantMatrix.get_asum_FCM"><a class="viewcode-back" href="../../../pymatgen.analysis.piezo_sensitivity.html#pymatgen.analysis.piezo_sensitivity.ForceConstantMatrix.get_asum_FCM">[docs]</a>    <span class="k">def</span> <span class="nf">get_asum_FCM</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fcm</span><span class="p">,</span> <span class="n">numiter</span><span class="o">=</span><span class="mi">15</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate a symmeterized force constant matrix that obeys the objects symmetry</span>
+<span class="sd">        constraints and obeys the acoustic sum rule through an iterative procedure</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            fcm (numpy array): 3Nx3N unsymmeterized force constant matrix</span>
+<span class="sd">            numiter (int): number of iterations to attempt to obey the acoustic sum</span>
+<span class="sd">                rule</span>
+
+<span class="sd">        Return:</span>
+<span class="sd">            numpy array representing the force constant matrix</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># set max force in reciprocal space</span>
+        <span class="n">operations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">FCM_operations</span>
+        <span class="n">numsites</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">)</span>
+
+        <span class="n">D</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">([</span><span class="n">numsites</span> <span class="o">*</span> <span class="mi">3</span><span class="p">,</span> <span class="n">numsites</span> <span class="o">*</span> <span class="mi">3</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">num</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numiter</span><span class="p">):</span>
+            <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">fcm</span><span class="p">)</span>
+
+            <span class="c1"># symmetry operations</span>
+            <span class="n">pastrow</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">total</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numsites</span><span class="p">):</span>
+                <span class="n">total</span> <span class="o">=</span> <span class="n">total</span> <span class="o">+</span> <span class="n">X</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span> <span class="n">col</span> <span class="o">*</span> <span class="mi">3</span><span class="p">:</span><span class="n">col</span> <span class="o">*</span> <span class="mi">3</span> <span class="o">+</span> <span class="mi">3</span><span class="p">]</span>
+
+            <span class="n">total</span> <span class="o">=</span> <span class="n">total</span> <span class="o">/</span> <span class="p">(</span><span class="n">numsites</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">operations</span><span class="p">:</span>
+                <span class="n">same</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">transpose</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">if</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">and</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">op</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="ow">and</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">op</span><span class="p">[</span><span class="mi">3</span><span class="p">]:</span>
+                    <span class="n">same</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">op</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="ow">and</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">op</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span>
+                    <span class="n">transpose</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">transpose</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">same</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">D</span><span class="p">[</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
+                        <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+                    <span class="p">)</span>
+
+                    <span class="k">for</span> <span class="n">symop</span> <span class="ow">in</span> <span class="n">op</span><span class="p">[</span><span class="mi">4</span><span class="p">]:</span>
+
+                        <span class="n">tempfcm</span> <span class="o">=</span> <span class="n">D</span><span class="p">[</span>
+                            <span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">3</span><span class="p">]:</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span>
+                        <span class="p">]</span>
+                        <span class="n">tempfcm</span> <span class="o">=</span> <span class="n">symop</span><span class="o">.</span><span class="n">transform_tensor</span><span class="p">(</span><span class="n">tempfcm</span><span class="p">)</span>
+
+                        <span class="n">D</span><span class="p">[</span>
+                            <span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span>
+                        <span class="p">]</span> <span class="o">+=</span> <span class="n">tempfcm</span>
+
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">op</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">D</span><span class="p">[</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">D</span><span class="p">[</span>
+                            <span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span>
+                        <span class="p">]</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">op</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
+                    <span class="n">D</span><span class="p">[</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">D</span><span class="p">[</span>
+                        <span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span>
+                    <span class="p">]</span><span class="o">.</span><span class="n">T</span>
+                    <span class="k">continue</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># Get the difference in the sum up to this point</span>
+                    <span class="n">currrow</span> <span class="o">=</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">currrow</span> <span class="o">!=</span> <span class="n">pastrow</span><span class="p">:</span>
+                        <span class="n">total</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+                        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numsites</span><span class="p">):</span>
+                            <span class="n">total</span> <span class="o">=</span> <span class="p">(</span>
+                                <span class="n">total</span>
+                                <span class="o">+</span> <span class="n">X</span><span class="p">[</span>
+                                    <span class="n">currrow</span> <span class="o">*</span> <span class="mi">3</span><span class="p">:</span><span class="n">currrow</span> <span class="o">*</span> <span class="mi">3</span> <span class="o">+</span> <span class="mi">3</span><span class="p">,</span> <span class="n">col</span> <span class="o">*</span> <span class="mi">3</span><span class="p">:</span><span class="n">col</span> <span class="o">*</span> <span class="mi">3</span> <span class="o">+</span> <span class="mi">3</span>
+                                <span class="p">]</span>
+                            <span class="p">)</span>
+                        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">currrow</span><span class="p">):</span>
+                            <span class="n">total</span> <span class="o">=</span> <span class="p">(</span>
+                                <span class="n">total</span>
+                                <span class="o">-</span> <span class="n">D</span><span class="p">[</span>
+                                    <span class="n">currrow</span> <span class="o">*</span> <span class="mi">3</span><span class="p">:</span><span class="n">currrow</span> <span class="o">*</span> <span class="mi">3</span> <span class="o">+</span> <span class="mi">3</span><span class="p">,</span> <span class="n">col</span> <span class="o">*</span> <span class="mi">3</span><span class="p">:</span><span class="n">col</span> <span class="o">*</span> <span class="mi">3</span> <span class="o">+</span> <span class="mi">3</span>
+                                <span class="p">]</span>
+                            <span class="p">)</span>
+                        <span class="n">total</span> <span class="o">=</span> <span class="n">total</span> <span class="o">/</span> <span class="p">(</span><span class="n">numsites</span> <span class="o">-</span> <span class="n">currrow</span><span class="p">)</span>
+                    <span class="n">pastrow</span> <span class="o">=</span> <span class="n">currrow</span>
+
+                    <span class="c1"># Apply the point symmetry operations of the site</span>
+                    <span class="n">temp_tensor</span> <span class="o">=</span> <span class="n">Tensor</span><span class="p">(</span><span class="n">total</span><span class="p">)</span>
+                    <span class="n">temp_tensor_sum</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span>
+                        <span class="p">[</span>
+                            <span class="n">temp_tensor</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">symm_op</span><span class="p">)</span>
+                            <span class="k">for</span> <span class="n">symm_op</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sharedops</span><span class="p">[</span><span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+                        <span class="p">]</span>
+                    <span class="p">)</span>
+
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sharedops</span><span class="p">[</span><span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">temp_tensor_sum</span> <span class="o">=</span> <span class="n">temp_tensor_sum</span> <span class="o">/</span> <span class="p">(</span>
+                            <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sharedops</span><span class="p">[</span><span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
+                        <span class="p">)</span>
+
+                    <span class="c1"># Apply the proper transformation if there is an equivalent already</span>
+                    <span class="k">if</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+
+                        <span class="k">for</span> <span class="n">pair</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">op</span><span class="p">[</span><span class="mi">4</span><span class="p">])):</span>
+
+                            <span class="n">temp_tensor2</span> <span class="o">=</span> <span class="n">temp_tensor_sum</span><span class="o">.</span><span class="n">T</span>
+                            <span class="n">temp_tensor2</span> <span class="o">=</span> <span class="n">op</span><span class="p">[</span><span class="mi">4</span><span class="p">][</span><span class="n">pair</span><span class="p">]</span><span class="o">.</span><span class="n">transform_tensor</span><span class="p">(</span><span class="n">temp_tensor2</span><span class="p">)</span>
+                            <span class="n">temp_tensor_sum</span> <span class="o">=</span> <span class="p">(</span><span class="n">temp_tensor_sum</span> <span class="o">+</span> <span class="n">temp_tensor2</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">temp_tensor_sum</span> <span class="o">=</span> <span class="p">(</span><span class="n">temp_tensor_sum</span> <span class="o">+</span> <span class="n">temp_tensor_sum</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+
+                    <span class="n">D</span><span class="p">[</span>
+                        <span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span>
+                    <span class="p">]</span> <span class="o">=</span> <span class="n">temp_tensor_sum</span>
+                    <span class="n">D</span><span class="p">[</span>
+                        <span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="mi">3</span> <span class="o">*</span> <span class="n">op</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span>
+                    <span class="p">]</span> <span class="o">=</span> <span class="n">temp_tensor_sum</span><span class="o">.</span><span class="n">T</span>
+            <span class="n">fcm</span> <span class="o">=</span> <span class="n">fcm</span> <span class="o">-</span> <span class="n">D</span>
+
+        <span class="k">return</span> <span class="n">fcm</span></div>
+
+<div class="viewcode-block" id="ForceConstantMatrix.get_rand_FCM"><a class="viewcode-back" href="../../../pymatgen.analysis.piezo_sensitivity.html#pymatgen.analysis.piezo_sensitivity.ForceConstantMatrix.get_rand_FCM">[docs]</a>    <span class="nd">@requires</span><span class="p">(</span><span class="n">Phonopy</span><span class="p">,</span> <span class="s2">&quot;phonopy not installed!&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">get_rand_FCM</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">asum</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate a symmeterized force constant matrix from an unsymmeterized matrix</span>
+<span class="sd">        that has no unstable modes and also obeys the acoustic sum rule through an</span>
+<span class="sd">        iterative procedure</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            force (float): maximum force constant</span>
+<span class="sd">            asum (int): number of iterations to attempt to obey the acoustic sum</span>
+<span class="sd">                rule</span>
+
+<span class="sd">        Return:</span>
+<span class="sd">            NxNx3x3 np.array representing the force constant matrix</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">numsites</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">sites</span><span class="p">)</span>
+        <span class="n">structure</span> <span class="o">=</span> <span class="n">pymatgen</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">phonopy</span><span class="o">.</span><span class="n">get_phonopy_structure</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">)</span>
+        <span class="n">pnstruc</span> <span class="o">=</span> <span class="n">Phonopy</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+
+        <span class="n">dyn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_unstable_FCM</span><span class="p">(</span><span class="n">force</span><span class="p">)</span>
+        <span class="n">dyn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_stable_FCM</span><span class="p">(</span><span class="n">dyn</span><span class="p">)</span>
+
+        <span class="n">dyn</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">dyn</span><span class="p">,</span> <span class="p">(</span><span class="n">numsites</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">numsites</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+        <span class="n">dynmass</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">),</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+        <span class="n">masses</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numsites</span><span class="p">):</span>
+            <span class="n">masses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">sites</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">atomic_mass</span><span class="p">)</span>
+        <span class="n">dynmass</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">numsites</span><span class="p">,</span> <span class="n">numsites</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numsites</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numsites</span><span class="p">):</span>
+                <span class="n">dynmass</span><span class="p">[</span><span class="n">m</span><span class="p">][</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">dyn</span><span class="p">[</span><span class="n">m</span><span class="p">][</span><span class="n">n</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">masses</span><span class="p">[</span><span class="n">m</span><span class="p">])</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">masses</span><span class="p">[</span><span class="n">n</span><span class="p">])</span>
+
+        <span class="n">supercell</span> <span class="o">=</span> <span class="n">pnstruc</span><span class="o">.</span><span class="n">get_supercell</span><span class="p">()</span>
+        <span class="n">primitive</span> <span class="o">=</span> <span class="n">pnstruc</span><span class="o">.</span><span class="n">get_primitive</span><span class="p">()</span>
+
+        <span class="n">converter</span> <span class="o">=</span> <span class="n">dyntofc</span><span class="o">.</span><span class="n">DynmatToForceConstants</span><span class="p">(</span><span class="n">primitive</span><span class="p">,</span> <span class="n">supercell</span><span class="p">)</span>
+
+        <span class="n">dyn</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="n">dynmass</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="n">numsites</span> <span class="o">*</span> <span class="mi">3</span><span class="p">,</span> <span class="n">numsites</span> <span class="o">*</span> <span class="mi">3</span><span class="p">))</span>
+
+        <span class="n">converter</span><span class="o">.</span><span class="n">set_dynamical_matrices</span><span class="p">(</span><span class="n">dynmat</span><span class="o">=</span><span class="p">[</span><span class="n">dyn</span><span class="p">])</span>
+
+        <span class="n">converter</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+        <span class="n">fc</span> <span class="o">=</span> <span class="n">converter</span><span class="o">.</span><span class="n">get_force_constants</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">fc</span></div></div>
+
+
+<div class="viewcode-block" id="get_piezo"><a class="viewcode-back" href="../../../pymatgen.analysis.piezo_sensitivity.html#pymatgen.analysis.piezo_sensitivity.get_piezo">[docs]</a><span class="k">def</span> <span class="nf">get_piezo</span><span class="p">(</span><span class="n">BEC</span><span class="p">,</span> <span class="n">IST</span><span class="p">,</span> <span class="n">FCM</span><span class="p">,</span> <span class="n">rcond</span><span class="o">=</span><span class="mf">0.0001</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate a random piezoelectric tensor based on a structure and corresponding</span>
+<span class="sd">    symmetry</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        BEC (numpy array): Nx3x3 array representing the born effective charge tensor</span>
+<span class="sd">        IST (numpy array): Nx3x3x3 array representing the internal strain tensor</span>
+<span class="sd">        FCM (numpy array): NxNx3x3 array representing the born effective charge tensor</span>
+<span class="sd">        rcondy (float): condition for excluding eigenvalues in the pseudoinverse</span>
+
+<span class="sd">    Return:</span>
+<span class="sd">        3x3x3 calculated Piezo tensor</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">numsites</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">BEC</span><span class="p">)</span>
+    <span class="n">temp_fcm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="n">FCM</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="n">numsites</span> <span class="o">*</span> <span class="mi">3</span><span class="p">,</span> <span class="n">numsites</span> <span class="o">*</span> <span class="mi">3</span><span class="p">))</span>
+
+    <span class="n">eigs</span><span class="p">,</span> <span class="n">vecs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eig</span><span class="p">(</span><span class="n">temp_fcm</span><span class="p">)</span>
+    <span class="n">K</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">pinv</span><span class="p">(</span>
+        <span class="o">-</span><span class="n">temp_fcm</span><span class="p">,</span>
+        <span class="n">rcond</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">eigs</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">eigs</span><span class="p">))[</span><span class="mi">2</span><span class="p">]])</span>
+        <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">eigs</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">eigs</span><span class="p">))[</span><span class="o">-</span><span class="mi">1</span><span class="p">]])</span>
+        <span class="o">+</span> <span class="n">rcond</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">K</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="p">(</span><span class="n">numsites</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">numsites</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">&quot;ikl,ijlm,jmno-&gt;kno&quot;</span><span class="p">,</span> <span class="n">BEC</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">IST</span><span class="p">)</span> <span class="o">*</span> <span class="mf">16.0216559424</span></div>
+
+
+<div class="viewcode-block" id="rand_piezo"><a class="viewcode-back" href="../../../pymatgen.analysis.piezo_sensitivity.html#pymatgen.analysis.piezo_sensitivity.rand_piezo">[docs]</a><span class="nd">@requires</span><span class="p">(</span><span class="n">Phonopy</span><span class="p">,</span> <span class="s2">&quot;phonopy not installed!&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">rand_piezo</span><span class="p">(</span><span class="n">struc</span><span class="p">,</span> <span class="n">pointops</span><span class="p">,</span> <span class="n">sharedops</span><span class="p">,</span> <span class="n">BEC</span><span class="p">,</span> <span class="n">IST</span><span class="p">,</span> <span class="n">FCM</span><span class="p">,</span> <span class="n">anumiter</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate a random piezoelectric tensor based on a structure and corresponding</span>
+<span class="sd">    symmetry</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        struc (pymatgen structure): structure whose symmetry operations the piezo tensor must obey</span>
+<span class="sd">        pointops: list of point operations obeyed by a single atomic site</span>
+<span class="sd">        sharedops: list of point operations shared by a pair of atomic sites</span>
+<span class="sd">        BEC (numpy array): Nx3x3 array representing the born effective charge tensor</span>
+<span class="sd">        IST (numpy array): Nx3x3x3 array representing the internal strain tensor</span>
+<span class="sd">        FCM (numpy array): NxNx3x3 array representing the born effective charge tensor</span>
+<span class="sd">        anumiter (int): number of iterations for acoustic sum rule convergence</span>
+<span class="sd">    Return:</span>
+<span class="sd">        list in the form of [Nx3x3 random born effective charge tenosr,</span>
+<span class="sd">        Nx3x3x3 random internal strain tensor, NxNx3x3 random force constant matrix, 3x3x3 piezo tensor]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">bec</span> <span class="o">=</span> <span class="n">BornEffectiveCharge</span><span class="p">(</span><span class="n">struc</span><span class="p">,</span> <span class="n">BEC</span><span class="p">,</span> <span class="n">pointops</span><span class="p">)</span>
+    <span class="n">bec</span><span class="o">.</span><span class="n">get_BEC_operations</span><span class="p">()</span>
+    <span class="n">rand_BEC</span> <span class="o">=</span> <span class="n">bec</span><span class="o">.</span><span class="n">get_rand_BEC</span><span class="p">()</span>
+
+    <span class="n">ist</span> <span class="o">=</span> <span class="n">InternalStrainTensor</span><span class="p">(</span><span class="n">struc</span><span class="p">,</span> <span class="n">IST</span><span class="p">,</span> <span class="n">pointops</span><span class="p">)</span>
+    <span class="n">ist</span><span class="o">.</span><span class="n">get_IST_operations</span><span class="p">()</span>
+    <span class="n">rand_IST</span> <span class="o">=</span> <span class="n">ist</span><span class="o">.</span><span class="n">get_rand_IST</span><span class="p">()</span>
+
+    <span class="n">fcm</span> <span class="o">=</span> <span class="n">ForceConstantMatrix</span><span class="p">(</span><span class="n">struc</span><span class="p">,</span> <span class="n">FCM</span><span class="p">,</span> <span class="n">pointops</span><span class="p">,</span> <span class="n">sharedops</span><span class="p">)</span>
+    <span class="n">fcm</span><span class="o">.</span><span class="n">get_FCM_operations</span><span class="p">()</span>
+    <span class="n">rand_FCM</span> <span class="o">=</span> <span class="n">fcm</span><span class="o">.</span><span class="n">get_rand_FCM</span><span class="p">()</span>
+
+    <span class="n">P</span> <span class="o">=</span> <span class="n">get_piezo</span><span class="p">(</span><span class="n">rand_BEC</span><span class="p">,</span> <span class="n">rand_IST</span><span class="p">,</span> <span class="n">rand_FCM</span><span class="p">)</span> <span class="o">*</span> <span class="mf">16.0216559424</span> <span class="o">/</span> <span class="n">struc</span><span class="o">.</span><span class="n">volume</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="n">rand_BEC</span><span class="p">,</span> <span class="n">rand_IST</span><span class="p">,</span> <span class="n">rand_FCM</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

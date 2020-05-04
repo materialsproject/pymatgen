@@ -327,15 +327,6 @@ class PeriodicSite(Site, MSONable):
             <= a < 1. Defaults to False.
         :param coords_are_cartesian: Set to True if you are providing
             cartesian coordinates. Defaults to False.
-        :param species: Species on the site. Can be:
-            i.  A Composition-type object (preferred)
-            ii. An  element / specie specified either as a string
-                symbols, e.g. "Li", "Fe2+", "P" or atomic numbers,
-                e.g., 3, 56, or actual Element or Specie objects.
-            iii.Dict of elements/species and occupancies, e.g.,
-                {"Fe" : 0.5, "Mn":0.5}. This allows the setup of
-                disordered structures.
-        :param coords: Cartesian coordinates of site.
         :param properties: Properties associated with the site as a dict, e.g.
             {"magmom": 5}. Defaults to None.
         :param skip_checks: Whether to ignore all the usual checks and just

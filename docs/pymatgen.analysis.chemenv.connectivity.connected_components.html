@@ -1,0 +1,557 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pymatgen.analysis.chemenv.connectivity.connected_components module &mdash; pymatgen 2020.4.29 documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pymatgen.orgpymatgen.analysis.chemenv.connectivity.connected_components.html"/>
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.analysis.chemenv.connectivity.connectivity_finder module" href="pymatgen.analysis.chemenv.connectivity.connectivity_finder.html" />
+    <link rel="prev" title="pymatgen.analysis.chemenv.connectivity package" href="pymatgen.analysis.chemenv.connectivity.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pymatgen
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2020.4.29
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="team.html">Development Team</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API Docs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pymatgen.html">pymatgen package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="pymatgen.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.alchemy.html">pymatgen.alchemy package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="pymatgen.analysis.html">pymatgen.analysis package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.apps.html">pymatgen.apps package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.cli.html">pymatgen.cli package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.command_line.html">pymatgen.command_line package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html">pymatgen.core package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.electronic_structure.html">pymatgen.electronic_structure package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.entries.html">pymatgen.entries package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html">pymatgen.ext package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html">pymatgen.io package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.plugins.html">pymatgen.plugins package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.vis.html">pymatgen.vis package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#module-pymatgen">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pymatgen</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="modules.html">pymatgen</a> &raquo;</li>
+        
+          <li><a href="pymatgen.html">pymatgen package</a> &raquo;</li>
+        
+          <li><a href="pymatgen.analysis.html">pymatgen.analysis package</a> &raquo;</li>
+        
+          <li><a href="pymatgen.analysis.chemenv.html">pymatgen.analysis.chemenv package</a> &raquo;</li>
+        
+          <li><a href="pymatgen.analysis.chemenv.connectivity.html">pymatgen.analysis.chemenv.connectivity package</a> &raquo;</li>
+        
+      <li>pymatgen.analysis.chemenv.connectivity.connected_components module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.analysis.chemenv.connectivity.connected_components.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-pymatgen.analysis.chemenv.connectivity.connected_components">
+<span id="pymatgen-analysis-chemenv-connectivity-connected-components-module"></span><h1>pymatgen.analysis.chemenv.connectivity.connected_components module<a class="headerlink" href="#module-pymatgen.analysis.chemenv.connectivity.connected_components" title="Permalink to this headline">¶</a></h1>
+<p>Connected components.</p>
+<dl class="class">
+<dt id="pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent">
+<em class="property">class </em><code class="sig-name descname">ConnectedComponent</code><span class="sig-paren">(</span><em class="sig-param">environments=None</em>, <em class="sig-param">links=None</em>, <em class="sig-param">environments_data=None</em>, <em class="sig-param">links_data=None</em>, <em class="sig-param">graph=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/chemenv/connectivity/connected_components.py#L176-L915"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
+<p>Class used to describe the connected components in a structure in terms of coordination environments.</p>
+<p>Constructor for the ConnectedComponent object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>environments</strong> – Environments in the connected component.</p></li>
+<li><p><strong>links</strong> – Links between environments in the connected component.</p></li>
+<li><p><strong>environments_data</strong> – Data of environment nodes.</p></li>
+<li><p><strong>links_data</strong> – Data of links between environment nodes.</p></li>
+<li><p><strong>graph</strong> – Graph of the connected component.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Instance of this class</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent" title="pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent">ConnectedComponent</a></p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.as_dict">
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/chemenv/connectivity/connected_components.py#L830-L853"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bson-serializable dict representation of the ConnectedComponent object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Bson-serializable dict representation of the ConnectedComponent object.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.compute_periodicity">
+<code class="sig-name descname">compute_periodicity</code><span class="sig-paren">(</span><em class="sig-param">algorithm='all_simple_paths'</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/chemenv/connectivity/connected_components.py#L349-L364"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.compute_periodicity" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>algorithm</em>) – </p>
+</dd>
+</dl>
+<p>Returns:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.compute_periodicity_all_simple_paths_algorithm">
+<code class="sig-name descname">compute_periodicity_all_simple_paths_algorithm</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/chemenv/connectivity/connected_components.py#L366-L448"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.compute_periodicity_all_simple_paths_algorithm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.compute_periodicity_cycle_basis">
+<code class="sig-name descname">compute_periodicity_cycle_basis</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/chemenv/connectivity/connected_components.py#L450-L496"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.compute_periodicity_cycle_basis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.coordination_sequence">
+<code class="sig-name descname">coordination_sequence</code><span class="sig-paren">(</span><em class="sig-param">source_node</em>, <em class="sig-param">path_size=5</em>, <em class="sig-param">coordination='number'</em>, <em class="sig-param">include_source=False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/chemenv/connectivity/connected_components.py#L239-L344"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.coordination_sequence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the coordination sequence for a given node.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source_node</strong> – Node for which the coordination sequence is computed.</p></li>
+<li><p><strong>path_size</strong> – Maximum length of the path for the coordination sequence.</p></li>
+<li><p><strong>coordination</strong> – Type of coordination sequence. The default (“number”) corresponds to the number
+of environment nodes that are reachable by following paths of sizes between 1 and path_size.
+For coordination “env:number”, this resulting coordination sequence is a sequence of dictionaries
+mapping the type of environment to the number of such environment reachable by following paths of
+sizes between 1 and path_size.</p></li>
+<li><p><strong>include_source</strong> – Whether to include the source_node in the coordination sequence.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Mapping between the nth “layer” of the connected component with the corresponding coordination.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>The corner-sharing octahedral framework (as in perovskites) have the following coordination sequence (up to
+a path of size 6) :
+{1: 6, 2: 18, 3: 38, 4: 66, 5: 102, 6: 146}
+Considering both the octahedrons and the cuboctahedrons of the typical BaTiO3 perovskite, the “env:number”
+coordination sequence (up to a path of size 6) starting on the Ti octahedron and Ba cuboctahedron
+are the following :
+Starting on the Ti octahedron : {1: {‘O:6’: 6, ‘C:12’: 8}, 2: {‘O:6’: 26, ‘C:12’: 48},</p>
+<blockquote>
+<div><p>3: {‘O:6’: 90, ‘C:12’: 128}, 4: {‘O:6’: 194, ‘C:12’: 248},
+5: {‘O:6’: 338, ‘C:12’: 408}, 6: {‘O:6’: 522, ‘C:12’: 608}}</p>
+</div></blockquote>
+<dl class="simple">
+<dt>Starting on the Ba cuboctahedron<span class="classifier">{1: {‘O:6’: 8, ‘C:12’: 18}, 2: {‘O:6’: 48, ‘C:12’: 74},</span></dt><dd><p>3: {‘O:6’: 128, ‘C:12’: 170}, 4: {‘O:6’: 248, ‘C:12’: 306},
+5: {‘O:6’: 408, ‘C:12’: 482}, 6: {‘O:6’: 608, ‘C:12’: 698}}</p>
+</dd>
+</dl>
+<p>If include_source is set to True, the source node is included in the sequence, e.g. for the corner-sharing
+octahedral framework : {0: 1, 1: 6, 2: 18, 3: 38, 4: 66, 5: 102, 6: 146}. For the “env:number” coordination
+starting on a Ba cuboctahedron (as shown above), the coordination sequence is then :
+{0: {‘C:12’: 1}, 1: {‘O:6’: 8, ‘C:12’: 18}, 2: {‘O:6’: 48, ‘C:12’: 74}, 3: {‘O:6’: 128, ‘C:12’: 170},</p>
+<blockquote>
+<div><p>4: {‘O:6’: 248, ‘C:12’: 306}, 5: {‘O:6’: 408, ‘C:12’: 482}, 6: {‘O:6’: 608, ‘C:12’: 698}}</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.description">
+<code class="sig-name descname">description</code><span class="sig-paren">(</span><em class="sig-param">full=False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/chemenv/connectivity/connected_components.py#L893-L915"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.description" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>full</em>) – </p>
+</dd>
+</dl>
+<p>Returns:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.elastic_centered_graph">
+<code class="sig-name descname">elastic_centered_graph</code><span class="sig-paren">(</span><em class="sig-param">start_node=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/chemenv/connectivity/connected_components.py#L664-L776"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.elastic_centered_graph" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>start_node</em>) – </p>
+</dd>
+</dl>
+<p>Returns:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.from_dict">
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/chemenv/connectivity/connected_components.py#L855-L879"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reconstructs the ConnectedComponent object from a dict representation of the
+ConnectedComponent object created using the as_dict method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>d</strong> (<em>dict</em>) – dict representation of the ConnectedComponent object</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The connected component representing the links of a given set of environments.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent" title="pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent">ConnectedComponent</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.from_graph">
+<em class="property">classmethod </em><code class="sig-name descname">from_graph</code><span class="sig-paren">(</span><em class="sig-param">g</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/chemenv/connectivity/connected_components.py#L881-L891"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.from_graph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructor for the ConnectedComponent object from a graph of the connected component</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>g</strong> (<em>MultiGraph</em>) – Graph of the connected component.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The connected component representing the links of a given set of environments.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent" title="pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent">ConnectedComponent</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.graph">
+<em class="property">property </em><code class="sig-name descname">graph</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/chemenv/connectivity/connected_components.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.graph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the graph of this connected component.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>Networkx MultiGraph object with environment as nodes and links between these nodes as edges</dt><dd><p>with information about the image cell difference if any.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>MultiGraph</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.is_0d">
+<em class="property">property </em><code class="sig-name descname">is_0d</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/chemenv/connectivity/connected_components.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.is_0d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.is_1d">
+<em class="property">property </em><code class="sig-name descname">is_1d</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/chemenv/connectivity/connected_components.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.is_1d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.is_2d">
+<em class="property">property </em><code class="sig-name descname">is_2d</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/chemenv/connectivity/connected_components.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.is_2d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.is_3d">
+<em class="property">property </em><code class="sig-name descname">is_3d</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/chemenv/connectivity/connected_components.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.is_3d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.is_periodic">
+<em class="property">property </em><code class="sig-name descname">is_periodic</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/chemenv/connectivity/connected_components.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.is_periodic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.make_supergraph">
+<code class="sig-name descname">make_supergraph</code><span class="sig-paren">(</span><em class="sig-param">multiplicity</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/chemenv/connectivity/connected_components.py#L498-L508"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.make_supergraph" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>multiplicity</em>) – </p>
+</dd>
+</dl>
+<p>Returns:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.periodicity">
+<em class="property">property </em><code class="sig-name descname">periodicity</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/chemenv/connectivity/connected_components.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.periodicity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.periodicity_vectors">
+<em class="property">property </em><code class="sig-name descname">periodicity_vectors</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/chemenv/connectivity/connected_components.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.periodicity_vectors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.show_graph">
+<code class="sig-name descname">show_graph</code><span class="sig-paren">(</span><em class="sig-param">graph=None</em>, <em class="sig-param">save_file=None</em>, <em class="sig-param">drawing_type='internal'</em>, <em class="sig-param">pltshow=True</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/chemenv/connectivity/connected_components.py#L510-L548"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.show_graph" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>(</strong><strong>)</strong> (<em>pltshow</em>) – </p></li>
+<li><p><strong>(</strong><strong>)</strong> – </p></li>
+<li><p><strong>(</strong><strong>)</strong> – </p></li>
+<li><p><strong>(</strong><strong>)</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns:</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.analysis.chemenv.connectivity.connected_components.draw_network">
+<code class="sig-name descname">draw_network</code><span class="sig-paren">(</span><em class="sig-param">env_graph</em>, <em class="sig-param">pos</em>, <em class="sig-param">ax</em>, <em class="sig-param">sg=None</em>, <em class="sig-param">periodicity_vectors=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/chemenv/connectivity/connected_components.py#L24-L103"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.connected_components.draw_network" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>(</strong><strong>)</strong> (<em>periodicity_vectors</em>) – </p></li>
+<li><p><strong>(</strong><strong>)</strong> – </p></li>
+<li><p><strong>(</strong><strong>)</strong> – </p></li>
+<li><p><strong>(</strong><strong>)</strong> – </p></li>
+<li><p><strong>(</strong><strong>)</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns:</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.analysis.chemenv.connectivity.connected_components.make_supergraph">
+<code class="sig-name descname">make_supergraph</code><span class="sig-paren">(</span><em class="sig-param">graph</em>, <em class="sig-param">multiplicity</em>, <em class="sig-param">periodicity_vectors</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/chemenv/connectivity/connected_components.py#L106-L173"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.connected_components.make_supergraph" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>(</strong><strong>)</strong> (<em>periodicity_vectors</em>) – </p></li>
+<li><p><strong>(</strong><strong>)</strong> – </p></li>
+<li><p><strong>(</strong><strong>)</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns:</p>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011, Pymatgen Development Team
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+  
+ 
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+
+</body>
+</html>

@@ -24,7 +24,6 @@ from monty.json import MontyDecoder, MontyEncoder
 
 from enum import Enum, unique
 from collections import defaultdict
-from copy import deepcopy
 
 from pymatgen import SETTINGS, __version__ as pmg_version
 
@@ -499,7 +498,7 @@ class MPRester:
 
         # position the ion energies relative to most stable reference state
         for n, i_d in enumerate(ion_data):
-            ion_entry = IonEntry(Ion.from_formula(i_d['Name']), i_d['Energy'])
+            ion = Ion.from_formula(i_d['Name'])
             refs = [e for e in ion_ref_entries
                     if e.composition.reduced_formula == i_d['Reference Solid']]
             if not refs:
@@ -508,8 +507,9 @@ class MPRester:
             rf = stable_ref.composition.get_reduced_composition_and_factor()[1]
             solid_diff = ion_ref_pd.get_form_energy(stable_ref) - i_d['Reference solid energy'] * rf
             elt = i_d['Major_Elements'][0]
-            correction_factor = ion_entry.ion.composition[elt] / stable_ref.composition[elt]
-            ion_entry.energy += solid_diff * correction_factor
+            correction_factor = ion.composition[elt] / stable_ref.composition[elt]
+            energy = i_d['Energy'] + solid_diff * correction_factor
+            ion_entry = IonEntry(ion, energy)
             pbx_entries.append(PourbaixEntry(ion_entry, 'ion-{}'.format(n)))
 
         # Construct the solid pourbaix entries from filtered ion_ref entries
@@ -520,12 +520,9 @@ class MPRester:
             # Ensure no OH chemsys or extraneous elements from ion references
             if not (entry_elts <= {Element('H'), Element('O')} or
                     extra_elts.intersection(entry_elts)):
-                # replace energy with formation energy, use dict to
-                # avoid messing with the ion_ref_pd and to keep all old params
+                # Create new computed entry
                 form_e = ion_ref_pd.get_form_energy(entry)
-                new_entry = deepcopy(entry)
-                new_entry.uncorrected_energy = form_e
-                new_entry.correction = 0.0
+                new_entry = ComputedEntry(entry.composition, form_e, entry_id=entry.entry_id)
                 pbx_entry = PourbaixEntry(new_entry)
                 pbx_entries.append(pbx_entry)
 

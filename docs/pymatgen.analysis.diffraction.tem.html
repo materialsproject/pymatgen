@@ -1,0 +1,614 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pymatgen.analysis.diffraction.tem module &mdash; pymatgen 2020.4.29 documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pymatgen.orgpymatgen.analysis.diffraction.tem.html"/>
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.analysis.diffraction.xrd module" href="pymatgen.analysis.diffraction.xrd.html" />
+    <link rel="prev" title="pymatgen.analysis.diffraction.neutron module" href="pymatgen.analysis.diffraction.neutron.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pymatgen
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2020.4.29
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="team.html">Development Team</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API Docs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pymatgen.html">pymatgen package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="pymatgen.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.alchemy.html">pymatgen.alchemy package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="pymatgen.analysis.html">pymatgen.analysis package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.apps.html">pymatgen.apps package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.cli.html">pymatgen.cli package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.command_line.html">pymatgen.command_line package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html">pymatgen.core package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.electronic_structure.html">pymatgen.electronic_structure package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.entries.html">pymatgen.entries package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html">pymatgen.ext package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html">pymatgen.io package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.plugins.html">pymatgen.plugins package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.vis.html">pymatgen.vis package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#module-pymatgen">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pymatgen</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="modules.html">pymatgen</a> &raquo;</li>
+        
+          <li><a href="pymatgen.html">pymatgen package</a> &raquo;</li>
+        
+          <li><a href="pymatgen.analysis.html">pymatgen.analysis package</a> &raquo;</li>
+        
+          <li><a href="pymatgen.analysis.diffraction.html">pymatgen.analysis.diffraction package</a> &raquo;</li>
+        
+      <li>pymatgen.analysis.diffraction.tem module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.analysis.diffraction.tem.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-pymatgen.analysis.diffraction.tem">
+<span id="pymatgen-analysis-diffraction-tem-module"></span><h1>pymatgen.analysis.diffraction.tem module<a class="headerlink" href="#module-pymatgen.analysis.diffraction.tem" title="Permalink to this headline">¶</a></h1>
+<p>This module implements a TEM pattern calculator.</p>
+<dl class="class">
+<dt id="pymatgen.analysis.diffraction.tem.TEMCalculator">
+<em class="property">class </em><code class="sig-name descname">TEMCalculator</code><span class="sig-paren">(</span><em class="sig-param">symprec: float = None</em>, <em class="sig-param">voltage: float = 200</em>, <em class="sig-param">beam_direction: Tuple[int</em>, <em class="sig-param">int</em>, <em class="sig-param">int] = (0</em>, <em class="sig-param">0</em>, <em class="sig-param">1)</em>, <em class="sig-param">camera_length: int = 160</em>, <em class="sig-param">debye_waller_factors: Dict[str</em>, <em class="sig-param">float] = None</em>, <em class="sig-param">cs: float = 1</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/diffraction/tem.py#L37-L613"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.tem.TEMCalculator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.analysis.diffraction.core.html#pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator" title="pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator</span></code></a></p>
+<p>Computes the TEM pattern of a crystal structure for multiple Laue zones.
+Code partially inspired from XRD calculation implementation. X-ray factor to electron factor</p>
+<blockquote>
+<div><p>conversion based on the International Table of Crystallography.</p>
+</div></blockquote>
+<dl class="simple">
+<dt>#TODO: Could add “number of iterations”, “magnification”, “critical value of beam”,</dt><dd><p>“twin direction” for certain materials, “sample thickness”, and “excitation error s”</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>symprec</strong> (<em>float</em>) – Symmetry precision for structure refinement. If
+set to 0, no refinement is done. Otherwise, refinement is
+performed using spglib with provided precision.</p></li>
+<li><p><strong>voltage</strong> (<em>float</em>) – The wavelength is a function of the TEM microscope’s
+voltage. By default, set to 200 kV. Units in kV.</p></li>
+<li><p><strong>beam_direction</strong> (<em>tuple</em>) – The direction of the electron beam fired onto the sample.
+By default, set to [0,0,1], which corresponds to the normal direction
+of the sample plane.</p></li>
+<li><p><strong>camera_length</strong> (<em>int</em>) – The distance from the sample to the projected diffraction pattern.
+By default, set to 160 cm. Units in cm.</p></li>
+<li><p><strong>(</strong><strong>{element symbol</strong> (<em>debye_waller_factors</em>) – float}): Allows the
+specification of Debye-Waller factors. Note that these
+factors are temperature dependent.</p></li>
+<li><p><strong>cs</strong> (<em>float</em>) – the chromatic aberration coefficient. set by default to 1 mm.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.analysis.diffraction.tem.TEMCalculator.bragg_angles">
+<code class="sig-name descname">bragg_angles</code><span class="sig-paren">(</span><em class="sig-param">interplanar_spacings: Dict[Tuple[int, int, int], float]</em><span class="sig-paren">)</span> &#x2192; Dict[Tuple[int, int, int], float]<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/diffraction/tem.py#L137-L150"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.tem.TEMCalculator.bragg_angles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the Bragg angles for every hkl point passed in (where n = 1).
+:param interplanar_spacings: dictionary of hkl to interplanar spacing
+:type interplanar_spacings: dict</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>dict of hkl plane (3-tuple) to Bragg angle in radians (float)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.diffraction.tem.TEMCalculator.cell_intensity">
+<code class="sig-name descname">cell_intensity</code><span class="sig-paren">(</span><em class="sig-param">structure: pymatgen.core.structure.Structure, bragg_angles: Dict[Tuple[int, int, int], float]</em><span class="sig-paren">)</span> &#x2192; Dict[Tuple[int, int, int], float]<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/diffraction/tem.py#L241-L256"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.tem.TEMCalculator.cell_intensity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates cell intensity for each hkl plane. For simplicity’s sake, take I = <a href="#id1"><span class="problematic" id="id2">|</span></a>F|**2.
+:param structure: The input structure.
+:type structure: Structure
+:param bragg_angles: The Bragg angles for each hkl plane.
+:type bragg_angles: dict of 3-tuple to float</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>dict of hkl plane to cell intensity</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.diffraction.tem.TEMCalculator.cell_scattering_factors">
+<code class="sig-name descname">cell_scattering_factors</code><span class="sig-paren">(</span><em class="sig-param">structure: pymatgen.core.structure.Structure, bragg_angles: Dict[Tuple[int, int, int], float]</em><span class="sig-paren">)</span> &#x2192; Dict[Tuple[int, int, int], int]<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/diffraction/tem.py#L218-L239"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.tem.TEMCalculator.cell_scattering_factors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the scattering factor for the whole cell.
+:param structure: The input structure.
+:type structure: Structure
+:param bragg_angles: The Bragg angles for each hkl plane.
+:type bragg_angles: dict of 3-tuple to float</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>dict of hkl plane (3-tuple) to scattering factor (in angstroms).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.diffraction.tem.TEMCalculator.electron_scattering_factors">
+<code class="sig-name descname">electron_scattering_factors</code><span class="sig-paren">(</span><em class="sig-param">structure: pymatgen.core.structure.Structure, bragg_angles: Dict[Tuple[int, int, int], float]</em><span class="sig-paren">)</span> &#x2192; Dict[str, Dict[Tuple[int, int, int], float]]<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/diffraction/tem.py#L194-L216"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.tem.TEMCalculator.electron_scattering_factors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates atomic scattering factors for electrons using the Mott-Bethe formula (1st order Born approximation).
+:param structure: The input structure.
+:type structure: Structure
+:param bragg_angles: The Bragg angles for each hkl plane.
+:type bragg_angles: dict of 3-tuple to float</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>dict from atomic symbol to another dict of hkl plane to factor (in angstroms)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.diffraction.tem.TEMCalculator.generate_points">
+<code class="sig-name descname">generate_points</code><span class="sig-paren">(</span><em class="sig-param">coord_left: int = -10</em>, <em class="sig-param">coord_right: int = 10</em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/diffraction/tem.py#L87-L101"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.tem.TEMCalculator.generate_points" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a bunch of 3D points that span a cube.
+:param coord_left: The minimum coordinate value.
+:type coord_left: int
+:param coord_right: The maximum coordinate value.
+:type coord_right: int</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Numpy 2d array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.diffraction.tem.TEMCalculator.get_first_point">
+<code class="sig-name descname">get_first_point</code><span class="sig-paren">(</span><em class="sig-param">structure: pymatgen.core.structure.Structure</em>, <em class="sig-param">points: list</em><span class="sig-paren">)</span> &#x2192; Dict[Tuple[int, int, int], float]<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/diffraction/tem.py#L315-L332"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.tem.TEMCalculator.get_first_point" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the first point to be plotted in the 2D DP, corresponding to maximum d/minimum R.
+:param structure: The input structure.
+:type structure: Structure
+:param points: All points to be checked.
+:type points: list</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>dict of a hkl plane to max interplanar distance.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.diffraction.tem.TEMCalculator.get_interplanar_angle">
+<code class="sig-name descname">get_interplanar_angle</code><span class="sig-paren">(</span><em class="sig-param">structure: pymatgen.core.structure.Structure, p1: Tuple[int, int, int], p2: Tuple[int, int, int]</em><span class="sig-paren">)</span> &#x2192; float<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/diffraction/tem.py#L334-L371"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.tem.TEMCalculator.get_interplanar_angle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the interplanar angle (in degrees) between the normal of two crystal planes.
+Formulas from International Tables for Crystallography Volume C pp. 2-9.
+:param structure: The input structure.
+:type structure: Structure
+:param p1: plane 1
+:type p1: 3-tuple
+:param p2: plane 2
+:type p2: 3-tuple</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.diffraction.tem.TEMCalculator.get_interplanar_spacings">
+<code class="sig-name descname">get_interplanar_spacings</code><span class="sig-paren">(</span><em class="sig-param">structure: pymatgen.core.structure.Structure, points: List[Tuple[int, int, int]]</em><span class="sig-paren">)</span> &#x2192; Dict[Tuple[int, int, int], float]<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/diffraction/tem.py#L121-L135"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.tem.TEMCalculator.get_interplanar_spacings" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – the input structure.</p></li>
+<li><p><strong>points</strong> (<em>tuple</em>) – the desired hkl indices.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dict of hkl to its interplanar spacing, in angstroms (float).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.diffraction.tem.TEMCalculator.get_pattern">
+<code class="sig-name descname">get_pattern</code><span class="sig-paren">(</span><em class="sig-param">structure: pymatgen.core.structure.Structure</em>, <em class="sig-param">scaled: bool = None</em>, <em class="sig-param">two_theta_range: Tuple[float</em>, <em class="sig-param">float] = None</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/diffraction/tem.py#L258-L281"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.tem.TEMCalculator.get_pattern" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns all relevant TEM DP info in a pandas dataframe.
+:param structure: The input structure.
+:type structure: Structure
+:param scaled: Required value for inheritance, does nothing in TEM pattern
+:type scaled: boolean
+:param two_theta_range: Required value for inheritance, does nothing in TEM pattern
+:type two_theta_range: Tuple</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>PandasDataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.diffraction.tem.TEMCalculator.get_plot_2d">
+<code class="sig-name descname">get_plot_2d</code><span class="sig-paren">(</span><em class="sig-param">structure: pymatgen.core.structure.Structure</em><span class="sig-paren">)</span> &#x2192; plotly.graph_objs._figure.Figure<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/diffraction/tem.py#L465-L546"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.tem.TEMCalculator.get_plot_2d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates the 2D diffraction pattern of the input structure.
+:param structure: The input structure.
+:type structure: Structure</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Figure</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.diffraction.tem.TEMCalculator.get_plot_2d_concise">
+<code class="sig-name descname">get_plot_2d_concise</code><span class="sig-paren">(</span><em class="sig-param">structure: pymatgen.core.structure.Structure</em><span class="sig-paren">)</span> &#x2192; plotly.graph_objs._figure.Figure<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/diffraction/tem.py#L548-L613"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.tem.TEMCalculator.get_plot_2d_concise" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates the concise 2D diffraction pattern of the input structure of a smaller size and without layout.
+Does not display.
+:param structure: The input structure.
+:type structure: Structure</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Figure</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.diffraction.tem.TEMCalculator.get_plot_coeffs">
+<code class="sig-name descname">get_plot_coeffs</code><span class="sig-paren">(</span><em class="sig-param">p1: Tuple[int, int, int], p2: Tuple[int, int, int], p3: Tuple[int, int, int]</em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/diffraction/tem.py#L373-L391"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.tem.TEMCalculator.get_plot_coeffs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates coefficients of the vector addition required to generate positions for each DP point
+by the Moore-Penrose inverse method.
+:param p1: The first point. Fixed.
+:type p1: 3-tuple
+:param p2: The second point. Fixed.
+:type p2: 3-tuple
+:param p3: The point whose coefficients are to be calculted.
+:type p3: 3-tuple</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Numpy array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.diffraction.tem.TEMCalculator.get_positions">
+<code class="sig-name descname">get_positions</code><span class="sig-paren">(</span><em class="sig-param">structure: pymatgen.core.structure.Structure</em>, <em class="sig-param">points: list</em><span class="sig-paren">)</span> &#x2192; Dict[Tuple[int, int, int], list]<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/diffraction/tem.py#L393-L438"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.tem.TEMCalculator.get_positions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates all the positions of each hkl point in the 2D diffraction pattern by vector addition.
+Distance in centimeters.
+:param structure: The input structure.
+:type structure: Structure
+:param points: All points to be checked.
+:type points: list</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>dict of hkl plane to xy-coordinates.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.diffraction.tem.TEMCalculator.get_s2">
+<code class="sig-name descname">get_s2</code><span class="sig-paren">(</span><em class="sig-param">bragg_angles: Dict[Tuple[int, int, int], float]</em><span class="sig-paren">)</span> &#x2192; Dict[Tuple[int, int, int], float]<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/diffraction/tem.py#L152-L166"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.tem.TEMCalculator.get_s2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the s squared parameter (= square of sin theta over lambda) for each hkl plane.
+:param bragg_angles: The bragg angles for each hkl plane.
+:type bragg_angles: Dict</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>Dict of hkl plane to s2 parameter, calculates the s squared parameter</dt><dd><p>(= square of sin theta over lambda).</p>
+</dd>
+</dl>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.diffraction.tem.TEMCalculator.is_parallel">
+<code class="sig-name descname">is_parallel</code><span class="sig-paren">(</span><em class="sig-param">structure: pymatgen.core.structure.Structure, plane: Tuple[int, int, int], other_plane: Tuple[int, int, int]</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/diffraction/tem.py#L301-L313"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.tem.TEMCalculator.is_parallel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if two hkl planes are parallel in reciprocal space.
+:param structure: The input structure.
+:type structure: Structure
+:param plane: The first plane to be compared.
+:type plane: 3-tuple
+:param other_plane: The other plane to be compared.
+:type other_plane: 3-tuple</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>boolean</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.diffraction.tem.TEMCalculator.normalized_cell_intensity">
+<code class="sig-name descname">normalized_cell_intensity</code><span class="sig-paren">(</span><em class="sig-param">structure: pymatgen.core.structure.Structure, bragg_angles: Dict[Tuple[int, int, int], float]</em><span class="sig-paren">)</span> &#x2192; Dict[Tuple[int, int, int], float]<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/diffraction/tem.py#L283-L299"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.tem.TEMCalculator.normalized_cell_intensity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalizes the cell_intensity dict to 1, for use in plotting.
+:param structure: The input structure.
+:type structure: Structure
+:param bragg_angles: The Bragg angles for each hkl plane.
+:type bragg_angles: dict of 3-tuple to float</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>dict of hkl plane to normalized cell intensity</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.diffraction.tem.TEMCalculator.tem_dots">
+<code class="sig-name descname">tem_dots</code><span class="sig-paren">(</span><em class="sig-param">structure: pymatgen.core.structure.Structure</em>, <em class="sig-param">points: list</em><span class="sig-paren">)</span> &#x2192; list<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/diffraction/tem.py#L440-L463"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.tem.TEMCalculator.tem_dots" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates all TEM_dot as named tuples that will appear on the 2D diffraction pattern.
+:param structure: The input structure.
+:type structure: Structure
+:param points: All points to be checked.
+:type points: list</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>list of TEM_dots</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.diffraction.tem.TEMCalculator.wavelength_rel">
+<code class="sig-name descname">wavelength_rel</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/diffraction/tem.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.tem.TEMCalculator.wavelength_rel" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Calculates the wavelength of the electron beam with relativistic kinematic effects taken</dt><dd><p>into account.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>none</strong> – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Relativistic Wavelength (in angstroms)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.diffraction.tem.TEMCalculator.x_ray_factors">
+<code class="sig-name descname">x_ray_factors</code><span class="sig-paren">(</span><em class="sig-param">structure: pymatgen.core.structure.Structure, bragg_angles: Dict[Tuple[int, int, int], float]</em><span class="sig-paren">)</span> &#x2192; Dict[str, Dict[Tuple[int, int, int], float]]<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/diffraction/tem.py#L168-L192"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.tem.TEMCalculator.x_ray_factors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates x-ray factors, which are required to calculate atomic scattering factors. Method partially inspired
+by the equivalent process in the xrd module.
+:param structure: The input structure.
+:type structure: Structure
+:param bragg_angles: Dictionary of hkl plane to Bragg angle.
+:type bragg_angles: Dict</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>dict of atomic symbol to another dict of hkl plane to x-ray factor (in angstroms).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.diffraction.tem.TEMCalculator.zone_axis_filter">
+<code class="sig-name descname">zone_axis_filter</code><span class="sig-paren">(</span><em class="sig-param">points: numpy.ndarray</em>, <em class="sig-param">laue_zone: int = 0</em><span class="sig-paren">)</span> &#x2192; List[Tuple[int, int, int]]<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/diffraction/tem.py#L103-L119"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.tem.TEMCalculator.zone_axis_filter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filters out all points that exist within the specified Laue zone according to the zone axis rule.
+:param points: The list of points to be filtered.
+:type points: np.ndarray
+:param laue_zone: The desired Laue zone.
+:type laue_zone: int</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>list of 3-tuples</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011, Pymatgen Development Team
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+  
+ 
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+
+</body>
+</html>

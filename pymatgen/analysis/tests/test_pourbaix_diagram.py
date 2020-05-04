@@ -276,6 +276,15 @@ class PourbaixDiagramTest(unittest.TestCase):
         self.assertAlmostEqual(pbx.get_decomposition_energy(custom_ion_entry, 5, 2),
                                2.1209002582, 1)
 
+        # Test against ion sets with multiple equivalent ions (Bi-V regression)
+        entries = mpr.get_pourbaix_entries(["Bi", "V"])
+        pbx = PourbaixDiagram(entries, filter_solids=True,
+                              conc_dict={"Bi": 1e-8, "V": 1e-8})
+        self.assertTrue(
+            all(['Bi' in entry.composition and 'V' in entry.composition
+                 for entry in pbx.all_entries])
+        )
+
 
 class PourbaixPlotterTest(unittest.TestCase):
     def setUp(self):

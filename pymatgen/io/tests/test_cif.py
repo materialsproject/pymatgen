@@ -356,10 +356,10 @@ loop_
             # parsed as "N" because the label is "N{x}" (x = 1,2,..) and the
             # corresponding symbol is "NH3". Since, the label and symbol are switched
             # in CIFs from Springer Materials/Pauling file DBs, CifParser parses the
-            # element as "N".
+            # element as "Nh" (Nihonium).
             parser = CifParser(self.TEST_FILES_DIR / 'PF_sd_1002871.cif')
-            self.assertEqual(parser.get_structures(True)[0].formula, "Cu1 Br2 N6")
-            self.assertEqual(parser.get_structures(True)[1].formula, "Cu1 Br4 N6")
+            self.assertEqual(parser.get_structures(True)[0].formula, "Cu1 Br2 Nh6")
+            self.assertEqual(parser.get_structures(True)[1].formula, "Cu1 Br4 Nh6")
             self.assertTrue(parser.has_errors)
 
             # Incomplete powder diffraction data, previously unparsable
@@ -430,9 +430,9 @@ loop_
             "D1-": "D",
             "D4": "D",
             "D0": "D",
-            "NH": "N",
-            "NH2": "N",
-            "NH3": "N",
+            "NH": "Nh",
+            "NH2": "Nh",
+            "NH3": "Nh",
             "SH": "S"
         }
 
@@ -495,11 +495,11 @@ loop_
  _atom_site_fract_y
  _atom_site_fract_z
  _atom_site_occupancy
-  Fe  Fe0  4  0.218728  0.750000  0.474867  1
-  P  P1  4  0.094613  0.250000  0.418243  1
-  O  O2  8  0.165710  0.046072  0.285384  1
-  O  O3  4  0.043372  0.750000  0.707138  1
-  O  O4  4  0.096642  0.250000  0.741320  1"""
+  Fe  Fe0  4  0.21872822  0.75000000  0.47486711  1
+  P  P1  4  0.09461309  0.25000000  0.41824327  1
+  O  O2  8  0.16570974  0.04607233  0.28538394  1
+  O  O3  4  0.04337231  0.75000000  0.70713767  1
+  O  O4  4  0.09664244  0.25000000  0.74132035  1"""
         for l1, l2 in zip(str(writer).split("\n"), ans.split("\n")):
             self.assertEqual(l1.strip(), l2.strip())
 
@@ -605,6 +605,16 @@ loop_
         s2 = CifParser.from_string(str(writer)).get_structures()[0]
         self.assertTrue(m.fit(s, s2))
 
+        # test angle tolerance.
+        s = Structure.from_file(self.TEST_FILES_DIR / 'LiFePO4.cif')
+        writer = CifWriter(s, symprec=0.1, angle_tolerance=0)
+        d = list(writer.ciffile.data.values())[0]
+        self.assertEqual(d["_symmetry_Int_Tables_number"], 14)
+        s = Structure.from_file(self.TEST_FILES_DIR / 'LiFePO4.cif')
+        writer = CifWriter(s, symprec=0.1, angle_tolerance=2)
+        d = list(writer.ciffile.data.values())[0]
+        self.assertEqual(d["_symmetry_Int_Tables_number"], 62)
+
     def test_disordered(self):
         si = Element("Si")
         n = Element("N")
@@ -631,22 +641,21 @@ _chemical_formula_sum   'Si1.5 N0.5'
 _cell_volume   40.04479464
 _cell_formula_units_Z   1
 loop_
-_symmetry_equiv_pos_site_id
-_symmetry_equiv_pos_as_xyz
-1  'x, y, z'
+ _symmetry_equiv_pos_site_id
+ _symmetry_equiv_pos_as_xyz
+  1  'x, y, z'
 loop_
-_atom_site_type_symbol
-_atom_site_label
-_atom_site_symmetry_multiplicity
-_atom_site_fract_x
-_atom_site_fract_y
-_atom_site_fract_z
-_atom_site_occupancy
-Si  Si0  1  0.000000  0.000000  0.000000  1
-Si  Si1  1  0.750000  0.500000  0.750000  0.5
-N  N2  1  0.750000  0.500000  0.750000  0.5
+ _atom_site_type_symbol
+ _atom_site_label
+ _atom_site_symmetry_multiplicity
+ _atom_site_fract_x
+ _atom_site_fract_y
+ _atom_site_fract_z
+ _atom_site_occupancy
+  Si  Si0  1  0.00000000  0.00000000  0.00000000  1
+  Si  Si1  1  0.75000000  0.50000000  0.75000000  0.5
+  N  N2  1  0.75000000  0.50000000  0.75000000  0.5"""
 
-    """
         for l1, l2 in zip(str(writer).split("\n"), ans.split("\n")):
             self.assertEqual(l1.strip(), l2.strip())
 
@@ -678,28 +687,27 @@ _chemical_formula_sum   'X1.5 Si1.5'
 _cell_volume   40.04479464
 _cell_formula_units_Z   1
 loop_
-  _symmetry_equiv_pos_site_id
-  _symmetry_equiv_pos_as_xyz
+ _symmetry_equiv_pos_site_id
+ _symmetry_equiv_pos_as_xyz
   1  'x, y, z'
 loop_
-  _atom_type_symbol
-  _atom_type_oxidation_number
-   X3-  -3.0
-   Si3+  3.0
-   Si4+  4.0
+ _atom_type_symbol
+ _atom_type_oxidation_number
+  X3-  -3.0
+  Si3+  3.0
+  Si4+  4.0
 loop_
-  _atom_site_type_symbol
-  _atom_site_label
-  _atom_site_symmetry_multiplicity
-  _atom_site_fract_x
-  _atom_site_fract_y
-  _atom_site_fract_z
-  _atom_site_occupancy
-   X3-  X0  1  0.500000  0.500000  0.500000  1
-   X3-  X1  1  0.750000  0.500000  0.750000  0.5
-   Si3+  Si2  1  0.750000  0.500000  0.750000  0.5
-   Si4+  Si3  1  0.000000  0.000000  0.000000  1
-
+ _atom_site_type_symbol
+ _atom_site_label
+ _atom_site_symmetry_multiplicity
+ _atom_site_fract_x
+ _atom_site_fract_y
+ _atom_site_fract_z
+ _atom_site_occupancy
+  X3-  X0  1  0.50000000  0.50000000  0.50000000  1
+  X3-  X1  1  0.75000000  0.50000000  0.75000000  0.5
+  Si3+  Si2  1  0.75000000  0.50000000  0.75000000  0.5
+  Si4+  Si3  1  0.00000000  0.00000000  0.00000000  1
 """
         for l1, l2 in zip(str(writer).split("\n"), ans.split("\n")):
             self.assertEqual(l1.strip(), l2.strip())
@@ -941,8 +949,8 @@ _atom_site_occupancy
 _atom_site_U_iso_or_equiv
 Si1 Si 0 0 0 1 0.0
 """
-        parser = CifParser.from_string(cif)
-        self.assertEqual(p.get_structures()[0].formula, "Si1")
+        p = CifParser.from_string(cif)
+        self.assertRaises(ValueError, p.get_structures)
 
 
 class MagCifTest(PymatgenTest):
@@ -1046,35 +1054,35 @@ loop_
  _atom_site_fract_y
  _atom_site_fract_z
  _atom_site_occupancy
-  Gd  Gd0  1  0.317460  0.817460  0.000000  1.0
-  Gd  Gd1  1  0.182540  0.317460  0.000000  1.0
-  Gd  Gd2  1  0.817460  0.682540  0.000000  1.0
-  Gd  Gd3  1  0.682540  0.182540  0.000000  1.0
-  B  B4  1  0.000000  0.000000  0.202900  1.0
-  B  B5  1  0.500000  0.500000  0.797100  1.0
-  B  B6  1  0.000000  0.000000  0.797100  1.0
-  B  B7  1  0.500000  0.500000  0.202900  1.0
-  B  B8  1  0.175900  0.038000  0.500000  1.0
-  B  B9  1  0.962000  0.175900  0.500000  1.0
-  B  B10  1  0.038000  0.824100  0.500000  1.0
-  B  B11  1  0.675900  0.462000  0.500000  1.0
-  B  B12  1  0.324100  0.538000  0.500000  1.0
-  B  B13  1  0.824100  0.962000  0.500000  1.0
-  B  B14  1  0.538000  0.675900  0.500000  1.0
-  B  B15  1  0.462000  0.324100  0.500000  1.0
-  B  B16  1  0.086700  0.586700  0.500000  1.0
-  B  B17  1  0.413300  0.086700  0.500000  1.0
-  B  B18  1  0.586700  0.913300  0.500000  1.0
-  B  B19  1  0.913300  0.413300  0.500000  1.0
+  Gd  Gd0  1  0.31746000  0.81746000  0.00000000  1.0
+  Gd  Gd1  1  0.18254000  0.31746000  0.00000000  1.0
+  Gd  Gd2  1  0.81746000  0.68254000  0.00000000  1.0
+  Gd  Gd3  1  0.68254000  0.18254000  0.00000000  1.0
+  B  B4  1  0.00000000  0.00000000  0.20290000  1.0
+  B  B5  1  0.50000000  0.50000000  0.79710000  1.0
+  B  B6  1  0.00000000  0.00000000  0.79710000  1.0
+  B  B7  1  0.50000000  0.50000000  0.20290000  1.0
+  B  B8  1  0.17590000  0.03800000  0.50000000  1.0
+  B  B9  1  0.96200000  0.17590000  0.50000000  1.0
+  B  B10  1  0.03800000  0.82410000  0.50000000  1.0
+  B  B11  1  0.67590000  0.46200000  0.50000000  1.0
+  B  B12  1  0.32410000  0.53800000  0.50000000  1.0
+  B  B13  1  0.82410000  0.96200000  0.50000000  1.0
+  B  B14  1  0.53800000  0.67590000  0.50000000  1.0
+  B  B15  1  0.46200000  0.32410000  0.50000000  1.0
+  B  B16  1  0.08670000  0.58670000  0.50000000  1.0
+  B  B17  1  0.41330000  0.08670000  0.50000000  1.0
+  B  B18  1  0.58670000  0.91330000  0.50000000  1.0
+  B  B19  1  0.91330000  0.41330000  0.50000000  1.0
 loop_
  _atom_site_moment_label
  _atom_site_moment_crystalaxis_x
  _atom_site_moment_crystalaxis_y
  _atom_site_moment_crystalaxis_z
-  Gd0  5.05000  5.05000  0.00000
-  Gd1  -5.05000  5.05000  0.00000
-  Gd2  5.05000  -5.05000  0.00000
-  Gd3  -5.05000  -5.05000  0.00000
+  Gd0  5.05000000  5.05000000  0.00000000
+  Gd1  -5.05000000  5.05000000  0.00000000
+  Gd2  5.05000000  -5.05000000  0.00000000
+  Gd3  -5.05000000  -5.05000000  0.00000000
 """
         s_ncl = self.mcif_ncl.get_structures(primitive=False)[0]
 
@@ -1120,38 +1128,37 @@ loop_
  _atom_site_fract_y
  _atom_site_fract_z
  _atom_site_occupancy
-  Gd  Gd0  1  0.317460  0.817460  0.000000  1.0
-  Gd  Gd1  1  0.182540  0.317460  0.000000  1.0
-  Gd  Gd2  1  0.817460  0.682540  0.000000  1.0
-  Gd  Gd3  1  0.682540  0.182540  0.000000  1.0
-  B  B4  1  0.000000  0.000000  0.202900  1.0
-  B  B5  1  0.500000  0.500000  0.797100  1.0
-  B  B6  1  0.000000  0.000000  0.797100  1.0
-  B  B7  1  0.500000  0.500000  0.202900  1.0
-  B  B8  1  0.175900  0.038000  0.500000  1.0
-  B  B9  1  0.962000  0.175900  0.500000  1.0
-  B  B10  1  0.038000  0.824100  0.500000  1.0
-  B  B11  1  0.675900  0.462000  0.500000  1.0
-  B  B12  1  0.324100  0.538000  0.500000  1.0
-  B  B13  1  0.824100  0.962000  0.500000  1.0
-  B  B14  1  0.538000  0.675900  0.500000  1.0
-  B  B15  1  0.462000  0.324100  0.500000  1.0
-  B  B16  1  0.086700  0.586700  0.500000  1.0
-  B  B17  1  0.413300  0.086700  0.500000  1.0
-  B  B18  1  0.586700  0.913300  0.500000  1.0
-  B  B19  1  0.913300  0.413300  0.500000  1.0
+  Gd  Gd0  1  0.31746000  0.81746000  0.00000000  1.0
+  Gd  Gd1  1  0.18254000  0.31746000  0.00000000  1.0
+  Gd  Gd2  1  0.81746000  0.68254000  0.00000000  1.0
+  Gd  Gd3  1  0.68254000  0.18254000  0.00000000  1.0
+  B  B4  1  0.00000000  0.00000000  0.20290000  1.0
+  B  B5  1  0.50000000  0.50000000  0.79710000  1.0
+  B  B6  1  0.00000000  0.00000000  0.79710000  1.0
+  B  B7  1  0.50000000  0.50000000  0.20290000  1.0
+  B  B8  1  0.17590000  0.03800000  0.50000000  1.0
+  B  B9  1  0.96200000  0.17590000  0.50000000  1.0
+  B  B10  1  0.03800000  0.82410000  0.50000000  1.0
+  B  B11  1  0.67590000  0.46200000  0.50000000  1.0
+  B  B12  1  0.32410000  0.53800000  0.50000000  1.0
+  B  B13  1  0.82410000  0.96200000  0.50000000  1.0
+  B  B14  1  0.53800000  0.67590000  0.50000000  1.0
+  B  B15  1  0.46200000  0.32410000  0.50000000  1.0
+  B  B16  1  0.08670000  0.58670000  0.50000000  1.0
+  B  B17  1  0.41330000  0.08670000  0.50000000  1.0
+  B  B18  1  0.58670000  0.91330000  0.50000000  1.0
+  B  B19  1  0.91330000  0.41330000  0.50000000  1.0
 loop_
  _atom_site_moment_label
  _atom_site_moment_crystalaxis_x
  _atom_site_moment_crystalaxis_y
  _atom_site_moment_crystalaxis_z
-  Gd0  0.00000  0.00000  7.14178
-  Gd1  0.00000  0.00000  7.14178
-  Gd2  0.00000  0.00000  -7.14178
-  Gd3  0.00000  0.00000  -7.14178
+  Gd0  0.00000000  0.00000000  7.14177849
+  Gd1  0.00000000  0.00000000  7.14177849
+  Gd2  0.00000000  0.00000000  -7.14177849
+  Gd3  0.00000000  0.00000000  -7.14177849
 """
-        self.assertEqual(cw.__str__(), cw_ref_string_magnitudes)
-
+        self.assertEqual(cw.__str__().strip(), cw_ref_string_magnitudes.strip())
         # test we're getting correct magmoms in ncl case
         s_ncl2 = self.mcif_ncl2.get_structures()[0]
         list_magmoms = [list(m) for m in s_ncl2.site_properties['magmom']]
@@ -1197,8 +1204,8 @@ loop_
  _atom_site_fract_y
  _atom_site_fract_z
  _atom_site_occupancy
-  Cs+  Cs0  1  0.000000  0.000000  0.000000  1
-  Cl+  Cl1  1  0.500000  0.500000  0.500000  1
+  Cs+  Cs0  1  0.00000000  0.00000000  0.00000000  1
+  Cl+  Cl1  1  0.50000000  0.50000000  0.50000000  1
 loop_
  _atom_site_moment_label
  _atom_site_moment_crystalaxis_x

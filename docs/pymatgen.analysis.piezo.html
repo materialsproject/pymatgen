@@ -8,12 +8,10 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.analysis.piezo module &mdash; pymatgen 2020.1.10 documentation</title>
+  <title>pymatgen.analysis.piezo module &mdash; pymatgen 2020.4.29 documentation</title>
   
 
   
-  
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
   
   
   
@@ -25,11 +23,11 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -73,7 +71,7 @@
             
             
               <div class="version">
-                2020.1.10
+                2020.4.29
               </div>
             
           
@@ -119,6 +117,7 @@
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html">pymatgen.io package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.plugins.html">pymatgen.plugins package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
@@ -208,7 +207,7 @@
 <p>This module provides classes for the Piezoelectric tensor</p>
 <dl class="class">
 <dt id="pymatgen.analysis.piezo.PiezoTensor">
-<em class="property">class </em><code class="sig-name descname">PiezoTensor</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/analysis/piezo.py#L22-L57"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.piezo.PiezoTensor" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">PiezoTensor</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/piezo.py#L22-L64"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.piezo.PiezoTensor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.core.tensors.html#pymatgen.core.tensors.Tensor" title="pymatgen.core.tensors.Tensor"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.tensors.Tensor</span></code></a></p>
 <p>This class describes the 3x6 piezo tensor in Voigt-notation</p>
 <p>Create an PiezoTensor object.  The constructor throws an error if
@@ -224,8 +223,16 @@ representing the piezo tensor</p>
 </dl>
 <dl class="method">
 <dt id="pymatgen.analysis.piezo.PiezoTensor.from_vasp_voigt">
-<em class="property">classmethod </em><code class="sig-name descname">from_vasp_voigt</code><span class="sig-paren">(</span><em class="sig-param">input_vasp_array</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/analysis/piezo.py#L45-L57"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.piezo.PiezoTensor.from_vasp_voigt" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<em class="property">classmethod </em><code class="sig-name descname">from_vasp_voigt</code><span class="sig-paren">(</span><em class="sig-param">input_vasp_array</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/piezo.py#L45-L64"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.piezo.PiezoTensor.from_vasp_voigt" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>input_vasp_array</strong> (<em>nd.array</em>) – Voigt form of tensor.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>PiezoTensor</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 

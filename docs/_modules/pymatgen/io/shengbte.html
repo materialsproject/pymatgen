@@ -1,0 +1,405 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>pymatgen.io.shengbte &#8212; pymatgen 2020.3.2 documentation</title>
+    <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.io.shengbte</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Pymatgen Development Team.</span>
+<span class="c1"># Distributed under the terms of the MIT License</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module implements reading and writing of ShengBTE CONTROL files.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Any</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">monty.dev</span> <span class="k">import</span> <span class="n">requires</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="k">import</span> <span class="n">Structure</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.vasp</span> <span class="k">import</span> <span class="n">Kpoints</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">f90nml</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">f90nml</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Rees Chang, Alex Ganose&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2019, The Materials Project&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.1&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;rc564@cornell.edu, aganose@lbl.gov&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;June 27, 2019&quot;</span>
+
+
+<div class="viewcode-block" id="Control"><a class="viewcode-back" href="../../../pymatgen.io.shengbte.html#pymatgen.io.shengbte.Control">[docs]</a><span class="k">class</span> <span class="nc">Control</span><span class="p">(</span><span class="n">MSONable</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class for reading, updating, and writing ShengBTE CONTROL files.</span>
+<span class="sd">    See  https://bitbucket.org/sousaw/shengbte/src/master/ for more</span>
+<span class="sd">    detailed description and default values of CONTROL arguments.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        ngrid: Reciprocal space grid density as a list of 3 ints.</span>
+<span class="sd">        temperature: The temperature to calculate the lattice thermal</span>
+<span class="sd">            conductivity for. Can be given as a single float, or a dictionary</span>
+<span class="sd">            with the keys &quot;min&quot;, &quot;max&quot;, &quot;step&quot;.</span>
+<span class="sd">        **kwargs: Other ShengBTE parameters. Several parameters are required</span>
+<span class="sd">            for ShengBTE to run - we have listed these parameters below:</span>
+
+<span class="sd">            - nelements (int): number of different elements in the compound</span>
+<span class="sd">            - natoms (int): number of atoms in the unit cell</span>
+<span class="sd">            - lattvec (size 3x3 array): real-space lattice vectors, in units</span>
+<span class="sd">              of lfactor</span>
+<span class="sd">            - lfactor (float): unit of measurement for lattice vectors (nm).</span>
+<span class="sd">                I.e., set to 0.1 if lattvec given in Angstrom.</span>
+<span class="sd">            - types (size natom list): a vector of natom integers, ranging</span>
+<span class="sd">              from 1 to nelements, assigning an element to each atom in the</span>
+<span class="sd">              system</span>
+<span class="sd">            - elements (size natom list): a vector of element names</span>
+<span class="sd">            - positions (size natomx3 array): atomic positions in lattice</span>
+<span class="sd">              coordinates</span>
+<span class="sd">            - scell (size 3 list): supercell sizes along each crystal axis</span>
+<span class="sd">              used for the 2nd-order force constant calculation</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">required_params</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;nelements&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;natoms&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ngrid&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;lattvec&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;types&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;elements&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;positions&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;scell&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="n">allocations_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;nelements&quot;</span><span class="p">,</span> <span class="s2">&quot;natoms&quot;</span><span class="p">,</span> <span class="s2">&quot;ngrid&quot;</span><span class="p">,</span> <span class="s2">&quot;norientations&quot;</span><span class="p">]</span>
+    <span class="n">crystal_keys</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;lfactor&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;lattvec&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;types&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;elements&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;positions&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;masses&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;gfactors&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;epsilon&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;born&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;scell&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;orientations&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="n">params_keys</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;t&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;t_min&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;t_max&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;t_step&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;omega_max&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;scalebroad&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;rmin&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;rmax&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;dr&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;maxiter&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;nticks&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;eps&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="n">flags_keys</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;nonanalytic&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;convergence&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;isotopes&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;autoisotopes&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;nanowires&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;onlyharmonic&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;espresso&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">ngrid</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">temperature</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="mi">300</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">ngrid</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ngrid</span> <span class="o">=</span> <span class="p">[</span><span class="mi">25</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">25</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;ngrid&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ngrid</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">temperature</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)):</span>
+            <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;t&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">temperature</span>
+
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">temperature</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;t_min&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">temperature</span><span class="p">[</span><span class="s2">&quot;min&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;t_max&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">temperature</span><span class="p">[</span><span class="s2">&quot;max&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;t_step&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">temperature</span><span class="p">[</span><span class="s2">&quot;step&quot;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Unsupported temperature type, must be float or dict&quot;</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Control.from_file"><a class="viewcode-back" href="../../../pymatgen.io.shengbte.html#pymatgen.io.shengbte.Control.from_file">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="nd">@requires</span><span class="p">(</span>
+        <span class="n">f90nml</span><span class="p">,</span>
+        <span class="s2">&quot;ShengBTE Control object requires f90nml to be installed. &quot;</span>
+        <span class="s2">&quot;Please get it at https://pypi.org/project/f90nml.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Read a CONTROL namelist file and output a &#39;Control&#39; object</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            filepath: Path of the CONTROL file.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            &#39;Control&#39; object with parameters instantiated.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">nml</span> <span class="o">=</span> <span class="n">f90nml</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+        <span class="n">sdict</span> <span class="o">=</span> <span class="n">nml</span><span class="o">.</span><span class="n">todict</span><span class="p">()</span>
+
+        <span class="n">all_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">all_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">sdict</span><span class="p">[</span><span class="s2">&quot;allocations&quot;</span><span class="p">])</span>
+        <span class="n">all_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">sdict</span><span class="p">[</span><span class="s2">&quot;crystal&quot;</span><span class="p">])</span>
+        <span class="n">all_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">sdict</span><span class="p">[</span><span class="s2">&quot;parameters&quot;</span><span class="p">])</span>
+        <span class="n">all_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">sdict</span><span class="p">[</span><span class="s2">&quot;flags&quot;</span><span class="p">])</span>
+        <span class="n">all_dict</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;_start_index&quot;</span><span class="p">)</span>  <span class="c1"># remove unnecessary cruft</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">all_dict</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Control.from_dict"><a class="viewcode-back" href="../../../pymatgen.io.shengbte.html#pymatgen.io.shengbte.Control.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">control_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write a CONTROL file from a Python dictionary. Description and default</span>
+<span class="sd">        parameters can be found at</span>
+<span class="sd">        https://bitbucket.org/sousaw/shengbte/src/master/.</span>
+<span class="sd">        Note some parameters are mandatory. Optional parameters default here to</span>
+<span class="sd">        None and will not be written to file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            control_dict: A Python dictionary of ShengBTE input parameters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="n">control_dict</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Control.to_file"><a class="viewcode-back" href="../../../pymatgen.io.shengbte.html#pymatgen.io.shengbte.Control.to_file">[docs]</a>    <span class="nd">@requires</span><span class="p">(</span>
+        <span class="n">f90nml</span><span class="p">,</span>
+        <span class="s2">&quot;ShengBTE Control object requires f90nml to be installed. &quot;</span>
+        <span class="s2">&quot;Please get it at https://pypi.org/project/f90nml.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">def</span> <span class="nf">to_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;CONTROL&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Writes ShengBTE CONTROL file from &#39;Control&#39; object</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            filename: A file name.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">required_params</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">param</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">as_dict</span><span class="p">():</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                    <span class="s2">&quot;Required parameter &#39;</span><span class="si">{}</span><span class="s2">&#39; not specified!&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
+                <span class="p">)</span>
+
+        <span class="n">alloc_dict</span> <span class="o">=</span> <span class="n">_get_subdict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">allocations_keys</span><span class="p">)</span>
+        <span class="n">alloc_nml</span> <span class="o">=</span> <span class="n">f90nml</span><span class="o">.</span><span class="n">Namelist</span><span class="p">({</span><span class="s2">&quot;allocations&quot;</span><span class="p">:</span> <span class="n">alloc_dict</span><span class="p">})</span>
+        <span class="n">control_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">alloc_nml</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+        <span class="n">crystal_dict</span> <span class="o">=</span> <span class="n">_get_subdict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">crystal_keys</span><span class="p">)</span>
+        <span class="n">crystal_nml</span> <span class="o">=</span> <span class="n">f90nml</span><span class="o">.</span><span class="n">Namelist</span><span class="p">({</span><span class="s2">&quot;crystal&quot;</span><span class="p">:</span> <span class="n">crystal_dict</span><span class="p">})</span>
+        <span class="n">control_str</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="n">crystal_nml</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+        <span class="n">params_dict</span> <span class="o">=</span> <span class="n">_get_subdict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params_keys</span><span class="p">)</span>
+        <span class="n">params_nml</span> <span class="o">=</span> <span class="n">f90nml</span><span class="o">.</span><span class="n">Namelist</span><span class="p">({</span><span class="s2">&quot;parameters&quot;</span><span class="p">:</span> <span class="n">params_dict</span><span class="p">})</span>
+        <span class="n">control_str</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="n">params_nml</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+        <span class="n">flags_dict</span> <span class="o">=</span> <span class="n">_get_subdict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">flags_keys</span><span class="p">)</span>
+        <span class="n">flags_nml</span> <span class="o">=</span> <span class="n">f90nml</span><span class="o">.</span><span class="n">Namelist</span><span class="p">({</span><span class="s2">&quot;flags&quot;</span><span class="p">:</span> <span class="n">flags_dict</span><span class="p">})</span>
+        <span class="n">control_str</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="n">flags_nml</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">control_str</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Control.from_structure"><a class="viewcode-back" href="../../../pymatgen.io.shengbte.html#pymatgen.io.shengbte.Control.from_structure">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_structure</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">structure</span><span class="p">:</span> <span class="n">Structure</span><span class="p">,</span>
+        <span class="n">reciprocal_density</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">50000</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a ShengBTE control object from a structure.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structure: A structure object.</span>
+<span class="sd">            reciprocal_density: If not None, the q-point grid (&quot;ngrid&quot;) will be</span>
+<span class="sd">                set using this density.</span>
+<span class="sd">            kwargs: Additional options to be passed to the Control constructor.</span>
+<span class="sd">                See the docstring of the __init__ method for more details</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A ShengBTE control object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">elements</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">elements</span><span class="p">))</span>
+
+        <span class="n">unique_nums</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">structure</span><span class="o">.</span><span class="n">atomic_numbers</span><span class="p">)</span>
+        <span class="n">types_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">unique_nums</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">unique_nums</span><span class="p">))))</span>
+        <span class="n">types</span> <span class="o">=</span> <span class="p">[</span><span class="n">types_dict</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">structure</span><span class="o">.</span><span class="n">atomic_numbers</span><span class="p">]</span>
+
+        <span class="n">control_dict</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;nelements&quot;</span><span class="p">:</span> <span class="n">structure</span><span class="o">.</span><span class="n">ntypesp</span><span class="p">,</span>
+            <span class="s2">&quot;natoms&quot;</span><span class="p">:</span> <span class="n">structure</span><span class="o">.</span><span class="n">num_sites</span><span class="p">,</span>
+            <span class="s2">&quot;norientations&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;lfactor&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+            <span class="s2">&quot;lattvec&quot;</span><span class="p">:</span> <span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+            <span class="s2">&quot;elements&quot;</span><span class="p">:</span> <span class="n">elements</span><span class="p">,</span>
+            <span class="s2">&quot;types&quot;</span><span class="p">:</span> <span class="n">types</span><span class="p">,</span>
+            <span class="s2">&quot;positions&quot;</span><span class="p">:</span> <span class="n">structure</span><span class="o">.</span><span class="n">frac_coords</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+        <span class="p">}</span>
+
+        <span class="k">if</span> <span class="n">reciprocal_density</span><span class="p">:</span>
+            <span class="n">kpoints</span> <span class="o">=</span> <span class="n">Kpoints</span><span class="o">.</span><span class="n">automatic_density</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">reciprocal_density</span><span class="p">)</span>
+            <span class="n">control_dict</span><span class="p">[</span><span class="s2">&quot;ngrid&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kpoints</span><span class="o">.</span><span class="n">kpts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">control_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">Control</span><span class="p">(</span><span class="o">**</span><span class="n">control_dict</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Control.get_structure"><a class="viewcode-back" href="../../../pymatgen.io.shengbte.html#pymatgen.io.shengbte.Control.get_structure">[docs]</a>    <span class="k">def</span> <span class="nf">get_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Structure</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a pymatgen Structure from a ShengBTE control object.</span>
+
+<span class="sd">        The control object must have the &quot;lattvec&quot;, &quot;types&quot;, &quot;elements&quot;, and</span>
+<span class="sd">        &quot;positions&quot; settings otherwise an error will be thrown.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The structure.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">required</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;lattvec&quot;</span><span class="p">,</span> <span class="s2">&quot;types&quot;</span><span class="p">,</span> <span class="s2">&quot;elements&quot;</span><span class="p">,</span> <span class="s2">&quot;positions&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">([</span><span class="n">r</span> <span class="ow">in</span> <span class="bp">self</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">required</span><span class="p">]):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;All of [&#39;lattvec&#39;, &#39;types&#39;, &#39;elements&#39;, &#39;positions&#39;] must be &quot;</span>
+                <span class="s2">&quot;in control object&quot;</span>
+            <span class="p">)</span>
+
+        <span class="n">unique_elements</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;elements&quot;</span><span class="p">]</span>
+        <span class="n">n_unique_elements</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">unique_elements</span><span class="p">)</span>
+        <span class="n">element_map</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="nb">zip</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_unique_elements</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="n">unique_elements</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">species</span> <span class="o">=</span> <span class="p">[</span><span class="n">element_map</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;types&quot;</span><span class="p">]]</span>
+
+        <span class="n">cell</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="s2">&quot;lattvec&quot;</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="s2">&quot;lfactor&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="n">cell</span> <span class="o">*=</span> <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;lfactor&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">10</span>  <span class="c1"># to nm then to Angstrom</span>
+
+        <span class="k">return</span> <span class="n">Structure</span><span class="p">(</span><span class="n">cell</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;positions&quot;</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="Control.as_dict"><a class="viewcode-back" href="../../../pymatgen.io.shengbte.html#pymatgen.io.shengbte.Control.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div></div>
+
+
+<span class="k">def</span> <span class="nf">_get_subdict</span><span class="p">(</span><span class="n">master_dict</span><span class="p">,</span> <span class="n">subkeys</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Helper method to get a set of keys from a larger dictionary&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="n">k</span><span class="p">:</span> <span class="n">master_dict</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">subkeys</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">master_dict</span> <span class="ow">and</span> <span class="n">master_dict</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+    <span class="p">}</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>
