@@ -105,7 +105,7 @@ class ComputedEntryTest(unittest.TestCase):
         ealist = [ManualEnergyAdjustment(5),
                   ConstantEnergyAdjustment(5),
                   CompositionEnergyAdjustment(1, 0, 5, "Na"),
-                  TempEnergyAdjustment(0.005, 0, 100, 10)
+                  TemperatureEnergyAdjustment(0.005, 0, 100, 10)
                   ]
         entry = ComputedEntry("Na5Cl5", 6.9, energy_adjustments=ealist)
         assert entry.correction == 20
