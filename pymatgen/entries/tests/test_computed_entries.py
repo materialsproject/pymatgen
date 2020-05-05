@@ -20,7 +20,7 @@ filepath = os.path.join(test_dir, 'vasprun.xml')
 vasprun = Vasprun(filepath)
 
 
-def testEnergyAdjustment():
+def test_energyadjustment():
     ea = EnergyAdjustment(10)
     assert ea.name == "Manual adjustment"
     assert ea.cls == {}
@@ -30,28 +30,28 @@ def testEnergyAdjustment():
     assert str(ead) == str(ea2.as_dict())
 
 
-def testManualEnergyAdjustment():
+def test_manual_energy_adjustment():
     ea = ManualEnergyAdjustment(10)
     assert ea.name == "Manual energy adjustment"
     assert ea.value == 10
     assert ea.description == "Manual energy adjustment (10.000 eV)"
 
 
-def testConstantEnergyAdjustment():
+def test_constant_energy_adjustment():
     ea = ConstantEnergyAdjustment(8)
     assert ea.name == "Constant energy adjustment"
     assert ea.value == 8
     assert ea.description == "Constant energy adjustment (8.000 eV)"
 
 
-def testCompositionEnergyAdjustment():
+def test_composition_energy_adjustment():
     ea = CompositionEnergyAdjustment(2, 2, "H")
     assert ea.name == "H"
     assert ea.value == 4
     assert ea.description == "Composition-based energy adjustment (2.000 eV/atom x 2 atoms)"
 
 
-def testTempEnergyAdjustment():
+def test_temp_energy_adjustment():
     ea = TemperatureEnergyAdjustment(-0.1, 298, 5, "entropy")
     assert ea.name == "entropy"
     assert ea.value == -0.1 * 298 * 5

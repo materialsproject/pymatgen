@@ -126,7 +126,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
 
         self.entry4 = ComputedEntry(
             'H8', -27.1, 0.0,
-            parameters={'run_type': 'None or LDA+rVV10',
+            parameters={'run_type': 'LDA',
                         'is_hubbard': False,
                         'pseudo_potential': {'functional': 'PBE', 'labels': ['H'], 'pot_type': 'paw'},
                         'hubbards': {},
