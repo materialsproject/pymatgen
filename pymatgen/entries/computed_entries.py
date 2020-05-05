@@ -109,16 +109,16 @@ class ConstantEnergyAdjustment(EnergyAdjustment):
         """
         return self._value
 
+    @value.setter
+    def value(self, x):
+        self._value = x
+
     @property
     def uncertainty(self):
         """
         Return the uncertainty in the value of the energy adjustment in eV
         """
         return self._uncertainty
-
-    @value.setter
-    def value(self, x):
-        self._value = x
 
     @uncertainty.setter
     def uncertainty(self, x):
@@ -324,20 +324,6 @@ class ComputedEntry(Entry):
             [ufloat(ea.value, ea.uncertainty) for ea in self.energy_adjustments]
         )
         return unc.std_dev
-
-    @property
-    def correction(self) -> float:
-        """
-        Returns:
-            float: the total energy correction / adjustment applied to the entry,
-                in eV.
-        """
-        return sum([e.value for e in self.energy_adjustments])
-
-    @correction.setter
-    def correction(self, x: float) -> None:
-        corr = ManualEnergyAdjustment(x)
-        self.energy_adjustments = [corr]
 
     def normalize(self, mode: str = "formula_unit") -> None:
         """
