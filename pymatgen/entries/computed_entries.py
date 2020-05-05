@@ -188,7 +188,7 @@ class CompositionEnergyAdjustment(EnergyAdjustment):
         self.n_atoms /= factor
 
 
-class TempEnergyAdjustment(EnergyAdjustment):
+class TemperatureEnergyAdjustment(EnergyAdjustment):
     """
     An energy adjustment applied to a ComputedEntry based on the temperature.
     Used, for example, to add entropy to DFT energies.

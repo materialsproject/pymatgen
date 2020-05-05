@@ -181,7 +181,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
 
         self.entry4 = ComputedEntry(
             'H8', -27.1, 0.0,
-            parameters={'run_type': 'None or LDA+rVV10',
+            parameters={'run_type': 'LDA',
                         'is_hubbard': False,
                         'pseudo_potential': {'functional': 'PBE', 'labels': ['H'], 'pot_type': 'paw'},
                         'hubbards': {},
@@ -237,8 +237,8 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
 
     def test_process_entry(self):
         # Correct parameters
-        self.assertIsNotNone(self.compat._process_entry(self.entry1))
-        self.assertIsNone(self.ggacompat._process_entry(self.entry1))
+        self.assertIsNotNone(self.compat.process_entry(self.entry1))
+        self.assertIsNone(self.ggacompat.process_entry(self.entry1))
 
         # Correct parameters
         entry = ComputedEntry(
@@ -248,8 +248,8 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
                                          'hash': '994537de5c4122b7f1b77fb604476db4'},
                                         {'titel': 'PAW_PBE O 08Apr2002',
                                          'hash': '7a25bc5b9a5393f46600a4939d357982'}]})
-        self.assertIsNone(self.compat._process_entry(entry))
-        self.assertIsNotNone(self.ggacompat._process_entry(entry))
+        self.assertIsNone(self.compat.process_entry(entry))
+        self.assertIsNotNone(self.ggacompat.process_entry(entry))
 
         entry = ComputedEntry(
             'Fe2O3', -1, 0.0,
@@ -259,11 +259,11 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
                                          'hash': '994537de5c4122b7f1b77fb604476db4'},
                                         {'titel': 'PAW_PBE O 08Apr2002',
                                          'hash': '7a25bc5b9a5393f46600a4939d357982'}]})
-        self.assertIsNotNone(self.compat._process_entry(entry))
+        self.assertIsNotNone(self.compat.process_entry(entry))
 
     def test_correction_values(self):
         # test_corrections
-        self.assertAlmostEqual(self.compat._process_entry(self.entry1).correction,
+        self.assertAlmostEqual(self.compat.process_entry(self.entry1).correction,
                                - 2.733 * 2 - 0.70229 * 3)
 
         entry = ComputedEntry(
@@ -274,12 +274,12 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
                                          'hash': '994537de5c4122b7f1b77fb604476db4'},
                                         {'titel': 'PAW_PBE F 08Apr2002',
                                          'hash': '180141c33d032bfbfff30b3bea9d23dd'}]})
-        self.assertIsNotNone(self.compat._process_entry(entry))
+        self.assertIsNotNone(self.compat.process_entry(entry))
 
         # Check actual correction
-        self.assertAlmostEqual(self.compat._process_entry(entry).correction, -2.733)
+        self.assertAlmostEqual(self.compat.process_entry(entry).correction, -2.733)
 
-        self.assertAlmostEqual(self.compat._process_entry(
+        self.assertAlmostEqual(self.compat.process_entry(
             self.entry_sulfide).correction, -0.66346)
 
     def test_U_values(self):
@@ -292,7 +292,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
                                          'hash': '994537de5c4122b7f1b77fb604476db4'},
                                         {'titel': 'PAW_PBE O 08Apr2002',
                                          'hash': '7a25bc5b9a5393f46600a4939d357982'}]})
-        self.assertIsNone(self.compat._process_entry(entry))
+        self.assertIsNone(self.compat.process_entry(entry))
 
         # GGA run of U
         entry = ComputedEntry(
@@ -303,7 +303,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
                                          'hash': '994537de5c4122b7f1b77fb604476db4'},
                                         {'titel': 'PAW_PBE O 08Apr2002',
                                          'hash': '7a25bc5b9a5393f46600a4939d357982'}]})
-        self.assertIsNone(self.compat._process_entry(entry))
+        self.assertIsNone(self.compat.process_entry(entry))
 
         # GGA+U run of non-U
         entry = ComputedEntry(
@@ -314,7 +314,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
                                          'hash': '805c888bbd2793e462311f6a20d873d9'},
                                         {'titel': 'PAW_PBE O 08Apr2002',
                                          'hash': '7a25bc5b9a5393f46600a4939d357982'}]})
-        self.assertIsNone(self.compat._process_entry(entry))
+        self.assertIsNone(self.compat.process_entry(entry))
 
         # Materials project should not have a U for sulfides
         entry = ComputedEntry(
@@ -325,7 +325,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
                                          'hash': '994537de5c4122b7f1b77fb604476db4'},
                                         {"titel": 'PAW_PBE S 08Apr2002',
                                          'hash': "f7f8e4a74a6cbb8d63e41f4373b54df2"}]})
-        self.assertIsNone(self.compat._process_entry(entry))
+        self.assertIsNone(self.compat.process_entry(entry))
 
     def test_wrong_psp(self):
         # Wrong psp
@@ -337,7 +337,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
                                          'hash': '9530da8244e4dac17580869b4adab115'},
                                         {'titel': 'PAW_PBE O 08Apr2002',
                                          'hash': '7a25bc5b9a5393f46600a4939d357982'}]})
-        self.assertIsNone(self.compat._process_entry(entry))
+        self.assertIsNone(self.compat.process_entry(entry))
 
     def test_element_processing(self):
         entry = ComputedEntry(
@@ -346,10 +346,10 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
                         'potcar_spec': [{'titel': 'PAW_PBE O 08Apr2002',
                                          'hash': '7a25bc5b9a5393f46600a4939d357982'}],
                         'run_type': 'GGA'})
-        entry = self.compat._process_entry(entry)
+        entry = self.compat.process_entry(entry)
         #        self.assertEqual(entry.entry_id, -8)
         self.assertAlmostEqual(entry.energy, -1)
-        self.assertAlmostEqual(self.ggacompat._process_entry(entry).energy,
+        self.assertAlmostEqual(self.ggacompat.process_entry(entry).energy,
                                -1)
 
     def test_get_explanation_dict(self):
@@ -895,19 +895,19 @@ class MITCompatibilityTest(unittest.TestCase):
 
     def test_process_entry(self):
         # Correct parameters
-        self.assertIsNotNone(self.compat._process_entry(self.entry_O))
-        self.assertIsNotNone(self.compat._process_entry(self.entry_F))
+        self.assertIsNotNone(self.compat.process_entry(self.entry_O))
+        self.assertIsNotNone(self.compat.process_entry(self.entry_F))
 
     def test_correction_value(self):
         # Check actual correction
-        self.assertAlmostEqual(self.compat._process_entry(self.entry_O).correction,
+        self.assertAlmostEqual(self.compat.process_entry(self.entry_O).correction,
                                - 1.723 * 2 - 0.66975 * 3)
-        self.assertAlmostEqual(self.compat._process_entry(self.entry_F).correction, -1.723)
-        self.assertAlmostEqual(self.compat._process_entry(self.entry_S).correction, -1.113)
+        self.assertAlmostEqual(self.compat.process_entry(self.entry_F).correction, -1.723)
+        self.assertAlmostEqual(self.compat.process_entry(self.entry_S).correction, -1.113)
 
     def test_U_value(self):
         # MIT should have a U value for Fe containing sulfides
-        self.assertIsNotNone(self.compat._process_entry(self.entry_S))
+        self.assertIsNotNone(self.compat.process_entry(self.entry_S))
 
         # MIT should not have a U value for Ni containing sulfides
         entry = ComputedEntry(
@@ -920,7 +920,7 @@ class MITCompatibilityTest(unittest.TestCase):
                                         {'titel': 'PAW_PBE S 08Apr2002',
                                          'hash': 'd368db6899d8839859bbee4811a42a88'}]})
 
-        self.assertIsNone(self.compat._process_entry(entry))
+        self.assertIsNone(self.compat.process_entry(entry))
 
         entry = ComputedEntry(
             'NiS2', -2, 0.0,
@@ -932,7 +932,7 @@ class MITCompatibilityTest(unittest.TestCase):
                                         {'titel': 'PAW_PBE S 08Apr2002',
                                          'hash': 'd368db6899d8839859bbee4811a42a88'}]})
 
-        self.assertIsNotNone(self.ggacompat._process_entry(entry))
+        self.assertIsNotNone(self.ggacompat.process_entry(entry))
 
     def test_wrong_U_value(self):
         # Wrong U value
@@ -946,7 +946,7 @@ class MITCompatibilityTest(unittest.TestCase):
                                         {'titel': 'PAW_PBE O 08Apr2002',
                                          'hash': '7a25bc5b9a5393f46600a4939d357982'}]})
 
-        self.assertIsNone(self.compat._process_entry(entry))
+        self.assertIsNone(self.compat.process_entry(entry))
 
         # GGA run
         entry = ComputedEntry(
@@ -958,8 +958,8 @@ class MITCompatibilityTest(unittest.TestCase):
                                          'hash': '9530da8244e4dac17580869b4adab115'},
                                         {'titel': 'PAW_PBE O 08Apr2002',
                                          'hash': '7a25bc5b9a5393f46600a4939d357982'}]})
-        self.assertIsNone(self.compat._process_entry(entry))
-        self.assertIsNotNone(self.ggacompat._process_entry(entry))
+        self.assertIsNone(self.compat.process_entry(entry))
+        self.assertIsNotNone(self.ggacompat.process_entry(entry))
 
     def test_wrong_psp(self):
         # Wrong psp
@@ -972,7 +972,7 @@ class MITCompatibilityTest(unittest.TestCase):
                                          'hash': '994537de5c4122b7f1b77fb604476db4'},
                                         {'titel': 'PAW_PBE O 08Apr2002',
                                          'hash': '7a25bc5b9a5393f46600a4939d357982'}]})
-        self.assertIsNone(self.compat._process_entry(entry))
+        self.assertIsNone(self.compat.process_entry(entry))
 
     def test_element_processing(self):
         # Testing processing of elements.
@@ -982,7 +982,7 @@ class MITCompatibilityTest(unittest.TestCase):
                         'potcar_spec': [{'titel': 'PAW_PBE O 08Apr2002',
                                          'hash': '7a25bc5b9a5393f46600a4939d357982'}],
                         'run_type': 'GGA'})
-        entry = self.compat._process_entry(entry)
+        entry = self.compat.process_entry(entry)
         self.assertAlmostEqual(entry.energy, -1)
 
     def test_same_potcar_symbol(self):
@@ -1041,9 +1041,9 @@ class MITCompatibilityTest(unittest.TestCase):
                         'run_type': 'GGA+U',
                         'potcar_symbols': ['PAW_PBE Fe 06Sep2000', 'PAW_PBE O 08Apr2002']})
 
-        self.assertIsNotNone(compat._process_entry(entry))
+        self.assertIsNotNone(compat.process_entry(entry))
         # raise if check_potcar_hash is set
-        self.assertRaises(ValueError, self.compat._process_entry, entry)
+        self.assertRaises(ValueError, self.compat.process_entry, entry)
 
     def test_potcar_doenst_match_structure(self):
         compat = MITCompatibility()
@@ -1055,7 +1055,7 @@ class MITCompatibilityTest(unittest.TestCase):
                         'potcar_symbols': ['PAW_PBE Fe_pv 06Sep2000',
                                            'PAW_PBE O 08Apr2002']})
 
-        self.assertIsNone(compat._process_entry(entry))
+        self.assertIsNone(compat.process_entry(entry))
 
     def test_potcar_spec_is_none(self):
         compat = MITCompatibility(check_potcar_hash=True)
@@ -1066,7 +1066,7 @@ class MITCompatibilityTest(unittest.TestCase):
                         'run_type': 'GGA+U',
                         'potcar_spec': [None, None]})
 
-        self.assertIsNone(compat._process_entry(entry))
+        self.assertIsNone(compat.process_entry(entry))
 
     def test_get_explanation_dict(self):
         compat = MITCompatibility(check_potcar_hash=False)
@@ -1120,7 +1120,7 @@ class OxideTypeCorrectionTest(unittest.TestCase):
                                                                         {'titel': 'PAW_PBE O 08Apr2002',
                                                                          'hash': '7a25bc5b9a5393f46600a4939d357982'}]})
 
-        lio2_entry_corrected = self.compat._process_entry(lio2_entry_nostruct)
+        lio2_entry_corrected = self.compat.process_entry(lio2_entry_nostruct)
         self.assertAlmostEqual(lio2_entry_corrected.energy, -3 - 0.13893 * 4, 4)
 
     def test_process_entry_superoxide(self):
@@ -1147,7 +1147,7 @@ class OxideTypeCorrectionTest(unittest.TestCase):
                                                                         {'titel': 'PAW_PBE O 08Apr2002',
                                                                          'hash': '7a25bc5b9a5393f46600a4939d357982'}]})
 
-        lio2_entry_corrected = self.compat._process_entry(lio2_entry)
+        lio2_entry_corrected = self.compat.process_entry(lio2_entry)
         self.assertAlmostEqual(lio2_entry_corrected.energy, -3 - 0.13893 * 4, 4)
 
     def test_process_entry_peroxide(self):
@@ -1177,7 +1177,7 @@ class OxideTypeCorrectionTest(unittest.TestCase):
                                                                          {'titel': 'PAW_PBE O 08Apr2002',
                                                                           'hash': '7a25bc5b9a5393f46600a4939d357982'}]})
 
-        li2o2_entry_corrected = self.compat._process_entry(li2o2_entry)
+        li2o2_entry_corrected = self.compat.process_entry(li2o2_entry)
         self.assertAlmostEqual(li2o2_entry_corrected.energy, -3 - 0.44317 * 4, 4)
 
     def test_process_entry_ozonide(self):
@@ -1203,7 +1203,7 @@ class OxideTypeCorrectionTest(unittest.TestCase):
                                                                         {'titel': 'PAW_PBE O 08Apr2002',
                                                                          'hash': '7a25bc5b9a5393f46600a4939d357982'}]})
 
-        lio3_entry_corrected = self.compat._process_entry(lio3_entry)
+        lio3_entry_corrected = self.compat.process_entry(lio3_entry)
         self.assertAlmostEqual(lio3_entry_corrected.energy, -3.0)
 
     def test_process_entry_oxide(self):
@@ -1222,7 +1222,7 @@ class OxideTypeCorrectionTest(unittest.TestCase):
                                                                         {'titel': 'PAW_PBE O 08Apr2002',
                                                                          'hash': '7a25bc5b9a5393f46600a4939d357982'}]})
 
-        li2o_entry_corrected = self.compat._process_entry(li2o_entry)
+        li2o_entry_corrected = self.compat.process_entry(li2o_entry)
         self.assertAlmostEqual(li2o_entry_corrected.energy, -3.0 - 0.66975, 4)
 
 
@@ -1411,7 +1411,7 @@ class OxideTypeCorrectionNoPeroxideCorrTest(unittest.TestCase):
                                                                         {'titel': 'PAW_PBE O 08Apr2002',
                                                                          'hash': '7a25bc5b9a5393f46600a4939d357982'}]})
 
-        li2o_entry_corrected = self.compat._process_entry(li2o_entry)
+        li2o_entry_corrected = self.compat.process_entry(li2o_entry)
         self.assertAlmostEqual(li2o_entry_corrected.energy, -3.0 - 0.66975, 4)
 
     def test_peroxide_energy_corr(self):
@@ -1441,7 +1441,7 @@ class OxideTypeCorrectionNoPeroxideCorrTest(unittest.TestCase):
                                                                          {'titel': 'PAW_PBE O 08Apr2002',
                                                                           'hash': '7a25bc5b9a5393f46600a4939d357982'}]})
 
-        li2o2_entry_corrected = self.compat._process_entry(li2o2_entry)
+        li2o2_entry_corrected = self.compat.process_entry(li2o2_entry)
         self.assertRaises(AssertionError, self.assertAlmostEqual,
                           *(li2o2_entry_corrected.energy, -3 - 0.44317 * 4, 4))
         self.assertAlmostEqual(li2o2_entry_corrected.energy, -3 - 0.66975 * 4, 4)
@@ -1469,7 +1469,7 @@ class OxideTypeCorrectionNoPeroxideCorrTest(unittest.TestCase):
                                                                         {'titel': 'PAW_PBE O 08Apr2002',
                                                                          'hash': '7a25bc5b9a5393f46600a4939d357982'}]})
 
-        lio3_entry_corrected = self.compat._process_entry(lio3_entry)
+        lio3_entry_corrected = self.compat.process_entry(lio3_entry)
         self.assertAlmostEqual(lio3_entry_corrected.energy, -3.0 - 3 * 0.66975)
 
 
@@ -1492,7 +1492,7 @@ class TestMaterialsProjectAqueousCompatibility():
             corrected DFT energy of O2 = -4.9276 eV/atom (mp-12957)
             total energy corrections applied to H2O (eV/H2O) -0.70229 eV/H2O or -0.234 eV/atom
     """
-    def test_MPAqeous_H_H2O_energy_with_args(self):
+    def test_h_h2o_energy_with_args(self):
 
         compat = MaterialsProjectAqueousCompatibility(o2_energy=-4.9276, h2o_energy=-5.195, h2o_adjustments=-0.234)
 
@@ -1513,7 +1513,7 @@ class TestMaterialsProjectAqueousCompatibility():
         h2o_form_e = 3 * h2o_entry_2.energy_per_atom - 2 * h2_entry_2.energy_per_atom - o2_entry_1.energy_per_atom
         assert h2o_form_e == pytest.approx(MU_H2O)
 
-    def test_MPAqeous_H_H2O_energy_no_args(self):
+    def test_h_h2o_energy_no_args(self):
 
         with pytest.warns(UserWarning, match="You did not provide the required O2 and H2O energies."):
             compat = MaterialsProjectAqueousCompatibility()
@@ -1631,9 +1631,9 @@ class MITAqueousCompatibilityTest(unittest.TestCase):
                                                                          'hash': '7a25bc5b9a5393f46600a4939d357982'},
                                                                         {"titel": 'PAW_PBE H 15Jun2001',
                                                                          'hash': "bb43c666e3d36577264afe07669e9582"}]})
-        lioh_entry_compat = self.compat._process_entry(lioh_entry)
+        lioh_entry_compat = self.compat.process_entry(lioh_entry)
         lioh_entry_compat_aqcorr = self.aqcorr.correct_entry(lioh_entry_compat)
-        lioh_entry_aqcompat = self.aqcompat._process_entry(lioh_entry)
+        lioh_entry_aqcompat = self.aqcompat.process_entry(lioh_entry)
         self.assertAlmostEqual(lioh_entry_compat_aqcorr.energy, lioh_entry_aqcompat.energy, 4)
 
     def test_potcar_doenst_match_structure(self):
@@ -1670,7 +1670,7 @@ class MITAqueousCompatibilityTest(unittest.TestCase):
             },
         )
 
-        self.assertIsNone(compat._process_entry(lioh_entry))
+        self.assertIsNone(compat.process_entry(lioh_entry))
 
     def test_msonable(self):
         compat_dict = self.aqcompat.as_dict()
@@ -1689,7 +1689,7 @@ class MITAqueousCompatibilityTest(unittest.TestCase):
                                         "hash": "b2b0ea6feb62e7cde209616683b8f7f5"
                                           }]
                               })
-        self.assertIsNone(self.compat._process_entry(entry))
+        self.assertIsNone(self.compat.process_entry(entry))
 
     def test_deprecation_warning(self):
         # test that initializing compatibility causes deprecation warning

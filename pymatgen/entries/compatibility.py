@@ -24,7 +24,7 @@ from pymatgen.io.vasp.sets import MITRelaxSet, MPRelaxSet
 from pymatgen.core.periodic_table import Element
 from pymatgen.analysis.structure_analyzer import oxide_type, sulfide_type
 from pymatgen.entries.computed_entries import ComputedEntry, \
-    ConstantEnergyAdjustment, CompositionEnergyAdjustment, TempEnergyAdjustment
+    ConstantEnergyAdjustment, CompositionEnergyAdjustment, TemperatureEnergyAdjustment
 
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -690,6 +690,21 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
         """
         return
 
+    def process_entry(self, entry):
+        """
+        Process a single entry with the chosen Corrections.
+
+        Args:
+            entry: A ComputedEntry object.
+        Returns:
+            An adjusted entry if entry is compatible, otherwise None is
+            returned.
+        """
+        if self.process_entries(entry):
+            return self.process_entries(entry)[0]
+        else:
+            return None
+
     def process_entries(self, entries: Union[ComputedEntry, list], clean: bool = False):
         """
         Process a sequence of entries with the chosen Compatibility scheme.
@@ -818,20 +833,6 @@ class CorrectionsList(Compatibility):
 
         return adjustment_list
 
-    def _process_entry(self, entry):
-        """
-        Process a single entry with the chosen Corrections.
-        Args:
-            entry: A ComputedEntry object.
-        Returns:
-            An adjusted entry if entry is compatible, otherwise None is
-            returned.
-        """
-        if self.process_entries(entry):
-            return self.process_entries(entry)[0]
-        else:
-            return None
-
     def get_corrections_dict(self, entry):
         """
         Returns the corrections applied to a particular entry.
@@ -869,7 +870,7 @@ class CorrectionsList(Compatibility):
             "Corrections": [{"Name of Correction": {
             "Value": float, "Explanation": "string", "Uncertainty": float}]}
         """
-        centry = self._process_entry(entry)
+        centry = self.process_entry(entry)
         if centry is None:
             uncorrected_energy = entry.uncorrected_energy
             corrected_energy = None
@@ -1251,13 +1252,13 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         # molecular-like at room temperature
         elif rform in self.cpd_entropies and rform != "H2O":
             adjustments.append(
-                TempEnergyAdjustment(-1 * self.cpd_entropies[rform] / 298, np.nan, 298,
-                                     comp.num_atoms,
-                                     name="Compound entropy at room temperature",
-                                     cls=self.as_dict(),
-                                     description="Adds the entropy (T delta S) to energies of compounds that "
-                                                 "are gaseous or liquid at standard state"
-                                     ))
+                TemperatureEnergyAdjustment(-1 * self.cpd_entropies[rform] / 298, np.nan, 298,
+                                            comp.num_atoms,
+                                            name="Compound entropy at room temperature",
+                                            cls=self.as_dict(),
+                                            description="Adds the entropy (T delta S) to energies of compounds that "
+                                                        "are gaseous or liquid at standard state"
+                                            ))
 
         # TODO - detection of embedded water molecules is not very sophisticated
         # Should be replaced with some kind of actual structure detection

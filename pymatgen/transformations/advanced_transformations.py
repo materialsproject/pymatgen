@@ -2313,7 +2313,6 @@ class SQSTransformation(AbstractTransformation):
         return True
 
 
-@requires(hiphive, "hiphive is required for MonteCarloRattleTransformation")
 class MonteCarloRattleTransformation(AbstractTransformation):
     r"""
     Uses a Monte Carlo rattle procedure to randomly perturb the sites in a
@@ -2331,6 +2330,7 @@ class MonteCarloRattleTransformation(AbstractTransformation):
     connected to `rattle_std`.
     """
 
+    @requires(hiphive, "hiphive is required for MonteCarloRattleTransformation")
     def __init__(
         self,
         rattle_std: float,

@@ -1253,7 +1253,7 @@ class Kpoints(MSONable):
         Returns:
             Kpoints
         """
-        comment = "pymatgen v%s with grid density = %.0f / atom" % (__version__, kppa)
+        comment = "pymatgen v%s with grid density = %.0f / number of atoms" % (__version__, kppa)
         if math.fabs((math.floor(kppa ** (1 / 3) + 0.5)) ** 3 - kppa) < 1:
             kppa += kppa * 0.01
         latt = structure.lattice
@@ -1306,10 +1306,8 @@ class Kpoints(MSONable):
 
         style = Kpoints.supported_modes.Gamma
 
-        comment = (
-            "pymatgen 4.7.6+ generated KPOINTS with grid density = "
-            + "{} / atom".format(kppa)
-        )
+        comment = "pymatgen v%s with grid density = %.0f / number of atoms" % (__version__, kppa)
+
         num_kpts = 0
         return Kpoints(comment, num_kpts, style, [num_div], [0, 0, 0])
 
