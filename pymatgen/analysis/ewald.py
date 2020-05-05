@@ -30,8 +30,8 @@ class EwaldSummation:
     """
     Calculates the electrostatic energy of a periodic array of charges using
     the Ewald technique.
-    
-    
+
+
     Ref:
     Ewald summation techniques in perspective: a survey
     Abdulnour Y. Toukmaji and John A. Board Jr.
