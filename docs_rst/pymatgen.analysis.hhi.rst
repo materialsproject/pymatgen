@@ -1,21 +1,5 @@
-pymatgen.analysis.hhi package
-=============================
-
-Subpackages
------------
-
-.. toctree::
-
-
-Submodules
-----------
-
-.. toctree::
-
-   pymatgen.analysis.hhi.hhi
-
-Module contents
----------------
+pymatgen.analysis.hhi module
+============================
 
 .. automodule:: pymatgen.analysis.hhi
    :members:

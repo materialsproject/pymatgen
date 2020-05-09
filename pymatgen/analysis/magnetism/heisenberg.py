@@ -8,20 +8,23 @@ exchange parameters by mapping low energy magnetic orderings to a Heisenberg
 model.
 """
 
+import logging
+import sys
+from ast import literal_eval
+import copy
+
+import numpy as np
+import pandas as pd
+
+from monty.serialization import dumpfn
+from monty.json import MSONable, jsanitize
+
 from pymatgen.analysis.magnetism import CollinearMagneticStructureAnalyzer, Ordering
 from pymatgen.analysis.graphs import StructureGraph
 from pymatgen.analysis.local_env import MinimumDistanceNN
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen import Structure
 
-from monty.serialization import dumpfn
-
-import numpy as np
-import pandas as pd
-import copy
-
-import logging
-import sys
-import warnings
 
 __author__ = "ncfrey"
 __version__ = "0.1"
@@ -51,7 +54,7 @@ class HeisenbergMapper:
 
         Args:
             ordered_structures (list): Structure objects with magmoms.
-            energies (list): Energies of each relaxed magnetic structure.
+            energies (list): Total energies of each relaxed magnetic structure.
             cutoff (float): Cutoff in Angstrom for nearest neighbor search.
                 Defaults to 0 (only NN, no NNN, etc.)
             tol (float): Tolerance (in Angstrom) on nearest neighbor distances
@@ -78,8 +81,8 @@ class HeisenbergMapper:
         self.ordered_structures_ = ordered_structures
         self.energies_ = energies
 
-        # Sanitize inputs and order them by energy / magnetic moments
-        hs = HeisenbergScreener(ordered_structures, energies)
+        # Sanitize inputs and optionally order them by energy / magnetic moments
+        hs = HeisenbergScreener(ordered_structures, energies, screen=False)
         ordered_structures = hs.screened_structures
         energies = hs.screened_energies
 
@@ -439,6 +442,8 @@ class HeisenbergMapper:
         fm_e_min = 0
         afm_e_min = 0
 
+        # epas = [e / len(s) for (e, s) in zip(self.energies, self.ordered_structures)]
+
         for s, e in zip(self.ordered_structures, self.energies):
 
             ordering = CollinearMagneticStructureAnalyzer(
@@ -489,6 +494,7 @@ class HeisenbergMapper:
         afm_struct = CollinearMagneticStructureAnalyzer(
             afm_struct, make_primitive=False, threshold=0.0
         ).get_structure_with_only_magnetic_atoms(make_primitive=False)
+
         return fm_struct, afm_struct, fm_e, afm_e
 
     def estimate_exchange(self, fm_struct=None, afm_struct=None, fm_e=None, afm_e=None):
@@ -498,8 +504,8 @@ class HeisenbergMapper:
         Args:
             fm_struct (Structure): fm structure with 'magmom' site property
             afm_struct (Structure): afm structure with 'magmom' site property
-            fm_e (float): fm energy
-            afm_e (float): afm energy
+            fm_e (float): fm energy/atom
+            afm_e (float): afm energy/atom
 
         Returns:
             j_avg (float): Average exchange parameter (meV/atom)
@@ -510,11 +516,11 @@ class HeisenbergMapper:
         if any(arg is None for arg in [fm_struct, afm_struct, fm_e, afm_e]):
             fm_struct, afm_struct, fm_e, afm_e = self.get_low_energy_orderings()
 
-        n = max(len(fm_struct), len(afm_struct))  # num of magnetic atoms
-        # fm_e *= n  # eV/ion -> eV
-        # afm_e *= n
-
         magmoms = fm_struct.site_properties["magmom"]
+
+        # Normalize energies by number of magnetic ions
+        # fm_e = fm_e / len(magmoms)
+        # afm_e = afm_e / len(afm_magmoms)
 
         m_avg = np.mean([np.sqrt(m ** 2) for m in magmoms])
 
@@ -528,7 +534,7 @@ class HeisenbergMapper:
             logging.warning(iamthedanger)
 
         delta_e = afm_e - fm_e  # J > 0 -> FM
-        j_avg = delta_e / (n * m_avg ** 2)  # eV / magnetic ion
+        j_avg = delta_e / (m_avg ** 2)  # eV / magnetic ion
         j_avg *= 1000  # meV / ion
 
         return j_avg
@@ -603,7 +609,7 @@ class HeisenbergMapper:
                 Only <J> is available. The interaction graph will not tell
                 you much.
                 """
-            warnings.warn(warning_msg)
+            logging.warning(warning_msg)
 
         # J_ij exchange interaction matrix
         for i, node in enumerate(sgraph.graph.nodes):
@@ -676,12 +682,58 @@ class HeisenbergMapper:
 
         return j_exc
 
+    def get_heisenberg_model(self):
+        """Save results of mapping to a HeisenbergModel object.
+
+        Returns:
+            hmodel (HeisenbergModel): MSONable object.
+
+        """
+
+        # Original formula unit with nonmagnetic ions
+        hm_formula = str(self.ordered_structures_[0].composition.reduced_formula)
+
+        hm_structures = self.ordered_structures
+        hm_energies = self.energies
+        hm_cutoff = self.cutoff
+        hm_tol = self.tol
+        hm_sgraphs = self.sgraphs
+        hm_usi = self.unique_site_ids
+        hm_wids = self.wyckoff_ids
+        hm_nni = self.nn_interactions
+        hm_d = self.dists
+
+        # Exchange matrix DataFrame in json format
+        hm_em = self.ex_mat.to_json()
+        hm_ep = self.get_exchange()
+        hm_javg = self.estimate_exchange()
+        hm_igraph = self.get_interaction_graph()
+
+        hmodel = HeisenbergModel(
+            hm_formula,
+            hm_structures,
+            hm_energies,
+            hm_cutoff,
+            hm_tol,
+            hm_sgraphs,
+            hm_usi,
+            hm_wids,
+            hm_nni,
+            hm_d,
+            hm_em,
+            hm_ep,
+            hm_javg,
+            hm_igraph,
+        )
+
+        return hmodel
+
 
 class HeisenbergScreener:
     """
     Class to clean and screen magnetic orderings.
     """
-    def __init__(self, structures, energies):
+    def __init__(self, structures, energies, screen=False):
         """
         This class pre-processes magnetic orderings and energies for
         HeisenbergMapper. It prioritizes low-energy orderings with large and
@@ -689,7 +741,8 @@ class HeisenbergScreener:
 
         Args:
             structures (list): Structure objects with magnetic moments.
-            energies (list): energies of magnetic orderings.
+            energies (list): Energies/atom of magnetic orderings.
+            screen (bool): Try to screen out high energy and low-spin configurations.
 
         Attributes:
             screened_structures (list): Sorted structures.
@@ -703,7 +756,7 @@ class HeisenbergScreener:
 
         # If there are more than 2 structures, we want to perform a
         # screening to prioritize well-behaved orderings
-        if n_structures > 2:
+        if screen and n_structures > 2:
             structures, energies = self._do_screen(structures, energies)
 
         self.screened_structures = structures
@@ -715,6 +768,7 @@ class HeisenbergScreener:
 
         Takes magnetic structures and performs the following operations
         - Erases nonmagnetic ions and gives all ions ['magmom'] site prop
+        - Converts total energies -> energy / magnetic ion
         - Checks for duplicate/degenerate orderings
         - Sorts by energy
 
@@ -738,11 +792,14 @@ class HeisenbergScreener:
             for s in structures
         ]
 
+        # Convert to energies / magnetic ion
+        energies = [e / len(s) for (e, s) in zip(energies, ordered_structures)]
+
         # Check for duplicate / degenerate states (sometimes different initial
         # configs relax to the same state)
         remove_list = []
         for i, e in enumerate(energies):
-            e_tol = 6  # 10^-4 eV tol on equal energies
+            e_tol = 6  # 10^-6 eV/atom tol on energies
             e = round(e, e_tol)
             if i not in remove_list:
                 for i_check, e_check in enumerate(energies):
@@ -817,3 +874,204 @@ class HeisenbergScreener:
         screened_energies = list(df["energy"].values)
 
         return screened_structures, screened_energies
+
+
+class HeisenbergModel(MSONable):
+    """
+    Store a Heisenberg model fit to low-energy magnetic orderings.
+    Intended to be generated by HeisenbergMapper.get_heisenberg_model().
+    """
+
+    def __init__(
+        self,
+        formula=None,
+        structures=None,
+        energies=None,
+        cutoff=None,
+        tol=None,
+        sgraphs=None,
+        unique_site_ids=None,
+        wyckoff_ids=None,
+        nn_interactions=None,
+        dists=None,
+        ex_mat=None,
+        ex_params=None,
+        javg=None,
+        igraph=None,
+    ):
+        """
+
+        Args:
+            formula (str): Reduced formula of compound.
+            structures (list): Structure objects with magmoms.
+            energies (list): Energies of each relaxed magnetic structure.
+            cutoff (float): Cutoff in Angstrom for nearest neighbor search.
+            tol (float): Tolerance (in Angstrom) on nearest neighbor distances being equal.
+            sgraphs (list): StructureGraph objects.
+            unique_site_ids (dict): Maps each site to its unique numerical
+                identifier.
+            wyckoff_ids (dict): Maps unique numerical identifier to wyckoff
+                position.
+            nn_interacations (dict): {i: j} pairs of NN interactions
+                between unique sites.
+            dists (dict): NN, NNN, and NNNN interaction distances
+            ex_mat (DataFrame): Invertible Heisenberg Hamiltonian for each
+                graph.
+            ex_params (dict): Exchange parameter values (meV/atom).
+            javg (float): <J> exchange param (meV/atom).
+            igraph (StructureGraph): Exchange interaction graph.
+
+        """
+
+        self.formula = formula
+        self.structures = structures
+        self.energies = energies
+        self.cutoff = cutoff
+        self.tol = tol
+        self.sgraphs = sgraphs
+        self.unique_site_ids = unique_site_ids
+        self.wyckoff_ids = wyckoff_ids
+        self.nn_interactions = nn_interactions
+        self.dists = dists
+        self.ex_mat = ex_mat
+        self.ex_params = ex_params
+        self.javg = javg
+        self.igraph = igraph
+
+    def as_dict(self):
+        """
+        Because some dicts have tuple keys, some sanitization is required for json compatibility.
+        """
+
+        d = {}
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        d["@version"] = __version__
+        d["formula"] = self.formula
+        d["structures"] = [s.as_dict() for s in self.structures]
+        d["energies"] = self.energies
+        d["cutoff"] = self.cutoff
+        d["tol"] = self.tol
+        d["sgraphs"] = [sgraph.as_dict() for sgraph in self.sgraphs]
+        d["dists"] = self.dists
+        d["ex_params"] = self.ex_params
+        d["javg"] = self.javg
+        d["igraph"] = self.igraph.as_dict()
+
+        # Sanitize tuple & int keys
+        d["ex_mat"] = jsanitize(self.ex_mat)
+        d["nn_interactions"] = jsanitize(self.nn_interactions)
+        d["unique_site_ids"] = jsanitize(self.unique_site_ids)
+        d["wyckoff_ids"] = jsanitize(self.wyckoff_ids)
+
+        return d
+
+    @classmethod
+    def from_dict(cls, d):
+        """Create a HeisenbergModel from a dict."""
+
+        # Reconstitute the site ids
+        usids = {}
+        wids = {}
+        nnis = {}
+
+        for k, v in d["nn_interactions"].items():
+            nn_dict = {}
+            for k1, v1 in v.items():
+                key = literal_eval(k1)
+                nn_dict[key] = v1
+            nnis[k] = nn_dict
+
+        for k, v in d["unique_site_ids"].items():
+            key = literal_eval(k)
+            if type(key) == int:
+                usids[tuple([key])] = v
+            elif type(key) == tuple:
+                usids[key] = v
+
+        for k, v in d["wyckoff_ids"].items():
+            key = literal_eval(k)
+            wids[key] = v
+
+        # Reconstitute the structure and graph objects
+        structures = []
+        sgraphs = []
+        for v in d["structures"]:
+            structures.append(Structure.from_dict(v))
+        for v in d["sgraphs"]:
+            sgraphs.append(StructureGraph.from_dict(v))
+
+        # Interaction graph
+        igraph = StructureGraph.from_dict(d["igraph"])
+
+        # Reconstitute the exchange matrix DataFrame
+        try:
+            ex_mat = eval(d["ex_mat"])
+            ex_mat = pd.DataFrame.from_dict(ex_mat)
+        except SyntaxError:  # if ex_mat is empty
+            ex_mat = pd.DataFrame(columns=["E", "E0"])
+
+        hmodel = HeisenbergModel(
+            formula=d["formula"],
+            structures=structures,
+            energies=d["energies"],
+            cutoff=d["cutoff"],
+            tol=d["tol"],
+            sgraphs=sgraphs,
+            unique_site_ids=usids,
+            wyckoff_ids=wids,
+            nn_interactions=nnis,
+            dists=d["dists"],
+            ex_mat=ex_mat,
+            ex_params=d["ex_params"],
+            javg=d["javg"],
+            igraph=igraph,
+        )
+
+        return hmodel
+
+    def _get_j_exc(self, i, j, dist):
+        """
+        Convenience method for looking up exchange parameter between two sites.
+
+        Args:
+            i (int): index of ith site
+            j (int): index of jth site
+            dist (float): distance (Angstrom) between sites +- tol
+
+        Returns:
+            j_exc (float): Exchange parameter in meV
+        """
+
+        # Get unique site identifiers
+        for k in self.unique_site_ids.keys():
+            if i in k:
+                i_index = self.unique_site_ids[k]
+            if j in k:
+                j_index = self.unique_site_ids[k]
+
+        order = ""
+
+        # Determine order of interaction
+        if abs(dist - self.dists["nn"]) <= self.tol:
+            order = "-nn"
+        elif abs(dist - self.dists["nnn"]) <= self.tol:
+            order = "-nnn"
+        elif abs(dist - self.dists["nnnn"]) <= self.tol:
+            order = "-nnnn"
+
+        j_ij = str(i_index) + "-" + str(j_index) + order
+        j_ji = str(j_index) + "-" + str(i_index) + order
+
+        if j_ij in self.ex_params:
+            j_exc = self.ex_params[j_ij]
+        elif j_ji in self.ex_params:
+            j_exc = self.ex_params[j_ji]
+        else:
+            j_exc = 0
+
+        # Check if only averaged NN <J> values are available
+        if "<J>" in self.ex_params and order == "-nn":
+            j_exc = self.ex_params["<J>"]
+
+        return j_exc

@@ -95,10 +95,16 @@ class InsertionElectrode(AbstractElectrode):
 
     @property
     def working_ion_entry(self):
+        """
+        Returns: Working ion entry
+        """
         return self._working_ion_entry
 
     @property
     def voltage_pairs(self):
+        """
+        Returns: All InsertionVoltagePairs in electrode.
+        """
         return self._vpairs
 
     def get_stable_entries(self, charge_to_discharge=True):
@@ -373,12 +379,22 @@ class InsertionElectrode(AbstractElectrode):
 
     @classmethod
     def from_dict(cls, d):
+        """
+        Args:
+            d (dict): Dict representation
+
+        Returns:
+            InsertionElectrode
+        """
         from monty.json import MontyDecoder
         dec = MontyDecoder()
         return cls(dec.process_decoded(d["entries"]),
                    dec.process_decoded(d["working_ion_entry"]))
 
     def as_dict(self):
+        """
+        Returns: MSONAble dict
+        """
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "entries": [entry.as_dict() for entry in self._entries],
@@ -388,15 +404,16 @@ class InsertionElectrode(AbstractElectrode):
 class InsertionVoltagePair(AbstractVoltagePair):
     """
     Defines an Insertion Voltage Pair.
-
-    Args:
-        entry1: Entry corresponding to one of the entries in the voltage step.
-        entry2: Entry corresponding to the other entry in the voltage step.
-        working_ion_entry: A single ComputedEntry or PDEntry representing
-            the element that carries charge across the battery, e.g. Li.
     """
 
     def __init__(self, entry1, entry2, working_ion_entry):
+        """
+        Args:
+            entry1: Entry corresponding to one of the entries in the voltage step.
+            entry2: Entry corresponding to the other entry in the voltage step.
+            working_ion_entry: A single ComputedEntry or PDEntry representing
+                the element that carries charge across the battery, e.g. Li.
+        """
         # initialize some internal variables
         working_element = working_ion_entry.composition.elements[0]
 
@@ -492,39 +509,73 @@ class InsertionVoltagePair(AbstractVoltagePair):
             comp_discharge.get_atomic_fraction(working_element)
 
     @property
+    def working_ion(self):
+        """
+        Returns: working ion
+        """
+        return self._working_ion
+
+    @property
     def frac_charge(self):
+        """
+        Returns: Amount of working ion at charge
+        """
         return self._frac_charge
 
     @property
     def frac_discharge(self):
+        """
+        Returns: Amount of working ion at discharge
+        """
         return self._frac_discharge
 
     @property
     def voltage(self):
+        """
+        Returns: Voltage of electrode
+        """
         return self._voltage
 
     @property
     def mAh(self):
+        """
+        Returns: Energy in mAh.
+        """
         return self._mAh
 
     @property
     def mass_charge(self):
+        """
+        Returns: Mass of charged electrode.
+        """
         return self._mass_charge
 
     @property
     def mass_discharge(self):
+        """
+        Returns: Mass of discharged electrode.
+        """
         return self._mass_discharge
 
     @property
     def vol_charge(self):
+        """
+        Returns: Volume of charged electrode.
+        """
         return self._vol_charge
 
     @property
     def vol_discharge(self):
+        """
+        Returns: Volume of discharged electrode.
+        """
         return self._vol_discharge
 
     @property
     def working_ion_entry(self):
+        """
+        Returns: Working ion entry
+        """
         return self._working_ion_entry
 
     def __repr__(self):

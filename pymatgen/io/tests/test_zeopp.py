@@ -179,7 +179,7 @@ class GetVoronoiNodesTest(unittest.TestCase):
         print(len(vor_face_center_struct.sites))
 
 
-@unittest.skipIf(not zeo, "zeo not present.")
+@unittest.skip("file free_sph.cif not present")
 class GetFreeSphereParamsTest(unittest.TestCase):
     def setUp(self):
         filepath = os.path.join(test_dir, 'free_sph.cif')

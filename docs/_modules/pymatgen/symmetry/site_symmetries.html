@@ -1,0 +1,190 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>pymatgen.symmetry.site_symmetries &#8212; pymatgen 2020.3.2 documentation</title>
+    <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.symmetry.site_symmetries</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Provides analysis of site symmetries.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="k">import</span> <span class="n">SpacegroupAnalyzer</span> <span class="k">as</span> <span class="n">sga</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.operations</span> <span class="k">import</span> <span class="n">SymmOp</span>
+
+
+<div class="viewcode-block" id="get_site_symmetries"><a class="viewcode-back" href="../../../pymatgen.symmetry.site_symmetries.html#pymatgen.symmetry.site_symmetries.get_site_symmetries">[docs]</a><span class="k">def</span> <span class="nf">get_site_symmetries</span><span class="p">(</span><span class="n">struc</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get all the point group operations centered on each atomic site</span>
+<span class="sd">    in the form [[point operations of site index 1]...[[point operations of site index N]]]</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        struc: Pymatgen structure</span>
+<span class="sd">        precision (float): tolerance to find symmetry operaitons</span>
+
+<span class="sd">    Return:</span>
+<span class="sd">        list of lists of point operations for each atomic site</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">pointops</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># Point symmetries of each atom</span>
+    <span class="k">for</span> <span class="n">site1</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">struc</span><span class="o">.</span><span class="n">sites</span><span class="p">)):</span>
+        <span class="n">tempstruc</span> <span class="o">=</span> <span class="n">struc</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="c1"># Place the origin of the cell at each atomic site</span>
+        <span class="n">pointops</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
+
+        <span class="k">for</span> <span class="n">site2</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">struc</span><span class="o">.</span><span class="n">sites</span><span class="p">)):</span>
+            <span class="n">tempstruc</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+                <span class="n">site2</span><span class="p">,</span>
+                <span class="n">tempstruc</span><span class="o">.</span><span class="n">sites</span><span class="p">[</span><span class="n">site2</span><span class="p">]</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span>
+                <span class="n">tempstruc</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="n">site2</span><span class="p">]</span> <span class="o">-</span> <span class="n">struc</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="n">site1</span><span class="p">],</span>
+            <span class="p">)</span>
+
+        <span class="n">sgastruc</span> <span class="o">=</span> <span class="n">sga</span><span class="p">(</span><span class="n">tempstruc</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="n">precision</span><span class="p">)</span>
+        <span class="n">ops</span> <span class="o">=</span> <span class="n">sgastruc</span><span class="o">.</span><span class="n">get_symmetry_operations</span><span class="p">(</span><span class="n">cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">site2</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ops</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">ops</span><span class="p">[</span><span class="n">site2</span><span class="p">]</span><span class="o">.</span><span class="n">translation_vector</span> <span class="o">==</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]):</span>
+                <span class="n">pointops</span><span class="p">[</span><span class="n">site1</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ops</span><span class="p">[</span><span class="n">site2</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">pointops</span></div>
+
+
+<div class="viewcode-block" id="get_shared_symmetry_operations"><a class="viewcode-back" href="../../../pymatgen.symmetry.site_symmetries.html#pymatgen.symmetry.site_symmetries.get_shared_symmetry_operations">[docs]</a><span class="k">def</span> <span class="nf">get_shared_symmetry_operations</span><span class="p">(</span><span class="n">struc</span><span class="p">,</span> <span class="n">pointops</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get all the point group operations shared by a pair of atomic sites</span>
+<span class="sd">        in the form [[point operations of site index 1],[],...,[]]</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            struc: Pymatgen structure</span>
+<span class="sd">            pointops: list of point group operations from get_site_symmetries method</span>
+
+<span class="sd">        Return:</span>
+<span class="sd">            list of lists of shared point operations for each pair of atomic sites</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">numsites</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">struc</span><span class="p">)</span>
+    <span class="n">sharedops</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numsites</span><span class="p">)]</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numsites</span><span class="p">)]</span>
+    <span class="k">for</span> <span class="n">site1</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numsites</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">site2</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numsites</span><span class="p">):</span>
+            <span class="n">sharedops</span><span class="p">[</span><span class="n">site1</span><span class="p">][</span><span class="n">site2</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">op1</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pointops</span><span class="p">[</span><span class="n">site1</span><span class="p">])):</span>
+                <span class="k">for</span> <span class="n">op2</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pointops</span><span class="p">[</span><span class="n">site2</span><span class="p">])):</span>
+                    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span>
+                        <span class="n">pointops</span><span class="p">[</span><span class="n">site1</span><span class="p">][</span><span class="n">op1</span><span class="p">]</span><span class="o">.</span><span class="n">rotation_matrix</span><span class="p">,</span>
+                        <span class="n">pointops</span><span class="p">[</span><span class="n">site2</span><span class="p">][</span><span class="n">op2</span><span class="p">]</span><span class="o">.</span><span class="n">rotation_matrix</span><span class="p">,</span>
+                    <span class="p">):</span>
+                        <span class="n">sharedops</span><span class="p">[</span><span class="n">site1</span><span class="p">][</span><span class="n">site2</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pointops</span><span class="p">[</span><span class="n">site1</span><span class="p">][</span><span class="n">op1</span><span class="p">])</span>
+
+    <span class="k">for</span> <span class="n">site1</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sharedops</span><span class="p">)):</span>
+        <span class="k">for</span> <span class="n">site2</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sharedops</span><span class="p">[</span><span class="n">site1</span><span class="p">])):</span>
+            <span class="n">uniqueops</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">ops</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sharedops</span><span class="p">[</span><span class="n">site1</span><span class="p">][</span><span class="n">site2</span><span class="p">])):</span>
+                <span class="n">op</span> <span class="o">=</span> <span class="n">SymmOp</span><span class="o">.</span><span class="n">from_rotation_and_translation</span><span class="p">(</span>
+                    <span class="n">rotation_matrix</span><span class="o">=</span><span class="n">sharedops</span><span class="p">[</span><span class="n">site1</span><span class="p">][</span><span class="n">site2</span><span class="p">][</span><span class="n">ops</span><span class="p">]</span><span class="o">.</span><span class="n">rotation_matrix</span><span class="p">,</span>
+                    <span class="n">translation_vec</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+                    <span class="n">tol</span><span class="o">=</span><span class="n">tol</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">uniqueops</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">uniqueops</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">op</span><span class="p">)</span>
+            <span class="n">sharedops</span><span class="p">[</span><span class="n">site1</span><span class="p">][</span><span class="n">site2</span><span class="p">]</span> <span class="o">=</span> <span class="n">uniqueops</span>
+
+    <span class="k">return</span> <span class="n">sharedops</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

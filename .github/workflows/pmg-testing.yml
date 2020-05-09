@@ -9,7 +9,7 @@ jobs:
       max-parallel: 6
       matrix:
         os: [ubuntu-latest]
-        python-version: [3.6]
+        python-version: [3.6, 3.7, 3.8]
 
     runs-on: ${{ matrix.os }}
 
@@ -24,6 +24,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install -r requirements-optional.txt
+        pip install -r requirements-dev.txt
     - name: Install binary dependencies (Linux)
       if: matrix.os == 'ubuntu-latest'
       run: |
@@ -31,4 +32,4 @@ jobs:
     - name: Test with pytest
       run: |
         pip install -e .
-        pytest pymatgen
+        pytest pymatgen --color=yes

@@ -8,12 +8,10 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.command_line.vampire_caller module &mdash; pymatgen 2020.1.10 documentation</title>
+  <title>pymatgen.command_line.vampire_caller module &mdash; pymatgen 2020.4.29 documentation</title>
   
 
   
-  
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
   
   
   
@@ -25,11 +23,11 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -73,7 +71,7 @@
             
             
               <div class="version">
-                2020.1.10
+                2020.4.29
               </div>
             
           
@@ -119,6 +117,7 @@
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html">pymatgen.io package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.plugins.html">pymatgen.plugins package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
@@ -216,7 +215,7 @@ R. F. L. Evans, W. J. Fan, P. Chureemart, T. A. Ostler, M. O. A. Ellis
 and R. W. Chantrell. J. Phys.: Condens. Matter 26, 103202 (2014)</p>
 <dl class="class">
 <dt id="pymatgen.command_line.vampire_caller.VampireCaller">
-<em class="property">class </em><code class="sig-name descname">VampireCaller</code><span class="sig-paren">(</span><em class="sig-param">ordered_structures</em>, <em class="sig-param">energies</em>, <em class="sig-param">mc_box_size=4.0</em>, <em class="sig-param">equil_timesteps=2000</em>, <em class="sig-param">mc_timesteps=4000</em>, <em class="sig-param">save_inputs=False</em>, <em class="sig-param">hm=None</em>, <em class="sig-param">user_input_settings=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/command_line/vampire_caller.py#L41-L390"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.vampire_caller.VampireCaller" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">VampireCaller</code><span class="sig-paren">(</span><em class="sig-param">ordered_structures=None</em>, <em class="sig-param">energies=None</em>, <em class="sig-param">mc_box_size=4.0</em>, <em class="sig-param">equil_timesteps=2000</em>, <em class="sig-param">mc_timesteps=4000</em>, <em class="sig-param">save_inputs=False</em>, <em class="sig-param">hm=None</em>, <em class="sig-param">avg=True</em>, <em class="sig-param">user_input_settings=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/command_line/vampire_caller.py#L41-L428"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.vampire_caller.VampireCaller" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Run Vampire on a material with magnetic ordering and exchange parameter information to compute the critical
 temperature with classical Monte Carlo.</p>
@@ -233,8 +232,10 @@ temperature with classical Monte Carlo.</p>
 <li><p><strong>equil_timesteps</strong> (<em>int</em>) – number of MC steps for equilibrating</p></li>
 <li><p><strong>mc_timesteps</strong> (<em>int</em>) – number of MC steps for averaging</p></li>
 <li><p><strong>save_inputs</strong> (<em>bool</em>) – if True, save scratch dir of vampire input files</p></li>
-<li><p><strong>hm</strong> (<a class="reference internal" href="pymatgen.analysis.magnetism.heisenberg.html#pymatgen.analysis.magnetism.heisenberg.HeisenbergMapper" title="pymatgen.analysis.magnetism.heisenberg.HeisenbergMapper"><em>HeisenbergMapper</em></a>) – object already fit to low energy
+<li><p><strong>hm</strong> (<a class="reference internal" href="pymatgen.analysis.magnetism.heisenberg.html#pymatgen.analysis.magnetism.heisenberg.HeisenbergModel" title="pymatgen.analysis.magnetism.heisenberg.HeisenbergModel"><em>HeisenbergModel</em></a>) – object already fit to low energy
 magnetic orderings.</p></li>
+<li><p><strong>avg</strong> (<em>bool</em>) – If True, simply use &lt;J&gt; exchange parameter estimate.
+If False, attempt to use NN, NNN, etc. interactions.</p></li>
 <li><p><strong>user_input_settings</strong> (<em>dict</em>) – optional commands for VAMPIRE Monte Carlo</p></li>
 <li><p><strong>sgraph</strong> (<a class="reference internal" href="pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.StructureGraph" title="pymatgen.analysis.graphs.StructureGraph"><em>StructureGraph</em></a>) – Ground state graph.</p></li>
 <li><p><strong>unique_site_ids</strong> (<em>dict</em>) – Maps each site to its unique identifier</p></li>
@@ -248,30 +249,44 @@ indexing.</p></li>
 </ul>
 </dd>
 </dl>
+<dl class="method">
+<dt id="pymatgen.command_line.vampire_caller.VampireCaller.parse_stdout">
+<em class="property">static </em><code class="sig-name descname">parse_stdout</code><span class="sig-paren">(</span><em class="sig-param">vamp_stdout</em>, <em class="sig-param">nmats</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/command_line/vampire_caller.py#L399-L428"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.vampire_caller.VampireCaller.parse_stdout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse stdout from Vampire.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vamp_stdout</strong> (<em>txt file</em>) – Vampire ‘output’ file.</p></li>
+<li><p><strong>nmats</strong> (<em>int</em>) – Num of materials in Vampire sim.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>MSONable vampire output.
+critical_temp (float): Calculated critical temp.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>parsed_out (DataFrame)</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
 <dt id="pymatgen.command_line.vampire_caller.VampireOutput">
-<em class="property">class </em><code class="sig-name descname">VampireOutput</code><span class="sig-paren">(</span><em class="sig-param">vamp_stdout</em>, <em class="sig-param">nmats</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/command_line/vampire_caller.py#L393-L427"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.vampire_caller.VampireOutput" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<em class="property">class </em><code class="sig-name descname">VampireOutput</code><span class="sig-paren">(</span><em class="sig-param">parsed_out=None</em>, <em class="sig-param">nmats=None</em>, <em class="sig-param">critical_temp=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/command_line/vampire_caller.py#L431-L448"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.vampire_caller.VampireOutput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>This class processes results from a Vampire Monte Carlo simulation
 and returns the critical temperature.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>vamp_stdout</strong> (<em>txt file</em>) – stdout from running vampire-serial.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parsed_out</strong> (<em>json</em>) – json rep of parsed stdout DataFrame.</p></li>
+<li><p><strong>nmats</strong> (<em>int</em>) – Number of distinct materials (1 for each specie and up/down spin).</p></li>
+<li><p><strong>critical_temp</strong> (<em>float</em>) – Monte Carlo Tc result.</p></li>
+</ul>
 </dd>
 </dl>
-<dl class="attribute">
-<dt id="pymatgen.command_line.vampire_caller.VampireOutput.critical_temp">
-<code class="sig-name descname">critical_temp</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/command_line/vampire_caller.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.vampire_caller.VampireOutput.critical_temp" title="Permalink to this definition">¶</a></dt>
-<dd><p>Monte Carlo Tc result.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>float</p>
-</dd>
-</dl>
-</dd></dl>
-
 </dd></dl>
 
 </div>

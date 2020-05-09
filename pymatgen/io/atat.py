@@ -2,12 +2,15 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from pymatgen import Structure, Lattice, Specie, DummySpecie
-import numpy as np
-
 """
 Classes for reading/writing mcsqs files following the rndstr.in format.
 """
+
+import numpy as np
+from pymatgen.core.structure import Structure
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.periodic_table import get_el_sp, Specie
+
 
 __author__ = "Matthew Horton"
 __copyright__ = "Copyright 2017, The Materials Project"
@@ -18,12 +21,13 @@ __date__ = "October 2017"
 
 
 class Mcsqs:
+    """
+    Handle input/output for the crystal definition format
+    used by mcsqs and other ATAT codes.
+    """
 
     def __init__(self, structure):
         """
-        Handle input/output for the crystal definition format
-        used by mcsqs and other ATAT codes.
-
         :param structure: input Structure
         """
 
@@ -37,9 +41,7 @@ class Mcsqs:
 
         # add lattice vectors
         m = self.structure.lattice.matrix
-        output = ["{:6f} {:6f} {:6f}".format(*m[0]),
-                  "{:6f} {:6f} {:6f}".format(*m[1]),
-                  "{:6f} {:6f} {:6f}".format(*m[2])]
+        output = ["{:6f} {:6f} {:6f}".format(*l) for l in m]
 
         # define coord system, use Cartesian
         output.append("1.0 0.0 0.0")
@@ -54,10 +56,14 @@ class Mcsqs:
                     sp = sp.element
                 species_str.append("{}={}".format(sp, occu))
             species_str = ",".join(species_str)
-            output.append("{:6f} {:6f} {:6f} {}".format(site.frac_coords[0],
-                                                        site.frac_coords[1],
-                                                        site.frac_coords[2],
-                                                        species_str))
+            output.append(
+                "{:6f} {:6f} {:6f} {}".format(
+                    site.frac_coords[0],
+                    site.frac_coords[1],
+                    site.frac_coords[2],
+                    species_str,
+                )
+            )
 
         return "\n".join(output)
 
@@ -77,25 +83,33 @@ class Mcsqs:
         # following specification/terminology given in manual
         if len(data[0]) == 6:  # lattice parameters
             a, b, c, alpha, beta, gamma = map(float, data[0])
-            coord_system = Lattice.from_parameters(a, b, c,
-                                                   alpha, beta, gamma).matrix
-            lattice_vecs = np.array([
-                [data[1][0], data[1][1], data[1][2]],
-                [data[2][0], data[2][1], data[2][2]],
-                [data[3][0], data[3][1], data[3][2]]
-            ], dtype=float)
+            coord_system = Lattice.from_parameters(a, b, c, alpha, beta, gamma).matrix
+            lattice_vecs = np.array(
+                [
+                    [data[1][0], data[1][1], data[1][2]],
+                    [data[2][0], data[2][1], data[2][2]],
+                    [data[3][0], data[3][1], data[3][2]],
+                ],
+                dtype=float,
+            )
             first_species_line = 4
         else:
-            coord_system = np.array([
-                [data[0][0], data[0][1], data[0][2]],
-                [data[1][0], data[1][1], data[1][2]],
-                [data[2][0], data[2][1], data[2][2]]
-            ], dtype=float)
-            lattice_vecs = np.array([
-                [data[3][0], data[3][1], data[3][2]],
-                [data[4][0], data[4][1], data[4][2]],
-                [data[5][0], data[5][1], data[5][2]]
-            ], dtype=float)
+            coord_system = np.array(
+                [
+                    [data[0][0], data[0][1], data[0][2]],
+                    [data[1][0], data[1][1], data[1][2]],
+                    [data[2][0], data[2][1], data[2][2]],
+                ],
+                dtype=float,
+            )
+            lattice_vecs = np.array(
+                [
+                    [data[3][0], data[3][1], data[3][2]],
+                    [data[4][0], data[4][1], data[4][2]],
+                    [data[5][0], data[5][1], data[5][2]],
+                ],
+                dtype=float,
+            )
             first_species_line = 6
 
         scaled_matrix = np.matmul(coord_system, lattice_vecs)
@@ -105,7 +119,9 @@ class Mcsqs:
         all_species = []
         for l in data[first_species_line:]:
 
-            all_coords.append(np.array([l[0], l[1], l[2]], dtype=float))
+            coords = np.array([l[0], l[1], l[2]], dtype=float)
+            scaled_coords = np.matmul(coords, np.linalg.inv(lattice_vecs))
+            all_coords.append(scaled_coords)
 
             species_strs = "".join(l[3:])  # join multiple strings back together
             species_strs = species_strs.replace(" ", "")  # trim any white space
@@ -114,14 +130,11 @@ class Mcsqs:
             species = {}
 
             for species_str in species_strs:
-                species_str = species_str.split('=')
+                species_str = species_str.split("=")
                 if len(species_str) == 1:
                     # assume occupancy is 1.0
                     species_str = [species_str[0], 1.0]
-                try:
-                    species[Specie(species_str[0])] = float(species_str[1])
-                except Exception:
-                    species[DummySpecie(species_str[0])] = float(species_str[1])
+                species[get_el_sp(species_str[0])] = float(species_str[1])
 
             all_species.append(species)
 

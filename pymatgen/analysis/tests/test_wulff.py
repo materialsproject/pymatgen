@@ -75,6 +75,13 @@ class WulffShapeTest(PymatgenTest):
         self.wulff_Nb.get_plot()
         self.wulff_Ir.get_plot()
 
+    @unittest.skipIf("DISPLAY" not in os.environ, "Need display")
+    def test_get_plotly(self):
+        # Basic test, not really a unittest.
+        self.wulff_Ti.get_plotly()
+        self.wulff_Nb.get_plotly()
+        self.wulff_Ir.get_plotly()
+
     def symm_check(self, ucell, wulff_vertices):
         """
         # Checks if the point group of the Wulff shape matches

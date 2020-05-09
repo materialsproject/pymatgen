@@ -44,6 +44,12 @@ class FloatWithUnitTest(PymatgenTest):
         self.assertEqual(a + 1, 2.1)
         self.assertEqual(str(a / d), "1.1 eV Ha^-1")
 
+        e = Energy(1, 'kJ')
+        f = e.to('kCal')
+        self.assertAlmostEqual(f, 0.2390057361376673)
+        self.assertEqual(str(e + f), '2.0 kJ')
+        self.assertEqual(str(f + e), '0.4780114722753346 kCal')
+
     def test_time(self):
         a = Time(20, "h")
         self.assertAlmostEqual(float(a.to("s")), 3600 * 20)

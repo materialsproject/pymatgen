@@ -2,6 +2,9 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+This module implements an XRD pattern calculator.
+"""
 
 import os
 import json
@@ -13,10 +16,6 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 from .core import DiffractionPattern, AbstractDiffractionPatternCalculator, \
     get_unique_families
-
-"""
-This module implements an XRD pattern calculator.
-"""
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -60,7 +59,7 @@ with open(os.path.join(os.path.dirname(__file__),
 
 
 class XRDCalculator(AbstractDiffractionPatternCalculator):
-    """
+    r"""
     Computes the XRD pattern of a crystal structure.
 
     This code is implemented by Shyue Ping Ong as part of UCSD's NANO106 -

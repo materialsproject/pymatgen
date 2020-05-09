@@ -2,6 +2,10 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+This module defines classes to represent the phonon density of states, etc.
+"""
+
 import numpy as np
 import scipy.constants as const
 
@@ -10,15 +14,21 @@ from pymatgen.util.coord import get_linear_interpolated_value
 from monty.json import MSONable
 from monty.functools import lazy_property
 
-"""
-This module defines classes to represent the phonon density of states, etc.
-"""
 
 BOLTZ_THZ_PER_K = const.value("Boltzmann constant in Hz/K") / const.tera  # Boltzmann constant in THz/K
 THZ_TO_J = const.value("hertz-joule relationship") * const.tera
 
 
 def coth(x):
+    """
+    Coth function.
+
+    Args:
+        x (): value
+
+    Returns:
+        coth(x)
+    """
     return 1.0 / np.tanh(x)
 
 
@@ -26,13 +36,14 @@ class PhononDos(MSONable):
     """
     Basic DOS object. All other DOS objects are extended versions of this
     object.
-
-    Args:
-        frequencies: A sequences of frequencies in THz
-        densities: A list representing the density of states.
     """
 
     def __init__(self, frequencies, densities):
+        """
+        Args:
+            frequencies: A sequences of frequencies in THz
+            densities: A list representing the density of states.
+        """
         self.frequencies = np.array(frequencies)
         self.densities = np.array(densities)
 
@@ -316,17 +327,18 @@ class CompletePhononDos(PhononDos):
     """
     This wrapper class defines a total dos, and also provides a list of PDos.
 
-    Args:
-        structure: Structure associated with this particular DOS.
-        total_dos: total Dos for structure
-        pdoss: The pdoss are supplied as an {Site: Densities}
-
     .. attribute:: pdos
 
         Dict of partial densities of the form {Site:Densities}
     """
 
     def __init__(self, structure, total_dos, pdoss):
+        """
+        Args:
+            structure: Structure associated with this particular DOS.
+            total_dos: total Dos for structure
+            pdoss: The pdoss are supplied as an {Site: Densities}
+        """
         super().__init__(
             frequencies=total_dos.frequencies, densities=total_dos.densities)
         self.pdos = {s: np.array(d) for s, d in pdoss.items()}

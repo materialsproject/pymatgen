@@ -8,12 +8,10 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.io.lammps.utils module &mdash; pymatgen 2020.1.10 documentation</title>
+  <title>pymatgen.io.lammps.utils module &mdash; pymatgen 2020.4.29 documentation</title>
   
 
   
-  
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
   
   
   
@@ -25,11 +23,11 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -73,7 +71,7 @@
             
             
               <div class="version">
-                2020.1.10
+                2020.4.29
               </div>
             
           
@@ -119,6 +117,7 @@
 <li class="toctree-l4 current"><a class="reference internal" href="pymatgen.io.html">pymatgen.io package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.plugins.html">pymatgen.plugins package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
@@ -210,7 +209,7 @@
 <p>This module defines utility classes and functions.</p>
 <dl class="class">
 <dt id="pymatgen.io.lammps.utils.LammpsRunner">
-<em class="property">class </em><code class="sig-name descname">LammpsRunner</code><span class="sig-paren">(</span><em class="sig-param">input_filename='lammps.in'</em>, <em class="sig-param">bin='lammps'</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/io/lammps/utils.py#L443-L469"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.utils.LammpsRunner" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">LammpsRunner</code><span class="sig-paren">(</span><em class="sig-param">input_filename='lammps.in'</em>, <em class="sig-param">bin='lammps'</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/lammps/utils.py#L443-L470"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.utils.LammpsRunner" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>LAMMPS wrapper</p>
 <dl class="field-list simple">
@@ -223,7 +222,7 @@
 </dl>
 <dl class="method">
 <dt id="pymatgen.io.lammps.utils.LammpsRunner.run">
-<code class="sig-name descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/io/lammps/utils.py#L461-L469"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.utils.LammpsRunner.run" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/lammps/utils.py#L462-L470"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.utils.LammpsRunner.run" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write the input/data files and run LAMMPS.</p>
 </dd></dl>
 
@@ -231,7 +230,7 @@
 
 <dl class="class">
 <dt id="pymatgen.io.lammps.utils.PackmolRunner">
-<em class="property">class </em><code class="sig-name descname">PackmolRunner</code><span class="sig-paren">(</span><em class="sig-param">mols</em>, <em class="sig-param">param_list</em>, <em class="sig-param">input_file='pack.inp'</em>, <em class="sig-param">tolerance=2.0</em>, <em class="sig-param">filetype='xyz'</em>, <em class="sig-param">control_params={'maxit': 20</em>, <em class="sig-param">'nloop': 600}</em>, <em class="sig-param">auto_box=True</em>, <em class="sig-param">output_file='packed.xyz'</em>, <em class="sig-param">bin='packmol'</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/io/lammps/utils.py#L167-L440"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.utils.PackmolRunner" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">PackmolRunner</code><span class="sig-paren">(</span><em class="sig-param">mols</em>, <em class="sig-param">param_list</em>, <em class="sig-param">input_file='pack.inp'</em>, <em class="sig-param">tolerance=2.0</em>, <em class="sig-param">filetype='xyz'</em>, <em class="sig-param">control_params={'maxit': 20</em>, <em class="sig-param">'nloop': 600}</em>, <em class="sig-param">auto_box=True</em>, <em class="sig-param">output_file='packed.xyz'</em>, <em class="sig-param">bin='packmol'</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/lammps/utils.py#L167-L440"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.utils.PackmolRunner" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Wrapper for the Packmol software that can be used to pack various types of
 molecules into a one single unit.</p>
@@ -253,7 +252,7 @@ according to the filetype</p></li>
 </dl>
 <dl class="method">
 <dt id="pymatgen.io.lammps.utils.PackmolRunner.convert_obatoms_to_molecule">
-<code class="sig-name descname">convert_obatoms_to_molecule</code><span class="sig-paren">(</span><em class="sig-param">atoms</em>, <em class="sig-param">residue_name=None</em>, <em class="sig-param">site_property='ff_map'</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/io/lammps/utils.py#L359-L403"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.utils.PackmolRunner.convert_obatoms_to_molecule" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">convert_obatoms_to_molecule</code><span class="sig-paren">(</span><em class="sig-param">atoms</em>, <em class="sig-param">residue_name=None</em>, <em class="sig-param">site_property='ff_map'</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/lammps/utils.py#L359-L403"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.utils.PackmolRunner.convert_obatoms_to_molecule" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert list of openbabel atoms to MOlecule.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -272,7 +271,7 @@ restore the site properties in the final packed molecule.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.io.lammps.utils.PackmolRunner.restore_site_properties">
-<code class="sig-name descname">restore_site_properties</code><span class="sig-paren">(</span><em class="sig-param">site_property='ff_map'</em>, <em class="sig-param">filename=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/io/lammps/utils.py#L405-L440"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.utils.PackmolRunner.restore_site_properties" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">restore_site_properties</code><span class="sig-paren">(</span><em class="sig-param">site_property='ff_map'</em>, <em class="sig-param">filename=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/lammps/utils.py#L405-L440"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.utils.PackmolRunner.restore_site_properties" title="Permalink to this definition">¶</a></dt>
 <dd><p>Restore the site properties for the final packed molecule.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -289,7 +288,7 @@ restore the site properties in the final packed molecule.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.io.lammps.utils.PackmolRunner.run">
-<code class="sig-name descname">run</code><span class="sig-paren">(</span><em class="sig-param">copy_to_current_on_exit=False</em>, <em class="sig-param">site_property=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/io/lammps/utils.py#L287-L321"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.utils.PackmolRunner.run" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">run</code><span class="sig-paren">(</span><em class="sig-param">copy_to_current_on_exit=False</em>, <em class="sig-param">site_property=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/lammps/utils.py#L287-L321"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.utils.PackmolRunner.run" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write the input file to the scratch directory, run packmol and return
 the packed molecule.</p>
 <dl class="field-list simple">
@@ -310,7 +309,7 @@ for the the final packed molecule will be restored.</p></li>
 
 <dl class="method">
 <dt id="pymatgen.io.lammps.utils.PackmolRunner.write_pdb">
-<code class="sig-name descname">write_pdb</code><span class="sig-paren">(</span><em class="sig-param">mol</em>, <em class="sig-param">filename</em>, <em class="sig-param">name=None</em>, <em class="sig-param">num=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/io/lammps/utils.py#L323-L344"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.utils.PackmolRunner.write_pdb" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">write_pdb</code><span class="sig-paren">(</span><em class="sig-param">mol</em>, <em class="sig-param">filename</em>, <em class="sig-param">name=None</em>, <em class="sig-param">num=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/lammps/utils.py#L323-L344"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.utils.PackmolRunner.write_pdb" title="Permalink to this definition">¶</a></dt>
 <dd><p>dump the molecule into pdb file with custom residue name and number.</p>
 </dd></dl>
 
@@ -318,7 +317,7 @@ for the the final packed molecule will be restored.</p></li>
 
 <dl class="class">
 <dt id="pymatgen.io.lammps.utils.Polymer">
-<em class="property">class </em><code class="sig-name descname">Polymer</code><span class="sig-paren">(</span><em class="sig-param">start_monomer</em>, <em class="sig-param">s_head</em>, <em class="sig-param">s_tail</em>, <em class="sig-param">monomer</em>, <em class="sig-param">head</em>, <em class="sig-param">tail</em>, <em class="sig-param">end_monomer</em>, <em class="sig-param">e_head</em>, <em class="sig-param">e_tail</em>, <em class="sig-param">n_units</em>, <em class="sig-param">link_distance=1.0</em>, <em class="sig-param">linear_chain=False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/io/lammps/utils.py#L34-L164"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.utils.Polymer" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Polymer</code><span class="sig-paren">(</span><em class="sig-param">start_monomer</em>, <em class="sig-param">s_head</em>, <em class="sig-param">s_tail</em>, <em class="sig-param">monomer</em>, <em class="sig-param">head</em>, <em class="sig-param">tail</em>, <em class="sig-param">end_monomer</em>, <em class="sig-param">e_head</em>, <em class="sig-param">e_tail</em>, <em class="sig-param">n_units</em>, <em class="sig-param">link_distance=1.0</em>, <em class="sig-param">linear_chain=False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/lammps/utils.py#L34-L164"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.utils.Polymer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Generate polymer chain via Random walk. At each position there are
 a total of 5 possible moves(excluding the previous direction).</p>

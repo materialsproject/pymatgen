@@ -132,7 +132,7 @@ class GaussianInput:
         # Determine multiplicity and charge settings
         if isinstance(mol, Molecule):
             self.charge = charge if charge is not None else mol.charge
-            nelectrons = - self.charge + mol.charge + mol.nelectrons
+            nelectrons = mol.charge + mol.nelectrons - self.charge
             if spin_multiplicity is not None:
                 self.spin_multiplicity = spin_multiplicity
                 if (nelectrons + spin_multiplicity) % 2 != 1:
@@ -533,7 +533,13 @@ class GaussianOutput:
 
     .. attribute:: structures_input_orientation
 
-        All structures from the calculation in the input orientation.
+        All structures from the calculation in the input orientation or the
+        Z-matrix orientation (if an opt=z-matrix was requested).
+
+    .. attribute:: opt_structures
+
+        All optimized structures from the calculation in the input orientation
+        or the Z-matrix orientation.
 
     .. attribute:: energies
 
@@ -752,7 +758,7 @@ class GaussianOutput:
         end_mulliken_patt = re.compile(
             r'(Sum of Mulliken )(.*)(charges)\s*=\s*(\D)')
         std_orientation_patt = re.compile(r"Standard orientation")
-        input_orientation_patt = re.compile(r"Input orientation")
+        input_orientation_patt = re.compile(r"Input orientation|Z-Matrix orientation")
         orbital_patt = re.compile(r"(Alpha|Beta)\s*\S+\s*eigenvalues --(.*)")
         thermo_patt = re.compile(r"(Zero-point|Thermal) correction(.*)="
                                  r"\s+([\d\.-]+)")
@@ -814,6 +820,7 @@ class GaussianOutput:
         input_structures = list()
         std_structures = list()
         geom_orientation = None
+        opt_structures = list()
 
         with zopen(filename) as f:
             for line in f:
@@ -1104,6 +1111,12 @@ class GaussianOutput:
                     elif input_orientation_patt.search(line):
                         geom_orientation = "input"
                         read_coord = True
+                    elif "Optimization completed." in line:
+                        line = f.readline()
+                        if " -- Stationary point found." not in line:
+                            warnings.warn("\n" + self.filename +
+                                          ": Optimization complete but this is not a stationary point")
+                        opt_structures.append(input_structures[-1])
                     elif not read_eigen and orbital_patt.search(line):
                         eigen_txt.append(line)
                         read_eigen = True
@@ -1158,6 +1171,8 @@ class GaussianOutput:
         else:
             self.structures = input_structures
             self.structures_input_orientation = input_structures
+        # store optimized structure in input orientation 
+        self.opt_structures = opt_structures
 
         if not terminated:
             warnings.warn("\n" + self.filename +
@@ -1247,6 +1262,7 @@ class GaussianOutput:
 
         scan_patt = re.compile(r"^\sSummary of the potential surface scan:")
         optscan_patt = re.compile(r"^\sSummary of Optimized Potential Surface Scan")
+        coord_patt = re.compile(r"^\s*(\w+)((\s*[+-]?\d+\.\d+)+)")
 
         # data dict return
         data = {"energies": list(), "coords": dict()}
@@ -1263,14 +1279,14 @@ class GaussianOutput:
                     while not endScan:
                         data["energies"] += floatList(float_patt.findall(line))
                         line = f.readline()
-                        while not re.search(r"(^\s+(\d+)|^\s-+)", line):
+                        while coord_patt.match(line):
                             icname = line.split()[0].strip()
                             if icname in data["coords"]:
                                 data["coords"][icname] += floatList(float_patt.findall(line))
                             else:
                                 data["coords"][icname] = floatList(float_patt.findall(line))
                             line = f.readline()
-                        if re.search(r"^\s-+", line):
+                        if not re.search(r"^\s+((\s*\d+)+)", line):
                             endScan = True
                         else:
                             line = f.readline()
@@ -1428,7 +1444,7 @@ class GaussianOutput:
         d, plt = self.get_spectre_plot(sigma, step)
         plt.savefig(filename, format=img_format)
 
-    def to_input(self, mol=None,  charge=None,
+    def to_input(self, mol=None, charge=None,
                  spin_multiplicity=None, title=None, functional=None,
                  basis_set=None, route_parameters=None, input_parameters=None,
                  link0_parameters=None, dieze_tag=None, cart_coords=False):

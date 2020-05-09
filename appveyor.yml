@@ -3,12 +3,12 @@ services:
 
 environment:
   matrix:
-    - PYTHON: "C:\\Miniconda36-x64"
-      PYTHON_VERSION: "3.6"
+    - PYTHON: "C:\\Miniconda3-x64"
+      PYTHON_VERSION: "3.7"
       PYTHON_ARCH: "64"
       platform: x64
       STANDALONE: "FALSE"
-      CONDA_PY: "36"
+      CONDA_PY: "37"
       CONDA_BUILD: "TRUE"
       SPLIT_RUN: "FALSE"
 #  PMG_MAPI_KEY:
@@ -20,19 +20,18 @@ install:
   - 'set PATH=%PYTHON%;%PYTHON%\Library\bin;%PYTHON%\Scripts;%PATH%'
   - 'set MPLBACKEND=Agg'
   - 'conda config --system --add channels conda-forge'
+  - 'conda create --yes -q -n test-environment python=3.7 numpy scipy matplotlib sympy cython pandas networkx pytest pip cmake h5py python-igraph phonopy'
+  - 'conda activate test-environment'
   # Install the build dependencies of the project via conda and pip
-  - 'conda install --yes --quiet numpy scipy matplotlib sympy cython pandas pip python-igraph'
-  # - 'conda update --yes --all'
-  - 'pip install --upgrade numpy'
   - 'pip install -r requirements.txt'
-  - 'pip install pybtex pytest pytest-cov ase coveralls fdint ase twine networkx'
-  # Note that pyhull is excluded because it does not work on Windows.
+  - 'pip install pybtex tqdm'
   # Run develop to install in dev mode and build C extension.
-  - "python setup.py develop"
+  - "pip install --quiet -e ."
 
 build: false
 
 test_script:
+  - 'conda activate test-environment'
   - "pytest --ignore=pymatgen/ext/tests/test_matproj.py --ignore=pymatgen/analysis/tests/test_pourbaix_diagram.py --ignore=pymatgen/tests/test_init.py --ignore-glob='pymatgen/analysis/defects/tests/test_*.py' pymatgen"
 
 notifications:
