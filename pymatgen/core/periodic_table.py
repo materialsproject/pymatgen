@@ -280,7 +280,7 @@ class Element(Enum):
 
             Mendeleev number from definition given by Pettifor, D. G. (1984).
             A chemical scale for crystal-structure maps. Solid State Communications,
-            51 (1), 31-34 
+            51 (1), 31-34
 
         .. attribute:: electrical_resistivity
 
@@ -616,6 +616,55 @@ class Element(Enum):
             sym = data[0].replace("[", "").replace("]", "")
             data = Element(sym).full_electronic_structure + data[1:]
         return data
+
+    @property
+    def nobelgas_electronic_structure(self):
+        """
+        Noble Gas electronic structure.
+        E.g., The condensed (noble gas) electronic structure for Fe is represented as:
+        ['Ar', (3, 'd', 6), (4, 's', 2)]
+        """
+        He=[1,'s',2]
+        Ne=[He,[2,'s',2],[2,'p',6]]
+        Ar=[Ne,[3,'s',2],[3,'p',6]]
+        Kr=[Ar,[3,'s',2]]
+        Xe=[Kr,[5,'s',2],[4,'d',10],[5,'p',6]]
+        Rn=[Xe,[6,'s',2],[4,'f',14],[5,'p',10],[6,'p',6]]
+
+        configuration = self.full_electronic_structure
+        atomic=self.Z
+
+        if atomic > 1:
+            if atomic >= 2: 
+                if atomic >= 10:
+                    if atomic >= 18:
+                        if atomic >= 36:
+                            if atomic >= 54:
+                                if atomic >= 86:
+                                    configuration[14] = "Rn"
+                                    configuration = configuration[14:]
+                                    return(configuration)
+                                else:
+                                    configuration[10] = "Xe"
+                                    configuration = configuration[10:]
+                                    return(configuration)
+                            else:
+                                configuration[7] = "Kr"
+                                configuration = configuration[7:]
+                                return(configuration)
+                        else:
+                            configuration[4] = "Ar"
+                            configuration = configuration[4:]
+                            return(configuration)
+                    else:
+                        configuration[2] = "Ne"
+                        configuration = configuration[2:]
+                        return(configuration)
+                else:
+                    configuration[0] = "He"
+                    return(configuration)
+            else:
+                return([(1, "s", 1)])
 
     @property
     def valence(self):
