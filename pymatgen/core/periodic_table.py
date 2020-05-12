@@ -624,12 +624,12 @@ class Element(Enum):
         E.g., The condensed (noble gas) electronic structure for Fe is represented as:
         ['Ar', (3, 'd', 6), (4, 's', 2)]
         """
-        He=[1,'s',2]
-        Ne=[He,[2,'s',2],[2,'p',6]]
-        Ar=[Ne,[3,'s',2],[3,'p',6]]
-        Kr=[Ar,[3,'s',2]]
-        Xe=[Kr,[5,'s',2],[4,'d',10],[5,'p',6]]
-        Rn=[Xe,[6,'s',2],[4,'f',14],[5,'p',10],[6,'p',6]]
+        He = [1, 's', 2]
+        Ne = [He, [2, 's', 2], [2, 'p', 6]]
+        Ar = [Ne, [3, 's', 2], [3, 'p', 6]]
+        Kr = [Ar, [3, 's', 2]]
+        Xe = [Kr, [5, 's', 2], [4, 'd', 10], [5, 'p', 6]]
+        Rn = [Xe, [6, 's', 2], [4, 'f', 14], [5, 'p', 10], [6, 'p', 6]]
 
         configuration = self.full_electronic_structure
         atomic=self.Z
