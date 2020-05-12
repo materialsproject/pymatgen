@@ -632,10 +632,10 @@ class Element(Enum):
         Rn = [Xe, [6, 's', 2], [4, 'f', 14], [5, 'p', 10], [6, 'p', 6]]
 
         configuration = self.full_electronic_structure
-        atomic=self.Z
+        atomic = self.Z
 
         if atomic > 1:
-            if atomic >= 2: 
+            if atomic >= 2:
                 if atomic >= 10:
                     if atomic >= 18:
                         if atomic >= 36:
@@ -643,28 +643,28 @@ class Element(Enum):
                                 if atomic >= 86:
                                     configuration[14] = "Rn"
                                     configuration = configuration[14:]
-                                    return(configuration)
+                                    return configuration
                                 else:
                                     configuration[10] = "Xe"
                                     configuration = configuration[10:]
-                                    return(configuration)
+                                    return configuration
                             else:
                                 configuration[7] = "Kr"
                                 configuration = configuration[7:]
-                                return(configuration)
+                                return configuration
                         else:
                             configuration[4] = "Ar"
                             configuration = configuration[4:]
-                            return(configuration)
+                            return configuration
                     else:
                         configuration[2] = "Ne"
                         configuration = configuration[2:]
-                        return(configuration)
+                        return configuration
                 else:
                     configuration[0] = "He"
-                    return(configuration)
-            else:
-                return([(1, "s", 1)])
+                    return configuration
+        else:
+            return configuration
 
     @property
     def valence(self):
