@@ -838,7 +838,7 @@ class IStructure(SiteCollection, MSONable):
     @classmethod
     def from_magnetic_spacegroup(
             cls,
-            msg: Union[str, 'MagneticSpaceGroup'],  # noqa: F821 # type: ignore
+            msg: Union[str, 'MagneticSpaceGroup'],  # type: ignore  # noqa: F821
             lattice: Union[List, np.ndarray, Lattice],
             species: Sequence[Union[str, Element, Specie, DummySpecie, Composition]],
             coords: Sequence[Sequence[float]],
