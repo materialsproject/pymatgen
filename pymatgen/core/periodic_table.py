@@ -510,14 +510,18 @@ class Element(Enum):
         raise AttributeError("Element has no attribute %s!" % item)
 
     @property
-    def data(self):
+    def data(self) -> dict:
         """
         Returns dict of data for element.
         """
         return self._data.copy()
 
     @property
-    def electronic_structure(self):
+    def electronic_structure(self) -> str:
+        """
+        Electronic structure as string, with only valence electrons.
+        E.g., The electronic structure for Fe is represented as '[Ar].3d6.4s2'
+        """
         return re.sub("</*sup>", "", self._data["Electronic structure"])
 
     @property
