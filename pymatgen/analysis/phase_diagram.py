@@ -1608,7 +1608,7 @@ class PDPlotter:
             plt.ylim((miny - ybuffer, ybuffer))
             center = (0.5, miny / 2)
             plt.xlabel("Fraction", fontsize=28, fontweight='bold')
-            plt.ylabel("Formation energy (eV/fu)", fontsize=28,
+            plt.ylabel("Formation energy (eV/atom)", fontsize=28,
                        fontweight='bold')
 
         for coords in sorted(labels.keys(), key=lambda x: -x[1]):

@@ -34,6 +34,7 @@ from pymatgen.core.surface import get_symmetrically_equivalent_miller_indices
 
 from pymatgen.entries.computed_entries import ComputedEntry, \
     ComputedStructureEntry
+from pymatgen.entries.compatibility import MaterialsProjectCompatibility, MaterialsProjectAqueousCompatibility
 from pymatgen.entries.exp_entries import ExpEntry
 
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -465,7 +466,7 @@ class MPRester:
             entries = sorted(entries, key=lambda entry: entry.data["e_above_hull"])
         return entries
 
-    def get_pourbaix_entries(self, chemsys):
+    def get_pourbaix_entries(self, chemsys, solid_compat=MaterialsProjectCompatibility()):
         """
         A helper function to get all entries necessary to generate
         a pourbaix diagram from the rest interface.
@@ -473,12 +474,12 @@ class MPRester:
         Args:
             chemsys ([str]): A list of elements comprising the chemical
                 system, e.g. ['Li', 'Fe']
+            solid_compat: Compatiblity scheme used to pre-process solid DFT energies prior to applying aqueous
+                energy adjustments. Default: MaterialsProjectCompatibility().
         """
         from pymatgen.analysis.pourbaix_diagram import PourbaixEntry, IonEntry
         from pymatgen.analysis.phase_diagram import PhaseDiagram
         from pymatgen.core.ion import Ion
-        from pymatgen.entries.compatibility import \
-            MaterialsProjectAqueousCompatibility
 
         pbx_entries = []
 
@@ -492,7 +493,12 @@ class MPRester:
         ion_ref_entries = self.get_entries_in_chemsys(
             list(set([str(e) for e in ion_ref_elts] + ['O', 'H'])),
             property_data=['e_above_hull'], compatible_only=False)
-        compat = MaterialsProjectAqueousCompatibility("Advanced")
+
+        # suppress the warning about supplying the required energies; they will be calculated from the
+        # entries we get from MPRester
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", message="You did not provide the required O2 and H2O energies.")
+            compat = MaterialsProjectAqueousCompatibility(solid_compat=solid_compat)
         ion_ref_entries = compat.process_entries(ion_ref_entries)
         ion_ref_pd = PhaseDiagram(ion_ref_entries)
 

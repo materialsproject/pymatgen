@@ -691,7 +691,7 @@ class GrainBoundaryGenerator:
             max_denominator (int): the maximum denominator for
                 the computed ratio, default to be 5.
             index_none (int): specify the irrational axis.
-                0-a, 1-b, 2-c. Only may be needed for orthorombic system.
+                0-a, 1-b, 2-c. Only may be needed for orthorhombic system.
         Returns:
                axial ratio needed for GB generator (list of integers).
 
@@ -737,7 +737,8 @@ class GrainBoundaryGenerator:
                     ratio[index[1]] = frac.numerator
                     ratio[index[0]] = frac.denominator
         elif lat_type == 'c':
-            raise RuntimeError('Cubic system does not need axial ratio.')
+            # Cubic system does not need axial ratio.
+            return None
         else:
             raise RuntimeError('Lattice type not implemented.')
         return ratio

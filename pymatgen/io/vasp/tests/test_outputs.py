@@ -129,6 +129,10 @@ class VasprunTest(PymatgenTest):
         self.assertEqual(29, len(vasprun.ionic_steps))
         self.assertEqual(len(vasprun.structures), len(vasprun.ionic_steps))
 
+        trajectory = vasprun.get_trajectory()
+        self.assertEqual(len(trajectory), len(vasprun.ionic_steps))
+        self.assertIn("forces", trajectory[0].site_properties)
+
         for i, step in enumerate(vasprun.ionic_steps):
             self.assertEqual(vasprun.structures[i], step["structure"])
 
@@ -787,6 +791,19 @@ class OutcarTest(PymatgenTest):
         np.testing.assert_array_equal(outcar.dielectric_tensor_function[0],
                                       outcar.dielectric_tensor_function[
                                           0].transpose())
+
+    def test_parse_sci_notation(self):
+        invalid_pattern = "23535.35 35235.34 325325.3"
+        valid_pattern1 = " 0.00000E+00 0.00000E+00 0.00000E+00 0.00000E+00 0.00000E+00 0.00000E+00 0.00000E+00"
+        valid_pattern2 = " 0.62963E+00 0.15467E+02 0.15467E+02 0.15467E+02-0.30654E-16-0.91612E-16 0.52388E-16"
+
+        self.assertEqual(Outcar._parse_sci_notation(invalid_pattern), [])
+        self.assertEqual(Outcar._parse_sci_notation(valid_pattern1),
+                         [0, 0, 0, 0, 0, 0, 0])
+        self.assertEqual(Outcar._parse_sci_notation(valid_pattern2),
+                         [0.62963, 0.15467E+02, 0.15467E+02,
+                          0.15467E+02, -0.30654E-16, -0.91612E-16,
+                          0.52388E-16])
 
     def test_read_elastic_tensor(self):
         filepath = self.TEST_FILES_DIR / "OUTCAR.total_tensor.Li2O.gz"

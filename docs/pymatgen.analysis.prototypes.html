@@ -8,16 +8,14 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.analysis.aflow_prototypes module &mdash; pymatgen 2020.4.2 documentation</title>
+  <title>pymatgen.analysis.prototypes module &mdash; pymatgen 2020.4.29 documentation</title>
   
 
   
   
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
   
   
-  
-    <link rel="canonical" href="https://pymatgen.orgpymatgen.analysis.aflow_prototypes.html"/>
+    <link rel="canonical" href="https://pymatgen.orgpymatgen.analysis.prototypes.html"/>
   
 
   
@@ -25,11 +23,11 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -41,8 +39,8 @@
   <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="pymatgen.analysis.bond_dissociation module" href="pymatgen.analysis.bond_dissociation.html" />
-    <link rel="prev" title="pymatgen.analysis.adsorption module" href="pymatgen.analysis.adsorption.html" />
+    <link rel="next" title="pymatgen.analysis.quasiharmonic module" href="pymatgen.analysis.quasiharmonic.html" />
+    <link rel="prev" title="pymatgen.analysis.pourbaix_diagram module" href="pymatgen.analysis.pourbaix_diagram.html" />
  
 <script type="text/javascript">
   var _gaq = _gaq || [];
@@ -73,7 +71,7 @@
             
             
               <div class="version">
-                2020.4.2
+                2020.4.29
               </div>
             
           
@@ -183,14 +181,14 @@
         
           <li><a href="pymatgen.analysis.html">pymatgen.analysis package</a> &raquo;</li>
         
-      <li>pymatgen.analysis.aflow_prototypes module</li>
+      <li>pymatgen.analysis.prototypes module</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
             
-              <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.analysis.aflow_prototypes.rst" class="fa fa-github"> Edit on GitHub</a>
+              <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.analysis.prototypes.rst" class="fa fa-github"> Edit on GitHub</a>
             
           
         
@@ -204,17 +202,19 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="module-pymatgen.analysis.aflow_prototypes">
-<span id="pymatgen-analysis-aflow-prototypes-module"></span><h1>pymatgen.analysis.aflow_prototypes module<a class="headerlink" href="#module-pymatgen.analysis.aflow_prototypes" title="Permalink to this headline">¶</a></h1>
-<p>This module uses data from the AFLOW LIBRARY OF CRYSTALLOGRAPHIC PROTOTYPES.
-If using this module, please cite their publication appropriately:</p>
+  <div class="section" id="module-pymatgen.analysis.prototypes">
+<span id="pymatgen-analysis-prototypes-module"></span><h1>pymatgen.analysis.prototypes module<a class="headerlink" href="#module-pymatgen.analysis.prototypes" title="Permalink to this headline">¶</a></h1>
+<p>This module is intended to match crystal structures against known crystallographic “prototype”
+structures.</p>
+<p>In this module, the AflowPrototypeMatcher uses the AFLOW LIBRARY OF CRYSTALLOGRAPHIC PROTOTYPES.
+If using this particular class, please cite their publication appropriately:</p>
 <p>Mehl, M. J., Hicks, D., Toher, C., Levy, O., Hanson, R. M., Hart, G., &amp; Curtarolo, S. (2017).
 The AFLOW library of crystallographic prototypes: part 1.
 Computational Materials Science, 136, S1-S828.
 <a class="reference external" href="http://doi.org/10.1016/j.commatsci.2017.01.017">http://doi.org/10.1016/j.commatsci.2017.01.017</a></p>
 <dl class="class">
-<dt id="pymatgen.analysis.aflow_prototypes.AflowPrototypeMatcher">
-<em class="property">class </em><code class="sig-name descname">AflowPrototypeMatcher</code><span class="sig-paren">(</span><em class="sig-param">initial_ltol=0.2</em>, <em class="sig-param">initial_stol=0.3</em>, <em class="sig-param">initial_angle_tol=5</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.2/pymatgen/analysis/aflow_prototypes.py#L25-L109"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.aflow_prototypes.AflowPrototypeMatcher" title="Permalink to this definition">¶</a></dt>
+<dt id="pymatgen.analysis.prototypes.AflowPrototypeMatcher">
+<em class="property">class </em><code class="sig-name descname">AflowPrototypeMatcher</code><span class="sig-paren">(</span><em class="sig-param">initial_ltol=0.2</em>, <em class="sig-param">initial_stol=0.3</em>, <em class="sig-param">initial_angle_tol=5</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/prototypes.py#L28-L112"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.prototypes.AflowPrototypeMatcher" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>This class will match structures to their crystal prototypes, and will
 attempt to group species together to match structures derived from
@@ -238,8 +238,8 @@ gradually decreased until only a single match is found (if possible).</p>
 </dd>
 </dl>
 <dl class="method">
-<dt id="pymatgen.analysis.aflow_prototypes.AflowPrototypeMatcher.get_prototypes">
-<code class="sig-name descname">get_prototypes</code><span class="sig-paren">(</span><em class="sig-param">structure</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.2/pymatgen/analysis/aflow_prototypes.py#L79-L109"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.aflow_prototypes.AflowPrototypeMatcher.get_prototypes" title="Permalink to this definition">¶</a></dt>
+<dt id="pymatgen.analysis.prototypes.AflowPrototypeMatcher.get_prototypes">
+<code class="sig-name descname">get_prototypes</code><span class="sig-paren">(</span><em class="sig-param">structure</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/prototypes.py#L82-L112"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.prototypes.AflowPrototypeMatcher.get_prototypes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get prototype(s) structures for a given
 input structure. If you use this method in
 your work, please cite the appropriate

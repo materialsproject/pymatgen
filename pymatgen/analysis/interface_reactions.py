@@ -6,9 +6,6 @@
 This module provides class to generate and analyze interfacial reactions.
 """
 
-
-from __future__ import division
-
 import warnings
 import numpy as np
 import matplotlib.pylab as plt

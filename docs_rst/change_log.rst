@@ -1,6 +1,12 @@
 Change log
 ==========
 
+v2020.4.29
+----------
+* Improved SQS caller. (@rwoodsrobinson)
+* VolumetricData speedup (@mturiansk)
+* Misc bug fixes
+
 v2020.4.2
 ---------
 * New high-symmetry k-path algorithm (@munrojm, @kt-latimer)

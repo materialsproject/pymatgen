@@ -8,12 +8,10 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.symmetry.site_symmetries module &mdash; pymatgen 2020.4.2 documentation</title>
+  <title>pymatgen.symmetry.site_symmetries module &mdash; pymatgen 2020.4.29 documentation</title>
   
 
   
-  
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
   
   
   
@@ -25,11 +23,11 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -73,7 +71,7 @@
             
             
               <div class="version">
-                2020.4.2
+                2020.4.29
               </div>
             
           
@@ -209,7 +207,7 @@
 <p>Provides analysis of site symmetries.</p>
 <dl class="function">
 <dt id="pymatgen.symmetry.site_symmetries.get_shared_symmetry_operations">
-<code class="sig-name descname">get_shared_symmetry_operations</code><span class="sig-paren">(</span><em class="sig-param">struc</em>, <em class="sig-param">pointops</em>, <em class="sig-param">tol=0.1</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.2/pymatgen/symmetry/site_symmetries.py#L47-L87"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.site_symmetries.get_shared_symmetry_operations" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_shared_symmetry_operations</code><span class="sig-paren">(</span><em class="sig-param">struc</em>, <em class="sig-param">pointops</em>, <em class="sig-param">tol=0.1</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/symmetry/site_symmetries.py#L47-L87"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.site_symmetries.get_shared_symmetry_operations" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get all the point group operations shared by a pair of atomic sites
 in the form [[point operations of site index 1],[],…,[]]</p>
 <dl class="field-list simple">
@@ -227,7 +225,7 @@ in the form [[point operations of site index 1],[],…,[]]</p>
 
 <dl class="function">
 <dt id="pymatgen.symmetry.site_symmetries.get_site_symmetries">
-<code class="sig-name descname">get_site_symmetries</code><span class="sig-paren">(</span><em class="sig-param">struc</em>, <em class="sig-param">precision=0.1</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.2/pymatgen/symmetry/site_symmetries.py#L10-L44"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.site_symmetries.get_site_symmetries" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_site_symmetries</code><span class="sig-paren">(</span><em class="sig-param">struc</em>, <em class="sig-param">precision=0.1</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/symmetry/site_symmetries.py#L10-L44"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.site_symmetries.get_site_symmetries" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get all the point group operations centered on each atomic site
 in the form [[point operations of site index 1]…[[point operations of site index N]]]</p>
 <dl class="field-list simple">
