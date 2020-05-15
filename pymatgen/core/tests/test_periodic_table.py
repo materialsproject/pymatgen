@@ -63,6 +63,8 @@ class ElementTestCase(PymatgenTest):
         for k, v in testsets.items():
             self.assertEqual(Element(k).full_electronic_structure, v)
 
+        self.assertEqual(Element.Ac.electronic_structure, '[Rn].6d1.7s2')
+
     def test_valence(self):
         testsets = {"O": (1, 4),
                     "Fe": (2, 6),
