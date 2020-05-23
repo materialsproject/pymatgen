@@ -15,14 +15,14 @@ from subprocess import Popen, PIPE
 import numpy as np
 
 try:
-    import pybel as pb
+    from openbabel import pybel as pb
 except ImportError:
     pb = None
 
 from pymatgen import Molecule
 from pymatgen.core.operations import SymmOp
 from pymatgen.util.coord import get_angle
-from pymatgen.io.babel import BabelMolAdaptor
+from ..babel import BabelMolAdaptor
 
 from monty.os.path import which
 from monty.tempfile import ScratchDir
@@ -271,7 +271,7 @@ class PackmolRunner:
                 # all other filetypes
                 else:
                     a = BabelMolAdaptor(mol)
-                    pm = pb.Molecule(a.openbabel_mol)
+                    pm = pb.Molecule(a.openbabel_mol) ##
                     pm.write(self.control_params["filetype"], filename=filename,
                              overwrite=True)
 

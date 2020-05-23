@@ -48,6 +48,7 @@ class BabelMolAdaptor:
             mol: pymatgen's Molecule or OpenBabel OBMol
         """
         if isinstance(mol, Molecule):
+            print("test")
             if not mol.is_ordered:
                 raise ValueError("OpenBabel Molecule only supports ordered "
                                  "molecules.")
@@ -73,7 +74,7 @@ class BabelMolAdaptor:
             obmol.SetTotalCharge(int(mol.charge))
             obmol.Center()
             obmol.EndModify()
-            self._obmol = obmol
+            self._obmol = obmol #
         elif isinstance(mol, ob.OBMol):
             self._obmol = mol
 
