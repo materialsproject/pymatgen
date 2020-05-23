@@ -271,7 +271,7 @@ class PackmolRunner:
                 # all other filetypes
                 else:
                     a = BabelMolAdaptor(mol)
-                    pm = pb.Molecule(a.openbabel_mol)
+                    pm = pb.Molecule(a.openbabel_mol) #
                     pm.write(self.control_params["filetype"], filename=filename,
                              overwrite=True)
 
