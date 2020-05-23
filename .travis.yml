@@ -21,9 +21,9 @@ install:
   # - conda update -q conda
   # Useful for debugging any issues with conda
   - conda info -a
-  - conda create -q -n test-environment python=3.7 numpy scipy matplotlib sympy cython pandas networkx pytest h5py git
+  - conda create -q -n test-environment python=3.7 numpy scipy matplotlib sympy cython pandas==0.25.3 networkx pytest h5py git
   - source activate test-environment
-  - conda update --quiet --yes numpy scipy matplotlib sympy cython pandas networkx pytest pip h5py
+  - conda update --quiet --yes numpy scipy matplotlib sympy cython networkx pytest pip h5py
   - pip install --quiet --ignore-installed -r requirements.txt -r requirements-optional.txt
   - >-
     echo "backend: Agg" > matplotlibrc
@@ -33,14 +33,13 @@ before_script:
 script:
   - export PATH="$HOME/miniconda/bin:$PATH"
   - source activate test-environment
-  - echo "pycodestyle->mypy->pytest->pydocstyle... Note that this fails on the first command with error."
-  - echo "It is highly recommended that you use the pre-commit hook provided in pymatgen (simply copy pre-commit to .git/hooks) to check before pushing your code."
-  - travis_wait 28800 pycodestyle pymatgen && mypy pymatgen && pytest $EXCLUDE_TESTS pymatgen
-  - flake8 --count --show-source --statistics pymatgen
-  - flake8 --count --exit-zero --max-complexity=10 --statistics pymatgen
-  # Docstyle checks are enforced for files that have been modified since the v2019.10.16 tagged release.
-  - export MODIFIED_FILES=`git diff --diff-filter=ACMRTUXB --name-only HEAD v2019.10.16 | grep -E 'pymatgen.*\.(py)$' | sed '/test_/d' | tr '\n' ' '`
-  - pydocstyle --count pymatgen/core $MODIFIED_FILES
+  #- echo "pycodestyle->mypy->pytest->pydocstyle... Note that this fails on the first command with error."
+  #- echo "It is highly recommended that you use the pre-commit hook provided in pymatgen (simply copy pre-commit to .git/hooks) to check before pushing your code."
+  - travis_wait 28800 pytest $EXCLUDE_TESTS pymatgen
+  #- flake8 --count --show-source --statistics pymatgen
+  #- flake8 --count --exit-zero --max-complexity=10 --statistics pymatgen
+  # Docstyle checks are enforced for files that have been modified since the v2020.1.28 tagged release.
+  #- pydocstyle --count pymatgen
 
 notifications:
   email:

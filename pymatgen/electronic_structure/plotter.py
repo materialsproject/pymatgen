@@ -211,6 +211,7 @@ class DosPlotter:
         plt.xlabel('Energies (eV)')
         plt.ylabel('Density of states')
 
+        plt.axhline(y=0, color='k', linestyle='--', linewidth=2)
         plt.legend()
         leg = plt.gca().get_legend()
         ltext = leg.get_texts()  # all the text.Text instance in the legend
@@ -343,13 +344,13 @@ class BSPlotter:
         """
         distance = []
         energy = []
-        if self._bs.is_metal():
-            zero_energy = self._bs.efermi
-        else:
-            zero_energy = self._bs.get_vbm()['energy']
 
-        if not zero_to_efermi:
-            zero_energy = 0.0
+        zero_energy = 0.0
+        if zero_to_efermi:
+            if self._bs.is_metal():
+                zero_energy = self._bs.efermi
+            else:
+                zero_energy = self._bs.get_vbm()['energy']
 
         for b in self._bs.branches:
 

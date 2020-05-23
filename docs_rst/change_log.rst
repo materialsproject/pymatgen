@@ -1,6 +1,57 @@
 Change log
 ==========
 
+v2020.4.29
+----------
+* Improved SQS caller. (@rwoodsrobinson)
+* VolumetricData speedup (@mturiansk)
+* Misc bug fixes
+
+v2020.4.2
+---------
+* New high-symmetry k-path algorithm (@munrojm, @kt-latimer)
+* New TEM diffraction calculator (@welltemperedpaprika, @thefrankwan, @shyamd)
+* New plotly plotting option for Wulff shapes (@richardtran415)
+* Improvements to SQS caller (@rwoodsrobinson)
+* Various bug fixes and improvements (@mfherbst, @chc273,
+  @jacksund, @espottesmith, @hongyi-zhao, @montoyjh,
+  @dongsenfo, @dynikon) including significant BrunnerNN, EconNN fixes (@utf),
+  see individual pull requests for details.
+
+v2020.3.13
+----------
+* Added angle_tolerance to CifWriter.
+* Change default float precision in CifWriter to 8. Adds float_prec kwarg to 
+  allow setting of arbitrary precision. 
+* Rudimentary pymatgen.io.vasp.help.VaspDoc class for obtaining help from VASP wiki.
+* Massive documentation cleanup.
+* Reorganization of Entry, ComputedEntry (@ayushsgupta).
+* Bug fix for PourbaixDiagram (@montoyjh).
+* Read WAVECAR from gamma-point only VASP executable. (@bernstei)
+
+v2020.3.2
+---------
+* New MonteCarloRattleTransformation and phonopy integration (@utf)
+* New structure connectivity features in Chemenv analysis (@davidwaroquiers)
+* Bug fixes (@richardtran415, @chc273, @JaGeo, @dskoda, @rkingsbury, 
+  @jmmshn, @espottesmith, @gVallverdu, @yimingchen95, @fraricci)
+
+v2020.1.28
+----------
+* Plugin architecture for pymatgen.
+* Improvements to pymatgen.analysis.xas.spectrum.XAS class. (@yiming)
+* Fixes for ISYM uniform bug and auto-NEDSO (@fraricci) 
+* Improvements to ReactionDiagram.
+* Chemenv improvements (@davidwaroquiers)
+* Misc bug fixes.
+
+v2020.1.10
+----------
+* New connectivity analysis in Chemenv (@davidwaroquiers)
+* Improvements to DOSPlotter (@uthpalah)
+* Improvements to writing VASP input sets (@rkingsbury)
+* Bug fix for PhaseDiagram (@montoyjh)
+
 v2019.12.22
 -----------
 * Improvements to reaction calculator (@mattmcdermott)

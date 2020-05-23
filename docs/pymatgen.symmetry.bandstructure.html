@@ -8,12 +8,10 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.symmetry.bandstructure module &mdash; pymatgen 2019.12.22 documentation</title>
+  <title>pymatgen.symmetry.bandstructure module &mdash; pymatgen 2020.4.29 documentation</title>
   
 
   
-  
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
   
   
   
@@ -25,11 +23,11 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -73,7 +71,7 @@
             
             
               <div class="version">
-                2019.12.22
+                2020.4.29
               </div>
             
           
@@ -119,6 +117,7 @@
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html">pymatgen.io package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.plugins.html">pymatgen.plugins package</a></li>
 <li class="toctree-l4 current"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
@@ -205,335 +204,102 @@
             
   <div class="section" id="module-pymatgen.symmetry.bandstructure">
 <span id="pymatgen-symmetry-bandstructure-module"></span><h1>pymatgen.symmetry.bandstructure module<a class="headerlink" href="#module-pymatgen.symmetry.bandstructure" title="Permalink to this headline">¶</a></h1>
-<p>Created on March 25, 2013</p>
-<p>&#64;author: geoffroy</p>
+<p>Provides a class for interacting with KPath classes to
+generate high-symmetry k-paths using different conventions.</p>
 <dl class="class">
 <dt id="pymatgen.symmetry.bandstructure.HighSymmKpath">
-<em class="property">class </em><code class="sig-name descname">HighSymmKpath</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">symprec=0.01</em>, <em class="sig-param">angle_tolerance=5</em>, <em class="sig-param">atol=1e-08</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/symmetry/bandstructure.py#L22-L779"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>This class looks for path along high symmetry lines in
-the Brillouin Zone.
-It is based on Setyawan, W., &amp; Curtarolo, S. (2010).
-High-throughput electronic band structure calculations:
-Challenges and tools. Computational Materials Science,
-49(2), 299-312. doi:10.1016/j.commatsci.2010.05.010
-It should be used with primitive structures that
-comply with the definition from the paper.
-The symmetry is determined by spglib through the
-SpacegroupAnalyzer class. The analyzer can be used to
-produce the correct primitive structure (method
-get_primitive_standard_structure(international_monoclinic=False)).
-A warning will signal possible compatibility problems
-with the given structure.</p>
+<em class="property">class </em><code class="sig-name descname">HighSymmKpath</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">has_magmoms=False</em>, <em class="sig-param">magmom_axis=None</em>, <em class="sig-param">path_type='sc'</em>, <em class="sig-param">symprec=0.01</em>, <em class="sig-param">angle_tolerance=5</em>, <em class="sig-param">atol=1e-05</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/symmetry/bandstructure.py#L23-L323"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.symmetry.kpath.html#pymatgen.symmetry.kpath.KPathBase" title="pymatgen.symmetry.kpath.KPathBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.symmetry.kpath.KPathBase</span></code></a></p>
+<p>This class generates path along high symmetry lines in the
+Brillouin zone according to different conventions.
+The class is designed to be used with a specific primitive
+cell setting. The definitions for the primitive cell
+used can be found in: Computational Materials Science,
+49(2), 299-312. doi:10.1016/j.commatsci.2010.05.010.
+The space group analyzer can be used to produce the correct
+primitive structure
+(method get_primitive_standard_structure(international_monoclinic=False)).
+Ensure input structure is correct before ‘get_kpoints()’ method is used.
+See individual KPath classes for details on specific conventions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Structure object</p></li>
+<li><p><strong>has_magmoms</strong> (<em>boolean</em>) – Whether the input structure contains
+magnetic moments as site properties with the key ‘magmom.’
+Values may be in the form of 3-component vectors given in
+the basis of the input lattice vectors, in
+which case the spin axis will default to a_3, the third
+real-space lattice vector (this triggers a warning).</p></li>
+<li><p><strong>magmom_axis</strong> (<em>list</em><em> or </em><em>numpy array</em>) – 3-component vector specifying
+direction along which magnetic moments given as scalars
+should point. If all magnetic moments are provided as
+vectors then this argument is not used.</p></li>
+<li><p><strong>path_type</strong> (<em>string</em>) – Chooses which convention to use to generate
+the high symmetry path. Options are: ‘sc’, ‘hin’, ‘lm’ for the
+Setyawan &amp; Curtarolo, Hinuma et al., and  Latimer &amp; Munro conventions.
+Choosing ‘all’ will generate one path with points from all three
+conventions. Equivalent labels between each will also be generated.
+Order will always be Latimer &amp; Munro, Setyawan &amp; Curtarolo, and Hinuma et al.
+Lengths for each of the paths will also be generated and output
+as a list. Note for ‘all’ the user will have to alter the labels on
+their own for plotting.</p></li>
 <li><p><strong>symprec</strong> (<em>float</em>) – Tolerance for symmetry finding</p></li>
 <li><p><strong>angle_tolerance</strong> (<em>float</em>) – Angle tolerance for symmetry finding.</p></li>
-<li><p><strong>atol</strong> (<em>float</em>) – Absolute tolerance used to compare the input
-structure with the one expected as primitive standard.
-A warning will be issued if the lattices don’t match.</p></li>
+<li><p><strong>atol</strong> (<em>float</em>) – Absolute tolerance used to determine symmetric
+equivalence of points and lines on the BZ.</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="method">
-<dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.bcc">
-<code class="sig-name descname">bcc</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/symmetry/bandstructure.py#L269-L281"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.bcc" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bcc HighSymmKPath</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Dict</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.bctet1">
-<code class="sig-name descname">bctet1</code><span class="sig-paren">(</span><em class="sig-param">c</em>, <em class="sig-param">a</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/symmetry/bandstructure.py#L300-L317"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.bctet1" title="Permalink to this definition">¶</a></dt>
-<dd><p>BCT1 HighSymmKPath</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Dict</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.bctet2">
-<code class="sig-name descname">bctet2</code><span class="sig-paren">(</span><em class="sig-param">c</em>, <em class="sig-param">a</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/symmetry/bandstructure.py#L319-L339"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.bctet2" title="Permalink to this definition">¶</a></dt>
-<dd><p>BCT2 HighSymmKPath</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Dict</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.conventional">
-<em class="property">property </em><code class="sig-name descname">conventional</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/symmetry/bandstructure.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.conventional" title="Permalink to this definition">¶</a></dt>
+<dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.equiv_labels">
+<em class="property">property </em><code class="sig-name descname">equiv_labels</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/symmetry/bandstructure.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.equiv_labels" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns:
-The conventional cell structure</p>
+The correspondance between the kpoint symbols in the Latimer and
+Munro convention, Setyawan and Curtarolo, and Hinuma
+conventions respectively. Only generated when path_type = ‘all’.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.cubic">
-<code class="sig-name descname">cubic</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/symmetry/bandstructure.py#L238-L250"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.cubic" title="Permalink to this definition">¶</a></dt>
-<dd><p>Cubic HighSymmKPath</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Dict</p>
-</dd>
-</dl>
+<dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.get_continuous_path">
+<em class="property">static </em><code class="sig-name descname">get_continuous_path</code><span class="sig-paren">(</span><em class="sig-param">bandstructure=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/symmetry/bandstructure.py#L278-L323"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.get_continuous_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Obtain a continous version of an inputted path using graph theory.
+This routine will attempt to add connections between nodes of
+odd-degree to ensure a Eulerian path can be formed. Initial
+k-path must be able to be converted to a connected graph.</p>
+<p>Args:
+bandstructure (Bandstructure): Bandstructure object.</p>
+<p>Returns:
+distances_map (list): Mapping of ‘distance’ segments for altering a</p>
+<blockquote>
+<div><p>BSPlotter object to new continuous path. List of tuples indicating the
+new order of distances, and whether they should be plotted in reverse.</p>
+</div></blockquote>
+<p>kpath_euler (list): New continuous kpath in the HighSymmKpath format.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.fcc">
-<code class="sig-name descname">fcc</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/symmetry/bandstructure.py#L252-L267"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.fcc" title="Permalink to this definition">¶</a></dt>
-<dd><p>Fcc HighSymmKPath</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Dict</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.get_kpoints">
-<code class="sig-name descname">get_kpoints</code><span class="sig-paren">(</span><em class="sig-param">line_density=20</em>, <em class="sig-param">coords_are_cartesian=True</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/symmetry/bandstructure.py#L208-L236"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.get_kpoints" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>the kpoints along the paths in cartesian coordinates
-together with the labels for symmetry points -Wei</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.hex">
-<code class="sig-name descname">hex</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/symmetry/bandstructure.py#L481-L496"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.hex" title="Permalink to this definition">¶</a></dt>
-<dd><p>Hexagonal HighSymmKPath</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Dict</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.kpath">
-<em class="property">property </em><code class="sig-name descname">kpath</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/symmetry/bandstructure.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.kpath" title="Permalink to this definition">¶</a></dt>
+<dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.label_index">
+<em class="property">property </em><code class="sig-name descname">label_index</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/symmetry/bandstructure.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.label_index" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns:
-The symmetry line path in reciprocal space</p>
+The correspondance between numbers and kpoint symbols for the
+combined kpath generated when path_type = ‘all’. None otherwise.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.mcl">
-<code class="sig-name descname">mcl</code><span class="sig-paren">(</span><em class="sig-param">b</em>, <em class="sig-param">c</em>, <em class="sig-param">beta</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/symmetry/bandstructure.py#L544-L571"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.mcl" title="Permalink to this definition">¶</a></dt>
-<dd><p>Monoclinic 1 HighSymmKPath</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Dict</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.mclc1">
-<code class="sig-name descname">mclc1</code><span class="sig-paren">(</span><em class="sig-param">a</em>, <em class="sig-param">b</em>, <em class="sig-param">c</em>, <em class="sig-param">alpha</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/symmetry/bandstructure.py#L573-L603"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.mclc1" title="Permalink to this definition">¶</a></dt>
-<dd><p>Monoclinic C1 HighSymmKPath</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Dict</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.mclc2">
-<code class="sig-name descname">mclc2</code><span class="sig-paren">(</span><em class="sig-param">a</em>, <em class="sig-param">b</em>, <em class="sig-param">c</em>, <em class="sig-param">alpha</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/symmetry/bandstructure.py#L605-L635"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.mclc2" title="Permalink to this definition">¶</a></dt>
-<dd><p>Monoclinic C2 HighSymmKPath</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Dict</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.mclc3">
-<code class="sig-name descname">mclc3</code><span class="sig-paren">(</span><em class="sig-param">a</em>, <em class="sig-param">b</em>, <em class="sig-param">c</em>, <em class="sig-param">alpha</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/symmetry/bandstructure.py#L637-L669"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.mclc3" title="Permalink to this definition">¶</a></dt>
-<dd><p>Monoclinic C3 HighSymmKPath</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Dict</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.mclc4">
-<code class="sig-name descname">mclc4</code><span class="sig-paren">(</span><em class="sig-param">a</em>, <em class="sig-param">b</em>, <em class="sig-param">c</em>, <em class="sig-param">alpha</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/symmetry/bandstructure.py#L671-L703"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.mclc4" title="Permalink to this definition">¶</a></dt>
-<dd><p>Monoclinic C4 HighSymmKPath</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Dict</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.mclc5">
-<code class="sig-name descname">mclc5</code><span class="sig-paren">(</span><em class="sig-param">a</em>, <em class="sig-param">b</em>, <em class="sig-param">c</em>, <em class="sig-param">alpha</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/symmetry/bandstructure.py#L705-L741"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.mclc5" title="Permalink to this definition">¶</a></dt>
-<dd><p>Monoclinic C5 HighSymmKPath</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Dict</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.orc">
-<code class="sig-name descname">orc</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/symmetry/bandstructure.py#L341-L358"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.orc" title="Permalink to this definition">¶</a></dt>
-<dd><p>Orthorhombic HighSymmKPath</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Dict</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.orcc">
-<code class="sig-name descname">orcc</code><span class="sig-paren">(</span><em class="sig-param">a</em>, <em class="sig-param">b</em>, <em class="sig-param">c</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/symmetry/bandstructure.py#L459-L479"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.orcc" title="Permalink to this definition">¶</a></dt>
-<dd><p>Orthorhombic C HighSymmKPath</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Dict</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.orcf1">
-<code class="sig-name descname">orcf1</code><span class="sig-paren">(</span><em class="sig-param">a</em>, <em class="sig-param">b</em>, <em class="sig-param">c</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/symmetry/bandstructure.py#L360-L381"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.orcf1" title="Permalink to this definition">¶</a></dt>
-<dd><p>Orthorhombic f1 HighSymmKPath</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Dict</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.orcf2">
-<code class="sig-name descname">orcf2</code><span class="sig-paren">(</span><em class="sig-param">a</em>, <em class="sig-param">b</em>, <em class="sig-param">c</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/symmetry/bandstructure.py#L383-L407"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.orcf2" title="Permalink to this definition">¶</a></dt>
-<dd><p>Orthorhombic f2 HighSymmKPath</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Dict</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.orcf3">
-<code class="sig-name descname">orcf3</code><span class="sig-paren">(</span><em class="sig-param">a</em>, <em class="sig-param">b</em>, <em class="sig-param">c</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/symmetry/bandstructure.py#L409-L429"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.orcf3" title="Permalink to this definition">¶</a></dt>
-<dd><p>Orthorhombic f3 HighSymmKPath</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Dict</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.orci">
-<code class="sig-name descname">orci</code><span class="sig-paren">(</span><em class="sig-param">a</em>, <em class="sig-param">b</em>, <em class="sig-param">c</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/symmetry/bandstructure.py#L431-L457"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.orci" title="Permalink to this definition">¶</a></dt>
-<dd><p>Orthorhombic I HighSymmKPath</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Dict</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.prim">
-<em class="property">property </em><code class="sig-name descname">prim</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/symmetry/bandstructure.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.prim" title="Permalink to this definition">¶</a></dt>
+<dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.path_lengths">
+<em class="property">property </em><code class="sig-name descname">path_lengths</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/symmetry/bandstructure.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.path_lengths" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns:
-The primitive cell structure</p>
+List of lengths of the Latimer and Munro, Setyawan and Curtarolo, and Hinuma
+conventions in the combined HighSymmKpath object when path_type = ‘all’ respectively.
+None otherwise.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.prim_rec">
-<em class="property">property </em><code class="sig-name descname">prim_rec</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/symmetry/bandstructure.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.prim_rec" title="Permalink to this definition">¶</a></dt>
+<dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.path_type">
+<em class="property">property </em><code class="sig-name descname">path_type</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/symmetry/bandstructure.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.path_type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns:
-The primitive reciprocal cell structure</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.rhl1">
-<code class="sig-name descname">rhl1</code><span class="sig-paren">(</span><em class="sig-param">alpha</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/symmetry/bandstructure.py#L498-L521"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.rhl1" title="Permalink to this definition">¶</a></dt>
-<dd><p>Rhombohedral 1 HighSymmKPath</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Dict</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.rhl2">
-<code class="sig-name descname">rhl2</code><span class="sig-paren">(</span><em class="sig-param">alpha</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/symmetry/bandstructure.py#L523-L542"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.rhl2" title="Permalink to this definition">¶</a></dt>
-<dd><p>Rhombohedral 2 HighSymmKPath</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Dict</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.structure">
-<em class="property">property </em><code class="sig-name descname">structure</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/symmetry/bandstructure.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.structure" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns:
-The standardized primitive structure</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.tet">
-<code class="sig-name descname">tet</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/symmetry/bandstructure.py#L283-L298"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.tet" title="Permalink to this definition">¶</a></dt>
-<dd><p>Tetragonal HighSymmKPath</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Dict</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.tria">
-<code class="sig-name descname">tria</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/symmetry/bandstructure.py#L743-L760"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.tria" title="Permalink to this definition">¶</a></dt>
-<dd><p>Trigonal a HighSymmKPath</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Dict</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.trib">
-<code class="sig-name descname">trib</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/symmetry/bandstructure.py#L762-L779"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.trib" title="Permalink to this definition">¶</a></dt>
-<dd><p>Trigonal b HighSymmKPath</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Dict</p>
-</dd>
-</dl>
+The type of kpath chosen</p>
 </dd></dl>
 
 </dd></dl>

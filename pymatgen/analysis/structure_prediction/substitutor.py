@@ -2,6 +2,10 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+This module provides classes for predicting new structures from existing ones.
+"""
+
 import itertools
 import logging
 from operator import mul
@@ -18,9 +22,6 @@ from pymatgen.alchemy.materials import TransformedStructure
 from pymatgen.alchemy.filters import RemoveDuplicatesFilter, \
     RemoveExistingFilter
 
-"""
-This module provides classes for predicting new structures from existing ones.
-"""
 
 __author__ = "Will Richards, Geoffroy Hautier"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -254,6 +255,9 @@ class Substitutor(MSONable):
         return output
 
     def as_dict(self):
+        """
+        Returns: MSONable dict
+        """
         return {"name": self.__class__.__name__, "version": __version__,
                 "kwargs": self._kwargs, "threshold": self._threshold,
                 "@module": self.__class__.__module__,
@@ -261,6 +265,13 @@ class Substitutor(MSONable):
 
     @classmethod
     def from_dict(cls, d):
+        """
+        Args:
+            d (dict): Dict representation
+
+        Returns:
+            Class
+        """
         t = d['threshold']
         kwargs = d['kwargs']
         return cls(threshold=t, **kwargs)

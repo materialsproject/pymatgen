@@ -807,16 +807,18 @@ class CifParser:
                 id = list(map(int, (
                     data.data.get("_space_group_magn.number_BNS").split("."))))
 
-            msg = MagneticSpaceGroup(id)
-
             if data.data.get("_space_group_magn.transform_BNS_Pp_abc"):
                 if data.data.get(
                         "_space_group_magn.transform_BNS_Pp_abc") != "a,b,c;0,0,0":
-                    return NotImplementedError(
-                        "Non-standard settings not currently supported.")
+
+                    jf = data.data.get("_space_group_magn.transform_BNS_Pp_abc")
+                    msg = MagneticSpaceGroup(id, jf)
+
             elif data.data.get("_space_group_magn.transform_BNS_Pp"):
                 return NotImplementedError(
                     "Incomplete specification to implement.")
+            else:
+                msg = MagneticSpaceGroup(id)
 
             magsymmops = msg.symmetry_ops
 
@@ -1101,7 +1103,7 @@ class CifParser:
             List of Structures.
         """
         structures = []
-        for d in self._cif.data.values():
+        for i, d in enumerate(self._cif.data.values()):
             try:
                 s = self._get_structure(d, primitive)
                 if s:
@@ -1111,7 +1113,10 @@ class CifParser:
                 # A user reported a problem with cif files produced by Avogadro
                 # in which the atomic coordinates are in Cartesian coords.
                 self.warnings.append(str(exc))
-                warnings.warn(str(exc))
+                warnings.warn("No structure parsed for %d structure in CIF. Section of CIF file below." % (i + 1))
+                warnings.warn(str(d))
+                warnings.warn("Error is %s." % str(exc))
+
         if self.warnings:
             warnings.warn("Issues encountered while parsing CIF: %s" % "\n".join(self.warnings))
         if len(structures) == 0:
@@ -1206,15 +1211,21 @@ class CifWriter:
     """
     A wrapper around CifFile to write CIF files from pymatgen structures.
     """
-    def __init__(self, struct, symprec=None, write_magmoms=False):
+    def __init__(self, struct, symprec=None, write_magmoms=False,
+                 significant_figures=8, angle_tolerance=5.0):
         """
         Args:
             struct (Structure): structure to write
             symprec (float): If not none, finds the symmetry of the structure
                 and writes the cif with symmetry information. Passes symprec
-                to the SpacegroupAnalyzer
+                to the SpacegroupAnalyzer.
             write_magmoms (bool): If True, will write magCIF file. Incompatible
                 with symprec
+            significant_figures (int): Specifies precision for formatting of floats.
+                Defaults to 8.
+            angle_tolerance (float): Angle tolerance for symmetry finding. Passes
+                angle_tolerance to the SpacegroupAnalyzer. Used only if symprec
+                is not None.
         """
 
         if write_magmoms and symprec:
@@ -1223,13 +1234,13 @@ class CifWriter:
                 "disabling symmetry detection.")
             symprec = None
 
-        format_str = "{:.8f}"
+        format_str = "{:.%df}" % significant_figures
 
         block = OrderedDict()
         loops = []
         spacegroup = ("P 1", 1)
         if symprec is not None:
-            sf = SpacegroupAnalyzer(struct, symprec)
+            sf = SpacegroupAnalyzer(struct, symprec, angle_tolerance=angle_tolerance)
             spacegroup = (sf.get_space_group_symbol(),
                           sf.get_space_group_number())
             # Needs the refined struture when using symprec. This converts
@@ -1249,7 +1260,7 @@ class CifWriter:
         block["_symmetry_Int_Tables_number"] = spacegroup[1]
         block["_chemical_formula_structural"] = no_oxi_comp.reduced_formula
         block["_chemical_formula_sum"] = no_oxi_comp.formula
-        block["_cell_volume"] = "%.8f" % latt.volume
+        block["_cell_volume"] = format_str.format(latt.volume)
 
         reduced_comp, fu = no_oxi_comp.get_reduced_composition_and_factor()
         block["_cell_formula_units_Z"] = str(int(fu))
@@ -1303,9 +1314,9 @@ class CifWriter:
                 for sp, occu in sorted(site.species.items()):
                     atom_site_type_symbol.append(sp.__str__())
                     atom_site_symmetry_multiplicity.append("1")
-                    atom_site_fract_x.append("{0:f}".format(site.a))
-                    atom_site_fract_y.append("{0:f}".format(site.b))
-                    atom_site_fract_z.append("{0:f}".format(site.c))
+                    atom_site_fract_x.append(format_str.format(site.a))
+                    atom_site_fract_y.append(format_str.format(site.b))
+                    atom_site_fract_z.append(format_str.format(site.c))
                     atom_site_label.append("{}{}".format(sp.symbol, count))
                     atom_site_occupancy.append(occu.__str__())
 
@@ -1316,9 +1327,9 @@ class CifWriter:
                             magmom, latt)
                         atom_site_moment_label.append(
                             "{}{}".format(sp.symbol, count))
-                        atom_site_moment_crystalaxis_x.append("%.5f" % moment[0])
-                        atom_site_moment_crystalaxis_y.append("%.5f" % moment[1])
-                        atom_site_moment_crystalaxis_z.append("%.5f" % moment[2])
+                        atom_site_moment_crystalaxis_x.append(format_str.format(moment[0]))
+                        atom_site_moment_crystalaxis_y.append(format_str.format(moment[1]))
+                        atom_site_moment_crystalaxis_z.append(format_str.format(moment[2]))
 
                     count += 1
         else:
@@ -1336,9 +1347,9 @@ class CifWriter:
                 for sp, occu in site.species.items():
                     atom_site_type_symbol.append(sp.__str__())
                     atom_site_symmetry_multiplicity.append("%d" % mult)
-                    atom_site_fract_x.append("{0:f}".format(site.a))
-                    atom_site_fract_y.append("{0:f}".format(site.b))
-                    atom_site_fract_z.append("{0:f}".format(site.c))
+                    atom_site_fract_x.append(format_str.format(site.a))
+                    atom_site_fract_y.append(format_str.format(site.b))
+                    atom_site_fract_z.append(format_str.format(site.c))
                     atom_site_label.append("{}{}".format(sp.symbol, count))
                     atom_site_occupancy.append(occu.__str__())
                     count += 1
@@ -1373,6 +1384,13 @@ class CifWriter:
         d = OrderedDict()
         d[comp.reduced_formula] = CifBlock(block, loops, comp.reduced_formula)
         self._cf = CifFile(d)
+
+    @property
+    def ciffile(self):
+        """
+        Returns: CifFile associated with the CifWriter.
+        """
+        return self._cf
 
     def __str__(self):
         """

@@ -8,12 +8,10 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.cli.pmg_analyze module &mdash; pymatgen 2019.12.22 documentation</title>
+  <title>pymatgen.cli.pmg_analyze module &mdash; pymatgen 2020.4.29 documentation</title>
   
 
   
-  
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
   
   
   
@@ -25,11 +23,11 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -73,7 +71,7 @@
             
             
               <div class="version">
-                2019.12.22
+                2020.4.29
               </div>
             
           
@@ -119,6 +117,7 @@
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html">pymatgen.io package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.plugins.html">pymatgen.plugins package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
@@ -205,21 +204,56 @@
             
   <div class="section" id="module-pymatgen.cli.pmg_analyze">
 <span id="pymatgen-cli-pmg-analyze-module"></span><h1>pymatgen.cli.pmg_analyze module<a class="headerlink" href="#module-pymatgen.cli.pmg_analyze" title="Permalink to this headline">¶</a></h1>
+<p>Implementation for <cite>pmg analyze</cite> CLI.</p>
 <dl class="function">
 <dt id="pymatgen.cli.pmg_analyze.analyze">
-<code class="sig-name descname">analyze</code><span class="sig-paren">(</span><em class="sig-param">args</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/cli/pmg_analyze.py#L125-L139"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.cli.pmg_analyze.analyze" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname">analyze</code><span class="sig-paren">(</span><em class="sig-param">args</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/cli/pmg_analyze.py#L145-L167"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.cli.pmg_analyze.analyze" title="Permalink to this definition">¶</a></dt>
+<dd><p>Master function controlling which analysis to call.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>args</strong> (<em>dict</em>) – args from argparse.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.cli.pmg_analyze.get_energies">
-<code class="sig-name descname">get_energies</code><span class="sig-paren">(</span><em class="sig-param">rootdir</em>, <em class="sig-param">reanalyze</em>, <em class="sig-param">verbose</em>, <em class="sig-param">quick</em>, <em class="sig-param">sort</em>, <em class="sig-param">fmt</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/cli/pmg_analyze.py#L32-L89"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.cli.pmg_analyze.get_energies" title="Permalink to this definition">¶</a></dt>
-<dd><p>Doc string.</p>
+<code class="sig-name descname">get_energies</code><span class="sig-paren">(</span><em class="sig-param">rootdir</em>, <em class="sig-param">reanalyze</em>, <em class="sig-param">verbose</em>, <em class="sig-param">quick</em>, <em class="sig-param">sort</em>, <em class="sig-param">fmt</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/cli/pmg_analyze.py#L32-L98"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.cli.pmg_analyze.get_energies" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get energies of all vaspruns in directory (nested).
+:param rootdir: Root directory.
+:type rootdir: str
+:param reanalyze: Whether to ignore saved results and reanalyze
+:type reanalyze: bool
+:param verbose: Verbose mode or not.
+:type verbose: bool
+:param quick: Whether to perform a quick analysis (using OSZICAR instead</p>
+<blockquote>
+<div><p>of vasprun.xml</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sort</strong> (<em>bool</em>) – Whether to sort the results in ascending order.</p></li>
+<li><p><strong>fmt</strong> (<em>str</em>) – tablefmt passed to tabulate.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.cli.pmg_analyze.get_magnetizations">
-<code class="sig-name descname">get_magnetizations</code><span class="sig-paren">(</span><em class="sig-param">mydir</em>, <em class="sig-param">ion_list</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/cli/pmg_analyze.py#L92-L122"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.cli.pmg_analyze.get_magnetizations" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname">get_magnetizations</code><span class="sig-paren">(</span><em class="sig-param">mydir</em>, <em class="sig-param">ion_list</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/cli/pmg_analyze.py#L101-L142"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.cli.pmg_analyze.get_magnetizations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get magnetization info from OUTCARs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mydir</strong> (<em>str</em>) – Directory name</p></li>
+<li><p><strong>ion_list</strong> (<em>List</em>) – List of ions to obtain magnetization information for.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns:</p>
+</dd></dl>
 
 </div>
 

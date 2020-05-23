@@ -1,0 +1,1189 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>pymatgen.analysis.interface &#8212; pymatgen 2020.3.2 documentation</title>
+    <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.analysis.interface</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Pymatgen Development Team.</span>
+<span class="c1"># Distributed under the terms of the MIT License.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module provides classes to store, generate, and manipulate material interfaces.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.core.surface</span> <span class="k">import</span> <span class="n">SlabGenerator</span>
+<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="k">import</span> <span class="n">Lattice</span><span class="p">,</span> <span class="n">Structure</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.surface</span> <span class="k">import</span> <span class="n">Slab</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="k">import</span> <span class="n">product</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="k">import</span> <span class="n">SpacegroupAnalyzer</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="k">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.operations</span> <span class="k">import</span> <span class="n">SymmOp</span>
+<span class="kn">from</span> <span class="nn">matplotlib.lines</span> <span class="k">import</span> <span class="n">Line2D</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.vasp.inputs</span> <span class="k">import</span> <span class="n">Poscar</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.sites</span> <span class="k">import</span> <span class="n">PeriodicSite</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.substrate_analyzer</span> <span class="k">import</span> <span class="p">(</span><span class="n">SubstrateAnalyzer</span><span class="p">,</span> <span class="n">reduce_vectors</span><span class="p">)</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Eric Sivonxay, Shyam Dwaraknath, and Kyle Bystrom&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2019, The Materials Project&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.1&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Kyle Bystrom&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;kylebystrom@gmail.com&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;5/29/2019&quot;</span>
+<span class="n">__status__</span> <span class="o">=</span> <span class="s2">&quot;Prototype&quot;</span>
+
+
+<div class="viewcode-block" id="Interface"><a class="viewcode-back" href="../../../pymatgen.analysis.interface.html#pymatgen.analysis.interface.Interface">[docs]</a><span class="k">class</span> <span class="nc">Interface</span><span class="p">(</span><span class="n">Structure</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class stores data for defining an interface between two structures.</span>
+<span class="sd">    It is a subclass of pymatgen.core.structure.Structure.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span>
+                 <span class="n">sub_plane</span><span class="p">,</span> <span class="n">film_plane</span><span class="p">,</span>
+                 <span class="n">sub_init_cell</span><span class="p">,</span> <span class="n">film_init_cell</span><span class="p">,</span>
+                 <span class="n">modified_sub_structure</span><span class="p">,</span> <span class="n">modified_film_structure</span><span class="p">,</span>
+                 <span class="n">strained_sub_structure</span><span class="p">,</span> <span class="n">strained_film_structure</span><span class="p">,</span>
+                 <span class="n">validate_proximity</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">init_inplane_shift</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">charge</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">site_properties</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Makes an interface structure, a Structure object with additional</span>
+<span class="sd">        information and methods pertaining to interfaces.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            lattice (Lattice/3x3 array): The lattice, either as a</span>
+<span class="sd">                :class:`pymatgen.core.lattice.Lattice` or</span>
+<span class="sd">                simply as any 2D array. Each row should correspond to a lattice</span>
+<span class="sd">                vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a</span>
+<span class="sd">                lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].</span>
+<span class="sd">            species ([Specie]): Sequence of species on each site. Can take in</span>
+<span class="sd">                flexible input, including:</span>
+<span class="sd">                i.  A sequence of element / specie specified either as string</span>
+<span class="sd">                    symbols, e.g. [&quot;Li&quot;, &quot;Fe2+&quot;, &quot;P&quot;, ...] or atomic numbers,</span>
+<span class="sd">                    e.g., (3, 56, ...) or actual Element or Specie objects.</span>
+<span class="sd">                ii. List of dict of elements/species and occupancies, e.g.,</span>
+<span class="sd">                    [{&quot;Fe&quot; : 0.5, &quot;Mn&quot;:0.5}, ...]. This allows the setup of</span>
+<span class="sd">                    disordered structures.</span>
+<span class="sd">            coords (Nx3 array): list of fractional/cartesian coordinates of</span>
+<span class="sd">                each species.</span>
+<span class="sd">            sub_plane (list): Substrate plane in the form of a list of integers</span>
+<span class="sd">                (based on the sub_init_cell), e.g.: [1, 2, 3].</span>
+<span class="sd">            film_plane (list): Film plane in the form of a list of integers</span>
+<span class="sd">                (based on the film_init_cell), e.g. [1, 2, 3].</span>
+<span class="sd">            sub_init_cell (Structure): initial bulk substrate structure</span>
+<span class="sd">            film_init_cell (Structure): initial bulk film structure</span>
+<span class="sd">            site_properties (dict): Properties associated with the sites as a</span>
+<span class="sd">                dict of sequences. The sequences have to be the same length as</span>
+<span class="sd">                the atomic species and fractional_coords. For an interface, you should</span>
+<span class="sd">                have the &#39;interface_label&#39; properties to classify the sites as</span>
+<span class="sd">                &#39;substrate&#39; and &#39;film&#39;.</span>
+<span class="sd">            modified_sub_structure (Slab): substrate supercell slab.</span>
+<span class="sd">            modified_film_structure (Slab): film supercell slab.</span>
+<span class="sd">            strained_sub_structure (Slab): strained substrate supercell slab</span>
+<span class="sd">            strained_film_structure (Slab): strained film supercell slab</span>
+<span class="sd">            validate_proximity (bool): Whether to check if there are sites</span>
+<span class="sd">                that are less than 0.01 Ang apart. Defaults to False.</span>
+<span class="sd">            coords_are_cartesian (bool): Set to True if you are providing</span>
+<span class="sd">                coordinates in cartesian coordinates. Defaults to False.</span>
+<span class="sd">            init_inplane_shift (length-2 list of float, in Cartesian coordinates):</span>
+<span class="sd">                The initial shift of the film relative to the substrate</span>
+<span class="sd">                in the plane of the interface.</span>
+<span class="sd">            charge (float, optional): overal charge of the structure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">lattice</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">validate_proximity</span><span class="o">=</span><span class="n">validate_proximity</span><span class="p">,</span>
+            <span class="n">to_unit_cell</span><span class="o">=</span><span class="n">to_unit_cell</span><span class="p">,</span>
+            <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="n">coords_are_cartesian</span><span class="p">,</span>
+            <span class="n">site_properties</span><span class="o">=</span><span class="n">site_properties</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="n">charge</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">modified_sub_structure</span> <span class="o">=</span> <span class="n">modified_sub_structure</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">modified_film_structure</span> <span class="o">=</span> <span class="n">modified_film_structure</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">strained_sub_structure</span> <span class="o">=</span> <span class="n">strained_sub_structure</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">strained_film_structure</span> <span class="o">=</span> <span class="n">strained_film_structure</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sub_plane</span> <span class="o">=</span> <span class="n">sub_plane</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">film_plane</span> <span class="o">=</span> <span class="n">film_plane</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sub_init_cell</span> <span class="o">=</span> <span class="n">sub_init_cell</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">film_init_cell</span> <span class="o">=</span> <span class="n">film_init_cell</span>
+
+        <span class="n">z_shift</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">film</span><span class="o">.</span><span class="n">cart_coords</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">substrate</span><span class="o">.</span><span class="n">cart_coords</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="n">init_inplane_shift</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">init_inplane_shift</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_offset_vector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">init_inplane_shift</span><span class="p">,</span> <span class="p">[</span><span class="n">z_shift</span><span class="p">])</span>
+
+<div class="viewcode-block" id="Interface.shift_film_along_surface_lattice"><a class="viewcode-back" href="../../../pymatgen.analysis.interface.html#pymatgen.analysis.interface.Interface.shift_film_along_surface_lattice">[docs]</a>    <span class="k">def</span> <span class="nf">shift_film_along_surface_lattice</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">da</span><span class="p">,</span> <span class="n">db</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Given two floats da and db, adjust the shift vector</span>
+<span class="sd">        by da * (first lattice vector) + db * (second lattice vector).</span>
+<span class="sd">        This shift is in the plane of the interface.</span>
+<span class="sd">        I.e. da and db are fractional coordinates.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            da (float): shift in the first lattice vector</span>
+<span class="sd">            db (float): shift in the second lattice vector</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shift_film</span><span class="p">(</span><span class="n">da</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">db</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="Interface.change_z_shift"><a class="viewcode-back" href="../../../pymatgen.analysis.interface.html#pymatgen.analysis.interface.Interface.change_z_shift">[docs]</a>    <span class="k">def</span> <span class="nf">change_z_shift</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dz</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adjust the spacing between the substrate and film layers by dz Angstroms</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            dz (float): shift perpendicular to the plane (in Angstroms)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shift_film</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">dz</span><span class="p">]))</span></div>
+
+<div class="viewcode-block" id="Interface.shift_film"><a class="viewcode-back" href="../../../pymatgen.analysis.interface.html#pymatgen.analysis.interface.Interface.shift_film">[docs]</a>    <span class="k">def</span> <span class="nf">shift_film</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delta</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Shift the film&#39;s position relative to the substrate.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            delta (length-3 list of float or numpy array): Cartesian coordinate</span>
+<span class="sd">                vector by which to shift the film. After this operation</span>
+<span class="sd">                self.offset_vector -&gt; self.offset_vector + delta.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset_vector</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">delta</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">delta</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">vacuum_thickness</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The shift </span><span class="si">{}</span><span class="s2"> will collide the film and substrate.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">delta</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_offset_vector</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">delta</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">translate_sites</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_film_indices</span><span class="p">(),</span>
+                             <span class="n">delta</span><span class="p">,</span> <span class="n">frac_coords</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">offset_vector</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Displacement of the origin of the film structure relative to that</span>
+<span class="sd">        of the substrate structure in Cartesian coordinates.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_offset_vector</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="nd">@offset_vector</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">offset_vector</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset_vector</span><span class="p">):</span>
+        <span class="n">delta</span> <span class="o">=</span> <span class="n">offset_vector</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_offset_vector</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shift_film</span><span class="p">(</span><span class="n">delta</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ab_shift</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The 2D component of offset_vector along the interface plane</span>
+<span class="sd">        in fractional coordinates. I.e. if ab_shift = [a, b], the</span>
+<span class="sd">        Cartesian coordinate shift in the interface plane</span>
+<span class="sd">        is a * (first lattice vector) + b * (second lattice vector).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">offset_vector</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">))[:</span><span class="mi">2</span><span class="p">]</span>
+
+    <span class="nd">@ab_shift</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">ab_shift</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ab_shift</span><span class="p">):</span>
+        <span class="n">delta</span> <span class="o">=</span> <span class="n">ab_shift</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">ab_shift</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shift_film_along_surface_lattice</span><span class="p">(</span><span class="n">delta</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">delta</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">z_shift</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The 1D component of offset_vector along the interface plane</span>
+<span class="sd">        in fractional coordinates. I.e. if z_shift = z, the distance</span>
+<span class="sd">        between the substrate and film planes is z.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset_vector</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+
+    <span class="nd">@z_shift</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">z_shift</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z_shift</span><span class="p">):</span>
+        <span class="n">delta</span> <span class="o">=</span> <span class="n">z_shift</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">z_shift</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">change_z_shift</span><span class="p">(</span><span class="n">delta</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">vacuum_thickness</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Vacuum buffer above the film.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">substrate</span><span class="o">.</span><span class="n">cart_coords</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">c</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">film</span><span class="o">.</span><span class="n">cart_coords</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">substrate_sites</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the substrate sites of the interface.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sub_sites</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">tag</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">site_properties</span><span class="p">[</span><span class="s1">&#39;interface_label&#39;</span><span class="p">]):</span>
+            <span class="k">if</span> <span class="s1">&#39;substrate&#39;</span> <span class="ow">in</span> <span class="n">tag</span><span class="p">:</span>
+                <span class="n">sub_sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sites</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">sub_sites</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">substrate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the substrate (Structure) of the interface.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">substrate_sites</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Interface.get_film_indices"><a class="viewcode-back" href="../../../pymatgen.analysis.interface.html#pymatgen.analysis.interface.Interface.get_film_indices">[docs]</a>    <span class="k">def</span> <span class="nf">get_film_indices</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieve the indices of the film sites</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">film_sites</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">tag</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">site_properties</span><span class="p">[</span><span class="s1">&#39;interface_label&#39;</span><span class="p">]):</span>
+            <span class="k">if</span> <span class="s1">&#39;film&#39;</span> <span class="ow">in</span> <span class="n">tag</span><span class="p">:</span>
+                <span class="n">film_sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">film_sites</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">film_sites</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the film sites of the interface.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">film_sites</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">tag</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">site_properties</span><span class="p">[</span><span class="s1">&#39;interface_label&#39;</span><span class="p">]):</span>
+            <span class="k">if</span> <span class="s1">&#39;film&#39;</span> <span class="ow">in</span> <span class="n">tag</span><span class="p">:</span>
+                <span class="n">film_sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sites</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">film_sites</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">film</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the film (Structure) of the interface.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">film_sites</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Interface.copy"><a class="viewcode-back" href="../../../pymatgen.analysis.interface.html#pymatgen.analysis.interface.Interface.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">site_properties</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convenience method to get a copy of the structure, with options to add</span>
+<span class="sd">        site properties.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A copy of the Interface.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">props</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">site_properties</span>
+        <span class="k">if</span> <span class="n">site_properties</span><span class="p">:</span>
+            <span class="n">props</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">site_properties</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Interface</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_and_occu</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span>
+                         <span class="bp">self</span><span class="o">.</span><span class="n">sub_plane</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">film_plane</span><span class="p">,</span>
+                         <span class="bp">self</span><span class="o">.</span><span class="n">sub_init_cell</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">film_init_cell</span><span class="p">,</span>
+                         <span class="bp">self</span><span class="o">.</span><span class="n">modified_sub_structure</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">modified_film_structure</span><span class="p">,</span>
+                         <span class="bp">self</span><span class="o">.</span><span class="n">strained_sub_structure</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">strained_film_structure</span><span class="p">,</span>
+                         <span class="n">validate_proximity</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                         <span class="n">init_inplane_shift</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">offset_vector</span><span class="p">[:</span><span class="mi">2</span><span class="p">],</span> <span class="n">charge</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">charge</span><span class="p">,</span>
+                         <span class="n">site_properties</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">site_properties</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Interface.get_sorted_structure"><a class="viewcode-back" href="../../../pymatgen.analysis.interface.html#pymatgen.analysis.interface.Interface.get_sorted_structure">[docs]</a>    <span class="k">def</span> <span class="nf">get_sorted_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a sorted copy of the structure. The parameters have the same</span>
+<span class="sd">        meaning as in list.sort. By default, sites are sorted by the</span>
+<span class="sd">        electronegativity of the species.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            key: Specifies a function of one argument that is used to extract</span>
+<span class="sd">                a comparison key from each list element: key=str.lower. The</span>
+<span class="sd">                default value is None (compare the elements directly).</span>
+<span class="sd">            reverse (bool): If set to True, then the list elements are sorted</span>
+<span class="sd">                as if each comparison were reversed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">struct_copy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">struct_copy</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="n">reverse</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">struct_copy</span></div>
+
+<div class="viewcode-block" id="Interface.as_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.interface.html#pymatgen.analysis.interface.Interface.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: MSONable dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;@module&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;@class&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;sub_plane&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_plane</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;film_plane&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">film_plane</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;sub_init_cell&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_init_cell</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;film_init_cell&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">film_init_cell</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;modified_sub_structure&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">modified_sub_structure</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;modified_film_structure&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">modified_film_structure</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;strained_sub_structure&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">strained_sub_structure</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;strained_film_structure&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">strained_film_structure</span>
+        <span class="n">d</span><span class="p">[</span><span class="s1">&#39;init_inplane_shift&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset_vector</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">d</span></div>
+
+<div class="viewcode-block" id="Interface.from_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.interface.html#pymatgen.analysis.interface.Interface.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param d: Dict representation</span>
+<span class="sd">        :return: Interface</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">lattice</span> <span class="o">=</span> <span class="n">Lattice</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;lattice&quot;</span><span class="p">])</span>
+        <span class="n">sites</span> <span class="o">=</span> <span class="p">[</span><span class="n">PeriodicSite</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">sd</span><span class="p">,</span> <span class="n">lattice</span><span class="p">)</span> <span class="k">for</span> <span class="n">sd</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;sites&quot;</span><span class="p">]]</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">sites</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">Interface</span><span class="p">(</span>
+            <span class="n">lattice</span><span class="o">=</span><span class="n">lattice</span><span class="p">,</span>
+            <span class="n">species</span><span class="o">=</span><span class="n">s</span><span class="o">.</span><span class="n">species_and_occu</span><span class="p">,</span> <span class="n">coords</span><span class="o">=</span><span class="n">s</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span>
+            <span class="n">sub_plane</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;sub_plane&quot;</span><span class="p">],</span> <span class="n">film_plane</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;film_plane&quot;</span><span class="p">],</span>
+            <span class="n">sub_init_cell</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;sub_init_cell&quot;</span><span class="p">],</span> <span class="n">film_init_cell</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;film_init_cell&quot;</span><span class="p">],</span>
+            <span class="n">modified_sub_structure</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;modified_sub_structure&quot;</span><span class="p">],</span> <span class="n">modified_film_structure</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;modified_film_structure&quot;</span><span class="p">],</span>
+            <span class="n">strained_sub_structure</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;strained_sub_structure&quot;</span><span class="p">],</span> <span class="n">strained_film_structure</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;strained_film_structure&quot;</span><span class="p">],</span>
+            <span class="n">site_properties</span><span class="o">=</span><span class="n">s</span><span class="o">.</span><span class="n">site_properties</span><span class="p">,</span> <span class="n">init_inplane_shift</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;init_inplane_shift&quot;</span><span class="p">]</span>
+        <span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="InterfaceBuilder"><a class="viewcode-back" href="../../../pymatgen.analysis.interface.html#pymatgen.analysis.interface.InterfaceBuilder">[docs]</a><span class="k">class</span> <span class="nc">InterfaceBuilder</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class constructs the epitaxially matched interfaces between two crystalline slabs</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">substrate_structure</span><span class="p">,</span> <span class="n">film_structure</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            substrate_structure (Structure): structure of substrate</span>
+<span class="sd">            film_structure (Structure): structure of film</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Bulk structures</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">original_substrate_structure</span> <span class="o">=</span> <span class="n">substrate_structure</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">original_film_structure</span> <span class="o">=</span> <span class="n">film_structure</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">matches</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">match_index</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># SlabGenerator objects for the substrate and film</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sub_sg</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">substrate_layers</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">film_sg</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">film_layers</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># Structures with no vacuum</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">substrate_structures</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">film_structures</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># &quot;slab&quot; structure (with no vacuum) oriented with a direction along x-axis and ab plane normal aligned with</span>
+        <span class="c1"># z-axis</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">oriented_substrate</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">oriented_film</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># Strained structures with no vacuum</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">strained_substrate</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">strained_film</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># Substrate with transformation/matches applied</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">modified_substrate_structures</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">modified_film_structures</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># Non-stoichiometric slabs with symmetric surfaces, as generated by pymatgen. Please check, this is highly</span>
+        <span class="c1"># unreliable from tests.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sym_modified_substrate_structures</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sym_modified_film_structures</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># Interface structures</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interfaces</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interface_labels</span> <span class="o">=</span> <span class="p">[]</span>
+
+<div class="viewcode-block" id="InterfaceBuilder.get_summary_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.interface.html#pymatgen.analysis.interface.InterfaceBuilder.get_summary_dict">[docs]</a>    <span class="k">def</span> <span class="nf">get_summary_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return dictionary with information about the InterfaceBuilder,</span>
+<span class="sd">        with currently generated structures included.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;match&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">matches</span><span class="p">[</span><span class="mi">0</span><span class="p">]}</span>
+        <span class="n">d</span><span class="p">[</span><span class="s1">&#39;substrate_layers&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">substrate_layers</span>
+        <span class="n">d</span><span class="p">[</span><span class="s1">&#39;film_layers&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">film_layers</span>
+
+        <span class="n">d</span><span class="p">[</span><span class="s1">&#39;bulk_substrate&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">original_substrate_structure</span>
+        <span class="n">d</span><span class="p">[</span><span class="s1">&#39;bulk_film&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">original_film_structure</span>
+
+        <span class="n">d</span><span class="p">[</span><span class="s1">&#39;strained_substrate&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">strained_substrate</span>
+        <span class="n">d</span><span class="p">[</span><span class="s1">&#39;strained_film&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">strained_film</span>
+
+        <span class="n">d</span><span class="p">[</span><span class="s1">&#39;slab_substrates&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">modified_substrate_structures</span>
+        <span class="n">d</span><span class="p">[</span><span class="s1">&#39;slab_films&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">modified_film_structures</span>
+
+        <span class="n">d</span><span class="p">[</span><span class="s1">&#39;interfaces&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">interfaces</span>
+        <span class="n">d</span><span class="p">[</span><span class="s1">&#39;interface_labels&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">interface_labels</span>
+
+        <span class="k">return</span> <span class="n">d</span></div>
+
+<div class="viewcode-block" id="InterfaceBuilder.write_all_structures"><a class="viewcode-back" href="../../../pymatgen.analysis.interface.html#pymatgen.analysis.interface.InterfaceBuilder.write_all_structures">[docs]</a>    <span class="k">def</span> <span class="nf">write_all_structures</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write all of the structures relevant for</span>
+<span class="sd">        the interface calculation to VASP POSCAR files.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">_poscar</span> <span class="o">=</span> <span class="n">Poscar</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">original_substrate_structure</span><span class="p">)</span>
+        <span class="n">_poscar</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="s1">&#39;bulk_substrate_POSCAR&#39;</span><span class="p">)</span>
+
+        <span class="n">_poscar</span> <span class="o">=</span> <span class="n">Poscar</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">original_film_structure</span><span class="p">)</span>
+        <span class="n">_poscar</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="s1">&#39;bulk_film_POSCAR&#39;</span><span class="p">)</span>
+
+        <span class="n">_poscar</span> <span class="o">=</span> <span class="n">Poscar</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">strained_substrate</span><span class="p">)</span>
+        <span class="n">_poscar</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="s1">&#39;strained_substrate_POSCAR&#39;</span><span class="p">)</span>
+
+        <span class="n">_poscar</span> <span class="o">=</span> <span class="n">Poscar</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">strained_film</span><span class="p">)</span>
+        <span class="n">_poscar</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="s1">&#39;strained_film_POSCAR&#39;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">interface</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">modified_substrate_structures</span><span class="p">):</span>
+            <span class="n">_poscar</span> <span class="o">=</span> <span class="n">Poscar</span><span class="p">(</span><span class="n">interface</span><span class="p">)</span>
+            <span class="n">_poscar</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="s1">&#39;slab_substrate_</span><span class="si">%d</span><span class="s1">_POSCAR&#39;</span> <span class="o">%</span> <span class="n">i</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">interface</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">modified_film_structures</span><span class="p">):</span>
+            <span class="n">_poscar</span> <span class="o">=</span> <span class="n">Poscar</span><span class="p">(</span><span class="n">interface</span><span class="p">)</span>
+            <span class="n">_poscar</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="s1">&#39;slab_film_</span><span class="si">%d</span><span class="s1">_POSCAR&#39;</span> <span class="o">%</span> <span class="n">i</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">interface</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">film_structures</span><span class="p">):</span>
+            <span class="n">_poscar</span> <span class="o">=</span> <span class="n">Poscar</span><span class="p">(</span><span class="n">interface</span><span class="p">)</span>
+            <span class="n">_poscar</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="s1">&#39;slab_unit_film_</span><span class="si">%d</span><span class="s1">_POSCAR&#39;</span> <span class="o">%</span> <span class="n">i</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">interface</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">interface_labels</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">interfaces</span><span class="p">):</span>
+            <span class="n">_poscar</span> <span class="o">=</span> <span class="n">Poscar</span><span class="p">(</span><span class="n">interface</span><span class="p">)</span>
+            <span class="n">_poscar</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="s1">&#39;interface_</span><span class="si">%s</span><span class="s1">_POSCAR&#39;</span> <span class="o">%</span> <span class="n">label</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">))</span>
+        <span class="k">return</span></div>
+
+<div class="viewcode-block" id="InterfaceBuilder.generate_interfaces"><a class="viewcode-back" href="../../../pymatgen.analysis.interface.html#pymatgen.analysis.interface.InterfaceBuilder.generate_interfaces">[docs]</a>    <span class="k">def</span> <span class="nf">generate_interfaces</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">film_millers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">substrate_millers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">film_layers</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">substrate_layers</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+                            <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate a list of Interface (Structure) objects and store them to self.interfaces.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            film_millers (list of [int]): list of film surfaces</span>
+<span class="sd">            substrate_millers (list of [int]): list of substrate surfaces</span>
+<span class="sd">            film_layers (int): number of layers of film to include in Interface structures.</span>
+<span class="sd">            substrate_layers (int): number of layers of substrate to include in Interface structures.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_oriented_slabs</span><span class="p">(</span><span class="n">lowest</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">film_millers</span><span class="o">=</span><span class="n">film_millers</span><span class="p">,</span>
+                                <span class="n">substrate_millers</span><span class="o">=</span><span class="n">substrate_millers</span><span class="p">,</span> <span class="n">film_layers</span><span class="o">=</span><span class="n">film_layers</span><span class="p">,</span>
+                                <span class="n">substrate_layers</span><span class="o">=</span><span class="n">substrate_layers</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">combine_slabs</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span></div>
+
+<div class="viewcode-block" id="InterfaceBuilder.get_oriented_slabs"><a class="viewcode-back" href="../../../pymatgen.analysis.interface.html#pymatgen.analysis.interface.InterfaceBuilder.get_oriented_slabs">[docs]</a>    <span class="k">def</span> <span class="nf">get_oriented_slabs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">film_layers</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">substrate_layers</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">match_index</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a list of oriented slabs for constructing interfaces and put them</span>
+<span class="sd">        in self.film_structures, self.substrate_structures, self.modified_film_structures,</span>
+<span class="sd">        and self.modified_substrate_structures.</span>
+<span class="sd">        Currently only uses first match (lowest SA) in the list of matches</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            film_layers (int): number of layers of film to include in Interface structures.</span>
+<span class="sd">            substrate_layers (int): number of layers of substrate to include in Interface structures.</span>
+<span class="sd">            match_index (int): ZSL match from which to construct slabs.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">match_index</span> <span class="o">=</span> <span class="n">match_index</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">substrate_layers</span> <span class="o">=</span> <span class="n">substrate_layers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">film_layers</span> <span class="o">=</span> <span class="n">film_layers</span>
+
+        <span class="k">if</span> <span class="s1">&#39;zslgen&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">sa</span> <span class="o">=</span> <span class="n">SubstrateAnalyzer</span><span class="p">(</span><span class="n">zslgen</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;zslgen&#39;</span><span class="p">))</span>
+            <span class="k">del</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;zslgen&#39;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sa</span> <span class="o">=</span> <span class="n">SubstrateAnalyzer</span><span class="p">()</span>
+
+        <span class="c1"># Generate all possible interface matches</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">matches</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">sa</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">original_film_structure</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">original_substrate_structure</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">matches</span><span class="p">[</span><span class="n">match_index</span><span class="p">]</span>
+
+        <span class="c1"># Generate substrate slab and align x axis to (100) and slab normal to (001)</span>
+        <span class="c1"># Get no-vacuum structure for strained bulk calculation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sub_sg</span> <span class="o">=</span> <span class="n">SlabGenerator</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">original_substrate_structure</span><span class="p">,</span> <span class="n">match</span><span class="p">[</span><span class="s1">&#39;sub_miller&#39;</span><span class="p">],</span> <span class="n">substrate_layers</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
+                                    <span class="n">in_unit_planes</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                    <span class="n">reorient_lattice</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                    <span class="n">primitive</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">no_vac_sub_slab</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_sg</span><span class="o">.</span><span class="n">get_slab</span><span class="p">()</span>
+        <span class="n">no_vac_sub_slab</span> <span class="o">=</span> <span class="n">get_shear_reduced_slab</span><span class="p">(</span><span class="n">no_vac_sub_slab</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">oriented_substrate</span> <span class="o">=</span> <span class="n">align_x</span><span class="p">(</span><span class="n">no_vac_sub_slab</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">oriented_substrate</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+
+        <span class="c1"># Get slab with vacuum</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sub_sg</span> <span class="o">=</span> <span class="n">SlabGenerator</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">original_substrate_structure</span><span class="p">,</span> <span class="n">match</span><span class="p">[</span><span class="s1">&#39;sub_miller&#39;</span><span class="p">],</span> <span class="n">substrate_layers</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>
+                                    <span class="n">in_unit_planes</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                    <span class="n">reorient_lattice</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                    <span class="n">primitive</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">sub_slabs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_sg</span><span class="o">.</span><span class="n">get_slabs</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sub_slab</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sub_slabs</span><span class="p">):</span>
+            <span class="n">sub_slab</span> <span class="o">=</span> <span class="n">get_shear_reduced_slab</span><span class="p">(</span><span class="n">sub_slab</span><span class="p">)</span>
+            <span class="n">sub_slab</span> <span class="o">=</span> <span class="n">align_x</span><span class="p">(</span><span class="n">sub_slab</span><span class="p">)</span>
+            <span class="n">sub_slab</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+            <span class="n">sub_slabs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">sub_slab</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">substrate_structures</span> <span class="o">=</span> <span class="n">sub_slabs</span>
+
+        <span class="c1"># Generate film slab and align x axis to (100) and slab normal to (001)</span>
+        <span class="c1"># Get no-vacuum structure for strained bulk calculation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">film_sg</span> <span class="o">=</span> <span class="n">SlabGenerator</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">original_film_structure</span><span class="p">,</span> <span class="n">match</span><span class="p">[</span><span class="s1">&#39;film_miller&#39;</span><span class="p">],</span> <span class="n">film_layers</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
+                                     <span class="n">in_unit_planes</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                     <span class="n">reorient_lattice</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                     <span class="n">primitive</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">no_vac_film_slab</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">film_sg</span><span class="o">.</span><span class="n">get_slab</span><span class="p">()</span>
+        <span class="n">no_vac_film_slab</span> <span class="o">=</span> <span class="n">get_shear_reduced_slab</span><span class="p">(</span><span class="n">no_vac_film_slab</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">oriented_film</span> <span class="o">=</span> <span class="n">align_x</span><span class="p">(</span><span class="n">no_vac_film_slab</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">oriented_film</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+
+        <span class="c1"># Get slab with vacuum</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">film_sg</span> <span class="o">=</span> <span class="n">SlabGenerator</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">original_film_structure</span><span class="p">,</span> <span class="n">match</span><span class="p">[</span><span class="s1">&#39;film_miller&#39;</span><span class="p">],</span> <span class="n">film_layers</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>
+                                     <span class="n">in_unit_planes</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                     <span class="n">reorient_lattice</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                     <span class="n">primitive</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">film_slabs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">film_sg</span><span class="o">.</span><span class="n">get_slabs</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">film_slab</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">film_slabs</span><span class="p">):</span>
+            <span class="n">film_slab</span> <span class="o">=</span> <span class="n">get_shear_reduced_slab</span><span class="p">(</span><span class="n">film_slab</span><span class="p">)</span>
+            <span class="n">film_slab</span> <span class="o">=</span> <span class="n">align_x</span><span class="p">(</span><span class="n">film_slab</span><span class="p">)</span>
+            <span class="n">film_slab</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+            <span class="n">film_slabs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">film_slab</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">film_structures</span> <span class="o">=</span> <span class="n">film_slabs</span>
+
+        <span class="c1"># Apply transformation to produce matched area and a &amp; b vectors</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">apply_transformations</span><span class="p">(</span><span class="n">match</span><span class="p">)</span>
+
+        <span class="c1"># Get non-stoichioimetric substrate slabs</span>
+        <span class="n">sym_sub_slabs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">sub_slab</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">modified_substrate_structures</span><span class="p">:</span>
+            <span class="n">sym_sub_slab</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_sg</span><span class="o">.</span><span class="n">nonstoichiometric_symmetrized_slab</span><span class="p">(</span><span class="n">sub_slab</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">slab</span> <span class="ow">in</span> <span class="n">sym_sub_slab</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">slab</span> <span class="o">==</span> <span class="n">sub_slab</span><span class="p">:</span>
+                    <span class="n">sym_sub_slabs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">slab</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">sym_modified_substrate_structures</span> <span class="o">=</span> <span class="n">sym_sub_slabs</span>
+
+        <span class="c1"># Get non-stoichioimetric film slabs</span>
+        <span class="n">sym_film_slabs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">film_slab</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">modified_film_structures</span><span class="p">:</span>
+            <span class="n">sym_film_slab</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">film_sg</span><span class="o">.</span><span class="n">nonstoichiometric_symmetrized_slab</span><span class="p">(</span><span class="n">film_slab</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">slab</span> <span class="ow">in</span> <span class="n">sym_film_slab</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">slab</span> <span class="o">==</span> <span class="n">film_slab</span><span class="p">:</span>
+                    <span class="n">sym_film_slabs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">slab</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">sym_modified_film_structures</span> <span class="o">=</span> <span class="n">sym_film_slabs</span>
+
+        <span class="c1"># Strained film structures (No Vacuum)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">strained_substrate</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">strained_film</span> <span class="o">=</span> <span class="n">strain_slabs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">oriented_substrate</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">oriented_film</span><span class="p">)</span>
+
+        <span class="k">return</span></div>
+
+<div class="viewcode-block" id="InterfaceBuilder.apply_transformation"><a class="viewcode-back" href="../../../pymatgen.analysis.interface.html#pymatgen.analysis.interface.InterfaceBuilder.apply_transformation">[docs]</a>    <span class="k">def</span> <span class="nf">apply_transformation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">matrix</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Make a supercell of structure using matrix</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structure (Slab): Slab to make supercell of</span>
+<span class="sd">            matrix (3x3 np.ndarray): supercell matrix</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            (Slab) The supercell of structure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">modified_substrate_structure</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="c1"># Apply scaling</span>
+        <span class="n">modified_substrate_structure</span><span class="o">.</span><span class="n">make_supercell</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span>
+
+        <span class="c1"># Reduce vectors</span>
+        <span class="n">new_lattice</span> <span class="o">=</span> <span class="n">modified_substrate_structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">new_lattice</span><span class="p">[:</span><span class="mi">2</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">reduce_vectors</span><span class="p">(</span><span class="o">*</span><span class="n">modified_substrate_structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">[:</span><span class="mi">2</span><span class="p">,</span> <span class="p">:])</span>
+        <span class="n">modified_substrate_structure</span> <span class="o">=</span> <span class="n">Slab</span><span class="p">(</span><span class="n">lattice</span><span class="o">=</span><span class="n">Lattice</span><span class="p">(</span><span class="n">new_lattice</span><span class="p">),</span> <span class="n">species</span><span class="o">=</span><span class="n">modified_substrate_structure</span><span class="o">.</span><span class="n">species</span><span class="p">,</span>
+                                            <span class="n">coords</span><span class="o">=</span><span class="n">modified_substrate_structure</span><span class="o">.</span><span class="n">cart_coords</span><span class="p">,</span>
+                                            <span class="n">miller_index</span><span class="o">=</span><span class="n">modified_substrate_structure</span><span class="o">.</span><span class="n">miller_index</span><span class="p">,</span>
+                                            <span class="n">oriented_unit_cell</span><span class="o">=</span><span class="n">modified_substrate_structure</span><span class="o">.</span><span class="n">oriented_unit_cell</span><span class="p">,</span>
+                                            <span class="n">shift</span><span class="o">=</span><span class="n">modified_substrate_structure</span><span class="o">.</span><span class="n">shift</span><span class="p">,</span>
+                                            <span class="n">scale_factor</span><span class="o">=</span><span class="n">modified_substrate_structure</span><span class="o">.</span><span class="n">scale_factor</span><span class="p">,</span>
+                                            <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">energy</span><span class="o">=</span><span class="n">modified_substrate_structure</span><span class="o">.</span><span class="n">energy</span><span class="p">,</span>
+                                            <span class="n">reorient_lattice</span><span class="o">=</span><span class="n">modified_substrate_structure</span><span class="o">.</span><span class="n">reorient_lattice</span><span class="p">,</span>
+                                            <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">modified_substrate_structure</span></div>
+
+<div class="viewcode-block" id="InterfaceBuilder.apply_transformations"><a class="viewcode-back" href="../../../pymatgen.analysis.interface.html#pymatgen.analysis.interface.InterfaceBuilder.apply_transformations">[docs]</a>    <span class="k">def</span> <span class="nf">apply_transformations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">match</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Using ZSL match, transform all of the film_structures by the ZSL</span>
+<span class="sd">        supercell transformation.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            match (dict): ZSL match returned by ZSLGenerator.__call__</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">film_transformation</span> <span class="o">=</span> <span class="n">match</span><span class="p">[</span><span class="s2">&quot;film_transformation&quot;</span><span class="p">]</span>
+        <span class="n">sub_transformation</span> <span class="o">=</span> <span class="n">match</span><span class="p">[</span><span class="s2">&quot;substrate_transformation&quot;</span><span class="p">]</span>
+
+        <span class="n">modified_substrate_structures</span> <span class="o">=</span> <span class="p">[</span><span class="n">struct</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">struct</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">substrate_structures</span><span class="p">]</span>
+        <span class="n">modified_film_structures</span> <span class="o">=</span> <span class="p">[</span><span class="n">struct</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">struct</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">film_structures</span><span class="p">]</span>
+
+        <span class="c1"># Match angles in lattices with 𝛾=θ° and 𝛾=(180-θ)°</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="mi">180</span> <span class="o">-</span> <span class="n">modified_film_structures</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">gamma</span><span class="p">,</span> <span class="n">modified_substrate_structures</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">gamma</span><span class="p">,</span>
+                      <span class="n">atol</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+            <span class="n">reflection</span> <span class="o">=</span> <span class="n">SymmOp</span><span class="o">.</span><span class="n">from_rotation_and_translation</span><span class="p">(((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">modified_film_structure</span> <span class="ow">in</span> <span class="n">modified_film_structures</span><span class="p">:</span>
+                <span class="n">modified_film_structure</span><span class="o">.</span><span class="n">apply_operation</span><span class="p">(</span><span class="n">reflection</span><span class="p">,</span> <span class="n">fractional</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">oriented_film</span><span class="o">.</span><span class="n">apply_operation</span><span class="p">(</span><span class="n">reflection</span><span class="p">,</span> <span class="n">fractional</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">sub_scaling</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">sub_transformation</span><span class="p">))</span>
+
+        <span class="c1"># Turn into 3x3 Arrays</span>
+        <span class="n">sub_scaling</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">sub_scaling</span><span class="p">),</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">temp_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+        <span class="n">temp_matrix</span><span class="p">[:</span><span class="mi">2</span><span class="p">,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">sub_transformation</span>
+
+        <span class="k">for</span> <span class="n">modified_substrate_structure</span> <span class="ow">in</span> <span class="n">modified_substrate_structures</span><span class="p">:</span>
+            <span class="n">modified_substrate_structure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">apply_transformation</span><span class="p">(</span><span class="n">modified_substrate_structure</span><span class="p">,</span> <span class="n">temp_matrix</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">modified_substrate_structures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">modified_substrate_structure</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">oriented_substrate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">apply_transformation</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">oriented_substrate</span><span class="p">,</span> <span class="n">temp_matrix</span><span class="p">)</span>
+
+        <span class="n">film_scaling</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">film_transformation</span><span class="p">))</span>
+
+        <span class="c1"># Turn into 3x3 Arrays</span>
+        <span class="n">film_scaling</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">film_scaling</span><span class="p">),</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">temp_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+        <span class="n">temp_matrix</span><span class="p">[:</span><span class="mi">2</span><span class="p">,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">film_transformation</span>
+
+        <span class="k">for</span> <span class="n">modified_film_structure</span> <span class="ow">in</span> <span class="n">modified_film_structures</span><span class="p">:</span>
+            <span class="n">modified_film_structure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">apply_transformation</span><span class="p">(</span><span class="n">modified_film_structure</span><span class="p">,</span> <span class="n">temp_matrix</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">modified_film_structures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">modified_film_structure</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">oriented_film</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">apply_transformation</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">oriented_film</span><span class="p">,</span> <span class="n">temp_matrix</span><span class="p">)</span>
+
+        <span class="k">return</span></div>
+
+<div class="viewcode-block" id="InterfaceBuilder.combine_slabs"><a class="viewcode-back" href="../../../pymatgen.analysis.interface.html#pymatgen.analysis.interface.InterfaceBuilder.combine_slabs">[docs]</a>    <span class="k">def</span> <span class="nf">combine_slabs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Combine the slabs generated by get_oriented_slabs into interfaces</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">all_substrate_variants</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">sub_labels</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">slab</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">modified_substrate_structures</span><span class="p">):</span>
+            <span class="n">all_substrate_variants</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">slab</span><span class="p">)</span>
+            <span class="n">sub_labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+            <span class="n">sg</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="n">slab</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">sg</span><span class="o">.</span><span class="n">is_laue</span><span class="p">():</span>
+                <span class="n">mirrored_slab</span> <span class="o">=</span> <span class="n">slab</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="n">reflection_z</span> <span class="o">=</span> <span class="n">SymmOp</span><span class="o">.</span><span class="n">from_rotation_and_translation</span><span class="p">(((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+                <span class="n">mirrored_slab</span><span class="o">.</span><span class="n">apply_operation</span><span class="p">(</span><span class="n">reflection_z</span><span class="p">,</span> <span class="n">fractional</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">translation</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="nb">min</span><span class="p">(</span><span class="n">mirrored_slab</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])]</span>
+                <span class="n">mirrored_slab</span><span class="o">.</span><span class="n">translate_sites</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">mirrored_slab</span><span class="o">.</span><span class="n">num_sites</span><span class="p">),</span> <span class="n">translation</span><span class="p">)</span>
+                <span class="n">all_substrate_variants</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mirrored_slab</span><span class="p">)</span>
+                <span class="n">sub_labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%d</span><span class="s1">m&#39;</span> <span class="o">%</span> <span class="n">i</span><span class="p">)</span>
+
+        <span class="n">all_film_variants</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">film_labels</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">slab</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">modified_film_structures</span><span class="p">):</span>
+            <span class="n">all_film_variants</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">slab</span><span class="p">)</span>
+            <span class="n">film_labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+            <span class="n">sg</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="n">slab</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">sg</span><span class="o">.</span><span class="n">is_laue</span><span class="p">():</span>
+                <span class="n">mirrored_slab</span> <span class="o">=</span> <span class="n">slab</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="n">reflection_z</span> <span class="o">=</span> <span class="n">SymmOp</span><span class="o">.</span><span class="n">from_rotation_and_translation</span><span class="p">(((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+                <span class="n">mirrored_slab</span><span class="o">.</span><span class="n">apply_operation</span><span class="p">(</span><span class="n">reflection_z</span><span class="p">,</span> <span class="n">fractional</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">translation</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="nb">min</span><span class="p">(</span><span class="n">mirrored_slab</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])]</span>
+                <span class="n">mirrored_slab</span><span class="o">.</span><span class="n">translate_sites</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">mirrored_slab</span><span class="o">.</span><span class="n">num_sites</span><span class="p">),</span> <span class="n">translation</span><span class="p">)</span>
+                <span class="n">all_film_variants</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mirrored_slab</span><span class="p">)</span>
+                <span class="n">film_labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%d</span><span class="s1">m&#39;</span> <span class="o">%</span> <span class="n">i</span><span class="p">)</span>
+
+        <span class="c1"># substrate first index, film second index</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interfaces</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interface_labels</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># self.interfaces = [[None for j in range(len(all_film_variants))] for i in range(len(all_substrate_variants))]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">substrate</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">all_substrate_variants</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">film</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">all_film_variants</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">interfaces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">make_interface</span><span class="p">(</span><span class="n">substrate</span><span class="p">,</span> <span class="n">film</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">interface_labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">/</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">film_labels</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">sub_labels</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span></div>
+
+<div class="viewcode-block" id="InterfaceBuilder.make_interface"><a class="viewcode-back" href="../../../pymatgen.analysis.interface.html#pymatgen.analysis.interface.InterfaceBuilder.make_interface">[docs]</a>    <span class="k">def</span> <span class="nf">make_interface</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">slab_substrate</span><span class="p">,</span> <span class="n">slab_film</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Strain a film to fit a substrate and generate an interface.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            slab_substrate (Slab): substrate structure supercell</span>
+<span class="sd">            slab_film (Slab): film structure supercell</span>
+<span class="sd">            offset ([int]): separation vector of film and substrate</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Check if lattices are equal. If not, strain them to match</span>
+        <span class="c1"># NOTE: CHANGED THIS TO MAKE COPY OF SUBSTRATE/FILM, self.modified_film_structures NO LONGER STRAINED</span>
+        <span class="n">unstrained_slab_substrate</span> <span class="o">=</span> <span class="n">slab_substrate</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">slab_substrate</span> <span class="o">=</span> <span class="n">slab_substrate</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">unstrained_slab_film</span> <span class="o">=</span> <span class="n">slab_film</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">slab_film</span> <span class="o">=</span> <span class="n">slab_film</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">latt_1</span> <span class="o">=</span> <span class="n">slab_substrate</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">latt_1</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">latt_2</span> <span class="o">=</span> <span class="n">slab_film</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">latt_2</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">Lattice</span><span class="p">(</span><span class="n">latt_1</span><span class="p">)</span> <span class="o">==</span> <span class="n">Lattice</span><span class="p">(</span><span class="n">latt_2</span><span class="p">):</span>
+            <span class="c1"># Calculate lattice strained to match:</span>
+            <span class="n">matched_slab_substrate</span><span class="p">,</span> <span class="n">matched_slab_film</span> <span class="o">=</span> <span class="n">strain_slabs</span><span class="p">(</span><span class="n">slab_substrate</span><span class="p">,</span> <span class="n">slab_film</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">matched_slab_substrate</span> <span class="o">=</span> <span class="n">slab_substrate</span>
+            <span class="n">matched_slab_film</span> <span class="o">=</span> <span class="n">slab_film</span>
+
+        <span class="c1"># Ensure substrate has positive c-direction:</span>
+        <span class="k">if</span> <span class="n">matched_slab_substrate</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">latt</span> <span class="o">=</span> <span class="n">matched_slab_substrate</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">latt</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
+            <span class="n">new_struct</span> <span class="o">=</span> <span class="n">matched_slab_substrate</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">new_struct</span><span class="o">.</span><span class="n">lattice</span> <span class="o">=</span> <span class="n">Lattice</span><span class="p">(</span><span class="n">latt</span><span class="p">)</span>
+            <span class="n">matched_slab_substrate</span> <span class="o">=</span> <span class="n">new_struct</span>
+
+        <span class="c1"># Ensure film has positive c-direction:</span>
+        <span class="k">if</span> <span class="n">matched_slab_film</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">latt</span> <span class="o">=</span> <span class="n">matched_slab_film</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">latt</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
+            <span class="n">new_struct</span> <span class="o">=</span> <span class="n">matched_slab_film</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">new_struct</span><span class="o">.</span><span class="n">lattice</span> <span class="o">=</span> <span class="n">Lattice</span><span class="p">(</span><span class="n">latt</span><span class="p">)</span>
+            <span class="n">matched_slab_film</span> <span class="o">=</span> <span class="n">new_struct</span>
+
+        <span class="k">if</span> <span class="n">offset</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">offset</span> <span class="o">=</span> <span class="p">(</span><span class="mf">2.5</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+
+        <span class="n">_structure</span> <span class="o">=</span> <span class="n">merge_slabs</span><span class="p">(</span><span class="n">matched_slab_substrate</span><span class="p">,</span> <span class="n">matched_slab_film</span><span class="p">,</span> <span class="o">*</span><span class="n">offset</span><span class="p">)</span>
+        <span class="n">orthogonal_structure</span> <span class="o">=</span> <span class="n">_structure</span><span class="o">.</span><span class="n">get_orthogonal_c_slab</span><span class="p">()</span>
+        <span class="n">orthogonal_structure</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">orthogonal_structure</span><span class="o">.</span><span class="n">is_valid</span><span class="p">(</span><span class="n">tol</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Check generated structure, it may contain atoms too closely placed&quot;</span><span class="p">)</span>
+
+        <span class="c1"># offset_vector = (offset[1], offset[2], offset[0])</span>
+        <span class="n">interface</span> <span class="o">=</span> <span class="n">Interface</span><span class="p">(</span><span class="n">orthogonal_structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">orthogonal_structure</span><span class="o">.</span><span class="n">species</span><span class="p">,</span>
+                              <span class="n">orthogonal_structure</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span>
+                              <span class="n">slab_substrate</span><span class="o">.</span><span class="n">miller_index</span><span class="p">,</span> <span class="n">slab_film</span><span class="o">.</span><span class="n">miller_index</span><span class="p">,</span>
+                              <span class="bp">self</span><span class="o">.</span><span class="n">original_substrate_structure</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">original_film_structure</span><span class="p">,</span>
+                              <span class="n">unstrained_slab_substrate</span><span class="p">,</span> <span class="n">unstrained_slab_film</span><span class="p">,</span>
+                              <span class="n">slab_substrate</span><span class="p">,</span> <span class="n">slab_film</span><span class="p">,</span> <span class="n">init_inplane_shift</span><span class="o">=</span><span class="n">offset</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span>
+                              <span class="n">site_properties</span><span class="o">=</span><span class="n">orthogonal_structure</span><span class="o">.</span><span class="n">site_properties</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">interface</span></div>
+
+<div class="viewcode-block" id="InterfaceBuilder.visualize_interface"><a class="viewcode-back" href="../../../pymatgen.analysis.interface.html#pymatgen.analysis.interface.InterfaceBuilder.visualize_interface">[docs]</a>    <span class="k">def</span> <span class="nf">visualize_interface</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interface_index</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">show_atoms</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">n_uc</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plot the film-substrate superlattice match, the film superlattice,</span>
+<span class="sd">        and the substrate superlattice in three separate plots and show them.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            interface_index (int, 0): Choice of interface to plot</span>
+<span class="sd">            show_atoms (bool, False): Whether to plot atomic sites</span>
+<span class="sd">            n_uc (int, 2): Number of 2D unit cells of the interface in each direction.</span>
+<span class="sd">                (The unit cell of the interface is the supercell of th substrate</span>
+<span class="sd">                that matches a supercel of the film.)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">film_index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">interface_labels</span><span class="p">[</span><span class="n">interface_index</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">sub_index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">interface_labels</span><span class="p">[</span><span class="n">interface_index</span><span class="p">][</span><span class="mi">2</span><span class="p">])</span>
+        <span class="n">visualize_interface</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">interfaces</span><span class="p">[</span><span class="n">interface_index</span><span class="p">],</span> <span class="n">show_atoms</span><span class="p">,</span> <span class="n">n_uc</span><span class="p">)</span>
+        <span class="n">visualize_superlattice</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">film_structures</span><span class="p">[</span><span class="n">film_index</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">modified_film_structures</span><span class="p">[</span><span class="n">film_index</span><span class="p">],</span>
+                               <span class="n">film</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">show_atoms</span><span class="o">=</span><span class="n">show_atoms</span><span class="p">,</span> <span class="n">n_uc</span><span class="o">=</span><span class="n">n_uc</span><span class="p">)</span>
+        <span class="n">visualize_superlattice</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">substrate_structures</span><span class="p">[</span><span class="n">sub_index</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">modified_substrate_structures</span><span class="p">[</span><span class="n">sub_index</span><span class="p">],</span>
+                               <span class="n">film</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">show_atoms</span><span class="o">=</span><span class="n">show_atoms</span><span class="p">,</span> <span class="n">n_uc</span><span class="o">=</span><span class="n">n_uc</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="visualize_interface"><a class="viewcode-back" href="../../../pymatgen.analysis.interface.html#pymatgen.analysis.interface.visualize_interface">[docs]</a><span class="k">def</span> <span class="nf">visualize_interface</span><span class="p">(</span><span class="n">interface</span><span class="p">,</span> <span class="n">show_atoms</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">n_uc</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plot the match of the substrate and film superlattices.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        interface (Interface): Interface object</span>
+<span class="sd">        show_atoms (bool, False): Whether to plot atomic sites</span>
+<span class="sd">        n_uc (int, 2): Number of 2D unit cells of the interface in each direction.</span>
+<span class="sd">            (The unit cell of the interface is the supercell of th substrate</span>
+<span class="sd">            that matches a supercel of the film.)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># sub_struct = interface.sub_init_cell</span>
+    <span class="c1"># film_struct = interface.film_init_cell</span>
+    <span class="n">modified_sub_struct</span> <span class="o">=</span> <span class="n">interface</span><span class="o">.</span><span class="n">modified_sub_structure</span>
+    <span class="n">modified_film_struct</span> <span class="o">=</span> <span class="n">interface</span><span class="o">.</span><span class="n">modified_film_structure</span>
+    <span class="n">rotated_modified_film_structure</span> <span class="o">=</span> <span class="n">align_x</span><span class="p">(</span><span class="n">modified_film_struct</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
+                                              <span class="n">get_ortho_axes</span><span class="p">(</span><span class="n">modified_sub_struct</span><span class="p">))</span>
+
+    <span class="c1"># Show super lattice matches</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
+    <span class="n">legend_elements</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">product</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">n_uc</span><span class="p">,</span> <span class="n">n_uc</span><span class="p">),</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">n_uc</span><span class="p">,</span> <span class="n">n_uc</span><span class="p">)):</span>
+        <span class="n">v1</span> <span class="o">=</span> <span class="n">modified_sub_struct</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">v2</span> <span class="o">=</span> <span class="n">modified_sub_struct</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">current_start</span> <span class="o">=</span> <span class="n">v1</span> <span class="o">*</span> <span class="n">i</span> <span class="o">+</span> <span class="n">v2</span> <span class="o">*</span> <span class="n">j</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">current_start</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">current_start</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">v1</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="p">[</span><span class="n">current_start</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">current_start</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">v1</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="s1">&#39;-k&#39;</span><span class="p">,</span>
+                 <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">current_start</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">current_start</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">v2</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="p">[</span><span class="n">current_start</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">current_start</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">v2</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="s1">&#39;-k&#39;</span><span class="p">,</span>
+                 <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">show_atoms</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">modified_sub_struct</span><span class="o">.</span><span class="n">cart_coords</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">current_start</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">modified_sub_struct</span><span class="o">.</span><span class="n">cart_coords</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">current_start</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+                <span class="s1">&#39;or&#39;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+    <span class="n">legend_elements</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Line2D</span><span class="p">([</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Substrate Superlattice&#39;</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">show_atoms</span><span class="p">:</span>
+        <span class="n">legend_elements</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Line2D</span><span class="p">([</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Substrate atoms&#39;</span><span class="p">,</span>
+                                      <span class="n">markerfacecolor</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">3</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">product</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">n_uc</span><span class="p">,</span> <span class="n">n_uc</span><span class="p">),</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">n_uc</span><span class="p">,</span> <span class="n">n_uc</span><span class="p">)):</span>
+        <span class="n">v1</span> <span class="o">=</span> <span class="n">rotated_modified_film_structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">v2</span> <span class="o">=</span> <span class="n">rotated_modified_film_structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">current_start</span> <span class="o">=</span> <span class="n">v1</span> <span class="o">*</span> <span class="n">i</span> <span class="o">+</span> <span class="n">v2</span> <span class="o">*</span> <span class="n">j</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">current_start</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">current_start</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">v1</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="p">[</span><span class="n">current_start</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">current_start</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">v1</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="s1">&#39;-b&#39;</span><span class="p">,</span>
+                 <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">current_start</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">current_start</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">v2</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="p">[</span><span class="n">current_start</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">current_start</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">v2</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="s1">&#39;-b&#39;</span><span class="p">,</span>
+                 <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">show_atoms</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">rotated_modified_film_structure</span><span class="o">.</span><span class="n">cart_coords</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">current_start</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+                     <span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">rotated_modified_film_structure</span><span class="o">.</span><span class="n">cart_coords</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">current_start</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+                     <span class="s1">&#39;og&#39;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+    <span class="n">legend_elements</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Line2D</span><span class="p">([</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Film Superlattice&#39;</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">show_atoms</span><span class="p">:</span>
+        <span class="n">legend_elements</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Line2D</span><span class="p">([</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Film atoms&#39;</span><span class="p">,</span>
+                                      <span class="n">markerfacecolor</span><span class="o">=</span><span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">3</span><span class="p">))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;scaled&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Superlattice Match&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">handles</span><span class="o">=</span><span class="n">legend_elements</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="visualize_superlattice"><a class="viewcode-back" href="../../../pymatgen.analysis.interface.html#pymatgen.analysis.interface.visualize_superlattice">[docs]</a><span class="k">def</span> <span class="nf">visualize_superlattice</span><span class="p">(</span><span class="n">struct</span><span class="p">,</span> <span class="n">modified_struct</span><span class="p">,</span> <span class="n">film</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">show_atoms</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">n_uc</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Visualize the unit cell-supercell match for either the film or substrate</span>
+<span class="sd">    (specified by film boolean tag).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        struct (Slab): unit cell slab</span>
+<span class="sd">        modified_struct (Slab): supercell slab</span>
+<span class="sd">        film (bool, True): True=label plot as film, False=label plot as substrate</span>
+<span class="sd">        show_atoms (bool, False): Whether to plot atomic sites</span>
+<span class="sd">        n_uc (int, 2): Number of 2D unit cells of the interface in each direction.</span>
+<span class="sd">            (The unit cell of the interface is the supercell of th substrate</span>
+<span class="sd">            that matches a supercel of the film.)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;Film&#39;</span> <span class="k">if</span> <span class="n">film</span> <span class="k">else</span> <span class="s1">&#39;Substrate&#39;</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
+    <span class="n">legend_elements</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">product</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">n_uc</span><span class="p">,</span> <span class="n">n_uc</span><span class="p">),</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">n_uc</span><span class="p">,</span> <span class="n">n_uc</span><span class="p">)):</span>
+        <span class="n">v1</span> <span class="o">=</span> <span class="n">modified_struct</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">v2</span> <span class="o">=</span> <span class="n">modified_struct</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">current_start</span> <span class="o">=</span> <span class="n">v1</span> <span class="o">*</span> <span class="n">i</span> <span class="o">+</span> <span class="n">v2</span> <span class="o">*</span> <span class="n">j</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">current_start</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">current_start</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">v1</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="p">[</span><span class="n">current_start</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">current_start</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">v1</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="s1">&#39;-k&#39;</span><span class="p">,</span>
+                 <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">current_start</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">current_start</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">v2</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="p">[</span><span class="n">current_start</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">current_start</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">v2</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="s1">&#39;-k&#39;</span><span class="p">,</span>
+                 <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">show_atoms</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">modified_struct</span><span class="o">.</span><span class="n">cart_coords</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">current_start</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">modified_struct</span><span class="o">.</span><span class="n">cart_coords</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">current_start</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+                <span class="s1">&#39;or&#39;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+    <span class="n">legend_elements</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Line2D</span><span class="p">([</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> Superlattice&#39;</span> <span class="o">%</span> <span class="n">label</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">show_atoms</span><span class="p">:</span>
+        <span class="n">legend_elements</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Line2D</span><span class="p">([</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> Superlattice atoms&#39;</span> <span class="o">%</span> <span class="n">label</span><span class="p">,</span>
+                                      <span class="n">markerfacecolor</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">3</span><span class="p">))</span>
+
+    <span class="n">uc_v1</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]</span>
+    <span class="n">uc_v2</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span>
+    <span class="n">sl_v1</span> <span class="o">=</span> <span class="n">modified_struct</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]</span>
+    <span class="n">sl_v2</span> <span class="o">=</span> <span class="n">modified_struct</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span>
+
+    <span class="n">sl_v</span> <span class="o">=</span> <span class="p">(</span><span class="n">sl_v1</span> <span class="o">+</span> <span class="n">sl_v2</span><span class="p">)</span> <span class="o">*</span> <span class="n">n_uc</span>
+    <span class="n">uc_v</span> <span class="o">=</span> <span class="p">(</span><span class="n">uc_v1</span> <span class="o">+</span> <span class="n">uc_v2</span><span class="p">)</span> <span class="o">*</span> <span class="n">n_uc</span>
+    <span class="n">rx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">n_uc</span> <span class="o">*</span> <span class="n">sl_v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">uc_v</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+    <span class="n">ry</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">n_uc</span> <span class="o">*</span> <span class="n">sl_v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">uc_v</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">product</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">rx</span><span class="p">,</span> <span class="n">rx</span><span class="p">),</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">ry</span><span class="p">,</span> <span class="n">ry</span><span class="p">)):</span>
+        <span class="n">v1</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">v2</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">current_start</span> <span class="o">=</span> <span class="n">v1</span> <span class="o">*</span> <span class="n">i</span> <span class="o">+</span> <span class="n">v2</span> <span class="o">*</span> <span class="n">j</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">current_start</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">current_start</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">v1</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="p">[</span><span class="n">current_start</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">current_start</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">v1</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="s1">&#39;-b&#39;</span><span class="p">,</span>
+                 <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">current_start</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">current_start</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">v2</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="p">[</span><span class="n">current_start</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">current_start</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">v2</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="s1">&#39;-b&#39;</span><span class="p">,</span>
+                 <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">show_atoms</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">cart_coords</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">current_start</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+                     <span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">cart_coords</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">current_start</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+                     <span class="s1">&#39;og&#39;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+    <span class="n">legend_elements</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Line2D</span><span class="p">([</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> Lattice&#39;</span> <span class="o">%</span> <span class="n">label</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">show_atoms</span><span class="p">:</span>
+        <span class="n">legend_elements</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Line2D</span><span class="p">([</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> atoms&#39;</span> <span class="o">%</span> <span class="n">label</span><span class="p">,</span>
+                                      <span class="n">markerfacecolor</span><span class="o">=</span><span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">3</span><span class="p">))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;scaled&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">handles</span><span class="o">=</span><span class="n">legend_elements</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> unit cell and superlattice&#39;</span> <span class="o">%</span> <span class="n">label</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="merge_slabs"><a class="viewcode-back" href="../../../pymatgen.analysis.interface.html#pymatgen.analysis.interface.merge_slabs">[docs]</a><span class="k">def</span> <span class="nf">merge_slabs</span><span class="p">(</span><span class="n">substrate</span><span class="p">,</span> <span class="n">film</span><span class="p">,</span> <span class="n">slab_offset</span><span class="p">,</span> <span class="n">x_offset</span><span class="p">,</span> <span class="n">y_offset</span><span class="p">,</span> <span class="n">vacuum</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Given substrate and film supercells (oriented to match as closely as possible),</span>
+<span class="sd">    strain the film to match the substrate lattice and combine the slabs.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        slab_offset: spacing between the substrate and film</span>
+<span class="sd">        x_offset y_offset: in-plane displacement of the film in Cartesian coordinates</span>
+<span class="sd">        vacuum: vacuum buffer above the film</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        combined_structure (Slab): A structure with the strained film and substrate</span>
+<span class="sd">            combined into one structure</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># strain film to match substrate</span>
+    <span class="n">new_latt</span> <span class="o">=</span> <span class="n">film</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">new_latt</span><span class="p">[:</span><span class="mi">2</span><span class="p">,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">substrate</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">[:</span><span class="mi">2</span><span class="p">,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">film</span><span class="o">.</span><span class="n">lattice</span> <span class="o">=</span> <span class="n">Lattice</span><span class="p">(</span><span class="n">new_latt</span><span class="p">)</span>
+
+    <span class="n">combined_species</span> <span class="o">=</span> <span class="p">[</span><span class="o">*</span><span class="n">substrate</span><span class="o">.</span><span class="n">species</span><span class="p">,</span> <span class="o">*</span><span class="n">film</span><span class="o">.</span><span class="n">species</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;cell_height&#39;</span><span class="p">):</span>
+        <span class="n">height</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;cell_height&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">added_height</span> <span class="o">=</span> <span class="n">vacuum</span> <span class="o">+</span> <span class="n">slab_offset</span> <span class="o">+</span> <span class="n">film</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">c</span>
+        <span class="n">height</span> <span class="o">=</span> <span class="n">added_height</span> <span class="o">+</span> <span class="n">substrate</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+    <span class="n">combined_lattice</span> <span class="o">=</span> <span class="n">substrate</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">combined_lattice</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="p">:]</span> <span class="o">*=</span> <span class="n">height</span> <span class="o">/</span> <span class="n">substrate</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+
+    <span class="n">max_substrate</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">substrate</span><span class="o">.</span><span class="n">cart_coords</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])</span>
+    <span class="n">min_substrate</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">film</span><span class="o">.</span><span class="n">cart_coords</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])</span>
+    <span class="n">offset</span> <span class="o">=</span> <span class="n">max_substrate</span> <span class="o">-</span> <span class="n">min_substrate</span> <span class="o">+</span> <span class="n">slab_offset</span>
+    <span class="n">offset_film_coords</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">coord</span><span class="p">,</span> <span class="p">[</span><span class="n">x_offset</span><span class="p">,</span> <span class="n">y_offset</span><span class="p">,</span> <span class="n">offset</span><span class="p">])</span> <span class="k">for</span> <span class="n">coord</span> <span class="ow">in</span> <span class="n">film</span><span class="o">.</span><span class="n">cart_coords</span><span class="p">]</span>
+    <span class="n">combined_coords</span> <span class="o">=</span> <span class="p">[</span><span class="o">*</span><span class="n">substrate</span><span class="o">.</span><span class="n">cart_coords</span><span class="p">,</span> <span class="o">*</span><span class="n">offset_film_coords</span><span class="p">]</span>
+    <span class="n">combined_site_properties</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">substrate</span><span class="o">.</span><span class="n">site_properties</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">combined_site_properties</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="o">*</span><span class="n">substrate</span><span class="o">.</span><span class="n">site_properties</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="o">*</span><span class="n">film</span><span class="o">.</span><span class="n">site_properties</span><span class="p">[</span><span class="n">key</span><span class="p">]]</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;substrate&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">substrate</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;film&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">film</span><span class="p">)</span>
+    <span class="n">combined_site_properties</span><span class="p">[</span><span class="s1">&#39;interface_label&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">labels</span>
+
+    <span class="n">combined_structure</span> <span class="o">=</span> <span class="n">Slab</span><span class="p">(</span><span class="n">lattice</span><span class="o">=</span><span class="n">Lattice</span><span class="p">(</span><span class="n">combined_lattice</span><span class="p">),</span> <span class="n">species</span><span class="o">=</span><span class="n">combined_species</span><span class="p">,</span>
+                              <span class="n">coords</span><span class="o">=</span><span class="n">combined_coords</span><span class="p">,</span>
+                              <span class="n">miller_index</span><span class="o">=</span><span class="n">substrate</span><span class="o">.</span><span class="n">miller_index</span><span class="p">,</span>
+                              <span class="n">oriented_unit_cell</span><span class="o">=</span><span class="n">substrate</span><span class="p">,</span>
+                              <span class="n">shift</span><span class="o">=</span><span class="n">substrate</span><span class="o">.</span><span class="n">shift</span><span class="p">,</span>
+                              <span class="n">scale_factor</span><span class="o">=</span><span class="n">substrate</span><span class="o">.</span><span class="n">scale_factor</span><span class="p">,</span>
+                              <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">energy</span><span class="o">=</span><span class="n">substrate</span><span class="o">.</span><span class="n">energy</span><span class="p">,</span>
+                              <span class="n">reorient_lattice</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                              <span class="n">site_properties</span><span class="o">=</span><span class="n">combined_site_properties</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">combined_structure</span></div>
+
+
+<div class="viewcode-block" id="strain_slabs"><a class="viewcode-back" href="../../../pymatgen.analysis.interface.html#pymatgen.analysis.interface.strain_slabs">[docs]</a><span class="k">def</span> <span class="nf">strain_slabs</span><span class="p">(</span><span class="n">sub_slab</span><span class="p">,</span> <span class="n">film_slab</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Strain the film_slab to match the sub_slab,</span>
+<span class="sd">    orient the structures to match each other,</span>
+<span class="sd">    and return the new matching structures.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        sub_slab (Slab): substrate supercell slab</span>
+<span class="sd">        film_slab (Slab): film supercell slab</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        sub_struct (Slab): substrate structure oriented</span>
+<span class="sd">            to match the film supercell</span>
+<span class="sd">        film_struct (Slab): film structure strained to match</span>
+<span class="sd">            the substrate supercell lattice.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sub_struct</span> <span class="o">=</span> <span class="n">sub_slab</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">latt_1</span> <span class="o">=</span> <span class="n">sub_struct</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">film_struct</span> <span class="o">=</span> <span class="n">align_x</span><span class="p">(</span><span class="n">film_slab</span><span class="p">,</span> <span class="n">get_ortho_axes</span><span class="p">(</span><span class="n">sub_struct</span><span class="p">))</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">latt_2</span> <span class="o">=</span> <span class="n">film_struct</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="c1"># Rotate film so its diagonal matches with the sub&#39;s diagonal</span>
+    <span class="n">diag_vec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">latt_1</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:],</span> <span class="n">latt_1</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:])</span>
+    <span class="n">sub_norm_diag_vec</span> <span class="o">=</span> <span class="n">diag_vec</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">diag_vec</span><span class="p">)</span>
+    <span class="n">sub_b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">sub_norm_diag_vec</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+    <span class="n">sub_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">sub_norm_diag_vec</span><span class="p">,</span> <span class="n">sub_b</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]])</span>
+
+    <span class="n">diag_vec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">latt_2</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:],</span> <span class="n">latt_2</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:])</span>
+    <span class="n">film_norm_diag_vec</span> <span class="o">=</span> <span class="n">diag_vec</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">diag_vec</span><span class="p">)</span>
+    <span class="n">film_b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">film_norm_diag_vec</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+    <span class="n">film_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">film_norm_diag_vec</span><span class="p">,</span> <span class="n">film_b</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]])</span>
+
+    <span class="n">rotation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">film_matrix</span><span class="p">),</span> <span class="n">sub_matrix</span><span class="p">)</span>
+    <span class="n">new_latt</span> <span class="o">=</span> <span class="n">Lattice</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">film_struct</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">,</span> <span class="n">rotation</span><span class="p">))</span>
+    <span class="n">film_struct</span><span class="o">.</span><span class="n">lattice</span> <span class="o">=</span> <span class="n">new_latt</span>
+
+    <span class="c1"># Average the two lattices (Should get equal strain?)</span>
+    <span class="n">mean_a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">([</span><span class="n">film_struct</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:],</span> <span class="n">sub_struct</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">mean_b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">([</span><span class="n">film_struct</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:],</span> <span class="n">sub_struct</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">new_latt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">mean_a</span><span class="p">,</span> <span class="n">mean_b</span><span class="p">,</span> <span class="n">sub_struct</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="p">:]])</span>
+    <span class="n">sub_struct</span><span class="o">.</span><span class="n">lattice</span> <span class="o">=</span> <span class="n">Lattice</span><span class="p">(</span><span class="n">new_latt</span><span class="p">)</span>
+    <span class="n">new_latt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">mean_a</span><span class="p">,</span> <span class="n">mean_b</span><span class="p">,</span> <span class="n">film_struct</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="p">:]])</span>
+    <span class="n">film_struct</span><span class="o">.</span><span class="n">lattice</span> <span class="o">=</span> <span class="n">Lattice</span><span class="p">(</span><span class="n">new_latt</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">sub_struct</span><span class="p">,</span> <span class="n">film_struct</span></div>
+
+
+<div class="viewcode-block" id="get_ortho_axes"><a class="viewcode-back" href="../../../pymatgen.analysis.interface.html#pymatgen.analysis.interface.get_ortho_axes">[docs]</a><span class="k">def</span> <span class="nf">get_ortho_axes</span><span class="p">(</span><span class="n">structure</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get an orthonormal set of axes for the structure with the first axis</span>
+<span class="sd">    pointing along the a lattice vector.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        structure (Structure)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        3x3 numpy matrix with the axes</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sub_a</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:])</span>
+    <span class="n">sub_c</span> <span class="o">=</span> <span class="n">third_vect</span><span class="p">(</span><span class="n">sub_a</span><span class="p">,</span> <span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:])</span>
+
+    <span class="n">sub_b</span> <span class="o">=</span> <span class="n">third_vect</span><span class="p">(</span><span class="n">sub_c</span><span class="p">,</span> <span class="n">sub_a</span><span class="p">)</span>
+    <span class="n">sub_b</span> <span class="o">=</span> <span class="n">sub_b</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">sub_b</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">sub_a</span><span class="p">,</span> <span class="n">sub_b</span><span class="p">,</span> <span class="n">sub_c</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="align_x"><a class="viewcode-back" href="../../../pymatgen.analysis.interface.html#pymatgen.analysis.interface.align_x">[docs]</a><span class="k">def</span> <span class="nf">align_x</span><span class="p">(</span><span class="n">slab</span><span class="p">,</span> <span class="n">orthogonal_basis</span><span class="o">=</span><span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Align the a lattice vector of slab with the x axis. Optionally specify</span>
+<span class="sd">    an orthogonal_basis to align according to a different set of axes</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        slab (Slab): input structure</span>
+<span class="sd">        orthogonal basis (3x3 numpy matrix): If specified, align with</span>
+<span class="sd">            orthogonal_basis[0] rather than [1,0,0]</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The slab, which has been aligned with the specified axis in place.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sub_ortho_axes</span> <span class="o">=</span> <span class="n">get_ortho_axes</span><span class="p">(</span><span class="n">slab</span><span class="p">)</span>
+    <span class="n">rotation</span> <span class="o">=</span> <span class="n">transf_mat</span><span class="p">(</span><span class="n">sub_ortho_axes</span><span class="p">,</span> <span class="n">orthogonal_basis</span><span class="p">)</span>
+    <span class="n">new_sub_lattice</span> <span class="o">=</span> <span class="n">Lattice</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">slab</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">],</span> <span class="n">rotation</span><span class="p">))</span>
+    <span class="n">slab</span><span class="o">.</span><span class="n">lattice</span> <span class="o">=</span> <span class="n">new_sub_lattice</span>
+    <span class="k">return</span> <span class="n">slab</span></div>
+
+
+<div class="viewcode-block" id="transf_mat"><a class="viewcode-back" href="../../../pymatgen.analysis.interface.html#pymatgen.analysis.interface.transf_mat">[docs]</a><span class="k">def</span> <span class="nf">transf_mat</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the matrix to transform from the set of axes A</span>
+<span class="sd">    to the set of axes B.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        A (3x3 numpy array): original axis basis</span>
+<span class="sd">        B (3x3 numpy array): new axis basis</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        3x3 numpy array transformation between the bases</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">A</span><span class="p">),</span> <span class="n">B</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="third_vect"><a class="viewcode-back" href="../../../pymatgen.analysis.interface.html#pymatgen.analysis.interface.third_vect">[docs]</a><span class="k">def</span> <span class="nf">third_vect</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get a unit vector proportional to cross(a, b).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        a, b (numpy arrays): 3D vectors.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        unit vector proportional to cross(a, b).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">c</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">c</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_shear_reduced_slab"><a class="viewcode-back" href="../../../pymatgen.analysis.interface.html#pymatgen.analysis.interface.get_shear_reduced_slab">[docs]</a><span class="k">def</span> <span class="nf">get_shear_reduced_slab</span><span class="p">(</span><span class="n">slab</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Reduce the vectors of the slab plane according to the algorithm in</span>
+<span class="sd">    substrate_analyzer, then make a new Slab with a Lattice with those</span>
+<span class="sd">    reduced vectors.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        slab (Slab): Slab to reduce</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Slab object of identical structure to the input slab</span>
+<span class="sd">        but rduced in-plane lattice vectors</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">reduced_vectors</span> <span class="o">=</span> <span class="n">reduce_vectors</span><span class="p">(</span>
+        <span class="n">slab</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="n">slab</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">new_lattice</span> <span class="o">=</span> <span class="n">Lattice</span><span class="p">([</span><span class="n">reduced_vectors</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">reduced_vectors</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">slab</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">]])</span>
+    <span class="k">return</span> <span class="n">Slab</span><span class="p">(</span><span class="n">lattice</span><span class="o">=</span><span class="n">new_lattice</span><span class="p">,</span> <span class="n">species</span><span class="o">=</span><span class="n">slab</span><span class="o">.</span><span class="n">species</span><span class="p">,</span>
+                <span class="n">coords</span><span class="o">=</span><span class="n">slab</span><span class="o">.</span><span class="n">cart_coords</span><span class="p">,</span>
+                <span class="n">miller_index</span><span class="o">=</span><span class="n">slab</span><span class="o">.</span><span class="n">miller_index</span><span class="p">,</span>
+                <span class="n">oriented_unit_cell</span><span class="o">=</span><span class="n">slab</span><span class="o">.</span><span class="n">oriented_unit_cell</span><span class="p">,</span>
+                <span class="n">shift</span><span class="o">=</span><span class="n">slab</span><span class="o">.</span><span class="n">shift</span><span class="p">,</span>
+                <span class="n">scale_factor</span><span class="o">=</span><span class="n">slab</span><span class="o">.</span><span class="n">scale_factor</span><span class="p">,</span>
+                <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">energy</span><span class="o">=</span><span class="n">slab</span><span class="o">.</span><span class="n">energy</span><span class="p">,</span>
+                <span class="n">reorient_lattice</span><span class="o">=</span><span class="n">slab</span><span class="o">.</span><span class="n">reorient_lattice</span><span class="p">,</span>
+                <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

@@ -8,12 +8,10 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.command_line.enumlib_caller module &mdash; pymatgen 2019.12.22 documentation</title>
+  <title>pymatgen.command_line.enumlib_caller module &mdash; pymatgen 2020.4.29 documentation</title>
   
 
   
-  
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
   
   
   
@@ -25,11 +23,11 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -73,7 +71,7 @@
             
             
               <div class="version">
-                2019.12.22
+                2020.4.29
               </div>
             
           
@@ -119,6 +117,7 @@
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html">pymatgen.io package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.plugins.html">pymatgen.plugins package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
@@ -205,19 +204,34 @@
             
   <div class="section" id="module-pymatgen.command_line.enumlib_caller">
 <span id="pymatgen-command-line-enumlib-caller-module"></span><h1>pymatgen.command_line.enumlib_caller module<a class="headerlink" href="#module-pymatgen.command_line.enumlib_caller" title="Permalink to this headline">¶</a></h1>
+<p>This module implements an interface to enumlib, Gus Hart”s excellent Fortran
+code for enumerating derivative structures.</p>
+<p>This module depends on a compiled enumlib with the executables enum.x and
+makestr.x available in the path. Please download the library at
+<a class="reference external" href="http://enum.sourceforge.net/">http://enum.sourceforge.net/</a> and follow the instructions in the README to
+compile these two executables accordingly.</p>
+<p>If you use this module, please cite the following:</p>
+<p>Gus L. W. Hart and Rodney W. Forcade, “Algorithm for generating derivative
+structures,” Phys. Rev. B 77 224115 (26 June 2008)</p>
+<p>Gus L. W. Hart and Rodney W. Forcade, “Generating derivative structures from
+multilattices: Application to hcp alloys,” Phys. Rev. B 80 014120 (July 2009)</p>
+<p>Gus L. W. Hart, Lance J. Nelson, and Rodney W. Forcade, “Generating
+derivative structures at a fixed concentration,” Comp. Mat. Sci. 59
+101-107 (March 2012)</p>
 <dl class="exception">
 <dt id="pymatgen.command_line.enumlib_caller.EnumError">
-<em class="property">exception </em><code class="sig-name descname">EnumError</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/command_line/enumlib_caller.py#L413-L414"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.enumlib_caller.EnumError" title="Permalink to this definition">¶</a></dt>
+<em class="property">exception </em><code class="sig-name descname">EnumError</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/command_line/enumlib_caller.py#L413-L417"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.enumlib_caller.EnumError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseException</span></code></p>
+<p>Error subclass for enumeration errors.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.command_line.enumlib_caller.EnumlibAdaptor">
-<code class="sig-name descname">EnumlibAdaptor</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">min_cell_size=1</em>, <em class="sig-param">max_cell_size=1</em>, <em class="sig-param">symm_prec=0.1</em>, <em class="sig-param">enum_precision_parameter=0.001</em>, <em class="sig-param">refine_structure=False</em>, <em class="sig-param">check_ordered_symmetry=True</em>, <em class="sig-param">timeout=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/../../../../../../usr/local/miniconda3/envs/py37/lib/python3.7/site-packages/monty/dev.py#L72-L410"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.enumlib_caller.EnumlibAdaptor" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">EnumlibAdaptor</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">min_cell_size=1</em>, <em class="sig-param">max_cell_size=1</em>, <em class="sig-param">symm_prec=0.1</em>, <em class="sig-param">enum_precision_parameter=0.001</em>, <em class="sig-param">refine_structure=False</em>, <em class="sig-param">check_ordered_symmetry=True</em>, <em class="sig-param">timeout=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/../../../miniconda3/envs/py37/lib/python3.7/site-packages/monty/dev.py#L72-L410"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.enumlib_caller.EnumlibAdaptor" title="Permalink to this definition">¶</a></dt>
 <dd><p>An adaptor for enumlib.</p>
 <dl class="attribute">
 <dt id="pymatgen.command_line.enumlib_caller.structures">
-<code class="sig-name descname">structures</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2019.12.22/pymatgen/command_line/enumlib_caller.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.enumlib_caller.structures" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">structures</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/command_line/enumlib_caller.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.enumlib_caller.structures" title="Permalink to this definition">¶</a></dt>
 <dd><p>List of all enumerated structures.</p>
 </dd></dl>
 

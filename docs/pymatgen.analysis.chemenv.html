@@ -8,12 +8,10 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.analysis.chemenv package &mdash; pymatgen 2019.12.22 documentation</title>
+  <title>pymatgen.analysis.chemenv package &mdash; pymatgen 2020.4.29 documentation</title>
   
 
   
-  
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
   
   
   
@@ -25,11 +23,11 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -41,7 +39,7 @@
   <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="pymatgen.analysis.chemenv.coordination_environments package" href="pymatgen.analysis.chemenv.coordination_environments.html" />
+    <link rel="next" title="pymatgen.analysis.chemenv.connectivity package" href="pymatgen.analysis.chemenv.connectivity.html" />
     <link rel="prev" title="pymatgen.analysis package" href="pymatgen.analysis.html" />
  
 <script type="text/javascript">
@@ -73,7 +71,7 @@
             
             
               <div class="version">
-                2019.12.22
+                2020.4.29
               </div>
             
           
@@ -119,6 +117,7 @@
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html">pymatgen.io package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.plugins.html">pymatgen.plugins package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
@@ -209,6 +208,20 @@
 <h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.html">pymatgen.analysis.chemenv.connectivity package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.html#subpackages">Subpackages</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.connected_components.html">pymatgen.analysis.chemenv.connectivity.connected_components module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.connectivity_finder.html">pymatgen.analysis.chemenv.connectivity.connectivity_finder module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.environment_nodes.html">pymatgen.analysis.chemenv.connectivity.environment_nodes module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.structure_connectivity.html">pymatgen.analysis.chemenv.connectivity.structure_connectivity module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.html#module-pymatgen.analysis.chemenv.connectivity">Module contents</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.html">pymatgen.analysis.chemenv.coordination_environments package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.html#subpackages">Subpackages</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.coordination_geometries_files.html">pymatgen.analysis.chemenv.coordination_environments.coordination_geometries_files package</a><ul>
@@ -242,6 +255,7 @@
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.html">pymatgen.analysis.chemenv.utils.coordination_geometry_utils module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.utils.defs_utils.html">pymatgen.analysis.chemenv.utils.defs_utils module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.utils.func_utils.html">pymatgen.analysis.chemenv.utils.func_utils module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.utils.graph_utils.html">pymatgen.analysis.chemenv.utils.graph_utils module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.utils.math_utils.html">pymatgen.analysis.chemenv.utils.math_utils module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.utils.scripts_utils.html">pymatgen.analysis.chemenv.utils.scripts_utils module</a></li>
 </ul>

@@ -18,8 +18,7 @@ A list of pymatgen developers can also be found `on GitHub`_.
 Lead Maintainers
 ================
 
-**Shyue Ping Ong** |shyuep| |0000-0001-7777-8871|
-
+| **Shyue Ping Ong** |shyuep| |0000-0001-7777-8871|
 | Founding developer of *pymatgen*
 | Associate Professor, Department of NanoEngineering
 | University of California, San Diego
@@ -36,8 +35,7 @@ Lead Maintainers
    :height: 16
    :alt: ORCID profile for 0000-0001-5726-2587
 
-**Matthew Horton** |mkhorton| |0000-0001-7777-8871|
-
+| **Matthew Horton** |mkhorton| |0000-0001-7777-8871|
 | Materials Project Staff, Persson Group Member
 | Lawrence Berkeley National Laboratory
 
@@ -56,11 +54,11 @@ Lead Maintainers
 Newest Contributors
 ===================
 
-Welcome and thank you to our newest contributors `@LindaHung-TRI`_, `@mattmcdermott`_ and `@guymoore13`_!
+Welcome and thank you to our newest contributors `@uthpalah`_, `@LindaHung-TRI`_ and `@mattmcdermott`_!
 
+.. _@uthpalah: https://github.com/uthpalah
 .. _@LindaHung-TRI: https://github.com/LindaHung-TRI
 .. _@mattmcdermott: https://github.com/mattmcdermott
-.. _@guymoore13: https://github.com/guymoore13
 
 
 List of Developers (A–Z)
@@ -215,8 +213,8 @@ List of Developers (A–Z)
    :alt: ORCID profile for 0000-0001-5581-5344
 
 
-1+ years active
----------------
+1–4 years active
+----------------
 
 | **Alex Ganose** |utf| |0000-0002-4486-3321|
 | Lawrence Berkeley National Laboratory
@@ -334,6 +332,19 @@ List of Developers (A–Z)
    :width: 16
    :height: 16
    :alt: GitHub profile for mtdg-wagner
+
+| **Ryan Kingsbury** |rkingsbury| |0000-0002-7168-3967| 
+| Lawrence Berkeley National Laboratory
+.. |rkingsbury| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
+   :target: https://github.com/materialsproject/pymatgen/commits?author=rkingsbury
+   :width: 16
+   :height: 16
+   :alt: GitHub profile for rkingsbury
+.. |0000-0002-7168-3967| image:: https://orcid.org/sites/default/files/images/orcid_32x32.png
+   :target: https://orcid.org/0000-0002-7168-3967
+   :width: 16
+   :height: 16
+   :alt: ORCID profile for 0000-0002-7168-3967
 
 | **Samuel M. Blau** |samblau| |0000-0003-3132-3032|
 | Lawrence Berkeley National Laboratory
@@ -592,3 +603,13 @@ List of Developers (A–Z)
    :width: 16
    :height: 16
    :alt: ORCID profile for 0000-0002-0019-4832
+
+
+Thanks
+------
+
+Thanks also to:
+
+josuav1, zacharygibbs, kwaters4, Tinaatucsd, dcossey014, tonnamb, kylebystrom, LindaHung-TRI, shreddd, stichri, shyamd, nishiyamat, nathan-diodan, ajjackson, wmdrichards, paulgholin, jmmshn, mamachra, mhsiron, as2362, mattmcdermott, aykol, czhengsci, adengz, shyuep, tom-wood, bocklund, uthpalah, mike5603, saurabh02, renpj, Qi-max, JRSuckert, WardLT, utopianf, ExpHP, w6ye, sthartman, HanmeiTang, sdacek, dongsenfo, g1e2n04, zbwang, mturiansky, adozier, jdagdelen, shaunrong, gcheon, ruixingw, yuuukuma, wardsimon, albalu, leicheng, sonium0, miaoliu, frssp, rambalachandran, marcoesters, guymoore13, dkorotin, HL-ai, zooks97, GkAntonius, welltemperedpaprika, rwoodsrobinson, RoberTnf, wood-b, johnson1228, darnoceloc, yiming-xu, yimingchen95, awvio, xhqu1981, ldamewood, thefrankwan, cmgtam, Zhuoying, ctoher, mt-huebsch, anhhv, eantono, mfherbst, stevetorr, yihanxiao92, katherinelatimer2013, pmla, hillarypan, YunxingZuo, JSelf42, ucsdlxg, ShuaishuaiYuan, jan-janssen, smheidrich, ndardenne
+
+These are developers who have contributed via GitHub but have not filled out the form linked above.

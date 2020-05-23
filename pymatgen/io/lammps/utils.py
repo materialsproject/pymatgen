@@ -441,10 +441,11 @@ class PackmolRunner:
 
 
 class LammpsRunner:
+    """
+    LAMMPS wrapper
+    """
     def __init__(self, input_filename="lammps.in", bin="lammps"):
         """
-        LAMMPS wrapper
-
         Args:
             input_filename (string): input file name
             bin (string): command to run, excluding the input file name

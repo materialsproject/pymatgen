@@ -1,6 +1,7 @@
 # Default VASP settings for calculations in the Materials Project
 # using the Strongly Constrained and Appropriately Normed (SCAN)
 # functional.
+PARENT: VASPIncarBase
 INCAR:
   ALGO: ALL
   ADDGRID: True

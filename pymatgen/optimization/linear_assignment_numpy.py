@@ -30,12 +30,6 @@ class LinearAssignment:
     Dense and Sparse Linear Assignment Problems. Computing 38, 325-340
     (1987)
 
-    Args:
-        costs: The cost matrix of the problem. cost[i,j] should be the
-            cost of matching x[i] to y[j]. The cost matrix may be
-            rectangular
-        epsilon: Tolerance for determining if solution vector is < 0
-
     .. attribute: min_cost:
 
         The minimum cost of the matching
@@ -48,6 +42,13 @@ class LinearAssignment:
     """
 
     def __init__(self, costs, epsilon=1e-6):
+        """
+        Args:
+            costs: The cost matrix of the problem. cost[i,j] should be the
+                cost of matching x[i] to y[j]. The cost matrix may be
+                rectangular
+            epsilon: Tolerance for determining if solution vector is < 0
+        """
         self.orig_c = np.array(costs, dtype=np.float64)
         self.nx, self.ny = self.orig_c.shape
         self.n = self.ny

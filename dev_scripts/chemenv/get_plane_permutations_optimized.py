@@ -26,6 +26,7 @@ from random import shuffle
 import json
 import os
 import tabulate
+import time
 
 from optparse import OptionParser
 
@@ -102,7 +103,7 @@ if __name__ == '__main__':
     allcg = AllCoordinationGeometries()
 
     sepplane_cgs = []
-    for coordination in range(1, 14):
+    for coordination in range(1, 21):
         symbol_name_mapping = allcg.get_symbol_name_mapping(coordination=coordination)
         for symbol, name in symbol_name_mapping.items():
             cg = allcg[symbol]
@@ -150,13 +151,14 @@ if __name__ == '__main__':
         lgf.setup_test_perfect_environment(cg_symbol, randomness=True, indices=range(cg.coordination_number),
                                            max_random_dist=0.05)
         lgf.perfect_geometry = AbstractGeometry.from_cg(cg=cg)
-        points_perfect = lgf.perfect_geometry.points_wocs_ctwocc()
+        points_perfect = lgf.perfect_geometry.points_wcs_ctwcc()
 
         # 1. Check the algorithms defined for this coordination geometry and get the explicit permutations
         original_nexplicit_perms = []
         original_nexplicit_optimized_perms = []
         for ialgo, algo in enumerate(cg.algorithms):
             algo._permutations = algo.explicit_permutations
+            algo.minimum_number_of_points = 4
             if algo.algorithm_type == 'EXPLICIT_PERMUTATIONS':
                 raise ValueError('Do something for the explicit ones ... (these should anyway be by far ok!)')
             if algo.explicit_optimized_permutations is None:
@@ -204,23 +206,24 @@ if __name__ == '__main__':
                                                                              local_plane=local_plane,
                                                                              plane_separations=[],
                                                                              dist_tolerances=[0.05, 0.1,
-                                                                                              0.2, 0.3],
+                                                                                              0.2, 0.3, 0.5],
                                                                              testing=True,
                                                                              points_perfect=points_perfect)
 
+                mycsms = [c['symmetry_measure'] for c in csms]
                 prt1(string='Continuous symmetry measures', printing_volume=printing_volume)
-                prt1(string=csms, printing_volume=printing_volume)
+                prt1(string=mycsms, printing_volume=printing_volume)
                 csms_with_recorded_permutation = []
                 explicit_permutations = []
                 for icsm, csm in enumerate(csms):
                     found = False
                     for csm2 in csms_with_recorded_permutation:
-                        if np.isclose(csm, csm2, rtol=0.0):
+                        if np.isclose(csm['symmetry_measure'], csm2['symmetry_measure'], rtol=0.0):
                             found = True
                             break
                     if not found:
                         prt1(string=' permutation {} : {}'.format('-'.join([str(ii) for ii in sep_perms[icsm]]),
-                                                                  str(csm)),
+                                                                  str(csm['symmetry_measure'])),
                              printing_volume=printing_volume)
                         csms_with_recorded_permutation.append(csm)
                         explicit_permutations.append(tuple(sep_perms[icsm]))
@@ -240,6 +243,7 @@ if __name__ == '__main__':
                         raise ValueError('Explicit permutations different from one plane to another !')
             algo.explicit_permutations = [list(perm) for perm in list(explicit_permutations_per_plane[0])]
             algo.explicit_permutations.sort()
+            algo.explicit_permutations = np.array(algo.explicit_permutations)
             print('Explicit permutations found ({:d})'.format(len(algo.explicit_permutations)))
             print(algo.explicit_permutations)
             print('')
@@ -280,7 +284,7 @@ if __name__ == '__main__':
 
             # Setup of the permutations to be used for this algorithm
 
-            myindices = range(cg.coordination_number)
+            myindices = list(range(cg.coordination_number))
             if permutations_setup_type == 'all':
                 perms_iterator = itertools.permutations(myindices)
                 npermutations = factorial(cg.coordination_number)
@@ -304,16 +308,20 @@ if __name__ == '__main__':
 
             # Loop on permutations
             iperm = 1
+            t0 = time.process_time()
+            timeleft = 'Unknown'
             for indices_perm in perms_iterator:
-                prt1(string='Perm # {:d}/{:d} : {}'.format(iperm,
-                                                           npermutations,
-                                                           '-'.join([str(ii) for ii in indices_perm])),
+
+                prt1(string='Perm # {:d}/{:d} : {} (est. rem. time : {} sec)'.format(iperm,
+                                                                                     npermutations,
+                                                                                     '-'.join([str(ii) for ii in indices_perm]),
+                                                                                     timeleft),
                      printing_volume=printing_volume)
                 # Setup of the local and perfect geometries
                 lgf.setup_test_perfect_environment(cg_symbol, indices=indices_perm, randomness=True,
                                                    max_random_dist=0.02, random_rotation=True)
                 lgf.perfect_geometry = AbstractGeometry.from_cg(cg=cg)
-                points_perfect = lgf.perfect_geometry.points_wocs_ctwocc()
+                points_perfect = lgf.perfect_geometry.points_wcs_ctwcc()
 
                 # Loop on the facets
                 separation_permutations = list()
@@ -333,23 +341,24 @@ if __name__ == '__main__':
                                                                                  local_plane=local_plane,
                                                                                  plane_separations=[],
                                                                                  dist_tolerances=[0.05, 0.1,
-                                                                                                  0.2, 0.3],
+                                                                                                  0.2, 0.3, 0.5],
                                                                                  testing=True,
                                                                                  points_perfect=points_perfect)
 
-                    imin = np.argmin(csms)
-                    mincsm = min(csms)
+                    mycsms = [c['symmetry_measure'] for c in csms]
+                    imin = np.argmin(mycsms)
+                    mincsm = min(mycsms)
                     if not mincsm < 1.0:
                         print('Following is not close enough to 0.0 ...')
-                        input(csms)
+                        input(mycsms)
                     mincsm_indices = []
-                    for icsm, csm in enumerate(csms):
+                    for icsm, csm in enumerate(mycsms):
                         if np.isclose(mincsm, csm, rtol=0.0):
                             mincsm_indices.append(icsm)
                     this_plane_sep_perm = tuple(sep_perms[imin])
                     prt2(string='  permutation {} gives csm={:.6f}'.format(
                         '-'.join(str(pp) for pp in this_plane_sep_perm),
-                        csms[imin]),
+                        mycsms[imin]),
                         printing_volume=printing_volume)
 
                     separation_permutations.append(this_plane_sep_perm)
@@ -358,6 +367,9 @@ if __name__ == '__main__':
                         perms_used[some_perm] += 1
                     else:
                         perms_used[some_perm] = 1
+                tcurrent = time.process_time()
+                timeleft = (npermutations-iperm) * (tcurrent-t0) / iperm
+                timeleft = '{:.1f}'.format(timeleft)
                 iperm += 1
             print('Optimized permutations {:d}/{:d}'
                   '(old : {}/{}) : '.format(len(perms_used),
@@ -369,7 +381,7 @@ if __name__ == '__main__':
             print('For ialgo {:d} (plane_points : {}, '
                   'side_0 : {} and '
                   'side_1 : {}),\n'
-                  'Otimized perturbations {:d}/{:d} (old : {}/{}) '
+                  'Optimized perturbations {:d}/{:d} (old : {}/{}) '
                   'are :'.format(ialgo,
                                  '[{}]'.format(', '.join([str(pp) for pp in algo.plane_points])),
                                  '[{}]'.format(', '.join([str(pp) for pp in algo.point_groups[0]])),
@@ -385,7 +397,7 @@ if __name__ == '__main__':
             print('')
             test = input('Set optimized permutations for algorithm {:d} ? ("y" to confirm)'.format(ialgo))
             if test == 'y':
-                algo.explicit_optimized_permutations = explicit_optimized_permutations
+                algo.explicit_optimized_permutations = np.array(explicit_optimized_permutations)
 
         test = input('Save coordination geometry "{}" (symbol "{}") and new explicit and optimized permutations ? '
                      '("y" to confirm)'.format(cg.name, cg_symbol))

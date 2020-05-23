@@ -922,6 +922,25 @@ class Vasprun(MSONable):
 
         return potcar
 
+    def get_trajectory(self):
+        """
+        This method returns a Trajectory object, which is an alternative
+        representation of self.structures into a single object. Forces are
+        added to the Trajectory as site properties.
+
+        Returns: a Trajectory
+        """
+        # required due to circular imports
+        # TODO: fix pymatgen.core.trajectory so it does not load from io.vasp(!)
+        from pymatgen.core.trajectory import Trajectory
+
+        structs = []
+        for step in self.ionic_steps:
+            struct = step['structure'].copy()
+            struct.add_site_property('forces', step['forces'])
+            structs.append(struct)
+        return Trajectory.from_structures(structs, constant_lattice=False)
+
     def update_potcar_spec(self, path):
         """
         :param path: Path to search for POTCARs
@@ -1646,6 +1665,30 @@ class Outcar:
         self.final_energy = total_energy
         self.data = {}
 
+        # Read "total number of plane waves", NPLWV:
+        self.read_pattern(
+            {"nplwv": r"total plane-waves  NPLWV =\s+(\*{6}|\d+)"},
+            terminate_on_match=True
+        )
+        try:
+            self.data["nplwv"] = [[int(self.data["nplwv"][0][0])]]
+        except ValueError:
+            self.data["nplwv"] = [[None]]
+
+        nplwvs_at_kpoints = [
+            n for [n] in self.read_table_pattern(
+                r"\n{3}-{104}\n{3}",
+                r".+plane waves:\s+(\*{6,}|\d+)",
+                r"maximum and minimum number of plane-waves"
+            )
+        ]
+        self.data["nplwvs_at_kpoints"] = [None for n in nplwvs_at_kpoints]
+        for (n, nplwv) in enumerate(nplwvs_at_kpoints):
+            try:
+                self.data["nplwvs_at_kpoints"][n] = int(nplwv)
+            except ValueError:
+                pass
+
         # Read the drift:
         self.read_pattern({
             "drift": r"total drift:\s+([\.\-\d]+)\s+([\.\-\d]+)\s+([\.\-\d]+)"},
@@ -1852,6 +1895,23 @@ class Outcar:
 
         self.electrostatic_potential = [float(f) for f in pots]
 
+    @staticmethod
+    def _parse_sci_notation(line):
+        """
+        Method to parse lines with values in scientific notation and potentially
+        without spaces in between the values. This assumes that the scientific
+        notation always lists two digits for the exponent, e.g. 3.535E-02
+        Args:
+            line: line to parse
+
+        Returns: an array of numbers if found, or empty array if not
+
+        """
+        m = re.findall(r"[\.\-\d]+E[\+\-]\d{2}", line)
+        if m:
+            return [float(t) for t in m]
+        return []
+
     def read_freq_dielectric(self):
         """
         Parses the frequency dependent dielectric function (obtained with
@@ -1884,6 +1944,9 @@ class Outcar:
                 if read_plasma and re.match(row_pattern, l):
                     plasma_frequencies[read_plasma].append(
                         [float(t) for t in l.strip().split()])
+                elif read_plasma and Outcar._parse_sci_notation(l):
+                    plasma_frequencies[read_plasma].append(
+                        Outcar._parse_sci_notation(l))
                 elif read_dielectric:
                     if re.match(row_pattern, l.strip()):
                         toks = l.strip().split()
@@ -2987,16 +3050,17 @@ class VolumetricData(MSONable):
                 original_line = line
                 line = line.strip()
                 if read_dataset:
-                    toks = line.split()
-                    for tok in toks:
+                    for tok in line.split():
                         if data_count < ngrid_pts:
                             # This complicated procedure is necessary because
                             # vasp outputs x as the fastest index, followed by y
                             # then z.
-                            x = data_count % dim[0]
-                            y = int(math.floor(data_count / dim[0])) % dim[1]
-                            z = int(math.floor(data_count / dim[0] / dim[1]))
-                            dataset[x, y, z] = float(tok)
+                            no_x = data_count // dim[0]
+                            dataset[
+                                data_count % dim[0],
+                                no_x % dim[1],
+                                no_x // dim[1]
+                            ] = float(tok)
                             data_count += 1
                     if data_count >= ngrid_pts:
                         read_dataset = False
@@ -3249,7 +3313,7 @@ class VolumetricData(MSONable):
             f.attrs["structure_json"] = json.dumps(self.structure.as_dict())
 
     @classmethod
-    def from_hdf5(cls, filename):
+    def from_hdf5(cls, filename, **kwargs):
         """
         Reads VolumetricData from HDF5 file.
 
@@ -3259,8 +3323,11 @@ class VolumetricData(MSONable):
         import h5py
         with h5py.File(filename, "r") as f:
             data = {k: np.array(v) for k, v in f["vdata"].items()}
+            data_aug = None
+            if 'vdata_aug' in f:
+                data_aug = {k: np.array(v) for k, v in f["vdata_aug"].items()}
             structure = Structure.from_dict(json.loads(f.attrs["structure_json"]))
-            return cls(structure=structure, data=data)
+            return cls(structure, data=data, data_aug=data_aug, **kwargs)
 
 
 class Locpot(VolumetricData):
@@ -3277,8 +3344,8 @@ class Locpot(VolumetricData):
         super().__init__(poscar.structure, data)
         self.name = poscar.comment
 
-    @staticmethod
-    def from_file(filename):
+    @classmethod
+    def from_file(cls, filename, **kwargs):
         """
         Reads a LOCPOT file.
 
@@ -3286,7 +3353,7 @@ class Locpot(VolumetricData):
         :return: Locpot
         """
         (poscar, data, data_aug) = VolumetricData.parse_file(filename)
-        return Locpot(poscar, data)
+        return cls(poscar, data, **kwargs)
 
 
 class Chgcar(VolumetricData):
@@ -3299,10 +3366,19 @@ class Chgcar(VolumetricData):
         Args:
             poscar (Poscar): Poscar object containing structure.
             data: Actual data.
+            data_aug: Augmentation charge data
         """
-        super().__init__(poscar.structure, data, data_aug=data_aug)
-        self.poscar = poscar
-        self.name = poscar.comment
+        # allow for poscar or structure files to be passed
+        if isinstance(poscar, Poscar):
+            tmp_struct = poscar.structure
+            self.poscar = poscar
+            self.name = poscar.comment
+        elif isinstance(poscar, Structure):
+            tmp_struct = poscar
+            self.poscar = Poscar(poscar)
+            self.name = None
+
+        super().__init__(tmp_struct, data, data_aug=data_aug)
         self._distance_matrix = {}
 
     @staticmethod
@@ -4151,7 +4227,7 @@ class Wavecar:
     Author: Mark Turiansky
     """
 
-    def __init__(self, filename='WAVECAR', verbose=False, precision='normal'):
+    def __init__(self, filename='WAVECAR', verbose=False, precision='normal', gamma=None):
         """
         Information is extracted from the given WAVECAR
 
@@ -4160,6 +4236,8 @@ class Wavecar:
             verbose (bool): determines whether processing information is shown
             precision (str): determines how fine the fft mesh is (normal or
                              accurate), only the first letter matters
+            gamma (bool): determines if WAVECAR is assumed to have been generated
+                             by gamma-point only executable
         """
         self.filename = filename
 
@@ -4180,10 +4258,15 @@ class Wavecar:
             #     raise ValueError('spin polarization not currently supported')
 
             # check to make sure we have precision correct
-            if rtag != 45200 and rtag != 45210:
+            if rtag != 45200 and rtag != 45210 and rtag != 53300 and rtag != 53310:
+                # note that rtag=45200 and 45210 may not work if file was actually
+                # generated by old version of VASP, since that would write eigenvalues
+                # and occupations in way that does not span FORTRAN records, but
+                # reader below appears to assume that record boundaries can be ignored
+                # (see OUTWAV vs. OUTWAV_4 in vasp fileio.F)
                 raise ValueError('invalid rtag of {}'.format(rtag))
 
-            # padding
+            # padding to end of fortran REC=1
             np.fromfile(f, dtype=np.float64, count=(recl8 - 3))
 
             # extract kpoint, bands, energy, and lattice information
@@ -4220,7 +4303,7 @@ class Wavecar:
             self.ng = self._nbmax * 3 if precision.lower()[0] == 'n' else \
                 self._nbmax * 4
 
-            # padding
+            # padding to end of fortran REC=2
             np.fromfile(f, dtype=np.float64, count=recl8 - 13)
 
             # reading records
@@ -4261,32 +4344,64 @@ class Wavecar:
                         self.band_energy.append(enocc)
 
                     if verbose:
-                        print(enocc[:, [0, 2]])
+                        print("enocc", enocc[:, [0, 2]])
 
-                    # padding
-                    np.fromfile(f, dtype=np.float64, count=(recl8 - 4 - 3 * self.nb))
+                    # padding to end of record that contains nplane, kpoints, evals and occs
+                    np.fromfile(f, dtype=np.float64, count=(recl8 - 4 - 3 * self.nb) % recl8)
 
                     # generate G integers
-                    self.Gpoints[ink] = self._generate_G_points(kpoint)
+                    if gamma is not None:
+                        # use it
+                        self.gamma = gamma
+                        (self.Gpoints[ink], extra_gpoints, extra_coeff_inds) = self._generate_G_points(kpoint, gamma)
+                    else:
+                        # try assuming a conventional (non-gamma) calculation
+                        self.gamma = False
+                        (self.Gpoints[ink], extra_gpoints, extra_coeff_inds) = self._generate_G_points(kpoint, False)
+                        initial_generated = len(self.Gpoints[ink])
+                    if gamma is None and len(self.Gpoints[ink]) != nplane:
+                        # failed with conventional, retry with gamma-only format
+                        self.gamma = True
+                        (self.Gpoints[ink], extra_gpoints, extra_coeff_inds) = self._generate_G_points(kpoint, True)
                     if len(self.Gpoints[ink]) != nplane:
-                        raise ValueError('failed to generate the correct '
-                                         'number of G points')
+                        # failed to match number of plane waves for either gamma or non-gamma
+                        if gamma is None:
+                            raise ValueError('failed to generate the correct number of '
+                                             'G points generated non-gamma {} gamma-only {}, read in {}'.format(
+                                                 initial_generated, len(self.Gpoints[ink]), nplane))
+                        else:
+                            raise ValueError('failed to generate the correct '
+                                             'number of G points for {} executable '
+                                             'generated {} read in {}'.format(
+                                                 'gamma' if gamma else 'k-points', len(self.Gpoints[ink]), nplane))
+                    if verbose:
+                        print("gamma-only input", gamma, "final", self.gamma)
+
+                    self.Gpoints[ink] = np.array(self.Gpoints[ink] + extra_gpoints, dtype=np.float64)
 
                     # extract coefficients
                     for inb in range(self.nb):
-                        if rtag == 45200:
+                        if rtag == 45200 or rtag == 53300:
                             data = np.fromfile(f, dtype=np.complex64, count=nplane)
                             np.fromfile(f, dtype=np.float64, count=recl8 - nplane)
-                        elif rtag == 45210:
+                        elif rtag == 45210 or rtag == 53310:
                             # this should handle double precision coefficients
                             # but I don't have a WAVECAR to test it with
                             data = np.fromfile(f, dtype=np.complex128, count=nplane)
                             np.fromfile(f, dtype=np.float64, count=recl8 - 2 * nplane)
 
+                        extra_coeffs = []
+                        if len(extra_coeff_inds) > 0:
+                            # reconstruct extra coefficients missing from gamma-only executable WAVECAR
+                            for G_ind in extra_coeff_inds:
+                                # no idea where this factor of sqrt(2) comes from, but empirically
+                                # it appears to be necessary
+                                data[G_ind] /= np.sqrt(2)
+                                extra_coeffs.append(np.conj(data[G_ind]))
                         if spin == 2:
-                            self.coeffs[ispin][ink][inb] = data
+                            self.coeffs[ispin][ink][inb] = np.array(list(data) + extra_coeffs, dtype=np.complex64)
                         else:
-                            self.coeffs[ink][inb] = data
+                            self.coeffs[ink][inb] = np.array(list(data) + extra_coeffs, dtype=np.complex128)
 
     def _generate_nbmax(self):
         """
@@ -4327,7 +4442,7 @@ class Wavecar:
 
         self._nbmax = np.max([nbmaxA, nbmaxB, nbmaxC], axis=0).astype(np.int)
 
-    def _generate_G_points(self, kpoint):
+    def _generate_G_points(self, kpoint, gamma=False):
         """
         Helper function to generate G-points based on nbmax.
 
@@ -4338,24 +4453,41 @@ class Wavecar:
 
         Args:
             kpoint (np.array): the array containing the current k-point value
+            gamma (bool): determines if G points for gamma-point only executable
+                          should be generated
 
         Returns:
             a list containing valid G-points
         """
+
+        if gamma:
+            kmax = self._nbmax[0] + 1
+        else:
+            kmax = 2 * self._nbmax[0] + 1
+
         gpoints = []
+        extra_gpoints = []
+        extra_coeff_inds = []
+        G_ind = 0
         for i in range(2 * self._nbmax[2] + 1):
             i3 = i - 2 * self._nbmax[2] - 1 if i > self._nbmax[2] else i
             for j in range(2 * self._nbmax[1] + 1):
                 j2 = j - 2 * self._nbmax[1] - 1 if j > self._nbmax[1] else j
-                for k in range(2 * self._nbmax[0] + 1):
+                for k in range(kmax):
                     k1 = k - 2 * self._nbmax[0] - 1 if k > self._nbmax[0] else k
+                    if gamma and ((k1 == 0 and j2 < 0) or (k1 == 0 and j2 == 0 and i3 < 0)):
+                        continue
                     G = np.array([k1, j2, i3])
                     v = kpoint + G
                     g = np.linalg.norm(np.dot(v, self.b))
                     E = g ** 2 / self._C
                     if E < self.encut:
                         gpoints.append(G)
-        return np.array(gpoints, dtype=np.float64)
+                        if gamma and (k1, j2, i3) != (0, 0, 0):
+                            extra_gpoints.append(-G)
+                            extra_coeff_inds.append(G_ind)
+                        G_ind += 1
+        return (gpoints, extra_gpoints, extra_coeff_inds)
 
     def evaluate_wavefunc(self, kpoint, band, r, spin=0):
         r"""

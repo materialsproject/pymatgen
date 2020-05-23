@@ -272,19 +272,20 @@ class MPResterTest(PymatgenTest):
         pbx_entries = self.rester.get_pourbaix_entries(["Fe", "Cr"])
         for pbx_entry in pbx_entries:
             self.assertTrue(isinstance(pbx_entry, PourbaixEntry))
+
+        fe_two_plus = [e for e in pbx_entries if e.entry_id == "ion-0"][0]
+        self.assertAlmostEqual(fe_two_plus.energy, -1.58168482)
+
+        feo2 = [e for e in pbx_entries if e.entry_id == "mp-25332"][0]
+        self.assertAlmostEqual(feo2.energy, 2.50659564)
+
+        # Test S, which has Na in reference solids
+        pbx_entries = self.rester.get_pourbaix_entries(["S"])
+        so4_two_minus = pbx_entries[9]
+        self.assertAlmostEqual(so4_two_minus.energy, 0.04358115)
+
         # Ensure entries are pourbaix compatible
         pbx = PourbaixDiagram(pbx_entries)
-
-        # Try binary system
-        # pbx_entries = self.rester.get_pourbaix_entries(["Fe", "Cr"])
-        # pbx = PourbaixDiagram(pbx_entries)
-
-        # TODO: Shyue Ping: I do not understand this test. You seem to
-        # be grabbing Zn-S system, but I don't see proper test for anything,
-        # including Na ref. This test also takes a long time.
-
-        # Test Zn-S, which has Na in reference solids
-        # pbx_entries = self.rester.get_pourbaix_entries(["Zn", "S"])
 
     def test_get_exp_entry(self):
         entry = self.rester.get_exp_entry("Fe2O3")

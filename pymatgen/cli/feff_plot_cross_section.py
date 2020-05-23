@@ -23,6 +23,9 @@ from pymatgen.util.plotting import pretty_plot
 
 
 def main():
+    """
+    Main function.
+    """
     parser = argparse.ArgumentParser(description='''
     Convenient DOS Plotter for Feff runs.
     Author: Alan Dozier

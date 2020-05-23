@@ -24,7 +24,6 @@ from monty.json import MontyDecoder, MontyEncoder
 
 from enum import Enum, unique
 from collections import defaultdict
-from copy import deepcopy
 
 from pymatgen import SETTINGS, __version__ as pmg_version
 
@@ -35,6 +34,7 @@ from pymatgen.core.surface import get_symmetrically_equivalent_miller_indices
 
 from pymatgen.entries.computed_entries import ComputedEntry, \
     ComputedStructureEntry
+from pymatgen.entries.compatibility import MaterialsProjectCompatibility, MaterialsProjectAqueousCompatibility
 from pymatgen.entries.exp_entries import ExpEntry
 
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -466,7 +466,7 @@ class MPRester:
             entries = sorted(entries, key=lambda entry: entry.data["e_above_hull"])
         return entries
 
-    def get_pourbaix_entries(self, chemsys):
+    def get_pourbaix_entries(self, chemsys, solid_compat=MaterialsProjectCompatibility()):
         """
         A helper function to get all entries necessary to generate
         a pourbaix diagram from the rest interface.
@@ -474,12 +474,12 @@ class MPRester:
         Args:
             chemsys ([str]): A list of elements comprising the chemical
                 system, e.g. ['Li', 'Fe']
+            solid_compat: Compatiblity scheme used to pre-process solid DFT energies prior to applying aqueous
+                energy adjustments. Default: MaterialsProjectCompatibility().
         """
         from pymatgen.analysis.pourbaix_diagram import PourbaixEntry, IonEntry
         from pymatgen.analysis.phase_diagram import PhaseDiagram
         from pymatgen.core.ion import Ion
-        from pymatgen.entries.compatibility import \
-            MaterialsProjectAqueousCompatibility
 
         pbx_entries = []
 
@@ -493,13 +493,18 @@ class MPRester:
         ion_ref_entries = self.get_entries_in_chemsys(
             list(set([str(e) for e in ion_ref_elts] + ['O', 'H'])),
             property_data=['e_above_hull'], compatible_only=False)
-        compat = MaterialsProjectAqueousCompatibility("Advanced")
+
+        # suppress the warning about supplying the required energies; they will be calculated from the
+        # entries we get from MPRester
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", message="You did not provide the required O2 and H2O energies.")
+            compat = MaterialsProjectAqueousCompatibility(solid_compat=solid_compat)
         ion_ref_entries = compat.process_entries(ion_ref_entries)
         ion_ref_pd = PhaseDiagram(ion_ref_entries)
 
         # position the ion energies relative to most stable reference state
         for n, i_d in enumerate(ion_data):
-            ion_entry = IonEntry(Ion.from_formula(i_d['Name']), i_d['Energy'])
+            ion = Ion.from_formula(i_d['Name'])
             refs = [e for e in ion_ref_entries
                     if e.composition.reduced_formula == i_d['Reference Solid']]
             if not refs:
@@ -508,8 +513,9 @@ class MPRester:
             rf = stable_ref.composition.get_reduced_composition_and_factor()[1]
             solid_diff = ion_ref_pd.get_form_energy(stable_ref) - i_d['Reference solid energy'] * rf
             elt = i_d['Major_Elements'][0]
-            correction_factor = ion_entry.ion.composition[elt] / stable_ref.composition[elt]
-            ion_entry.energy += solid_diff * correction_factor
+            correction_factor = ion.composition[elt] / stable_ref.composition[elt]
+            energy = i_d['Energy'] + solid_diff * correction_factor
+            ion_entry = IonEntry(ion, energy)
             pbx_entries.append(PourbaixEntry(ion_entry, 'ion-{}'.format(n)))
 
         # Construct the solid pourbaix entries from filtered ion_ref entries
@@ -520,12 +526,9 @@ class MPRester:
             # Ensure no OH chemsys or extraneous elements from ion references
             if not (entry_elts <= {Element('H'), Element('O')} or
                     extra_elts.intersection(entry_elts)):
-                # replace energy with formation energy, use dict to
-                # avoid messing with the ion_ref_pd and to keep all old params
+                # Create new computed entry
                 form_e = ion_ref_pd.get_form_energy(entry)
-                new_entry = deepcopy(entry)
-                new_entry.uncorrected_energy = form_e
-                new_entry.correction = 0.0
+                new_entry = ComputedEntry(entry.composition, form_e, entry_id=entry.entry_id)
                 pbx_entry = PourbaixEntry(new_entry)
                 pbx_entries.append(pbx_entry)
 
