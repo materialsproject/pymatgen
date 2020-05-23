@@ -15,7 +15,7 @@ from subprocess import Popen, PIPE
 import numpy as np
 
 try:
-    import pybel as pb
+    from openbabel import pybel as pb
 except ImportError:
     pb = None
 
