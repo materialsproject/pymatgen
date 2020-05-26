@@ -21,6 +21,7 @@ from io import StringIO
 import collections
 
 import numpy as np
+from scipy.interpolate import RegularGridInterpolator
 from monty.io import zopen, reverse_readfile
 from monty.json import MSONable
 from monty.json import jsanitize
@@ -2947,6 +2948,11 @@ class VolumetricData(MSONable):
         # lazy init the spin data since this is not always needed.
         self._spin_data = {}
         self._distance_matrix = {} if not distance_matrix else distance_matrix
+        self.xpoints = np.linspace(0.0, 1.0, num=self.dim[0])
+        self.ypoints = np.linspace(0.0, 1.0, num=self.dim[1])
+        self.zpoints = np.linspace(0.0, 1.0, num=self.dim[2])
+        self.interpolator = RegularGridInterpolator((self.xpoints, self.ypoints, self.zpoints), 
+                                                    self.data['total'], bounds_error=True)
 
     @property
     def spin_data(self):
@@ -3195,6 +3201,66 @@ class VolumetricData(MSONable):
                 write_spin("diff_z")
             elif self.is_spin_polarized:
                 write_spin("diff")
+
+    def val_at(self, x, y, z):
+        """
+        Get the data value (from self.data) at a point (x, y, z) in terms 
+        of fractional lattice parameters. Will be interpolated if (x, y, z)
+        is not in the original set of data points.
+
+        Args:
+            x (float): Fraction of lattice vector a.
+            y (float): Fraction of lattice vector b.
+            z (float): Fraction of lattice vector c.
+
+        Returns:
+            Value from self.data (potentially interpolated) corresponding to 
+            the point (x, y, z).
+        """
+        # assert min(x, y, z) >= 0.0 and max(x, y, z) <= 1.0 # Don't need if bounds_error=True on self.interpolator
+        result, interp = self._interpolate(x, y, z)
+        if interp:
+            # Raise some warning?
+            pass
+        return result
+
+    def _interpolate(self, x, y, z):
+        """
+        Intended to be a private helper method. Uses RegularGridInterpolator
+        to interpolate a value from self.data using given (x, y z).
+
+        Args:
+            x (float): Fraction of lattice vector a.
+            y (float): Fraction of lattice vector b.
+            z (float): Fraction of lattice vector c.
+
+        Returns:
+            Interpolated value from self.data corresponding to 
+            the point (x, y, z).
+        """
+        interpolation_used = not (x in self.xpoints and y in self.ypoints and z in self.zpoints)
+        return self.interpolator([x, y, z])[0], interpolation_used
+
+    def linear_slice(self, p1, p2, n=100):
+        """
+        Get a linear slice of the volumetric data with n data points from
+        point p1 to point p2, in the form of a list.
+
+        Args:
+            p1 (list): 3-element list containing fractional coordinates of the first point.
+            p2 (list): 3-element list containing fractional coordinates of the second point.
+            n (int): Number of data points to collect.
+
+        Returns:
+            List of n data points (mostly interpolated) representing a linear slice of the 
+            data from point p1 to point p2.
+        """
+        assert type(p1) in [list, np.ndarray] and type(p2) in [list, np.ndarray]
+        assert len(p1) == 3 and len(p2) == 3
+        xpts = np.linspace(p1[0], p2[0], num=n)
+        ypts = np.linspace(p1[1], p2[1], num=n)
+        zpts = np.linspace(p1[2], p2[2], num=n)
+        return [self._interpolate(xpts[i], ypts[i], zpts[i])[0] for i in range(n)]
 
     def get_integrated_diff(self, ind, radius, nbins=1):
         """
