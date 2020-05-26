@@ -316,7 +316,6 @@ class Cp2kInputSet(Cp2kInput):
                 "MEMORY": memory,
             },
         )
-
         xc = Section(
             "XC", subsections={"XC_FUNCTIONAL": xc_functional, "HF": hf}
         )

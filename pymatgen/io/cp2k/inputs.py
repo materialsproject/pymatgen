@@ -689,7 +689,7 @@ class QS(Section):
         self,
         method="GPW",
         eps_default=1e-7,
-        extrapolation="ASPC",
+        extrapolation="PS",
         subsections={},
         **kwargs
     ):
@@ -699,8 +699,11 @@ class QS(Section):
         Args:
             method: What dft methodology to use. Can be GPW (Gaussian Plane Waves) for DFT with pseudopotentials
                 or GAPW (Gaussian Augmented Plane Waves) for all electron calculations
-            eps_default: The default level of convergence accuracy (Not for SCF, but for other parameters in QS section)
-            extrapolation: Method use for extrapolation
+            eps_default: The default level of convergence accuracy. NOTE: This is a global value for all the numerical
+                value of all EPS_* values in QS module. It is not the same as EPS_SCF, which sets convergence accuracy
+                of the SCF cycle alone.
+            extrapolation: Method use for extrapolation. If using gamma-point-only calculation, then one should use
+                PS for relaxations and ASPC for MD. See the manual for other options.
             subsections: Subsections to initialize with
         """
 
@@ -978,6 +981,7 @@ class Kind(Section):
         subsections={},
         basis_set="GTH_BASIS",
         potential="GTH_POTENTIALS",
+        ghost=False,
         **kwargs
     ):
         """
@@ -1006,6 +1010,8 @@ class Kind(Section):
             Keyword("BASIS_SET", basis_set),
             Keyword("POTENTIAL", potential),
         ]
+        if ghost:
+            keywords.append(Keyword('GHOST', ghost))
 
         kind_name = alias if alias else specie.__str__()
         section_alias = "KIND " + kind_name
@@ -1111,7 +1117,7 @@ class V_Hartree_Cube(Section):
     Controls printing of the hartree potential as a cube file.
     """
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         """
         Initialize the V_HARTREE_CUBE section
         """
@@ -1122,7 +1128,9 @@ class V_Hartree_Cube(Section):
             + "Note that by convention the potential has opposite sign than the expected physical one."
         )
 
-        keywords = []
+        keywords = [
+            Keyword('stride', *kwargs.get('STRIDE', [2, 2, 2]))
+        ]
 
         super(V_Hartree_Cube, self).__init__(
             "V_HARTREE_CUBE",

@@ -6,6 +6,7 @@ import os
 import re
 import numpy as np
 from monty.re import regrep
+from monty.serialization import loadfn
 from pathlib import Path
 
 from pymatgen import SETTINGS
@@ -126,41 +127,16 @@ def get_aux_basis(species, basis_filename=[], basis_type="cFIT"):
         basis_type (str): default basis type to look for. Otherwise, follow defaults
     """
 
-    _aux = [
-        basis_type,
-        "FIT",
-        "cFIT",
-        "pFIT",
-        "cpFIT",
-        "aug-FIT",
-        "aug-cFIT",
-        "aug-pFIT",
-        "aug-cpFIT",
-    ]
+    basis = {k: {} for k in species}
+    aux_bases = loadfn(os.path.join(MODULE_DIR, 'aux_basis.yaml'))
+    for k in species:
+        if isinstance(aux_bases[k], list):
+            for i in aux_bases[k]:
+                if i.startswith(basis_type):
+                    basis[k] = i
+        else:
+            basis[k] = aux_bases[k]
 
-    cp2k_data = SETTINGS.get("PMG_CP2K_DATA_DIR", "")
-    basis_filenames = basis_filename or ["BASIS_ADMM", "BASIS_ADMM_MOLOPT"]
-    basis = {"basis_filename": basis_filenames}
-    basis.update({k: {} for k in species})
-
-    for basis_filename in basis_filenames:
-        basis_path = os.path.join(cp2k_data, basis_filename)
-        patterns = {
-            specie: re.compile(r"^[\s+]?{}\s+(.+)[\s+]?$".format(specie))
-            for specie in species
-        }
-        matches = regrep(basis_path, patterns=patterns)
-
-        for k in patterns.keys():
-            found = False
-            for a in _aux:
-                for m in [i[0] for i in matches.get(k, [])]:
-                    if m[0].startswith(a):
-                        basis[k]["basis"] = m[0]
-                        found = True
-                        break
-                if found:
-                    break
     return basis
 
 
@@ -170,7 +146,7 @@ def get_unique_site_indices(structure):
     unique values is used for indexing
     """
     sites = {}
-    property = None
+    _property = None
     for s in structure.symbol_set:
         s_ids = structure.indices_from_symbol(s)
         unique = [0]
@@ -178,15 +154,15 @@ def get_unique_site_indices(structure):
             _unique = np.unique([vals[i] for i in s_ids])
             if len(unique) < len(_unique):
                 unique = _unique
-                property = site_prop
-        if property is None:
+                _property = site_prop
+        if _property is None:
             sites[s] = s_ids
         else:
             for i, u in enumerate(unique):
                 sites[s + "_" + str(i + 1)] = []
                 for j, site in zip(
                     s_ids,
-                    [structure.site_properties[property][ids] for ids in s_ids],
+                    [structure.site_properties[_property][ids] for ids in s_ids],
                 ):
                     if site == u:
                         sites[s + "_" + str(i + 1)].append(j)

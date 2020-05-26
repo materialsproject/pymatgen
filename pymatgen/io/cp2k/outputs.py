@@ -20,7 +20,6 @@ from monty.io import zopen
 from monty.re import regrep
 
 from pymatgen.core.sites import Site
-from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.electronic_structure.dos import Dos, CompleteDos, add_densities
@@ -226,7 +225,7 @@ class Cp2kOutput:
             else:
                 self.filenames["wfn"] = w
         for k, v in self.filenames.items():
-            print("Finding {} files... found {} files.".format(k, len(v)))
+            print("Finding {} files... found {} files.".format(k, len(v) if isinstance(v, list) else 1))
         print("-" * 50)
         print("Finished looking for output files.")
         print("-" * 50)
@@ -244,7 +243,7 @@ class Cp2kOutput:
         """
         if lattice_file is None:
             if len(self.filenames["cell"]) == 0:
-                lattice = self.parse_initial_structure().lattice
+                lattice = self.parse_cell_params()
             elif len(self.filenames["cell"]) == 1:
                 latfile = np.loadtxt(self.filenames["cell"][0])
                 lattice = (
@@ -299,8 +298,6 @@ class Cp2kOutput:
             self.final_structure = self.structures[-1]
             self.final_structure.set_charge(self.initial_structure.charge)
 
-    # TODO There seems to be a regex exponential explosion that happens with table parsing the initial coordinates
-    # as the structure gets large. This should work around that
     def parse_initial_structure(self):
         """
         Parse the initial structure from the main cp2k output file
@@ -327,9 +324,9 @@ class Cp2kOutput:
                         coord_table.append(f.readline().split())
                     break
 
-        self.parse_cell_params()
+        lattice = self.parse_cell_params()
         self.initial_structure = Structure(
-            self.lattice,
+            lattice[0],
             species=[i[2] for i in coord_table],
             coords=[
                 [float(i[4]), float(i[5]), float(i[6])] for i in coord_table
@@ -620,8 +617,9 @@ class Cp2kOutput:
             postprocess=float,
             reverse=False,
         )
-        self.lattice = Lattice(self.data["lattice"])
-        return self.lattice
+        i = iter(self.data['lattice'])
+        lattices = [_ for _ in zip(i, i, i)]
+        return lattices
 
     def parse_atomic_kind_info(self):
         """
@@ -1508,7 +1506,7 @@ class Cube:
         Planar average in X,Y,Z direction
         """
         a = np.arange(self.NX * self.NY * self.NZ).reshape(self.NX, self.NY, self.NZ)
-        return np.array([a.mean(axis=(1, 2)), a.mean(axis=(0, 2)), a.mean(axis=(0, 1))])
+        return a.mean(axis=(1, 2)), a.mean(axis=(0, 2)), a.mean(axis=(0, 1))
 
     def planar_grid(self):
         """
