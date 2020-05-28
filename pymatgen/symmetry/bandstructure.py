@@ -276,7 +276,7 @@ class HighSymmKpath(KPathBase):
         return labels
 
     @staticmethod
-    def get_continuous_path(bandstructure=None):
+    def get_continuous_path(bandstructure):
         """
         Obtain a continous version of an inputted path using graph theory.
         This routine will attempt to add connections between nodes of
