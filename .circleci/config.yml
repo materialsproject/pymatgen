@@ -56,6 +56,7 @@ jobs:
             conda update --quiet numpy scipy matplotlib sympy cython pandas networkx pytest pip cmake h5py openbabel python-igraph
             # conda install --quiet -c clinicalgraphics vtk
             pip install --quiet --ignore-installed -r requirements.txt -r requirements-optional.txt -r requirements-dev.txt
+            pip install sympy --upgrade
             export CFLAGS=$CFLAGS" -std=gnu++11"
             pip install --quiet BoltzTraP2
             export CFLAGS=${CFLAGS%% -std=gnu++11}
