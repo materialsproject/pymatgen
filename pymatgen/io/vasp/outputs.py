@@ -3227,7 +3227,7 @@ class VolumetricData(MSONable):
     def _interpolate(self, x, y, z):
         """
         Intended to be a private helper method. Uses RegularGridInterpolator
-        to interpolate a value from self.data using given (x, y z).
+        to interpolate a value from self.data using given (x, y, z).
 
         Args:
             x (float): Fraction of lattice vector a.
