@@ -1205,6 +1205,9 @@ class ElfcarTest(PymatgenTest):
         elfcar = Elfcar.from_file(self.TEST_FILES_DIR / 'ELFCAR.gz')
         self.assertAlmostEqual(0.19076207645194002, np.mean(elfcar.data["total"]))
         self.assertAlmostEqual(0.19076046677910055, np.mean(elfcar.data["diff"]))
+        reconstituted = Elfcar.from_dict(elfcar.as_dict())
+        self.assertEqual(elfcar.data, reconstituted.data)
+        self.assertEqual(elfcar.poscar.structure, reconstituted.poscar.structure)
 
     def test_alpha(self):
         elfcar = Elfcar.from_file(self.TEST_FILES_DIR / 'ELFCAR.gz')
