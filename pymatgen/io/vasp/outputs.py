@@ -3364,7 +3364,7 @@ class Chgcar(VolumetricData):
     def __init__(self, poscar, data, data_aug=None):
         """
         Args:
-            poscar (Poscar): Poscar object containing structure, or Structure object.
+            poscar (Poscar or Structure): Object containing structure.
             data: Actual data.
             data_aug: Augmentation charge data
         """
@@ -3416,7 +3416,7 @@ class Elfcar(VolumetricData):
     def __init__(self, poscar, data):
         """
         Args:
-            poscar (Poscar): Poscar object containing structure, or Structure object.
+            poscar (Poscar or Structure): Object containing structure.
             data: Actual data.
         """
         # allow for poscar or structure files to be passed
