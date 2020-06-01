@@ -3364,7 +3364,7 @@ class Chgcar(VolumetricData):
     def __init__(self, poscar, data, data_aug=None):
         """
         Args:
-            poscar (Poscar): Poscar object containing structure.
+            poscar (Poscar or Structure): Object containing structure.
             data: Actual data.
             data_aug: Augmentation charge data
         """
@@ -3416,10 +3416,18 @@ class Elfcar(VolumetricData):
     def __init__(self, poscar, data):
         """
         Args:
-            poscar (Poscar): Poscar object containing structure.
+            poscar (Poscar or Structure): Object containing structure.
             data: Actual data.
         """
-        super().__init__(poscar.structure, data)
+        # allow for poscar or structure files to be passed
+        if isinstance(poscar, Poscar):
+            tmp_struct = poscar.structure
+            self.poscar = poscar
+        elif isinstance(poscar, Structure):
+            tmp_struct = poscar
+            self.poscar = Poscar(poscar)
+
+        super().__init__(tmp_struct, data)
         # TODO: modify VolumetricData so that the correct keys can be used.
         # for ELF, instead of "total" and "diff" keys we have
         # "Spin.up" and "Spin.down" keys
