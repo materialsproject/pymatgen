@@ -4235,7 +4235,8 @@ class Wavecar:
     Author: Mark Turiansky
     """
 
-    def __init__(self, filename='WAVECAR', verbose=False, precision='normal', gamma=None):
+    def __init__(self, filename='WAVECAR', verbose=False, precision='normal',
+                 vasp_type=None):
         """
         Information is extracted from the given WAVECAR
 
@@ -4244,10 +4245,14 @@ class Wavecar:
             verbose (bool): determines whether processing information is shown
             precision (str): determines how fine the fft mesh is (normal or
                              accurate), only the first letter matters
-            gamma (bool): determines if WAVECAR is assumed to have been generated
-                             by gamma-point only executable
+            vasp_type (str): determines the VASP type that is used, allowed
+                             values are ['Standard', 'Gamma', 'Noncollinear']
+                             (only first letter is required)
         """
         self.filename = filename
+        if not (vasp_type is None or vasp_type.lower()[0] in ['s', 'g', 'n']):
+            raise ValueError(f'invalid vasp_type {vasp_type}')
+        self.vasp_type = vasp_type
 
         # c = 0.26246582250210965422
         # 2m/hbar^2 in agreement with VASP
@@ -4260,10 +4265,6 @@ class Wavecar:
                 print('recl={}, spin={}, rtag={}'.format(recl, spin, rtag))
             recl8 = int(recl / 8)
             self.spin = spin
-
-            # check that ISPIN wasn't set to 2
-            # if spin == 2:
-            #     raise ValueError('spin polarization not currently supported')
 
             # check to make sure we have precision correct
             if rtag != 45200 and rtag != 45210 and rtag != 53300 and rtag != 53310:
@@ -4278,8 +4279,8 @@ class Wavecar:
             np.fromfile(f, dtype=np.float64, count=(recl8 - 3))
 
             # extract kpoint, bands, energy, and lattice information
-            self.nk, self.nb, self.encut = np.fromfile(f, dtype=np.float64,
-                                                       count=3).astype(np.int)
+            self.nk, self.nb, self.encut = \
+                np.fromfile(f, dtype=np.float64, count=3).astype(np.int)
             self.a = np.fromfile(f, dtype=np.float64, count=9).reshape((3, 3))
             self.efermi = np.fromfile(f, dtype=np.float64, count=1)[0]
             if verbose:
@@ -4315,7 +4316,6 @@ class Wavecar:
             np.fromfile(f, dtype=np.float64, count=recl8 - 13)
 
             # reading records
-            # np.set_printoptions(precision=7, suppress=True)
             self.Gpoints = [None for _ in range(self.nk)]
             self.kpoints = []
             if spin == 2:
@@ -4326,9 +4326,11 @@ class Wavecar:
                 self.coeffs = [[None for i in range(self.nb)]
                                for j in range(self.nk)]
                 self.band_energy = []
+
             for ispin in range(spin):
                 if verbose:
                     print('reading spin {}'.format(ispin))
+
                 for ink in range(self.nk):
                     # information for this kpoint
                     nplane = int(np.fromfile(f, dtype=np.float64, count=1)[0])
@@ -4357,35 +4359,30 @@ class Wavecar:
                     # padding to end of record that contains nplane, kpoints, evals and occs
                     np.fromfile(f, dtype=np.float64, count=(recl8 - 4 - 3 * self.nb) % recl8)
 
-                    # generate G integers
-                    if gamma is not None:
-                        # use it
-                        self.gamma = gamma
-                        (self.Gpoints[ink], extra_gpoints, extra_coeff_inds) = self._generate_G_points(kpoint, gamma)
-                    else:
-                        # try assuming a conventional (non-gamma) calculation
-                        self.gamma = False
-                        (self.Gpoints[ink], extra_gpoints, extra_coeff_inds) = self._generate_G_points(kpoint, False)
-                        initial_generated = len(self.Gpoints[ink])
-                    if gamma is None and len(self.Gpoints[ink]) != nplane:
-                        # failed with conventional, retry with gamma-only format
-                        self.gamma = True
-                        (self.Gpoints[ink], extra_gpoints, extra_coeff_inds) = self._generate_G_points(kpoint, True)
-                    if len(self.Gpoints[ink]) != nplane:
-                        # failed to match number of plane waves for either gamma or non-gamma
-                        if gamma is None:
-                            raise ValueError('failed to generate the correct number of '
-                                             'G points generated non-gamma {} gamma-only {}, read in {}'.format(
-                                                 initial_generated, len(self.Gpoints[ink]), nplane))
+                    if self.vasp_type is None:
+                        (self.Gpoints[ink], extra_gpoints, extra_coeff_inds) = \
+                            self._generate_G_points(kpoint, gamma=True)
+                        if len(self.Gpoints[ink]) == nplane:
+                            self.vasp_type = 'Gamma'
                         else:
-                            raise ValueError('failed to generate the correct '
-                                             'number of G points for {} executable '
-                                             'generated {} read in {}'.format(
-                                                 'gamma' if gamma else 'k-points', len(self.Gpoints[ink]), nplane))
-                    if verbose:
-                        print("gamma-only input", gamma, "final", self.gamma)
+                            (self.Gpoints[ink], extra_gpoints, extra_coeff_inds) = \
+                                self._generate_G_points(kpoint, gamma=False)
+                            self.vasp_type = \
+                                'Standard' if len(self.Gpoints[ink]) == nplane else 'Noncollinear'
 
-                    self.Gpoints[ink] = np.array(self.Gpoints[ink] + extra_gpoints, dtype=np.float64)
+                        if verbose:
+                            print('\ndetermined vasp_type =', self.vasp_type)
+                    else:
+                        (self.Gpoints[ink], extra_gpoints, extra_coeff_inds) = \
+                            self._generate_G_points(kpoint, gamma=(self.vasp_type.lower()[0] == 'g'))
+
+                    if len(self.Gpoints[ink]) != nplane and 2*len(self.Gpoints[ink]) != nplane:
+                        raise ValueError(f'Incorrect value of vasp_type given ({vasp_type}).'
+                                         ' Please open an issue if you are certain this WAVECAR'
+                                         ' was generated with the given vasp_type.')
+
+                    self.Gpoints[ink] = \
+                        np.array(self.Gpoints[ink] + extra_gpoints, dtype=np.float64)
 
                     # extract coefficients
                     for inb in range(self.nb):
@@ -4525,6 +4522,9 @@ class Wavecar:
         Returns:
             a complex value corresponding to the evaluation of the wavefunction
         """
+        if self.vasp_type.lower()[0] == 'n':
+            raise NotImplementedError()
+
         v = self.Gpoints[kpoint] + self.kpoints[kpoint]
         u = np.dot(np.dot(v, self.b), r)
         c = self.coeffs[spin][kpoint][band] if self.spin == 2 else \
@@ -4555,6 +4555,9 @@ class Wavecar:
         Returns:
             a numpy ndarray representing the 3D mesh of coefficients
         """
+        if self.vasp_type.lower()[0] == 'n':
+            raise NotImplementedError()
+
         mesh = np.zeros(tuple(self.ng), dtype=np.complex)
         tcoeffs = self.coeffs[spin][kpoint][band] if self.spin == 2 else \
             self.coeffs[kpoint][band]
@@ -4602,6 +4605,8 @@ class Wavecar:
         Returns:
             a pymatgen.io.vasp.outputs.Chgcar object
         """
+        if self.vasp_type.lower()[0] == 'n':
+            raise NotImplementedError()
 
         if phase and not np.all(self.kpoints[kpoint] == 0.):
             warnings.warn('phase == True should only be used for the Gamma '
