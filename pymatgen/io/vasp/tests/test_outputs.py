@@ -1321,8 +1321,9 @@ class WavecarTest(PymatgenTest):
         self.b = 2 * np.pi * b / self.vol
         self.a = a
         self.w = Wavecar(self.TEST_FILES_DIR / 'WAVECAR.N2')
-        self.wH2 = Wavecar(self.TEST_FILES_DIR / 'WAVECAR.H2_low_symm', verbose=True)
-        self.wH2_gamma = Wavecar(self.TEST_FILES_DIR / 'WAVECAR.H2_low_symm.gamma', verbose=True)
+        self.wH2 = Wavecar(self.TEST_FILES_DIR / 'WAVECAR.H2_low_symm')
+        self.wH2_gamma = Wavecar(self.TEST_FILES_DIR / 'WAVECAR.H2_low_symm.gamma')
+        self.w_ncl = Wavecar(self.TEST_FILES_DIR / 'WAVECAR.H2.ncl')
 
     def test_standard(self):
         w = self.w
@@ -1355,6 +1356,15 @@ class WavecarTest(PymatgenTest):
 
         with self.assertRaises(ValueError):
             Wavecar(self.TEST_FILES_DIR / 'WAVECAR.N2.malformed')
+
+        with self.assertRaises(ValueError):
+            Wavecar(self.TEST_FILES_DIR / 'WAVECAR.N2', vasp_type='poop')
+
+        with self.assertRaises(ValueError):
+            Wavecar(self.TEST_FILES_DIR / 'WAVECAR.N2', vasp_type='g')
+
+        with self.assertRaises(ValueError):
+            Wavecar(self.TEST_FILES_DIR / 'WAVECAR.N2', vasp_type='n')
 
         import sys
         from io import StringIO
@@ -1468,7 +1478,8 @@ class WavecarTest(PymatgenTest):
         # check equality of FFT and slow FT for gamma-only mesh (ratio again)
         v1_gamma = self.wH2_gamma.evaluate_wavefunc(ik, ib, r1)
         v2_gamma = self.wH2_gamma.evaluate_wavefunc(ik, ib, r2)
-        self.assertAlmostEqual(np.abs(mesh_gamma[p1])/np.abs(mesh_gamma[p2]), np.abs(v1)/np.abs(v2), places=6)
+        self.assertAlmostEqual(np.abs(mesh_gamma[p1])/np.abs(mesh_gamma[p2]),
+                               np.abs(v1_gamma)/np.abs(v2_gamma), places=6)
 
     def test_get_parchg(self):
         poscar = Poscar.from_file(self.TEST_FILES_DIR / 'POSCAR')
@@ -1507,6 +1518,9 @@ class WavecarTest(PymatgenTest):
         self.assertTrue('diff' not in c.data)
         self.assertEqual(np.prod(c.data['total'].shape), np.prod(w.ng * 2))
         self.assertFalse(np.all(c.data['total'] > 0.))
+
+        with self.assertRaises(NotImplementedError):
+            self.w
 
 
 class EigenvalTest(PymatgenTest):
