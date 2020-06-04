@@ -1430,7 +1430,7 @@ class WavecarTest(PymatgenTest):
                                np.sum(self.w.coeffs[0][0]) / np.sqrt(self.vol),
                                places=4)
 
-    def test_fft_mesh(self):
+    def test_fft_mesh_basic(self):
         mesh = self.w.fft_mesh(0, 5)
         ind = np.argmax(np.abs(mesh))
         self.assertEqual(np.unravel_index(ind, mesh.shape), (14, 1, 1))
@@ -1440,7 +1440,7 @@ class WavecarTest(PymatgenTest):
         self.assertEqual(np.unravel_index(ind, mesh.shape), (6, 8, 8))
         self.assertEqual(mesh[0, 0, 0], 0j)
 
-    def test_fft_mesh_gamma(self):
+    def test_fft_mesh_advanced(self):
         ik = 0
         ib = 0
         mesh = self.wH2.fft_mesh(ik, ib)
@@ -1520,7 +1520,7 @@ class WavecarTest(PymatgenTest):
         self.assertFalse(np.all(c.data['total'] > 0.))
 
         with self.assertRaises(NotImplementedError):
-            self.w
+            self.w_ncl.get_parchg(poscar, 0, 0)
 
 
 class EigenvalTest(PymatgenTest):
