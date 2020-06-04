@@ -1429,6 +1429,12 @@ class WavecarTest(PymatgenTest):
         self.assertAlmostEqual(self.w.evaluate_wavefunc(0, 0, [0, 0, 0]),
                                np.sum(self.w.coeffs[0][0]) / np.sqrt(self.vol),
                                places=4)
+        w = Wavecar(self.TEST_FILES_DIR / 'WAVECAR.N2.spin')
+        w.Gpoints.append(np.array([0, 0, 0]))
+        w.kpoints.append(np.array([0, 0, 0]))
+        w.coeffs[0].append([[1 + 1j]])
+        self.assertAlmostEqual(w.evaluate_wavefunc(-1, -1, [0, 0, 0]),
+                               (1 + 1j) / np.sqrt(self.vol), places=4)
 
     def test_fft_mesh_basic(self):
         mesh = self.w.fft_mesh(0, 5)
@@ -1445,6 +1451,7 @@ class WavecarTest(PymatgenTest):
         ib = 0
         mesh = self.wH2.fft_mesh(ik, ib)
         mesh_gamma = self.wH2_gamma.fft_mesh(ik, ib)
+        mesh_ncl = self.w_ncl.fft_mesh(ik, ib)
 
         # check equality of plane-wave coefficients
         ind_max = np.unravel_index(np.argmax(np.abs(mesh)), mesh.shape)
@@ -1454,6 +1461,7 @@ class WavecarTest(PymatgenTest):
         # transform to real space for further checking
         mesh = np.fft.ifftn(mesh)
         mesh_gamma = np.fft.ifftn(mesh_gamma)
+        mesh_ncl = np.fft.ifftn(mesh_ncl)
 
         # check equality in real space for regular vs. gamma only
         ind_max = np.unravel_index(np.argmax(np.abs(mesh)), mesh.shape)
@@ -1480,6 +1488,12 @@ class WavecarTest(PymatgenTest):
         v2_gamma = self.wH2_gamma.evaluate_wavefunc(ik, ib, r2)
         self.assertAlmostEqual(np.abs(mesh_gamma[p1])/np.abs(mesh_gamma[p2]),
                                np.abs(v1_gamma)/np.abs(v2_gamma), places=6)
+
+        # check equality of FFT and slow FT for ncl mesh (ratio again)
+        v1_ncl = self.w_ncl.evaluate_wavefunc(ik, ib, r1)
+        v2_ncl = self.w_ncl.evaluate_wavefunc(ik, ib, r2)
+        self.assertAlmostEqual(np.abs(mesh_ncl[p1])/np.abs(mesh_ncl[p2]),
+                               np.abs(v1_ncl)/np.abs(v2_ncl), places=6)
 
     def test_get_parchg(self):
         poscar = Poscar.from_file(self.TEST_FILES_DIR / 'POSCAR')
