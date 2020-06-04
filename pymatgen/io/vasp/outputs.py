@@ -4169,6 +4169,11 @@ class Wavecar:
 
         String of the input file (usually WAVECAR)
 
+    .. attribute:: vasp_type
+
+        String that determines VASP type the WAVECAR was generated with (either
+        'std', 'gam', or 'ncl')
+
     .. attribute:: nk
 
         Number of k-points from the WAVECAR
@@ -4225,6 +4230,8 @@ class Wavecar:
         to the kpoint and the second corresponds to the band (e.g.
         self.coeffs[kp][b] corresponds to k-point kp and band b). For
         spin-polarized calculations, the first index is for the spin.
+        If the calculation was non-collinear, then self.coeffs[kp][b] will have
+        two columns (one for each component of the spinor).
 
     Acknowledgments:
         This code is based upon the Fortran program, WaveTrans, written by
@@ -4246,7 +4253,7 @@ class Wavecar:
             precision (str): determines how fine the fft mesh is (normal or
                              accurate), only the first letter matters
             vasp_type (str): determines the VASP type that is used, allowed
-                             values are ['Standard', 'Gamma', 'Noncollinear']
+                             values are ['std', 'gam', 'ncl']
                              (only first letter is required)
         """
         self.filename = filename
@@ -4354,7 +4361,7 @@ class Wavecar:
                         self.band_energy.append(enocc)
 
                     if verbose:
-                        print("enocc", enocc[:, [0, 2]])
+                        print('enocc =\n', enocc[:, [0, 2]])
 
                     # padding to end of record that contains nplane, kpoints, evals and occs
                     np.fromfile(f, dtype=np.float64, count=(recl8 - 4 - 3 * self.nb) % recl8)
@@ -4363,15 +4370,15 @@ class Wavecar:
                         (self.Gpoints[ink], extra_gpoints, extra_coeff_inds) = \
                             self._generate_G_points(kpoint, gamma=True)
                         if len(self.Gpoints[ink]) == nplane:
-                            self.vasp_type = 'Gamma'
+                            self.vasp_type = 'gam'
                         else:
                             (self.Gpoints[ink], extra_gpoints, extra_coeff_inds) = \
                                 self._generate_G_points(kpoint, gamma=False)
                             self.vasp_type = \
-                                'Standard' if len(self.Gpoints[ink]) == nplane else 'Noncollinear'
+                                'std' if len(self.Gpoints[ink]) == nplane else 'ncl'
 
                         if verbose:
-                            print('\ndetermined vasp_type =', self.vasp_type)
+                            print('\ndetermined vasp_type =', self.vasp_type, '\n')
                     else:
                         (self.Gpoints[ink], extra_gpoints, extra_coeff_inds) = \
                             self._generate_G_points(kpoint, gamma=(self.vasp_type.lower()[0] == 'g'))
@@ -4403,10 +4410,16 @@ class Wavecar:
                                 # it appears to be necessary
                                 data[G_ind] /= np.sqrt(2)
                                 extra_coeffs.append(np.conj(data[G_ind]))
+
                         if spin == 2:
-                            self.coeffs[ispin][ink][inb] = np.array(list(data) + extra_coeffs, dtype=np.complex64)
+                            self.coeffs[ispin][ink][inb] = \
+                                np.array(list(data) + extra_coeffs, dtype=np.complex64)
                         else:
-                            self.coeffs[ink][inb] = np.array(list(data) + extra_coeffs, dtype=np.complex128)
+                            self.coeffs[ink][inb] = \
+                                np.array(list(data) + extra_coeffs, dtype=np.complex128)
+
+                        if self.vasp_type.lower()[0] == 'n':
+                            self.coeffs[ink][inb].shape = (2, nplane//2)
 
     def _generate_nbmax(self):
         """
@@ -4422,7 +4435,8 @@ class Wavecar:
 
         # calculate maximum integers in each direction for G
         phi12 = np.arccos(np.dot(b[0, :], b[1, :]) / (bmag[0] * bmag[1]))
-        sphi123 = np.dot(b[2, :], np.cross(b[0, :], b[1, :])) / (bmag[2] * np.linalg.norm(np.cross(b[0, :], b[1, :])))
+        sphi123 = np.dot(b[2, :], np.cross(b[0, :], b[1, :])) \
+            / (bmag[2] * np.linalg.norm(np.cross(b[0, :], b[1, :])))
         nbmaxA = np.sqrt(self.encut * self._C) / bmag
         nbmaxA[0] /= np.abs(np.sin(phi12))
         nbmaxA[1] /= np.abs(np.sin(phi12))
@@ -4430,7 +4444,8 @@ class Wavecar:
         nbmaxA += 1
 
         phi13 = np.arccos(np.dot(b[0, :], b[2, :]) / (bmag[0] * bmag[2]))
-        sphi123 = np.dot(b[1, :], np.cross(b[0, :], b[2, :])) / (bmag[1] * np.linalg.norm(np.cross(b[0, :], b[2, :])))
+        sphi123 = np.dot(b[1, :], np.cross(b[0, :], b[2, :])) \
+            / (bmag[1] * np.linalg.norm(np.cross(b[0, :], b[2, :])))
         nbmaxB = np.sqrt(self.encut * self._C) / bmag
         nbmaxB[0] /= np.abs(np.sin(phi13))
         nbmaxB[1] /= np.abs(sphi123)
@@ -4438,7 +4453,8 @@ class Wavecar:
         nbmaxB += 1
 
         phi23 = np.arccos(np.dot(b[1, :], b[2, :]) / (bmag[1] * bmag[2]))
-        sphi123 = np.dot(b[0, :], np.cross(b[1, :], b[2, :])) / (bmag[0] * np.linalg.norm(np.cross(b[1, :], b[2, :])))
+        sphi123 = np.dot(b[0, :], np.cross(b[1, :], b[2, :])) \
+            / (bmag[0] * np.linalg.norm(np.cross(b[1, :], b[2, :])))
         nbmaxC = np.sqrt(self.encut * self._C) / bmag
         nbmaxC[0] /= np.abs(sphi123)
         nbmaxC[1] /= np.abs(np.sin(phi23))
@@ -4494,7 +4510,7 @@ class Wavecar:
                         G_ind += 1
         return (gpoints, extra_gpoints, extra_coeff_inds)
 
-    def evaluate_wavefunc(self, kpoint, band, r, spin=0):
+    def evaluate_wavefunc(self, kpoint, band, r, spin=0, spinor=0):
         r"""
         Evaluates the wavefunction for a given position, r.
 
@@ -4519,19 +4535,22 @@ class Wavecar:
             r (np.array): the position where the wavefunction will be evaluated
             spin (int):  spin index for the desired wavefunction (only for
                             ISPIN = 2, default = 0)
+            spinor (int): component of the spinor that is evaluated (only used
+                            if vasp_type == 'ncl')
         Returns:
             a complex value corresponding to the evaluation of the wavefunction
         """
-        if self.vasp_type.lower()[0] == 'n':
-            raise NotImplementedError()
-
         v = self.Gpoints[kpoint] + self.kpoints[kpoint]
         u = np.dot(np.dot(v, self.b), r)
-        c = self.coeffs[spin][kpoint][band] if self.spin == 2 else \
-            self.coeffs[kpoint][band]
+        if self.vasp_type.lower()[0] == 'n':
+            c = self.coeffs[kpoint][band][spinor, :]
+        elif self.spin == 2:
+            c = self.coeffs[spin][kpoint][band]
+        else:
+            c = self.coeffs[kpoint][band]
         return np.sum(np.dot(c, np.exp(1j * u, dtype=np.complex64))) / np.sqrt(self.vol)
 
-    def fft_mesh(self, kpoint, band, spin=0, shift=True):
+    def fft_mesh(self, kpoint, band, spin=0, spinor=0, shift=True):
         """
         Places the coefficients of a wavefunction onto an fft mesh.
 
@@ -4550,20 +4569,25 @@ class Wavecar:
                             evaluated
             spin (int):  the spin of the wavefunction for the desired
                             wavefunction (only for ISPIN = 2, default = 0)
+            spinor (int): component of the spinor that is evaluated (only used
+                            if vasp_type == 'ncl')
             shift (bool): determines if the zero frequency coefficient is
                             placed at index (0, 0, 0) or centered
         Returns:
             a numpy ndarray representing the 3D mesh of coefficients
         """
         if self.vasp_type.lower()[0] == 'n':
-            raise NotImplementedError()
+            tcoeffs = self.coeffs[kpoint][band][spinor, :]
+        elif self.spin == 2:
+            tcoeffs = self.coeffs[spin][kpoint][band]
+        else:
+            tcoeffs = self.coeffs[kpoint][band]
 
         mesh = np.zeros(tuple(self.ng), dtype=np.complex)
-        tcoeffs = self.coeffs[spin][kpoint][band] if self.spin == 2 else \
-            self.coeffs[kpoint][band]
         for gp, coeff in zip(self.Gpoints[kpoint], tcoeffs):
             t = tuple(gp.astype(np.int) + (self.ng / 2).astype(np.int))
             mesh[t] = coeff
+
         if shift:
             return np.fft.ifftshift(mesh)
         else:
