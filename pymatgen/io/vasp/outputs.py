@@ -4147,6 +4147,13 @@ def get_adjusted_fermi_level(efermi, cbm, band_structure):
     return efermi
 
 
+# a note to future confused people (i.e. myself):
+# I use numpy.fromfile instead of scipy.io.FortranFile here because the records
+# are of fixed length, so the record length is only written once. In fortran,
+# this amounts to using open(..., form='unformatted', recl=recl_len). In
+# constrast when you write UNK files, the record length is written at the
+# beginning of each record. This allows you to use scipy.io.FortranFile. In
+# fortran, this amounts to using open(..., form='unformatted') [i.e. no recl=].
 class Wavecar:
     """
     This is a class that contains the (pseudo-) wavefunctions from VASP.
