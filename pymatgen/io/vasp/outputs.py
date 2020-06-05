@@ -4642,9 +4642,6 @@ class Wavecar:
         Returns:
             a pymatgen.io.vasp.outputs.Chgcar object
         """
-        if self.vasp_type.lower()[0] == 'n':
-            raise NotImplementedError()
-
         if phase and not np.all(self.kpoints[kpoint] == 0.):
             warnings.warn('phase == True should only be used for the Gamma '
                           'kpoint! I hope you know what you\'re doing!')

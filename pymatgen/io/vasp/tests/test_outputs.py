@@ -1498,17 +1498,20 @@ class WavecarTest(PymatgenTest):
 
     def test_get_parchg(self):
         poscar = Poscar.from_file(self.TEST_FILES_DIR / 'POSCAR')
+
         w = self.w
         c = w.get_parchg(poscar, 0, 0, spin=0, phase=False)
         self.assertTrue('total' in c.data)
         self.assertTrue('diff' not in c.data)
         self.assertEqual(np.prod(c.data['total'].shape), np.prod(w.ng * 2))
         self.assertTrue(np.all(c.data['total'] > 0.))
+
         c = w.get_parchg(poscar, 0, 0, spin=0, phase=True)
         self.assertTrue('total' in c.data)
         self.assertTrue('diff' not in c.data)
         self.assertEqual(np.prod(c.data['total'].shape), np.prod(w.ng * 2))
         self.assertFalse(np.all(c.data['total'] > 0.))
+
         w.kpoints.append([0.2, 0.2, 0.2])
         with warnings.catch_warnings(record=True) as wrns:
             try:
@@ -1516,6 +1519,7 @@ class WavecarTest(PymatgenTest):
             except IndexError:
                 pass
             self.assertEqual(len(wrns), 1)
+
         w = Wavecar(self.TEST_FILES_DIR / 'WAVECAR.N2.spin')
         c = w.get_parchg(poscar, 0, 0, phase=False, scale=1)
         self.assertTrue('total' in c.data)
@@ -1523,19 +1527,39 @@ class WavecarTest(PymatgenTest):
         self.assertEqual(np.prod(c.data['total'].shape), np.prod(w.ng))
         self.assertTrue(np.all(c.data['total'] > 0.))
         self.assertFalse(np.all(c.data['diff'] > 0.))
+
         c = w.get_parchg(poscar, 0, 0, spin=0, phase=False)
         self.assertTrue('total' in c.data)
         self.assertTrue('diff' not in c.data)
         self.assertEqual(np.prod(c.data['total'].shape), np.prod(w.ng * 2))
         self.assertTrue(np.all(c.data['total'] > 0.))
+
         c = w.get_parchg(poscar, 0, 0, spin=0, phase=True)
         self.assertTrue('total' in c.data)
         self.assertTrue('diff' not in c.data)
         self.assertEqual(np.prod(c.data['total'].shape), np.prod(w.ng * 2))
         self.assertFalse(np.all(c.data['total'] > 0.))
 
-        with self.assertRaises(NotImplementedError):
-            self.w_ncl.get_parchg(poscar, 0, 0)
+        w = self.w_ncl
+        w.coeffs.append([np.ones((2, 100))])
+        c = w.get_parchg(poscar, -1, 0, phase=False, spinor=None)
+        self.assertTrue('total' in c.data)
+        self.assertTrue('diff' not in c.data)
+        self.assertEqual(np.prod(c.data['total'].shape), np.prod(w.ng * 2))
+        self.assertFalse(np.all(c.data['total'] > 0.))
+
+        c = w.get_parchg(poscar, -1, 0, phase=True, spinor=0)
+        self.assertTrue('total' in c.data)
+        self.assertTrue('diff' not in c.data)
+        self.assertEqual(np.prod(c.data['total'].shape), np.prod(w.ng * 2))
+        self.assertFalse(np.all(c.data['total'] > 0.))
+
+        w.coeffs[-1] = [np.zeros((2, 100))]
+        c = w.get_parchg(poscar, -1, 0, phase=False, spinor=1)
+        self.assertTrue('total' in c.data)
+        self.assertTrue('diff' not in c.data)
+        self.assertEqual(np.prod(c.data['total'].shape), np.prod(w.ng * 2))
+        self.assertTrue(np.allclose(c.data['total'], 0.))
 
     def test_write_unks(self):
         unk_std = Unk.from_file(self.TEST_FILES_DIR / 'UNK.N2.std')
