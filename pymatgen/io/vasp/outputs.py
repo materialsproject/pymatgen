@@ -19,6 +19,7 @@ import xml.etree.cElementTree as ET
 from collections import defaultdict
 from io import StringIO
 import collections
+from typing import Optional, Tuple, List
 
 import numpy as np
 from monty.io import zopen, reverse_readfile
@@ -4429,7 +4430,7 @@ class Wavecar:
                         if self.vasp_type.lower()[0] == 'n':
                             self.coeffs[ink][inb].shape = (2, nplane//2)
 
-    def _generate_nbmax(self):
+    def _generate_nbmax(self) -> None:
         """
         Helper function that determines maximum number of b vectors for
         each direction.
@@ -4471,7 +4472,7 @@ class Wavecar:
 
         self._nbmax = np.max([nbmaxA, nbmaxB, nbmaxC], axis=0).astype(np.int)
 
-    def _generate_G_points(self, kpoint, gamma=False):
+    def _generate_G_points(self, kpoint: np.ndarray, gamma: bool = False) -> Tuple[List, List, List]:
         """
         Helper function to generate G-points based on nbmax.
 
@@ -4518,7 +4519,8 @@ class Wavecar:
                         G_ind += 1
         return (gpoints, extra_gpoints, extra_coeff_inds)
 
-    def evaluate_wavefunc(self, kpoint, band, r, spin=0, spinor=0):
+    def evaluate_wavefunc(self, kpoint: int, band: int, r: np.ndarray,
+                          spin: int = 0, spinor: int = 0) -> np.complex64:
         r"""
         Evaluates the wavefunction for a given position, r.
 
@@ -4558,7 +4560,8 @@ class Wavecar:
             c = self.coeffs[kpoint][band]
         return np.sum(np.dot(c, np.exp(1j * u, dtype=np.complex64))) / np.sqrt(self.vol)
 
-    def fft_mesh(self, kpoint, band, spin=0, spinor=0, shift=True):
+    def fft_mesh(self, kpoint: int, band: int, spin: int = 0, spinor: int = 0,
+                 shift: bool = True) -> np.ndarray:
         """
         Places the coefficients of a wavefunction onto an fft mesh.
 
@@ -4600,8 +4603,9 @@ class Wavecar:
             return np.fft.ifftshift(mesh)
         return mesh
 
-    def get_parchg(self, poscar, kpoint, band, spin=None, phase=False,
-                   scale=2):
+    def get_parchg(self, poscar: Poscar, kpoint: int, band: int,
+                   spin: Optional[int] = None, spinor: Optional[int] = None,
+                   phase: bool = False, scale: int = 2) -> Chgcar:
         """
         Generates a Chgcar object, which is the charge density of the specified
         wavefunction.
@@ -4620,19 +4624,21 @@ class Wavecar:
 
         Args:
             poscar (pymatgen.io.vasp.inputs.Poscar): Poscar object that has the
-                                structure associated with the WAVECAR file
-            kpoint (int):   the index of the kpoint for the wavefunction
-            band (int):     the index of the band for the wavefunction
-            spin (int):     optional argument to specify the spin. If the
-                                Wavecar has ISPIN = 2, spin is None generates a
-                                Chgcar with total spin and magnetization, and
-                                spin == {0, 1} specifies just the spin up or
-                                down component.
-            phase (bool):   flag to determine if the charge density is
-                                multiplied by the sign of the wavefunction.
-                                Only valid for real wavefunctions.
-            scale (int):    scaling for the FFT grid. The default value of 2 is
-                                at least as fine as the VASP default.
+                structure associated with the WAVECAR file
+            kpoint (int): the index of the kpoint for the wavefunction
+            band (int): the index of the band for the wavefunction
+            spin (int): optional argument to specify the spin. If the Wavecar
+                has ISPIN = 2, spin is None generates a Chgcar with total spin
+                and magnetization, and spin == {0, 1} specifies just the spin
+                up or down component.
+            spinor (int): optional argument to specify the spinor component
+                for noncollinear data wavefunctions (allowed values of None,
+                0, or 1)
+            phase (bool): flag to determine if the charge density is multiplied
+                by the sign of the wavefunction. Only valid for real
+                wavefunctions.
+            scale (int): scaling for the FFT grid. The default value of 2 is at
+                least as fine as the VASP default.
         Returns:
             a pymatgen.io.vasp.outputs.Chgcar object
         """
@@ -4664,9 +4670,16 @@ class Wavecar:
                 data['total'] = denup + dendn
                 data['diff'] = denup - dendn
         else:
-            wfr = np.fft.ifftn(self.fft_mesh(kpoint, band)) * N
-            den = np.abs(np.conj(wfr) * wfr)
-            if phase:
+            if spinor is not None:
+                wfr = np.fft.ifftn(self.fft_mesh(kpoint, band, spinor=spinor)) * N
+                den = np.abs(np.conj(wfr) * wfr)
+            else:
+                wfr = np.fft.ifftn(self.fft_mesh(kpoint, band, spinor=0)) * N
+                wfr_t = np.fft.ifftn(self.fft_mesh(kpoint, band, spinor=1)) * N
+                den = np.abs(np.conj(wfr) * wfr)
+                den += np.abs(np.conj(wfr_t) * wfr_t)
+
+            if phase and not (self.vasp_type.lower()[0] == 'n' and spinor is None):
                 den = np.sign(np.real(wfr)) * den
             data['total'] = den
 
