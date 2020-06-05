@@ -4684,7 +4684,7 @@ class Wavecar:
         Note:
             wannier90 expects the full kpoint grid instead of the symmetry-
             reduced one that VASP stores the wavefunctions on. You should run
-            a nscf calculation to obtain the correct grid.
+            a nscf calculation with ISYM=0 to obtain the correct grid.
 
         Args:
             directory (str): directory where the UNK files are written

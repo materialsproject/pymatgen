@@ -17,6 +17,7 @@ from monty.tempfile import ScratchDir
 import xml.etree.cElementTree as ET
 
 from pymatgen.electronic_structure.core import OrbitalType
+from pymatgen.io.wannier90 import Unk
 from pymatgen.io.vasp.inputs import Kpoints, Poscar
 from pymatgen.io.vasp.outputs import Chgcar, Locpot, Oszicar, Outcar, \
     Vasprun, Procar, Xdatcar, Dynmat, BSVasprun, UnconvergedVASPWarning, \
@@ -1535,6 +1536,33 @@ class WavecarTest(PymatgenTest):
 
         with self.assertRaises(NotImplementedError):
             self.w_ncl.get_parchg(poscar, 0, 0)
+
+    def test_write_unks(self):
+        unk_std = Unk.from_file(self.TEST_FILES_DIR / 'UNK.N2.std')
+        unk_ncl = Unk.from_file(self.TEST_FILES_DIR / 'UNK.H2.ncl')
+
+        with self.assertRaises(ValueError):
+            self.w.write_unks(self.TEST_FILES_DIR / 'UNK.N2.std')
+
+        # different grids
+        with ScratchDir('.'):
+            self.w.write_unks('./unk_dir')
+            self.assertEqual(len(list(Path('./unk_dir').glob('UNK*'))), 1)
+            unk = Unk.from_file('./unk_dir/UNK00001.1')
+            self.assertNotEqual(unk, unk_std)
+
+        # correct grid
+        self.w.ng = np.array([12, 12, 12])
+        with ScratchDir('.'):
+            self.w.write_unks('.')
+            unk = Unk.from_file('UNK00001.1')
+            self.assertEqual(unk, unk_std)
+
+        # ncl test
+        with ScratchDir('.'):
+            self.w_ncl.write_unks('.')
+            unk = Unk.from_file('UNK00001.NC')
+            self.assertEqual(unk, unk_ncl)
 
 
 class EigenvalTest(PymatgenTest):
