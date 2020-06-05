@@ -179,10 +179,10 @@ class Unk:
 
         for ib in range(self.nbnd):
             if self.is_noncollinear:
-                if not (np.allclose(self.data[ib, 0], other.data[ib, 0])
-                        and np.allclose(self.data[ib, 1], other.data[ib, 1])):
+                if not (np.allclose(self.data[ib, 0], other.data[ib, 0], atol=1e-4)
+                        and np.allclose(self.data[ib, 1], other.data[ib, 1], atol=1e-4)):
                     return False
             else:
-                if not np.allclose(self.data[ib], other.data[ib]):
+                if not np.allclose(self.data[ib], other.data[ib], atol=1e-4):
                     return False
         return True
