@@ -131,7 +131,7 @@ class Unk:
 
         # spinors are interwoven, need to separate them
         if is_noncollinear:
-            temp_data = np.empty((nbnd, 2, *ng))
+            temp_data = np.empty((nbnd, 2, *ng), dtype=np.complex128)
             temp_data[:, 0, :, :, :] = data[::2, :, :, :]
             temp_data[:, 1, :, :, :] = data[1::2, :, :, :]
             return Unk(ik, temp_data)

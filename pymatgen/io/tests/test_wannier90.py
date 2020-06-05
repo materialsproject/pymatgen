@@ -28,6 +28,7 @@ class UnkTest(PymatgenTest):
         self.assertEqual(self.unk_std.ng[0], 5)
         self.assertEqual(self.unk_std.ng[1], 5)
         self.assertEqual(self.unk_std.ng[2], 5)
+        self.assertTrue(np.allclose(self.unk_std.data.shape, (10, 5, 5, 5)))
         self.assertTrue(np.allclose(self.unk_std.data, self.data_std))
         self.assertFalse(self.unk_std.is_noncollinear)
 
@@ -49,6 +50,7 @@ class UnkTest(PymatgenTest):
         self.assertEqual(self.unk_ncl.ng[0], 5)
         self.assertEqual(self.unk_ncl.ng[1], 5)
         self.assertEqual(self.unk_ncl.ng[2], 5)
+        self.assertTrue(np.allclose(self.unk_ncl.data.shape, (10, 2, 5, 5, 5)))
         self.assertTrue(np.allclose(self.unk_ncl.data, self.data_ncl))
         self.assertTrue(self.unk_ncl.is_noncollinear)
 
@@ -60,19 +62,45 @@ class UnkTest(PymatgenTest):
 
     def test_from_file(self):
         unk = Unk.from_file(self.TEST_FILES_DIR / 'UNK.std')
+        self.assertEqual(unk.ik, 1)
+        self.assertEqual(unk.nbnd, 5)
+        self.assertEqual(unk.ng[0], 6)
+        self.assertEqual(unk.ng[1], 6)
+        self.assertEqual(unk.ng[2], 8)
+        self.assertFalse(unk.is_noncollinear)
+        self.assertTrue(np.allclose(unk.data.shape, (5, 6, 6, 8)))
+
+        unk = Unk.from_file(self.TEST_FILES_DIR / 'UNK.ncl')
+        self.assertEqual(unk.ik, 1)
+        self.assertEqual(unk.nbnd, 5)
+        self.assertEqual(unk.ng[0], 6)
+        self.assertEqual(unk.ng[1], 6)
+        self.assertEqual(unk.ng[2], 8)
+        self.assertTrue(unk.is_noncollinear)
+        self.assertTrue(np.allclose(unk.data.shape, (5, 2, 6, 6, 8)))
+        self.assertNotEqual(unk.data[0, 0, 0, 0, 0].real, 0.)
+        self.assertAlmostEqual(unk.data[0, 1, 0, 0, 0].real, 0.)
 
     def test_write_file(self):
-        pass
+        with ScratchDir('./scratch'):
+            self.unk_std.write_file('UNK00001.1')
+            temp_unk = Unk.from_file('UNK00001.1')
+            self.assertEqual(self.unk_std, temp_unk)
+
+        with ScratchDir('./scratch'):
+            self.unk_ncl.write_file('UNK00001.1')
+            temp_unk = Unk.from_file('UNK00001.1')
+            self.assertEqual(self.unk_ncl, temp_unk)
 
     def test_read_write(self):
         unk0 = Unk.from_file(self.TEST_FILES_DIR / 'UNK.std')
-        with ScratchDir('./'):
+        with ScratchDir('./scratch'):
             unk0.write_file('UNK00001.1')
             unk1 = Unk.from_file('UNK00001.1')
             self.assertEqual(unk0, unk1)
 
         unk0 = Unk.from_file(self.TEST_FILES_DIR / 'UNK.ncl')
-        with ScratchDir('./'):
+        with ScratchDir('./scratch'):
             unk0.write_file('UNK00001.NC')
             unk1 = Unk.from_file('UNK00001.NC')
             self.assertEqual(unk0, unk1)
@@ -103,6 +131,8 @@ class UnkTest(PymatgenTest):
         # data
         tmp_unk = Unk(1, np.random.rand(10, 5, 5, 5))
         self.assertFalse(self.unk_std == tmp_unk)
+        tmp_unk = Unk(1, np.random.rand(10, 2, 5, 5, 5))
+        self.assertFalse(self.unk_ncl == tmp_unk)
 
         # same
         self.assertTrue(self.unk_std == self.unk_std)
