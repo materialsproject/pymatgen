@@ -41,7 +41,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - pmg-v3-deps-{{ checksum "requirements.txt" }}-{{ checksum "requirements-optional.txt" }}-{{ checksum "requirements-dev.txt" }}
+            - pmg-v3-deps-{{ checksum "requirements.txt" }}-{{ checksum "requirements-optional.txt" }}-{{ checksum "requirements-dev.txt" }}-{{ checksum ".circleci/config.yml"}}
       - run:
           command: |
             export PATH=$HOME/miniconda3/bin:$PATH
@@ -61,7 +61,7 @@ jobs:
             pip install --quiet BoltzTraP2
             export CFLAGS=${CFLAGS%% -std=gnu++11}
       - save_cache:
-          key: pmg-v3-deps-{{ checksum "requirements.txt" }}-{{ checksum "requirements-optional.txt" }}-{{ checksum "requirements-dev.txt" }}
+          key: pmg-v3-deps-{{ checksum "requirements.txt" }}-{{ checksum "requirements-optional.txt" }}-{{ checksum "requirements-dev.txt" }}-{{ checksum ".circleci/config.yml"}}
           paths:
             - /root/miniconda3/envs/test-environment
       - run:
