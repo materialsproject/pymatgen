@@ -345,7 +345,7 @@ class MPRester:
             filename_or_structure: filename or Structure object
 
         Returns:
-            A list of matching structures.
+            A list of matching materials project ids for structure.
 
         Raises:
             MPRestError
@@ -459,8 +459,7 @@ class MPRester:
                     entry_id=d["task_id"])
             entries.append(e)
         if compatible_only:
-            from pymatgen.entries.compatibility import \
-                MaterialsProjectCompatibility
+            from pymatgen.entries.compatibility import MaterialsProjectCompatibility
             entries = MaterialsProjectCompatibility().process_entries(entries)
         if sort_by_e_above_hull:
             entries = sorted(entries, key=lambda entry: entry.data["e_above_hull"])
