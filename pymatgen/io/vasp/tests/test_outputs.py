@@ -17,6 +17,7 @@ from monty.tempfile import ScratchDir
 import xml.etree.cElementTree as ET
 
 from pymatgen.electronic_structure.core import OrbitalType
+from pymatgen.io.wannier90 import Unk
 from pymatgen.io.vasp.inputs import Kpoints, Poscar
 from pymatgen.io.vasp.outputs import Chgcar, Locpot, Oszicar, Outcar, \
     Vasprun, Procar, Xdatcar, Dynmat, BSVasprun, UnconvergedVASPWarning, \
@@ -1321,8 +1322,9 @@ class WavecarTest(PymatgenTest):
         self.b = 2 * np.pi * b / self.vol
         self.a = a
         self.w = Wavecar(self.TEST_FILES_DIR / 'WAVECAR.N2')
-        self.wH2 = Wavecar(self.TEST_FILES_DIR / 'WAVECAR.H2_low_symm', verbose=True)
-        self.wH2_gamma = Wavecar(self.TEST_FILES_DIR / 'WAVECAR.H2_low_symm.gamma', verbose=True)
+        self.wH2 = Wavecar(self.TEST_FILES_DIR / 'WAVECAR.H2_low_symm')
+        self.wH2_gamma = Wavecar(self.TEST_FILES_DIR / 'WAVECAR.H2_low_symm.gamma')
+        self.w_ncl = Wavecar(self.TEST_FILES_DIR / 'WAVECAR.H2.ncl')
 
     def test_standard(self):
         w = self.w
@@ -1355,6 +1357,15 @@ class WavecarTest(PymatgenTest):
 
         with self.assertRaises(ValueError):
             Wavecar(self.TEST_FILES_DIR / 'WAVECAR.N2.malformed')
+
+        with self.assertRaises(ValueError):
+            Wavecar(self.TEST_FILES_DIR / 'WAVECAR.N2', vasp_type='poop')
+
+        with self.assertRaises(ValueError):
+            Wavecar(self.TEST_FILES_DIR / 'WAVECAR.N2', vasp_type='g')
+
+        with self.assertRaises(ValueError):
+            Wavecar(self.TEST_FILES_DIR / 'WAVECAR.N2', vasp_type='n')
 
         import sys
         from io import StringIO
@@ -1419,8 +1430,14 @@ class WavecarTest(PymatgenTest):
         self.assertAlmostEqual(self.w.evaluate_wavefunc(0, 0, [0, 0, 0]),
                                np.sum(self.w.coeffs[0][0]) / np.sqrt(self.vol),
                                places=4)
+        w = Wavecar(self.TEST_FILES_DIR / 'WAVECAR.N2.spin')
+        w.Gpoints.append(np.array([0, 0, 0]))
+        w.kpoints.append(np.array([0, 0, 0]))
+        w.coeffs[0].append([[1 + 1j]])
+        self.assertAlmostEqual(w.evaluate_wavefunc(-1, -1, [0, 0, 0]),
+                               (1 + 1j) / np.sqrt(self.vol), places=4)
 
-    def test_fft_mesh(self):
+    def test_fft_mesh_basic(self):
         mesh = self.w.fft_mesh(0, 5)
         ind = np.argmax(np.abs(mesh))
         self.assertEqual(np.unravel_index(ind, mesh.shape), (14, 1, 1))
@@ -1430,11 +1447,12 @@ class WavecarTest(PymatgenTest):
         self.assertEqual(np.unravel_index(ind, mesh.shape), (6, 8, 8))
         self.assertEqual(mesh[0, 0, 0], 0j)
 
-    def test_fft_mesh_gamma(self):
+    def test_fft_mesh_advanced(self):
         ik = 0
         ib = 0
         mesh = self.wH2.fft_mesh(ik, ib)
         mesh_gamma = self.wH2_gamma.fft_mesh(ik, ib)
+        mesh_ncl = self.w_ncl.fft_mesh(ik, ib)
 
         # check equality of plane-wave coefficients
         ind_max = np.unravel_index(np.argmax(np.abs(mesh)), mesh.shape)
@@ -1444,6 +1462,7 @@ class WavecarTest(PymatgenTest):
         # transform to real space for further checking
         mesh = np.fft.ifftn(mesh)
         mesh_gamma = np.fft.ifftn(mesh_gamma)
+        mesh_ncl = np.fft.ifftn(mesh_ncl)
 
         # check equality in real space for regular vs. gamma only
         ind_max = np.unravel_index(np.argmax(np.abs(mesh)), mesh.shape)
@@ -1468,21 +1487,31 @@ class WavecarTest(PymatgenTest):
         # check equality of FFT and slow FT for gamma-only mesh (ratio again)
         v1_gamma = self.wH2_gamma.evaluate_wavefunc(ik, ib, r1)
         v2_gamma = self.wH2_gamma.evaluate_wavefunc(ik, ib, r2)
-        self.assertAlmostEqual(np.abs(mesh_gamma[p1])/np.abs(mesh_gamma[p2]), np.abs(v1)/np.abs(v2), places=6)
+        self.assertAlmostEqual(np.abs(mesh_gamma[p1])/np.abs(mesh_gamma[p2]),
+                               np.abs(v1_gamma)/np.abs(v2_gamma), places=6)
+
+        # check equality of FFT and slow FT for ncl mesh (ratio again)
+        v1_ncl = self.w_ncl.evaluate_wavefunc(ik, ib, r1)
+        v2_ncl = self.w_ncl.evaluate_wavefunc(ik, ib, r2)
+        self.assertAlmostEqual(np.abs(mesh_ncl[p1])/np.abs(mesh_ncl[p2]),
+                               np.abs(v1_ncl)/np.abs(v2_ncl), places=6)
 
     def test_get_parchg(self):
         poscar = Poscar.from_file(self.TEST_FILES_DIR / 'POSCAR')
+
         w = self.w
         c = w.get_parchg(poscar, 0, 0, spin=0, phase=False)
         self.assertTrue('total' in c.data)
         self.assertTrue('diff' not in c.data)
         self.assertEqual(np.prod(c.data['total'].shape), np.prod(w.ng * 2))
         self.assertTrue(np.all(c.data['total'] > 0.))
+
         c = w.get_parchg(poscar, 0, 0, spin=0, phase=True)
         self.assertTrue('total' in c.data)
         self.assertTrue('diff' not in c.data)
         self.assertEqual(np.prod(c.data['total'].shape), np.prod(w.ng * 2))
         self.assertFalse(np.all(c.data['total'] > 0.))
+
         w.kpoints.append([0.2, 0.2, 0.2])
         with warnings.catch_warnings(record=True) as wrns:
             try:
@@ -1490,6 +1519,7 @@ class WavecarTest(PymatgenTest):
             except IndexError:
                 pass
             self.assertEqual(len(wrns), 1)
+
         w = Wavecar(self.TEST_FILES_DIR / 'WAVECAR.N2.spin')
         c = w.get_parchg(poscar, 0, 0, phase=False, scale=1)
         self.assertTrue('total' in c.data)
@@ -1497,16 +1527,66 @@ class WavecarTest(PymatgenTest):
         self.assertEqual(np.prod(c.data['total'].shape), np.prod(w.ng))
         self.assertTrue(np.all(c.data['total'] > 0.))
         self.assertFalse(np.all(c.data['diff'] > 0.))
+
         c = w.get_parchg(poscar, 0, 0, spin=0, phase=False)
         self.assertTrue('total' in c.data)
         self.assertTrue('diff' not in c.data)
         self.assertEqual(np.prod(c.data['total'].shape), np.prod(w.ng * 2))
         self.assertTrue(np.all(c.data['total'] > 0.))
+
         c = w.get_parchg(poscar, 0, 0, spin=0, phase=True)
         self.assertTrue('total' in c.data)
         self.assertTrue('diff' not in c.data)
         self.assertEqual(np.prod(c.data['total'].shape), np.prod(w.ng * 2))
         self.assertFalse(np.all(c.data['total'] > 0.))
+
+        w = self.w_ncl
+        w.coeffs.append([np.ones((2, 100))])
+        c = w.get_parchg(poscar, -1, 0, phase=False, spinor=None)
+        self.assertTrue('total' in c.data)
+        self.assertTrue('diff' not in c.data)
+        self.assertEqual(np.prod(c.data['total'].shape), np.prod(w.ng * 2))
+        self.assertFalse(np.all(c.data['total'] > 0.))
+
+        c = w.get_parchg(poscar, -1, 0, phase=True, spinor=0)
+        self.assertTrue('total' in c.data)
+        self.assertTrue('diff' not in c.data)
+        self.assertEqual(np.prod(c.data['total'].shape), np.prod(w.ng * 2))
+        self.assertFalse(np.all(c.data['total'] > 0.))
+
+        w.coeffs[-1] = [np.zeros((2, 100))]
+        c = w.get_parchg(poscar, -1, 0, phase=False, spinor=1)
+        self.assertTrue('total' in c.data)
+        self.assertTrue('diff' not in c.data)
+        self.assertEqual(np.prod(c.data['total'].shape), np.prod(w.ng * 2))
+        self.assertTrue(np.allclose(c.data['total'], 0.))
+
+    def test_write_unks(self):
+        unk_std = Unk.from_file(self.TEST_FILES_DIR / 'UNK.N2.std')
+        unk_ncl = Unk.from_file(self.TEST_FILES_DIR / 'UNK.H2.ncl')
+
+        with self.assertRaises(ValueError):
+            self.w.write_unks(self.TEST_FILES_DIR / 'UNK.N2.std')
+
+        # different grids
+        with ScratchDir('.'):
+            self.w.write_unks('./unk_dir')
+            self.assertEqual(len(list(Path('./unk_dir').glob('UNK*'))), 1)
+            unk = Unk.from_file('./unk_dir/UNK00001.1')
+            self.assertNotEqual(unk, unk_std)
+
+        # correct grid
+        self.w.ng = np.array([12, 12, 12])
+        with ScratchDir('.'):
+            self.w.write_unks('.')
+            unk = Unk.from_file('UNK00001.1')
+            self.assertEqual(unk, unk_std)
+
+        # ncl test
+        with ScratchDir('.'):
+            self.w_ncl.write_unks('.')
+            unk = Unk.from_file('UNK00001.NC')
+            self.assertEqual(unk, unk_ncl)
 
 
 class EigenvalTest(PymatgenTest):
