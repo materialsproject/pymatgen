@@ -20,7 +20,7 @@ install:
   - 'set PATH=%PYTHON%;%PYTHON%\Library\bin;%PYTHON%\Scripts;%PATH%'
   - 'set MPLBACKEND=Agg'
   - 'conda config --system --add channels conda-forge'
-  - 'conda create --yes -q -n test-environment python=3.7 numpy scipy matplotlib sympy cython pandas networkx pytest pip cmake h5py python-igraph phonopy'
+  - 'conda create --yes -q -n test-environment python=3.7 numpy scipy matplotlib cython pandas networkx pytest pip cmake h5py python-igraph phonopy'
   - 'conda activate test-environment'
   # Install the build dependencies of the project via conda and pip
   - 'pip install -r requirements.txt'
