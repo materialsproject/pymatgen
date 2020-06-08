@@ -825,7 +825,11 @@ class StructureMatcher(MSONable):
                 "ltol": self.ltol,
                 "angle_tol": self.angle_tol,
                 "primitive_cell": self._primitive_cell,
-                "scale": self._scale}
+                "scale": self._scale,
+                "attempt_supercell": self._supercell,
+                "allow_subset": self._subset,
+                "supercell_size": self._supercell_size,
+                "ignored_species": self._ignored_species}
 
     @classmethod
     def from_dict(cls, d):
@@ -836,7 +840,11 @@ class StructureMatcher(MSONable):
         return StructureMatcher(
             ltol=d["ltol"], stol=d["stol"], angle_tol=d["angle_tol"],
             primitive_cell=d["primitive_cell"], scale=d["scale"],
-            comparator=AbstractComparator.from_dict(d["comparator"]))
+            attempt_supercell=d["attempt_supercell"],
+            allow_subset=d["allow_subset"],
+            comparator=AbstractComparator.from_dict(d["comparator"]),
+            supercell_size=d["supercell_size"],
+            ignored_species=d["ignored_species"])
 
     def _anonymous_match(self, struct1, struct2, fu, s1_supercell=True,
                          use_rms=False, break_on_match=False, single_match=False):

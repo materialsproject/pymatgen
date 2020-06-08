@@ -37,6 +37,7 @@ def _load_pmg_settings():
                 d[k] = v
             elif k in ["VASP_PSP_DIR", "MAPI_KEY", "DEFAULT_FUNCTIONAL"]:
                 d["PMG_" + k] = v
+    d = d or {}
     return dict(d)
 
 
