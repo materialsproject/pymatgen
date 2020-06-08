@@ -125,7 +125,10 @@ class CorrectionCalculator:
         self.exp_uncer: List[float] = []
 
         for cmpd_info in self.exp_compounds:
-            name = cmpd_info["formula"]
+
+            # to get consistent element ordering in formula
+            name = Composition(cmpd_info["formula"]).reduced_formula
+            
             warnings = cmpd_info["warnings"]
 
             if allow_polyanions:
@@ -144,7 +147,8 @@ class CorrectionCalculator:
                 reactants = []
                 for elem in elems:
                     try:
-                        reactants.append(self.calc_compounds[elem])
+                        elem_name = Composition(elem).reduced_formula
+                        reactants.append(self.calc_compounds[elem_name])
                     except KeyError:
                         raise ValueError("Computed entries missing " + elem)
 
