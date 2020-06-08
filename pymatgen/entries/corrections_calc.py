@@ -128,7 +128,7 @@ class CorrectionCalculator:
 
             # to get consistent element ordering in formula
             name = Composition(cmpd_info["formula"]).reduced_formula
-            
+
             warnings = cmpd_info["warnings"]
 
             if allow_polyanions:
