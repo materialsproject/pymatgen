@@ -9,7 +9,6 @@ outputs.
 
 import glob
 import logging
-import math
 import os
 import re
 import numpy as np
@@ -1446,70 +1445,3 @@ class Cube:
                     int(i % self.NZ),
                 ] = float(v)
                 i += 1
-
-    def mask_sphere(self, r, coord):
-        """
-        produce spheric volume mask with radius R and center @ [Cx,Cy,Cz]
-        can be used for integration over spherical part of the volume
-        """
-        m = 0 * self.data
-        Cx, Cy, Cz = coord
-        for ix in range(
-            int(math.ceil((Cx - r) / self.X[0])),
-            int(math.floor((Cx + r) / self.X[0])),
-        ):
-            ryz = math.sqrt(r ** 2 - (ix * self.X[0] - Cx) ** 2)
-            for iy in range(
-                int(math.ceil((Cy - ryz) / self.Y[1])),
-                int(math.floor((Cy + ryz) / self.Y[1])),
-            ):
-                rz = math.sqrt(ryz ** 2 - (iy * self.Y[1] - Cy) ** 2)
-                for iz in range(
-                    int(math.ceil((Cz - rz) / self.Z[2])),
-                    int(math.floor((Cz + rz) / self.Z[2])),
-                ):
-                    m[ix, iy, iz] = 1
-        return m
-
-    def integrate(self):
-        """
-        Integrate over the whole volume
-        """
-        return np.sum(self.data) * self.voxelVolume
-
-    def gradient(self):
-        """
-        Gradient of the data at each point
-        """
-        return np.gradient(self.data, np.linalg.norm(self.X), np.linalg.norm(self.Y), np.linalg.norm(self.Z))
-
-    def g_factor(self):
-        """
-        g_factor (see PHYSICAL REVIEW B 83, 035119 (2011))
-        """
-        warnings.warn("THIS HAS NOT BEEN TESTED AND IS STILL BEING DEVELOPED")
-        return np.sum(np.sqrt(np.divide(np.abs(self.gradient()), self.data)))*self.voxelVolume / self.volume
-
-    def integrate_sphere(self, r, coord):
-        """
-        Integrate over a sphere of radius r.
-
-        Args:
-            r (float): radius of the sphere to construct
-            coord (list): list of cartesian coordinates for where to center the sphere
-        """
-        mask = self.mask_sphere(r, coord)
-        return ((mask * self.data) ** 2).sum() * self.volume
-
-    def planar_average(self):
-        """
-        Planar average in X,Y,Z direction
-        """
-        a = np.arange(self.NX * self.NY * self.NZ).reshape(self.NX, self.NY, self.NZ)
-        return a.mean(axis=(1, 2)), a.mean(axis=(0, 2)), a.mean(axis=(0, 1))
-
-    def planar_grid(self):
-        """
-        Cartesian grid (XYZ) in Angstroms of dimension.
-        """
-        return self.X[0]*np.arange(0, self.NX), self.Y[1]*np.arange(0, self.NY), self.Z[2]*np.arange(0, self.NZ)
