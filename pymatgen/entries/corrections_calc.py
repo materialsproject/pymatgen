@@ -124,6 +124,10 @@ class CorrectionCalculator:
         self.coeff_mat: List[List[float]] = []
         self.exp_uncer: List[float] = []
 
+        # remove any corrections in calc_compounds
+        for entry in self.calc_compounds.values():
+            entry.correction = 0
+
         for cmpd_info in self.exp_compounds:
 
             # to get consistent element ordering in formula
