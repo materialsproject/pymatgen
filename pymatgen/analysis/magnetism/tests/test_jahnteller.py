@@ -100,7 +100,7 @@ class JahnTellerTest(unittest.TestCase):
                 {
                     'ligand': 'O2-',
                     'ligand_bond_length_spread': 0.2111,
-                    'ligand_bond_lengths': [2.2951, 2.2215, 2.2383, 2.1382, 2.084, 2.0863],
+                    'ligand_bond_lengths': set([2.2951, 2.2215, 2.2383, 2.1382, 2.084, 2.0863]),
                     'strength': 'weak',
                     'motif': 'oct',
                     'motif_order_parameter': 0.1441,
@@ -110,7 +110,10 @@ class JahnTellerTest(unittest.TestCase):
                 }
             ]
         }
-        self.assertDictEqual(LiFePO4_analysis, self.jt.get_analysis(LiFePO4))
+        jt_predicted = self.jt.get_analysis(LiFePO4)
+        # order does not matter
+        jt_predicted['sites'][0]['ligand_bond_lengths'] = set(jt_predicted['sites'][0]['ligand_bond_lengths'])
+        self.assertDictEqual(LiFePO4_analysis, jt_predicted)
 
     def test_mu_so(self):
         SpeciesCo = Specie(symbol='Co', oxidation_state=4)

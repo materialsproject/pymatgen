@@ -1,0 +1,552 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>pymatgen.analysis.chemenv.utils.graph_utils &#8212; pymatgen 2020.3.2 documentation</title>
+    <link rel="stylesheet" href="../../../../../_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../../../" src="../../../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.analysis.chemenv.utils.graph_utils</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nx</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">operator</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;waroquiers&#39;</span>
+
+
+<div class="viewcode-block" id="get_delta"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.utils.graph_utils.html#pymatgen.analysis.chemenv.utils.graph_utils.get_delta">[docs]</a><span class="k">def</span> <span class="nf">get_delta</span><span class="p">(</span><span class="n">node1</span><span class="p">,</span> <span class="n">node2</span><span class="p">,</span> <span class="n">edge_data</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">node1</span><span class="o">.</span><span class="n">isite</span> <span class="o">==</span> <span class="n">edge_data</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">node2</span><span class="o">.</span><span class="n">isite</span> <span class="o">==</span> <span class="n">edge_data</span><span class="p">[</span><span class="s1">&#39;end&#39;</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">edge_data</span><span class="p">[</span><span class="s1">&#39;delta&#39;</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">node2</span><span class="o">.</span><span class="n">isite</span> <span class="o">==</span> <span class="n">edge_data</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">node1</span><span class="o">.</span><span class="n">isite</span> <span class="o">==</span> <span class="n">edge_data</span><span class="p">[</span><span class="s1">&#39;end&#39;</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">edge_data</span><span class="p">[</span><span class="s1">&#39;delta&#39;</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Trying to find a delta between two nodes with an edge &#39;</span>
+                         <span class="s1">&#39;that seems not to link these nodes.&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_all_simple_paths_edges"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.utils.graph_utils.html#pymatgen.analysis.chemenv.utils.graph_utils.get_all_simple_paths_edges">[docs]</a><span class="k">def</span> <span class="nf">get_all_simple_paths_edges</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="n">edge_paths</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">graph</span><span class="o">.</span><span class="n">is_multigraph</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">nx</span><span class="o">.</span><span class="n">all_simple_paths</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=</span><span class="n">cutoff</span><span class="p">):</span>
+            <span class="n">edge_paths</span><span class="o">.</span><span class="n">append</span><span class="p">([(</span><span class="n">path</span><span class="p">[</span><span class="n">ii</span><span class="p">],</span> <span class="n">path</span><span class="p">[</span><span class="n">ii</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)])</span>
+        <span class="k">return</span> <span class="n">edge_paths</span>
+
+    <span class="n">node_paths</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">nx</span><span class="o">.</span><span class="n">all_simple_paths</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=</span><span class="n">cutoff</span><span class="p">):</span>
+        <span class="n">exists</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">path2</span> <span class="ow">in</span> <span class="n">node_paths</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">path2</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">path</span> <span class="o">==</span> <span class="n">path2</span><span class="p">):</span>
+                <span class="n">exists</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">break</span>
+        <span class="k">if</span> <span class="n">exists</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">node_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">current_edge_paths</span> <span class="o">=</span> <span class="p">[[]]</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">node1</span><span class="p">,</span> <span class="n">node2</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[(</span><span class="n">node1</span><span class="p">,</span> <span class="n">path</span><span class="p">[</span><span class="n">inode1</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">inode1</span><span class="p">,</span> <span class="n">node1</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">path</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])]:</span>
+            <span class="n">new_edge_paths</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">edge_data</span> <span class="ow">in</span> <span class="n">graph</span><span class="p">[</span><span class="n">node1</span><span class="p">][</span><span class="n">node2</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">for</span> <span class="n">tmp_edge_path</span> <span class="ow">in</span> <span class="n">current_edge_paths</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">data</span><span class="p">:</span>
+                        <span class="n">new_path</span> <span class="o">=</span> <span class="p">[(</span><span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="p">(</span><span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span> <span class="ow">in</span> <span class="n">tmp_edge_path</span><span class="p">]</span>
+                        <span class="n">new_path</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">node1</span><span class="p">,</span> <span class="n">node2</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">edge_data</span><span class="p">))</span>
+                        <span class="n">new_edge_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_path</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">new_path</span> <span class="o">=</span> <span class="p">[(</span><span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="p">(</span><span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span> <span class="ow">in</span> <span class="n">tmp_edge_path</span><span class="p">]</span>
+                        <span class="n">new_path</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">node1</span><span class="p">,</span> <span class="n">node2</span><span class="p">,</span> <span class="n">key</span><span class="p">))</span>
+                        <span class="n">new_edge_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_path</span><span class="p">)</span>
+            <span class="n">current_edge_paths</span> <span class="o">=</span> <span class="n">new_edge_paths</span>
+        <span class="n">edge_paths</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">current_edge_paths</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">edge_paths</span></div>
+
+
+<span class="k">def</span> <span class="nf">_c2index_isreverse</span><span class="p">(</span><span class="n">c1</span><span class="p">,</span> <span class="n">c2</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Private helper function to get the index c2_0_index of the first node of cycle c1</span>
+<span class="sd">    in cycle c2 and whether the cycle c2 should be reversed or not.</span>
+
+<span class="sd">    Returns None if the first node of cycle c1 is not found in cycle c2.</span>
+<span class="sd">    The reverse value depends on the index c2_1_index of the second node of cycle c1 in</span>
+<span class="sd">    cycle c2 : if it is *just after* the c2_0_index, reverse is False, if it is</span>
+<span class="sd">    *just before* the c2_0_index, reverse is True, otherwise the function returns None).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">c1_0</span> <span class="o">=</span> <span class="n">c1</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">c1_1</span> <span class="o">=</span> <span class="n">c1</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">c1_0</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">c2</span><span class="o">.</span><span class="n">nodes</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;First node of cycle c1 not found in cycle c2.&#39;</span>
+    <span class="k">if</span> <span class="n">c1_1</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">c2</span><span class="o">.</span><span class="n">nodes</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;Second node of cycle c1 not found in cycle c2.&#39;</span>
+    <span class="n">c2_0_index</span> <span class="o">=</span> <span class="n">c2</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">c1_0</span><span class="p">)</span>
+    <span class="n">c2_1_index</span> <span class="o">=</span> <span class="n">c2</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">c1_1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">c2_0_index</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">c2_1_index</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">reverse</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">elif</span> <span class="n">c2_1_index</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">c2</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">reverse</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;Second node of cycle c1 is not second or last in cycle c2 &#39;</span> \
+                               <span class="s1">&#39;(first node of cycle c1 is first in cycle c2).&#39;</span>
+    <span class="k">elif</span> <span class="n">c2_0_index</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">c2</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">c2_1_index</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">reverse</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">elif</span> <span class="n">c2_1_index</span> <span class="o">==</span> <span class="n">c2_0_index</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">reverse</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;Second node of cycle c1 is not first or before last in cycle c2 &#39;</span> \
+                               <span class="s1">&#39;(first node of cycle c1 is last in cycle c2).&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">c2_1_index</span> <span class="o">==</span> <span class="n">c2_0_index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">reverse</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">elif</span> <span class="n">c2_1_index</span> <span class="o">==</span> <span class="n">c2_0_index</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">reverse</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;Second node of cycle c1 in cycle c2 is not just after or &#39;</span> \
+                               <span class="s1">&#39;just before first node of cycle c1 in cycle c2.&#39;</span>
+    <span class="k">return</span> <span class="n">c2_0_index</span><span class="p">,</span> <span class="n">reverse</span><span class="p">,</span> <span class="s1">&#39;&#39;</span>
+
+
+<div class="viewcode-block" id="SimpleGraphCycle"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.utils.graph_utils.html#pymatgen.analysis.chemenv.utils.graph_utils.SimpleGraphCycle">[docs]</a><span class="k">class</span> <span class="nc">SimpleGraphCycle</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class used to describe a cycle in a simple graph (graph without multiple edges).</span>
+
+<span class="sd">    Note that the convention used here is the networkx convention for which simple graphs allow</span>
+<span class="sd">    to have self-loops in a simple graph.</span>
+<span class="sd">    No simple graph cycle with two nodes is possible in a simple graph. The graph will not</span>
+<span class="sd">    be validated if validate is set to False.</span>
+<span class="sd">    By default, the &quot;ordered&quot; parameter is None, in which case the SimpleGraphCycle will be ordered.</span>
+<span class="sd">    If the user explicitly sets ordered to False, the SimpleGraphCycle will not be ordered.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nodes</span><span class="p">,</span> <span class="n">validate</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ordered</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">nodes</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">validate</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">ordered</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ordered</span> <span class="o">=</span> <span class="n">ordered</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">order</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_is_valid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">check_strict_ordering</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Check if a SimpleGraphCycle is valid.</span>
+
+<span class="sd">        This method checks :</span>
+<span class="sd">        - that there are no duplicate nodes,</span>
+<span class="sd">        - that there are either 1 or more than 2 nodes</span>
+<span class="sd">        :return: True if the SimpleGraphCycle is valid, False otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="s1">&#39;Simple graph cycle with 2 nodes is not valid.&#39;</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="s1">&#39;Empty cycle is not valid.&#39;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">)):</span>  <span class="c1"># Should not have duplicate nodes</span>
+            <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="s1">&#39;Duplicate nodes.&#39;</span>
+        <span class="k">if</span> <span class="n">check_strict_ordering</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">sorted_nodes</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">TypeError</span> <span class="k">as</span> <span class="n">te</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="n">te</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">if</span> <span class="s1">&#39;</span><span class="se">\&#39;</span><span class="s1">&lt;</span><span class="se">\&#39;</span><span class="s1"> not supported between instances of&#39;</span> <span class="ow">in</span> <span class="n">msg</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="s1">&#39;The nodes are not sortable.&#39;</span>
+                <span class="k">raise</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="nb">all</span><span class="p">(</span><span class="n">i</span> <span class="o">&lt;</span> <span class="n">j</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">sorted_nodes</span><span class="p">,</span> <span class="n">sorted_nodes</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">res</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="s1">&#39;The list of nodes in the cycle cannot be strictly ordered.&#39;</span>
+        <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;&#39;</span>
+
+<div class="viewcode-block" id="SimpleGraphCycle.validate"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.utils.graph_utils.html#pymatgen.analysis.chemenv.utils.graph_utils.SimpleGraphCycle.validate">[docs]</a>    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">check_strict_ordering</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">is_valid</span><span class="p">,</span> <span class="n">msg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_valid</span><span class="p">(</span><span class="n">check_strict_ordering</span><span class="o">=</span><span class="n">check_strict_ordering</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">is_valid</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;SimpleGraphCycle is not valid : </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">msg</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="SimpleGraphCycle.order"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.utils.graph_utils.html#pymatgen.analysis.chemenv.utils.graph_utils.SimpleGraphCycle.order">[docs]</a>    <span class="k">def</span> <span class="nf">order</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raise_on_fail</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Orders the SimpleGraphCycle.</span>
+
+<span class="sd">        The ordering is performed such that the first node is the &quot;lowest&quot; one</span>
+<span class="sd">        and the second node is the lowest one of the two neighbor nodes of the</span>
+<span class="sd">        first node. If raise_on_fail is set to True a RuntimeError will be</span>
+<span class="sd">        raised if the ordering fails.</span>
+
+<span class="sd">        :param raise_on_fail: If set to True, will raise a RuntimeError if the</span>
+<span class="sd">                              ordering fails.</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># always validate the cycle if it needs to be ordered</span>
+        <span class="c1"># also validates that the nodes can be strictly ordered</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">check_strict_ordering</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">ve</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="n">ve</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="s1">&#39;SimpleGraphCycle is not valid :&#39;</span> <span class="ow">in</span> <span class="n">msg</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">raise_on_fail</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ordered</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">return</span>
+            <span class="k">raise</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ordered</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Not sure whether the following should be checked here... if strict ordering was guaranteed by</span>
+        <span class="c1"># the validate method, why would it be needed to have a unique class. One could have 2 subclasses of</span>
+        <span class="c1"># the same parent class and things could be ok. To be checked what to do. (see also MultiGraphCycle)</span>
+        <span class="n">node_classes</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="vm">__class__</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">node_classes</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">raise_on_fail</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Could not order simple graph cycle as the nodes &#39;</span>
+                                 <span class="s1">&#39;are of different classes.&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ordered</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">return</span>
+
+        <span class="n">min_index</span><span class="p">,</span> <span class="n">min_node</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="n">operator</span><span class="o">.</span><span class="n">itemgetter</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+        <span class="n">reverse</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[(</span><span class="n">min_index</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">)]</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[(</span><span class="n">min_index</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="n">reverse</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">min_index</span><span class="p">::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[:</span><span class="n">min_index</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">min_index</span><span class="p">:]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[:</span><span class="n">min_index</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ordered</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+    <span class="k">def</span> <span class="nf">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Simple cycle with nodes :&#39;</span><span class="p">]</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">node</span><span class="p">)</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">])</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">ordered</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">other</span><span class="o">.</span><span class="n">ordered</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Simple cycles should be ordered in order to be compared.&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">nodes</span>
+
+<div class="viewcode-block" id="SimpleGraphCycle.from_edges"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.utils.graph_utils.html#pymatgen.analysis.chemenv.utils.graph_utils.SimpleGraphCycle.from_edges">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_edges</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">edges</span><span class="p">,</span> <span class="n">edges_are_ordered</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Constructs SimpleGraphCycle from a list edges.</span>
+
+<span class="sd">        By default, the edges list is supposed to be ordered as it will be</span>
+<span class="sd">        much faster to construct the cycle. If edges_are_ordered is set to</span>
+<span class="sd">        False, the code will automatically try to find the corresponding edge</span>
+<span class="sd">        order in the list.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">edges_are_ordered</span><span class="p">:</span>
+            <span class="n">nodes</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">edges</span><span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">([</span><span class="n">e1e2</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">e1e2</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">e1e2</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">edges</span><span class="p">,</span> <span class="n">edges</span><span class="p">[</span><span class="mi">1</span><span class="p">:])])</span> <span class="ow">or</span> <span class="n">edges</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">edges</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Could not construct a cycle from edges.&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">remaining_edges</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span>
+            <span class="n">nodes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">remaining_edges</span><span class="o">.</span><span class="n">pop</span><span class="p">())</span>
+            <span class="k">while</span> <span class="n">remaining_edges</span><span class="p">:</span>
+                <span class="n">prev_node</span> <span class="o">=</span> <span class="n">nodes</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">ie</span><span class="p">,</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">remaining_edges</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">prev_node</span> <span class="o">==</span> <span class="n">e</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                        <span class="n">remaining_edges</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">ie</span><span class="p">)</span>
+                        <span class="n">nodes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">e</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                        <span class="k">break</span>
+                    <span class="k">elif</span> <span class="n">prev_node</span> <span class="o">==</span> <span class="n">e</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                        <span class="n">remaining_edges</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">ie</span><span class="p">)</span>
+                        <span class="n">nodes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">e</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                        <span class="k">break</span>
+                <span class="k">else</span><span class="p">:</span>  <span class="c1"># did not find the next edge</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Could not construct a cycle from edges.&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">nodes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">nodes</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Could not construct a cycle from edges.&#39;</span><span class="p">)</span>
+            <span class="n">nodes</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">nodes</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SimpleGraphCycle.as_dict"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.utils.graph_utils.html#pymatgen.analysis.chemenv.utils.graph_utils.SimpleGraphCycle.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">MSONable</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="c1"># Transforming tuple object to a list to allow BSON and MongoDB</span>
+        <span class="n">d</span><span class="p">[</span><span class="s1">&#39;nodes&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;nodes&#39;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">d</span></div>
+
+<div class="viewcode-block" id="SimpleGraphCycle.from_dict"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.utils.graph_utils.html#pymatgen.analysis.chemenv.utils.graph_utils.SimpleGraphCycle.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">validate</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">nodes</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;nodes&#39;</span><span class="p">],</span> <span class="n">validate</span><span class="o">=</span><span class="n">validate</span><span class="p">,</span> <span class="n">ordered</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;ordered&#39;</span><span class="p">])</span></div></div>
+
+
+<div class="viewcode-block" id="MultiGraphCycle"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.utils.graph_utils.html#pymatgen.analysis.chemenv.utils.graph_utils.MultiGraphCycle">[docs]</a><span class="k">class</span> <span class="nc">MultiGraphCycle</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Class used to describe a cycle in a multigraph.</span>
+
+<span class="sd">    nodes are the nodes of the cycle and edge_indices are the indices of the edges in the cycle.</span>
+<span class="sd">    The nth index in edge_indices corresponds to the edge index between the nth node in nodes and</span>
+<span class="sd">    the (n+1)th node in nodes with the exception of the last one being the edge index between</span>
+<span class="sd">    the last node in nodes and the first node in nodes</span>
+
+<span class="sd">    Example: A cycle</span>
+<span class="sd">        nodes:          1 - 3 - 4 - 0 - 2 - (1)</span>
+<span class="sd">        edge_indices:     0 . 1 . 0 . 2 . 0 . (0)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nodes</span><span class="p">,</span> <span class="n">edge_indices</span><span class="p">,</span> <span class="n">validate</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ordered</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">nodes</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">edge_indices</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">edge_indices</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">validate</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">ordered</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ordered</span> <span class="o">=</span> <span class="n">ordered</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">order</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">edge_deltas</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">per</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">_is_valid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">check_strict_ordering</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Check if a MultiGraphCycle is valid.</span>
+
+<span class="sd">        This method checks :</span>
+<span class="sd">        - that there are no duplicate nodes,</span>
+<span class="sd">        - that there are either 1 or more than 2 nodes</span>
+<span class="sd">        :return: True if the SimpleGraphCycle is valid, False otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">edge_indices</span><span class="p">):</span>  <span class="c1"># Should have the same number of nodes and edges</span>
+            <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="s1">&#39;Number of nodes different from number of edge indices.&#39;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="s1">&#39;Empty cycle is not valid.&#39;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">)):</span>  <span class="c1"># Should not have duplicate nodes</span>
+            <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="s1">&#39;Duplicate nodes.&#39;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>  <span class="c1"># Cycles with two nodes cannot use the same edge for the cycle</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">edge_indices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">edge_indices</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="s1">&#39;Cycles with two nodes cannot use the same edge for the cycle.&#39;</span>
+        <span class="k">if</span> <span class="n">check_strict_ordering</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">sorted_nodes</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">TypeError</span> <span class="k">as</span> <span class="n">te</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="n">te</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">if</span> <span class="s1">&#39;</span><span class="se">\&#39;</span><span class="s1">&lt;</span><span class="se">\&#39;</span><span class="s1"> not supported between instances of&#39;</span> <span class="ow">in</span> <span class="n">msg</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="s1">&#39;The nodes are not sortable.&#39;</span>
+                <span class="k">raise</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="nb">all</span><span class="p">(</span><span class="n">i</span> <span class="o">&lt;</span> <span class="n">j</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">sorted_nodes</span><span class="p">,</span> <span class="n">sorted_nodes</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">res</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="s1">&#39;The list of nodes in the cycle cannot be strictly ordered.&#39;</span>
+        <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;&#39;</span>
+
+<div class="viewcode-block" id="MultiGraphCycle.validate"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.utils.graph_utils.html#pymatgen.analysis.chemenv.utils.graph_utils.MultiGraphCycle.validate">[docs]</a>    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">check_strict_ordering</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">is_valid</span><span class="p">,</span> <span class="n">msg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_valid</span><span class="p">(</span><span class="n">check_strict_ordering</span><span class="o">=</span><span class="n">check_strict_ordering</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">is_valid</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;MultiGraphCycle is not valid : </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">msg</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="MultiGraphCycle.order"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.utils.graph_utils.html#pymatgen.analysis.chemenv.utils.graph_utils.MultiGraphCycle.order">[docs]</a>    <span class="k">def</span> <span class="nf">order</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raise_on_fail</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Orders the SimpleGraphCycle.</span>
+
+<span class="sd">        The ordering is performed such that the first node is the &quot;lowest&quot; one</span>
+<span class="sd">        and the second node is the lowest one of the two neighbor nodes of the</span>
+<span class="sd">        first node. If raise_on_fail is set to True a RuntimeError will be</span>
+<span class="sd">        raised if the ordering fails.</span>
+
+<span class="sd">        :param raise_on_fail: If set to True, will raise a RuntimeError if the</span>
+<span class="sd">                              ordering fails.</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># always validate the cycle if it needs to be ordered</span>
+        <span class="c1"># also validates that the nodes can be strictly ordered</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">check_strict_ordering</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">ve</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="n">ve</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="s1">&#39;MultiGraphCycle is not valid :&#39;</span> <span class="ow">in</span> <span class="n">msg</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">raise_on_fail</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ordered</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">return</span>
+            <span class="k">raise</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ordered</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Not sure whether the following should be checked here... if strict ordering was guaranteed by</span>
+        <span class="c1"># the validate method, why would it be needed to have a unique class. One could have 2 subclasses of</span>
+        <span class="c1"># the same parent class and things could be ok. To be checked what to do. (see also SimpleGraphCycle)</span>
+        <span class="n">node_classes</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="vm">__class__</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">node_classes</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">raise_on_fail</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Could not order simple graph cycle as the nodes &#39;</span>
+                                 <span class="s1">&#39;are of different classes.&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ordered</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">return</span>
+
+        <span class="n">min_index</span><span class="p">,</span> <span class="n">min_node</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="n">operator</span><span class="o">.</span><span class="n">itemgetter</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+
+        <span class="c1"># Special case when number of nodes is 2 because the two</span>
+        <span class="c1"># edge_indices refer to the same pair of nodes</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">edge_indices</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">edge_indices</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ordered</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">return</span>
+
+        <span class="n">reverse</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[(</span><span class="n">min_index</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">)]</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[(</span><span class="n">min_index</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="n">reverse</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">min_index</span><span class="p">::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[:</span><span class="n">min_index</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">min_edge_index</span> <span class="o">=</span> <span class="p">(</span><span class="n">min_index</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">edge_indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">edge_indices</span><span class="p">[</span><span class="n">min_edge_index</span><span class="p">::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">edge_indices</span><span class="p">[:</span><span class="n">min_edge_index</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">min_index</span><span class="p">:]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[:</span><span class="n">min_index</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">edge_indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">edge_indices</span><span class="p">[</span><span class="n">min_index</span><span class="p">:]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">edge_indices</span><span class="p">[:</span><span class="n">min_index</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ordered</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+    <span class="k">def</span> <span class="nf">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Multigraph cycle with nodes :&#39;</span><span class="p">]</span>
+        <span class="n">cycle</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">inode</span><span class="p">,</span> <span class="n">node1</span><span class="p">,</span> <span class="n">node2</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">count</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="mi">1</span><span class="p">:]):</span>
+            <span class="n">cycle</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> -*</span><span class="si">{:d}</span><span class="s1">*- </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">node1</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">edge_indices</span><span class="p">[</span><span class="n">inode</span><span class="p">],</span> <span class="nb">str</span><span class="p">(</span><span class="n">node2</span><span class="p">)))</span>
+        <span class="n">cycle</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> -*</span><span class="si">{:d}</span><span class="s1">*- </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="bp">self</span><span class="o">.</span><span class="n">edge_indices</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="mi">0</span><span class="p">])))</span>
+        <span class="c1"># out.extend([str(node) for node in self.nodes])</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">cycle</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">ordered</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">other</span><span class="o">.</span><span class="n">ordered</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Multigraph cycles should be ordered in order to be compared.&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">nodes</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">edge_indices</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">edge_indices</span></div>
+
+
+<div class="viewcode-block" id="get_all_elementary_cycles"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.utils.graph_utils.html#pymatgen.analysis.chemenv.utils.graph_utils.get_all_elementary_cycles">[docs]</a><span class="k">def</span> <span class="nf">get_all_elementary_cycles</span><span class="p">(</span><span class="n">graph</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">nx</span><span class="o">.</span><span class="n">Graph</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;graph should be a networkx Graph object.&quot;</span><span class="p">)</span>
+
+    <span class="n">cycle_basis</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">cycle_basis</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span>
+
+    <span class="c1"># print(&#39;CYCLE BASIS&#39;)</span>
+    <span class="c1"># print(cycle_basis)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cycle_basis</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">SimpleGraphCycle</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">cycle_basis</span><span class="p">}</span>
+
+    <span class="n">all_edges_dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">index2edge</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">nedges</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">n1</span><span class="p">,</span> <span class="n">n2</span> <span class="ow">in</span> <span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">:</span>
+        <span class="n">all_edges_dict</span><span class="p">[(</span><span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">)]</span> <span class="o">=</span> <span class="n">nedges</span>
+        <span class="n">all_edges_dict</span><span class="p">[(</span><span class="n">n2</span><span class="p">,</span> <span class="n">n1</span><span class="p">)]</span> <span class="o">=</span> <span class="n">nedges</span>
+        <span class="n">index2edge</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">))</span>
+        <span class="n">nedges</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="n">cycles_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">cycle_basis</span><span class="p">),</span> <span class="n">nedges</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">bool</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">icycle</span><span class="p">,</span> <span class="n">cycle</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">cycle_basis</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">in1</span><span class="p">,</span> <span class="n">n1</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">cycle</span><span class="p">):</span>
+            <span class="n">n2</span> <span class="o">=</span> <span class="n">cycle</span><span class="p">[(</span><span class="n">in1</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">cycle</span><span class="p">)]</span>
+            <span class="n">iedge</span> <span class="o">=</span> <span class="n">all_edges_dict</span><span class="p">[(</span><span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">)]</span>
+            <span class="n">cycles_matrix</span><span class="p">[</span><span class="n">icycle</span><span class="p">,</span> <span class="n">iedge</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="c1"># print(cycles_matrix)</span>
+    <span class="n">elementary_cycles_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">ncycles</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">cycle_basis</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">cycles_combination</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">combinations</span><span class="p">(</span><span class="n">cycles_matrix</span><span class="p">,</span> <span class="n">ncycles</span><span class="p">):</span>
+            <span class="n">edges_counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">cycles_combination</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="mi">2</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">bool</span><span class="p">)</span>
+            <span class="n">myedges</span> <span class="o">=</span> <span class="p">[</span><span class="n">edge</span> <span class="k">for</span> <span class="n">iedge</span><span class="p">,</span> <span class="n">edge</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">index2edge</span><span class="p">)</span> <span class="k">if</span> <span class="n">edges_counts</span><span class="p">[</span><span class="n">iedge</span><span class="p">]]</span>
+            <span class="c1"># print(myedges)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">sgc</span> <span class="o">=</span> <span class="n">SimpleGraphCycle</span><span class="o">.</span><span class="n">from_edges</span><span class="p">(</span><span class="n">myedges</span><span class="p">,</span> <span class="n">edges_are_ordered</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="c1"># print(sgc)</span>
+            <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">ve</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="n">ve</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">msg</span> <span class="o">==</span> <span class="s1">&#39;SimpleGraphCycle is not valid : Duplicate nodes.&#39;</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="k">elif</span> <span class="n">msg</span> <span class="o">==</span> <span class="s1">&#39;Could not construct a cycle from edges.&#39;</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="k">raise</span>
+            <span class="n">elementary_cycles_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sgc</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">elementary_cycles_list</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../../pymatgen.html" >pymatgen</a> &#187;</li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

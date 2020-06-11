@@ -2,20 +2,19 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+This module implements plotter for DOS and band structure.
+"""
+
 import logging
 from collections import OrderedDict, namedtuple
 
 import numpy as np
 import scipy.constants as const
-
 from monty.json import jsanitize
+from pymatgen.electronic_structure.plotter import plot_brillouin_zone
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.util.plotting import pretty_plot, add_fig_kwargs, get_ax_fig_plt
-from pymatgen.electronic_structure.plotter import plot_brillouin_zone
-
-"""
-This module implements plotter for DOS and band structure.
-"""
 
 logger = logging.getLogger(__name__)
 
@@ -24,8 +23,13 @@ FreqUnits = namedtuple("FreqUnits", ["factor", "label"])
 
 def freq_units(units):
     """
-    Returns conversion factor from THz to the requred units and the label in the form of a namedtuple
-    Accepted values: thz, ev, mev, ha, cm-1, cm^-1
+
+    Args:
+        units: str, accepted values: thz, ev, mev, ha, cm-1, cm^-1
+
+    Returns:
+        Returns conversion factor from THz to the requred units and the label in the form of a namedtuple
+
     """
 
     d = {"thz": FreqUnits(1, "THz"),
@@ -57,15 +61,17 @@ class PhononDosPlotter:
         # Alternatively, you can add a dict of DOSs. This is the typical
         # form returned by CompletePhononDos.get_element_dos().
 
-    Args:
-        stack: Whether to plot the DOS as a stacked area graph
-        key_sort_func: function used to sort the dos_dict keys.
-        sigma: A float specifying a standard deviation for Gaussian smearing
-            the DOS for nicer looking plots. Defaults to None for no
-            smearing.
     """
 
     def __init__(self, stack=False, sigma=None):
+        """
+
+        Args:
+            stack: Whether to plot the DOS as a stacked area graph
+            sigma: A float specifying a standard deviation for Gaussian smearing
+            the DOS for nicer looking plots. Defaults to None for no
+            smearing.
+        """
         self.stack = stack
         self.sigma = sigma
         self._doses = OrderedDict()
@@ -204,6 +210,7 @@ class PhononDosPlotter:
         """
         plt = self.get_plot(xlim, ylim, units=units)
         plt.savefig(filename, format=img_format)
+        plt.close()
 
     def show(self, xlim=None, ylim=None, units="thz"):
         """
@@ -223,11 +230,14 @@ class PhononBSPlotter:
     """
     Class to plot or get data to facilitate the plot of band structure objects.
 
-    Args:
-        bs: A BandStructureSymmLine object.
+
     """
 
     def __init__(self, bs):
+        """
+        Args:
+            bs: A PhononBandStructureSymmLine object.
+        """
         if not isinstance(bs, PhononBandStructureSymmLine):
             raise ValueError(
                 "PhononBSPlotter only works with PhononBandStructureSymmLine objects. "
@@ -660,9 +670,9 @@ class ThermoPlotter:
         self._plot_thermo(self.dos.entropy, temperatures, ylim=ylim, ax=fig.axes[0],
                           label=r"$S$ (J/K/mol{})".format(mol), **kwargs)
         self._plot_thermo(self.dos.internal_energy, temperatures, ylim=ylim, ax=fig.axes[0], factor=1e-3,
-                          label=r"$\Delta E$ (kJ/K/mol{})".format(mol), **kwargs)
+                          label=r"$\Delta E$ (kJ/mol{})".format(mol), **kwargs)
         self._plot_thermo(self.dos.helmholtz_free_energy, temperatures, ylim=ylim, ax=fig.axes[0], factor=1e-3,
-                          label=r"$\Delta F$ (kJ/K/mol{})".format(mol), **kwargs)
+                          label=r"$\Delta F$ (kJ/mol{})".format(mol), **kwargs)
 
         fig.axes[0].legend(loc="best")
 

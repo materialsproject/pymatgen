@@ -1,0 +1,544 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pymatgen.analysis.piezo_sensitivity module &mdash; pymatgen 2020.4.29 documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pymatgen.orgpymatgen.analysis.piezo_sensitivity.html"/>
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.analysis.pourbaix_diagram module" href="pymatgen.analysis.pourbaix_diagram.html" />
+    <link rel="prev" title="pymatgen.analysis.piezo module" href="pymatgen.analysis.piezo.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pymatgen
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2020.4.29
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="team.html">Development Team</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API Docs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pymatgen.html">pymatgen package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="pymatgen.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.alchemy.html">pymatgen.alchemy package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="pymatgen.analysis.html">pymatgen.analysis package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.apps.html">pymatgen.apps package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.cli.html">pymatgen.cli package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.command_line.html">pymatgen.command_line package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html">pymatgen.core package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.electronic_structure.html">pymatgen.electronic_structure package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.entries.html">pymatgen.entries package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html">pymatgen.ext package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html">pymatgen.io package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.plugins.html">pymatgen.plugins package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.vis.html">pymatgen.vis package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#module-pymatgen">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pymatgen</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="modules.html">pymatgen</a> &raquo;</li>
+        
+          <li><a href="pymatgen.html">pymatgen package</a> &raquo;</li>
+        
+          <li><a href="pymatgen.analysis.html">pymatgen.analysis package</a> &raquo;</li>
+        
+      <li>pymatgen.analysis.piezo_sensitivity module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.analysis.piezo_sensitivity.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-pymatgen.analysis.piezo_sensitivity">
+<span id="pymatgen-analysis-piezo-sensitivity-module"></span><h1>pymatgen.analysis.piezo_sensitivity module<a class="headerlink" href="#module-pymatgen.analysis.piezo_sensitivity" title="Permalink to this headline">¶</a></h1>
+<p>Piezo sensitivity analysis module.</p>
+<dl class="py class">
+<dt id="pymatgen.analysis.piezo_sensitivity.BornEffectiveCharge">
+<em class="property">class </em><code class="sig-name descname">BornEffectiveCharge</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">bec</span></em>, <em class="sig-param"><span class="n">pointops</span></em>, <em class="sig-param"><span class="n">tol</span><span class="o">=</span><span class="default_value">0.001</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/piezo_sensitivity.py#L28-L181"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.piezo_sensitivity.BornEffectiveCharge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This class describes the Nx3x3 born effective charge tensor</p>
+<p>Create an BornEffectiveChargeTensor object defined by a
+structure, point operations of the structure’s atomic sites.
+Note that the constructor uses __new__ rather than __init__
+according to the standard method ofsubclassing numpy ndarrays.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>input_matrix</strong> (<em>Nx3x3 array-like</em>) – the Nx3x3 array-like
+representing the born effective charge tensor</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="pymatgen.analysis.piezo_sensitivity.BornEffectiveCharge.get_BEC_operations">
+<code class="sig-name descname">get_BEC_operations</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">eigtol</span><span class="o">=</span><span class="default_value">1e-05</span></em>, <em class="sig-param"><span class="n">opstol</span><span class="o">=</span><span class="default_value">0.001</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/piezo_sensitivity.py#L55-L114"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.piezo_sensitivity.BornEffectiveCharge.get_BEC_operations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the symmetry operations which maps the tensors
+belonging to equivalent sites onto each other in the form
+[site index 1, site index 2, [Symmops mapping from site
+index 1 to site index 2]]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>eigtol</strong> (<em>float</em>) – tolerance for determining if two sites are</p></li>
+<li><p><strong>by symmetry</strong> (<em>related</em>) – </p></li>
+<li><p><strong>opstol</strong> (<em>float</em>) – tolerance for determining if a symmetry</p></li>
+<li><p><strong>relates two sites</strong> (<em>operation</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of symmetry operations mapping equivalent sites and
+the indexes of those sites.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.analysis.piezo_sensitivity.BornEffectiveCharge.get_rand_BEC">
+<code class="sig-name descname">get_rand_BEC</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">max_charge</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/piezo_sensitivity.py#L116-L181"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.piezo_sensitivity.BornEffectiveCharge.get_rand_BEC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a random born effective charge tensor which obeys a structure’s
+symmetry and the acoustic sum rule</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>max_charge</strong> (<em>float</em>) – maximum born effective charge value</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>np.array Born effective charge tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pymatgen.analysis.piezo_sensitivity.ForceConstantMatrix">
+<em class="property">class </em><code class="sig-name descname">ForceConstantMatrix</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">fcm</span></em>, <em class="sig-param"><span class="n">pointops</span></em>, <em class="sig-param"><span class="n">sharedops</span></em>, <em class="sig-param"><span class="n">tol</span><span class="o">=</span><span class="default_value">0.001</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/piezo_sensitivity.py#L284-L769"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.piezo_sensitivity.ForceConstantMatrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This class describes the NxNx3x3 force constant matrix defined by a
+structure, point operations of the structure’s atomic sites, and the
+shared symmetry operations between pairs of atomic sites.</p>
+<p>Create an ForceConstantMatrix object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>input_matrix</strong> (<em>NxNx3x3 array-like</em>) – the NxNx3x3 array-like
+representing the force constant matrix</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="pymatgen.analysis.piezo_sensitivity.ForceConstantMatrix.get_FCM_operations">
+<code class="sig-name descname">get_FCM_operations</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">eigtol</span><span class="o">=</span><span class="default_value">1e-05</span></em>, <em class="sig-param"><span class="n">opstol</span><span class="o">=</span><span class="default_value">1e-05</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/piezo_sensitivity.py#L306-L401"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.piezo_sensitivity.ForceConstantMatrix.get_FCM_operations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the symmetry operations which maps the tensors
+belonging to equivalent sites onto each other in the form
+[site index 1a, site index 1b, site index 2a, site index 2b,
+[Symmops mapping from site index 1a, 1b to site index 2a, 2b]]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>eigtol</strong> (<em>float</em>) – tolerance for determining if two sites are</p></li>
+<li><p><strong>by symmetry</strong> (<em>related</em>) – </p></li>
+<li><p><strong>opstol</strong> (<em>float</em>) – tolerance for determining if a symmetry</p></li>
+<li><p><strong>relates two sites</strong> (<em>operation</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of symmetry operations mapping equivalent sites and
+the indexes of those sites.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.analysis.piezo_sensitivity.ForceConstantMatrix.get_asum_FCM">
+<code class="sig-name descname">get_asum_FCM</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fcm</span></em>, <em class="sig-param"><span class="n">numiter</span><span class="o">=</span><span class="default_value">15</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/piezo_sensitivity.py#L604-L720"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.piezo_sensitivity.ForceConstantMatrix.get_asum_FCM" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a symmeterized force constant matrix that obeys the objects symmetry
+constraints and obeys the acoustic sum rule through an iterative procedure</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fcm</strong> (<em>numpy array</em>) – 3Nx3N unsymmeterized force constant matrix</p></li>
+<li><p><strong>numiter</strong> (<em>int</em>) – number of iterations to attempt to obey the acoustic sum
+rule</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>numpy array representing the force constant matrix</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.analysis.piezo_sensitivity.ForceConstantMatrix.get_rand_FCM">
+<code class="sig-name descname">get_rand_FCM</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/../../../../../../opt/miniconda3/envs/pymatgen-release/lib/python3.8/site-packages/monty/dev.py#L722-L769"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.piezo_sensitivity.ForceConstantMatrix.get_rand_FCM" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a symmeterized force constant matrix from an unsymmeterized matrix
+that has no unstable modes and also obeys the acoustic sum rule through an
+iterative procedure</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>force</strong> (<em>float</em>) – maximum force constant</p></li>
+<li><p><strong>asum</strong> (<em>int</em>) – number of iterations to attempt to obey the acoustic sum
+rule</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>NxNx3x3 np.array representing the force constant matrix</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.analysis.piezo_sensitivity.ForceConstantMatrix.get_stable_FCM">
+<code class="sig-name descname">get_stable_FCM</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fcm</span></em>, <em class="sig-param"><span class="n">fcmasum</span><span class="o">=</span><span class="default_value">10</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/piezo_sensitivity.py#L552-L600"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.piezo_sensitivity.ForceConstantMatrix.get_stable_FCM" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a symmeterized force constant matrix that obeys the objects symmetry
+constraints, has no unstable modes and also obeys the acoustic sum rule through an
+iterative procedure</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fcm</strong> (<em>numpy array</em>) – unsymmeterized force constant matrix</p></li>
+<li><p><strong>fcmasum</strong> (<em>int</em>) – number of iterations to attempt to obey the acoustic sum
+rule</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>3Nx3N numpy array representing the force constant matrix</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.analysis.piezo_sensitivity.ForceConstantMatrix.get_symmetrized_FCM">
+<code class="sig-name descname">get_symmetrized_FCM</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">unsymmetrized_fcm</span></em>, <em class="sig-param"><span class="n">max_force</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/piezo_sensitivity.py#L478-L550"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.piezo_sensitivity.ForceConstantMatrix.get_symmetrized_FCM" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a symmeterized force constant matrix from an unsymmeterized matrix</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>unsymmetrized_fcm</strong> (<em>numpy array</em>) – unsymmeterized force constant matrix</p></li>
+<li><p><strong>max_charge</strong> (<em>float</em>) – maximum born effective charge value</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>3Nx3N numpy array representing the force constant matrix</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.analysis.piezo_sensitivity.ForceConstantMatrix.get_unstable_FCM">
+<code class="sig-name descname">get_unstable_FCM</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">max_force</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/piezo_sensitivity.py#L403-L476"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.piezo_sensitivity.ForceConstantMatrix.get_unstable_FCM" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate an unsymmeterized force constant matrix</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>max_charge</strong> (<em>float</em>) – maximum born effective charge value</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>numpy array representing the force constant matrix</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pymatgen.analysis.piezo_sensitivity.InternalStrainTensor">
+<em class="property">class </em><code class="sig-name descname">InternalStrainTensor</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">ist</span></em>, <em class="sig-param"><span class="n">pointops</span></em>, <em class="sig-param"><span class="n">tol</span><span class="o">=</span><span class="default_value">0.001</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/piezo_sensitivity.py#L184-L281"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.piezo_sensitivity.InternalStrainTensor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This class describes the Nx3x3x3 internal tensor defined by a
+structure, point operations of the structure’s atomic sites.</p>
+<p>Create an InternalStrainTensor object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>input_matrix</strong> (<em>Nx3x3x3 array-like</em>) – the Nx3x3x3 array-like
+representing the internal strain tensor</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="pymatgen.analysis.piezo_sensitivity.InternalStrainTensor.get_IST_operations">
+<code class="sig-name descname">get_IST_operations</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">opstol</span><span class="o">=</span><span class="default_value">0.001</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/piezo_sensitivity.py#L210-L249"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.piezo_sensitivity.InternalStrainTensor.get_IST_operations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the symmetry operations which maps the tensors
+belonging to equivalent sites onto each other in the form
+[site index 1, site index 2, [Symmops mapping from site
+index 1 to site index 2]]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>opstol</strong> (<em>float</em>) – tolerance for determining if a symmetry</p></li>
+<li><p><strong>relates two sites</strong> (<em>operation</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of symmetry operations mapping equivalent sites and
+the indexes of those sites.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.analysis.piezo_sensitivity.InternalStrainTensor.get_rand_IST">
+<code class="sig-name descname">get_rand_IST</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">max_force</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/piezo_sensitivity.py#L251-L281"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.piezo_sensitivity.InternalStrainTensor.get_rand_IST" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a random internal strain tensor which obeys a structure’s
+symmetry and the acoustic sum rule</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>max_force</strong> (<em>float</em>) – maximum born effective charge value</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>InternalStrainTensor object</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="pymatgen.analysis.piezo_sensitivity.get_piezo">
+<code class="sig-name descname">get_piezo</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">BEC</span></em>, <em class="sig-param"><span class="n">IST</span></em>, <em class="sig-param"><span class="n">FCM</span></em>, <em class="sig-param"><span class="n">rcond</span><span class="o">=</span><span class="default_value">0.0001</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/piezo_sensitivity.py#L772-L799"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.piezo_sensitivity.get_piezo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a random piezoelectric tensor based on a structure and corresponding
+symmetry</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>BEC</strong> (<em>numpy array</em>) – Nx3x3 array representing the born effective charge tensor</p></li>
+<li><p><strong>IST</strong> (<em>numpy array</em>) – Nx3x3x3 array representing the internal strain tensor</p></li>
+<li><p><strong>FCM</strong> (<em>numpy array</em>) – NxNx3x3 array representing the born effective charge tensor</p></li>
+<li><p><strong>rcondy</strong> (<em>float</em>) – condition for excluding eigenvalues in the pseudoinverse</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>3x3x3 calculated Piezo tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pymatgen.analysis.piezo_sensitivity.rand_piezo">
+<code class="sig-name descname">rand_piezo</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/../../../../../../opt/miniconda3/envs/pymatgen-release/lib/python3.8/site-packages/monty/dev.py#L802-L834"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.piezo_sensitivity.rand_piezo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a random piezoelectric tensor based on a structure and corresponding
+symmetry</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>struc</strong> (<em>pymatgen structure</em>) – structure whose symmetry operations the piezo tensor must obey</p></li>
+<li><p><strong>pointops</strong> – list of point operations obeyed by a single atomic site</p></li>
+<li><p><strong>sharedops</strong> – list of point operations shared by a pair of atomic sites</p></li>
+<li><p><strong>BEC</strong> (<em>numpy array</em>) – Nx3x3 array representing the born effective charge tensor</p></li>
+<li><p><strong>IST</strong> (<em>numpy array</em>) – Nx3x3x3 array representing the internal strain tensor</p></li>
+<li><p><strong>FCM</strong> (<em>numpy array</em>) – NxNx3x3 array representing the born effective charge tensor</p></li>
+<li><p><strong>anumiter</strong> (<em>int</em>) – number of iterations for acoustic sum rule convergence</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list in the form of [Nx3x3 random born effective charge tenosr,
+Nx3x3x3 random internal strain tensor, NxNx3x3 random force constant matrix, 3x3x3 piezo tensor]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011, Pymatgen Development Team
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+  
+ 
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+
+</body>
+</html>

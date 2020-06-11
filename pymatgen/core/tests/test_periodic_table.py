@@ -63,6 +63,8 @@ class ElementTestCase(PymatgenTest):
         for k, v in testsets.items():
             self.assertEqual(Element(k).full_electronic_structure, v)
 
+        self.assertEqual(Element.Ac.electronic_structure, '[Rn].6d1.7s2')
+
     def test_valence(self):
         testsets = {"O": (1, 4),
                     "Fe": (2, 6),
@@ -389,11 +391,6 @@ class DummySpecieTestCase(unittest.TestCase):
         r = sorted([Element.Fe, DummySpecie("X")])
         self.assertEqual(r, [DummySpecie("X"), Element.Fe])
         self.assertTrue(DummySpecie("X", 3) < DummySpecie("X", 4))
-
-    def test_safe_from_composition(self):
-        c = Composition({'Xa': 1, 'Fe': 1})
-        self.assertEqual(DummySpecie.safe_from_composition(c).symbol, 'Xb')
-        self.assertEqual(DummySpecie.safe_from_composition(c, 1).symbol, 'Xb')
 
 
 class FuncTest(unittest.TestCase):

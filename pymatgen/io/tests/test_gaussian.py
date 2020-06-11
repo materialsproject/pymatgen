@@ -8,10 +8,10 @@ import os
 from pymatgen import Molecule
 from pymatgen.io.gaussian import GaussianInput, GaussianOutput
 from pymatgen.electronic_structure.core import Spin
+
 """
 Created on Apr 17, 2012
 """
-
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -19,8 +19,6 @@ __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Apr 17, 2012"
-
-
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files', "molecules")
@@ -195,6 +193,18 @@ H 0
         self.assertEqual(gin.charge, 0)
         self.assertEqual(gin.spin_multiplicity, 1)
 
+    def test_no_molecule(self):
+        """Test that we can write output files without a geometry"""
+
+        # Note that we must manually specify charge
+        with self.assertRaises(ValueError):
+            GaussianInput(None)
+
+        # Makes a file without geometry
+        input_file = GaussianInput(None, charge=0, spin_multiplicity=2)
+        input_str = input_file.to_string().strip()
+        self.assertTrue(input_str.endswith('0 2'))
+
 
 class GaussianOutputTest(unittest.TestCase):
     # todo: Add unittest for PCM type output.
@@ -230,7 +240,7 @@ class GaussianOutputTest(unittest.TestCase):
         self.assertEqual(d["input"]["functional"], "hf")
         self.assertAlmostEqual(d["output"]["final_energy"], -39.9768775602)
         self.assertEqual(len(gau.cart_forces), 3)
-        self.assertEqual(gau.cart_forces[0][5],  0.009791094)
+        self.assertEqual(gau.cart_forces[0][5], 0.009791094)
         self.assertEqual(gau.cart_forces[0][-1], -0.003263698)
         self.assertEqual(gau.cart_forces[2][-1], -0.000000032)
         self.assertEqual(gau.eigenvalues[Spin.up][-1], 1.95586)
@@ -262,7 +272,7 @@ class GaussianOutputTest(unittest.TestCase):
         self.assertEqual(h2o.frequencies[0][1]["symmetry"], "A'")
         self.assertEqual(h2o.hessian[0, 0], 0.356872)
         self.assertEqual(h2o.hessian.shape, (9, 9))
-        self.assertEqual(h2o.hessian[8, :].tolist(), [-0.143692e-01,  0.780136e-01,
+        self.assertEqual(h2o.hessian[8, :].tolist(), [-0.143692e-01, 0.780136e-01,
                                                       -0.362637e-01, -0.176193e-01,
                                                       0.277304e-01, -0.583237e-02,
                                                       0.319885e-01, -0.105744e+00,
@@ -273,12 +283,12 @@ class GaussianOutputTest(unittest.TestCase):
         self.assertEqual(gau.num_basis_func, 13)
         self.assertEqual(gau.electrons, (5, 5))
         self.assertEqual(gau.is_spin, True)
-        self.assertListEqual(gau.eigenvalues[Spin.down], [-20.55343,  -1.35264,
-                                                          -0.72655,  -0.54824,
-                                                          -0.49831,   0.20705,
-                                                          0.30297,   1.10569,
-                                                          1.16144,   1.16717,
-                                                          1.20460,   1.38903,
+        self.assertListEqual(gau.eigenvalues[Spin.down], [-20.55343, -1.35264,
+                                                          -0.72655, -0.54824,
+                                                          -0.49831, 0.20705,
+                                                          0.30297, 1.10569,
+                                                          1.16144, 1.16717,
+                                                          1.20460, 1.38903,
                                                           1.67608])
         mo = gau.molecular_orbital
         self.assertEqual(len(mo), 2)  # la 6
@@ -310,7 +320,6 @@ class GaussianOutputTest(unittest.TestCase):
         self.assertEqual(gau.bond_orders[(0, 1)], 0.7582)
         self.assertEqual(gau.bond_orders[(1, 2)], 0.0002)
 
-
     def test_scan(self):
         gau = GaussianOutput(os.path.join(test_dir, "so2_scan.log"))
         d = gau.read_scan()
@@ -318,6 +327,26 @@ class GaussianOutputTest(unittest.TestCase):
         self.assertEqual(len(d["coords"]), 1)
         self.assertEqual(len(d["energies"]), len(gau.energies))
         self.assertEqual(len(d["energies"]), 21)
+        gau = GaussianOutput(os.path.join(test_dir, "so2_scan_opt.log"))
+        self.assertEqual(21, len(gau.opt_structures))
+        d = gau.read_scan()
+        self.assertAlmostEqual(-548.02336, d["energies"][-1])
+        self.assertEqual(len(d["coords"]), 2)
+        self.assertEqual(len(d["energies"]), 21)
+        self.assertAlmostEqual(1.60000, d["coords"]["DSO"][6])
+        self.assertAlmostEqual(124.01095, d["coords"]["ASO"][2])
+        gau = GaussianOutput(os.path.join(test_dir, "H2O_scan_G16.out"))
+        self.assertEqual(21, len(gau.opt_structures))
+        coords = [[0.104226,  0.000000,  0.087456],
+                  [-0.059296, 0.000000,  1.014833],
+                  [0.989118,  0.000000, -0.234619]]
+        self.assertAlmostEqual(gau.opt_structures[-1].cart_coords.tolist(), coords)
+        d = gau.read_scan()
+        self.assertAlmostEqual(-0.00523, d["energies"][-1])
+        self.assertEqual(len(d["coords"]), 3)
+        self.assertEqual(len(d["energies"]), 21)
+        self.assertAlmostEqual(0.94710, d["coords"]["R1"][6])
+        self.assertAlmostEqual(0.94277, d["coords"]["R2"][17])
 
     def test_td(self):
         gau = GaussianOutput(os.path.join(test_dir, "so2_td.log"))

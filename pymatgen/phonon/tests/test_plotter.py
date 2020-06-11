@@ -1,4 +1,3 @@
-
 import unittest
 import os
 import json
@@ -8,7 +7,6 @@ from io import open
 from pymatgen.phonon.dos import CompletePhononDos
 from pymatgen.phonon.plotter import PhononDosPlotter, PhononBSPlotter, ThermoPlotter
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
-
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
@@ -90,7 +88,7 @@ class ThermoPlotterTest(unittest.TestCase):
         self.plotter.plot_entropy(5, 100, 5, show=False)
         self.plotter.plot_internal_energy(5, 100, 5, show=False)
         self.plotter.plot_helmholtz_free_energy(5, 100, 5, show=False)
-        self.plotter.plot_thermodynamic_properties(5, 100, 5, show=False)
+        self.plotter.plot_thermodynamic_properties(5, 100, 5, show=False, fig_close=True)
 
 
 if __name__ == "__main__":

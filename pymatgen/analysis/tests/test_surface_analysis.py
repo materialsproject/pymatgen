@@ -1,4 +1,3 @@
-
 import unittest
 import os
 import warnings
@@ -63,7 +62,7 @@ class SlabEntryTest(PymatgenTest):
                     for ads in self.metals_O_entry_dict[el][hkl][clean]:
                         ml = ads.get_unit_primitive_area
                         self.assertAlmostEqual(ml, 4, 2)
-                        self.assertAlmostEqual(ads.get_monolayer, 1/4, 2)
+                        self.assertAlmostEqual(ads.get_monolayer, 1 / 4, 2)
                         Nads = ads.Nads_in_slab
                         self.assertEqual(Nads, 1)
                         self.assertEqual(ads.Nsurfs_ads_in_slab, 1)
@@ -73,14 +72,14 @@ class SlabEntryTest(PymatgenTest):
                                                'isolated_O_entry.txt')) as isolated_O_entry:
                             isolated_O_entry = json.loads(isolated_O_entry.read())
                         O = ComputedStructureEntry.from_dict(isolated_O_entry)
-                        gbind = (ads.energy - ml*clean.energy)/Nads - O.energy_per_atom
+                        gbind = (ads.energy - ml * clean.energy) / Nads - O.energy_per_atom
                         self.assertEqual(gbind, ads.gibbs_binding_energy())
                         # Determine the correction Gibbs adsorption energy
                         eads = Nads * gbind
                         self.assertEqual(eads, ads.gibbs_binding_energy(eads=True))
                         se = ads.surface_energy(el_ucell)
                         self.assertAlmostEqual(se.as_coefficients_dict()[Symbol("delu_O")],
-                                               (-1/2)*ads.surface_area**(-1))
+                                               (-1 / 2) * ads.surface_area ** (-1))
 
     def test_create_slab_label(self):
 
@@ -90,16 +89,16 @@ class SlabEntryTest(PymatgenTest):
                 for clean in self.metals_O_entry_dict[el][hkl]:
                     label = clean.create_slab_label
                     comp = str(clean.composition.reduced_composition)
-                    self.assertEqual(str(hkl)+" %s" %(comp), label)
+                    self.assertEqual(str(hkl) + " %s" % (comp), label)
 
                     for ads in self.metals_O_entry_dict[el][hkl][clean]:
                         label = ads.create_slab_label
-                        self.assertEqual(label, str(hkl)+" %s+O, 0.250 ML" %(comp))
+                        self.assertEqual(label, str(hkl) + " %s+O, 0.250 ML" % (comp))
 
     def test_surface_energy(self):
         # For a nonstoichiometric case, the cheimcal potentials do not
         # cancel out, they serve as a reservoir for any missing atoms
-        for slab_entry in self.MgO_slab_entry_dict[(1,1,1)].keys():
+        for slab_entry in self.MgO_slab_entry_dict[(1, 1, 1)].keys():
             se = slab_entry.surface_energy(self.MgO_ucell_entry,
                                            ref_entries=[self.Mg_ucell_entry])
             self.assertEqual(tuple(se.as_coefficients_dict().keys()),
@@ -114,12 +113,12 @@ class SlabEntryTest(PymatgenTest):
             se = slab_entry.surface_energy(self.Cu_ucell_entry)
             all_se.append(se)
             # Manually calculate surface energy
-            manual_se = (slab_entry.energy - \
-                         ECu *len(slab_entry.structure))/(2*slab_entry.surface_area)
+            manual_se = (slab_entry.energy -
+                         ECu * len(slab_entry.structure)) / (2 * slab_entry.surface_area)
             self.assertArrayAlmostEqual(float(se), manual_se, 10)
 
         # The (111) facet should be the most stable
-        clean111_entry = list(self.Cu_entry_dict[(1,1,1)].keys())[0]
+        clean111_entry = list(self.Cu_entry_dict[(1, 1, 1)].keys())[0]
         se_Cu111 = clean111_entry.surface_energy(self.Cu_ucell_entry)
         self.assertEqual(min(all_se), se_Cu111)
 
@@ -194,8 +193,8 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
         # all the facets for Cu wulff shape are inside.
         Cu_wulff = self.Cu_analyzer.wulff_from_chempot()
         area_frac_dict = Cu_wulff.area_fraction_dict
-        facets_hkl = [(1,1,1), (3,3,1), (3,1,0), (1,0,0),
-                      (3,1,1), (2,1,0), (2,2,1)]
+        facets_hkl = [(1, 1, 1), (3, 3, 1), (3, 1, 0), (1, 0, 0),
+                      (3, 1, 1), (2, 1, 0), (2, 2, 1)]
         for hkl in area_frac_dict.keys():
             if hkl in facets_hkl:
                 self.assertNotEqual(area_frac_dict[hkl], 0)
@@ -263,7 +262,7 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
         for el in self.Oads_analyzer_dict.keys():
             analyzer = self.Oads_analyzer_dict[el]
 
-        stable_u_range = analyzer.stable_u_range_dict([-1,0], Symbol("delu_O"),
+        stable_u_range = analyzer.stable_u_range_dict([-1, 0], Symbol("delu_O"),
                                                       no_doped=False)
         all_u = []
         for entry in stable_u_range.keys():
@@ -324,7 +323,6 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
 class WorkfunctionAnalyzerTest(PymatgenTest):
 
     def setUp(self):
-
         self.kwargs = {"poscar_filename": get_path("CONTCAR.relax1.gz"),
                        "locpot_filename": get_path("LOCPOT.gz"),
                        "outcar_filename": get_path("OUTCAR.relax1.gz")}
@@ -332,8 +330,8 @@ class WorkfunctionAnalyzerTest(PymatgenTest):
 
     def test_shift(self):
         wf_analyzer_shift = WorkFunctionAnalyzer.from_files(shift=-0.25, blength=3.7, **self.kwargs)
-        self.assertEqual("%.f" %(self.wf_analyzer.ave_bulk_p),
-                         "%.f" %(wf_analyzer_shift.ave_bulk_p))
+        self.assertEqual("%.f" % (self.wf_analyzer.ave_bulk_p),
+                         "%.f" % (wf_analyzer_shift.ave_bulk_p))
 
     def test_is_converged(self):
         self.assertTrue(self.wf_analyzer.is_converged())
@@ -342,7 +340,6 @@ class WorkfunctionAnalyzerTest(PymatgenTest):
 class NanoscaleStabilityTest(PymatgenTest):
 
     def setUp(self):
-
         # Load all entries
         La_hcp_entry_dict = get_entry_dict(os.path.join(get_path(""),
                                                         "La_hcp_entries.txt"))
@@ -362,21 +359,20 @@ class NanoscaleStabilityTest(PymatgenTest):
                                                        self.La_hcp_analyzer])
 
     def test_stability_at_r(self):
-
         # Check that we have a different polymorph that is
         # stable below or above the equilibrium particle size
         r = self.nanoscale_stability.solve_equilibrium_point(self.La_hcp_analyzer,
-                                                             self.La_fcc_analyzer)*10
+                                                             self.La_fcc_analyzer) * 10
 
         # hcp phase of La particle should be the stable
         # polymorph above the equilibrium radius
         hcp_wulff = self.La_hcp_analyzer.wulff_from_chempot()
         bulk = self.La_hcp_analyzer.ucell_entry
-        ghcp, rhcp = self.nanoscale_stability.wulff_gform_and_r(hcp_wulff, bulk, r+10,
+        ghcp, rhcp = self.nanoscale_stability.wulff_gform_and_r(hcp_wulff, bulk, r + 10,
                                                                 from_sphere_area=True)
         fcc_wulff = self.La_fcc_analyzer.wulff_from_chempot()
         bulk = self.La_fcc_analyzer.ucell_entry
-        gfcc, rfcc = self.nanoscale_stability.wulff_gform_and_r(fcc_wulff, bulk, r+10,
+        gfcc, rfcc = self.nanoscale_stability.wulff_gform_and_r(fcc_wulff, bulk, r + 10,
                                                                 from_sphere_area=True)
         self.assertGreater(gfcc, ghcp)
 
@@ -384,11 +380,11 @@ class NanoscaleStabilityTest(PymatgenTest):
         # polymorph below the equilibrium radius
         hcp_wulff = self.La_hcp_analyzer.wulff_from_chempot()
         bulk = self.La_hcp_analyzer.ucell_entry
-        ghcp, rhcp = self.nanoscale_stability.wulff_gform_and_r(hcp_wulff, bulk, r-10,
+        ghcp, rhcp = self.nanoscale_stability.wulff_gform_and_r(hcp_wulff, bulk, r - 10,
                                                                 from_sphere_area=True)
         fcc_wulff = self.La_fcc_analyzer.wulff_from_chempot()
         bulk = self.La_fcc_analyzer.ucell_entry
-        gfcc, rfcc = self.nanoscale_stability.wulff_gform_and_r(fcc_wulff, bulk, r-10,
+        gfcc, rfcc = self.nanoscale_stability.wulff_gform_and_r(fcc_wulff, bulk, r - 10,
                                                                 from_sphere_area=True)
         self.assertLess(gfcc, ghcp)
 
@@ -432,7 +428,6 @@ def get_entry_dict(filename):
 
 
 def load_O_adsorption():
-
     # Loads the dictionary for clean and O adsorbed Rh, Pt, and Ni entries
 
     # Load the adsorbate as an entry
@@ -455,7 +450,7 @@ def load_O_adsorption():
             if el in k:
                 if "111" in k:
                     clean = SlabEntry(entry.structure, entry.energy,
-                                      (1,1,1), label=k+"_clean")
+                                      (1, 1, 1), label=k + "_clean")
                     metals_O_entry_dict[el][(1, 1, 1)][clean] = []
                 if "110" in k:
                     clean = SlabEntry(entry.structure, entry.energy,
@@ -463,7 +458,7 @@ def load_O_adsorption():
                     metals_O_entry_dict[el][(1, 1, 0)][clean] = []
                 if "100" in k:
                     clean = SlabEntry(entry.structure, entry.energy,
-                                      (1,0,0), label=k+"_clean")
+                                      (1, 0, 0), label=k + "_clean")
                     metals_O_entry_dict[el][(1, 0, 0)][clean] = []
 
     with open(os.path.join(get_path(""), "csentries_o_ads.json")) as entries:
@@ -474,18 +469,18 @@ def load_O_adsorption():
             if el in k:
                 if "111" in k:
                     clean = list(metals_O_entry_dict[el][(1, 1, 1)].keys())[0]
-                    ads = SlabEntry(entry.structure, entry.energy, (1,1,1),
-                                    label=k+"_O", adsorbates=[O], clean_entry=clean)
+                    ads = SlabEntry(entry.structure, entry.energy, (1, 1, 1),
+                                    label=k + "_O", adsorbates=[O], clean_entry=clean)
                     metals_O_entry_dict[el][(1, 1, 1)][clean] = [ads]
                 if "110" in k:
                     clean = list(metals_O_entry_dict[el][(1, 1, 0)].keys())[0]
-                    ads = SlabEntry(entry.structure, entry.energy, (1,1,0),
-                                    label=k+"_O", adsorbates=[O], clean_entry=clean)
+                    ads = SlabEntry(entry.structure, entry.energy, (1, 1, 0),
+                                    label=k + "_O", adsorbates=[O], clean_entry=clean)
                     metals_O_entry_dict[el][(1, 1, 0)][clean] = [ads]
                 if "100" in k:
                     clean = list(metals_O_entry_dict[el][(1, 0, 0)].keys())[0]
-                    ads = SlabEntry(entry.structure, entry.energy, (1,0,0),
-                                    label=k+"_O", adsorbates=[O], clean_entry=clean)
+                    ads = SlabEntry(entry.structure, entry.energy, (1, 0, 0),
+                                    label=k + "_O", adsorbates=[O], clean_entry=clean)
                     metals_O_entry_dict[el][(1, 0, 0)][clean] = [ads]
 
     return metals_O_entry_dict

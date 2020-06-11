@@ -1,3 +1,32 @@
+"""
+BoltzTraT2 is a python software interpolating band structures and
+computing materials properties from dft band structure using Boltzmann
+semi-classical transport theory.
+This module provides a pymatgen interface to BoltzTraT2.
+Some of the code is written following the examples provided in BoltzTraP2
+
+BoltzTraT2 has been developed by Georg Madsen, Jesús Carrete, Matthieu J. Verstraete.
+
+https://gitlab.com/sousaw/BoltzTraP2
+https://www.sciencedirect.com/science/article/pii/S0010465518301632
+
+References are:
+
+    Georg K.H.Madsen, Jesús Carrete, Matthieu J.Verstraete
+    BoltzTraP2, a program for interpolating band structures and
+    calculating semi-classical transport coefficients
+    Computer Physics Communications 231, 140-145, 2018
+
+    Madsen, G. K. H., and Singh, D. J. (2006).
+    BoltzTraP. A code for calculating band-structure dependent quantities.
+    Computer Physics Communications, 175, 67-71
+
+TODO:
+- spin polarized bands
+- read first derivative of the eigenvalues from vasprun.xml (mommat)
+- handle magnetic moments (magmom)
+"""
+
 import numpy as np
 import matplotlib.pyplot as plt
 from monty.serialization import dumpfn
@@ -18,35 +47,6 @@ try:
 except ImportError:
     raise BoltztrapError("BoltzTraP2 has to be installed and working")
 
-"""
-BoltzTraT2 is a python software interpolating band structures and
-computing materials properties from dft band structure using Boltzmann
-semi-classical transport theory.
-This module provides a pymatgen interface to BoltzTraT2.
-Some of the code is written following the examples provided in BoltzTraP2
-
-BoltzTraT2 has been developed by Georg Madsen, Jesús Carrete, Matthieu J. Verstraete.
-
-https://gitlab.com/sousaw/BoltzTraP2
-https://www.sciencedirect.com/science/article/pii/S0010465518301632
-
-References are:
-
-    Georg K.H.Madsen, Jesús Carrete, Matthieu J.Verstraete;
-    BoltzTraP2, a program for interpolating band structures and
-    calculating semi-classical transport coefficients
-    Computer Physics Communications 231, 140-145, 2018
-
-    Madsen, G. K. H., and Singh, D. J. (2006).
-    BoltzTraP. A code for calculating band-structure dependent quantities.
-    Computer Physics Communications, 175, 67-71
-
-TODO:
-- spin polarized bands
-- read first derivative of the eigenvalues from vasprun.xml (mommat)
-- handle magnetic moments (magmom)
-"""
-
 __author__ = "Francesco Ricci"
 __copyright__ = "Copyright 2018, The Materials Project"
 __version__ = "1.0"
@@ -61,8 +61,10 @@ class BandstructureLoader:
 
     def __init__(self, bs_obj, structure=None, nelect=None, spin=None):
         """
-            Structure and nelect is needed to be provide.
-            spin must be select if bs is spin-polarized.
+        :param bs_obj:
+        :param structure:
+        :param nelect:
+        :param spin:
         """
         self.kpoints = np.array([kp.frac_coords for kp in bs_obj.kpoints])
 
@@ -106,6 +108,9 @@ class BandstructureLoader:
             self.cbm_idx = list(bs_obj.get_cbm()['band_index'].values())[0][0]
 
     def get_lattvec(self):
+        """
+        :return: The lattice vectors.
+        """
         try:
             self.lattvec
         except AttributeError:
@@ -151,6 +156,9 @@ class BandstructureLoader:
             self.proj = np.concatenate((proj_lower, self.proj, proj_upper), axis=1)
 
     def get_volume(self):
+        """
+        :return: Volume
+        """
         try:
             self.UCvol
         except AttributeError:
@@ -163,6 +171,9 @@ class VasprunLoader:
     """Loader for Vasprun object"""
 
     def __init__(self, vrun_obj=None):
+        """
+        :param vrun_obj: Vasprun object.
+        """
         if vrun_obj:
             self.kpoints = np.array(vrun_obj.actual_kpoints)
             self.structure = vrun_obj.final_structure
@@ -194,6 +205,9 @@ class VasprunLoader:
         return VasprunLoader(vrun_obj)
 
     def get_lattvec(self):
+        """
+        :return: Lattice vectors
+        """
         try:
             self.lattvec
         except AttributeError:
@@ -225,6 +239,9 @@ class VasprunLoader:
         return nemin, nemax
 
     def get_volume(self):
+        """
+        :return: Volume of cell
+        """
         try:
             self.UCvol
         except AttributeError:
@@ -235,8 +252,11 @@ class VasprunLoader:
 
 class BztInterpolator:
     """
-        Interpolate the dft band structures
+    Interpolate the dft band structures
+    """
 
+    def __init__(self, data, lpfac=10, energy_range=1.5, curvature=True):
+        """
         Args:
             data: A loader
             lpfac: the number of interpolation points in the real space. By
@@ -252,10 +272,7 @@ class BztInterpolator:
         Example:
             data = VasprunLoader().from_file('vasprun.xml')
             bztInterp = BztInterpolator(data)
-    """
-
-    def __init__(self, data, lpfac=10, energy_range=1.5, curvature=True):
-
+        """
         self.data = data
         num_kpts = self.data.kpoints.shape[0]
         self.efermi = self.data.fermi
@@ -365,11 +382,15 @@ class BztInterpolator:
 
 class BztTransportProperties:
     """
-        Compute Seebeck, Conductivity, Electrical part of thermal conductivity
-        and Hall coefficient, conductivity effective mass, Power Factor tensors
-        w.r.t. the chemical potential and temperatures, from dft band structure via
-        interpolation.
+    Compute Seebeck, Conductivity, Electrical part of thermal conductivity
+    and Hall coefficient, conductivity effective mass, Power Factor tensors
+    w.r.t. the chemical potential and temperatures, from dft band structure via
+    interpolation.
+    """
 
+    def __init__(self, BztInterpolator, temp_r=np.arange(100, 1400, 100),
+                 doping=10. ** np.arange(16, 23), npts_mu=4000, CRTA=1e-14, margin=None):
+        """
         Args:
             BztInterpolator: a BztInterpolator previously generated
             temp_r: numpy array of temperatures at which to calculate trasport properties
@@ -391,16 +412,12 @@ class BztTransportProperties:
 
         Example:
             bztTransp = BztTransportProperties(bztInterp,temp_r = np.arange(100,1400,100))
-    """
-
-    def __init__(self, BztInterpolator, temp_r=np.arange(100, 1400, 100),
-                 doping=10. ** np.arange(16, 23), npts_mu=4000, CRTA=1e-14, margin=None):
+        """
 
         self.CRTA = CRTA
         self.temp_r = temp_r
         self.doping = doping
         self.dosweight = BztInterpolator.data.dosweight
-        lattvec = BztInterpolator.data.get_lattvec()
 
         self.epsilon, self.dos, self.vvdos, self.cdos = BL.BTPDOS(BztInterpolator.eband, BztInterpolator.vvband,
                                                                   npts=npts_mu, cband=BztInterpolator.cband)
@@ -522,6 +539,16 @@ class BztTransportProperties:
         self.mu_doping_eV = {k: v / units.eV - self.efermi for k, v in mu_doping.items()}
 
     def find_mu_doping(self, epsilon, dos, N0, T, dosweight=2.):
+        """
+        Find the mu.
+
+        :param epsilon:
+        :param dos:
+        :param N0:
+        :param T:
+        :param dosweight:
+        :return:
+        """
         delta = np.empty_like(epsilon)
         for i, e in enumerate(epsilon):
             delta[i] = BL.calc_N(epsilon, dos, e, T, dosweight) + N0
@@ -531,6 +558,9 @@ class BztTransportProperties:
         return epsilon[pos]
 
     def props_as_dict(self):
+        """
+        :return: Get the properties as a dict.
+        """
         props = ("Conductivity", "Seebeck", "Kappa")  # ,"Hall"
         props_unit = (r"$\mathrm{kS\,m^{-1}}$", r"$\mu$V/K", r"")
 
@@ -550,19 +580,28 @@ class BztTransportProperties:
         self.props_dict = p_dict
 
     def save(self, fname="Transport_Properties.json"):
+        """
+        Writes the properties to a json file.
+
+        :param fname: Filename
+        """
         dumpfn(self.props_dict, fname)
 
 
 class BztPlotter:
     """
-        Plotter to plot transport properties, interpolated bands along some high
-        symmetry k-path, and fermisurface
+    Plotter to plot transport properties, interpolated bands along some high
+    symmetry k-path, and fermisurface
 
-        Example:
-            bztPlotter = BztPlotter(bztTransp,bztInterp)
+    Example:
+        bztPlotter = BztPlotter(bztTransp,bztInterp)
     """
 
     def __init__(self, bzt_transP=None, bzt_interp=None):
+        """
+        :param bzt_transP:
+        :param bzt_interp:
+        """
         self.bzt_transP = bzt_transP
         self.bzt_interp = bzt_interp
 
@@ -626,7 +665,7 @@ class BztPlotter:
             p_array = eval("self.bzt_transP." + props[idx_prop] + '_' + prop_x)
 
         if ax is None:
-            fig = plt.figure(figsize=(10, 8))
+            plt.figure(figsize=(10, 8))
 
         temps_all = self.bzt_transP.temp_r.tolist()
         if temps is None:
@@ -727,6 +766,12 @@ class BztPlotter:
 
 
 def merge_up_down_doses(dos_up, dos_dn):
+    """
+    Merge the up and down DOSs.
+    :param dos_up: Up DOS.
+    :param dos_dn: Down DOS
+    :return: CompleteDos.
+    """
     cdos = Dos(dos_up.efermi, dos_up.energies,
                {Spin.up: dos_up.densities[Spin.up], Spin.down: dos_dn.densities[Spin.down]})
 

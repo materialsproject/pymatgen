@@ -95,8 +95,8 @@ class ReactionTest(unittest.TestCase):
                     Composition("Li2O")]
 
         self.assertEqual(str(Reaction(reactants, products)),
-                         "La2Zr2O7 + 2 LiCoO2 + Li2O -> "
-                         "La2O3 + Co2O3 + 2 Li2ZrO3")
+                         "La2Zr2O7 + 6 LiCoO2 -> "
+                         "La2O3 + 3 Co2O3 + 2 Li2ZrO3 + Li2O")
 
         reactants = [Composition("La2O3"), Composition("Co2O3"),
                      Composition("Li2ZrO3")]
@@ -129,7 +129,8 @@ class ReactionTest(unittest.TestCase):
                     Composition("Li2O1"), Composition("Li1F1"),
                     Composition("Co1F3")]
         self.assertEqual(str(Reaction(reactants, products)),
-                         "2 LiCoO2 -> Co2O3 + Li2O")
+                         "1.667 LiCoO2 + 0.3333 CoF3 -> "
+                         "Co2O3 + 0.3333 Li2O + LiF")
 
         # this test can fail because of numerical rank calculation issues
         reactants = [Composition("LiCoO2"), Composition("Li2O1")]
@@ -141,7 +142,7 @@ class ReactionTest(unittest.TestCase):
         rxn = Reaction([Composition('XeMn'), Composition("Li")],
                        [Composition("S"), Composition("LiS2"),
                         Composition('FeCl')])
-        self.assertEqual(str(rxn), '0.5 LiS2 -> 0.5 Li + S')
+        self.assertEqual(str(rxn), 'Li + 2 S -> LiS2')
 
     def test_overdetermined(self):
         self.assertRaises(ReactionError, Reaction, [Composition("Li")],
@@ -265,15 +266,17 @@ class ReactionTest(unittest.TestCase):
                      Composition("Cl"),
                      Composition("Cl")]
         products = [Composition("LiCl")]
-        self.assertRaisesRegex(ReactionError, "underdetermined", Reaction,
-                              reactants, products)
+        rxn = Reaction(reactants, products)
+        self.assertEqual(str(rxn),
+                         "Li + 0.25 Cl2 + 0.25 Cl2 -> LiCl")
 
         reactants = [Composition("LiMnCl3"),
                      Composition("LiCl"),
                      Composition("MnCl2")]
         products = [Composition("Li2MnCl4")]
-        self.assertRaisesRegex(ReactionError, "underdetermined", Reaction,
-                               reactants, products)
+        rxn = Reaction(reactants, products)
+        self.assertEqual(str(rxn),
+                         "LiMnCl3 + 3 LiCl + MnCl2 -> 2 Li2MnCl4")
 
 
 class BalancedReactionTest(unittest.TestCase):

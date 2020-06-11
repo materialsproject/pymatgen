@@ -2,11 +2,16 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+Base classes representing defects.
+"""
+
+
 import logging
 import numpy as np
 
 from abc import ABCMeta, abstractmethod
-from monty.json import MSONable, MontyDecoder, jsanitize
+from monty.json import MSONable, MontyDecoder
 from functools import lru_cache
 
 from pymatgen.core.structure import Structure, PeriodicSite
@@ -81,7 +86,7 @@ class Defect(MSONable, metaclass=ABCMeta):
         """
         return self._multiplicity
 
-    @property
+    @property  # type: ignore
     @abstractmethod
     def defect_composition(self):
         """
@@ -98,7 +103,7 @@ class Defect(MSONable, metaclass=ABCMeta):
         """
         return
 
-    @property
+    @property  # type: ignore
     @abstractmethod
     def name(self):
         """
@@ -139,6 +144,9 @@ class Vacancy(Defect):
 
     @property
     def defect_composition(self):
+        """
+        Returns: Composition of defect.
+        """
         temp_comp = self.bulk_structure.composition.as_dict()
         temp_comp[str(self.site.specie)] -= 1
         return Composition(temp_comp)
@@ -197,9 +205,12 @@ class Substitution(Defect):
     Subclass of Defect to capture essential information for a single Substitution defect structure.
     """
 
-    @property
+    @property  # type: ignore
     @lru_cache(1)
     def defect_composition(self):
+        """
+        Returns: Composition of defect.
+        """
         poss_deflist = sorted(
             self.bulk_structure.get_sites_in_sphere(self.site.coords, 0.1, include_index=True), key=lambda x: x[1])
         defindex = poss_deflist[0][2]
@@ -260,7 +271,7 @@ class Substitution(Defect):
             equivalent_sites = periodic_struc.find_equivalent_sites(defect_site)
             return len(equivalent_sites)
 
-    @property
+    @property  # type: ignore
     @lru_cache(1)
     def name(self):
         """
@@ -309,6 +320,9 @@ class Interstitial(Defect):
 
     @property
     def defect_composition(self):
+        """
+        Returns: Defect composition.
+        """
         temp_comp = self.bulk_structure.composition.as_dict()
         temp_comp[str(self.site.specie)] += 1
         return Composition(temp_comp)
@@ -462,6 +476,9 @@ class DefectEntry(MSONable):
 
     @property
     def bulk_structure(self):
+        """
+        Returns: Structure object of bulk.
+        """
         return self.defect.bulk_structure
 
     def as_dict(self):
@@ -498,27 +515,36 @@ class DefectEntry(MSONable):
 
     @property
     def site(self):
+        """
+        Returns: Site of defect.
+        """
         return self.defect.site
 
     @property
     def multiplicity(self):
+        """
+        Returns: Multiplicity of defect.
+        """
         return self.defect.multiplicity
 
     @property
     def charge(self):
+        """
+        Returns: Charge of defect.
+        """
         return self.defect.charge
 
     @property
     def energy(self):
         """
-        Returns the *corrected* energy of the entry
+        Returns: *Corrected* energy of the entry
         """
         return self.uncorrected_energy + np.sum(list(self.corrections.values()))
 
     @property
     def name(self):
         """
-        Returms the defect name
+        Returns: Defect name
         """
         return self.defect.name
 

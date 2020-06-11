@@ -5,18 +5,21 @@ Subpackages
 -----------
 
 .. toctree::
+   :maxdepth: 7
 
 
 Submodules
 ----------
 
 .. toctree::
+   :maxdepth: 7
 
    pymatgen.command_line.aconvasp_caller
    pymatgen.command_line.bader_caller
    pymatgen.command_line.critic2_caller
    pymatgen.command_line.enumlib_caller
    pymatgen.command_line.gulp_caller
+   pymatgen.command_line.mcsqs_caller
    pymatgen.command_line.vampire_caller
 
 Module contents

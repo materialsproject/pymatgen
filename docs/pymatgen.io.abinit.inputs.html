@@ -1,0 +1,894 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pymatgen.io.abinit.inputs module &mdash; pymatgen 2020.4.29 documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pymatgen.orgpymatgen.io.abinit.inputs.html"/>
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.io.abinit.netcdf module" href="pymatgen.io.abinit.netcdf.html" />
+    <link rel="prev" title="pymatgen.io.abinit.helpers module" href="pymatgen.io.abinit.helpers.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pymatgen
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2020.4.29
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="team.html">Development Team</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API Docs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pymatgen.html">pymatgen package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="pymatgen.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.alchemy.html">pymatgen.alchemy package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.html">pymatgen.analysis package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.apps.html">pymatgen.apps package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.cli.html">pymatgen.cli package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.command_line.html">pymatgen.command_line package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html">pymatgen.core package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.electronic_structure.html">pymatgen.electronic_structure package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.entries.html">pymatgen.entries package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html">pymatgen.ext package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="pymatgen.io.html">pymatgen.io package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.plugins.html">pymatgen.plugins package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.vis.html">pymatgen.vis package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#module-pymatgen">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pymatgen</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="modules.html">pymatgen</a> &raquo;</li>
+        
+          <li><a href="pymatgen.html">pymatgen package</a> &raquo;</li>
+        
+          <li><a href="pymatgen.io.html">pymatgen.io package</a> &raquo;</li>
+        
+          <li><a href="pymatgen.io.abinit.html">pymatgen.io.abinit package</a> &raquo;</li>
+        
+      <li>pymatgen.io.abinit.inputs module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.io.abinit.inputs.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-pymatgen.io.abinit.inputs">
+<span id="pymatgen-io-abinit-inputs-module"></span><h1>pymatgen.io.abinit.inputs module<a class="headerlink" href="#module-pymatgen.io.abinit.inputs" title="Permalink to this headline">¶</a></h1>
+<p>This module defines a simplified interface for generating ABINIT input files.
+Note that not all the features of Abinit are supported by BasicAbinitInput.
+For a more comprehensive implementation, use the AbinitInput object provided by AbiPy.</p>
+<dl class="py class">
+<dt id="pymatgen.io.abinit.inputs.AbstractInput">
+<em class="property">class </em><code class="sig-name descname">AbstractInput</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/abinit/inputs.py#L528-L645"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.inputs.AbstractInput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.abc.MutableMapping</span></code></p>
+<p>Abstract class defining the methods that must be implemented by Input objects.</p>
+<dl class="py method">
+<dt id="pymatgen.io.abinit.inputs.AbstractInput.deepcopy">
+<code class="sig-name descname">deepcopy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/abinit/inputs.py#L568-L570"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.inputs.AbstractInput.deepcopy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deep copy of the input.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.abinit.inputs.AbstractInput.pop_vars">
+<code class="sig-name descname">pop_vars</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">keys</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/abinit/inputs.py#L603-L615"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.inputs.AbstractInput.pop_vars" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove the variables listed in keys.
+Return dictionary with the variables that have been removed.
+Unlike remove_vars, no exception is raised if the variables are not in the input.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>keys</strong> – string or list of strings with variable names.</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<p>inp.pop_vars([“ionmov”, “optcell”, “ntime”, “dilatmx”])</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.abinit.inputs.AbstractInput.remove_vars">
+<code class="sig-name descname">remove_vars</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">keys</span></em>, <em class="sig-param"><span class="n">strict</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/abinit/inputs.py#L617-L633"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.inputs.AbstractInput.remove_vars" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove the variables listed in keys.
+Return dictionary with the variables that have been removed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>keys</strong> – string or list of strings with variable names.</p></li>
+<li><p><strong>strict</strong> – If True, KeyError is raised if at least one variable is not present.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.abinit.inputs.AbstractInput.set_vars">
+<code class="sig-name descname">set_vars</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/abinit/inputs.py#L572-L584"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.inputs.AbstractInput.set_vars" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the value of the variables.
+Return dict with the variables added to the input.</p>
+<p class="rubric">Example</p>
+<p>input.set_vars(ecut=10, ionmov=3)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.abinit.inputs.AbstractInput.set_vars_ifnotin">
+<code class="sig-name descname">set_vars_ifnotin</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/abinit/inputs.py#L586-L601"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.inputs.AbstractInput.set_vars_ifnotin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the value of the variables but only if the variable is not already present.
+Return dict with the variables added to the input.</p>
+<p class="rubric">Example</p>
+<p>input.set_vars(ecut=10, ionmov=3)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.abinit.inputs.AbstractInput.to_string">
+<em class="property">abstract </em><code class="sig-name descname">to_string</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/abinit/inputs.py#L643-L645"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.inputs.AbstractInput.to_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a string with the input.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.abinit.inputs.AbstractInput.vars">
+<em class="property">abstract property </em><code class="sig-name descname">vars</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/abinit/inputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.inputs.AbstractInput.vars" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dictionary with the input variables. Used to implement dict-like interface.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.abinit.inputs.AbstractInput.write">
+<code class="sig-name descname">write</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filepath</span><span class="o">=</span><span class="default_value">'run.abi'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/abinit/inputs.py#L556-L566"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.inputs.AbstractInput.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write the input file to file to <code class="docutils literal notranslate"><span class="pre">filepath</span></code>.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pymatgen.io.abinit.inputs.BasicAbinitInput">
+<em class="property">class </em><code class="sig-name descname">BasicAbinitInput</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">pseudos</span></em>, <em class="sig-param"><span class="n">pseudo_dir</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">comment</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">abi_args</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">abi_kwargs</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/abinit/inputs.py#L652-L941"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.inputs.BasicAbinitInput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.inputs.AbstractInput" title="pymatgen.io.abinit.inputs.AbstractInput"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.inputs.AbstractInput</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
+<p>This object stores the ABINIT variables for a single dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – Parameters defining the crystalline structure. Accepts <a href="#id1"><span class="problematic" id="id2">|Structure|</span></a> object</p></li>
+<li><p><strong>with structure</strong> (<em>file</em>) – </p></li>
+<li><p><strong>pseudos</strong> – Pseudopotentials to be used for the calculation. Accepts: string or list of strings
+with the name of the pseudopotential files, list of <a href="#id3"><span class="problematic" id="id4">|Pseudo|</span></a> objects
+or <a href="#id5"><span class="problematic" id="id6">|PseudoTable|</span></a> object.</p></li>
+<li><p><strong>pseudo_dir</strong> – Name of the directory where the pseudopotential files are located.</p></li>
+<li><p><strong>ndtset</strong> – Number of datasets.</p></li>
+<li><p><strong>comment</strong> – Optional string with a comment that will be placed at the beginning of the file.</p></li>
+<li><p><strong>abi_args</strong> – list of tuples (key, value) with the initial set of variables. Default: Empty</p></li>
+<li><p><strong>abi_kwargs</strong> – Dictionary with the initial set of variables. Default: Empty</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt id="pymatgen.io.abinit.inputs.BasicAbinitInput.Error">
+<code class="sig-name descname">Error</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/abinit/inputs.py#L648-L649"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.inputs.BasicAbinitInput.Error" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#pymatgen.io.abinit.inputs.BasicAbinitInputError" title="pymatgen.io.abinit.inputs.BasicAbinitInputError"><code class="xref py py-class docutils literal notranslate"><span class="pre">BasicAbinitInputError</span></code></a></p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.abinit.inputs.BasicAbinitInput.add_abiobjects">
+<code class="sig-name descname">add_abiobjects</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">abi_objects</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/abinit/inputs.py#L733-L743"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.inputs.BasicAbinitInput.add_abiobjects" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function receive a list of <code class="docutils literal notranslate"><span class="pre">AbiVarable</span></code> objects and add
+the corresponding variables to the input.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.abinit.inputs.BasicAbinitInput.as_dict">
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/util/serialization.py#L703-L718"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.inputs.BasicAbinitInput.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>JSON interface used in pymatgen for easier serialization.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.abinit.inputs.BasicAbinitInput.comment">
+<em class="property">property </em><code class="sig-name descname">comment</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/abinit/inputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.inputs.BasicAbinitInput.comment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optional string with comment. None if comment is not set.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.abinit.inputs.BasicAbinitInput.from_dict">
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">d</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/abinit/inputs.py#L724-L731"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.inputs.BasicAbinitInput.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>JSON interface used in pymatgen for easier serialization.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.abinit.inputs.BasicAbinitInput.isnc">
+<em class="property">property </em><code class="sig-name descname">isnc</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/abinit/inputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.inputs.BasicAbinitInput.isnc" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if norm-conserving calculation.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.abinit.inputs.BasicAbinitInput.ispaw">
+<em class="property">property </em><code class="sig-name descname">ispaw</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/abinit/inputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.inputs.BasicAbinitInput.ispaw" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if PAW calculation.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.abinit.inputs.BasicAbinitInput.new_with_vars">
+<code class="sig-name descname">new_with_vars</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/abinit/inputs.py#L917-L927"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.inputs.BasicAbinitInput.new_with_vars" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a new input with the given variables.</p>
+<p class="rubric">Example</p>
+<p>new = input.new_with_vars(ecut=20)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.abinit.inputs.BasicAbinitInput.pop_irdvars">
+<code class="sig-name descname">pop_irdvars</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/abinit/inputs.py#L936-L941"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.inputs.BasicAbinitInput.pop_irdvars" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove all the <cite>ird*</cite> variables present in self.
+Return dictionary with the variables that have been removed.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.abinit.inputs.BasicAbinitInput.pop_tolerances">
+<code class="sig-name descname">pop_tolerances</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/abinit/inputs.py#L929-L934"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.inputs.BasicAbinitInput.pop_tolerances" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove all the tolerance variables present in self.
+Return dictionary with the variables that have been removed.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.abinit.inputs.BasicAbinitInput.pseudos">
+<em class="property">property </em><code class="sig-name descname">pseudos</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/abinit/inputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.inputs.BasicAbinitInput.pseudos" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of <a href="#id7"><span class="problematic" id="id8">|Pseudo|</span></a> objects.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.abinit.inputs.BasicAbinitInput.set_comment">
+<code class="sig-name descname">set_comment</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">comment</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/abinit/inputs.py#L816-L818"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.inputs.BasicAbinitInput.set_comment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set a comment to be included at the top of the file.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.abinit.inputs.BasicAbinitInput.set_gamma_sampling">
+<code class="sig-name descname">set_gamma_sampling</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/abinit/inputs.py#L849-L851"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.inputs.BasicAbinitInput.set_gamma_sampling" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gamma-only sampling of the BZ.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.abinit.inputs.BasicAbinitInput.set_kmesh">
+<code class="sig-name descname">set_kmesh</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ngkpt</span></em>, <em class="sig-param"><span class="n">shiftk</span></em>, <em class="sig-param"><span class="n">kptopt</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/abinit/inputs.py#L837-L847"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.inputs.BasicAbinitInput.set_kmesh" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the variables for the sampling of the BZ.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ngkpt</strong> – Monkhorst-Pack divisions</p></li>
+<li><p><strong>shiftk</strong> – List of shifts.</p></li>
+<li><p><strong>kptopt</strong> – Option for the generation of the mesh.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.abinit.inputs.BasicAbinitInput.set_kpath">
+<code class="sig-name descname">set_kpath</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ndivsm</span></em>, <em class="sig-param"><span class="n">kptbounds</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">iscf</span><span class="o">=</span><span class="default_value">- 2</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/abinit/inputs.py#L853-L881"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.inputs.BasicAbinitInput.set_kpath" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the variables for the computation of the electronic band structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ndivsm</strong> – Number of divisions for the smallest segment.</p></li>
+<li><p><strong>kptbounds</strong> – k-points defining the path in k-space.
+If None, we use the default high-symmetry k-path defined in the pymatgen database.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.abinit.inputs.BasicAbinitInput.set_spin_mode">
+<code class="sig-name descname">set_spin_mode</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">spin_mode</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/abinit/inputs.py#L883-L900"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.inputs.BasicAbinitInput.set_spin_mode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the variables used to the treat the spin degree of freedom.
+Return dictionary with the variables that have been removed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>spin_mode</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">SpinMode</span></code> object or string. Possible values for string are:</p></li>
+<li><p><strong>polarized</strong> (<em>-</em>) – </p></li>
+<li><p><strong>unpolarized</strong> (<em>-</em>) – </p></li>
+<li><p><strong>afm</strong> (<em>-</em>) – </p></li>
+<li><p><strong>spinor</strong> (<em>-</em>) – </p></li>
+<li><p><strong>spinor_nomag</strong> (<em>-</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.abinit.inputs.BasicAbinitInput.set_structure">
+<code class="sig-name descname">set_structure</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/abinit/inputs.py#L825-L834"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.inputs.BasicAbinitInput.set_structure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set structure.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.abinit.inputs.BasicAbinitInput.structure">
+<em class="property">property </em><code class="sig-name descname">structure</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/abinit/inputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.inputs.BasicAbinitInput.structure" title="Permalink to this definition">¶</a></dt>
+<dd><p>The <a href="#id9"><span class="problematic" id="id10">|Structure|</span></a> object associated to this input.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.abinit.inputs.BasicAbinitInput.to_string">
+<code class="sig-name descname">to_string</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">post</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">with_structure</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">with_pseudos</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">exclude</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/abinit/inputs.py#L757-L806"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.inputs.BasicAbinitInput.to_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>String representation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>post</strong> – String that will be appended to the name of the variables
+Note that post is usually autodetected when we have multiple datatasets
+It is mainly used when we have an input file with a single dataset
+so that we can prevent the code from adding “1” to the name of the variables
+(In this case, indeed, Abinit complains if ndtset=1 is not specified
+and we don’t want ndtset=1 simply because the code will start to add
+_DS1_ to all the input and output files.</p></li>
+<li><p><strong>with_structure</strong> – False if section with structure variables should not be printed.</p></li>
+<li><p><strong>with_pseudos</strong> – False if JSON section with pseudo data should not be added.</p></li>
+<li><p><strong>exclude</strong> – List of variable names that should be ignored.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.abinit.inputs.BasicAbinitInput.vars">
+<em class="property">property </em><code class="sig-name descname">vars</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/abinit/inputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.inputs.BasicAbinitInput.vars" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dictionary with the input variables. Used to implement dict-like interface.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt id="pymatgen.io.abinit.inputs.BasicAbinitInputError">
+<em class="property">exception </em><code class="sig-name descname">BasicAbinitInputError</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/abinit/inputs.py#L648-L649"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.inputs.BasicAbinitInputError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Base error class for exceptions raised by <code class="docutils literal notranslate"><span class="pre">BasicAbinitInput</span></code>.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="pymatgen.io.abinit.inputs.BasicMultiDataset">
+<em class="property">class </em><code class="sig-name descname">BasicMultiDataset</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">pseudos</span></em>, <em class="sig-param"><span class="n">pseudo_dir</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">ndtset</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/abinit/inputs.py#L944-L1240"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.inputs.BasicMultiDataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This object is essentially a list of BasicAbinitInput objects.
+that provides an easy-to-use interface to apply global changes to the
+the inputs stored in the objects.</p>
+<p>Let’s assume for example that multi contains two <code class="docutils literal notranslate"><span class="pre">BasicAbinitInput</span></code> objects and we
+want to set <cite>ecut</cite> to 1 in both dictionaries. The direct approach would be:</p>
+<blockquote>
+<div><dl class="simple">
+<dt>for inp in multi:</dt><dd><p>inp.set_vars(ecut=1)</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>or alternatively:</p>
+<blockquote>
+<div><dl class="simple">
+<dt>for i in range(multi.ndtset):</dt><dd><p>multi[i].set_vars(ecut=1)</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>BasicMultiDataset provides its own implementaion of __getattr__ so that one can simply use:</p>
+<blockquote>
+<div><p>multi.set_vars(ecut=1)</p>
+<p>multi.get(“ecut”) returns a list of values. It’s equivalent to:</p>
+<blockquote>
+<div><p>[inp[“ecut”] for inp in multi]</p>
+</div></blockquote>
+<p>Note that if “ecut” is not present in one of the input of multi, the corresponding entry is set to None.
+A default value can be specified with:</p>
+<blockquote>
+<div><p>multi.get(“paral_kgb”, 0)</p>
+</div></blockquote>
+</div></blockquote>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>BasicMultiDataset does not support calculations done with different sets of pseudopotentials.
+The inputs can have different crystalline structures (as long as the atom types are equal)
+but each input in BasicMultiDataset must have the same set of pseudopotentials.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – file with the structure, <a href="#id11"><span class="problematic" id="id12">|Structure|</span></a> object or dictionary with ABINIT geo variable
+Accepts also list of objects that can be converted to Structure object.
+In this case, however, ndtset must be equal to the length of the list.</p></li>
+<li><p><strong>pseudos</strong> – String or list of string with the name of the pseudopotential files.</p></li>
+<li><p><strong>pseudo_dir</strong> – Name of the directory where the pseudopotential files are located.</p></li>
+<li><p><strong>ndtset</strong> – Number of datasets.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt id="pymatgen.io.abinit.inputs.BasicMultiDataset.Error">
+<code class="sig-name descname">Error</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/abinit/inputs.py#L648-L649"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.inputs.BasicMultiDataset.Error" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#pymatgen.io.abinit.inputs.BasicAbinitInputError" title="pymatgen.io.abinit.inputs.BasicAbinitInputError"><code class="xref py py-class docutils literal notranslate"><span class="pre">BasicAbinitInputError</span></code></a></p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.abinit.inputs.BasicMultiDataset.addnew_from">
+<code class="sig-name descname">addnew_from</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dtindex</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/abinit/inputs.py#L1141-L1143"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.inputs.BasicMultiDataset.addnew_from" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a new entry in the multidataset by copying the input with index <code class="docutils literal notranslate"><span class="pre">dtindex</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.abinit.inputs.BasicMultiDataset.append">
+<code class="sig-name descname">append</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">abinit_input</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/abinit/inputs.py#L1126-L1131"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.inputs.BasicMultiDataset.append" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a <a href="#id13"><span class="problematic" id="id14">|BasicAbinitInput|</span></a> to the list.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.abinit.inputs.BasicMultiDataset.deepcopy">
+<code class="sig-name descname">deepcopy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/abinit/inputs.py#L1149-L1151"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.inputs.BasicMultiDataset.deepcopy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deep copy of the BasicMultiDataset.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.abinit.inputs.BasicMultiDataset.extend">
+<code class="sig-name descname">extend</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">abinit_inputs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/abinit/inputs.py#L1133-L1139"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.inputs.BasicMultiDataset.extend" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extends self with a list of <a href="#id15"><span class="problematic" id="id16">|BasicAbinitInput|</span></a> objects.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.abinit.inputs.BasicMultiDataset.from_inputs">
+<em class="property">classmethod </em><code class="sig-name descname">from_inputs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/abinit/inputs.py#L982-L996"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.inputs.BasicMultiDataset.from_inputs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build object from a list of BasicAbinitInput objects.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.abinit.inputs.BasicMultiDataset.has_same_structures">
+<em class="property">property </em><code class="sig-name descname">has_same_structures</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/abinit/inputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.inputs.BasicMultiDataset.has_same_structures" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if all inputs in BasicMultiDataset are equal.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.abinit.inputs.BasicMultiDataset.isnc">
+<em class="property">property </em><code class="sig-name descname">isnc</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/abinit/inputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.inputs.BasicMultiDataset.isnc" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if norm-conserving calculation.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.abinit.inputs.BasicMultiDataset.ispaw">
+<em class="property">property </em><code class="sig-name descname">ispaw</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/abinit/inputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.inputs.BasicMultiDataset.ispaw" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if PAW calculation.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.abinit.inputs.BasicMultiDataset.ndtset">
+<em class="property">property </em><code class="sig-name descname">ndtset</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/abinit/inputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.inputs.BasicMultiDataset.ndtset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of inputs in self.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.abinit.inputs.BasicMultiDataset.pseudos">
+<em class="property">property </em><code class="sig-name descname">pseudos</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/abinit/inputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.inputs.BasicMultiDataset.pseudos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pseudopotential objects.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.abinit.inputs.BasicMultiDataset.replicate_input">
+<em class="property">classmethod </em><code class="sig-name descname">replicate_input</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input</span></em>, <em class="sig-param"><span class="n">ndtset</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/abinit/inputs.py#L998-L1006"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.inputs.BasicMultiDataset.replicate_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct a multidataset with ndtset from the BasicAbinitInput input.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.abinit.inputs.BasicMultiDataset.split_datasets">
+<code class="sig-name descname">split_datasets</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/abinit/inputs.py#L1145-L1147"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.inputs.BasicMultiDataset.split_datasets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return list of <a href="#id17"><span class="problematic" id="id18">|BasicAbinitInput|</span></a> objects..</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.abinit.inputs.BasicMultiDataset.to_string">
+<code class="sig-name descname">to_string</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">with_pseudos</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/abinit/inputs.py#L1161-L1230"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.inputs.BasicMultiDataset.to_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>String representation i.e. the input file read by Abinit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>with_pseudos</strong> – False if JSON section with pseudo data should not be added.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.abinit.inputs.BasicMultiDataset.write">
+<code class="sig-name descname">write</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filepath</span><span class="o">=</span><span class="default_value">'run.abi'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/abinit/inputs.py#L1232-L1240"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.inputs.BasicMultiDataset.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write <code class="docutils literal notranslate"><span class="pre">ndset</span></code> input files to disk. The name of the file
+is constructed from the dataset index e.g. run0.abi</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pymatgen.io.abinit.inputs.ShiftMode">
+<em class="property">class </em><code class="sig-name descname">ShiftMode</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/abinit/inputs.py#L137-L164"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.inputs.ShiftMode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
+<p>Class defining the mode to be used for the shifts.
+G: Gamma centered
+M: Monkhorst-Pack ((0.5, 0.5, 0.5))
+S: Symmetric. Respects the chksymbreak with multiple shifts
+O: OneSymmetric. Respects the chksymbreak with a single shift (as in ‘S’ if a single shift is given, gamma</p>
+<blockquote>
+<div><p>centered otherwise.</p>
+</div></blockquote>
+<dl class="py attribute">
+<dt id="pymatgen.io.abinit.inputs.ShiftMode.GammaCentered">
+<code class="sig-name descname">GammaCentered</code><em class="property"> = 'G'</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/abinit/inputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.inputs.ShiftMode.GammaCentered" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pymatgen.io.abinit.inputs.ShiftMode.MonkhorstPack">
+<code class="sig-name descname">MonkhorstPack</code><em class="property"> = 'M'</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/abinit/inputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.inputs.ShiftMode.MonkhorstPack" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pymatgen.io.abinit.inputs.ShiftMode.OneSymmetric">
+<code class="sig-name descname">OneSymmetric</code><em class="property"> = 'O'</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/abinit/inputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.inputs.ShiftMode.OneSymmetric" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pymatgen.io.abinit.inputs.ShiftMode.Symmetric">
+<code class="sig-name descname">Symmetric</code><em class="property"> = 'S'</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/abinit/inputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.inputs.ShiftMode.Symmetric" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pymatgen.io.abinit.inputs.ShiftMode.from_object">
+<em class="property">classmethod </em><code class="sig-name descname">from_object</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obj</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/abinit/inputs.py#L151-L164"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.inputs.ShiftMode.from_object" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an instance of ShiftMode based on the type of object passed. Converts strings to ShiftMode depending
+on the iniital letter of the string. G for GammaCenterd, M for MonkhorstPack,
+S for Symmetric, O for OneSymmetric.
+Case insensitive.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="pymatgen.io.abinit.inputs.as_structure">
+<code class="sig-name descname">as_structure</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obj</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/abinit/inputs.py#L114-L134"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.inputs.as_structure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert obj into a Structure. Accepts:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Structure object.</p></li>
+<li><p>Filename</p></li>
+<li><p>Dictionaries (MSONable format or dictionaries with abinit variables).</p></li>
+</ul>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pymatgen.io.abinit.inputs.calc_shiftk">
+<code class="sig-name descname">calc_shiftk</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">symprec</span><span class="o">=</span><span class="default_value">0.01</span></em>, <em class="sig-param"><span class="n">angle_tolerance</span><span class="o">=</span><span class="default_value">5</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/abinit/inputs.py#L412-L510"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.inputs.calc_shiftk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the values of <code class="docutils literal notranslate"><span class="pre">shiftk</span></code> and <code class="docutils literal notranslate"><span class="pre">nshiftk</span></code> appropriated for the sampling of the Brillouin zone.</p>
+<p>When the primitive vectors of the lattice do NOT form a FCC or a BCC lattice,
+the usual (shifted) Monkhorst-Pack grids are formed by using nshiftk=1 and shiftk 0.5 0.5 0.5 .
+This is often the preferred k point sampling. For a non-shifted Monkhorst-Pack grid,
+use <cite>nshiftk=1</cite> and <cite>shiftk 0.0 0.0 0.0</cite>, but there is little reason to do that.</p>
+<p>When the primitive vectors of the lattice form a FCC lattice, with rprim:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">0.0</span> <span class="mf">0.5</span> <span class="mf">0.5</span>
+<span class="mf">0.5</span> <span class="mf">0.0</span> <span class="mf">0.5</span>
+<span class="mf">0.5</span> <span class="mf">0.5</span> <span class="mf">0.0</span>
+</pre></div>
+</div>
+<p>the (very efficient) usual Monkhorst-Pack sampling will be generated by using nshiftk= 4 and shiftk:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">0.5</span> <span class="mf">0.5</span> <span class="mf">0.5</span>
+<span class="mf">0.5</span> <span class="mf">0.0</span> <span class="mf">0.0</span>
+<span class="mf">0.0</span> <span class="mf">0.5</span> <span class="mf">0.0</span>
+<span class="mf">0.0</span> <span class="mf">0.0</span> <span class="mf">0.5</span>
+</pre></div>
+</div>
+<p>When the primitive vectors of the lattice form a BCC lattice, with rprim:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">-</span><span class="mf">0.5</span>  <span class="mf">0.5</span>  <span class="mf">0.5</span>
+ <span class="mf">0.5</span> <span class="o">-</span><span class="mf">0.5</span>  <span class="mf">0.5</span>
+ <span class="mf">0.5</span>  <span class="mf">0.5</span> <span class="o">-</span><span class="mf">0.5</span>
+</pre></div>
+</div>
+<p>the usual Monkhorst-Pack sampling will be generated by using nshiftk= 2 and shiftk:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span> <span class="mf">0.25</span>  <span class="mf">0.25</span>  <span class="mf">0.25</span>
+<span class="o">-</span><span class="mf">0.25</span> <span class="o">-</span><span class="mf">0.25</span> <span class="o">-</span><span class="mf">0.25</span>
+</pre></div>
+</div>
+<p>However, the simple sampling nshiftk=1 and shiftk 0.5 0.5 0.5 is excellent.</p>
+<p>For hexagonal lattices with hexagonal axes, e.g. rprim:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span> <span class="mf">1.0</span>  <span class="mf">0.0</span>       <span class="mf">0.0</span>
+<span class="o">-</span><span class="mf">0.5</span>  <span class="n">sqrt</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span> <span class="mf">0.0</span>
+ <span class="mf">0.0</span>  <span class="mf">0.0</span>       <span class="mf">1.0</span>
+</pre></div>
+</div>
+<p>one can use nshiftk= 1 and shiftk 0.0 0.0 0.5
+In rhombohedral axes, e.g. using angdeg 3*60., this corresponds to shiftk 0.5 0.5 0.5,
+to keep the shift along the symmetry axis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Suggested value of shiftk.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pymatgen.io.abinit.inputs.ebands_input">
+<code class="sig-name descname">ebands_input</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">pseudos</span></em>, <em class="sig-param"><span class="n">kppa</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">nscf_nband</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">ndivsm</span><span class="o">=</span><span class="default_value">15</span></em>, <em class="sig-param"><span class="n">ecut</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">pawecutdg</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">scf_nband</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">accuracy</span><span class="o">=</span><span class="default_value">'normal'</span></em>, <em class="sig-param"><span class="n">spin_mode</span><span class="o">=</span><span class="default_value">'polarized'</span></em>, <em class="sig-param"><span class="n">smearing</span><span class="o">=</span><span class="default_value">'fermi_dirac:0.1 eV'</span></em>, <em class="sig-param"><span class="n">charge</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">scf_algorithm</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">dos_kppa</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/abinit/inputs.py#L284-L358"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.inputs.ebands_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a <a href="#id19"><span class="problematic" id="id20">|BasicMultiDataset|</span></a> object for band structure calculations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – <a href="#id21"><span class="problematic" id="id22">|Structure|</span></a> object.</p></li>
+<li><p><strong>pseudos</strong> – List of filenames or list of <a href="#id23"><span class="problematic" id="id24">|Pseudo|</span></a> objects or <a href="#id25"><span class="problematic" id="id26">|PseudoTable|</span></a> object.</p></li>
+<li><p><strong>kppa</strong> – Defines the sampling used for the SCF run. Defaults to 1000 if not given.</p></li>
+<li><p><strong>nscf_nband</strong> – Number of bands included in the NSCF run. Set to scf_nband + 10 if None.</p></li>
+<li><p><strong>ndivsm</strong> – Number of divisions used to sample the smallest segment of the k-path.
+if 0, only the GS input is returned in multi[0].</p></li>
+<li><p><strong>ecut</strong> – cutoff energy in Ha (if None, ecut is initialized from the pseudos according to accuracy)</p></li>
+<li><p><strong>pawecutdg</strong> – cutoff energy in Ha for PAW double-grid (if None, pawecutdg is initialized from the pseudos
+according to accuracy)</p></li>
+<li><p><strong>scf_nband</strong> – Number of bands for SCF run. If scf_nband is None, nband is automatically initialized
+from the list of pseudos, the structure and the smearing option.</p></li>
+<li><p><strong>accuracy</strong> – Accuracy of the calculation.</p></li>
+<li><p><strong>spin_mode</strong> – Spin polarization.</p></li>
+<li><p><strong>smearing</strong> – Smearing technique.</p></li>
+<li><p><strong>charge</strong> – Electronic charge added to the unit cell.</p></li>
+<li><p><strong>scf_algorithm</strong> – Algorithm used for solving of the SCF cycle.</p></li>
+<li><p><strong>dos_kppa</strong> – Scalar or List of integers with the number of k-points per atom
+to be used for the computation of the DOS (None if DOS is not wanted).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pymatgen.io.abinit.inputs.gs_input">
+<code class="sig-name descname">gs_input</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">pseudos</span></em>, <em class="sig-param"><span class="n">kppa</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">ecut</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">pawecutdg</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">scf_nband</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">accuracy</span><span class="o">=</span><span class="default_value">'normal'</span></em>, <em class="sig-param"><span class="n">spin_mode</span><span class="o">=</span><span class="default_value">'polarized'</span></em>, <em class="sig-param"><span class="n">smearing</span><span class="o">=</span><span class="default_value">'fermi_dirac:0.1 eV'</span></em>, <em class="sig-param"><span class="n">charge</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">scf_algorithm</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/abinit/inputs.py#L255-L281"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.inputs.gs_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a <a href="#id27"><span class="problematic" id="id28">|BasicAbinitInput|</span></a> for ground-state calculation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – <a href="#id29"><span class="problematic" id="id30">|Structure|</span></a> object.</p></li>
+<li><p><strong>pseudos</strong> – List of filenames or list of <a href="#id31"><span class="problematic" id="id32">|Pseudo|</span></a> objects or <a href="#id33"><span class="problematic" id="id34">|PseudoTable|</span></a> object.</p></li>
+<li><p><strong>kppa</strong> – Defines the sampling used for the SCF run. Defaults to 1000 if not given.</p></li>
+<li><p><strong>ecut</strong> – cutoff energy in Ha (if None, ecut is initialized from the pseudos according to accuracy)</p></li>
+<li><p><strong>pawecutdg</strong> – cutoff energy in Ha for PAW double-grid (if None, pawecutdg is initialized from the pseudos
+according to accuracy)</p></li>
+<li><p><strong>scf_nband</strong> – Number of bands for SCF run. If scf_nband is None, nband is automatically initialized
+from the list of pseudos, the structure and the smearing option.</p></li>
+<li><p><strong>accuracy</strong> – Accuracy of the calculation.</p></li>
+<li><p><strong>spin_mode</strong> – Spin polarization.</p></li>
+<li><p><strong>smearing</strong> – Smearing technique.</p></li>
+<li><p><strong>charge</strong> – Electronic charge added to the unit cell.</p></li>
+<li><p><strong>scf_algorithm</strong> – Algorithm used for solving of the SCF cycle.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pymatgen.io.abinit.inputs.ion_ioncell_relax_input">
+<code class="sig-name descname">ion_ioncell_relax_input</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">pseudos</span></em>, <em class="sig-param"><span class="n">kppa</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">nband</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">ecut</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">pawecutdg</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">accuracy</span><span class="o">=</span><span class="default_value">'normal'</span></em>, <em class="sig-param"><span class="n">spin_mode</span><span class="o">=</span><span class="default_value">'polarized'</span></em>, <em class="sig-param"><span class="n">smearing</span><span class="o">=</span><span class="default_value">'fermi_dirac:0.1 eV'</span></em>, <em class="sig-param"><span class="n">charge</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">scf_algorithm</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">shift_mode</span><span class="o">=</span><span class="default_value">'Monkhorst-pack'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/abinit/inputs.py#L361-L409"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.inputs.ion_ioncell_relax_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a <a href="#id35"><span class="problematic" id="id36">|BasicMultiDataset|</span></a> for a structural relaxation. The first dataset optmizes the
+atomic positions at fixed unit cell. The second datasets optimizes both ions and unit cell parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> – <a href="#id37"><span class="problematic" id="id38">|Structure|</span></a> object.</p></li>
+<li><p><strong>pseudos</strong> – List of filenames or list of <a href="#id39"><span class="problematic" id="id40">|Pseudo|</span></a> objects or <a href="#id41"><span class="problematic" id="id42">|PseudoTable|</span></a> object.</p></li>
+<li><p><strong>kppa</strong> – Defines the sampling used for the Brillouin zone.</p></li>
+<li><p><strong>nband</strong> – Number of bands included in the SCF run.</p></li>
+<li><p><strong>accuracy</strong> – Accuracy of the calculation.</p></li>
+<li><p><strong>spin_mode</strong> – Spin polarization.</p></li>
+<li><p><strong>smearing</strong> – Smearing technique.</p></li>
+<li><p><strong>charge</strong> – Electronic charge added to the unit cell.</p></li>
+<li><p><strong>scf_algorithm</strong> – Algorithm used for the solution of the SCF cycle.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pymatgen.io.abinit.inputs.num_valence_electrons">
+<code class="sig-name descname">num_valence_electrons</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">pseudos</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/abinit/inputs.py#L513-L525"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.inputs.num_valence_electrons" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the number of valence electrons.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>pseudos</strong> – List of <a href="#id43"><span class="problematic" id="id44">|Pseudo|</span></a> objects or list of filenames.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011, Pymatgen Development Team
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+  
+ 
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+
+</body>
+</html>

@@ -17,16 +17,16 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
 
 class LatticeFromAbivarsTest(PymatgenTest):
     def test_rprim_acell(self):
-        l1 = lattice_from_abivars(acell=3*[10], rprim=np.eye(3))
-        self.assertAlmostEqual(l1.volume, bohr_to_ang**3 * 1000)
+        l1 = lattice_from_abivars(acell=3 * [10], rprim=np.eye(3))
+        self.assertAlmostEqual(l1.volume, bohr_to_ang ** 3 * 1000)
         assert l1.angles == (90, 90, 90)
-        l2 = lattice_from_abivars(acell=3*[10], angdeg=(90, 90, 90))
+        l2 = lattice_from_abivars(acell=3 * [10], angdeg=(90, 90, 90))
         assert l1 == l2
 
-        l2 = lattice_from_abivars(acell=3*[8], angdeg=(60, 60, 60))
-        abi_rprimd = np.reshape([4.6188022,  0.0000000, 6.5319726,
-                                -2.3094011,  4.0000000, 6.5319726,
-                                -2.3094011, -4.0000000, 6.5319726], (3, 3)) * bohr_to_ang
+        l2 = lattice_from_abivars(acell=3 * [8], angdeg=(60, 60, 60))
+        abi_rprimd = np.reshape([4.6188022, 0.0000000, 6.5319726,
+                                 -2.3094011, 4.0000000, 6.5319726,
+                                 -2.3094011, -4.0000000, 6.5319726], (3, 3)) * bohr_to_ang
         self.assertArrayAlmostEqual(l2.matrix, abi_rprimd)
 
         l3 = lattice_from_abivars(acell=[3, 6, 9], angdeg=(30, 40, 50))
@@ -69,7 +69,7 @@ class SmearingTest(PymatgenTest):
 
         self.assertTrue(fd1ev)
 
-        same_fd = Smearing.as_smearing("fermi_dirac:"+ str(1.0/Ha_to_eV))
+        same_fd = Smearing.as_smearing("fermi_dirac:" + str(1.0 / Ha_to_eV))
 
         self.assertTrue(same_fd == fd1ev)
 
@@ -105,19 +105,20 @@ class ElectronsAlgorithmTest(PymatgenTest):
 class ElectronsTest(PymatgenTest):
     def test_base(self):
         default_electrons = Electrons()
-        self.assertTrue(default_electrons.nsppol==2)
-        self.assertTrue(default_electrons.nspinor==1)
-        self.assertTrue(default_electrons.nspden==2)
+        self.assertTrue(default_electrons.nsppol == 2)
+        self.assertTrue(default_electrons.nspinor == 1)
+        self.assertTrue(default_electrons.nspden == 2)
 
         abivars = default_electrons.to_abivars()
 
-        #new = Electron.from_dict(default_electrons.as_dict())
+        # new = Electron.from_dict(default_electrons.as_dict())
 
         # Test pickle
         self.serialize_with_pickle(default_electrons, test_eq=False)
 
         custom_electrons = Electrons(spin_mode="unpolarized", smearing="marzari4:0.2 eV",
-                 algorithm=ElectronsAlgorithm(nstep=70), nband=10, charge=1.0, comment="Test comment")
+                                     algorithm=ElectronsAlgorithm(nstep=70), nband=10, charge=1.0,
+                                     comment="Test comment")
 
         # Test dict methods
         self.assertMSONable(custom_electrons)
@@ -158,7 +159,7 @@ class PPModelTest(PymatgenTest):
         godby.to_abivars()
         self.assertTrue(godby)
 
-        same_godby = PPModel.as_ppmodel("godby:"+ str(12.0/Ha_to_eV))
+        same_godby = PPModel.as_ppmodel("godby:" + str(12.0 / Ha_to_eV))
         self.assertTrue(same_godby == godby)
 
         noppm = PPModel.get_noppmodel()
@@ -177,4 +178,5 @@ class PPModelTest(PymatgenTest):
 
 if __name__ == '__main__':
     import unittest
+
     unittest.main()

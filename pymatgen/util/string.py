@@ -7,14 +7,6 @@ This module provides utility classes for string operations.
 import re
 from fractions import Fraction
 
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "1.0"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__status__ = "Production"
-__date__ = "Sep 23, 2011"
-
 
 def str_delimited(results, header=None, delimiter="\t"):
     """
@@ -107,7 +99,7 @@ def unicodeify(formula):
 
 
 def latexify_spacegroup(spacegroup_symbol):
-    """
+    r"""
     Generates a latex formatted spacegroup. E.g., P2_1/c is converted to
     P2$_{1}$/c and P-1 is converted to P$\\overline{1}$.
 
@@ -122,7 +114,16 @@ def latexify_spacegroup(spacegroup_symbol):
 
 
 def unicodeify_spacegroup(spacegroup_symbol):
-    # TODO: move this to pymatgen
+    r"""
+    Generates a unicode formatted spacegroup. E.g., P2$_{1}$/c is converted to
+    P2₁/c and P$\\overline{1}$ is converted to P̅1.
+
+    Args:
+        spacegroup_symbol (str): A spacegroup symbol as LaTeX
+
+    Returns:
+        A unicode spacegroup with proper subscripts and overlines.
+    """
 
     if not spacegroup_symbol:
         return ""
@@ -148,16 +149,26 @@ def unicodeify_spacegroup(spacegroup_symbol):
 
     overline = "\u0305"  # u"\u0304" (macron) is also an option
 
-    symbol = symbol.replace("$\\overline{", overline)
+    symbol = symbol.replace("$\\overline{", '')
     symbol = symbol.replace("$", "")
     symbol = symbol.replace("{", "")
-    symbol = symbol.replace("}", "")
+    # overline unicode symbol comes after the character with the overline
+    symbol = symbol.replace("}", overline)
 
     return symbol
 
 
 def unicodeify_species(specie_string):
-    # TODO: move this to pymatgen
+    r"""
+    Generates a unicode formatted species string, with appropriate
+    superscripts for oxidation states.
+
+    Args:
+        specie_string (str): Species string, e.g. O2-
+
+    Returns:
+        Species string, e.g. O²⁻
+    """
 
     if not specie_string:
         return ""
@@ -347,19 +358,30 @@ def disordered_formula(disordered_struct, symbols=('x', 'y', 'z'), fmt='plain'):
 
 
 class StringColorizer:
-    colours = {"default": "",
-               "blue": "\x1b[01;34m",
-               "cyan": "\x1b[01;36m",
-               "green": "\x1b[01;32m",
-               "red": "\x1b[01;31m",
-               # lighting colours.
-               # "lred":    "\x1b[01;05;37;41m"
-               }
+    """
+    Provides coloring for strings in terminals.
+    """
+
+    colours = {
+        "default": "",
+        "blue": "\x1b[01;34m",
+        "cyan": "\x1b[01;36m",
+        "green": "\x1b[01;32m",
+        "red": "\x1b[01;31m",
+    }
 
     def __init__(self, stream):
+        """
+        :param stream: Input stream
+        """
         self.has_colours = stream_has_colours(stream)
 
     def __call__(self, string, colour):
+        """
+        :param string: Actual string
+        :param colour: Color to assign.
+        :return: Colored string.
+        """
         if self.has_colours:
             code = self.colours.get(colour.lower(), "")
             if code:
@@ -372,5 +394,4 @@ class StringColorizer:
 
 if __name__ == "__main__":
     import doctest
-
     doctest.testmod()

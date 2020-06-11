@@ -13,7 +13,6 @@ from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import AbstractGeometry
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import symmetry_measure
 
-
 json_files_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "..",
                               'test_files', "chemenv", "json_test_files")
 
@@ -24,6 +23,7 @@ class CoordinationGeometryFinderTest(PymatgenTest):
         self.lgf = LocalGeometryFinder()
         self.lgf.setup_parameters(centering_type='standard',
                                   structure_refinement=self.lgf.STRUCTURE_REFINEMENT_NONE)
+
     #     self.strategies = [SimplestChemenvStrategy(), SimpleAbundanceChemenvStrategy()]
 
     def test_abstract_geometry(self):
@@ -157,9 +157,10 @@ class CoordinationGeometryFinderTest(PymatgenTest):
                       11: [7, 6, 4, 1, 2, 5, 0, 8, 9, 10, 3],
                       12: [5, 8, 9, 0, 3, 1, 4, 2, 6, 11, 10, 7],
                       13: [4, 11, 5, 12, 1, 2, 8, 3, 0, 6, 9, 7, 10],
+                      20: [8, 12, 11, 0, 14, 10, 13, 6, 18, 1, 9, 17, 3, 19, 5, 7, 15, 2, 16, 4]
                       }
 
-        for coordination in range(1, 14):
+        for coordination in range(1, 21):
             for mp_symbol in allcg.get_implemented_geometries(coordination=coordination,
                                                               returned='mp_symbol'):
                 cg = allcg.get_geometry_from_mp_symbol(mp_symbol=mp_symbol)
@@ -169,7 +170,7 @@ class CoordinationGeometryFinderTest(PymatgenTest):
                                                         random_translation='NONE', random_rotation='NONE',
                                                         random_scale='NONE')
                 se = self.lgf.compute_structure_environments(only_indices=[0],
-                                                             maximum_distance_factor=1.01*cg.distfactor_max,
+                                                             maximum_distance_factor=1.01 * cg.distfactor_max,
                                                              min_cn=cg.coordination_number,
                                                              max_cn=cg.coordination_number,
                                                              only_symbols=[mp_symbol]
@@ -183,7 +184,7 @@ class CoordinationGeometryFinderTest(PymatgenTest):
         mp_symbols = ['SH:13', 'HP:12']
         cg = allcg.get_geometry_from_mp_symbol(mp_symbol=mp_symbol)
         mypoints = cg.points
-        mypoints[-1] = [0.9*cc for cc in mypoints[-1]]
+        mypoints[-1] = [0.9 * cc for cc in mypoints[-1]]
         self.lgf.allcg = AllCoordinationGeometries(only_symbols=[mp_symbol])
         self.lgf.setup_test_perfect_environment(mp_symbol, randomness=False,
                                                 indices=[4, 11, 5, 12, 1, 2, 8, 3, 0, 6, 9, 7, 10],

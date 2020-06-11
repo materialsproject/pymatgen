@@ -8,7 +8,6 @@ from pymatgen import Molecule
 from pymatgen.io.lammps.utils import Polymer
 from pymatgen.io.lammps.data import Topology
 
-
 __author__ = 'Kiran Mathew'
 __email__ = 'kmathew@lbl.gov'
 
@@ -57,8 +56,8 @@ class TestPolymer(unittest.TestCase):
 
     def test_polymer_chain_lengths(self):
         self.assertEqual(len(self.peo_polymer.molecule),
-                         len(self.peo_head)+
-                         (self.n_units-2)*len(self.peo_bulk)+
+                         len(self.peo_head) +
+                         (self.n_units - 2) * len(self.peo_bulk) +
                          len(self.peo_tail))
         self.assertEqual(len(self.peo_polymer.molecule),
                          len(self.peo_polymer_linear.molecule))
@@ -102,8 +101,8 @@ class TestPackmolOutput(unittest.TestCase):
         self.assertEqual(len(self.cocktail),
                          sum([len(mol) * self.packmol_config[i]["number"]
                               for i, mol in enumerate(self.mols)]))
-        atoms = self.ethanol_atoms * self.packmol_config[0]["number"] + \
-                self.water_atoms * self.packmol_config[1]["number"]
+        atoms = (self.ethanol_atoms * self.packmol_config[0]["number"] +
+                 self.water_atoms * self.packmol_config[1]["number"])
         atoms_ans = [str(site.specie) for site in self.cocktail]
         self.assertEqual(atoms, atoms_ans)
 

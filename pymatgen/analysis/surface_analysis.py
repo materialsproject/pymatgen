@@ -3,6 +3,27 @@
 # Distributed under the terms of the MIT License.
 
 """
+This module defines tools to analyze surface and adsorption related
+quantities as well as related plots. If you use this module, please
+consider citing the following works::
+
+    R. Tran, Z. Xu, B. Radhakrishnan, D. Winston, W. Sun, K. A. Persson,
+    S. P. Ong, "Surface Energies of Elemental Crystals", Scientific
+    Data, 2016, 3:160080, doi: 10.1038/sdata.2016.80.
+
+    and
+
+    Kang, S., Mo, Y., Ong, S. P., & Ceder, G. (2014). Nanoscale
+    stabilization of sodium oxides: Implications for Na-O2 batteries.
+    Nano Letters, 14(2), 1016–1020. https://doi.org/10.1021/nl404557w
+
+    and
+
+    Montoya, J. H., & Persson, K. A. (2017). A high-throughput framework
+        for determining adsorption energies on solid surfaces. Npj
+        Computational Materials, 3(1), 14.
+        https://doi.org/10.1038/s41524-017-0017-z
+
 TODO:
     -Still assumes individual elements have their own chempots
         in a molecular adsorbate instead of considering a single
@@ -24,7 +45,6 @@ from sympy import Symbol
 from sympy.solvers import linsolve, solve
 
 from pymatgen.core.composition import Composition
-from pymatgen import Structure
 from pymatgen.core.surface import get_slab_regions
 from pymatgen.entries.computed_entries import ComputedStructureEntry
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -41,29 +61,6 @@ __maintainer__ = "Richard Tran"
 __credits__ = "Joseph Montoya, Xianguo Li"
 __email__ = "rit001@eng.ucsd.edu"
 __date__ = "8/24/17"
-
-"""
-This module defines tools to analyze surface and adsorption related
-quantities as well as related plots. If you use this module, please
-consider citing the following works::
-
-    R. Tran, Z. Xu, B. Radhakrishnan, D. Winston, W. Sun, K. A. Persson,
-    S. P. Ong, "Surface Energies of Elemental Crystals", Scientific
-    Data, 2016, 3:160080, doi: 10.1038/sdata.2016.80.
-
-    and
-
-    Kang, S., Mo, Y., Ong, S. P., & Ceder, G. (2014). Nanoscale
-    stabilization of sodium oxides: Implications for Na-O2 batteries.
-    Nano Letters, 14(2), 1016–1020. https://doi.org/10.1021/nl404557w
-
-    and
-
-    Montoya, J. H., & Persson, K. A. (2017). A high-throughput framework
-        for determining adsorption energies on solid surfaces. Npj
-        Computational Materials, 3(1), 14.
-        https://doi.org/10.1038/s41524-017-0017-z
-"""
 
 
 class SlabEntry(ComputedStructureEntry):
@@ -293,7 +290,7 @@ class SlabEntry(ComputedStructureEntry):
         label = d["label"]
         coverage = d["coverage"]
         adsorbates = d["adsorbates"]
-        clean_entry = d["clean_entry"] = self.clean_entry
+        clean_entry = d["clean_entry"]
 
         return SlabEntry(structure, energy, miller_index, label=label,
                          coverage=coverage, adsorbates=adsorbates,
@@ -1560,6 +1557,16 @@ class WorkFunctionAnalyzer:
 
     @staticmethod
     def from_files(poscar_filename, locpot_filename, outcar_filename, shift=0, blength=3.5):
+        """
+
+        :param poscar_filename: POSCAR file
+        :param locpot_filename: LOCPOT file
+        :param outcar_filename: OUTCAR file
+        :param shift: shift
+        :param blength: The longest bond length in the material.
+            Used to handle pbc for noncontiguous slab layers
+        :return: WorkFunctionAnalyzer
+        """
         p = Poscar.from_file(poscar_filename)
         l = Locpot.from_file(locpot_filename)
         o = Outcar(outcar_filename)
@@ -1777,7 +1784,7 @@ class NanoscaleStability:
             gform_list.append(gform)
             r_list.append(r)
 
-        ru = "nm" if r_units == "nanometers" else "\AA"
+        ru = "nm" if r_units == "nanometers" else r"\AA"
         plt.xlabel(r"Particle radius ($%s$)" % (ru))
         eu = "$%s/%s^3$" % (e_units, ru)
         plt.ylabel(r"$G_{form}$ (%s)" % (eu))

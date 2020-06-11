@@ -2,6 +2,8 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""Setup.py for pymatgen."""
+
 import sys
 import platform
 
@@ -10,7 +12,9 @@ from setuptools.command.build_ext import build_ext as _build_ext
 
 
 class build_ext(_build_ext):
+    """Extension builder that checks for numpy before install."""
     def finalize_options(self):
+        """Override finalize_options."""
         _build_ext.finalize_options(self)
         # Prevent numpy from thinking it is still in its setup process:
         import builtins
@@ -25,6 +29,17 @@ class build_ext(_build_ext):
 extra_link_args = []
 if sys.platform.startswith('win') and platform.machine().endswith('64'):
     extra_link_args.append('-Wl,--allow-multiple-definition')
+
+cpp_extra_link_args = extra_link_args
+cpp_extra_compile_args = ["-Wno-cpp", "-Wno-unused-function", "-O2", "-march=native", '-std=c++0x']
+if sys.platform.startswith('darwin'):
+    cpp_extra_compile_args.append("-stdlib=libc++")
+    cpp_extra_link_args = ["-O2", "-march=native", '-stdlib=libc++']
+
+# https://docs.microsoft.com/en-us/cpp/build/reference/compiler-options-listed-alphabetically?view=vs-2017
+if sys.platform.startswith('win'):
+    cpp_extra_compile_args = ['/w', '/O2', '/std:c++0x']
+    cpp_extra_link_args = extra_link_args
 
 long_desc = """
 Official docs: [http://pymatgen.org](http://pymatgen.org/)
@@ -47,7 +62,7 @@ library by making your own contributions.  These contributions can be in the
 form of additional tools or modules you develop, or feature requests and bug
 reports. Please report any bugs and issues at pymatgen's [Github page]
 (https://github.com/materialsproject/pymatgen). For help with any pymatgen
-issues, please use the [Discourse page](https://pymatgen.discourse.group).
+issues, please use the [Discourse page](https://discuss.matsci.org/c/pymatgen).
 
 Why use pymatgen?
 =================
@@ -86,34 +101,33 @@ who require Python 2.7 should install pymatgen v2018.x.
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="2019.8.23",
+    version="2020.6.8",
     cmdclass={'build_ext': build_ext},
     setup_requires=['numpy>=1.14.3', 'setuptools>=18.0'],
     python_requires='>=3.6',
     install_requires=["numpy>=1.14.3", "requests", "ruamel.yaml>=0.15.6",
-                      "monty>=2.0.6", "scipy>=1.0.1", "pydispatcher>=2.0.5",
+                      "monty>=3.0.2", "scipy>=1.0.1",
                       "tabulate", "spglib>=1.9.9.44", "networkx>=2.2",
-                      "matplotlib>=1.5", "palettable>=3.1.1", "sympy", "pandas"],
+                      "matplotlib>=1.5", "palettable>=3.1.1", "sympy", "pandas",
+                      "plotly>=4.5.0"],
     extras_require={
         "provenance": ["pybtex"],
         "ase": ["ase>=3.3"],
         "vis": ["vtk>=6.0.0"],
-        "abinit": ["apscheduler==2.1.0", "netcdf4"],
+        "abinit": ["netcdf4"],
         ':python_version < "3.7"': [
             "dataclasses>=0.6",
         ]},
     package_data={
-        "pymatgen.core": ["*.json"],
-        "pymatgen.analysis": ["*.yaml", "*.json"],
-        "pymatgen.analysis.cost": ["*.csv"],
+        "pymatgen.core": ["*.json", "py.typed"],
+        "pymatgen.analysis": ["*.yaml", "*.json", "*.csv"],
         "pymatgen.analysis.chemenv.coordination_environments.coordination_geometries_files": ["*.txt", "*.json"],
         "pymatgen.analysis.chemenv.coordination_environments.strategy_files": ["*.json"],
-        "pymatgen.analysis.hhi": ["*.csv"],
         "pymatgen.analysis.magnetism": ["*.json", "*.yaml"],
         "pymatgen.analysis.structure_prediction": ["data/*.json", "*.yaml"],
         "pymatgen.io": ["*.yaml"],
-        "pymatgen.io.vasp": ["*.yaml"],
-        "pymatgen.io.lammps": ["templates/*.*"],
+        "pymatgen.io.vasp": ["*.yaml", "*.json"],
+        "pymatgen.io.lammps": ["templates/*.*", "*.yaml"],
         "pymatgen.io.feff": ["*.yaml"],
         "pymatgen.symmetry": ["*.yaml", "*.json", "*.sqlite"],
         "pymatgen.entries": ["*.yaml"],
@@ -158,7 +172,12 @@ setup(
                            extra_link_args=extra_link_args),
                  Extension("pymatgen.util.coord_cython",
                            ["pymatgen/util/coord_cython.c"],
-                           extra_link_args=extra_link_args)],
+                           extra_link_args=extra_link_args),
+                 Extension("pymatgen.optimization.neighbors",
+                           ["pymatgen/optimization/neighbors.cpp"],
+                           extra_compile_args=cpp_extra_compile_args,
+                           extra_link_args=cpp_extra_link_args,
+                           language='c++')],
     entry_points={
           'console_scripts': [
               'pmg = pymatgen.cli.pmg:main',

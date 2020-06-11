@@ -9,10 +9,10 @@ Example script that generates FEFF input files from a cif file
 Remove comment # on write line to actually write files to disk
 """
 
+import os
 import argparse
 
-from pymatgen.io.feff.sets import *
-from pymatgen.io.vasp import *
+from pymatgen.io.feff.sets import MPXANESSet
 from pymatgen.io.cif import CifParser
 
 __author__ = "Alan Dozier"
@@ -25,6 +25,9 @@ __date__ = "April 7, 2013"
 
 
 def main():
+    """
+    Main method.
+    """
     parser = argparse.ArgumentParser(description='''
     Example script to generate FEFF input files from a cif file
     Author: Alan Dozier

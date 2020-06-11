@@ -1,0 +1,127 @@
+#Created by the Bilbao Crystallographic Server
+# http://www.cryst.ehu.es
+# Date: 06/08/2018 15:51:48
+# Database entry: 0.1 LaMnO3
+# Cif-like file for the case 0.1
+
+
+data_5yOhtAoR
+_audit_creation_date            2018-06-08
+_audit_creation_method          "Bilbao Crystallographic Server"
+
+_chemical_name_systematic
+;
+;
+_chemical_name_common                    ?
+_chemical_formula_moiety                 ?
+_chemical_formula_structural             ?
+_chemical_formula_analytical             ?
+_chemical_formula_iupac                  ?
+_chemical_formula_sum                    'La Mn O3'
+_chemical_formula_weight                 ?
+_chemical_melting_point                  ?
+_chemical_compound_source                ?
+_chemical_absolute_configuration         .
+
+
+_citation_journal_abbrev        "PHYSICAL REVIEW B"
+_citation_journal_volume        54
+_citation_page_first            15149
+_citation_page_last             15155
+_citation_article_id            .
+_citation_year                  1995
+_citation_DOI                   ?
+
+loop_
+_citation_author_name
+"Moussa, F."
+
+_atomic_positions_source_database_code_ICSD  .
+_atomic_positions_source_other               "."
+
+_transition_temperature     139.5
+_experiment_temperature     1.4
+
+loop_
+_irrep_id
+_irrep_dimension
+_irrep_small_dimension
+_irrep_direction_type
+_irrep_action
+_irrep_modes_number
+_irrep_presence
+? ? ? ? ? . .
+
+_exptl_crystal_magnetic_properties_details
+;
+NPD
+;
+
+_active_magnetic_irreps_details
+;
+1k magnetic structure
+k-maximal magnetic symmetry
+1-dim irrep active
+;
+
+_parent_space_group.name_H-M_alt  'P  n  m  a'
+_parent_space_group.IT_number                       62
+_parent_space_group.transform_Pp_abc  'a,b,c;0,0,0'
+
+loop_
+_parent_propagation_vector.id
+_parent_propagation_vector.kxkykz
+k1 [0 0 0]
+
+_parent_space_group.child_transform_Pp_abc  'a,b,c;0,0,0'
+_space_group_magn.transform_BNS_Pp_abc  'a,b,c;0,0,0'
+
+
+_space_group_magn.number_BNS  62.448
+_space_group_magn.name_BNS  "P  n'  m  a'  "
+_space_group_magn.point_group_name  "m'm'm"
+_space_group_magn.point_group_number  "8.4.27"
+_cell_length_a                 5.7461(2)
+_cell_length_b                 7.6637(4)
+_cell_length_c                 5.5333(2)
+_cell_angle_alpha              90.0000
+_cell_angle_beta               90.0000
+_cell_angle_gamma              90.0000
+
+loop_
+_space_group_symop_magn_operation.id
+_space_group_symop_magn_operation.xyz
+1 x,y,z,+1 
+2 -x,y+1/2,-z,+1 
+3 -x,-y,-z,+1 
+4 x,-y+1/2,z,+1 
+5 x+1/2,-y+1/2,-z+1/2,-1 
+6 -x+1/2,-y,z+1/2,-1 
+7 -x+1/2,y+1/2,z+1/2,-1 
+8 x+1/2,y,-z+1/2,-1 
+
+loop_
+_space_group_symop_magn_centering.id
+_space_group_symop_magn_centering.xyz
+1 x,y,z,+1 
+
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+La La 0.0513(7) 0.25000 -0.0095(5) 1
+Mn Mn 0.00000 0.00000 0.50000 1
+O1 O 0.48493(80) 0.25000 0.0777(7) 1
+O2 O 0.3085(5) 0.0408(4) 0.7227(5) 1
+
+loop_
+_atom_site_moment.label
+_atom_site_moment.crystalaxis_x
+_atom_site_moment.crystalaxis_y
+_atom_site_moment.crystalaxis_z
+_atom_site_moment.symmform
+Mn 3.87(3) 0.0 0.0 mx,my,mz
+

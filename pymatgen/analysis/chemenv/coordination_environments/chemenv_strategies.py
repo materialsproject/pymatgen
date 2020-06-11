@@ -21,12 +21,13 @@ __date__ = "Feb 20, 2016"
 import abc
 import os
 from monty.json import MSONable
+from typing import Optional, List, Dict
+
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.sites import PeriodicSite
 import numpy as np
 from scipy.stats import gmean
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import UNCLEAR_ENVIRONMENT_SYMBOL
 from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import get_lower_and_upper_f
 from pymatgen.analysis.chemenv.utils.func_utils import CSMFiniteRatioFunction
 from pymatgen.analysis.chemenv.utils.func_utils import CSMInfiniteRatioFunction
@@ -46,7 +47,7 @@ ALLCG = AllCoordinationGeometries()
 
 
 class StrategyOption(MSONable, metaclass=abc.ABCMeta):
-    allowed_values = None
+    allowed_values = None  # type: Optional[str]
 
     @abc.abstractmethod
     def as_dict(self):
@@ -142,9 +143,9 @@ class AbstractChemenvStrategy(MSONable, metaclass=abc.ABCMeta):
     StructureEnvironments object
     """
     AC = AdditionalConditions()
-    STRATEGY_OPTIONS = OrderedDict()
-    STRATEGY_DESCRIPTION = None
-    STRATEGY_INFO_FIELDS = []
+    STRATEGY_OPTIONS = OrderedDict()  # type: Dict[str, Dict]
+    STRATEGY_DESCRIPTION = None  # type: str
+    STRATEGY_INFO_FIELDS = []  # type: List
     DEFAULT_SYMMETRY_MEASURE_TYPE = 'csm_wcs_ctwcc'
 
     def __init__(self, structure_environments=None, symmetry_measure_type=DEFAULT_SYMMETRY_MEASURE_TYPE):
@@ -366,7 +367,7 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
     DEFAULT_ANGLE_CUTOFF = 0.3
     DEFAULT_CONTINUOUS_SYMMETRY_MEASURE_CUTOFF = 10.0
     DEFAULT_ADDITIONAL_CONDITION = AbstractChemenvStrategy.AC.ONLY_ACB
-    STRATEGY_OPTIONS = OrderedDict()
+    STRATEGY_OPTIONS = OrderedDict()  # type: Dict[str, Dict]
     STRATEGY_OPTIONS['distance_cutoff'] = {'type': DistanceCutoffFloat, 'internal': '_distance_cutoff',
                                            'default': DEFAULT_DISTANCE_CUTOFF}
     STRATEGY_OPTIONS['angle_cutoff'] = {'type': AngleCutoffFloat, 'internal': '_angle_cutoff',
@@ -588,7 +589,7 @@ class SimpleAbundanceChemenvStrategy(AbstractChemenvStrategy):
 
     DEFAULT_MAX_DIST = 2.0
     DEFAULT_ADDITIONAL_CONDITION = AbstractChemenvStrategy.AC.ONLY_ACB
-    STRATEGY_OPTIONS = OrderedDict()
+    STRATEGY_OPTIONS = OrderedDict()  # type: Dict[str, Dict]
     STRATEGY_OPTIONS['additional_condition'] = {'type': AdditionalConditionInt,
                                                 'internal': '_additional_condition',
                                                 'default': DEFAULT_ADDITIONAL_CONDITION}
@@ -1794,7 +1795,7 @@ class MultiWeightsChemenvStrategy(WeightedNbSetChemenvStrategy):
     #                         'cn_map_fraction', 'cn_map_ce_fraction', 'ce_fraction']
     DEFAULT_CE_ESTIMATOR = {'function': 'power2_inverse_power2_decreasing',
                             'options': {'max_csm': 8.0}}
-    DEFAULT_DIST_ANG_AREA_WEIGHT = {}
+    DEFAULT_DIST_ANG_AREA_WEIGHT = {}  # type: Dict
 
     def __init__(self, structure_environments=None,
                  additional_condition=AbstractChemenvStrategy.AC.ONLY_ACB,

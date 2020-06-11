@@ -3,6 +3,12 @@
 # Distributed under the terms of the MIT License.
 
 
+"""
+This module provides a class used to describe the elastic tensor,
+including methods used to fit the elastic tensor from linear response
+stress-strain data
+"""
+
 from pymatgen.core.tensors import Tensor, \
     TensorCollection, get_uvec, SquareTensor, DEFAULT_QUAD
 from pymatgen.analysis.elasticity.stress import Stress
@@ -18,12 +24,6 @@ import warnings
 import itertools
 
 import sympy as sp
-
-"""
-This module provides a class used to describe the elastic tensor,
-including methods used to fit the elastic tensor from linear response
-stress-strain data
-"""
 
 __author__ = "Joseph Montoya"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -45,6 +45,12 @@ class NthOrderElasticTensor(Tensor):
     symbol = "C"
 
     def __new__(cls, input_array, check_rank=None, tol=1e-4):
+        """
+        Args:
+            input_array ():
+            check_rank ():
+            tol ():
+        """
         obj = super().__new__(
             cls, input_array, check_rank=check_rank)
         if obj.rank % 2 != 0:
@@ -88,6 +94,18 @@ class NthOrderElasticTensor(Tensor):
     @classmethod
     def from_diff_fit(cls, strains, stresses, eq_stress=None,
                       order=2, tol=1e-10):
+        """
+
+        Args:
+            strains ():
+            stresses ():
+            eq_stress ():
+            order ():
+            tol ():
+
+        Returns:
+
+        """
         return cls(diff_fit(strains, stresses, eq_stress, order, tol)[order - 2])
 
 
@@ -98,6 +116,15 @@ def raise_error_if_unphysical(f):
     """
 
     def wrapper(self, *args, **kwargs):
+        """
+        Args:
+            self ():
+            *args ():
+            **kwargs ():
+
+        Returns:
+
+        """
         if self.k_vrh < 0 or self.g_vrh < 0:
             raise ValueError("Bulk or shear modulus is negative, property "
                              "cannot be determined")
@@ -500,6 +527,10 @@ class ComplianceTensor(Tensor):
     """
 
     def __new__(cls, s_array):
+        """
+        Args:
+            s_array ():
+        """
         vscale = np.ones((6, 6))
         vscale[3:] *= 2
         vscale[:, 3:] *= 2

@@ -38,7 +38,6 @@ from monty.os.path import which
 import re
 from pymatgen.core.composition import Composition
 from pymatgen.core.structure import Structure
-from pymatgen.util.string import formula_double_format
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -53,9 +52,18 @@ class COD:
     """
 
     def __init__(self):
+        """
+        Blank __init__. No args required.
+        """
         pass
 
-    def query(self, sql):
+    def query(self, sql: str) -> str:
+        """
+        Perform a query.
+
+        :param sql: SQL string
+        :return: Response from SQL query.
+        """
         r = subprocess.check_output(["mysql", "-u", "cod_reader", "-h",
                                      "www.crystallography.net", "-e",
                                      sql, "cod"])

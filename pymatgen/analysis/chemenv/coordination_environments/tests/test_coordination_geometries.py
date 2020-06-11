@@ -12,7 +12,6 @@ from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import CoordinationGeometry
 
-
 allcg = AllCoordinationGeometries()
 
 
@@ -195,7 +194,7 @@ class CoordinationGeometriesTest(PymatgenTest):
         self.assertEqual(sorted(allcg.get_implemented_geometries(coordination=4, returned='mp_symbol')),
                          [u'S:4', u'SS:4', u'SY:4', u'T:4'])
         self.assertEqual(sorted(allcg.get_not_implemented_geometries(returned='mp_symbol')),
-                         [u'CO:11', u'DD:20', u'H:10', u'S:10', u'S:12', u'UNCLEAR', u'UNKNOWN'])
+                         [u'CO:11', u'H:10', u'S:10', u'S:12', u'UNCLEAR', u'UNKNOWN'])
 
         self.assertEqual(allcg.get_geometry_from_name('Octahedron').mp_symbol, cg_oct.mp_symbol)
         with self.assertRaises(LookupError) as cm:
@@ -224,7 +223,7 @@ class CoordinationGeometriesTest(PymatgenTest):
                          '==>> CN = 3 <<==\n'
                          ' - TL:3 : Trigonal plane\n - TY:3 : Triangular non-coplanar\n - TS:3 : T-shaped\n\n'
                          '==>> CN = 4 <<==\n - T:4 : Tetrahedron\n - S:4 : Square plane\n'
-                         ' - SY:4 : Square non-coplanar\n - SS:4 : See-saw\n\n'                        )
+                         ' - SY:4 : Square non-coplanar\n - SS:4 : See-saw\n\n')
         self.assertEqual(allcg.pretty_print(maxcn=2, type='all_geometries_latex'),
                          '\\subsection*{Coordination 1}\n\n\\begin{itemize}\n'
                          '\\item S:1 $\\rightarrow$ Single neighbor (IUPAC : None - IUCr : $[$1l$]$)\n'
@@ -241,9 +240,9 @@ class CoordinationGeometriesTest(PymatgenTest):
                          'IUCr : [2l]\n\n\\begin{center}\n\\includegraphics[scale=0.15]{images/L_2.png}\n'
                          '\\end{center}\n\n\\subsubsection*{A:2 : Angular}\n\nIUPAC : A-2\n\nIUCr : [2n]\n\n'
                          '\\begin{center}\n\\includegraphics[scale=0.15]{images/A_2.png}\n\\end{center}\n\n')
-        self.assertDictEqual(allcg.minpoints, {6: 2, 7: 2, 8: 2, 9: 2, 10: 2, 11: 2, 12: 2, 13: 3})
-        self.assertDictEqual(allcg.maxpoints, {6: 5, 7: 5, 8: 6, 9: 7, 10: 6, 11: 5, 12: 8, 13: 6})
-        self.assertDictEqual(allcg.maxpoints_inplane, {6: 5, 7: 5, 8: 6, 9: 7, 10: 6, 11: 5, 12: 8, 13: 6})
+        self.assertDictEqual(allcg.minpoints, {6: 2, 7: 2, 8: 2, 9: 2, 10: 2, 11: 2, 12: 2, 13: 3, 20: 2})
+        self.assertDictEqual(allcg.maxpoints, {6: 5, 7: 5, 8: 6, 9: 7, 10: 6, 11: 5, 12: 8, 13: 6, 20: 10})
+        self.assertDictEqual(allcg.maxpoints_inplane, {6: 5, 7: 5, 8: 6, 9: 7, 10: 6, 11: 5, 12: 8, 13: 6, 20: 10})
         self.assertDictEqual(allcg.separations_cg, {6: {(0, 3, 3): [u'O:6', u'T:6'],
                                                         (1, 4, 1): [u'O:6'],
                                                         (0, 5, 1): [u'PP:6'],
@@ -289,7 +288,9 @@ class CoordinationGeometriesTest(PymatgenTest):
                                                          (3, 6, 3): [u'C:12', u'AC:12'],
                                                          (4, 4, 4): [u'I:12', u'PBP:12', u'C:12', u'HP:12'],
                                                          (0, 8, 4): [u'SC:12']},
-                                                    13: {(0, 6, 7): [u'SH:13']}})
+                                                    13: {(0, 6, 7): [u'SH:13']},
+                                                    20: {(5, 10, 5): ['DD:20']}})
+
 
 if __name__ == "__main__":
     unittest.main()

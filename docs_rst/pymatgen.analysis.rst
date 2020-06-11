@@ -5,15 +5,14 @@ Subpackages
 -----------
 
 .. toctree::
+   :maxdepth: 7
 
    pymatgen.analysis.chemenv
-   pymatgen.analysis.cost
    pymatgen.analysis.defects
    pymatgen.analysis.diffraction
    pymatgen.analysis.elasticity
    pymatgen.analysis.ferroelectricity
    pymatgen.analysis.gb
-   pymatgen.analysis.hhi
    pymatgen.analysis.magnetism
    pymatgen.analysis.structure_prediction
    pymatgen.analysis.xas
@@ -22,11 +21,12 @@ Submodules
 ----------
 
 .. toctree::
+   :maxdepth: 7
 
    pymatgen.analysis.adsorption
-   pymatgen.analysis.aflow_prototypes
    pymatgen.analysis.bond_dissociation
    pymatgen.analysis.bond_valence
+   pymatgen.analysis.cost
    pymatgen.analysis.diffusion_analyzer
    pymatgen.analysis.dimensionality
    pymatgen.analysis.energy_models
@@ -37,6 +37,7 @@ Submodules
    pymatgen.analysis.fragmenter
    pymatgen.analysis.functional_groups
    pymatgen.analysis.graphs
+   pymatgen.analysis.hhi
    pymatgen.analysis.interface
    pymatgen.analysis.interface_reactions
    pymatgen.analysis.local_env
@@ -46,7 +47,9 @@ Submodules
    pymatgen.analysis.path_finder
    pymatgen.analysis.phase_diagram
    pymatgen.analysis.piezo
+   pymatgen.analysis.piezo_sensitivity
    pymatgen.analysis.pourbaix_diagram
+   pymatgen.analysis.prototypes
    pymatgen.analysis.quasiharmonic
    pymatgen.analysis.reaction_calculator
    pymatgen.analysis.structure_analyzer

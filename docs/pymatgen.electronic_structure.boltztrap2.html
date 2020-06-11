@@ -1,21 +1,46 @@
 
-<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta charset="utf-8" />
-    <title>pymatgen.electronic_structure.boltztrap2 module &#8212; pymatgen 2019.8.23 documentation</title>
-    <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pymatgen.electronic_structure.boltztrap2 module &mdash; pymatgen 2020.4.29 documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://pymatgen.orgpymatgen.electronic_structure.boltztrap2.html"/>
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pymatgen.electronic_structure.cohp module" href="pymatgen.electronic_structure.cohp.html" />
+    <link rel="prev" title="pymatgen.electronic_structure.boltztrap module" href="pymatgen.electronic_structure.boltztrap.html" />
  
 <script type="text/javascript">
   var _gaq = _gaq || [];
@@ -23,62 +48,237 @@
   _gaq.push(['_trackPageview']);
 </script>
 
-  </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
-      </ul>
-    </div>  
+</head>
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body" role="main">
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pymatgen
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2020.4.29
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="team.html">Development Team</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API Docs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pymatgen.html">pymatgen package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="pymatgen.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.alchemy.html">pymatgen.alchemy package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.html">pymatgen.analysis package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.apps.html">pymatgen.apps package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.cli.html">pymatgen.cli package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.command_line.html">pymatgen.command_line package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html">pymatgen.core package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="pymatgen.electronic_structure.html">pymatgen.electronic_structure package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.entries.html">pymatgen.entries package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html">pymatgen.ext package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html">pymatgen.io package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.plugins.html">pymatgen.plugins package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.vis.html">pymatgen.vis package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#module-pymatgen">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pymatgen</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="modules.html">pymatgen</a> &raquo;</li>
+        
+          <li><a href="pymatgen.html">pymatgen package</a> &raquo;</li>
+        
+          <li><a href="pymatgen.electronic_structure.html">pymatgen.electronic_structure package</a> &raquo;</li>
+        
+      <li>pymatgen.electronic_structure.boltztrap2 module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.electronic_structure.boltztrap2.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
             
   <div class="section" id="module-pymatgen.electronic_structure.boltztrap2">
 <span id="pymatgen-electronic-structure-boltztrap2-module"></span><h1>pymatgen.electronic_structure.boltztrap2 module<a class="headerlink" href="#module-pymatgen.electronic_structure.boltztrap2" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
+<p>BoltzTraT2 is a python software interpolating band structures and
+computing materials properties from dft band structure using Boltzmann
+semi-classical transport theory.
+This module provides a pymatgen interface to BoltzTraT2.
+Some of the code is written following the examples provided in BoltzTraP2</p>
+<p>BoltzTraT2 has been developed by Georg Madsen, Jesús Carrete, Matthieu J. Verstraete.</p>
+<p><a class="reference external" href="https://gitlab.com/sousaw/BoltzTraP2">https://gitlab.com/sousaw/BoltzTraP2</a>
+<a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S0010465518301632">https://www.sciencedirect.com/science/article/pii/S0010465518301632</a></p>
+<p>References are:</p>
+<blockquote>
+<div><p>Georg K.H.Madsen, Jesús Carrete, Matthieu J.Verstraete
+BoltzTraP2, a program for interpolating band structures and
+calculating semi-classical transport coefficients
+Computer Physics Communications 231, 140-145, 2018</p>
+<p>Madsen, G. K. H., and Singh, D. J. (2006).
+BoltzTraP. A code for calculating band-structure dependent quantities.
+Computer Physics Communications, 175, 67-71</p>
+</div></blockquote>
+<p>TODO:
+- spin polarized bands
+- read first derivative of the eigenvalues from vasprun.xml (mommat)
+- handle magnetic moments (magmom)</p>
+<dl class="py class">
 <dt id="pymatgen.electronic_structure.boltztrap2.BandstructureLoader">
-<em class="property">class </em><code class="sig-name descname">BandstructureLoader</code><span class="sig-paren">(</span><em class="sig-param">bs_obj</em>, <em class="sig-param">structure=None</em>, <em class="sig-param">nelect=None</em>, <em class="sig-param">spin=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap2.html#BandstructureLoader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap2.BandstructureLoader" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">BandstructureLoader</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bs_obj</span></em>, <em class="sig-param"><span class="n">structure</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">nelect</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">spin</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/electronic_structure/boltztrap2.py#L59-L167"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap2.BandstructureLoader" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Loader for Bandsstrcture object</p>
-<p>Structure and nelect is needed to be provide.
-spin must be select if bs is spin-polarized.</p>
-<dl class="method">
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bs_obj</strong> – </p></li>
+<li><p><strong>structure</strong> – </p></li>
+<li><p><strong>nelect</strong> – </p></li>
+<li><p><strong>spin</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
 <dt id="pymatgen.electronic_structure.boltztrap2.BandstructureLoader.bandana">
-<code class="sig-name descname">bandana</code><span class="sig-paren">(</span><em class="sig-param">emin=-inf</em>, <em class="sig-param">emax=inf</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap2.html#BandstructureLoader.bandana"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap2.BandstructureLoader.bandana" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">bandana</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">emin</span><span class="o">=</span><span class="default_value">- inf</span></em>, <em class="sig-param"><span class="n">emax</span><span class="o">=</span><span class="default_value">inf</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/electronic_structure/boltztrap2.py#L120-L142"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap2.BandstructureLoader.bandana" title="Permalink to this definition">¶</a></dt>
 <dd><p>Cut out bands outside the range (emin,emax)</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.electronic_structure.boltztrap2.BandstructureLoader.get_lattvec">
-<code class="sig-name descname">get_lattvec</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap2.html#BandstructureLoader.get_lattvec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap2.BandstructureLoader.get_lattvec" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname">get_lattvec</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/electronic_structure/boltztrap2.py#L110-L118"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap2.BandstructureLoader.get_lattvec" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The lattice vectors.</p>
+</dd>
+</dl>
+</dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.electronic_structure.boltztrap2.BandstructureLoader.get_volume">
-<code class="sig-name descname">get_volume</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap2.html#BandstructureLoader.get_volume"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap2.BandstructureLoader.get_volume" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname">get_volume</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/electronic_structure/boltztrap2.py#L158-L167"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap2.BandstructureLoader.get_volume" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Volume</p>
+</dd>
+</dl>
+</dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.electronic_structure.boltztrap2.BandstructureLoader.set_upper_lower_bands">
-<code class="sig-name descname">set_upper_lower_bands</code><span class="sig-paren">(</span><em class="sig-param">e_lower</em>, <em class="sig-param">e_upper</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap2.html#BandstructureLoader.set_upper_lower_bands"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap2.BandstructureLoader.set_upper_lower_bands" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_upper_lower_bands</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">e_lower</span></em>, <em class="sig-param"><span class="n">e_upper</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/electronic_structure/boltztrap2.py#L144-L156"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap2.BandstructureLoader.set_upper_lower_bands" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set fake upper/lower bands, useful to set the same energy
 range in the spin up/down bands when calculating the DOS</p>
 </dd></dl>
 
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="pymatgen.electronic_structure.boltztrap2.BztInterpolator">
-<em class="property">class </em><code class="sig-name descname">BztInterpolator</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">lpfac=10</em>, <em class="sig-param">energy_range=1.5</em>, <em class="sig-param">curvature=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap2.html#BztInterpolator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap2.BztInterpolator" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">BztInterpolator</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">lpfac</span><span class="o">=</span><span class="default_value">10</span></em>, <em class="sig-param"><span class="n">energy_range</span><span class="o">=</span><span class="default_value">1.5</span></em>, <em class="sig-param"><span class="n">curvature</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/electronic_structure/boltztrap2.py#L253-L380"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap2.BztInterpolator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Interpolate the dft band structures</p>
 <dl class="field-list simple">
@@ -101,16 +301,16 @@ derivative related trasport properties (Hall coefficient).</p></li>
 <p class="rubric">Example</p>
 <p>data = VasprunLoader().from_file(‘vasprun.xml’)
 bztInterp = BztInterpolator(data)</p>
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.electronic_structure.boltztrap2.BztInterpolator.get_band_structure">
-<code class="sig-name descname">get_band_structure</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap2.html#BztInterpolator.get_band_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap2.BztInterpolator.get_band_structure" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_band_structure</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/electronic_structure/boltztrap2.py#L288-L312"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap2.BztInterpolator.get_band_structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a BandStructureSymmLine object interpolating bands along a
 High symmetry path calculated from the structure using HighSymmKpath function</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.electronic_structure.boltztrap2.BztInterpolator.get_dos">
-<code class="sig-name descname">get_dos</code><span class="sig-paren">(</span><em class="sig-param">partial_dos=False</em>, <em class="sig-param">npts_mu=10000</em>, <em class="sig-param">T=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap2.html#BztInterpolator.get_dos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap2.BztInterpolator.get_dos" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_dos</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">partial_dos</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">npts_mu</span><span class="o">=</span><span class="default_value">10000</span></em>, <em class="sig-param"><span class="n">T</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/electronic_structure/boltztrap2.py#L314-L337"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap2.BztInterpolator.get_dos" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a Dos object interpolating bands</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -125,9 +325,9 @@ in the loader.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.electronic_structure.boltztrap2.BztInterpolator.get_partial_doses">
-<code class="sig-name descname">get_partial_doses</code><span class="sig-paren">(</span><em class="sig-param">tdos</em>, <em class="sig-param">npts_mu</em>, <em class="sig-param">T</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap2.html#BztInterpolator.get_partial_doses"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap2.BztInterpolator.get_partial_doses" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_partial_doses</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tdos</span></em>, <em class="sig-param"><span class="n">npts_mu</span></em>, <em class="sig-param"><span class="n">T</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/electronic_structure/boltztrap2.py#L339-L380"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap2.BztInterpolator.get_partial_doses" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a CompleteDos object interpolating the projections</p>
 <p>tdos: total dos previously calculated
 npts_mu: number of energy points of the Dos
@@ -136,29 +336,37 @@ T: parameter used to smooth the Dos</p>
 
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="pymatgen.electronic_structure.boltztrap2.BztPlotter">
-<em class="property">class </em><code class="sig-name descname">BztPlotter</code><span class="sig-paren">(</span><em class="sig-param">bzt_transP=None</em>, <em class="sig-param">bzt_interp=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap2.html#BztPlotter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap2.BztPlotter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">BztPlotter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bzt_transP</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">bzt_interp</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/electronic_structure/boltztrap2.py#L591-L765"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap2.BztPlotter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Plotter to plot transport properties, interpolated bands along some high
 symmetry k-path, and fermisurface</p>
 <p class="rubric">Example</p>
 <p>bztPlotter = BztPlotter(bztTransp,bztInterp)</p>
-<dl class="method">
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bzt_transP</strong> – </p></li>
+<li><p><strong>bzt_interp</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
 <dt id="pymatgen.electronic_structure.boltztrap2.BztPlotter.plot_bands">
-<code class="sig-name descname">plot_bands</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap2.html#BztPlotter.plot_bands"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap2.BztPlotter.plot_bands" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">plot_bands</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/electronic_structure/boltztrap2.py#L742-L751"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap2.BztPlotter.plot_bands" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot a band structure on symmetry line using BSPlotter()</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.electronic_structure.boltztrap2.BztPlotter.plot_dos">
-<code class="sig-name descname">plot_dos</code><span class="sig-paren">(</span><em class="sig-param">T=None</em>, <em class="sig-param">npoints=10000</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap2.html#BztPlotter.plot_dos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap2.BztPlotter.plot_dos" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">plot_dos</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">T</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">npoints</span><span class="o">=</span><span class="default_value">10000</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/electronic_structure/boltztrap2.py#L753-L765"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap2.BztPlotter.plot_dos" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the total Dos using DosPlotter()</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.electronic_structure.boltztrap2.BztPlotter.plot_props">
-<code class="sig-name descname">plot_props</code><span class="sig-paren">(</span><em class="sig-param">prop_y</em>, <em class="sig-param">prop_x</em>, <em class="sig-param">prop_z='temp'</em>, <em class="sig-param">output='avg_eigs'</em>, <em class="sig-param">dop_type='n'</em>, <em class="sig-param">doping=None</em>, <em class="sig-param">temps=None</em>, <em class="sig-param">xlim=(-2</em>, <em class="sig-param">2)</em>, <em class="sig-param">ax=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap2.html#BztPlotter.plot_props"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap2.BztPlotter.plot_props" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">plot_props</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prop_y</span></em>, <em class="sig-param"><span class="n">prop_x</span></em>, <em class="sig-param"><span class="n">prop_z</span><span class="o">=</span><span class="default_value">'temp'</span></em>, <em class="sig-param"><span class="n">output</span><span class="o">=</span><span class="default_value">'avg_eigs'</span></em>, <em class="sig-param"><span class="n">dop_type</span><span class="o">=</span><span class="default_value">'n'</span></em>, <em class="sig-param"><span class="n">doping</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">temps</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">xlim</span><span class="o">=</span><span class="default_value">- 2, 2</span></em>, <em class="sig-param"><span class="n">ax</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/electronic_structure/boltztrap2.py#L608-L740"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap2.BztPlotter.plot_props" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function to plot the transport properties.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -189,9 +397,9 @@ more example are provided in the notebook
 
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="pymatgen.electronic_structure.boltztrap2.BztTransportProperties">
-<em class="property">class </em><code class="sig-name descname">BztTransportProperties</code><span class="sig-paren">(</span><em class="sig-param">BztInterpolator</em>, <em class="sig-param">temp_r=array([ 100</em>, <em class="sig-param">200</em>, <em class="sig-param">300</em>, <em class="sig-param">400</em>, <em class="sig-param">500</em>, <em class="sig-param">600</em>, <em class="sig-param">700</em>, <em class="sig-param">800</em>, <em class="sig-param">900</em>, <em class="sig-param">1000</em>, <em class="sig-param">1100</em>, <em class="sig-param">1200</em>, <em class="sig-param">1300])</em>, <em class="sig-param">doping=array([1.e+16</em>, <em class="sig-param">1.e+17</em>, <em class="sig-param">1.e+18</em>, <em class="sig-param">1.e+19</em>, <em class="sig-param">1.e+20</em>, <em class="sig-param">1.e+21</em>, <em class="sig-param">1.e+22])</em>, <em class="sig-param">npts_mu=4000</em>, <em class="sig-param">CRTA=1e-14</em>, <em class="sig-param">margin=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap2.html#BztTransportProperties"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap2.BztTransportProperties" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">BztTransportProperties</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">BztInterpolator</span></em>, <em class="sig-param"><span class="n">temp_r</span><span class="o">=</span><span class="default_value">array([100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300])</span></em>, <em class="sig-param"><span class="n">doping</span><span class="o">=</span><span class="default_value">array([1e+16, 1e+17, 1e+18, 1e+19, 1e+20, 1e+21, 1e+22])</span></em>, <em class="sig-param"><span class="n">npts_mu</span><span class="o">=</span><span class="default_value">4000</span></em>, <em class="sig-param"><span class="n">CRTA</span><span class="o">=</span><span class="default_value">1e-14</span></em>, <em class="sig-param"><span class="n">margin</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/electronic_structure/boltztrap2.py#L383-L588"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap2.BztTransportProperties" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Compute Seebeck, Conductivity, Electrical part of thermal conductivity
 and Hall coefficient, conductivity effective mass, Power Factor tensors
@@ -229,9 +437,9 @@ Hall_carrier_conc_trace_mu: trace of Hall carrier concentration of size</p>
 </dl>
 <p class="rubric">Example</p>
 <p>bztTransp = BztTransportProperties(bztInterp,temp_r = np.arange(100,1400,100))</p>
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.electronic_structure.boltztrap2.BztTransportProperties.compute_properties_doping">
-<code class="sig-name descname">compute_properties_doping</code><span class="sig-paren">(</span><em class="sig-param">doping</em>, <em class="sig-param">temp_r=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap2.html#BztTransportProperties.compute_properties_doping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap2.BztTransportProperties.compute_properties_doping" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">compute_properties_doping</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">doping</span></em>, <em class="sig-param"><span class="n">temp_r</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/electronic_structure/boltztrap2.py#L473-L539"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap2.BztTransportProperties.compute_properties_doping" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate all the properties w.r.t. the doping levels in input.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -249,103 +457,143 @@ arrays of dim (len(temp_r),len(doping),3,3) as values</p>
 mu_doping_eV: the chemical potential corrispondent to each doping level</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.electronic_structure.boltztrap2.BztTransportProperties.find_mu_doping">
-<code class="sig-name descname">find_mu_doping</code><span class="sig-paren">(</span><em class="sig-param">epsilon</em>, <em class="sig-param">dos</em>, <em class="sig-param">N0</em>, <em class="sig-param">T</em>, <em class="sig-param">dosweight=2.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap2.html#BztTransportProperties.find_mu_doping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap2.BztTransportProperties.find_mu_doping" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname">find_mu_doping</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">epsilon</span></em>, <em class="sig-param"><span class="n">dos</span></em>, <em class="sig-param"><span class="n">N0</span></em>, <em class="sig-param"><span class="n">T</span></em>, <em class="sig-param"><span class="n">dosweight</span><span class="o">=</span><span class="default_value">2.0</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/electronic_structure/boltztrap2.py#L541-L558"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap2.BztTransportProperties.find_mu_doping" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the mu.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>epsilon</strong> – </p></li>
+<li><p><strong>dos</strong> – </p></li>
+<li><p><strong>N0</strong> – </p></li>
+<li><p><strong>T</strong> – </p></li>
+<li><p><strong>dosweight</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.electronic_structure.boltztrap2.BztTransportProperties.props_as_dict">
-<code class="sig-name descname">props_as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap2.html#BztTransportProperties.props_as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap2.BztTransportProperties.props_as_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname">props_as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/electronic_structure/boltztrap2.py#L560-L580"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap2.BztTransportProperties.props_as_dict" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Get the properties as a dict.</p>
+</dd>
+</dl>
+</dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.electronic_structure.boltztrap2.BztTransportProperties.save">
-<code class="sig-name descname">save</code><span class="sig-paren">(</span><em class="sig-param">fname='Transport_Properties.json'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap2.html#BztTransportProperties.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap2.BztTransportProperties.save" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname">save</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fname</span><span class="o">=</span><span class="default_value">'Transport_Properties.json'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/electronic_structure/boltztrap2.py#L582-L588"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap2.BztTransportProperties.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes the properties to a json file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>fname</strong> – Filename</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="pymatgen.electronic_structure.boltztrap2.VasprunLoader">
-<em class="property">class </em><code class="sig-name descname">VasprunLoader</code><span class="sig-paren">(</span><em class="sig-param">vrun_obj=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap2.html#VasprunLoader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap2.VasprunLoader" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">VasprunLoader</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">vrun_obj</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/electronic_structure/boltztrap2.py#L170-L250"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap2.VasprunLoader" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Loader for Vasprun object</p>
-<dl class="method">
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>vrun_obj</strong> – Vasprun object.</p>
+</dd>
+</dl>
+<dl class="py method">
 <dt id="pymatgen.electronic_structure.boltztrap2.VasprunLoader.bandana">
-<code class="sig-name descname">bandana</code><span class="sig-paren">(</span><em class="sig-param">emin=-inf</em>, <em class="sig-param">emax=inf</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap2.html#VasprunLoader.bandana"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap2.VasprunLoader.bandana" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">bandana</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">emin</span><span class="o">=</span><span class="default_value">- inf</span></em>, <em class="sig-param"><span class="n">emax</span><span class="o">=</span><span class="default_value">inf</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/electronic_structure/boltztrap2.py#L217-L239"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap2.VasprunLoader.bandana" title="Permalink to this definition">¶</a></dt>
 <dd><p>Cut out bands outside the range (emin,emax)</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.electronic_structure.boltztrap2.VasprunLoader.from_file">
-<code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param">vasprun_file</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap2.html#VasprunLoader.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap2.VasprunLoader.from_file" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">vasprun_file</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/electronic_structure/boltztrap2.py#L202-L205"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap2.VasprunLoader.from_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a vasprun.xml file and return a VasprunLoader</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.electronic_structure.boltztrap2.VasprunLoader.get_lattvec">
-<code class="sig-name descname">get_lattvec</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap2.html#VasprunLoader.get_lattvec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap2.VasprunLoader.get_lattvec" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname">get_lattvec</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/electronic_structure/boltztrap2.py#L207-L215"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap2.VasprunLoader.get_lattvec" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Lattice vectors</p>
+</dd>
+</dl>
+</dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.electronic_structure.boltztrap2.VasprunLoader.get_volume">
-<code class="sig-name descname">get_volume</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap2.html#VasprunLoader.get_volume"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap2.VasprunLoader.get_volume" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname">get_volume</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/electronic_structure/boltztrap2.py#L241-L250"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap2.VasprunLoader.get_volume" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Volume of cell</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="pymatgen.electronic_structure.boltztrap2.merge_up_down_doses">
-<code class="sig-name descname">merge_up_down_doses</code><span class="sig-paren">(</span><em class="sig-param">dos_up</em>, <em class="sig-param">dos_dn</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap2.html#merge_up_down_doses"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap2.merge_up_down_doses" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname">merge_up_down_doses</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dos_up</span></em>, <em class="sig-param"><span class="n">dos_dn</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/electronic_structure/boltztrap2.py#L768-L789"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap2.merge_up_down_doses" title="Permalink to this definition">¶</a></dt>
+<dd><p>Merge the up and down DOSs.
+:param dos_up: Up DOS.
+:param dos_dn: Down DOS
+:return: CompleteDos.</p>
+</dd></dl>
 
 </div>
 
 
+           </div>
+           
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/pymatgen.electronic_structure.boltztrap2.rst.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
-      </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2019.8.23 documentation</a> &#187;</li> 
-      </ul>
-    </div>
+          <footer>
+  
 
-    <div class="footer" role="contentinfo">
-        &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
-    </div>
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2011, Pymatgen Development Team
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+  
+ 
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking
 the JavaScript coming from www.google-analytics.com.
@@ -360,5 +608,6 @@ the JavaScript coming from www.google-analytics.com.
 </script>
 </div>
 
-  </body>
+
+</body>
 </html>

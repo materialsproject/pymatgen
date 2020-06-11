@@ -3,6 +3,13 @@
 # Distributed under the terms of the MIT License.
 
 
+"""
+This module defines classes for parsing the FEFF output files.
+
+Currently supports the xmu.dat, ldos.dat output files are for non-spin case.
+"""
+
+
 from collections import defaultdict, OrderedDict
 import re
 
@@ -24,30 +31,25 @@ __email__ = "adozier@uky.edu"
 __status__ = "Beta"
 __date__ = "April 7, 2013"
 
-"""
-This module defines classes for parsing the FEFF output files.
-
-Currently supports the xmu.dat, ldos.dat output files are for non-spin case.
-"""
-
 
 class LDos(MSONable):
     """
     Parser for ldos files ldos01, ldos02, .....
-
-    Args:
-        complete_dos (CompleteDos): complete dos object
-        charge_transfer (dict): computed charge transfer between atoms
-            dictionary
     """
 
     def __init__(self, complete_dos, charge_transfer):
+        """
+        Args:
+            complete_dos (CompleteDos): complete dos object
+            charge_transfer (dict): computed charge transfer between atoms
+                dictionary
+        """
         self.complete_dos = complete_dos
         self.charge_transfer = charge_transfer
 
     @staticmethod
     def from_file(feff_inp_file='feff.inp', ldos_file='ldos'):
-        """"
+        """
         Creates LDos object from raw Feff ldos files by
         by assuming they are numbered consecutively, i.e. ldos01.dat
         ldos02.dat...
@@ -251,17 +253,11 @@ class LDos(MSONable):
 
 
 class Xmu(MSONable):
-    """
+    r"""
     Parser for data in 'xmu.dat' file.
     The file 'xmu.dat' contains XANES, EXAFS or NRIXS data depending on the
     situation; \\mu, \\mu_0, and \\chi = \\chi * \\mu_0/ \\mu_0/(edge+50eV) as
     functions of absolute energy E, relative energy E − E_f and wave number k.
-
-    Args:
-        header: Header object
-        parameters: Tags object
-        absorbing_atom (str/int): absorbing atom symbol or index
-        data (numpy.ndarray, Nx6): cross_sections
 
     Default attributes:
         xmu: Photon absorption cross section of absorbing atom in material
@@ -279,6 +275,13 @@ class Xmu(MSONable):
     """
 
     def __init__(self, header, parameters, absorbing_atom, data):
+        """
+        Args:
+            header: Header object
+            parameters: Tags object
+            absorbing_atom (str/int): absorbing atom symbol or index
+            data (numpy.ndarray, Nx6): cross_sections
+        """
         self.header = header
         self.parameters = parameters
         self.absorbing_atom = absorbing_atom
@@ -325,7 +328,7 @@ class Xmu(MSONable):
 
     @property
     def wavenumber(self):
-        """
+        r"""
         Returns The wave number in units of \\AA^-1. k=\\sqrt(E −E_f) where E is
         the energy and E_f is the Fermi level computed from electron gas theory
         at the average interstitial charge density.
@@ -407,6 +410,10 @@ class Eels(MSONable):
     """
 
     def __init__(self, data):
+        """
+        Args:
+            data (): Eels data.
+        """
         self.data = np.array(data)
 
     @property
@@ -425,10 +432,16 @@ class Eels(MSONable):
 
     @property
     def atomic_background(self):
+        """
+        Returns: atomic background.
+        """
         return self.data[:, 2]
 
     @property
     def fine_structure(self):
+        """
+        Returns: Fine structure of EELS.
+        """
         return self.data[:, 3]
 
     @staticmethod

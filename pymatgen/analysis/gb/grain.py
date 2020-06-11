@@ -2,6 +2,10 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+Module containing classes to generate grain boundaries.
+"""
+
 import numpy as np
 from fractions import Fraction
 from math import gcd, floor, cos
@@ -211,6 +215,7 @@ class GrainBoundary(Structure):
 
         def to_s(x, rjust=10):
             return ("%0.6f" % x).rjust(rjust)
+
         outs.append("abc   : " + " ".join([to_s(i) for i in self.lattice.abc]))
         outs.append("angles: " + " ".join([to_s(i) for i in self.lattice.angles]))
         outs.append("Sites ({i})".format(i=len(self)))
@@ -219,6 +224,10 @@ class GrainBoundary(Structure):
         return "\n".join(outs)
 
     def as_dict(self):
+        """
+        Returns:
+            Dictionary representation of GrainBoundary object
+        """
         d = super().as_dict()
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
@@ -234,6 +243,15 @@ class GrainBoundary(Structure):
 
     @classmethod
     def from_dict(cls, d):
+        """
+        Generates a GrainBoundary object from a dictionary created by as_dict().
+
+        Args:
+            d: dict
+
+        Returns:
+            GrainBoundary object
+        """
         lattice = Lattice.from_dict(d["lattice"])
         sites = [PeriodicSite.from_dict(sd, lattice) for sd in d["sites"]]
         s = Structure.from_sites(sites)
@@ -658,6 +676,8 @@ class GrainBoundaryGenerator:
             all_sites = sites_away_gb + s_near_gb.sites
             gb_with_vac = Structure.from_sites(all_sites)
 
+        # move coordinates into the periodic cell.
+        gb_with_vac = fix_pbc(gb_with_vac, whole_lat.matrix)
         return GrainBoundary(whole_lat, gb_with_vac.species, gb_with_vac.cart_coords, rotation_axis,
                              rotation_angle, plane, join_plane, self.initial_structure,
                              vacuum_thickness, ab_shift, site_properties=gb_with_vac.site_properties,
@@ -671,7 +691,7 @@ class GrainBoundaryGenerator:
             max_denominator (int): the maximum denominator for
                 the computed ratio, default to be 5.
             index_none (int): specify the irrational axis.
-                0-a, 1-b, 2-c. Only may be needed for orthorombic system.
+                0-a, 1-b, 2-c. Only may be needed for orthorhombic system.
         Returns:
                axial ratio needed for GB generator (list of integers).
 
@@ -717,7 +737,8 @@ class GrainBoundaryGenerator:
                     ratio[index[1]] = frac.numerator
                     ratio[index[0]] = frac.denominator
         elif lat_type == 'c':
-            raise RuntimeError('Cubic system does not need axial ratio.')
+            # Cubic system does not need axial ratio.
+            return None
         else:
             raise RuntimeError('Lattice type not implemented.')
         return ratio

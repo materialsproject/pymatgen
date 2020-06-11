@@ -9,7 +9,7 @@ from pymatgen.analysis.dimensionality import (
     get_dimensionality_larsen, calculate_dimensionality_of_site,
     get_structure_components, zero_d_graph_to_molecule_graph)
 from pymatgen.util.testing import PymatgenTest
-
+import unittest
 from monty.serialization import loadfn
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
@@ -90,7 +90,6 @@ class LarsenDimensionalityTest(PymatgenTest):
             self.cscl, 0, inc_vertices=True)
         self.assertEqual(dimen, 3)
         self.assertEqual(len(vertices), 4)
-        self.assertEqual(vertices[0], (-1, 1, 0))
 
     def test_zero_d_to_molecule_graph(self):
         comp_graphs = [self.mol_structure.graph.subgraph(c) for c in
@@ -163,3 +162,7 @@ class GoraiDimensionalityTest(PymatgenTest):
         self.assertEqual(get_dimensionality_gorai(s), 1)
         self.assertEqual(get_dimensionality_gorai(s, bonds={("Cs", "Cl"): 3.7}),
                          3)
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -154,8 +154,8 @@ class CompositionTest(PymatgenTest):
         correct_formulas = [["Co1"], ["Co1", "C1 O1"], ["Co2 O3", "C1 O5"],
                             ["N1 Ca1 Lu1", "U1 Al1 C1 N1"],
                             ["N1 Ca1 Lu1", "U1 Al1 C1 N1"],
-                            ["Li1 Co1 P2 N1 O10", "Li1 P2 C1 N1 O11",
-                             "Li1 Co1 Po8 N1 O2", "Li1 Po8 C1 N1 O3"],
+                            ["Li1 Co1 P2 N1 O10", "Li1 Co1 Po8 N1 O2",
+                             "Li1 P2 C1 N1 O11", "Li1 Po8 C1 N1 O3"],
                             ["Co2 P4 O4", "Co2 Po4", "P4 C2 O6",
                              "Po4 C2 O2"], []]
         for i, c in enumerate(correct_formulas):
@@ -570,14 +570,14 @@ class ChemicalPotentialTest(unittest.TestCase):
         self.assertRaises(ValueError, fepot.get_energy, feo2)
 
         # test multiplication
-        self.assertRaises(TypeError, lambda: (pots * pots))
+        self.assertRaises(NotImplementedError, lambda: (pots * pots))
         self.assertDictEqual(pots * 2, potsx2)
         self.assertDictEqual(2 * pots, potsx2)
 
         # test division
         self.assertDictEqual(potsx2 / 2, pots)
-        self.assertRaises(TypeError, lambda: (pots / pots))
-        self.assertRaises(TypeError, lambda: (pots / feo2))
+        self.assertRaises(NotImplementedError, lambda: (pots / pots))
+        self.assertRaises(NotImplementedError, lambda: (pots / feo2))
 
         # test add/subtract
         self.assertDictEqual(pots + pots, potsx2)

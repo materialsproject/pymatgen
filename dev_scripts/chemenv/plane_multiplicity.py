@@ -2,8 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division, unicode_literals
-
 """
 Development script to get the multiplicity of the separation facets for some model coordination environments
 """
@@ -16,7 +14,6 @@ __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
 
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
-
 
 if __name__ == '__main__':
 
@@ -51,7 +48,6 @@ if __name__ == '__main__':
             all_plane_points.append(equiv_plane)
         all_plane_points = list(set(all_plane_points))
         all_plane_points = [list(equiv_plane) for equiv_plane in all_plane_points]
-
 
     print('All plane points ({:d}) for {} : '.format(len(all_plane_points), cg_symbol))
     print(all_plane_points)

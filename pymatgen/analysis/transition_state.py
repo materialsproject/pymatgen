@@ -2,6 +2,13 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+Some reimplementation of Henkelman's Transition State Analysis utilities,
+which are originally in Perl. Additional features beyond those offered by
+Henkelman's utilities will be added.
+
+This allows the usage and customization in Python.
+"""
 
 import os
 import glob
@@ -21,14 +28,6 @@ except ImportError:
 
     scipy_old_piecewisepolynomial = False
 
-
-"""
-Some reimplementation of Henkelman's Transition State Analysis utilities,
-which are originally in Perl. Additional features beyond those offered by
-Henkelman's utilities will be added.
-
-This allows the usage and customization in Python.
-"""
 
 __author__ = 'Shyue Ping Ong'
 __copyright__ = 'Copyright 2013, The Materials Virtual Lab'

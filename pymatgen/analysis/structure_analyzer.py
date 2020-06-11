@@ -2,22 +2,12 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
-import warnings
-import ruamel.yaml as yaml
-import os
-
 """
 This module provides classes to perform topological analyses of structures.
 """
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Sai Jayaraman"
 __copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "1.0"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__status__ = "Production"
-__date__ = "Sep 23, 2011"
 
 from math import pi, acos
 import numpy as np
@@ -41,9 +31,11 @@ def average_coordination_number(structures, freq=10):
     Calculates the ensemble averaged Voronoi coordination numbers
     of a list of Structures using VoronoiNN.
     Typically used for analyzing the output of a Molecular Dynamics run.
+
     Args:
         structures (list): list of Structures.
         freq (int): sampling frequency of coordination number [every freq steps].
+
     Returns:
         Dictionary of elements as keys and average coordination numbers as values.
     """
@@ -79,14 +71,15 @@ class VoronoiAnalyzer:
     See ref: Microstructure and its relaxation in Fe-B amorphous system
     simulated by molecular dynamics,
         Stepanyuk et al., J. Non-cryst. Solids (1993), 159, 80-87.
-
-    Args:
-        cutoff (float): cutoff distance to search for neighbors of a given atom
-            (default = 5.0)
-        qhull_options (str): options to pass to qhull (optional)
     """
 
     def __init__(self, cutoff=5.0, qhull_options="Qbb Qc Qz"):
+        """
+        Args:
+            cutoff (float): cutoff distance to search for neighbors of a given atom
+                (default = 5.0)
+            qhull_options (str): options to pass to qhull (optional)
+        """
         self.cutoff = cutoff
         self.qhull_options = qhull_options
 
@@ -162,6 +155,12 @@ class VoronoiAnalyzer:
 
     @staticmethod
     def plot_vor_analysis(voronoi_ensemble):
+        """
+        Plot the Voronoi analysis.
+
+        :param voronoi_ensemble:
+        :return: matplotlib.pyplot
+        """
         t = zip(*voronoi_ensemble)
         labels = t[0]
         val = list(t[1])
@@ -258,15 +257,13 @@ class VoronoiConnectivity:
     """
     Computes the solid angles swept out by the shared face of the voronoi
     polyhedron between two sites.
-
-    Args:
-        structure (Structure): Input structure
-        cutoff (float) Cutoff distance.
     """
-
-    # Radius in Angstrom cutoff to look for coordinating atoms
-
     def __init__(self, structure, cutoff=10):
+        """
+        Args:
+            structure (Structure): Input structure
+            cutoff (float) Cutoff distance.
+        """
         self.cutoff = cutoff
         self.s = structure
         recp_len = np.array(self.s.lattice.reciprocal_lattice.abc)
@@ -498,16 +495,17 @@ def contains_peroxide(structure, relative_cutoff=1.1):
 class OxideType:
     """
     Separate class for determining oxide type.
-
-    Args:
-        structure: Input structure.
-        relative_cutoff: Relative_cutoff * act. cutoff stipulates the max.
-            distance two O atoms must be from each other. Default value is
-            1.1. At most 1.1 is recommended, nothing larger, otherwise the
-            script cannot distinguish between superoxides and peroxides.
     """
 
     def __init__(self, structure, relative_cutoff=1.1):
+        """
+        Args:
+            structure: Input structure.
+            relative_cutoff: Relative_cutoff * act. cutoff stipulates the max.
+                distance two O atoms must be from each other. Default value is
+                1.1. At most 1.1 is recommended, nothing larger, otherwise the
+                script cannot distinguish between superoxides and peroxides.
+        """
         self.structure = structure
         self.relative_cutoff = relative_cutoff
         self.oxide_type, self.nbonds = self.parse_oxide()
@@ -637,10 +635,10 @@ def sulfide_type(structure):
             if search_radius > max(structure.lattice.abc) * 2:
                 break
 
-        neighbors = sorted(neighbors, key=lambda n: n[1])
-        dist = neighbors[0].distance
-        coord_elements = [nn.site.specie for nn in neighbors
-                          if nn.distance < dist + 0.4][:4]
+        neighbors = sorted(neighbors, key=lambda n: n.nn_distance)
+        dist = neighbors[0].nn_distance
+        coord_elements = [nn.specie for nn in neighbors
+                          if nn.nn_distance < dist + 0.4][:4]
         avg_electroneg = np.mean([e.X for e in coord_elements])
         if avg_electroneg > s.X:
             return "sulfate"
