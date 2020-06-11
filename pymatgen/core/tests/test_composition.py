@@ -286,6 +286,11 @@ class CompositionTest(PymatgenTest):
             self.serialize_with_pickle(c, test_eq=True)
             self.serialize_with_pickle(c.to_data_dict, test_eq=True)
 
+    def test_to_data_dict(self):
+        comp = Composition('Fe0.00009Ni0.99991')
+        d = comp.to_data_dict
+        self.assertAlmostEqual(d["reduced_cell_composition"]["Fe"], 9e-5)
+
     def test_add(self):
         self.assertEqual((self.comp[0] + self.comp[2]).formula,
                          "Li4 Mn2 Fe2 P3 O16",
