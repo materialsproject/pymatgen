@@ -670,9 +670,9 @@ class ThermoPlotter:
         self._plot_thermo(self.dos.entropy, temperatures, ylim=ylim, ax=fig.axes[0],
                           label=r"$S$ (J/K/mol{})".format(mol), **kwargs)
         self._plot_thermo(self.dos.internal_energy, temperatures, ylim=ylim, ax=fig.axes[0], factor=1e-3,
-                          label=r"$\Delta E$ (kJ/K/mol{})".format(mol), **kwargs)
+                          label=r"$\Delta E$ (kJ/mol{})".format(mol), **kwargs)
         self._plot_thermo(self.dos.helmholtz_free_energy, temperatures, ylim=ylim, ax=fig.axes[0], factor=1e-3,
-                          label=r"$\Delta F$ (kJ/K/mol{})".format(mol), **kwargs)
+                          label=r"$\Delta F$ (kJ/mol{})".format(mol), **kwargs)
 
         fig.axes[0].legend(loc="best")
 

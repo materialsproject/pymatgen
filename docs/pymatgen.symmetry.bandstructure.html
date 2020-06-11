@@ -27,7 +27,7 @@
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/language_data.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -206,9 +206,9 @@
 <span id="pymatgen-symmetry-bandstructure-module"></span><h1>pymatgen.symmetry.bandstructure module<a class="headerlink" href="#module-pymatgen.symmetry.bandstructure" title="Permalink to this headline">¶</a></h1>
 <p>Provides a class for interacting with KPath classes to
 generate high-symmetry k-paths using different conventions.</p>
-<dl class="class">
+<dl class="py class">
 <dt id="pymatgen.symmetry.bandstructure.HighSymmKpath">
-<em class="property">class </em><code class="sig-name descname">HighSymmKpath</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">has_magmoms=False</em>, <em class="sig-param">magmom_axis=None</em>, <em class="sig-param">path_type='sc'</em>, <em class="sig-param">symprec=0.01</em>, <em class="sig-param">angle_tolerance=5</em>, <em class="sig-param">atol=1e-05</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/symmetry/bandstructure.py#L23-L323"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">HighSymmKpath</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">has_magmoms</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">magmom_axis</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">path_type</span><span class="o">=</span><span class="default_value">'sc'</span></em>, <em class="sig-param"><span class="n">symprec</span><span class="o">=</span><span class="default_value">0.01</span></em>, <em class="sig-param"><span class="n">angle_tolerance</span><span class="o">=</span><span class="default_value">5</span></em>, <em class="sig-param"><span class="n">atol</span><span class="o">=</span><span class="default_value">1e-05</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/symmetry/bandstructure.py#L23-L323"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.symmetry.kpath.html#pymatgen.symmetry.kpath.KPathBase" title="pymatgen.symmetry.kpath.KPathBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.symmetry.kpath.KPathBase</span></code></a></p>
 <p>This class generates path along high symmetry lines in the
 Brillouin zone according to different conventions.
@@ -251,7 +251,7 @@ equivalence of points and lines on the BZ.</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.equiv_labels">
 <em class="property">property </em><code class="sig-name descname">equiv_labels</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/symmetry/bandstructure.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.equiv_labels" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns:
@@ -260,9 +260,9 @@ Munro convention, Setyawan and Curtarolo, and Hinuma
 conventions respectively. Only generated when path_type = ‘all’.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.get_continuous_path">
-<em class="property">static </em><code class="sig-name descname">get_continuous_path</code><span class="sig-paren">(</span><em class="sig-param">bandstructure=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/symmetry/bandstructure.py#L278-L323"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.get_continuous_path" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">get_continuous_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bandstructure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/symmetry/bandstructure.py#L278-L323"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.get_continuous_path" title="Permalink to this definition">¶</a></dt>
 <dd><p>Obtain a continous version of an inputted path using graph theory.
 This routine will attempt to add connections between nodes of
 odd-degree to ensure a Eulerian path can be formed. Initial
@@ -278,7 +278,7 @@ new order of distances, and whether they should be plotted in reverse.</p>
 <p>kpath_euler (list): New continuous kpath in the HighSymmKpath format.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.label_index">
 <em class="property">property </em><code class="sig-name descname">label_index</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/symmetry/bandstructure.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.label_index" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns:
@@ -286,7 +286,7 @@ The correspondance between numbers and kpoint symbols for the
 combined kpath generated when path_type = ‘all’. None otherwise.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.path_lengths">
 <em class="property">property </em><code class="sig-name descname">path_lengths</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/symmetry/bandstructure.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.path_lengths" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns:
@@ -295,7 +295,7 @@ conventions in the combined HighSymmKpath object when path_type = ‘all’ resp
 None otherwise.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.symmetry.bandstructure.HighSymmKpath.path_type">
 <em class="property">property </em><code class="sig-name descname">path_type</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/symmetry/bandstructure.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.bandstructure.HighSymmKpath.path_type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns:

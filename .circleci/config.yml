@@ -1,35 +1,35 @@
 version: 2
 jobs:
-#  pmglint:
-#    working_directory: ~/pymatgen
-#    docker:
-#      - image: materialsvirtuallab/circle-ci-pmg-py3:3.7.3
-#    steps:
-#      - checkout
-#      - run:
-#          command: |
-#            pip install --quiet pycodestyle flake8 mypy pydocstyle pylint
-#            echo "Checks will be performed in the order of pycodestyle -> flake8 -> mypy -> pydocstyle "
-#            echo "It is highly recommended that you use the pre-commit hook provided in pymatgen."
-#            echo "Simply copy pre-commit to .git/hooks to check before pushing your code."
-#            echo "pycodestyle checks..."
-#            pycodestyle pymatgen
-#            echo "--- Done ---"
-#            echo "flake8 checks..."
-#            flake8 --count --show-source --statistics pymatgen
-#            # exit-zero treats all errors as warnings.
-#            flake8 --count --exit-zero --max-complexity=20 --statistics pymatgen
-#            echo "--- Done ---"
-#            echo "mypy checks..."
-#            mypy pymatgen
-#            echo "--- Done ---"
-#            # Docstyle checks are enforced for files that have been modified since the v2020.1.28 tagged release.
-#            echo "pylint checks..."
-#            pylint --exit-zero pymatgen
-#            echo "--- Done ---"
-#            echo "pydocstyle checks for $MODIFIED_FILES..."
-#            pydocstyle --count pymatgen
-#            echo "--- Done ---"
+  pmglint:
+    working_directory: ~/pymatgen
+    docker:
+      - image: materialsvirtuallab/circle-ci-pmg-py3:3.7.3
+    steps:
+      - checkout
+      - run:
+          command: |
+            pip install --quiet pycodestyle flake8 mypy pydocstyle pylint
+            echo "Checks will be performed in the order of pycodestyle -> flake8 -> mypy -> pydocstyle "
+            echo "It is highly recommended that you use the pre-commit hook provided in pymatgen."
+            echo "Simply copy pre-commit to .git/hooks to check before pushing your code."
+            echo "pycodestyle checks..."
+            pycodestyle pymatgen
+            echo "--- Done ---"
+            echo "flake8 checks..."
+            flake8 --count --show-source --statistics pymatgen
+            # exit-zero treats all errors as warnings.
+            flake8 --count --exit-zero --max-complexity=20 --statistics pymatgen
+            echo "--- Done ---"
+            echo "mypy checks..."
+            mypy pymatgen
+            echo "--- Done ---"
+            # Docstyle checks are enforced for files that have been modified since the v2020.1.28 tagged release.
+            echo "pylint checks..."
+            pylint --exit-zero pymatgen
+            echo "--- Done ---"
+            echo "pydocstyle checks for $MODIFIED_FILES..."
+            pydocstyle --count pymatgen
+            echo "--- Done ---"
   py3test:
     working_directory: ~/pymatgen
     docker:
@@ -41,7 +41,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - pmg-v3-deps-{{ checksum "requirements.txt" }}-{{ checksum "requirements-optional.txt" }}-{{ checksum "requirements-dev.txt" }}
+            - pmg-v3-deps-{{ checksum "requirements.txt" }}-{{ checksum "requirements-optional.txt" }}-{{ checksum "requirements-dev.txt" }}-{{ checksum "setup.py" }}-{{ checksum ".circleci/config.yml"}}
       - run:
           command: |
             export PATH=$HOME/miniconda3/bin:$PATH
@@ -50,17 +50,18 @@ jobs:
             if [ -e $HOME/miniconda3/envs/test-environment ]; then
               echo "Conda env already present from the cache."
             else
-              conda create -q -n test-environment python=3.7 numpy scipy matplotlib sympy cython pandas networkx pytest pip cmake h5py openbabel python-igraph
+              conda create -q -n test-environment python=3.7 numpy scipy matplotlib cython pandas networkx pytest pip cmake h5py openbabel python-igraph
             fi
             source activate test-environment
-            conda update --quiet numpy scipy matplotlib sympy cython pandas networkx pytest pip cmake h5py openbabel python-igraph
+            conda update --quiet numpy scipy matplotlib cython pandas networkx pytest pip cmake h5py openbabel python-igraph
             # conda install --quiet -c clinicalgraphics vtk
             pip install --quiet --ignore-installed -r requirements.txt -r requirements-optional.txt -r requirements-dev.txt
+            # pip install sympy --upgrade
             export CFLAGS=$CFLAGS" -std=gnu++11"
             pip install --quiet BoltzTraP2
             export CFLAGS=${CFLAGS%% -std=gnu++11}
       - save_cache:
-          key: pmg-v3-deps-{{ checksum "requirements.txt" }}-{{ checksum "requirements-optional.txt" }}-{{ checksum "requirements-dev.txt" }}
+          key: pmg-v3-deps-{{ checksum "requirements.txt" }}-{{ checksum "requirements-optional.txt" }}-{{ checksum "requirements-dev.txt" }}-{{ checksum "setup.py" }}-{{ checksum ".circleci/config.yml"}}
           paths:
             - /root/miniconda3/envs/test-environment
       - run:

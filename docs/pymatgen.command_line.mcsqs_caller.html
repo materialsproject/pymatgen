@@ -27,7 +27,7 @@
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/language_data.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -206,41 +206,41 @@
 <span id="pymatgen-command-line-mcsqs-caller-module"></span><h1>pymatgen.command_line.mcsqs_caller module<a class="headerlink" href="#module-pymatgen.command_line.mcsqs_caller" title="Permalink to this headline">¶</a></h1>
 <p>Module to call mcsqs, distributed with AT-AT
 <a class="reference external" href="https://www.brown.edu/Departments/Engineering/Labs/avdw/atat/">https://www.brown.edu/Departments/Engineering/Labs/avdw/atat/</a></p>
-<dl class="class">
+<dl class="py class">
 <dt id="pymatgen.command_line.mcsqs_caller.Sqs">
-<em class="property">class </em><code class="sig-name descname">Sqs</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/command_line/mcsqs_caller.py#L19-L27"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.mcsqs_caller.Sqs" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">Sqs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bestsqs</span><span class="p">:</span> <span class="n"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure">pymatgen.core.structure.Structure</a></span></em>, <em class="sig-param"><span class="n">objective_function</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>float<span class="p">, </span>str<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">allsqs</span><span class="p">:</span> <span class="n">List</span></em>, <em class="sig-param"><span class="n">directory</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/command_line/mcsqs_caller.py#L19-L27"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.mcsqs_caller.Sqs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
 <p>Return type for run_mcsqs.</p>
 <p>Create new instance of Sqs(bestsqs, objective_function, allsqs, directory)</p>
-<dl class="method">
+<dl class="py attribute">
 <dt id="pymatgen.command_line.mcsqs_caller.Sqs.allsqs">
-<em class="property">property </em><code class="sig-name descname">allsqs</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/command_line/mcsqs_caller.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.mcsqs_caller.Sqs.allsqs" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">allsqs</code><em class="property">: List</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/command_line/mcsqs_caller.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.mcsqs_caller.Sqs.allsqs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alias for field number 2</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py attribute">
 <dt id="pymatgen.command_line.mcsqs_caller.Sqs.bestsqs">
-<em class="property">property </em><code class="sig-name descname">bestsqs</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/command_line/mcsqs_caller.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.mcsqs_caller.Sqs.bestsqs" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">bestsqs</code><em class="property">: <a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure">pymatgen.core.structure.Structure</a></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/command_line/mcsqs_caller.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.mcsqs_caller.Sqs.bestsqs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alias for field number 0</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py attribute">
 <dt id="pymatgen.command_line.mcsqs_caller.Sqs.directory">
-<em class="property">property </em><code class="sig-name descname">directory</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/command_line/mcsqs_caller.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.mcsqs_caller.Sqs.directory" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">directory</code><em class="property">: str</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/command_line/mcsqs_caller.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.mcsqs_caller.Sqs.directory" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alias for field number 3</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py attribute">
 <dt id="pymatgen.command_line.mcsqs_caller.Sqs.objective_function">
-<em class="property">property </em><code class="sig-name descname">objective_function</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/command_line/mcsqs_caller.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.mcsqs_caller.Sqs.objective_function" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">objective_function</code><em class="property">: Union[float, str]</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/command_line/mcsqs_caller.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.mcsqs_caller.Sqs.objective_function" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alias for field number 1</p>
 </dd></dl>
 
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="pymatgen.command_line.mcsqs_caller.run_mcsqs">
-<code class="sig-name descname">run_mcsqs</code><span class="sig-paren">(</span><em class="sig-param">structure: pymatgen.core.structure.Structure, clusters: Dict[int, float], scaling: Union[int, List[int]], search_time: float = 60, directory: Optional[str] = None, instances: Optional[int] = None, temperature: Union[int, float] = 1, wr: float = 1, wn: float = 1, wd: float = 0.5, tol: float = 0.001</em><span class="sig-paren">)</span> &#x2192; pymatgen.command_line.mcsqs_caller.Sqs<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/../../../miniconda3/envs/py37/lib/python3.7/site-packages/monty/dev.py#L30-L175"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.mcsqs_caller.run_mcsqs" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">run_mcsqs</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#pymatgen.command_line.mcsqs_caller.Sqs" title="pymatgen.command_line.mcsqs_caller.Sqs">pymatgen.command_line.mcsqs_caller.Sqs</a><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/../../../../../../opt/miniconda3/envs/pymatgen-release/lib/python3.8/site-packages/monty/dev.py#L30-L175"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.mcsqs_caller.run_mcsqs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Helper function for calling mcsqs with different arguments
 :param structure: Disordered pymatgen Structure object
 :type structure: Structure

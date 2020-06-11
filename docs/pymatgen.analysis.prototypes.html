@@ -27,7 +27,7 @@
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/language_data.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -212,9 +212,9 @@ If using this particular class, please cite their publication appropriately:</p>
 The AFLOW library of crystallographic prototypes: part 1.
 Computational Materials Science, 136, S1-S828.
 <a class="reference external" href="http://doi.org/10.1016/j.commatsci.2017.01.017">http://doi.org/10.1016/j.commatsci.2017.01.017</a></p>
-<dl class="class">
+<dl class="py class">
 <dt id="pymatgen.analysis.prototypes.AflowPrototypeMatcher">
-<em class="property">class </em><code class="sig-name descname">AflowPrototypeMatcher</code><span class="sig-paren">(</span><em class="sig-param">initial_ltol=0.2</em>, <em class="sig-param">initial_stol=0.3</em>, <em class="sig-param">initial_angle_tol=5</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/prototypes.py#L28-L112"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.prototypes.AflowPrototypeMatcher" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">AflowPrototypeMatcher</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">initial_ltol</span><span class="o">=</span><span class="default_value">0.2</span></em>, <em class="sig-param"><span class="n">initial_stol</span><span class="o">=</span><span class="default_value">0.3</span></em>, <em class="sig-param"><span class="n">initial_angle_tol</span><span class="o">=</span><span class="default_value">5</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/prototypes.py#L28-L112"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.prototypes.AflowPrototypeMatcher" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>This class will match structures to their crystal prototypes, and will
 attempt to group species together to match structures derived from
@@ -237,9 +237,9 @@ gradually decreased until only a single match is found (if possible).</p>
 </ul>
 </dd>
 </dl>
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.analysis.prototypes.AflowPrototypeMatcher.get_prototypes">
-<code class="sig-name descname">get_prototypes</code><span class="sig-paren">(</span><em class="sig-param">structure</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/prototypes.py#L82-L112"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.prototypes.AflowPrototypeMatcher.get_prototypes" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_prototypes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/prototypes.py#L82-L112"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.prototypes.AflowPrototypeMatcher.get_prototypes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get prototype(s) structures for a given
 input structure. If you use this method in
 your work, please cite the appropriate

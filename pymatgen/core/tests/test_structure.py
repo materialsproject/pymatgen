@@ -40,6 +40,11 @@ class IStructureTest(PymatgenTest):
             self.lattice, ["Si"] * 2, coords,
             site_properties={'magmom': [5, -5]})
 
+    def test_as_dataframe(self):
+        df = self.propertied_structure.as_dataframe()
+        self.assertEqual(df.attrs["Reduced Formula"], "Si")
+        self.assertEqual(df.shape, (2, 8))
+
     def test_matches(self):
         ss = self.struct * 2
         self.assertTrue(ss.matches(self.struct))
