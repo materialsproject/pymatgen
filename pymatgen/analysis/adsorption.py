@@ -635,7 +635,8 @@ color_dict = {el: [j / 256.001 for j in colors["Jmol"][el]]
 
 
 def plot_slab(slab, ax, scale=0.8, repeat=5, window=1.5,
-              draw_unit_cell=True, decay=0.2, adsorption_sites=True):
+              draw_unit_cell=True, decay=0.2, adsorption_sites=True,
+              inverse=False):
     """
     Function that helps visualize the slab in a 2-D plot, for
     convenient viewing of output of AdsorbateSiteFinder.
@@ -649,6 +650,7 @@ def plot_slab(slab, ax, scale=0.8, repeat=5, window=1.5,
             a fraction of the unit cell limits
         draw_unit_cell (bool): flag indicating whether or not to draw cell
         decay (float): how the alpha-value decays along the z-axis
+        inverse (bool): invert z axis to plot opposite surface
     """
     orig_slab = slab.copy()
     slab = reorient_z(slab)
@@ -663,6 +665,13 @@ def plot_slab(slab, ax, scale=0.8, repeat=5, window=1.5,
     corner = slab.lattice.get_cartesian_coords(corner)[:2]
     verts = orig_cell[:2, :2]
     lattsum = verts[0] + verts[1]
+    
+    # inverse coords, sites, alphas, to show other side of slab
+    if inverse:
+        alphas = np.array([x for x in reversed(alphas)])
+        sites = [x for x in reversed(sites)]
+        coords = np.array([x for x in reversed(coords)])
+    
     # Draw circles at sites and stack them accordingly
     for n, coord in enumerate(coords):
         r = sites[n].specie.atomic_radius * scale
@@ -675,6 +684,10 @@ def plot_slab(slab, ax, scale=0.8, repeat=5, window=1.5,
     # Adsorption sites
     if adsorption_sites:
         asf = AdsorbateSiteFinder(orig_slab)
+        if inverse:
+            inverse_slab = orig_slab.copy()
+            inverse_slab.make_supercell([1,1,-1])
+            asf = AdsorbateSiteFinder(inverse_slab)
         ads_sites = asf.find_adsorption_sites()['all']
         sop = get_rot(orig_slab)
         ads_sites = [sop.operate(ads_site)[:2].tolist()
