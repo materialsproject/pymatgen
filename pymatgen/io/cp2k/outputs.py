@@ -1414,15 +1414,15 @@ class Cube:
         # The next three lines give the number of voxels along each axis (x, y, z) followed by the axis vector.
         line = f.readline().split()
         self.NX = int(line[0])
-        self.X = np.array([0.529177 * float(l) for l in line[1:]])
+        self.X = np.array([_bohr_to_angstrom_ * float(l) for l in line[1:]])
 
         line = f.readline().split()
         self.NY = int(line[0])
-        self.Y = np.array([0.529177 * float(l) for l in line[1:]])
+        self.Y = np.array([_bohr_to_angstrom_ * float(l) for l in line[1:]])
 
         line = f.readline().split()
         self.NZ = int(line[0])
-        self.Z = np.array([0.529177 * float(l) for l in line[1:]])
+        self.Z = np.array([_bohr_to_angstrom_ * float(l) for l in line[1:]])
 
         self.voxelVolume = abs(np.dot(np.cross(self.X, self.Y), self.Z))
         self.volume = abs(np.dot(np.cross(self.X.dot(self.NZ), self.Y.dot(self.NY)), self.Z.dot(self.NZ)))
@@ -1432,7 +1432,11 @@ class Cube:
         self.sites = []
         for i in range(self.natoms):
             line = f.readline().split()
-            self.sites.append(Site(line[0], list(map(float, line[2:]))))
+            self.sites.append(Site(line[0], np.multiply(_bohr_to_angstrom_, list(map(float, line[2:])))))
+
+        self.structure = Structure(lattice=[self.X*self.NX, self.Y*self.NY, self.Z*self.NZ],
+                                   species=[s.specie for s in self.sites],
+                                   coords=[s.coords for s in self.sites], coords_are_cartesian=True)
 
         # Volumetric data
         self.data = np.zeros((self.NX, self.NY, self.NZ))
