@@ -21,6 +21,7 @@ import unittest
 import pytest
 
 from math import sqrt
+from collections import defaultdict
 
 from monty.json import MontyDecoder
 from pymatgen.entries.compatibility import (
@@ -610,6 +611,61 @@ class MaterialsProjectCompatibility2020Test(unittest.TestCase):
 
         self.assertAlmostEqual(
             self.compat.process_entry(self.entry_sulfide).correction, -0.632
+        )
+
+    def test_oxdiation_check(self):
+        # make sure anion corrections are only applied when the element has
+        # a negative oxidation state (e.g., correct CaSi but not SiO2 for Si)
+        self.assertAlmostEqual(
+            self.compat.process_entry(self.entry1).correction, -2.232 * 2 - 0.723 * 3
+        )
+
+        entry1 = ComputedEntry.from_dict(
+            {'@module': 'pymatgen.entries.computed_entries',
+             '@class': 'ComputedEntry',
+             'energy': -17.01015622,
+             'composition': defaultdict(float, {'Si': 2.0, 'Ca': 2.0}),
+             'energy_adjustments': [],
+             'parameters': {'run_type': 'GGA',
+                            'is_hubbard': False,
+                            'pseudo_potential': {'functional': 'PBE',
+                                                 'labels': ['Ca_sv', 'Si'],
+                                                 'pot_type': 'paw'},
+                            'hubbards': {},
+                            'potcar_symbols': ['PBE Ca_sv', 'PBE Si'],
+                            'oxide_type': 'None'},
+             'data': {'oxide_type': 'None'},
+             'entry_id': 'mp-1563',
+             'correction': 0.0}
+        )
+
+        entry2 = ComputedEntry.from_dict(
+            {'@module': 'pymatgen.entries.computed_entries',
+             '@class': 'ComputedEntry',
+             'energy': -47.49120119,
+             'composition': defaultdict(float, {'Si': 2.0, 'O': 4.0}),
+             'energy_adjustments': [],
+             'parameters': {'run_type': 'GGA',
+                            'is_hubbard': False,
+                            'pseudo_potential': {'functional': 'PBE',
+                                                 'labels': ['Si', 'O'],
+                                                 'pot_type': 'paw'},
+                            'hubbards': {},
+                            'potcar_symbols': ['PBE Si', 'PBE O'],
+                            'oxide_type': 'oxide'},
+             'data': {'oxide_type': 'oxide'},
+             'entry_id': 'mp-546794',
+             'correction': 0.0}
+        )
+
+        # CaSi; only correction should be Si
+        self.assertAlmostEqual(
+            self.compat.process_entry(entry1).correction, -0.414 * 2
+        )
+
+        # SiO2; only corrections should be oxide
+        self.assertAlmostEqual(
+            self.compat.process_entry(entry2).correction, -0.723 * 4
         )
 
     def test_U_values(self):

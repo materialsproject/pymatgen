@@ -325,7 +325,8 @@ class CompositionCorrection(Correction):
     """
     Correct anion energies to obtain the right formation energies. Note that
     this depends on calculations being run within the same input set.
-    For new MaterialsProjectCompatibility2020
+    This correction is used in the MaterialsProjectCompatibility2020 scheme
+    instead of AnionCorrection and GasCorrection.
     """
 
     def __init__(self, config_file, error_file=None, correct_peroxide=True):
@@ -448,20 +449,14 @@ class CompositionCorrection(Correction):
                     * comp["O"]
                 )
 
-        for anion in ["Br", "I", "Se", "Si", "Sb", "Te"]:
-            if Element(anion) in comp and anion in self.comp_correction:
+        for anion in ["Br", "I", "Se", "Si", "Sb", "Te", "H", "N", "F", "Cl"]:
+            # only apply anion corrections if the element has a negative oxidation state
+            if Element(anion) in comp and anion in self.comp_correction \
+               and comp.oxi_state_guesses(all_oxi_states=True)[0].get(anion, 0) < 0:
                 correction += (
                     ufloat(self.comp_correction[anion], self.comp_errors[anion])
                     * comp[anion]
                 )
-
-        if self.name != "MIT":  # the MIT compatibility set still uses MITGasCorrection
-            for gas in ["H", "N", "F", "Cl"]:
-                if Element(gas) in comp and gas in self.comp_correction:
-                    correction += (
-                        ufloat(self.comp_correction[gas], self.comp_errors[gas])
-                        * comp[gas]
-                    )
 
         return correction
 
