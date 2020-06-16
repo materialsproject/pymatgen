@@ -5,12 +5,14 @@ Subpackages
 -----------
 
 .. toctree::
+   :maxdepth: 7
 
 
 Submodules
 ----------
 
 .. toctree::
+   :maxdepth: 7
 
    pymatgen.analysis.chemenv.connectivity.connected_components
    pymatgen.analysis.chemenv.connectivity.connectivity_finder

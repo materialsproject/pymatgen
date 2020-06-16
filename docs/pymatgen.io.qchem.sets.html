@@ -27,7 +27,7 @@
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/language_data.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -207,9 +207,9 @@
   <div class="section" id="module-pymatgen.io.qchem.sets">
 <span id="pymatgen-io-qchem-sets-module"></span><h1>pymatgen.io.qchem.sets module<a class="headerlink" href="#module-pymatgen.io.qchem.sets" title="Permalink to this headline">¶</a></h1>
 <p>Input sets for Qchem</p>
-<dl class="class">
+<dl class="py class">
 <dt id="pymatgen.io.qchem.sets.FreqSet">
-<em class="property">class </em><code class="sig-name descname">FreqSet</code><span class="sig-paren">(</span><em class="sig-param">molecule</em>, <em class="sig-param">dft_rung=3</em>, <em class="sig-param">basis_set='def2-tzvppd'</em>, <em class="sig-param">pcm_dielectric=None</em>, <em class="sig-param">smd_solvent=None</em>, <em class="sig-param">custom_smd=None</em>, <em class="sig-param">scf_algorithm='diis'</em>, <em class="sig-param">max_scf_cycles=200</em>, <em class="sig-param">overwrite_inputs=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/qchem/sets.py#L256-L296"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.sets.FreqSet" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">FreqSet</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">molecule</span></em>, <em class="sig-param"><span class="n">dft_rung</span><span class="o">=</span><span class="default_value">3</span></em>, <em class="sig-param"><span class="n">basis_set</span><span class="o">=</span><span class="default_value">'def2-tzvppd'</span></em>, <em class="sig-param"><span class="n">pcm_dielectric</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">smd_solvent</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">custom_smd</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">scf_algorithm</span><span class="o">=</span><span class="default_value">'diis'</span></em>, <em class="sig-param"><span class="n">max_scf_cycles</span><span class="o">=</span><span class="default_value">200</span></em>, <em class="sig-param"><span class="n">overwrite_inputs</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/qchem/sets.py#L256-L296"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.sets.FreqSet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.qchem.sets.QChemDictSet" title="pymatgen.io.qchem.sets.QChemDictSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.qchem.sets.QChemDictSet</span></code></a></p>
 <p>QChemDictSet for a single point calculation</p>
 <dl class="field-list simple">
@@ -229,9 +229,9 @@
 </dl>
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="pymatgen.io.qchem.sets.OptSet">
-<em class="property">class </em><code class="sig-name descname">OptSet</code><span class="sig-paren">(</span><em class="sig-param">molecule</em>, <em class="sig-param">dft_rung=3</em>, <em class="sig-param">basis_set='def2-tzvppd'</em>, <em class="sig-param">pcm_dielectric=None</em>, <em class="sig-param">smd_solvent=None</em>, <em class="sig-param">custom_smd=None</em>, <em class="sig-param">scf_algorithm='diis'</em>, <em class="sig-param">max_scf_cycles=200</em>, <em class="sig-param">geom_opt_max_cycles=200</em>, <em class="sig-param">overwrite_inputs=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/qchem/sets.py#L165-L209"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.sets.OptSet" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">OptSet</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">molecule</span></em>, <em class="sig-param"><span class="n">dft_rung</span><span class="o">=</span><span class="default_value">3</span></em>, <em class="sig-param"><span class="n">basis_set</span><span class="o">=</span><span class="default_value">'def2-tzvppd'</span></em>, <em class="sig-param"><span class="n">pcm_dielectric</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">smd_solvent</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">custom_smd</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">scf_algorithm</span><span class="o">=</span><span class="default_value">'diis'</span></em>, <em class="sig-param"><span class="n">max_scf_cycles</span><span class="o">=</span><span class="default_value">200</span></em>, <em class="sig-param"><span class="n">geom_opt_max_cycles</span><span class="o">=</span><span class="default_value">200</span></em>, <em class="sig-param"><span class="n">overwrite_inputs</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/qchem/sets.py#L165-L209"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.sets.OptSet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.qchem.sets.QChemDictSet" title="pymatgen.io.qchem.sets.QChemDictSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.qchem.sets.QChemDictSet</span></code></a></p>
 <p>QChemDictSet for a geometry optimization</p>
 <dl class="field-list simple">
@@ -252,9 +252,9 @@
 </dl>
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="pymatgen.io.qchem.sets.QChemDictSet">
-<em class="property">class </em><code class="sig-name descname">QChemDictSet</code><span class="sig-paren">(</span><em class="sig-param">molecule</em>, <em class="sig-param">job_type</em>, <em class="sig-param">basis_set</em>, <em class="sig-param">scf_algorithm</em>, <em class="sig-param">dft_rung=4</em>, <em class="sig-param">pcm_dielectric=None</em>, <em class="sig-param">smd_solvent=None</em>, <em class="sig-param">custom_smd=None</em>, <em class="sig-param">max_scf_cycles=200</em>, <em class="sig-param">geom_opt_max_cycles=200</em>, <em class="sig-param">overwrite_inputs=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/qchem/sets.py#L23-L162"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.sets.QChemDictSet" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">QChemDictSet</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">molecule</span></em>, <em class="sig-param"><span class="n">job_type</span></em>, <em class="sig-param"><span class="n">basis_set</span></em>, <em class="sig-param"><span class="n">scf_algorithm</span></em>, <em class="sig-param"><span class="n">dft_rung</span><span class="o">=</span><span class="default_value">4</span></em>, <em class="sig-param"><span class="n">pcm_dielectric</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">smd_solvent</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">custom_smd</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">max_scf_cycles</span><span class="o">=</span><span class="default_value">200</span></em>, <em class="sig-param"><span class="n">geom_opt_max_cycles</span><span class="o">=</span><span class="default_value">200</span></em>, <em class="sig-param"><span class="n">overwrite_inputs</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/qchem/sets.py#L23-L162"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.sets.QChemDictSet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.io.qchem.inputs.html#pymatgen.io.qchem.inputs.QCInput" title="pymatgen.io.qchem.inputs.QCInput"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.qchem.inputs.QCInput</span></code></a></p>
 <p>Build a QCInput given all the various input parameters. Can be extended by standard implementations below.</p>
 <dl class="field-list simple">
@@ -278,9 +278,9 @@
 </ul>
 </dd>
 </dl>
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.io.qchem.sets.QChemDictSet.write">
-<code class="sig-name descname">write</code><span class="sig-paren">(</span><em class="sig-param">input_file</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/qchem/sets.py#L154-L162"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.sets.QChemDictSet.write" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">write</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input_file</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/qchem/sets.py#L154-L162"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.sets.QChemDictSet.write" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>input_file</strong> (<em>str</em>) – Filename</p>
@@ -290,9 +290,9 @@
 
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="pymatgen.io.qchem.sets.SinglePointSet">
-<em class="property">class </em><code class="sig-name descname">SinglePointSet</code><span class="sig-paren">(</span><em class="sig-param">molecule</em>, <em class="sig-param">dft_rung=3</em>, <em class="sig-param">basis_set='def2-tzvppd'</em>, <em class="sig-param">pcm_dielectric=None</em>, <em class="sig-param">smd_solvent=None</em>, <em class="sig-param">custom_smd=None</em>, <em class="sig-param">scf_algorithm='diis'</em>, <em class="sig-param">max_scf_cycles=200</em>, <em class="sig-param">overwrite_inputs=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/qchem/sets.py#L212-L253"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.sets.SinglePointSet" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">SinglePointSet</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">molecule</span></em>, <em class="sig-param"><span class="n">dft_rung</span><span class="o">=</span><span class="default_value">3</span></em>, <em class="sig-param"><span class="n">basis_set</span><span class="o">=</span><span class="default_value">'def2-tzvppd'</span></em>, <em class="sig-param"><span class="n">pcm_dielectric</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">smd_solvent</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">custom_smd</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">scf_algorithm</span><span class="o">=</span><span class="default_value">'diis'</span></em>, <em class="sig-param"><span class="n">max_scf_cycles</span><span class="o">=</span><span class="default_value">200</span></em>, <em class="sig-param"><span class="n">overwrite_inputs</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/io/qchem/sets.py#L212-L253"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.sets.SinglePointSet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.qchem.sets.QChemDictSet" title="pymatgen.io.qchem.sets.QChemDictSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.qchem.sets.QChemDictSet</span></code></a></p>
 <p>QChemDictSet for a single point calculation</p>
 <dl class="field-list simple">

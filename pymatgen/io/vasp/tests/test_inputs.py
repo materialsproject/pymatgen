@@ -14,7 +14,7 @@ from pathlib import Path
 from monty.tempfile import ScratchDir
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.vasp.inputs import Incar, Poscar, Kpoints, Potcar, \
-    PotcarSingle, VaspInput, BadIncarWarning, BadPotcarWarning
+    PotcarSingle, VaspInput, BadIncarWarning, UnknownPotcarWarning
 from pymatgen import Composition, Structure
 from pymatgen.electronic_structure.core import Magmom
 from monty.io import zopen
@@ -787,13 +787,13 @@ class PotcarSingleTest(PymatgenTest):
     def test_potcar_hash_warning(self):
         filename = (self.TEST_FILES_DIR / "modified_potcars_data" /
                     "POT_GGA_PAW_PBE" / "POTCAR.Fe_pv")
-        with pytest.warns(BadPotcarWarning, match="integrity"):
+        with pytest.warns(UnknownPotcarWarning, match="integrity"):
             PotcarSingle.from_file(filename)
 
     def test_potcar_file_hash_warning(self):
         filename = (self.TEST_FILES_DIR / "modified_potcars_header" /
                     "POT_GGA_PAW_PBE" / "POTCAR.Fe_pv")
-        with pytest.warns(BadPotcarWarning, match="following"):
+        with pytest.warns(UnknownPotcarWarning, match="following"):
             PotcarSingle.from_file(filename)
 
     # def test_default_functional(self):
