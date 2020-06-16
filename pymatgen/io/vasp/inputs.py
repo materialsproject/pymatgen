@@ -1645,7 +1645,7 @@ OrbitalDescription = namedtuple(
 )
 
 
-class BadPotcarWarning(UserWarning):
+class UnknownPotcarWarning(UserWarning):
     """
     Warning raised when POTCAR hashes do not pass validation
     """
