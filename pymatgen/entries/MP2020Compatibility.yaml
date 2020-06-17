@@ -1,4 +1,4 @@
-Name: MP
+Name: MP2020
 Advanced:
   UCorrections:
     O:
@@ -35,12 +35,3 @@ CompositionCorrections:
   Cl: -0.583
   N: -0.332
   H: -0.184
-AqueousCompoundEnergies:
-  O2: -0.316732
-  N2: -0.29573
-  F2: -0.313026
-  Cl2: -0.344375
-  Br: -0.23504
-  Hg: -0.234422
-  H2: -4.028839
-  H2O: -5.253437

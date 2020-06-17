@@ -351,13 +351,14 @@ class CorrectionCalculator:
         print("Mean = " + str(abs(np.mean(np.array(diffs_cpy)))))
         print("Std Dev = " + str(np.std(np.array(diffs_cpy))))
 
-    def make_yaml(self, name: str = "MP") -> None:
+    def make_yaml(self, name: str = "MP2020") -> None:
         """
         Creates the _name_Compatibility.yaml that stores corrections as well as _name_CompatibilityUncertainties.yaml
         for correction uncertainties.
 
         Args:
-            name: optional argument, alternate name for the outputted yaml file
+            name: str, alternate name for the created .yaml file.
+            Default: "MP2020"
         """
 
         if len(self.corrections) == 0:
@@ -415,7 +416,7 @@ class CorrectionCalculator:
         compatibility_error["Advanced"] = advanced_error
         compatibility_error["CompositionCorrections"] = comp_corr_error
 
-        fn = name + "Compatibility2020.yaml"
+        fn = name + "Compatibility.yaml"
         file = open(fn, "w")
         yaml = ruamel.yaml.YAML()
         yaml.Representer.add_representer(OrderedDict, yaml.Representer.represent_dict)
@@ -423,7 +424,7 @@ class CorrectionCalculator:
         yaml.dump(compatibility, file)
         file.close()
 
-        fn = name + "CompatibilityUncertainties2020.yaml"
+        fn = name + "CompatibilityUncertainties.yaml"
         file = open(fn, "w")
         yaml = ruamel.yaml.YAML()
         yaml.Representer.add_representer(OrderedDict, yaml.Representer.represent_dict)

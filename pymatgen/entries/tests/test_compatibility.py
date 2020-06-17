@@ -31,7 +31,7 @@ from pymatgen.entries.compatibility import (
     MITCompatibility,
     AqueousCorrection,
     MITAqueousCompatibility,
-    MaterialsProjectCompatibility2020,
+    MaterialsProject2020Compatibility,
     MaterialsProjectAqueousCompatibility,
     MU_H2O
 )
@@ -432,7 +432,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
             MaterialsProjectCompatibility(check_potcar_hash=False)
 
 
-class MaterialsProjectCompatibility2020Test(unittest.TestCase):
+class MaterialsProject2020CompatibilityTest(unittest.TestCase):
     def setUp(self):
         warnings.simplefilter("ignore")
         self.entry1 = ComputedEntry(
@@ -517,8 +517,8 @@ class MaterialsProjectCompatibility2020Test(unittest.TestCase):
             },
         )
 
-        self.compat = MaterialsProjectCompatibility2020(check_potcar_hash=False)
-        self.ggacompat = MaterialsProjectCompatibility2020(
+        self.compat = MaterialsProject2020Compatibility(check_potcar_hash=False)
+        self.ggacompat = MaterialsProject2020Compatibility(
             "GGA", check_potcar_hash=False
         )
 
@@ -833,8 +833,8 @@ class MaterialsProjectCompatibility2020Test(unittest.TestCase):
         self.assertEqual("MPRelaxSet Potcar Correction", d["corrections"][0]["name"])
 
     def test_get_corrections_dict(self):
-        compat = MaterialsProjectCompatibility2020(check_potcar_hash=False)
-        ggacompat = MaterialsProjectCompatibility2020("GGA", check_potcar_hash=False)
+        compat = MaterialsProject2020Compatibility(check_potcar_hash=False)
+        ggacompat = MaterialsProject2020Compatibility("GGA", check_potcar_hash=False)
 
         # Correct parameters
         entry = ComputedEntry(
@@ -858,10 +858,10 @@ class MaterialsProjectCompatibility2020Test(unittest.TestCase):
             },
         )
         c, e = compat.get_corrections_dict(entry)
-        self.assertAlmostEqual(c["MP Composition Correction"], -0.723 * 3)
-        self.assertAlmostEqual(c["MP Advanced Correction"], -2.232 * 2)
-        self.assertAlmostEqual(e["MP Composition Correction"], 0.0017 * 3)
-        self.assertAlmostEqual(e["MP Advanced Correction"], 0.009 * 2)
+        self.assertAlmostEqual(c["MP2020 Composition Correction"], -0.723 * 3)
+        self.assertAlmostEqual(c["MP2020 Advanced Correction"], -2.232 * 2)
+        self.assertAlmostEqual(e["MP2020 Composition Correction"], 0.0017 * 3)
+        self.assertAlmostEqual(e["MP2020 Advanced Correction"], 0.009 * 2)
 
         entry.parameters["is_hubbard"] = False
         del entry.parameters["hubbards"]
@@ -876,7 +876,7 @@ class MaterialsProjectCompatibility2020Test(unittest.TestCase):
         compat_dict = self.compat.as_dict()
         decoder = MontyDecoder()
         temp_compat = decoder.process_decoded(compat_dict)
-        self.assertIsInstance(temp_compat, MaterialsProjectCompatibility2020)
+        self.assertIsInstance(temp_compat, MaterialsProject2020Compatibility)
 
 
 class MITCompatibilityTest(unittest.TestCase):
@@ -1284,7 +1284,7 @@ class OxideTypeCorrectionTest(unittest.TestCase):
 
 class SulfideTypeCorrection2020Test(unittest.TestCase):
     def setUp(self):
-        self.compat = MaterialsProjectCompatibility2020(check_potcar_hash=False)
+        self.compat = MaterialsProject2020Compatibility(check_potcar_hash=False)
 
     def test_struct_no_struct(self):
         # Processing an Entry should produce the same correction whether or not
@@ -1753,10 +1753,10 @@ class MITAqueousCompatibilityTest(unittest.TestCase):
             MITAqueousCompatibility(check_potcar_hash=True)
 
 
-class CorrectionErrorsCompatibility2020Test(unittest.TestCase):
+class CorrectionErrors2020CompatibilityTest(unittest.TestCase):
     def setUp(self):
         warnings.simplefilter("ignore")
-        self.compat = MaterialsProjectCompatibility2020()
+        self.compat = MaterialsProject2020Compatibility()
 
         self.entry1 = ComputedEntry(
             "Fe2O3",

@@ -325,7 +325,7 @@ class CompositionCorrection(Correction):
     """
     Correct anion energies to obtain the right formation energies. Note that
     this depends on calculations being run within the same input set.
-    This correction is used in the MaterialsProjectCompatibility2020 scheme
+    This correction is used in the MaterialsProject2020Compatibility scheme
     instead of AnionCorrection and GasCorrection.
     """
 
@@ -482,7 +482,7 @@ class AqueousCorrection(Correction):
         # there will either be a CompositionCorrections OR an OxideCorrections key,
         # but not both, depending on the compatibility scheme we are using.
         # TODO - the two lines below are specific to MaterialsProjectCompatibility
-        # and MaterialsProjectCompatibility2020. Could be changed to be more general
+        # and MaterialsProject2020Compatibility. Could be changed to be more general
         # and/or streamlined if MaterialsProjectCompatibility is retired.
         self.comp_correction = c.get("CompositionCorrections", defaultdict(float))
         self.oxide_correction = c.get("OxideCorrections", defaultdict(float))
@@ -971,7 +971,7 @@ class MaterialsProjectCompatibility(CorrectionsList):
         )
 
 
-class MaterialsProjectCompatibility2020(CorrectionsList):
+class MaterialsProject2020Compatibility(CorrectionsList):
     """
     This class implements the GGA/GGA+U mixing scheme, which allows mixing of
     entries. Note that this should only be used for VASP calculations using the
@@ -999,8 +999,8 @@ class MaterialsProjectCompatibility2020(CorrectionsList):
         self.compat_type = compat_type
         self.correct_peroxide = correct_peroxide
         self.check_potcar_hash = check_potcar_hash
-        fp = os.path.join(MODULE_DIR, "MPCompatibility2020.yaml")
-        fp_error = os.path.join(MODULE_DIR, "MPCompatibilityUncertainties2020.yaml")
+        fp = os.path.join(MODULE_DIR, "MP2020Compatibility.yaml")
+        fp_error = os.path.join(MODULE_DIR, "MP2020CompatibilityUncertainties.yaml")
         super().__init__(
             [
                 PotcarCorrection(MPRelaxSet, check_hash=check_potcar_hash),
