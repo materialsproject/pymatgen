@@ -505,27 +505,29 @@ class BztInterpolator:
             dumpfn([self.equivalences, [self.coeffs.real, self.coeffs.imag]],
                    fname)
 
-    def get_band_structure(self):
+    def get_band_structure(self,kpaths=None,kpoints_lbls_dict=None,density=20):
         """Return a BandStructureSymmLine object interpolating bands along a
         High symmetry path calculated from the structure using HighSymmKpath function"""
 
-        kpath = HighSymmKpath(self.data.structure)
-        kpt_line = [
-            Kpoint(k, self.data.structure.lattice)
-            for k in kpath.get_kpoints(coords_are_cartesian=False)[0]
-        ]
-        kpoints = np.array([kp.frac_coords for kp in kpt_line])
-
-        labels_dict = {
-            l: k
-            for k, l in zip(*kpath.get_kpoints(coords_are_cartesian=False))
-            if l
-        }
+        if isinstance(kpaths,list) and isinstance(kpoints_lbls_dict,dict):
+            kpoints = []
+            for kpath in kpaths:
+                for i,k in enumerate(kpath[:-1]):
+                    sta = kpoints_lbls_dict[kpath[i]]
+                    end = kpoints_lbls_dict[kpath[i+1]] 
+                    kpoints.append(np.linspace(sta,end,density))
+            kpoints = np.concatenate(kpoints)
+            print(kpoints[:2])
+        else:
+            kpath = HighSymmKpath(self.data.structure)
+            kpoints = np.vstack(kpath.get_kpoints(density,coords_are_cartesian=False)[0])
+            print(kpoints[:2])
+            kpoints_lbls_dict = kpath.kpath['kpoints']
 
         lattvec = self.data.get_lattvec()
         egrid, vgrid = fite.getBands(kpoints, self.equivalences, lattvec,
                                      self.coeffs)
-        print(egrid.shape)
+        # print(egrid.shape)
         if self.data.is_spin_polarized:
             h = sum(np.array_split(self.accepted, 2)[0])
             egrid = np.array_split(egrid, [h], axis=0)
@@ -541,7 +543,7 @@ class BztInterpolator:
             bands_dict,
             self.data.structure.lattice.reciprocal_lattice,
             self.efermi / units.eV,
-            labels_dict=labels_dict)
+            labels_dict=kpoints_lbls_dict)
         return sbs
 
     def get_dos(self, partial_dos=False, npts_mu=10000, T=None,
