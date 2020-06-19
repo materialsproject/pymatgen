@@ -1,5 +1,6 @@
 """
 Code to calculate spin-orbit spillage.
+Modified from JARVIS-Tools
 https://www.nature.com/articles/s41598-019-45028-y
 https://www.nature.com/articles/s41524-020-0319-4
 """
@@ -8,9 +9,11 @@ import sys
 import numpy as np
 import scipy as sp
 from pymatgen.io.vasp.outputs import Wavecar as pmg_wav
-from jarvis.io.vasp.outputs import Wavecar
+
+# from jarvis.io.vasp.outputs import Wavecar
+
+
 class SOC_Spillage(object):
-    
     def __init__(self, wf_noso="", wf_so=""):
         """
         Requires path to WAVECAR files with and without LSORBIT = .TRUE.
@@ -22,7 +25,7 @@ class SOC_Spillage(object):
             wf_so : WAVECAR with spin-orbit coupling
               
         """
-        
+
         self.wf_noso = wf_noso
         self.wf_so = wf_so
 
@@ -41,29 +44,25 @@ class SOC_Spillage(object):
         num = np.sum(s > tol, dtype=int)
         Q = u[:, :num]
         return Q, num
+
     def overlap_so_spinpol(self):
         noso = pmg_wav(self.wf_noso)
         so = pmg_wav(self.wf_so)
 
         bcell = np.linalg.inv(noso.a).T
-        tmp = np.linalg.norm(
-                np.dot(np.diff(noso.kpoints, axis=0), bcell), axis=1
-            )
+        tmp = np.linalg.norm(np.dot(np.diff(noso.kpoints, axis=0), bcell), axis=1)
         noso_k = np.concatenate(([0], np.cumsum(tmp)))
-        noso_bands = np.array(noso.band_energy)[:,:,:,0]
+        noso_bands = np.array(noso.band_energy)[:, :, :, 0]
         noso_kvecs = np.array(noso.kpoints)
-        noso_occs = np.array(noso.band_energy)[:,:,:,2]
+        noso_occs = np.array(noso.band_energy)[:, :, :, 2]
         noso_nkpts = len(noso_k)
 
-
         bcell = np.linalg.inv(so.a).T
-        tmp = np.linalg.norm(
-                np.dot(np.diff(so.kpoints, axis=0), bcell), axis=1
-            )        
+        tmp = np.linalg.norm(np.dot(np.diff(so.kpoints, axis=0), bcell), axis=1)
         so_k = np.concatenate(([0], np.cumsum(tmp)))
-        so_bands =  np.array([np.array(so.band_energy)[:,:,0]])
+        so_bands = np.array([np.array(so.band_energy)[:, :, 0]])
         so_kvecs = np.array(so.kpoints)
-        so_occs = np.array([np.array(pmg_wf_so.band_energy)[:,:,2]])
+        so_occs = np.array([np.array(so.band_energy)[:, :, 2]])
         so_nkpts = len(so_k)
 
         nelec_list = []
@@ -87,7 +86,6 @@ class SOC_Spillage(object):
 
                     nelec_list.append([cup, cdn, cup + cdn])
         n_arr = np.array(nelec_list)
-
 
         n_up = int(round(np.mean(n_arr[:, 0])))
         n_dn = int(round(np.mean(n_arr[:, 1])))
@@ -143,42 +141,47 @@ class SOC_Spillage(object):
                     nelec_dn = n_arr[nk1 - 1, 1]
                     nelec_tot = n_arr[nk1 - 1, 2]
 
-
                     kpoints.append(kso)
                     Mmn = 0.0
-                    vnoso = np.array(noso.coeffs[0][ikpt-1][iband-1])#noso.readBandCoeff(ispin=1, ikpt=nk1, iband=1, norm=False)
+                    vnoso = np.array(
+                        noso.coeffs[0][nk1 - 1][0]
+                    )  # noso.readBandCoeff(ispin=1, ikpt=nk1, iband=1, norm=False)
                     n_noso1 = vnoso.shape[0]
-                    vnoso = np.array(pmg_wf_noso.coeffs[1][ikpt-1][iband-1]) #noso.readBandCoeff(ispin=2, ikpt=nk1, iband=1, norm=False)
+                    vnoso = np.array(
+                        noso.coeffs[1][nk1 - 1][0]
+                    )  # noso.readBandCoeff(ispin=2, ikpt=nk1, iband=1, norm=False)
                     n_noso2 = vnoso.shape[0]
-                    vso = so.coeffs[ikpt-1][iband-1].flatten() #so.readBandCoeff(ispin=1, ikpt=nk2, iband=1, norm=False)
+                    vso = so.coeffs[nk1 - 1][
+                        0
+                    ].flatten()  # so.readBandCoeff(ispin=1, ikpt=nk2, iband=1, norm=False)
                     n_so = vso.shape[0]
 
                     vs = min(n_noso1 * 2, n_so)
                     Vnoso = np.zeros((vs, nelec_tot), dtype=complex)
                     Vso = np.zeros((vs, nelec_tot), dtype=complex)
 
-
-
-
-
-
-                    if np.array(noso.coeffs[1][nk1-1]).shape[1]==vs//2:
-                     #if nk1==10 and nk2==10:  
-                        #print (np.array(noso.coeffs[1][nk1-1]).shape[1], )
+                    if np.array(noso.coeffs[1][nk1 - 1]).shape[1] == vs // 2:
+                        # if nk1==10 and nk2==10:
+                        # print (np.array(noso.coeffs[1][nk1-1]).shape[1], )
                         # prepare matricies
                         for n1 in range(1, nelec_up + 1):
 
-                            Vnoso[0 : vs // 2, n1 - 1] = np.array(noso.coeffs[0][nk1-1][n1-1])[0 : vs // 2]
+                            Vnoso[0 : vs // 2, n1 - 1] = np.array(
+                                noso.coeffs[0][nk1 - 1][n1 - 1]
+                            )[0 : vs // 2]
                         for n1 in range(1, nelec_dn + 1):
 
-
-                            Vnoso[vs // 2 : vs, n1 - 1 + nelec_up] =np.array(noso.coeffs[1][nk1-1][n1-1])[0 : vs // 2]
+                            Vnoso[vs // 2 : vs, n1 - 1 + nelec_up] = np.array(
+                                noso.coeffs[1][nk1 - 1][n1 - 1]
+                            )[0 : vs // 2]
 
                         for n1 in range(1, nelec_tot + 1):
 
-                            t = so.coeffs[nk2-1][n1-1].flatten()
+                            t = so.coeffs[nk2 - 1][n1 - 1].flatten()
                             Vso[0 : vs // 2, n1 - 1] = t[0 : vs // 2]
-                            Vso[vs // 2 : vs, n1 - 1] = t[n_so // 2 : n_so // 2 + vs // 2]
+                            Vso[vs // 2 : vs, n1 - 1] = t[
+                                n_so // 2 : n_so // 2 + vs // 2
+                            ]
                         Qnoso, num_noso = self.orth(Vnoso)  # make orthonormal basis?
 
                         Qso, num_so = self.orth(Vso)
@@ -230,10 +233,5 @@ class SOC_Spillage(object):
             "   ",
             [so_homo, so_lumo],
         )
-        print("gamma max", np.real(gmax), " at k =  ", kmax)      
+        print("gamma max", np.real(gmax), " at k =  ", kmax)
         return gmax
-
-if __name__ == "__main__":
-    # JVASP-1044
-    gm = SOC_Spillage(wf_noso='tests/WAVECAR-NonSOC',wf_so='tests/WAVECAR-SOC').overlap_so_spinpol()
-    print ('gm',gm)

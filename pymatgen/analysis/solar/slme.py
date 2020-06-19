@@ -4,10 +4,7 @@ from __future__ import unicode_literals, print_function
 Calculate spectroscopy limited maximum efficiency (SLME) given dielectric function data
 
 Forked and adjusted from :
- https://github.com/usnistgov/jarvis  
- https://github.com/ldwillia/SL3ME
-
-Authors: Kamal Choudhary (NIST), Marnik Bercx (University of Antwerp)
+https://github.com/usnistgov/jarvis  
 
 References: 1) https://doi.org/10.1021/acs.chemmater.9b02166  & 
             2) http://dx.doi.org/10.1103/PhysRevLett.108.068701
@@ -17,8 +14,6 @@ import numpy as np
 import scipy.constants as constants
 from scipy.integrate import simps
 import matplotlib.pyplot as plt
-
-plt.switch_backend("agg")
 import glob, os, math
 from pymatgen.io.vasp.outputs import Vasprun
 from numpy import loadtxt, arange, logspace
@@ -286,8 +281,6 @@ def slme(
         solar_spectra_photon_flux * absorbed_by_wavelength, solar_spectra_wavelength
     )
 
-    #    J[i] = J_sc - J_0*(1 - exp( e*V[i]/(k*T) ) )
-    #    J[i] = J_sc - J_0*(exp( e*V[i]/(k*T) ) - 1)
     def J(V):
         J = J_sc - J_0 * (np.exp(e * V / (k * temperature)) - 1.0)
         return J
@@ -315,11 +308,3 @@ def slme(
         # print(power(V_Pmax))
 
     return 100.0 * efficiency
-
-
-if __name__ == "__main__":
-    path = os.path.join(os.path.dirname(__file__), "tests", "vasprun.xml")
-    en, abz, dirgap, indirgap = optics(path)
-    abz = abz * 100.0
-    eff = slme(en, abz, indirgap, indirgap, plot_current_voltage=False)
-    print("SLME", eff)
