@@ -1007,8 +1007,9 @@ class CifParser:
         sum_occu = [sum(c.values()) for c in coord_to_species.values()
                     if not set(c.elements) == {Element("O"), Element("H")}]
         if any([o > 1 for o in sum_occu]):
-            msg = "Some occupancies (%s) sum to > 1! If they are within " \
-                  "the tolerance, they will be rescaled." % str(sum_occu)
+            msg = "Some occupancies ({}) sum to > 1! If they are within " \
+                  "the occupancy_tolerance, they will be rescaled. " \
+                  "The current occupancy_tolerance is set to: {}".format(sum_occu, self._occupancy_tolerance)
             warnings.warn(msg)
             self.warnings.append(msg)
 
