@@ -1215,6 +1215,11 @@ class ElfcarTest(PymatgenTest):
         alpha = elfcar.get_alpha()
         self.assertAlmostEqual(2.936678808979031, np.median(alpha.data["total"]))
 
+    def test_interpolation(self):
+        elfcar = Elfcar.from_file(self.TEST_FILES_DIR / 'ELFCAR.gz')
+        self.assertAlmostEqual(0.0918471, elfcar.value_at(0.4, 0.5, 0.6))
+        self.assertEqual(100, len(elfcar.linear_slice([0.0, 0.0, 0.0], [1.0, 1.0, 1.0])))
+
 
 class ProcarTest(PymatgenTest):
     _multiprocess_shared_ = True
