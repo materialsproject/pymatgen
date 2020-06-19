@@ -3202,7 +3202,7 @@ class VolumetricData(MSONable):
             elif self.is_spin_polarized:
                 write_spin("diff")
 
-    def val_at(self, x, y, z):
+    def value_at(self, x, y, z):
         """
         Get the data value (from self.data) at a point (x, y, z) in terms 
         of fractional lattice parameters. Will be interpolated if (x, y, z)
