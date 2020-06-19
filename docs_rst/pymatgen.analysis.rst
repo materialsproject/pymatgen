@@ -5,6 +5,7 @@ Subpackages
 -----------
 
 .. toctree::
+   :maxdepth: 7
 
    pymatgen.analysis.chemenv
    pymatgen.analysis.defects
@@ -20,6 +21,7 @@ Submodules
 ----------
 
 .. toctree::
+   :maxdepth: 7
 
    pymatgen.analysis.adsorption
    pymatgen.analysis.bond_dissociation
