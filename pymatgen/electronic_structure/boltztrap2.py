@@ -22,7 +22,7 @@ References are:
     Computer Physics Communications, 175, 67-71
 
 TODO:
-- spin polarized bands
+- DONE: spin polarized bands
 - read first derivative of the eigenvalues from vasprun.xml (mommat)
 - handle magnetic moments (magmom)
 """
@@ -59,12 +59,17 @@ __date__ = "August 2018"
 class PMGLoader:
     """Loader for Bandstructure and Vasprun pmg objects"""
 
-    def __init__(self,
-                 obj,
-                 structure=None,
-                 nelect=None,
-                 mommat=None,
-                 magmom=None):
+    def __init__(self, obj, structure=None, nelect=None):
+        """
+        Args:
+            obj: Either a pmg Vasprun or a BandStructure object.
+            structure: Structure object in case is not included in the BandStructure object.
+            nelect: number of electrons in case a BandStructure obj is provided.
+        Example:
+            vrun = Vasprun('vasprun.xml')
+            data = PMGLoader(vrun)
+        """
+
         if isinstance(obj, Vasprun):
             structure = obj.final_structure
             nelect = obj.parameters['NELECT']
@@ -105,9 +110,9 @@ class PMGLoader:
             self.dosweight = 2.
 
         self.lattvec = self.atoms.get_cell().T * units.Angstrom
-        self.mommat_all = mommat  # not implemented yet
-        self.mommat = mommat  # not implemented yet
-        self.magmom = magmom  # not implemented yet
+        self.mommat_all = None  # not implemented yet
+        self.mommat = None  # not implemented yet
+        self.magmom = None  # not implemented yet
         self.fermi = bs_obj.efermi * units.eV
         self.UCvol = self.structure.volume * units.Angstrom**3
 
@@ -175,7 +180,7 @@ class PMGLoader:
                     Spin.up][:, accepted[:h], :, :]
                 self.proj[Spin.down] = self.proj_all[
                     Spin.down][:, accepted[h:], :, :]
-            elif len(self.proj) == 1:
+            elif len(self.proj_all) == 1:
                 self.proj[Spin.up] = self.proj_all[Spin.up][:, accepted, :, :]
 
         if self.mommat_all:
@@ -205,7 +210,7 @@ class BandstructureLoader:
         :param magmom:
         """
 
-        #        raise BoltztrapError("Deprecated Loader. Use PMGLoader instead.")
+        raise BoltztrapError("Deprecated Loader. Use PMGLoader instead.")
 
         self.kpoints = np.array([kp.frac_coords for kp in bs_obj.kpoints])
 
@@ -452,6 +457,14 @@ class BztInterpolator:
                 and taken into account to calculate the transport properties.
             curvature: boolean value to enable/disable the calculation of second
                 derivative related trasport properties (Hall coefficient).
+            save_coeffs: Default False. If True coefficients and equivalences are 
+                saved in fname file.
+            load_bztinterp: Default False. If True the coefficients and equivalences 
+                are loaded from fname file, not calculated. It can be faster than
+                re-calculate them in some cases.
+            save_bands: Default False. If True interpolated bands are also stored.
+                It can be slower than interpolate them. Not recommended.
+            fname: File path where to store/load from the coefficients and equivalences.
         Example:
             data = VasprunLoader().from_file('vasprun.xml')
             bztInterp = BztInterpolator(data)
@@ -483,6 +496,7 @@ class BztInterpolator:
             self.save(fname, save_bands)
 
     def load(self, fname='bztInterp.json.gz'):
+        """Load the coefficient, equivalences, bands from fname"""
         d = loadfn(fname)
         if len(d) > 2:
             self.equivalences, coeffs, self.eband, self.vvband, self.cband = d
@@ -496,6 +510,8 @@ class BztInterpolator:
         return bands_loaded
 
     def save(self, fname='bztInterp.json.gz', bands=False):
+        """Save the coefficient, equivalences to fname.
+           If bands is True, also interpolated bands are stored."""
         if bands:
             dumpfn([
                 self.equivalences, [self.coeffs.real, self.coeffs.imag],
@@ -505,23 +521,37 @@ class BztInterpolator:
             dumpfn([self.equivalences, [self.coeffs.real, self.coeffs.imag]],
                    fname)
 
-    def get_band_structure(self,kpaths=None,kpoints_lbls_dict=None,density=20):
-        """Return a BandStructureSymmLine object interpolating bands along a
-        High symmetry path calculated from the structure using HighSymmKpath function"""
+    def get_band_structure(self,
+                           kpaths=None,
+                           kpoints_lbls_dict=None,
+                           density=20):
+        """
+            Return a BandStructureSymmLine object interpolating bands along a
+            High symmetry path calculated from the structure using HighSymmKpath 
+            function. If kpaths and kpoints_lbls_dict are provided, a custom 
+            path is interpolated.
+            kpaths: List of lists of following kpoints labels defining 
+                    the segments of the path. E.g. [['L','M'],['L','X']]
+            kpoints_lbls_dict: Dict where keys are the kpoint labels used in kpaths
+                    and values are their fractional coordinates. 
+                    E.g. {'L':np.array(0.5,0.5,0.5)},
+                          'M':np.array(0.5,0.,0.5),
+                          'X':np.array(0.5,0.5,0.)}
+            density: Number of points in each segment.
+        """
 
-        if isinstance(kpaths,list) and isinstance(kpoints_lbls_dict,dict):
+        if isinstance(kpaths, list) and isinstance(kpoints_lbls_dict, dict):
             kpoints = []
             for kpath in kpaths:
-                for i,k in enumerate(kpath[:-1]):
+                for i, k in enumerate(kpath[:-1]):
                     sta = kpoints_lbls_dict[kpath[i]]
-                    end = kpoints_lbls_dict[kpath[i+1]] 
-                    kpoints.append(np.linspace(sta,end,density))
+                    end = kpoints_lbls_dict[kpath[i + 1]]
+                    kpoints.append(np.linspace(sta, end, density))
             kpoints = np.concatenate(kpoints)
-            print(kpoints[:2])
         else:
             kpath = HighSymmKpath(self.data.structure)
-            kpoints = np.vstack(kpath.get_kpoints(density,coords_are_cartesian=False)[0])
-            print(kpoints[:2])
+            kpoints = np.vstack(
+                kpath.get_kpoints(density, coords_are_cartesian=False)[0])
             kpoints_lbls_dict = kpath.kpath['kpoints']
 
         lattvec = self.data.get_lattvec()
@@ -557,6 +587,8 @@ class BztInterpolator:
                     in the loader.
                 npts_mu: number of energy points of the Dos
                 T: parameter used to smooth the Dos
+                progress: Default False, If True a progress bar is shown when 
+                    partial dos are computed.
         """
         dos_dict = {}
         enr = (self.eband.min(), self.eband.max())
@@ -566,8 +598,8 @@ class BztInterpolator:
             vvband_ud = np.array_split(self.vvband, [h], axis=0)
             spins = [Spin.up, Spin.down]
         else:
-            eband_ud = self.eband
-            vvband_ud = self.vvband
+            eband_ud = [self.eband]
+            vvband_ud = [self.vvband]
             spins = [Spin.up]
 
         for spin, eb, vvb in zip(spins, eband_ud, vvband_ud):
@@ -597,6 +629,7 @@ class BztInterpolator:
         tdos: total dos previously calculated
         npts_mu: number of energy points of the Dos
         T: parameter used to smooth the Dos
+        progress: Default False, If True a progress bar is shown.
         """
         if not self.data.proj:
             raise BoltztrapError("No projections loaded.")
@@ -664,9 +697,16 @@ class BztTransportProperties:
         Args:
             BztInterpolator: a BztInterpolator previously generated
             temp_r: numpy array of temperatures at which to calculate trasport properties
-            doping: doping levels at which to calculate trasport properties
+            doping: doping levels at which to calculate trasport properties. If provided,
+                transport properties w.r.t. these doping levels are also computed. See 
+                compute_properties_doping() method for details.
             npts_mu: number of energy points at which to calculate trasport properties
             CRTA: constant value of the relaxation time
+            save_bztTranspProps: Default False. If True all computed tranport properties
+                will be stored in fname file.
+            load_bztTranspProps: Default False. If True all computed tranport properties
+                will be loaded from fname file.
+            fname: File path where to save/load tranport properties.
 
         Upon creation, it contains properties tensors w.r.t. the chemical potential
         of size (len(temp_r),npts_mu,3,3):
@@ -773,9 +813,9 @@ class BztTransportProperties:
         object:
             Conductivity_doping, Seebeck_doping, Kappa_doping, Power_Factor_doping,
             cond_Effective_mass_doping are dictionaries with 'n' and 'p' keys and
-            arrays of dim (len(temp_r),len(doping),3,3) as values
-        doping_carriers: number of carriers for each doping level
-        mu_doping_eV: the chemical potential corrispondent to each doping level
+            arrays of dim (len(temp_r),len(doping),3,3) as values.
+            doping_carriers: number of carriers for each doping level.
+            mu_doping_eV: the chemical potential corrispondent to each doping level.
         """
 
         if temp_r is None:
@@ -868,6 +908,7 @@ class BztTransportProperties:
         return epsilon[pos]
 
     def save(self, fname='bztTranspProps.json.gz'):
+        """Save the tranport properties to fname file."""
         lst_props = [
             self.temp_r,
             self.CRTA,
@@ -896,6 +937,7 @@ class BztTransportProperties:
         dumpfn(lst_props, fname)
 
     def load(self, fname='bztTranspProps.json.gz'):
+        """Load the tranport properties from fname file."""
         d = loadfn(fname)
         self.temp_r, \
         self.CRTA, \
@@ -925,6 +967,7 @@ class BztTransportProperties:
             self.contains_doping_props = True
 
         return True
+
 
 #   def props_as_dict(self):
 #       """
@@ -965,10 +1008,12 @@ class BztTransportProperties:
 class BztPlotter:
     """
     Plotter to plot transport properties, interpolated bands along some high
-    symmetry k-path, and fermisurface
+    symmetry k-path, and DOS.
 
     Example:
         bztPlotter = BztPlotter(bztTransp,bztInterp)
+        fig = self.bztPlotter.plot_props('S', 'mu', 'temp', temps=[300, 500])
+        fig.show()
     """
 
     def __init__(self, bzt_transP=None, bzt_interp=None):
@@ -1053,9 +1098,10 @@ class BztPlotter:
         if temps is None:
             temps = self.bzt_transP.temp_r.tolist()
 
-        doping_all = self.bzt_transP.doping.tolist()
-        if doping is None:
-            doping = self.bzt_transP.doping.tolist()
+        if self.bzt_transP.doping:
+            doping_all = self.bzt_transP.doping.tolist()
+            if doping is None:
+                doping = doping_all
 
         # special case of carrier and hall carrier concentration 2d arrays (temp,mu)
         if idx_prop in [5, 6]:
