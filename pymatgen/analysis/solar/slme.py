@@ -14,7 +14,9 @@ import numpy as np
 import scipy.constants as constants
 from scipy.integrate import simps
 import matplotlib.pyplot as plt
-import glob, os, math
+import glob
+import os
+import math
 from pymatgen.io.vasp.outputs import Vasprun
 from numpy import loadtxt, arange, logspace
 from math import pi, sqrt
@@ -254,7 +256,7 @@ def slme(
         if (
             solar_spectra_wavelength[i]
             < 1e9 * ((c * h_e) / material_direct_allowed_gap)
-            or cut_off_absorbance_below_direct_allowed_gap == False
+            or cut_off_absorbance_below_direct_allowed_gap is False
         ):
             material_interpolated_absorbance[i] = material_absorbance_data_function(
                 solar_spectra_wavelength[i]
