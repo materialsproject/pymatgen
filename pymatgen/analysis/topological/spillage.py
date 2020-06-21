@@ -5,9 +5,7 @@ https://www.nature.com/articles/s41598-019-45028-y
 https://www.nature.com/articles/s41524-020-0319-4
 """
 
-import sys
 import numpy as np
-import scipy as sp
 from pymatgen.io.vasp.outputs import Wavecar as pmg_wav
 
 # from jarvis.io.vasp.outputs import Wavecar
@@ -16,14 +14,10 @@ from pymatgen.io.vasp.outputs import Wavecar as pmg_wav
 class SOC_Spillage(object):
     def __init__(self, wf_noso="", wf_so=""):
         """
-        Requires path to WAVECAR files with and without LSORBIT = .TRUE.
-        
+        Requires path to WAVECAR files with and without LSORBIT = .TRUE. 
         Args:
-        
             wf_noso : WAVECAR without spin-orbit coupling
-            
             wf_so : WAVECAR with spin-orbit coupling
-              
         """
 
         self.wf_noso = wf_noso
@@ -62,7 +56,7 @@ class SOC_Spillage(object):
         so_k = np.concatenate(([0], np.cumsum(tmp)))
         so_bands = np.array([np.array(so.band_energy)[:, :, 0]])
         so_kvecs = np.array(so.kpoints)
-        so_occs = np.array([np.array(so.band_energy)[:, :, 2]])
+        # so_occs = np.array([np.array(so.band_energy)[:, :, 2]])
         so_nkpts = len(so_k)
 
         nelec_list = []
@@ -93,17 +87,17 @@ class SOC_Spillage(object):
 
         nelec = int(n_tot)
 
-        noso_homo_up = np.max(noso_bands[0, :, n_up - 1])
-        noso_lumo_up = np.min(noso_bands[0, :, n_up])
+        # noso_homo_up = np.max(noso_bands[0, :, n_up - 1])
+        # noso_lumo_up = np.min(noso_bands[0, :, n_up])
 
-        noso_homo_dn = np.max(noso_bands[1, :, n_dn - 1])
-        noso_lumo_dn = np.min(noso_bands[1, :, n_dn])
+        # noso_homo_dn = np.max(noso_bands[1, :, n_dn - 1])
+        # noso_lumo_dn = np.min(noso_bands[1, :, n_dn])
 
         so_homo = np.max(so_bands[0, :, nelec - 1])
         so_lumo = np.min(so_bands[0, :, nelec])
 
-        noso_direct_up = np.min(noso_bands[0, :, n_up] - noso_bands[0, :, n_up - 1])
-        noso_direct_dn = np.min(noso_bands[1, :, n_dn] - noso_bands[1, :, n_dn - 1])
+        # noso_direct_up = np.min(noso_bands[0, :, n_up] - noso_bands[0, :, n_up - 1])
+        # noso_direct_dn = np.min(noso_bands[1, :, n_dn] - noso_bands[1, :, n_dn - 1])
 
         so_direct = np.min(so_bands[0, :, nelec] - so_bands[0, :, nelec - 1])
 
@@ -150,7 +144,7 @@ class SOC_Spillage(object):
                     vnoso = np.array(
                         noso.coeffs[1][nk1 - 1][0]
                     )  # noso.readBandCoeff(ispin=2, ikpt=nk1, iband=1, norm=False)
-                    n_noso2 = vnoso.shape[0]
+                    # n_noso2 = vnoso.shape[0]
                     vso = so.coeffs[nk1 - 1][
                         0
                     ].flatten()  # so.readBandCoeff(ispin=1, ikpt=nk2, iband=1, norm=False)
