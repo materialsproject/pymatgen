@@ -12,6 +12,12 @@ from pymatgen.io.vasp.outputs import Wavecar as pmg_wav
 
 
 class SOC_Spillage(object):
+    """
+    Spin-orbit spillage criteria to predict whether a material is topologically non-trival.
+    The spillage criteria physically signifies number of band-inverted electrons.
+    A non-zero, high value (generally >0.5) suggests non-trivial behavior
+    """
+
     def __init__(self, wf_noso="", wf_so=""):
         """
         Requires path to WAVECAR files with and without LSORBIT = .TRUE. 
@@ -24,13 +30,18 @@ class SOC_Spillage(object):
         self.wf_so = wf_so
 
     def isclose(self, n1, n2, rel_tol=1e-7):
-
+        """
+        Checking if the numbers are close enoung
+        """
         if abs(n1 - n2) < rel_tol:
             return True
-        else: 
+        else:
             return False
 
     def orth(self, A):
+        """
+        Helper function to create orthonormal basis
+        """
         u, s, vh = np.linalg.svd(A, full_matrices=False)
         M, N = A.shape
         eps = np.finfo(float).eps
@@ -40,6 +51,9 @@ class SOC_Spillage(object):
         return Q, num
 
     def overlap_so_spinpol(self):
+        """
+        Main function to calculate SOC spillage
+        """
         noso = pmg_wav(self.wf_noso)
         so = pmg_wav(self.wf_so)
 
@@ -159,18 +173,14 @@ class SOC_Spillage(object):
                         # print (np.array(noso.coeffs[1][nk1-1]).shape[1], )
                         # prepare matricies
                         for n1 in range(1, nelec_up + 1):
-
                             Vnoso[0:vs // 2, n1 - 1] = np.array(
                                 noso.coeffs[0][nk1 - 1][n1 - 1]
                             )[0:vs // 2]
                         for n1 in range(1, nelec_dn + 1):
-
                             Vnoso[vs // 2:vs, n1 - 1 + nelec_up] = np.array(
                                 noso.coeffs[1][nk1 - 1][n1 - 1]
                             )[0:vs // 2]
-
                         for n1 in range(1, nelec_tot + 1):
-
                             t = so.coeffs[nk2 - 1][n1 - 1].flatten()
                             Vso[0:vs // 2, n1 - 1] = t[0:vs // 2]
                             Vso[vs // 2:vs, n1 - 1] = t[

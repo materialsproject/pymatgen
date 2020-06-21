@@ -1,5 +1,3 @@
-from __future__ import unicode_literals, print_function
-
 """
 Calculate spectroscopy limited maximum efficiency (SLME) given dielectric function data
 
@@ -116,6 +114,9 @@ def absorption_coefficient(dielectric):
 
 
 def optics(path=""):
+    """
+    Helper function to calculate optical absorption coefficient
+    """
     dirgap, indirgap = get_dir_indir_gap(path)
 
     run = Vasprun(path, occu_tol=1e-2)
