@@ -14,15 +14,11 @@ import numpy as np
 import scipy.constants as constants
 from scipy.integrate import simps
 import matplotlib.pyplot as plt
-import glob
 import os
-import math
 from pymatgen.io.vasp.outputs import Vasprun
-from numpy import loadtxt, arange, logspace
-from math import pi, sqrt
+from math import pi
 from scipy.constants import physical_constants, speed_of_light
 from scipy.interpolate import interp1d
-from pymatgen.electronic_structure.core import Spin
 
 
 eV_to_recip_cm = 1.0 / (
@@ -100,9 +96,6 @@ def absorption_coefficient(dielectric):
 
     Returns:
         (np.array): absorption coefficient using eV as frequency units (cm^-1).
-    Notes:
-        The absorption coefficient is calculated as
-        .. math:: \\alpha = \\frac{2\sqrt{2} \pi}{\lambda} \sqrt{-\epsilon_1+\sqrt{\epsilon_1^2+\epsilon_2^2}}
     """
     energies_in_eV = np.array(dielectric[0])
     real_dielectric = parse_dielectric_data(dielectric[1])
