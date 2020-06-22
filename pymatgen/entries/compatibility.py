@@ -451,12 +451,26 @@ class CompositionCorrection(Correction):
 
         for anion in ["Br", "I", "Se", "Si", "Sb", "Te", "H", "N", "F", "Cl"]:
             # only apply anion corrections if the element has a negative oxidation state
-            if Element(anion) in comp and anion in self.comp_correction \
-               and comp.oxi_state_guesses(all_oxi_states=True)[0].get(anion, 0) < 0:
-                correction += (
-                    ufloat(self.comp_correction[anion], self.comp_errors[anion])
-                    * comp[anion]
-                )
+            try:
+                if Element(anion) in comp and anion in self.comp_correction \
+                   and comp.oxi_state_guesses(all_oxi_states=True, max_sites=-80)[0].get(anion, 0) < 0:
+                    correction += (
+                        ufloat(self.comp_correction[anion], self.comp_errors[anion])
+                        * comp[anion]
+                    )
+
+            except IndexError:
+                # no correction if oxi_state_guesses is empty
+                warnings.warn("Cannot determine oxidation state for {} in compound {}."
+                              "No correction will be applied.".format(anion, comp.reduced_formula)
+                              )
+                continue
+
+            except ValueError:
+                # Composition cannot be reduced below 80 sites
+                warnings.warn("Compound {} cannot be reduced below 80 sites."
+                              "No correction will be applied".format(comp.formula)
+                              )
 
         return correction
 
