@@ -6,7 +6,7 @@ https://www.nature.com/articles/s41524-020-0319-4
 """
 
 import numpy as np
-from pymatgen.io.vasp.outputs import Wavecar as pmg_wav
+from pymatgen.io.vasp.outputs import Wavecar 
 
 # from jarvis.io.vasp.outputs import Wavecar
 
@@ -54,8 +54,8 @@ class SOCSpillage(object):
         """
         Main function to calculate SOC spillage
         """
-        noso = pmg_wav(self.wf_noso)
-        so = pmg_wav(self.wf_so)
+        noso = Wavecar(self.wf_noso)
+        so = Wavecar(self.wf_so)
 
         bcell = np.linalg.inv(noso.a).T
         tmp = np.linalg.norm(np.dot(np.diff(noso.kpoints, axis=0), bcell), axis=1)
