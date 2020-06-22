@@ -2666,7 +2666,7 @@ class LobsterSet(MPRelaxSet):
             reciprocal_density (int): density of k-mesh by reciprocal volume
             user_supplied_basis (dict): dict including basis functions for all elements in structure,
                 e.g. {"Fe": "3d 3p 4s", "O": "2s 2p"}; if not supplied, a standard basis is used
-            address_basis_file (str): address to a file similar to "BASIS_PBE_54.yaml" in pymatgen.io
+            address_basis_file (str): address to a file similar to "BASIS_PBE_54_standaard.yaml" in pymatgen.io.lobster.lobster_basis
             **kwargs: Other kwargs supported by :class:`DictSet`.
         """
         warnings.warn(
