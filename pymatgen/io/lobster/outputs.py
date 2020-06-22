@@ -9,7 +9,6 @@ on LOBSTER see www.cohp.de.
 
 import collections
 import fnmatch
-import itertools
 import os
 import re
 import warnings
@@ -17,17 +16,14 @@ from collections import defaultdict
 from typing import Dict, Any, Optional, List
 
 import numpy as np
-import spglib
 from monty.io import zopen
-from monty.json import MSONable
-from monty.serialization import loadfn
+
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.bandstructure import LobsterBandStructureSymmLine
 from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.electronic_structure.dos import Dos, LobsterCompleteDos
-from pymatgen.io.vasp.inputs import Incar, Kpoints, Potcar
+from pymatgen.io.vasp.inputs import Kpoints
 from pymatgen.io.vasp.outputs import Vasprun
-from pymatgen.symmetry.bandstructure import HighSymmKpath
 
 __author__ = "Janine George, Marco Esters"
 __copyright__ = "Copyright 2017, The Materials Project"
@@ -37,7 +33,6 @@ __email__ = "janine.george@uclouvain.be, esters@uoregon.edu"
 __date__ = "Dec 13, 2017"
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-
 
 
 class Cohpcar:
@@ -1159,9 +1154,6 @@ class Fatband:
                                             efermi=self.efermi, labels_dict=self.label_dict,
                                             structure=self.structure,
                                             projections=self.p_eigenvals)
-
-
-
 
 
 class Bandoverlaps:

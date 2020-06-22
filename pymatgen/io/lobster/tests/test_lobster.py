@@ -1250,7 +1250,7 @@ class LobsterinTest(unittest.TestCase):
         result2 = Lobsterin.get_all_possible_basis_functions(
             Structure.from_file(os.path.join(test_dir_doscar, "Fe.cif")),
             potcar_symbols=Potcar_names2)
-        self.assertDictEqual(result2, {'Fe': '3d 3p 4s'})
+        self.assertDictEqual(result2[0], {'Fe': '3d 3p 4s'})
 
     def test_get_potcar_symbols(self):
         lobsterin1 = Lobsterin({})
