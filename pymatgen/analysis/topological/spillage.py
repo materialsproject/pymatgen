@@ -11,7 +11,7 @@ from pymatgen.io.vasp.outputs import Wavecar as pmg_wav
 # from jarvis.io.vasp.outputs import Wavecar
 
 
-class SOC_Spillage(object):
+class SOCSpillage(object):
     """
     Spin-orbit spillage criteria to predict whether a material is topologically non-trival.
     The spillage criteria physically signifies number of band-inverted electrons.

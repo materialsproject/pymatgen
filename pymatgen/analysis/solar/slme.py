@@ -143,30 +143,16 @@ def slme(
     """
     Calculate the SLME
 
-    IMPORTANT NOTES:
-    1) Material calculated absorbance is assumed to be in m^-1, not cm^-1!
-        (Most sources will provide absorbance in cm^-1, so be careful.)
-
-    2) The default is to remove absorbance below the direct allowed gap.
-        This is for dealing with broadening applied in DFT absorbance
-        calculations. Probably not desired for experimental data.
-
-    3) We can calculate at different temperatures if we want to, but 25 C /
-        293.15 K is the standard temperature assumed if not specified
-
-    4) If absorbance is in cm^-1, multiply values by 100 to match units
-        assumed in code
-
     Args:
-        material_energy_for_absorbance_data:
-        material_absorbance_data:
-        material_direct_allowed_gap:
-        material_indirect_gap:
-        thickness:
-        temperature:
-        absorbance_in_inverse_centimeters:
-        cut_off_absorbance_below_direct_allowed_gap:
-        plot_current_voltage:
+        material_energy_for_absorbance_data: energy grid for absorbance data
+        material_absorbance_data: absorption coefficient in m^-1
+        material_direct_allowed_gap: direct bandgap in eV
+        material_indirect_gap: indirect bandgap in eV
+        thickness: thickness of the material in m
+        temperature: working temperature in K
+        absorbance_in_inverse_centimeters: whether the absorbance data is in the unit of cm^-1
+        cut_off_absorbance_below_direct_allowed_gap: whether to discard all absorption below bandgap
+        plot_current_voltage: whether to plot the current-voltage curve
 
     Returns:
         The calculated maximum efficiency.
