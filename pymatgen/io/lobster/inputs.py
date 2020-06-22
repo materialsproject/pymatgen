@@ -349,7 +349,7 @@ class Lobsterin(dict, MSONable):
         all_basis = get_all_possible_basis_combinations(min_basis=min_basis, max_basis=max_basis)
         list_basis_dict = []
         for ibasis, basis in enumerate(all_basis):
-            basis_dict = {}  # Dict[Any]
+            basis_dict = {}
 
             for iel, elba in enumerate(basis):
                 basplit = elba.split()
@@ -679,7 +679,7 @@ def get_all_possible_basis_combinations(min_basis: list, max_basis: list) -> lis
     min_basis_lists = [x.split() for x in min_basis]
 
     # get all possible basis functions
-    basis_dict = OrderedDict({})  # Dict[Any]
+    basis_dict = OrderedDict({})  # type:  Dict[Any, Any]
     for iel, el in enumerate(max_basis_lists):
         basis_dict[el[0]] = {"fixed": [], "variable": [], "combinations": []}
         for basis in el[1:]:
