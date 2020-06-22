@@ -40,31 +40,32 @@ The above are recommendations. The following are UNBREAKABLE rules:
 """
 
 import abc
-import re
-import os
 import glob
+import os
+import re
 import shutil
 import warnings
-from itertools import chain
 from copy import deepcopy
+from itertools import chain
 from pathlib import Path
 from typing import List, Union, Optional
-import numpy as np
-from monty.serialization import loadfn
-from monty.io import zopen
-from monty.dev import deprecated
 from zipfile import ZipFile
 
+import numpy as np
+from monty.dev import deprecated
+from monty.io import zopen
+from monty.json import MSONable
+from monty.serialization import loadfn
+
+from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.periodic_table import Specie, Element
+from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Structure
+from pymatgen.io.lobster import Lobsterin
 from pymatgen.io.vasp.inputs import Incar, Poscar, Potcar, Kpoints, VaspInput
 from pymatgen.io.vasp.outputs import Vasprun, Outcar
-from pymatgen.io.lobster import Lobsterin
-from monty.json import MSONable
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath
-from pymatgen.analysis.structure_matcher import StructureMatcher
-from pymatgen.core.sites import PeriodicSite
 
 __author__ = (
     "Shyue Ping Ong, Wei Chen, Will Richards, Geoffroy Hautier, " "Anubhav Jain"
@@ -279,24 +280,24 @@ class DictSet(VaspInputSet):
     """
 
     def __init__(
-        self,
-        structure,
-        config_dict,
-        files_to_transfer=None,
-        user_incar_settings=None,
-        user_kpoints_settings=None,
-        user_potcar_settings=None,
-        constrain_total_magmom=False,
-        sort_structure=True,
-        potcar_functional=None,
-        user_potcar_functional=None,
-        force_gamma=False,
-        reduce_structure=None,
-        vdw=None,
-        use_structure_charge=False,
-        standardize=False,
-        sym_prec=0.1,
-        international_monoclinic=True,
+            self,
+            structure,
+            config_dict,
+            files_to_transfer=None,
+            user_incar_settings=None,
+            user_kpoints_settings=None,
+            user_potcar_settings=None,
+            constrain_total_magmom=False,
+            sort_structure=True,
+            potcar_functional=None,
+            user_potcar_functional=None,
+            force_gamma=False,
+            reduce_structure=None,
+            vdw=None,
+            use_structure_charge=False,
+            standardize=False,
+            sym_prec=0.1,
+            international_monoclinic=True,
     ):
         """
         Args:
@@ -384,8 +385,8 @@ class DictSet(VaspInputSet):
         self.international_monoclinic = international_monoclinic
 
         if (
-            self.user_incar_settings.get("KSPACING")
-            and user_kpoints_settings is not None
+                self.user_incar_settings.get("KSPACING")
+                and user_kpoints_settings is not None
         ):
             warnings.warn(
                 "You have specified KSPACING and also supplied kpoints "
@@ -515,7 +516,7 @@ class DictSet(VaspInputSet):
                         incar[k] = [m[sym] for sym in poscar.site_symbols]
                     # lookup specific LDAU if specified for most_electroneg atom
                     elif most_electroneg in v.keys() and isinstance(
-                        v[most_electroneg], dict
+                            v[most_electroneg], dict
                     ):
                         incar[k] = [
                             v[most_electroneg].get(sym, 0)
@@ -574,7 +575,7 @@ class DictSet(VaspInputSet):
                 incar["ISMEAR"] = 0
 
         if self.user_incar_settings.get("KSPACING", 0) > 0.5 and incar.get(
-            "ISMEAR", 0 == -5
+                "ISMEAR", 0 == -5
         ):
             warnings.warn(
                 "Large KSPACING value detected with ISMEAR = -5. Ensure that VASP "
@@ -615,7 +616,7 @@ class DictSet(VaspInputSet):
             if ps.element in site_symbols:
                 site_symbols.remove(ps.element)
                 nelect += (
-                    structure.composition.element_composition[ps.element] * ps.ZVAL
+                        structure.composition.element_composition[ps.element] * ps.ZVAL
                 )
 
         if self.use_structure_charge:
@@ -639,7 +640,7 @@ class DictSet(VaspInputSet):
         # Return None if KSPACING is present in the INCAR, because this will
         # cause VASP to generate the kpoints automatically
         if self.user_incar_settings.get("KSPACING") or self._config_dict["INCAR"].get(
-            "KSPACING"
+                "KSPACING"
         ):
             if self.user_kpoints_settings == {}:
                 return None
@@ -652,8 +653,8 @@ class DictSet(VaspInputSet):
         # Return None if KSPACING is present in the INCAR, because this will
         # cause VASP to generate the kpoints automatically
         if (
-            self.user_incar_settings.get("KSPACING")
-            and self.user_kpoints_settings == {}
+                self.user_incar_settings.get("KSPACING")
+                and self.user_kpoints_settings == {}
         ):
             return None
 
@@ -691,12 +692,12 @@ class DictSet(VaspInputSet):
         return self.__class__.__name__
 
     def write_input(
-        self,
-        output_dir: str,
-        make_dir_if_not_present: bool = True,
-        include_cif: bool = False,
-        potcar_spec: bool = False,
-        zip_output: bool = False,
+            self,
+            output_dir: str,
+            make_dir_if_not_present: bool = True,
+            include_cif: bool = False,
+            potcar_spec: bool = False,
+            zip_output: bool = False,
     ):
         """
         Writes out all input to a directory.
@@ -915,15 +916,15 @@ class MPStaticSet(MPRelaxSet):
     """
 
     def __init__(
-        self,
-        structure,
-        prev_incar=None,
-        prev_kpoints=None,
-        lepsilon=False,
-        lcalcpol=False,
-        reciprocal_density=100,
-        small_gap_multiply=None,
-        **kwargs
+            self,
+            structure,
+            prev_incar=None,
+            prev_kpoints=None,
+            lepsilon=False,
+            lcalcpol=False,
+            reciprocal_density=100,
+            small_gap_multiply=None,
+            **kwargs
     ):
         """
         Args:
@@ -999,7 +1000,7 @@ class MPStaticSet(MPRelaxSet):
             incar["LCALCPOL"] = True
 
         for k in ["MAGMOM", "NUPDOWN"] + list(
-            self.kwargs.get("user_incar_settings", {}).keys()
+                self.kwargs.get("user_incar_settings", {}).keys()
         ):
             # For these parameters as well as user specified settings, override
             # the incar settings.
@@ -1038,7 +1039,7 @@ class MPStaticSet(MPRelaxSet):
         if kpoints is not None:
             if self.prev_kpoints and self.prev_kpoints.style != kpoints.style:
                 if (self.prev_kpoints.style == Kpoints.supported_modes.Monkhorst) and (
-                    not self.lepsilon
+                        not self.lepsilon
                 ):
                     k_div = [kp + 1 if kp % 2 == 1 else kp for kp in kpoints.kpts[0]]
                     kpoints = Kpoints.monkhorst_automatic(k_div)
@@ -1077,7 +1078,7 @@ class MPStaticSet(MPRelaxSet):
             gap = vasprun.eigenvalue_band_properties[0]
             if gap <= self.small_gap_multiply[0]:
                 self.reciprocal_density = (
-                    self.reciprocal_density * self.small_gap_multiply[1]
+                        self.reciprocal_density * self.small_gap_multiply[1]
                 )
 
         return self
@@ -1119,15 +1120,15 @@ class MPHSEBSSet(MPHSERelaxSet):
     """
 
     def __init__(
-        self,
-        structure,
-        user_incar_settings=None,
-        added_kpoints=None,
-        mode="Gap",
-        reciprocal_density=None,
-        copy_chgcar=True,
-        kpoints_line_density=20,
-        **kwargs
+            self,
+            structure,
+            user_incar_settings=None,
+            added_kpoints=None,
+            mode="Gap",
+            reciprocal_density=None,
+            copy_chgcar=True,
+            kpoints_line_density=20,
+            **kwargs
     ):
         """
         Args:
@@ -1159,13 +1160,13 @@ class MPHSEBSSet(MPHSERelaxSet):
         self.mode = mode
 
         if (
-            not reciprocal_density
-            or "reciprocal_density" not in self.user_kpoints_settings
+                not reciprocal_density
+                or "reciprocal_density" not in self.user_kpoints_settings
         ):
             self.reciprocal_density = 50
         else:
             self.reciprocal_density = (
-                reciprocal_density or self.user_kpoints_settings["reciprocal_density"]
+                    reciprocal_density or self.user_kpoints_settings["reciprocal_density"]
             )
 
         self.kpoints_line_density = kpoints_line_density
@@ -1294,20 +1295,20 @@ class MPNonSCFSet(MPRelaxSet):
     """
 
     def __init__(
-        self,
-        structure,
-        prev_incar=None,
-        mode="line",
-        nedos=2001,
-        dedos=0.005,
-        reciprocal_density=100,
-        sym_prec=0.1,
-        kpoints_line_density=20,
-        optics=False,
-        copy_chgcar=True,
-        nbands_factor=1.2,
-        small_gap_multiply=None,
-        **kwargs
+            self,
+            structure,
+            prev_incar=None,
+            mode="line",
+            nedos=2001,
+            dedos=0.005,
+            reciprocal_density=100,
+            sym_prec=0.1,
+            kpoints_line_density=20,
+            optics=False,
+            copy_chgcar=True,
+            nbands_factor=1.2,
+            small_gap_multiply=None,
+            **kwargs
     ):
         """
         Args:
@@ -1510,10 +1511,10 @@ class MPNonSCFSet(MPRelaxSet):
             gap = vasprun.eigenvalue_band_properties[0]
             if gap <= self.small_gap_multiply[0]:
                 self.reciprocal_density = (
-                    self.reciprocal_density * self.small_gap_multiply[1]
+                        self.reciprocal_density * self.small_gap_multiply[1]
                 )
                 self.kpoints_line_density = (
-                    self.kpoints_line_density * self.small_gap_multiply[1]
+                        self.kpoints_line_density * self.small_gap_multiply[1]
                 )
 
         # automatic setting of nedos using the total energy range and the energy step dedos
@@ -1547,15 +1548,15 @@ class MPSOCSet(MPStaticSet):
     """
 
     def __init__(
-        self,
-        structure,
-        saxis=(0, 0, 1),
-        copy_chgcar=True,
-        nbands_factor=1.2,
-        reciprocal_density=100,
-        small_gap_multiply=None,
-        magmom=None,
-        **kwargs
+            self,
+            structure,
+            saxis=(0, 0, 1),
+            copy_chgcar=True,
+            nbands_factor=1.2,
+            reciprocal_density=100,
+            small_gap_multiply=None,
+            magmom=None,
+            **kwargs
     ):
         """
         Args:
@@ -1575,7 +1576,7 @@ class MPSOCSet(MPStaticSet):
         """
 
         if not hasattr(structure[0], "magmom") and not isinstance(
-            structure[0].magmom, list
+                structure[0].magmom, list
         ):
             raise ValueError(
                 "The structure must have the 'magmom' site "
@@ -1675,7 +1676,7 @@ class MPSOCSet(MPStaticSet):
             gap = vasprun.eigenvalue_band_properties[0]
             if gap <= self.small_gap_multiply[0]:
                 self.reciprocal_density = (
-                    self.reciprocal_density * self.small_gap_multiply[1]
+                        self.reciprocal_density * self.small_gap_multiply[1]
                 )
 
         return self
@@ -1704,13 +1705,13 @@ class MPNMRSet(MPStaticSet):
     """
 
     def __init__(
-        self,
-        structure,
-        mode="cs",
-        isotopes=None,
-        prev_incar=None,
-        reciprocal_density=100,
-        **kwargs
+            self,
+            structure,
+            mode="cs",
+            isotopes=None,
+            prev_incar=None,
+            reciprocal_density=100,
+            **kwargs
     ):
         """
         Args:
@@ -1834,16 +1835,16 @@ class MVLGWSet(DictSet):
     SUPPORTED_MODES = ("DIAG", "GW", "STATIC", "BSE")
 
     def __init__(
-        self,
-        structure,
-        prev_incar=None,
-        nbands=None,
-        reciprocal_density=100,
-        mode="STATIC",
-        copy_wavecar=True,
-        nbands_factor=5,
-        ncores=16,
-        **kwargs
+            self,
+            structure,
+            prev_incar=None,
+            nbands=None,
+            reciprocal_density=100,
+            mode="STATIC",
+            copy_wavecar=True,
+            nbands_factor=5,
+            ncores=16,
+            **kwargs
     ):
         r"""
         Args:
@@ -1999,14 +2000,14 @@ class MVLSlabSet(MPRelaxSet):
     """
 
     def __init__(
-        self,
-        structure,
-        k_product=50,
-        bulk=False,
-        auto_dipole=False,
-        set_mix=True,
-        sort_structure=True,
-        **kwargs
+            self,
+            structure,
+            k_product=50,
+            bulk=False,
+            auto_dipole=False,
+            set_mix=True,
+            sort_structure=True,
+            **kwargs
     ):
         """
         :param structure: Structure
@@ -2110,7 +2111,7 @@ class MVLGBSet(MPRelaxSet):
     """
 
     def __init__(
-        self, structure, k_product=40, slab_mode=False, is_metal=True, **kwargs
+            self, structure, k_product=40, slab_mode=False, is_metal=True, **kwargs
     ):
         r"""
 
@@ -2308,12 +2309,12 @@ class MITNEBSet(MITRelaxSet):
         return structures
 
     def write_input(
-        self,
-        output_dir,
-        make_dir_if_not_present=True,
-        write_cif=False,
-        write_path_cif=False,
-        write_endpoint_inputs=False,
+            self,
+            output_dir,
+            make_dir_if_not_present=True,
+            write_cif=False,
+            write_path_cif=False,
+            write_endpoint_inputs=False,
     ):
         """
         NEB inputs has a special directory structure where inputs are in 00,
@@ -2368,14 +2369,14 @@ class MITMDSet(MITRelaxSet):
     """
 
     def __init__(
-        self,
-        structure,
-        start_temp,
-        end_temp,
-        nsteps,
-        time_step=2,
-        spin_polarized=False,
-        **kwargs
+            self,
+            structure,
+            start_temp,
+            end_temp,
+            nsteps,
+            time_step=2,
+            spin_polarized=False,
+            **kwargs
     ):
         r"""
 
@@ -2458,7 +2459,7 @@ class MPMDSet(MPRelaxSet):
     """
 
     def __init__(
-        self, structure, start_temp, end_temp, nsteps, spin_polarized=False, **kwargs
+            self, structure, start_temp, end_temp, nsteps, spin_polarized=False, **kwargs
     ):
         r"""
         Args:
@@ -2540,14 +2541,14 @@ class MVLNPTMDSet(MITMDSet):
     """
 
     def __init__(
-        self,
-        structure,
-        start_temp,
-        end_temp,
-        nsteps,
-        time_step=2,
-        spin_polarized=False,
-        **kwargs
+            self,
+            structure,
+            start_temp,
+            end_temp,
+            nsteps,
+            time_step=2,
+            spin_polarized=False,
+            **kwargs
     ):
         r"""
         Args:
@@ -2649,14 +2650,14 @@ class LobsterSet(MPRelaxSet):
     CONFIG = _load_yaml_config("MPRelaxSet")
 
     def __init__(
-        self,
-        structure: Structure,
-        isym: int = -1,
-        ismear: int = -5,
-        reciprocal_density: int = None,
-        address_basis_file: str = None,
-        user_supplied_basis: dict = None,
-        **kwargs
+            self,
+            structure: Structure,
+            isym: int = -1,
+            ismear: int = -5,
+            reciprocal_density: int = None,
+            address_basis_file: str = None,
+            user_supplied_basis: dict = None,
+            **kwargs
     ):
         """
         Args:
@@ -2666,7 +2667,8 @@ class LobsterSet(MPRelaxSet):
             reciprocal_density (int): density of k-mesh by reciprocal volume
             user_supplied_basis (dict): dict including basis functions for all elements in structure,
                 e.g. {"Fe": "3d 3p 4s", "O": "2s 2p"}; if not supplied, a standard basis is used
-            address_basis_file (str): address to a file similar to "BASIS_PBE_54_standaard.yaml" in pymatgen.io.lobster.lobster_basis
+            address_basis_file (str): address to a file similar to "BASIS_PBE_54_standaard.yaml" 
+                in pymatgen.io.lobster.lobster_basis
             **kwargs: Other kwargs supported by :class:`DictSet`.
         """
         warnings.warn(
@@ -2688,15 +2690,15 @@ class LobsterSet(MPRelaxSet):
         # reciprocal density
         if self.user_kpoints_settings is not None:
             if (
-                not reciprocal_density
-                or "reciprocal_density" not in self.user_kpoints_settings
+                    not reciprocal_density
+                    or "reciprocal_density" not in self.user_kpoints_settings
             ):
                 # test, if this is okay
                 self.reciprocal_density = 310
             else:
                 self.reciprocal_density = (
-                    reciprocal_density
-                    or self.user_kpoints_settings["reciprocal_density"]
+                        reciprocal_density
+                        or self.user_kpoints_settings["reciprocal_density"]
                 )
         else:
             if not reciprocal_density:
@@ -2873,16 +2875,16 @@ class BadInputSetWarning(UserWarning):
 
 
 def batch_write_input(
-    structures,
-    vasp_input_set=MPRelaxSet,
-    output_dir=".",
-    make_dir_if_not_present=True,
-    subfolder=None,
-    sanitize=False,
-    include_cif=False,
-    potcar_spec=False,
-    zip_output=False,
-    **kwargs
+        structures,
+        vasp_input_set=MPRelaxSet,
+        output_dir=".",
+        make_dir_if_not_present=True,
+        subfolder=None,
+        sanitize=False,
+        include_cif=False,
+        potcar_spec=False,
+        zip_output=False,
+        **kwargs
 ):
     """
     Batch write vasp input for a sequence of structures to
