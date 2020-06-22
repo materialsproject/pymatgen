@@ -842,9 +842,12 @@ class BztTransportProperties:
             mu_doping[dop_type] = np.zeros((len(temp_r), len(doping)))
             for t, temp in enumerate(temp_r):
                 for i, dop_car in enumerate(doping_carriers):
-                    mu_doping[dop_type][t, i] = self.find_mu_doping(
+                    mu_doping[dop_type][t, i] = BL.solve_for_mu(
                         self.epsilon, self.dos, self.nelect + dop_car, temp,
-                        self.dosweight)
+                        self.dosweight, True)
+                    # mu_doping[dop_type][t, i] = self.find_mu_doping(
+                    #     self.epsilon, self.dos, self.nelect + dop_car, temp,
+                    #     self.dosweight)
 
                 N, L0, L1, L2, Lm11 = BL.fermiintegrals(
                     self.epsilon,
