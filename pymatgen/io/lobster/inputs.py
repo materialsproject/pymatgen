@@ -321,11 +321,14 @@ class Lobsterin(dict, MSONable):
         return list_forin
 
     @staticmethod
-    def get_all_possible_basis_functions(structure: Structure, potcar_symbols: list,
-                                         address_basis_file_min: str = os.path.join(MODULE_DIR,
-                                                                                    "lobster_basis/BASIS_PBE_54_min.yaml"),
-                                         address_basis_file_max: str = os.path.join(MODULE_DIR,
-                                                                                    "lobster_basis/BASIS_PBE_54_max.yaml")):
+    def get_all_possible_basis_functions(structure: Structure,
+                                         potcar_symbols: list,
+                                         address_basis_file_min:
+                                         str = os.path.join(MODULE_DIR,
+                                                            "lobster_basis/BASIS_PBE_54_min.yaml"),
+                                         address_basis_file_max:
+                                         str = os.path.join(MODULE_DIR,
+                                                            "lobster_basis/BASIS_PBE_54_max.yaml")):
 
         """
 
@@ -335,7 +338,8 @@ class Lobsterin(dict, MSONable):
             address_basis_file_min: path to file with the minium required basis by the POTCAR
             address_basis_file_max: path to file with the largest possible basis of the POTCAR
 
-        Returns: List of dictionaries that can be used to create new Lobsterin objects in standard_calculations_from_vasp_files as dict_for_basis
+        Returns: List of dictionaries that can be used to create new Lobsterin objects in 
+        standard_calculations_from_vasp_files as dict_for_basis
 
         """
         max_basis = Lobsterin.get_basis(structure=structure, potcar_symbols=potcar_symbols,
