@@ -349,7 +349,7 @@ class Lobsterin(dict, MSONable):
         all_basis = get_all_possible_basis_combinations(min_basis=min_basis, max_basis=max_basis)
         list_basis_dict = []
         for ibasis, basis in enumerate(all_basis):
-            basis_dict = {}
+            basis_dict = {}  # Dict[Any]
 
             for iel, elba in enumerate(basis):
                 basplit = elba.split()
@@ -390,7 +390,6 @@ class Lobsterin(dict, MSONable):
             symprec (float): precision to determine symmetry
         """
         structure = Structure.from_file(POSCAR_input)
-        # should this really be static? -> make it similar to INCAR?
         if not from_grid:
             kpointgrid = Kpoints.automatic_density_by_vol(structure, reciprocal_density).kpts
             mesh = kpointgrid[0]
