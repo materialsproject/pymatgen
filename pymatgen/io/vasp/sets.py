@@ -2714,11 +2714,11 @@ class LobsterSet(MPRelaxSet):
         self.address_basis_file = address_basis_file
         # predefined basis! Check if the basis is okay! (charge spilling and bandoverlaps!)
         if user_supplied_basis is None and address_basis_file is None:
-            basis = Lobsterin._get_basis(
+            basis = Lobsterin.get_basis(
                 structure=structure, potcar_symbols=self.potcar_symbols
             )
         elif address_basis_file is not None:
-            basis = Lobsterin._get_basis(
+            basis = Lobsterin.get_basis(
                 structure=structure,
                 potcar_symbols=self.potcar_symbols,
                 address_basis_file=address_basis_file,

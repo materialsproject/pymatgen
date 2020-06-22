@@ -2761,11 +2761,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">address_basis_file</span> <span class="o">=</span> <span class="n">address_basis_file</span>
         <span class="c1"># predefined basis! Check if the basis is okay! (charge spilling and bandoverlaps!)</span>
         <span class="k">if</span> <span class="n">user_supplied_basis</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">address_basis_file</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">basis</span> <span class="o">=</span> <span class="n">Lobsterin</span><span class="o">.</span><span class="n">_get_basis</span><span class="p">(</span>
+            <span class="n">basis</span> <span class="o">=</span> <span class="n">Lobsterin</span><span class="o">.</span><span class="n">get_basis</span><span class="p">(</span>
                 <span class="n">structure</span><span class="o">=</span><span class="n">structure</span><span class="p">,</span> <span class="n">potcar_symbols</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">potcar_symbols</span>
             <span class="p">)</span>
         <span class="k">elif</span> <span class="n">address_basis_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">basis</span> <span class="o">=</span> <span class="n">Lobsterin</span><span class="o">.</span><span class="n">_get_basis</span><span class="p">(</span>
+            <span class="n">basis</span> <span class="o">=</span> <span class="n">Lobsterin</span><span class="o">.</span><span class="n">get_basis</span><span class="p">(</span>
                 <span class="n">structure</span><span class="o">=</span><span class="n">structure</span><span class="p">,</span>
                 <span class="n">potcar_symbols</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">potcar_symbols</span><span class="p">,</span>
                 <span class="n">address_basis_file</span><span class="o">=</span><span class="n">address_basis_file</span><span class="p">,</span>
