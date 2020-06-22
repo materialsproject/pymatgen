@@ -534,7 +534,7 @@ class ComputedReaction(Reaction):
         for entry in self._reactant_entries + self._product_entries:
             (comp, factor) = entry.composition.get_reduced_composition_and_factor()
             energy_ufloat = ufloat(
-                entry.energy, entry.data.get("correction_uncertainty", 0)
+                entry.energy, entry.correction_uncertainty
             )
             calc_energies[comp] = min(
                 calc_energies.get(comp, float("inf")), energy_ufloat / factor
