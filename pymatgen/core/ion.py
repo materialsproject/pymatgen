@@ -167,7 +167,7 @@ class Ion(Composition, MSONable):
             dict with element symbol and reduced amount e.g.,
             {"Fe": 2.0, "O":3.0}.
         """
-        d = self.composition.to_reduced_dict
+        d = self.composition.to_reduced_dict.as_dict()
         d['charge'] = self.charge
         return d
 
