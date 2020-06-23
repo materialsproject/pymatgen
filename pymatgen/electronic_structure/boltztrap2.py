@@ -821,8 +821,8 @@ class BztTransportProperties:
         if temp_r is None:
             temp_r = self.temp_r
 
-        self.Conductivity_doping, self.Seebeck_doping, self.Kappa_doping = {}, {}, {}
-        # self.Hall_doping = {}
+        self.Conductivity_doping, self.Seebeck_doping, \
+            self.Kappa_doping, self.Carriers_conc_doping = {}, {}, {}, {}
 
         self.Power_Factor_doping, self.Effective_mass_doping = {}, {}
 
@@ -836,6 +836,8 @@ class BztTransportProperties:
             cond = np.zeros((len(temp_r), len(doping), 3, 3))
             kappa = np.zeros((len(temp_r), len(doping), 3, 3))
             hall = np.zeros((len(temp_r), len(doping), 3, 3, 3))
+            cc = np.zeros((len(temp_r), len(doping)))
+
             if dop_type == 'p':
                 doping_carriers = [-dop for dop in doping_carriers]
 
@@ -844,7 +846,7 @@ class BztTransportProperties:
                 for i, dop_car in enumerate(doping_carriers):
                     mu_doping[dop_type][t, i] = BL.solve_for_mu(
                         self.epsilon, self.dos, self.nelect + dop_car, temp,
-                        self.dosweight, True)
+                        self.dosweight, True, False)
                     # mu_doping[dop_type][t, i] = self.find_mu_doping(
                     #     self.epsilon, self.dos, self.nelect + dop_car, temp,
                     #     self.dosweight)
@@ -856,16 +858,21 @@ class BztTransportProperties:
                     mur=mu_doping[dop_type][t],
                     Tr=np.array([temp]),
                     dosweight=self.dosweight)
+
                 cond[t], sbk[t], kappa[t], hall[
                     t] = BL.calc_Onsager_coefficients(L0, L1, L2,
                                                       mu_doping[dop_type][t],
                                                       np.array([temp]),
                                                       self.volume, Lm11)
 
+                cc[t] = self.nelect + N
+
             self.Conductivity_doping[dop_type] = cond * self.CRTA  # S / m
             self.Seebeck_doping[dop_type] = sbk * 1e6  # microVolt / K
             self.Kappa_doping[dop_type] = kappa * self.CRTA  # W / (m K)
             # self.Hall_doping[dop_type] = hall
+            self.Carriers_conc_doping[dop_type] = cc / (
+                self.volume / (units.Meter / 100.)**3)
 
             self.Power_Factor_doping[dop_type] = (
                 sbk @ sbk) @ cond * self.CRTA * 1e3
@@ -882,7 +889,6 @@ class BztTransportProperties:
 
             self.Effective_mass_doping[dop_type] = cond_eff_mass
 
-        self.doping_carriers = doping_carriers
         self.doping = doping
         self.mu_doping = mu_doping
         self.mu_doping_eV = {
