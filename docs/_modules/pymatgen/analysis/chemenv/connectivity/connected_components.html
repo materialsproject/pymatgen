@@ -1,0 +1,1018 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>pymatgen.analysis.chemenv.connectivity.connected_components &#8212; pymatgen 2020.3.2 documentation</title>
+    <link rel="stylesheet" href="../../../../../_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../../../" src="../../../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.analysis.chemenv.connectivity.connected_components</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Connected components.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">matplotlib.patches</span> <span class="k">import</span> <span class="n">FancyArrowPatch</span><span class="p">,</span> <span class="n">Circle</span>
+
+<span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nx</span>
+<span class="kn">from</span> <span class="nn">networkx.algorithms.traversal</span> <span class="k">import</span> <span class="n">bfs_tree</span>
+<span class="kn">from</span> <span class="nn">networkx.algorithms.components</span> <span class="k">import</span> <span class="n">is_connected</span>
+
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">jsanitize</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.utils.graph_utils</span> <span class="k">import</span> <span class="n">get_delta</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.utils.chemenv_errors</span> <span class="k">import</span> <span class="n">ChemenvError</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.utils.math_utils</span> <span class="k">import</span> <span class="n">get_linearly_independent_vectors</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.connectivity.environment_nodes</span> <span class="k">import</span> <span class="n">EnvironmentNode</span>
+
+
+<div class="viewcode-block" id="draw_network"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.connectivity.connected_components.html#pymatgen.analysis.chemenv.connectivity.connected_components.draw_network">[docs]</a><span class="k">def</span> <span class="nf">draw_network</span><span class="p">(</span><span class="n">env_graph</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">sg</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">periodicity_vectors</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        env_graph ():</span>
+<span class="sd">        pos ():</span>
+<span class="sd">        ax ():</span>
+<span class="sd">        sg ():</span>
+<span class="sd">        periodicity_vectors ():</span>
+
+<span class="sd">    Returns:</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">env_graph</span><span class="p">:</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">Circle</span><span class="p">(</span><span class="n">pos</span><span class="p">[</span><span class="n">n</span><span class="p">],</span> <span class="n">radius</span><span class="o">=</span><span class="mf">0.02</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">add_patch</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+        <span class="n">env_graph</span><span class="o">.</span><span class="n">node</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s1">&#39;patch&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">pos</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">n</span><span class="p">),</span> <span class="n">pos</span><span class="p">[</span><span class="n">n</span><span class="p">],</span> <span class="n">ha</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">,</span> <span class="n">xycoords</span><span class="o">=</span><span class="s1">&#39;data&#39;</span><span class="p">)</span>
+    <span class="n">seen</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">e</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span> <span class="ow">in</span> <span class="n">env_graph</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="n">n1</span> <span class="o">=</span> <span class="n">env_graph</span><span class="o">.</span><span class="n">node</span><span class="p">[</span><span class="n">u</span><span class="p">][</span><span class="s1">&#39;patch&#39;</span><span class="p">]</span>
+        <span class="n">n2</span> <span class="o">=</span> <span class="n">env_graph</span><span class="o">.</span><span class="n">node</span><span class="p">[</span><span class="n">v</span><span class="p">][</span><span class="s1">&#39;patch&#39;</span><span class="p">]</span>
+        <span class="n">rad</span> <span class="o">=</span> <span class="mf">0.1</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">:</span>
+            <span class="n">rad</span> <span class="o">=</span> <span class="n">seen</span><span class="o">.</span><span class="n">get</span><span class="p">((</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span>
+            <span class="n">rad</span> <span class="o">=</span> <span class="p">(</span><span class="n">rad</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">rad</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.1</span><span class="p">)</span> <span class="o">*</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.5</span>
+        <span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;k&#39;</span>
+        <span class="n">periodic_color</span> <span class="o">=</span> <span class="s1">&#39;r&#39;</span>
+
+        <span class="n">delta</span> <span class="o">=</span> <span class="n">get_delta</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
+
+        <span class="c1"># center = get_center_of_arc(n1.center, n2.center, rad)</span>
+        <span class="n">n1center</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">n1</span><span class="o">.</span><span class="n">center</span><span class="p">)</span>
+        <span class="n">n2center</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">n2</span><span class="o">.</span><span class="n">center</span><span class="p">)</span>
+        <span class="n">midpoint</span> <span class="o">=</span> <span class="p">(</span><span class="n">n1center</span> <span class="o">+</span> <span class="n">n2center</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="n">dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">n2</span><span class="o">.</span><span class="n">center</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">n1</span><span class="o">.</span><span class="n">center</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">n2</span><span class="o">.</span><span class="n">center</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">n1</span><span class="o">.</span><span class="n">center</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">2</span><span class="p">))</span>
+        <span class="n">n1c_to_n2c</span> <span class="o">=</span> <span class="n">n2center</span> <span class="o">-</span> <span class="n">n1center</span>
+        <span class="n">vv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">n1c_to_n2c</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">n1c_to_n2c</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">0</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">))</span>
+        <span class="n">vv</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">vv</span><span class="p">)</span>
+        <span class="n">midarc</span> <span class="o">=</span> <span class="n">midpoint</span> <span class="o">+</span> <span class="n">rad</span> <span class="o">*</span> <span class="n">dist</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">vv</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">vv</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+        <span class="n">xytext_offset</span> <span class="o">=</span> <span class="mf">0.1</span> <span class="o">*</span> <span class="n">dist</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">vv</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">vv</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">periodicity_vectors</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">periodicity_vectors</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">delta</span><span class="p">)</span> <span class="o">==</span>
+                      <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">periodicity_vectors</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">delta</span><span class="p">)</span> <span class="o">==</span>
+                                                                  <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">periodicity_vectors</span><span class="p">[</span><span class="mi">0</span><span class="p">])):</span>
+                <span class="n">e</span> <span class="o">=</span> <span class="n">FancyArrowPatch</span><span class="p">(</span><span class="n">n1center</span><span class="p">,</span> <span class="n">n2center</span><span class="p">,</span> <span class="n">patchA</span><span class="o">=</span><span class="n">n1</span><span class="p">,</span> <span class="n">patchB</span><span class="o">=</span><span class="n">n2</span><span class="p">,</span>
+                                    <span class="n">arrowstyle</span><span class="o">=</span><span class="s1">&#39;-|&gt;&#39;</span><span class="p">,</span>
+                                    <span class="n">connectionstyle</span><span class="o">=</span><span class="s1">&#39;arc3,rad=</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">rad</span><span class="p">,</span>
+                                    <span class="n">mutation_scale</span><span class="o">=</span><span class="mf">15.0</span><span class="p">,</span>
+                                    <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                                    <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
+                                    <span class="n">color</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span>
+                                    <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;dashed&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">e</span> <span class="o">=</span> <span class="n">FancyArrowPatch</span><span class="p">(</span><span class="n">n1center</span><span class="p">,</span> <span class="n">n2center</span><span class="p">,</span> <span class="n">patchA</span><span class="o">=</span><span class="n">n1</span><span class="p">,</span> <span class="n">patchB</span><span class="o">=</span><span class="n">n2</span><span class="p">,</span>
+                                    <span class="n">arrowstyle</span><span class="o">=</span><span class="s1">&#39;-|&gt;&#39;</span><span class="p">,</span>
+                                    <span class="n">connectionstyle</span><span class="o">=</span><span class="s1">&#39;arc3,rad=</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">rad</span><span class="p">,</span>
+                                    <span class="n">mutation_scale</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span>
+                                    <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                                    <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
+                                    <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ecolor</span> <span class="o">=</span> <span class="n">color</span> <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">delta</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span> <span class="k">else</span> <span class="n">periodic_color</span>
+            <span class="n">e</span> <span class="o">=</span> <span class="n">FancyArrowPatch</span><span class="p">(</span><span class="n">n1center</span><span class="p">,</span> <span class="n">n2center</span><span class="p">,</span> <span class="n">patchA</span><span class="o">=</span><span class="n">n1</span><span class="p">,</span> <span class="n">patchB</span><span class="o">=</span><span class="n">n2</span><span class="p">,</span>
+                                <span class="n">arrowstyle</span><span class="o">=</span><span class="s1">&#39;-|&gt;&#39;</span><span class="p">,</span>
+                                <span class="n">connectionstyle</span><span class="o">=</span><span class="s1">&#39;arc3,rad=</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">rad</span><span class="p">,</span>
+                                <span class="n">mutation_scale</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span>
+                                <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                                <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
+                                <span class="n">color</span><span class="o">=</span><span class="n">ecolor</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">delta</span><span class="p">,</span> <span class="n">midarc</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">,</span> <span class="n">xycoords</span><span class="o">=</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="n">xytext</span><span class="o">=</span><span class="n">xytext_offset</span><span class="p">,</span>
+                    <span class="n">textcoords</span><span class="o">=</span><span class="s1">&#39;offset points&#39;</span><span class="p">)</span>
+        <span class="n">seen</span><span class="p">[(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">)]</span> <span class="o">=</span> <span class="n">rad</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">add_patch</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">e</span></div>
+
+
+<div class="viewcode-block" id="make_supergraph"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.connectivity.connected_components.html#pymatgen.analysis.chemenv.connectivity.connected_components.make_supergraph">[docs]</a><span class="k">def</span> <span class="nf">make_supergraph</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">multiplicity</span><span class="p">,</span> <span class="n">periodicity_vectors</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        graph ():</span>
+<span class="sd">        multiplicity ():</span>
+<span class="sd">        periodicity_vectors ():</span>
+
+<span class="sd">    Returns:</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">supergraph</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">MultiGraph</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;peridoicity vectors :&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">periodicity_vectors</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">multiplicity</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">multiplicity</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">mult</span> <span class="o">=</span> <span class="n">multiplicity</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">multiplicity</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="k">else</span> <span class="n">multiplicity</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">nodes</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">inodes</span> <span class="o">=</span> <span class="p">[</span><span class="n">isite</span> <span class="k">for</span> <span class="n">isite</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">]</span>
+        <span class="n">indices_nodes</span> <span class="o">=</span> <span class="p">{</span><span class="n">isite</span><span class="p">:</span> <span class="n">inodes</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">isite</span><span class="p">)</span> <span class="k">for</span> <span class="n">isite</span> <span class="ow">in</span> <span class="n">inodes</span><span class="p">}</span>
+        <span class="n">edges</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">keys</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">connecting_edges</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">other_edges</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span> <span class="ow">in</span> <span class="n">edges</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;delta&#39;</span><span class="p">])</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">periodicity_vectors</span><span class="p">[</span><span class="mi">0</span><span class="p">])):</span>
+                <span class="n">connecting_edges</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">data</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;delta&#39;</span><span class="p">])</span> <span class="o">==</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">periodicity_vectors</span><span class="p">[</span><span class="mi">0</span><span class="p">])):</span>
+                <span class="n">new_data</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+                <span class="n">new_data</span><span class="p">[</span><span class="s1">&#39;delta&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;delta&#39;</span><span class="p">]))</span>
+                <span class="n">new_data</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;end&#39;</span><span class="p">]</span>
+                <span class="n">new_data</span><span class="p">[</span><span class="s1">&#39;end&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">]</span>
+                <span class="n">connecting_edges</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">new_data</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;delta&#39;</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;delta not equal to periodicity nor 0 ... : &#39;</span><span class="p">,</span> <span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;delta&#39;</span><span class="p">],</span> <span class="n">data</span><span class="p">)</span>
+                    <span class="nb">input</span><span class="p">(</span><span class="s1">&#39;Are we ok with this ?&#39;</span><span class="p">)</span>
+                <span class="n">other_edges</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">data</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">imult</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">mult</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">other_edges</span><span class="p">:</span>
+                <span class="n">new_data</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+                <span class="n">new_data</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">imult</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">nodes</span><span class="p">))</span> <span class="o">+</span> <span class="n">indices_nodes</span><span class="p">[</span><span class="n">n1</span><span class="p">]</span>
+                <span class="n">new_data</span><span class="p">[</span><span class="s1">&#39;end&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">imult</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">nodes</span><span class="p">))</span> <span class="o">+</span> <span class="n">indices_nodes</span><span class="p">[</span><span class="n">n2</span><span class="p">]</span>
+                <span class="n">supergraph</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">new_data</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">],</span> <span class="n">new_data</span><span class="p">[</span><span class="s1">&#39;end&#39;</span><span class="p">],</span>
+                                    <span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">attr_dict</span><span class="o">=</span><span class="n">new_data</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">connecting_edges</span><span class="p">:</span>
+                <span class="n">new_data</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+                <span class="n">new_data</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">imult</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">nodes</span><span class="p">))</span> <span class="o">+</span> <span class="n">indices_nodes</span><span class="p">[</span><span class="n">n1</span><span class="p">]</span>
+                <span class="n">new_data</span><span class="p">[</span><span class="s1">&#39;end&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">(((</span><span class="n">imult</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">nodes</span><span class="p">))</span> <span class="o">+</span> <span class="n">indices_nodes</span><span class="p">[</span><span class="n">n2</span><span class="p">],</span> <span class="nb">len</span><span class="p">(</span><span class="n">nodes</span><span class="p">)</span> <span class="o">*</span> <span class="n">mult</span><span class="p">)</span>
+                <span class="n">new_data</span><span class="p">[</span><span class="s1">&#39;delta&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="n">supergraph</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">new_data</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">],</span> <span class="n">new_data</span><span class="p">[</span><span class="s1">&#39;end&#39;</span><span class="p">],</span>
+                                    <span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">attr_dict</span><span class="o">=</span><span class="n">new_data</span><span class="p">)</span>
+        <span class="n">imult</span> <span class="o">=</span> <span class="n">mult</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="k">for</span> <span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">other_edges</span><span class="p">:</span>
+            <span class="n">new_data</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">new_data</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">imult</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">nodes</span><span class="p">))</span> <span class="o">+</span> <span class="n">indices_nodes</span><span class="p">[</span><span class="n">n1</span><span class="p">]</span>
+            <span class="n">new_data</span><span class="p">[</span><span class="s1">&#39;end&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">imult</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">nodes</span><span class="p">))</span> <span class="o">+</span> <span class="n">indices_nodes</span><span class="p">[</span><span class="n">n2</span><span class="p">]</span>
+            <span class="n">supergraph</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">new_data</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">],</span> <span class="n">new_data</span><span class="p">[</span><span class="s1">&#39;end&#39;</span><span class="p">],</span>
+                                <span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">attr_dict</span><span class="o">=</span><span class="n">new_data</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">connecting_edges</span><span class="p">:</span>
+            <span class="n">new_data</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">new_data</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">imult</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">nodes</span><span class="p">))</span> <span class="o">+</span> <span class="n">indices_nodes</span><span class="p">[</span><span class="n">n1</span><span class="p">]</span>
+            <span class="n">new_data</span><span class="p">[</span><span class="s1">&#39;end&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">indices_nodes</span><span class="p">[</span><span class="n">n2</span><span class="p">]</span>
+            <span class="n">supergraph</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">new_data</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">],</span> <span class="n">new_data</span><span class="p">[</span><span class="s1">&#39;end&#39;</span><span class="p">],</span>
+                                <span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">attr_dict</span><span class="o">=</span><span class="n">new_data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">supergraph</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;make_supergraph not yet implemented for 2- and 3-periodic graphs&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ConnectedComponent"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.connectivity.connected_components.html#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent">[docs]</a><span class="k">class</span> <span class="nc">ConnectedComponent</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class used to describe the connected components in a structure in terms of coordination environments.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">environments</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">links</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">environments_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">links_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">graph</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructor for the ConnectedComponent object.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            environments: Environments in the connected component.</span>
+<span class="sd">            links: Links between environments in the connected component.</span>
+<span class="sd">            environments_data: Data of environment nodes.</span>
+<span class="sd">            links_data: Data of links between environment nodes.</span>
+<span class="sd">            graph: Graph of the connected component.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            ConnectedComponent: Instance of this class</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_periodicity_vectors</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_primitive_reduced_connected_subgraph</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_projected</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">graph</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_connected_subgraph</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">MultiGraph</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">environments_data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_connected_subgraph</span><span class="o">.</span><span class="n">add_nodes_from</span><span class="p">(</span><span class="n">environments</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">env</span> <span class="ow">in</span> <span class="n">environments</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">env</span> <span class="ow">in</span> <span class="n">environments_data</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_connected_subgraph</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="o">**</span><span class="n">environments_data</span><span class="p">[</span><span class="n">env</span><span class="p">])</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_connected_subgraph</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">links</span><span class="p">:</span>
+                <span class="n">env_node1</span> <span class="o">=</span> <span class="n">edge</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">env_node2</span> <span class="o">=</span> <span class="n">edge</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="n">key</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">key</span> <span class="o">=</span> <span class="n">edge</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+                <span class="k">if</span> <span class="p">((</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connected_subgraph</span><span class="o">.</span><span class="n">has_node</span><span class="p">(</span><span class="n">env_node1</span><span class="p">))</span> <span class="ow">or</span>
+                        <span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connected_subgraph</span><span class="o">.</span><span class="n">has_node</span><span class="p">(</span><span class="n">env_node2</span><span class="p">))):</span>
+                    <span class="k">raise</span> <span class="n">ChemenvError</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">,</span> <span class="s1">&#39;__init__&#39;</span><span class="p">,</span> <span class="s1">&#39;Trying to add edge with some unexisting node ...&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">links_data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="p">(</span><span class="n">env_node1</span><span class="p">,</span> <span class="n">env_node2</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span> <span class="ow">in</span> <span class="n">links_data</span><span class="p">:</span>
+                        <span class="n">edge_data</span> <span class="o">=</span> <span class="n">links_data</span><span class="p">[(</span><span class="n">env_node1</span><span class="p">,</span> <span class="n">env_node2</span><span class="p">,</span> <span class="n">key</span><span class="p">)]</span>
+                    <span class="k">elif</span> <span class="p">(</span><span class="n">env_node2</span><span class="p">,</span> <span class="n">env_node1</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span> <span class="ow">in</span> <span class="n">links_data</span><span class="p">:</span>
+                        <span class="n">edge_data</span> <span class="o">=</span> <span class="n">links_data</span><span class="p">[(</span><span class="n">env_node2</span><span class="p">,</span> <span class="n">env_node1</span><span class="p">,</span> <span class="n">key</span><span class="p">)]</span>
+                    <span class="k">elif</span> <span class="p">(</span><span class="n">env_node1</span><span class="p">,</span> <span class="n">env_node2</span><span class="p">)</span> <span class="ow">in</span> <span class="n">links_data</span><span class="p">:</span>
+                        <span class="n">edge_data</span> <span class="o">=</span> <span class="n">links_data</span><span class="p">[(</span><span class="n">env_node1</span><span class="p">,</span> <span class="n">env_node2</span><span class="p">)]</span>
+                    <span class="k">elif</span> <span class="p">(</span><span class="n">env_node2</span><span class="p">,</span> <span class="n">env_node1</span><span class="p">)</span> <span class="ow">in</span> <span class="n">links_data</span><span class="p">:</span>
+                        <span class="n">edge_data</span> <span class="o">=</span> <span class="n">links_data</span><span class="p">[(</span><span class="n">env_node2</span><span class="p">,</span> <span class="n">env_node1</span><span class="p">)]</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">edge_data</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">edge_data</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">if</span> <span class="n">edge_data</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_connected_subgraph</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">env_node1</span><span class="p">,</span> <span class="n">env_node2</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="o">**</span><span class="n">edge_data</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_connected_subgraph</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">env_node1</span><span class="p">,</span> <span class="n">env_node2</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># TODO: should check a few requirements here ?</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_connected_subgraph</span> <span class="o">=</span> <span class="n">graph</span>
+
+<div class="viewcode-block" id="ConnectedComponent.coordination_sequence"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.connectivity.connected_components.html#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.coordination_sequence">[docs]</a>    <span class="k">def</span> <span class="nf">coordination_sequence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source_node</span><span class="p">,</span> <span class="n">path_size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">coordination</span><span class="o">=</span><span class="s1">&#39;number&#39;</span><span class="p">,</span> <span class="n">include_source</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the coordination sequence for a given node.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            source_node: Node for which the coordination sequence is computed.</span>
+<span class="sd">            path_size: Maximum length of the path for the coordination sequence.</span>
+<span class="sd">            coordination: Type of coordination sequence. The default (&quot;number&quot;) corresponds to the number</span>
+<span class="sd">                of environment nodes that are reachable by following paths of sizes between 1 and path_size.</span>
+<span class="sd">                For coordination &quot;env:number&quot;, this resulting coordination sequence is a sequence of dictionaries</span>
+<span class="sd">                mapping the type of environment to the number of such environment reachable by following paths of</span>
+<span class="sd">                sizes between 1 and path_size.</span>
+<span class="sd">            include_source: Whether to include the source_node in the coordination sequence.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict: Mapping between the nth &quot;layer&quot; of the connected component with the corresponding coordination.</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            The corner-sharing octahedral framework (as in perovskites) have the following coordination sequence (up to</span>
+<span class="sd">            a path of size 6) :</span>
+<span class="sd">            {1: 6, 2: 18, 3: 38, 4: 66, 5: 102, 6: 146}</span>
+<span class="sd">            Considering both the octahedrons and the cuboctahedrons of the typical BaTiO3 perovskite, the &quot;env:number&quot;</span>
+<span class="sd">            coordination sequence (up to a path of size 6) starting on the Ti octahedron and Ba cuboctahedron</span>
+<span class="sd">            are the following :</span>
+<span class="sd">            Starting on the Ti octahedron : {1: {&#39;O:6&#39;: 6, &#39;C:12&#39;: 8}, 2: {&#39;O:6&#39;: 26, &#39;C:12&#39;: 48},</span>
+<span class="sd">                                             3: {&#39;O:6&#39;: 90, &#39;C:12&#39;: 128}, 4: {&#39;O:6&#39;: 194, &#39;C:12&#39;: 248},</span>
+<span class="sd">                                             5: {&#39;O:6&#39;: 338, &#39;C:12&#39;: 408}, 6: {&#39;O:6&#39;: 522, &#39;C:12&#39;: 608}}</span>
+<span class="sd">            Starting on the Ba cuboctahedron : {1: {&#39;O:6&#39;: 8, &#39;C:12&#39;: 18}, 2: {&#39;O:6&#39;: 48, &#39;C:12&#39;: 74},</span>
+<span class="sd">                                                3: {&#39;O:6&#39;: 128, &#39;C:12&#39;: 170}, 4: {&#39;O:6&#39;: 248, &#39;C:12&#39;: 306},</span>
+<span class="sd">                                                5: {&#39;O:6&#39;: 408, &#39;C:12&#39;: 482}, 6: {&#39;O:6&#39;: 608, &#39;C:12&#39;: 698}}</span>
+<span class="sd">            If include_source is set to True, the source node is included in the sequence, e.g. for the corner-sharing</span>
+<span class="sd">            octahedral framework : {0: 1, 1: 6, 2: 18, 3: 38, 4: 66, 5: 102, 6: 146}. For the &quot;env:number&quot; coordination</span>
+<span class="sd">            starting on a Ba cuboctahedron (as shown above), the coordination sequence is then :</span>
+<span class="sd">            {0: {&#39;C:12&#39;: 1}, 1: {&#39;O:6&#39;: 8, &#39;C:12&#39;: 18}, 2: {&#39;O:6&#39;: 48, &#39;C:12&#39;: 74}, 3: {&#39;O:6&#39;: 128, &#39;C:12&#39;: 170},</span>
+<span class="sd">             4: {&#39;O:6&#39;: 248, &#39;C:12&#39;: 306}, 5: {&#39;O:6&#39;: 408, &#39;C:12&#39;: 482}, 6: {&#39;O:6&#39;: 608, &#39;C:12&#39;: 698}}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">source_node</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connected_subgraph</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Node not in Connected Component. Cannot find coordination sequence.&#39;</span><span class="p">)</span>
+        <span class="c1"># Example of an infinite periodic net in two dimensions consisting of a stacking of</span>
+        <span class="c1"># A and B lines :</span>
+        <span class="c1">#</span>
+        <span class="c1">#     *     *     *     *     *</span>
+        <span class="c1">#     *     *     *     *     *</span>
+        <span class="c1"># * * A * * B * * A * * B * * A * *</span>
+        <span class="c1">#     *     *     *     *     *</span>
+        <span class="c1">#     *     *     *     *     *</span>
+        <span class="c1"># * * A * * B * * A * * B * * A * *</span>
+        <span class="c1">#     *     *     *     *     *</span>
+        <span class="c1">#     *     *     *     *     *</span>
+        <span class="c1"># * * A * * B * * A * * B * * A * *</span>
+        <span class="c1">#     *     *     *     *     *</span>
+        <span class="c1">#     *     *     *     *     *</span>
+        <span class="c1"># * * A * * B * * A * * B * * A * *</span>
+        <span class="c1">#     *     *     *     *     *</span>
+        <span class="c1">#     *     *     *     *     *</span>
+        <span class="c1"># * * A * * B * * A * * B * * A * *</span>
+        <span class="c1">#     *     *     *     *     *</span>
+        <span class="c1">#     *     *     *     *     *</span>
+        <span class="c1">#</span>
+        <span class="c1"># One possible quotient graph of this periodic net :</span>
+        <span class="c1">#          __           __</span>
+        <span class="c1"># (0,1,0) /  \         /  \ (0,1,0)</span>
+        <span class="c1">#         `&lt;--A---&gt;---B--&lt;´</span>
+        <span class="c1">#            / (0,0,0) \</span>
+        <span class="c1">#            \         /</span>
+        <span class="c1">#             `---&gt;---´</span>
+        <span class="c1">#              (1,0,0)</span>
+        <span class="c1">#</span>
+        <span class="c1"># The &quot;number&quot; coordination sequence starting from any environment is : 4-8-12-16-...</span>
+        <span class="c1"># The &quot;env:number&quot; coordination sequence starting from any environment is :</span>
+        <span class="c1"># {A:2, B:2}-{A:4, B:4}-{A:6, B:6}-...</span>
+        <span class="n">current_delta</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">current_ends</span> <span class="o">=</span> <span class="p">[(</span><span class="n">source_node</span><span class="p">,</span> <span class="n">current_delta</span><span class="p">)]</span>
+        <span class="n">visited</span> <span class="o">=</span> <span class="p">{(</span><span class="n">source_node</span><span class="o">.</span><span class="n">isite</span><span class="p">,</span> <span class="o">*</span><span class="n">current_delta</span><span class="p">)}</span>
+        <span class="n">path_len</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">cseq</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">include_source</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">coordination</span> <span class="o">==</span> <span class="s1">&#39;number&#39;</span><span class="p">:</span>
+                <span class="n">cseq</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">elif</span> <span class="n">coordination</span> <span class="o">==</span> <span class="s1">&#39;env:number&#39;</span><span class="p">:</span>
+                <span class="n">cseq</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">source_node</span><span class="o">.</span><span class="n">coordination_environment</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Coordination type &quot;</span><span class="si">{}</span><span class="s1">&quot; is not valid for coordination_sequence.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">coordination</span><span class="p">))</span>
+        <span class="k">while</span> <span class="n">path_len</span> <span class="o">&lt;</span> <span class="n">path_size</span><span class="p">:</span>
+            <span class="n">new_ends</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">current_node_end</span><span class="p">,</span> <span class="n">current_delta_end</span> <span class="ow">in</span> <span class="n">current_ends</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">nb</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connected_subgraph</span><span class="o">.</span><span class="n">neighbors</span><span class="p">(</span><span class="n">current_node_end</span><span class="p">):</span>
+                    <span class="k">for</span> <span class="n">iedge</span><span class="p">,</span> <span class="n">edata</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connected_subgraph</span><span class="p">[</span><span class="n">current_node_end</span><span class="p">][</span><span class="n">nb</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                        <span class="n">new_delta</span> <span class="o">=</span> <span class="n">current_delta_end</span> <span class="o">+</span> <span class="n">get_delta</span><span class="p">(</span><span class="n">current_node_end</span><span class="p">,</span> <span class="n">nb</span><span class="p">,</span> <span class="n">edata</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="p">(</span><span class="n">nb</span><span class="o">.</span><span class="n">isite</span><span class="p">,</span> <span class="o">*</span><span class="n">new_delta</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">visited</span><span class="p">:</span>
+                            <span class="n">new_ends</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">nb</span><span class="p">,</span> <span class="n">new_delta</span><span class="p">))</span>
+                            <span class="n">visited</span><span class="o">.</span><span class="n">add</span><span class="p">((</span><span class="n">nb</span><span class="o">.</span><span class="n">isite</span><span class="p">,</span> <span class="o">*</span><span class="n">new_delta</span><span class="p">))</span>
+                        <span class="k">if</span> <span class="n">nb</span><span class="o">.</span><span class="n">isite</span> <span class="o">==</span> <span class="n">current_node_end</span><span class="o">.</span><span class="n">isite</span><span class="p">:</span>  <span class="c1"># Handle self loops</span>
+                            <span class="n">new_delta</span> <span class="o">=</span> <span class="n">current_delta_end</span> <span class="o">-</span> <span class="n">get_delta</span><span class="p">(</span><span class="n">current_node_end</span><span class="p">,</span> <span class="n">nb</span><span class="p">,</span> <span class="n">edata</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="p">(</span><span class="n">nb</span><span class="o">.</span><span class="n">isite</span><span class="p">,</span> <span class="o">*</span><span class="n">new_delta</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">visited</span><span class="p">:</span>
+                                <span class="n">new_ends</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">nb</span><span class="p">,</span> <span class="n">new_delta</span><span class="p">))</span>
+                                <span class="n">visited</span><span class="o">.</span><span class="n">add</span><span class="p">((</span><span class="n">nb</span><span class="o">.</span><span class="n">isite</span><span class="p">,</span> <span class="o">*</span><span class="n">new_delta</span><span class="p">))</span>
+            <span class="n">current_ends</span> <span class="o">=</span> <span class="n">new_ends</span>
+            <span class="n">path_len</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">coordination</span> <span class="o">==</span> <span class="s1">&#39;number&#39;</span><span class="p">:</span>
+                <span class="n">cseq</span><span class="p">[</span><span class="n">path_len</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">current_ends</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">coordination</span> <span class="o">==</span> <span class="s1">&#39;env:number&#39;</span><span class="p">:</span>
+                <span class="n">myenvs</span> <span class="o">=</span> <span class="p">[</span><span class="n">myend</span><span class="o">.</span><span class="n">coordination_environment</span> <span class="k">for</span> <span class="n">myend</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">current_ends</span><span class="p">]</span>
+                <span class="n">cseq</span><span class="p">[</span><span class="n">path_len</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">myenv</span><span class="p">:</span> <span class="n">myenvs</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">myenv</span><span class="p">)</span> <span class="k">for</span> <span class="n">myenv</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">myenvs</span><span class="p">)}</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Coordination type &quot;</span><span class="si">{}</span><span class="s1">&quot; is not valid for coordination_sequence.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">coordination</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">cseq</span></div>
+
+    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ConnectedComponent.compute_periodicity"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.connectivity.connected_components.html#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.compute_periodicity">[docs]</a>    <span class="k">def</span> <span class="nf">compute_periodicity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">algorithm</span><span class="o">=</span><span class="s1">&#39;all_simple_paths&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            algorithm ():</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">algorithm</span> <span class="o">==</span> <span class="s1">&#39;all_simple_paths&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">compute_periodicity_all_simple_paths_algorithm</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">algorithm</span> <span class="o">==</span> <span class="s1">&#39;cycle_basis&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">compute_periodicity_cycle_basis</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Algorithm &quot;</span><span class="si">{}</span><span class="s1">&quot; is not allowed to compute periodicity&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">algorithm</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_order_periodicity_vectors</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ConnectedComponent.compute_periodicity_all_simple_paths_algorithm"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.connectivity.connected_components.html#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.compute_periodicity_all_simple_paths_algorithm">[docs]</a>    <span class="k">def</span> <span class="nf">compute_periodicity_all_simple_paths_algorithm</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">self_loop_nodes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">nx</span><span class="o">.</span><span class="n">nodes_with_selfloops</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_connected_subgraph</span><span class="p">))</span>
+        <span class="n">all_nodes_independent_cell_image_vectors</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">my_simple_graph</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_connected_subgraph</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">test_node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connected_subgraph</span><span class="o">.</span><span class="n">nodes</span><span class="p">():</span>
+            <span class="c1"># TODO: do we need to go through all test nodes ?</span>
+            <span class="n">this_node_cell_img_vectors</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">if</span> <span class="n">test_node</span> <span class="ow">in</span> <span class="n">self_loop_nodes</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">edge_data</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connected_subgraph</span><span class="p">[</span><span class="n">test_node</span><span class="p">][</span><span class="n">test_node</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">edge_data</span><span class="p">[</span><span class="s1">&#39;delta&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;There should not be self loops with delta image = (0, 0, 0).&#39;</span><span class="p">)</span>
+                    <span class="n">this_node_cell_img_vectors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">edge_data</span><span class="p">[</span><span class="s1">&#39;delta&#39;</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">d1</span><span class="p">,</span> <span class="n">d2</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">combinations</span><span class="p">(</span><span class="n">this_node_cell_img_vectors</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">d1</span> <span class="o">==</span> <span class="n">d2</span> <span class="ow">or</span> <span class="n">d1</span> <span class="o">==</span> <span class="nb">tuple</span><span class="p">(</span><span class="o">-</span><span class="n">ii</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">d2</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;There should not be self loops with the same (or opposite) delta image.&#39;</span><span class="p">)</span>
+            <span class="n">this_node_cell_img_vectors</span> <span class="o">=</span> <span class="n">get_linearly_independent_vectors</span><span class="p">(</span><span class="n">this_node_cell_img_vectors</span><span class="p">)</span>
+            <span class="c1"># Here, we adopt a cutoff equal to the size of the graph, contrary to the default of networkX (size - 1),</span>
+            <span class="c1"># because otherwise, the all_simple_paths algorithm fail when the source node is equal to the target node.</span>
+            <span class="n">paths</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="c1"># TODO: its probably possible to do just a dfs or bfs traversal instead of taking all simple paths!</span>
+            <span class="n">test_node_neighbors</span> <span class="o">=</span> <span class="n">my_simple_graph</span><span class="o">.</span><span class="n">neighbors</span><span class="p">(</span><span class="n">test_node</span><span class="p">)</span>
+            <span class="n">breaknodeloop</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">for</span> <span class="n">test_node_neighbor</span> <span class="ow">in</span> <span class="n">test_node_neighbors</span><span class="p">:</span>
+                <span class="c1"># Special case for two nodes</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_connected_subgraph</span><span class="p">[</span><span class="n">test_node</span><span class="p">][</span><span class="n">test_node_neighbor</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">this_path_deltas</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="n">node_node_neighbor_edges_data</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_connected_subgraph</span><span class="p">[</span><span class="n">test_node</span><span class="p">]</span>
+                                                         <span class="p">[</span><span class="n">test_node_neighbor</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+                    <span class="k">for</span> <span class="n">edge1_data</span><span class="p">,</span> <span class="n">edge2_data</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">combinations</span><span class="p">(</span><span class="n">node_node_neighbor_edges_data</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span>
+                        <span class="n">delta1</span> <span class="o">=</span> <span class="n">get_delta</span><span class="p">(</span><span class="n">test_node</span><span class="p">,</span> <span class="n">test_node_neighbor</span><span class="p">,</span> <span class="n">edge1_data</span><span class="p">)</span>
+                        <span class="n">delta2</span> <span class="o">=</span> <span class="n">get_delta</span><span class="p">(</span><span class="n">test_node_neighbor</span><span class="p">,</span> <span class="n">test_node</span><span class="p">,</span> <span class="n">edge2_data</span><span class="p">)</span>
+                        <span class="n">this_path_deltas</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">delta1</span> <span class="o">+</span> <span class="n">delta2</span><span class="p">)</span>
+                    <span class="n">this_node_cell_img_vectors</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">this_path_deltas</span><span class="p">)</span>
+                    <span class="n">this_node_cell_img_vectors</span> <span class="o">=</span> <span class="n">get_linearly_independent_vectors</span><span class="p">(</span><span class="n">this_node_cell_img_vectors</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">this_node_cell_img_vectors</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                        <span class="k">break</span>
+                <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">nx</span><span class="o">.</span><span class="n">all_simple_paths</span><span class="p">(</span><span class="n">my_simple_graph</span><span class="p">,</span> <span class="n">test_node</span><span class="p">,</span> <span class="n">test_node_neighbor</span><span class="p">,</span>
+                                                <span class="n">cutoff</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_connected_subgraph</span><span class="p">)):</span>
+                    <span class="n">path_indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">nodepath</span><span class="o">.</span><span class="n">isite</span> <span class="k">for</span> <span class="n">nodepath</span> <span class="ow">in</span> <span class="n">path</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">path_indices</span> <span class="o">==</span> <span class="p">[</span><span class="n">test_node</span><span class="o">.</span><span class="n">isite</span><span class="p">,</span> <span class="n">test_node_neighbor</span><span class="o">.</span><span class="n">isite</span><span class="p">]:</span>
+                        <span class="k">continue</span>
+                    <span class="n">path_indices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">test_node</span><span class="o">.</span><span class="n">isite</span><span class="p">)</span>
+                    <span class="n">path_indices</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">path_indices</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">path_indices</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">:</span>
+                        <span class="n">paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">path_indices</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">continue</span>
+                    <span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">test_node</span><span class="p">)</span>
+                    <span class="c1"># TODO: there are some paths that appears twice for cycles, and there are some paths that should</span>
+                    <span class="c1"># probably not be considered</span>
+                    <span class="n">this_path_deltas</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)]</span>
+                    <span class="k">for</span> <span class="p">(</span><span class="n">node1</span><span class="p">,</span> <span class="n">node2</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[(</span><span class="n">node1</span><span class="p">,</span> <span class="n">path</span><span class="p">[</span><span class="n">inode1</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">inode1</span><span class="p">,</span> <span class="n">node1</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">path</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])]:</span>
+                        <span class="n">this_path_deltas_new</span> <span class="o">=</span> <span class="p">[]</span>
+                        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">edge_data</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connected_subgraph</span><span class="p">[</span><span class="n">node1</span><span class="p">][</span><span class="n">node2</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                            <span class="n">delta</span> <span class="o">=</span> <span class="n">get_delta</span><span class="p">(</span><span class="n">node1</span><span class="p">,</span> <span class="n">node2</span><span class="p">,</span> <span class="n">edge_data</span><span class="p">)</span>
+                            <span class="k">for</span> <span class="n">current_delta</span> <span class="ow">in</span> <span class="n">this_path_deltas</span><span class="p">:</span>
+                                <span class="n">this_path_deltas_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current_delta</span> <span class="o">+</span> <span class="n">delta</span><span class="p">)</span>
+                        <span class="n">this_path_deltas</span> <span class="o">=</span> <span class="n">this_path_deltas_new</span>
+                    <span class="n">this_node_cell_img_vectors</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">this_path_deltas</span><span class="p">)</span>
+                    <span class="n">this_node_cell_img_vectors</span> <span class="o">=</span> <span class="n">get_linearly_independent_vectors</span><span class="p">(</span><span class="n">this_node_cell_img_vectors</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">this_node_cell_img_vectors</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                        <span class="n">breaknodeloop</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="k">break</span>
+                <span class="k">if</span> <span class="n">breaknodeloop</span><span class="p">:</span>
+                    <span class="k">break</span>
+            <span class="n">this_node_cell_img_vectors</span> <span class="o">=</span> <span class="n">get_linearly_independent_vectors</span><span class="p">(</span><span class="n">this_node_cell_img_vectors</span><span class="p">)</span>
+            <span class="n">independent_cell_img_vectors</span> <span class="o">=</span> <span class="n">this_node_cell_img_vectors</span>
+            <span class="n">all_nodes_independent_cell_image_vectors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">independent_cell_img_vectors</span><span class="p">)</span>
+            <span class="c1"># If we have found that the sub structure network is 3D-connected, we can stop ...</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">independent_cell_img_vectors</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="k">break</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_periodicity_vectors</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_nodes_independent_cell_image_vectors</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">independent_cell_img_vectors</span> <span class="ow">in</span> <span class="n">all_nodes_independent_cell_image_vectors</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">independent_cell_img_vectors</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_periodicity_vectors</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_periodicity_vectors</span> <span class="o">=</span> <span class="n">independent_cell_img_vectors</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_periodicity_vectors</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                    <span class="k">break</span></div>
+
+<div class="viewcode-block" id="ConnectedComponent.compute_periodicity_cycle_basis"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.connectivity.connected_components.html#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.compute_periodicity_cycle_basis">[docs]</a>    <span class="k">def</span> <span class="nf">compute_periodicity_cycle_basis</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">my_simple_graph</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_connected_subgraph</span><span class="p">)</span>
+        <span class="n">cycles</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">cycle_basis</span><span class="p">(</span><span class="n">my_simple_graph</span><span class="p">)</span>
+        <span class="n">all_deltas</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">cyc</span> <span class="ow">in</span> <span class="n">cycles</span><span class="p">:</span>
+            <span class="n">mycyc</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">cyc</span><span class="p">)</span>
+            <span class="n">mycyc</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cyc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">this_cycle_deltas</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)]</span>
+            <span class="k">for</span> <span class="p">(</span><span class="n">node1</span><span class="p">,</span> <span class="n">node2</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[(</span><span class="n">node1</span><span class="p">,</span> <span class="n">mycyc</span><span class="p">[</span><span class="n">inode1</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">inode1</span><span class="p">,</span> <span class="n">node1</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">mycyc</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])]:</span>
+                <span class="n">this_cycle_deltas_new</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">edge_data</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connected_subgraph</span><span class="p">[</span><span class="n">node1</span><span class="p">][</span><span class="n">node2</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="n">delta</span> <span class="o">=</span> <span class="n">get_delta</span><span class="p">(</span><span class="n">node1</span><span class="p">,</span> <span class="n">node2</span><span class="p">,</span> <span class="n">edge_data</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">current_delta</span> <span class="ow">in</span> <span class="n">this_cycle_deltas</span><span class="p">:</span>
+                        <span class="n">this_cycle_deltas_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current_delta</span> <span class="o">+</span> <span class="n">delta</span><span class="p">)</span>
+                <span class="n">this_cycle_deltas</span> <span class="o">=</span> <span class="n">this_cycle_deltas_new</span>
+            <span class="n">all_deltas</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">this_cycle_deltas</span><span class="p">)</span>
+            <span class="n">all_deltas</span> <span class="o">=</span> <span class="n">get_linearly_independent_vectors</span><span class="p">(</span><span class="n">all_deltas</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_deltas</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_periodicity_vectors</span> <span class="o">=</span> <span class="n">all_deltas</span>
+                <span class="k">return</span>
+        <span class="c1"># One has to consider pairs of nodes with parallel edges (these are not considered in the simple graph cycles)</span>
+        <span class="n">edges</span> <span class="o">=</span> <span class="n">my_simple_graph</span><span class="o">.</span><span class="n">edges</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">n1</span><span class="p">,</span> <span class="n">n2</span> <span class="ow">in</span> <span class="n">edges</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">n1</span> <span class="o">==</span> <span class="n">n2</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_connected_subgraph</span><span class="p">[</span><span class="n">n1</span><span class="p">][</span><span class="n">n2</span><span class="p">])</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_connected_subgraph</span><span class="p">[</span><span class="n">n1</span><span class="p">][</span><span class="n">n2</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">iedge1</span><span class="p">,</span> <span class="n">iedge2</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">combinations</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_connected_subgraph</span><span class="p">[</span><span class="n">n1</span><span class="p">][</span><span class="n">n2</span><span class="p">],</span> <span class="mi">2</span><span class="p">):</span>
+                    <span class="n">e1data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connected_subgraph</span><span class="p">[</span><span class="n">n1</span><span class="p">][</span><span class="n">n2</span><span class="p">][</span><span class="n">iedge1</span><span class="p">]</span>
+                    <span class="n">e2data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connected_subgraph</span><span class="p">[</span><span class="n">n1</span><span class="p">][</span><span class="n">n2</span><span class="p">][</span><span class="n">iedge2</span><span class="p">]</span>
+                    <span class="n">current_delta</span> <span class="o">=</span> <span class="n">get_delta</span><span class="p">(</span><span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">,</span> <span class="n">e1data</span><span class="p">)</span>
+                    <span class="n">delta</span> <span class="o">=</span> <span class="n">get_delta</span><span class="p">(</span><span class="n">n2</span><span class="p">,</span> <span class="n">n1</span><span class="p">,</span> <span class="n">e2data</span><span class="p">)</span>
+                    <span class="n">current_delta</span> <span class="o">+=</span> <span class="n">delta</span>
+                    <span class="n">all_deltas</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current_delta</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Should not be here ...&#39;</span><span class="p">)</span>
+            <span class="n">all_deltas</span> <span class="o">=</span> <span class="n">get_linearly_independent_vectors</span><span class="p">(</span><span class="n">all_deltas</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_deltas</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_periodicity_vectors</span> <span class="o">=</span> <span class="n">all_deltas</span>
+                <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_periodicity_vectors</span> <span class="o">=</span> <span class="n">all_deltas</span></div>
+
+<div class="viewcode-block" id="ConnectedComponent.make_supergraph"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.connectivity.connected_components.html#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.make_supergraph">[docs]</a>    <span class="k">def</span> <span class="nf">make_supergraph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">multiplicity</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            multiplicity ():</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">supergraph</span> <span class="o">=</span> <span class="n">make_supergraph</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_connected_subgraph</span><span class="p">,</span> <span class="n">multiplicity</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_periodicity_vectors</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">supergraph</span></div>
+
+<div class="viewcode-block" id="ConnectedComponent.show_graph"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.connectivity.connected_components.html#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.show_graph">[docs]</a>    <span class="k">def</span> <span class="nf">show_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">graph</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">save_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">drawing_type</span><span class="o">=</span><span class="s1">&#39;internal&#39;</span><span class="p">,</span> <span class="n">pltshow</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            graph ():</span>
+<span class="sd">            save_file ():</span>
+<span class="sd">            drawing_type ():</span>
+<span class="sd">            pltshow ():</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+        <span class="k">if</span> <span class="n">graph</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">shown_graph</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connected_subgraph</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">shown_graph</span> <span class="o">=</span> <span class="n">graph</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+        <span class="c1"># pos = nx.spring_layout(shown_graph)</span>
+        <span class="k">if</span> <span class="n">drawing_type</span> <span class="o">==</span> <span class="s1">&#39;internal&#39;</span><span class="p">:</span>
+            <span class="n">pos</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">shell_layout</span><span class="p">(</span><span class="n">shown_graph</span><span class="p">)</span>
+            <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
+            <span class="n">draw_network</span><span class="p">(</span><span class="n">shown_graph</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">periodicity_vectors</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_periodicity_vectors</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">autoscale</span><span class="p">()</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;equal&#39;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">save_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">save_file</span><span class="p">)</span>
+            <span class="c1"># nx.draw(self._connected_subgraph)</span>
+        <span class="k">elif</span> <span class="n">drawing_type</span> <span class="o">==</span> <span class="s1">&#39;draw_graphviz&#39;</span><span class="p">:</span>
+            <span class="kn">import</span> <span class="nn">networkx</span>
+            <span class="n">networkx</span><span class="o">.</span><span class="n">nx_pydot</span><span class="o">.</span><span class="n">graphviz_layout</span><span class="p">(</span><span class="n">shown_graph</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">drawing_type</span> <span class="o">==</span> <span class="s1">&#39;draw_random&#39;</span><span class="p">:</span>
+            <span class="kn">import</span> <span class="nn">networkx</span>
+            <span class="n">networkx</span><span class="o">.</span><span class="n">draw_random</span><span class="p">(</span><span class="n">shown_graph</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">pltshow</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">graph</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the graph of this connected component.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            MultiGraph: Networkx MultiGraph object with environment as nodes and links between these nodes as edges</span>
+<span class="sd">                        with information about the image cell difference if any.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connected_subgraph</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_periodic</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_0d</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_0d</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_periodicity_vectors</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">compute_periodicity</span><span class="p">()</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_periodicity_vectors</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_1d</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_periodicity_vectors</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">compute_periodicity</span><span class="p">()</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_periodicity_vectors</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_2d</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_periodicity_vectors</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">compute_periodicity</span><span class="p">()</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_periodicity_vectors</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_3d</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_periodicity_vectors</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">compute_periodicity</span><span class="p">()</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_periodicity_vectors</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_order_vectors</span><span class="p">(</span><span class="n">vectors</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Orders vectors.</span>
+
+<span class="sd">        First, each vector is made such that the first non-zero dimension is positive.</span>
+<span class="sd">        Example: a periodicity vector [0, -1, 1] is transformed to [0, 1, -1].</span>
+<span class="sd">        Then vectors are ordered based on their first element, then (if the first element</span>
+<span class="sd">        is identical) based on their second element, then (if the first and second element</span>
+<span class="sd">        are identical) based on their third element and so on ...</span>
+<span class="sd">        Example: [[1, 1, 0], [0, 1, -1], [0, 1, 1]] is ordered as [[0, 1, -1], [0, 1, 1], [1, 1, 0]]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">ipv</span><span class="p">,</span> <span class="n">pv</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">vectors</span><span class="p">):</span>
+            <span class="n">nonzeros</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">pv</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">nonzeros</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">pv</span><span class="p">[</span><span class="n">nonzeros</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">):</span>
+                <span class="n">vectors</span><span class="p">[</span><span class="n">ipv</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">pv</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">vectors</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="nf">_order_periodicity_vectors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Orders the periodicity vectors.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_periodicity_vectors</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Number of periodicity vectors is larger than 3.&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_periodicity_vectors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_order_vectors</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_periodicity_vectors</span><span class="p">)</span>
+        <span class="c1"># for ipv, pv in enumerate(self._periodicity_vectors):</span>
+        <span class="c1">#     nonzeros = np.nonzero(pv)[0]</span>
+        <span class="c1">#     if (len(nonzeros) &gt; 0) and (pv[nonzeros[0]] &lt; 0):</span>
+        <span class="c1">#         self._periodicity_vectors[ipv] = -pv</span>
+        <span class="c1"># self._periodicity_vectors = sorted(self._periodicity_vectors, key=lambda x: x.tolist())</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">periodicity_vectors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_periodicity_vectors</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">compute_periodicity</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">pp</span><span class="p">)</span> <span class="k">for</span> <span class="n">pp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_periodicity_vectors</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">periodicity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_periodicity_vectors</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">compute_periodicity</span><span class="p">()</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="si">{:d}</span><span class="s1">D&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_periodicity_vectors</span><span class="p">))</span>
+
+<div class="viewcode-block" id="ConnectedComponent.elastic_centered_graph"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.connectivity.connected_components.html#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.elastic_centered_graph">[docs]</a>    <span class="k">def</span> <span class="nf">elastic_centered_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_node</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            start_node ():</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;In elastic centering&#39;</span><span class="p">)</span>
+        <span class="c1"># Loop on start_nodes, sometimes some nodes cannot be elastically taken</span>
+        <span class="c1"># inside the cell if you start from a specific node</span>
+        <span class="n">ntest_nodes</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">start_node</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">ntest_nodes</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">centered_connected_subgraph</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">MultiGraph</span><span class="p">()</span>
+        <span class="n">centered_connected_subgraph</span><span class="o">.</span><span class="n">add_nodes_from</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">())</span>
+        <span class="n">centered_connected_subgraph</span><span class="o">.</span><span class="n">add_edges_from</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+        <span class="n">tree</span> <span class="o">=</span> <span class="n">bfs_tree</span><span class="p">(</span><span class="n">G</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="n">start_node</span><span class="p">)</span>
+
+        <span class="n">current_nodes</span> <span class="o">=</span> <span class="p">[</span><span class="n">start_node</span><span class="p">]</span>
+        <span class="n">nodes_traversed</span> <span class="o">=</span> <span class="p">[</span><span class="n">start_node</span><span class="p">]</span>
+
+        <span class="n">inode</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c1"># Loop on &quot;levels&quot; in the tree</span>
+        <span class="n">tree_level</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">tree_level</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;In tree level </span><span class="si">{:d}</span><span class="s1"> (</span><span class="si">{:d}</span><span class="s1"> nodes)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">tree_level</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">current_nodes</span><span class="p">)))</span>
+            <span class="n">new_current_nodes</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="c1"># Loop on nodes in this level of the tree</span>
+            <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">current_nodes</span><span class="p">:</span>
+                <span class="n">inode</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;  In node #</span><span class="si">{:d}</span><span class="s1">/</span><span class="si">{:d}</span><span class="s1"> in level </span><span class="si">{:d}</span><span class="s1"> (</span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">inode</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">current_nodes</span><span class="p">),</span>
+                                                                               <span class="n">tree_level</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">node</span><span class="p">)))</span>
+                <span class="n">node_neighbors</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">tree</span><span class="o">.</span><span class="n">neighbors</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">node</span><span class="p">))</span>
+                <span class="n">node_edges</span> <span class="o">=</span> <span class="n">centered_connected_subgraph</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">nbunch</span><span class="o">=</span><span class="p">[</span><span class="n">node</span><span class="p">],</span>
+                                                               <span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">keys</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="c1"># Loop on neighbors of a node (from the tree used)</span>
+                <span class="k">for</span> <span class="n">inode_neighbor</span><span class="p">,</span> <span class="n">node_neighbor</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">node_neighbors</span><span class="p">):</span>
+                    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;    Testing neighbor #</span><span class="si">{:d}</span><span class="s1">/</span><span class="si">{:d}</span><span class="s1"> (</span><span class="si">{}</span><span class="s1">) of node #</span><span class="si">{:d}</span><span class="s1"> (</span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">inode_neighbor</span><span class="p">,</span>
+                                                                                                   <span class="nb">len</span><span class="p">(</span><span class="n">node_neighbors</span><span class="p">),</span>
+                                                                                                   <span class="n">node_neighbor</span><span class="p">,</span>
+                                                                                                   <span class="n">inode</span><span class="p">,</span>
+                                                                                                   <span class="n">node</span><span class="p">))</span>
+                    <span class="n">already_inside</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="n">ddeltas</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="k">for</span> <span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">edata</span> <span class="ow">in</span> <span class="n">node_edges</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="p">(</span><span class="n">n1</span> <span class="o">==</span> <span class="n">node</span> <span class="ow">and</span> <span class="n">n2</span> <span class="o">==</span> <span class="n">node_neighbor</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">n2</span> <span class="o">==</span> <span class="n">node</span> <span class="ow">and</span> <span class="n">n1</span> <span class="o">==</span> <span class="n">node_neighbor</span><span class="p">):</span>
+                            <span class="k">if</span> <span class="n">edata</span><span class="p">[</span><span class="s1">&#39;delta&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
+                                <span class="n">already_inside</span> <span class="o">=</span> <span class="kc">True</span>
+                                <span class="n">thisdelta</span> <span class="o">=</span> <span class="n">edata</span><span class="p">[</span><span class="s1">&#39;delta&#39;</span><span class="p">]</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="k">if</span> <span class="n">edata</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">node</span><span class="o">.</span><span class="n">isite</span> <span class="ow">and</span> <span class="n">edata</span><span class="p">[</span><span class="s1">&#39;end&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">node</span><span class="o">.</span><span class="n">isite</span><span class="p">:</span>
+                                    <span class="n">thisdelta</span> <span class="o">=</span> <span class="n">edata</span><span class="p">[</span><span class="s1">&#39;delta&#39;</span><span class="p">]</span>
+                                <span class="k">elif</span> <span class="n">edata</span><span class="p">[</span><span class="s1">&#39;end&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">node</span><span class="o">.</span><span class="n">isite</span><span class="p">:</span>
+                                    <span class="n">thisdelta</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="o">-</span><span class="n">dd</span> <span class="k">for</span> <span class="n">dd</span> <span class="ow">in</span> <span class="n">edata</span><span class="p">[</span><span class="s1">&#39;delta&#39;</span><span class="p">]])</span>
+                                <span class="k">else</span><span class="p">:</span>
+                                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Should not be here ...&quot;</span><span class="p">)</span>
+                            <span class="n">ddeltas</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">thisdelta</span><span class="p">)</span>
+                    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;        ddeltas : </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s1">&#39;(</span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">ddd</span><span class="p">)</span>
+                                                                                                   <span class="k">for</span> <span class="n">ddd</span> <span class="ow">in</span> <span class="n">dd</span><span class="p">))</span>
+                                                                           <span class="k">for</span> <span class="n">dd</span> <span class="ow">in</span> <span class="n">ddeltas</span><span class="p">])))</span>
+                    <span class="k">if</span> <span class="n">ddeltas</span><span class="o">.</span><span class="n">count</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Should not have more than one 000 delta ...&#39;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">already_inside</span><span class="p">:</span>
+                        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;          Edge inside the cell ... continuing to next neighbor&#39;</span><span class="p">)</span>
+                        <span class="k">continue</span>
+                    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;          Edge outside the cell ... getting neighbor back inside&#39;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">in</span> <span class="n">ddeltas</span><span class="p">:</span>
+                        <span class="n">ddeltas</span><span class="o">.</span><span class="n">remove</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+                    <span class="n">myddelta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ddeltas</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)</span>
+                    <span class="n">node_neighbor_edges</span> <span class="o">=</span> <span class="n">centered_connected_subgraph</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">nbunch</span><span class="o">=</span><span class="p">[</span><span class="n">node_neighbor</span><span class="p">],</span>
+                                                                            <span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">keys</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;            Delta image from node </span><span class="si">{}</span><span class="s1"> to neighbor </span><span class="si">{}</span><span class="s1"> : &#39;</span>
+                                  <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">node</span><span class="p">),</span>
+                                              <span class="nb">str</span><span class="p">(</span><span class="n">node_neighbor</span><span class="p">),</span>
+                                              <span class="s1">&#39;(</span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">iii</span><span class="p">)</span> <span class="k">for</span> <span class="n">iii</span> <span class="ow">in</span> <span class="n">myddelta</span><span class="p">]))))</span>
+                    <span class="c1"># Loop on the edges of this neighbor</span>
+                    <span class="k">for</span> <span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">edata</span> <span class="ow">in</span> <span class="n">node_neighbor_edges</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="p">((</span><span class="n">n1</span> <span class="o">==</span> <span class="n">node_neighbor</span> <span class="ow">and</span> <span class="n">n2</span> <span class="o">!=</span> <span class="n">node_neighbor</span><span class="p">)</span> <span class="ow">or</span>
+                                <span class="p">(</span><span class="n">n2</span> <span class="o">==</span> <span class="n">node_neighbor</span> <span class="ow">and</span> <span class="n">n1</span> <span class="o">!=</span> <span class="n">node_neighbor</span><span class="p">)):</span>
+                            <span class="k">if</span> <span class="n">edata</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">node_neighbor</span><span class="o">.</span><span class="n">isite</span> <span class="ow">and</span> <span class="n">edata</span><span class="p">[</span><span class="s1">&#39;end&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">node_neighbor</span><span class="o">.</span><span class="n">isite</span><span class="p">:</span>
+                                <span class="n">centered_connected_subgraph</span><span class="p">[</span><span class="n">n1</span><span class="p">][</span><span class="n">n2</span><span class="p">][</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;delta&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="n">ii</span>
+                                                                                           <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span>
+                                                                                           <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">edata</span><span class="p">[</span><span class="s1">&#39;delta&#39;</span><span class="p">],</span>
+                                                                                                    <span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)</span> <span class="o">+</span> <span class="n">myddelta</span><span class="p">])</span>
+                            <span class="k">elif</span> <span class="n">edata</span><span class="p">[</span><span class="s1">&#39;end&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">node_neighbor</span><span class="o">.</span><span class="n">isite</span><span class="p">:</span>
+                                <span class="n">centered_connected_subgraph</span><span class="p">[</span><span class="n">n1</span><span class="p">][</span><span class="n">n2</span><span class="p">][</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;delta&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="n">ii</span>
+                                                                                           <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span>
+                                                                                           <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">edata</span><span class="p">[</span><span class="s1">&#39;delta&#39;</span><span class="p">],</span>
+                                                                                                    <span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)</span> <span class="o">-</span> <span class="n">myddelta</span><span class="p">])</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;DUHH&#39;</span><span class="p">)</span>
+                            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;                  </span><span class="si">{}</span><span class="s1"> to node </span><span class="si">{}</span><span class="s1"> now has delta &#39;</span>
+                                          <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">n1</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">n2</span><span class="p">),</span>
+                                                      <span class="nb">str</span><span class="p">(</span><span class="n">centered_connected_subgraph</span><span class="p">[</span><span class="n">n1</span><span class="p">][</span><span class="n">n2</span><span class="p">][</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;delta&#39;</span><span class="p">])))</span>
+                <span class="n">new_current_nodes</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">node_neighbors</span><span class="p">)</span>
+                <span class="n">nodes_traversed</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">node_neighbors</span><span class="p">)</span>
+            <span class="n">current_nodes</span> <span class="o">=</span> <span class="n">new_current_nodes</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">current_nodes</span><span class="p">:</span>
+                <span class="k">break</span>
+
+        <span class="c1"># Check if the graph is indeed connected if &quot;periodic&quot; edges (i.e. whose &quot;delta&quot; is not 0, 0, 0) are removed</span>
+        <span class="n">check_centered_connected_subgraph</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">MultiGraph</span><span class="p">()</span>
+        <span class="n">check_centered_connected_subgraph</span><span class="o">.</span><span class="n">add_nodes_from</span><span class="p">(</span><span class="n">centered_connected_subgraph</span><span class="o">.</span><span class="n">nodes</span><span class="p">())</span>
+        <span class="n">check_centered_connected_subgraph</span><span class="o">.</span><span class="n">add_edges_from</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">centered_connected_subgraph</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+             <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">e</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s1">&#39;delta&#39;</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">))])</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">is_connected</span><span class="p">(</span><span class="n">check_centered_connected_subgraph</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Could not find a centered graph.&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">centered_connected_subgraph</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_edgekey_to_edgedictkey</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="nb">int</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Cannot pass an edge key which is a str &#39;</span>
+                                   <span class="s1">&#39;representation of an int.&#39;</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">key</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Edge key should be either a str or an int.&#39;</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_edgedictkey_to_edgekey</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">key</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="nb">int</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">key</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Edge key in a dict of dicts representation of a graph&#39;</span>
+                             <span class="s1">&#39;should be either a str or an int.&#39;</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_retuplify_edgedata</span><span class="p">(</span><span class="n">edata</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Private method used to cast back lists to tuples where applicable in an edge data.</span>
+
+<span class="sd">        The format of the edge data is :</span>
+<span class="sd">        {&#39;start&#39;: STARTINDEX, &#39;end&#39;: ENDINDEX, &#39;delta&#39;: TUPLE(DELTAX, DELTAY, DELTAZ),</span>
+<span class="sd">         &#39;ligands&#39;: [TUPLE(LIGAND_1_INDEX, TUPLE(DELTAX_START_LIG_1, DELTAY_START_LIG_1, DELTAZ_START_LIG_1),</span>
+<span class="sd">                                           TUPLE(DELTAX_END_LIG_1, DELTAY_END_LIG_1, DELTAZ_END_LIG_1)),</span>
+<span class="sd">                     TUPLE(LIGAND_2_INDEX, ...),</span>
+<span class="sd">                     ... ]}</span>
+<span class="sd">        When serializing to json/bson, these tuples are transformed into lists. This method transforms these lists</span>
+<span class="sd">        back to tuples.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            edata (dict): Edge data dictionary with possibly the above tuples as lists.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict: Edge data dictionary with the lists tranformed back into tuples when applicable.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">edata</span><span class="p">[</span><span class="s1">&#39;delta&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">edata</span><span class="p">[</span><span class="s1">&#39;delta&#39;</span><span class="p">])</span>
+        <span class="n">edata</span><span class="p">[</span><span class="s1">&#39;ligands&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="nb">tuple</span><span class="p">([</span><span class="n">lig</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">lig</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">lig</span><span class="p">[</span><span class="mi">2</span><span class="p">])])</span>
+                            <span class="k">for</span> <span class="n">lig</span> <span class="ow">in</span> <span class="n">edata</span><span class="p">[</span><span class="s1">&#39;ligands&#39;</span><span class="p">]]</span>
+        <span class="k">return</span> <span class="n">edata</span>
+
+<div class="viewcode-block" id="ConnectedComponent.as_dict"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.connectivity.connected_components.html#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Bson-serializable dict representation of the ConnectedComponent object.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict: Bson-serializable dict representation of the ConnectedComponent object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">nodes</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;</span><span class="si">{:d}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">isite</span><span class="p">):</span> <span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span> <span class="k">for</span> <span class="n">node</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connected_subgraph</span><span class="o">.</span><span class="n">nodes</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">)}</span>
+        <span class="n">node2stringindex</span> <span class="o">=</span> <span class="p">{</span><span class="n">node</span><span class="p">:</span> <span class="n">strindex</span> <span class="k">for</span> <span class="n">strindex</span><span class="p">,</span> <span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span> <span class="ow">in</span> <span class="n">nodes</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        <span class="n">dict_of_dicts</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">to_dict_of_dicts</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_connected_subgraph</span><span class="p">)</span>
+        <span class="n">new_dict_of_dicts</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">n1</span><span class="p">,</span> <span class="n">n2dict</span> <span class="ow">in</span> <span class="n">dict_of_dicts</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">in1</span> <span class="o">=</span> <span class="n">node2stringindex</span><span class="p">[</span><span class="n">n1</span><span class="p">]</span>
+            <span class="n">new_dict_of_dicts</span><span class="p">[</span><span class="n">in1</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">n2</span><span class="p">,</span> <span class="n">edges_dict</span> <span class="ow">in</span> <span class="n">n2dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">in2</span> <span class="o">=</span> <span class="n">node2stringindex</span><span class="p">[</span><span class="n">n2</span><span class="p">]</span>
+                <span class="n">new_dict_of_dicts</span><span class="p">[</span><span class="n">in1</span><span class="p">][</span><span class="n">in2</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="k">for</span> <span class="n">ie</span><span class="p">,</span> <span class="n">edge_data</span> <span class="ow">in</span> <span class="n">edges_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="n">ied</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edgekey_to_edgedictkey</span><span class="p">(</span><span class="n">ie</span><span class="p">)</span>
+                    <span class="n">new_dict_of_dicts</span><span class="p">[</span><span class="n">in1</span><span class="p">][</span><span class="n">in2</span><span class="p">][</span><span class="n">ied</span><span class="p">]</span> <span class="o">=</span> <span class="n">jsanitize</span><span class="p">(</span><span class="n">edge_data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
+                <span class="s2">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+                <span class="s2">&quot;nodes&quot;</span><span class="p">:</span> <span class="p">{</span><span class="n">strindex</span><span class="p">:</span> <span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(),</span> <span class="n">data</span><span class="p">)</span> <span class="k">for</span> <span class="n">strindex</span><span class="p">,</span> <span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span> <span class="ow">in</span> <span class="n">nodes</span><span class="o">.</span><span class="n">items</span><span class="p">()},</span>
+                <span class="s2">&quot;graph&quot;</span><span class="p">:</span> <span class="n">new_dict_of_dicts</span><span class="p">}</span></div>
+
+<div class="viewcode-block" id="ConnectedComponent.from_dict"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.connectivity.connected_components.html#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reconstructs the ConnectedComponent object from a dict representation of the</span>
+<span class="sd">        ConnectedComponent object created using the as_dict method.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            d (dict): dict representation of the ConnectedComponent object</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            ConnectedComponent: The connected component representing the links of a given set of environments.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">nodes_map</span> <span class="o">=</span> <span class="p">{</span><span class="n">inode_str</span><span class="p">:</span> <span class="n">EnvironmentNode</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">nodedict</span><span class="p">)</span>
+                     <span class="k">for</span> <span class="n">inode_str</span><span class="p">,</span> <span class="p">(</span><span class="n">nodedict</span><span class="p">,</span> <span class="n">nodedata</span><span class="p">)</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;nodes&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        <span class="n">nodes_data</span> <span class="o">=</span> <span class="p">{</span><span class="n">inode_str</span><span class="p">:</span> <span class="n">nodedata</span>
+                      <span class="k">for</span> <span class="n">inode_str</span><span class="p">,</span> <span class="p">(</span><span class="n">nodedict</span><span class="p">,</span> <span class="n">nodedata</span><span class="p">)</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;nodes&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        <span class="n">dod</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">e1</span><span class="p">,</span> <span class="n">e1dict</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;graph&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">dod</span><span class="p">[</span><span class="n">e1</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">e2</span><span class="p">,</span> <span class="n">e2dict</span> <span class="ow">in</span> <span class="n">e1dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">dod</span><span class="p">[</span><span class="n">e1</span><span class="p">][</span><span class="n">e2</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="bp">cls</span><span class="o">.</span><span class="n">_edgedictkey_to_edgekey</span><span class="p">(</span><span class="n">ied</span><span class="p">):</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_retuplify_edgedata</span><span class="p">(</span><span class="n">edata</span><span class="p">)</span>
+                               <span class="k">for</span> <span class="n">ied</span><span class="p">,</span> <span class="n">edata</span> <span class="ow">in</span> <span class="n">e2dict</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        <span class="n">graph</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">from_dict_of_dicts</span><span class="p">(</span><span class="n">dod</span><span class="p">,</span> <span class="n">create_using</span><span class="o">=</span><span class="n">nx</span><span class="o">.</span><span class="n">MultiGraph</span><span class="p">,</span> <span class="n">multigraph_input</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">nx</span><span class="o">.</span><span class="n">set_node_attributes</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">nodes_data</span><span class="p">)</span>
+        <span class="n">nx</span><span class="o">.</span><span class="n">relabel_nodes</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">nodes_map</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">graph</span><span class="o">=</span><span class="n">graph</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ConnectedComponent.from_graph"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.connectivity.connected_components.html#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.from_graph">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_graph</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">g</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructor for the ConnectedComponent object from a graph of the connected component</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            g (MultiGraph): Graph of the connected component.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            ConnectedComponent: The connected component representing the links of a given set of environments.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">graph</span><span class="o">=</span><span class="n">g</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ConnectedComponent.description"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.connectivity.connected_components.html#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent.description">[docs]</a>    <span class="k">def</span> <span class="nf">description</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">full</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            full ():</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Connected component with environment nodes :&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">full</span><span class="p">:</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">en</span><span class="p">)</span> <span class="k">for</span> <span class="n">en</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">())])</span>
+            <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">en</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">()):</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">, connected to :&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">en</span><span class="p">)))</span>
+            <span class="n">en_neighbs</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">neighbors</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">,</span> <span class="n">en</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">en_neighb</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">en_neighbs</span><span class="p">):</span>
+                <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;  - </span><span class="si">{}</span><span class="s1"> with delta image cells&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">en_neighb</span><span class="p">))</span>
+                <span class="n">all_deltas</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">get_delta</span><span class="p">(</span><span class="n">node1</span><span class="o">=</span><span class="n">en</span><span class="p">,</span> <span class="n">node2</span><span class="o">=</span><span class="n">en_neighb</span><span class="p">,</span>
+                                               <span class="n">edge_data</span><span class="o">=</span><span class="n">edge_data</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+                                     <span class="k">for</span> <span class="n">iedge</span><span class="p">,</span> <span class="n">edge_data</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">[</span><span class="n">en</span><span class="p">][</span><span class="n">en_neighb</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
+                <span class="n">out</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s1">&#39;     (</span><span class="si">{:d}</span><span class="s1"> </span><span class="si">{:d}</span><span class="s1"> </span><span class="si">{:d}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">delta</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">delta</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">delta</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="k">for</span> <span class="n">delta</span> <span class="ow">in</span> <span class="n">all_deltas</span><span class="p">])</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../../pymatgen.html" >pymatgen</a> &#187;</li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

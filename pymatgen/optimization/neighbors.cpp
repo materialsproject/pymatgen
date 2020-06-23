@@ -4,23 +4,10 @@
 {
     "distutils": {
         "depends": [],
-        "extra_compile_args": [
-            "-Wno-cpp",
-            "-Wno-unused-function",
-            "-O2",
-            "-march=native",
-            "-std=c++11",
-            "-stdlib=libc++"
-        ],
-        "extra_link_args": [
-            "-O2",
-            "-march=native",
-            "-stdlib=libc++"
-        ],
         "language": "c++",
         "name": "pymatgen.optimization.neighbors",
         "sources": [
-            "pymatgen/optimization/neighbors.pyx"
+            "/Users/chenchi/repos/pymatgen-chi/pymatgen/pymatgen/optimization/neighbors.pyx"
         ]
     },
     "module_name": "pymatgen.optimization.neighbors"
@@ -879,7 +866,7 @@ static const char *__pyx_filename;
 
 
 static const char *__pyx_f[] = {
-  "pymatgen/optimization/neighbors.pyx",
+  "neighbors.pyx",
   "__init__.pxd",
   "stringsource",
   "type.pxd",
@@ -993,7 +980,7 @@ typedef struct {
 } __Pyx_BufFmt_Context;
 
 
-/* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":776
+/* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":776
  * # in Cython to enable them only on the right systems.
  * 
  * ctypedef npy_int8       int8_t             # <<<<<<<<<<<<<<
@@ -1002,7 +989,7 @@ typedef struct {
  */
 typedef npy_int8 __pyx_t_5numpy_int8_t;
 
-/* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":777
+/* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":777
  * 
  * ctypedef npy_int8       int8_t
  * ctypedef npy_int16      int16_t             # <<<<<<<<<<<<<<
@@ -1011,7 +998,7 @@ typedef npy_int8 __pyx_t_5numpy_int8_t;
  */
 typedef npy_int16 __pyx_t_5numpy_int16_t;
 
-/* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":778
+/* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":778
  * ctypedef npy_int8       int8_t
  * ctypedef npy_int16      int16_t
  * ctypedef npy_int32      int32_t             # <<<<<<<<<<<<<<
@@ -1020,7 +1007,7 @@ typedef npy_int16 __pyx_t_5numpy_int16_t;
  */
 typedef npy_int32 __pyx_t_5numpy_int32_t;
 
-/* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":779
+/* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":779
  * ctypedef npy_int16      int16_t
  * ctypedef npy_int32      int32_t
  * ctypedef npy_int64      int64_t             # <<<<<<<<<<<<<<
@@ -1029,7 +1016,7 @@ typedef npy_int32 __pyx_t_5numpy_int32_t;
  */
 typedef npy_int64 __pyx_t_5numpy_int64_t;
 
-/* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":783
+/* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":783
  * #ctypedef npy_int128     int128_t
  * 
  * ctypedef npy_uint8      uint8_t             # <<<<<<<<<<<<<<
@@ -1038,7 +1025,7 @@ typedef npy_int64 __pyx_t_5numpy_int64_t;
  */
 typedef npy_uint8 __pyx_t_5numpy_uint8_t;
 
-/* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":784
+/* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":784
  * 
  * ctypedef npy_uint8      uint8_t
  * ctypedef npy_uint16     uint16_t             # <<<<<<<<<<<<<<
@@ -1047,7 +1034,7 @@ typedef npy_uint8 __pyx_t_5numpy_uint8_t;
  */
 typedef npy_uint16 __pyx_t_5numpy_uint16_t;
 
-/* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":785
+/* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":785
  * ctypedef npy_uint8      uint8_t
  * ctypedef npy_uint16     uint16_t
  * ctypedef npy_uint32     uint32_t             # <<<<<<<<<<<<<<
@@ -1056,7 +1043,7 @@ typedef npy_uint16 __pyx_t_5numpy_uint16_t;
  */
 typedef npy_uint32 __pyx_t_5numpy_uint32_t;
 
-/* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":786
+/* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":786
  * ctypedef npy_uint16     uint16_t
  * ctypedef npy_uint32     uint32_t
  * ctypedef npy_uint64     uint64_t             # <<<<<<<<<<<<<<
@@ -1065,7 +1052,7 @@ typedef npy_uint32 __pyx_t_5numpy_uint32_t;
  */
 typedef npy_uint64 __pyx_t_5numpy_uint64_t;
 
-/* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":790
+/* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":790
  * #ctypedef npy_uint128    uint128_t
  * 
  * ctypedef npy_float32    float32_t             # <<<<<<<<<<<<<<
@@ -1074,7 +1061,7 @@ typedef npy_uint64 __pyx_t_5numpy_uint64_t;
  */
 typedef npy_float32 __pyx_t_5numpy_float32_t;
 
-/* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":791
+/* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":791
  * 
  * ctypedef npy_float32    float32_t
  * ctypedef npy_float64    float64_t             # <<<<<<<<<<<<<<
@@ -1083,7 +1070,7 @@ typedef npy_float32 __pyx_t_5numpy_float32_t;
  */
 typedef npy_float64 __pyx_t_5numpy_float64_t;
 
-/* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":800
+/* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":800
  * # The int types are mapped a bit surprising --
  * # numpy.int corresponds to 'l' and numpy.long to 'q'
  * ctypedef npy_long       int_t             # <<<<<<<<<<<<<<
@@ -1092,7 +1079,7 @@ typedef npy_float64 __pyx_t_5numpy_float64_t;
  */
 typedef npy_long __pyx_t_5numpy_int_t;
 
-/* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":801
+/* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":801
  * # numpy.int corresponds to 'l' and numpy.long to 'q'
  * ctypedef npy_long       int_t
  * ctypedef npy_longlong   long_t             # <<<<<<<<<<<<<<
@@ -1101,7 +1088,7 @@ typedef npy_long __pyx_t_5numpy_int_t;
  */
 typedef npy_longlong __pyx_t_5numpy_long_t;
 
-/* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":802
+/* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":802
  * ctypedef npy_long       int_t
  * ctypedef npy_longlong   long_t
  * ctypedef npy_longlong   longlong_t             # <<<<<<<<<<<<<<
@@ -1110,7 +1097,7 @@ typedef npy_longlong __pyx_t_5numpy_long_t;
  */
 typedef npy_longlong __pyx_t_5numpy_longlong_t;
 
-/* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":804
+/* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":804
  * ctypedef npy_longlong   longlong_t
  * 
  * ctypedef npy_ulong      uint_t             # <<<<<<<<<<<<<<
@@ -1119,7 +1106,7 @@ typedef npy_longlong __pyx_t_5numpy_longlong_t;
  */
 typedef npy_ulong __pyx_t_5numpy_uint_t;
 
-/* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":805
+/* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":805
  * 
  * ctypedef npy_ulong      uint_t
  * ctypedef npy_ulonglong  ulong_t             # <<<<<<<<<<<<<<
@@ -1128,7 +1115,7 @@ typedef npy_ulong __pyx_t_5numpy_uint_t;
  */
 typedef npy_ulonglong __pyx_t_5numpy_ulong_t;
 
-/* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":806
+/* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":806
  * ctypedef npy_ulong      uint_t
  * ctypedef npy_ulonglong  ulong_t
  * ctypedef npy_ulonglong  ulonglong_t             # <<<<<<<<<<<<<<
@@ -1137,7 +1124,7 @@ typedef npy_ulonglong __pyx_t_5numpy_ulong_t;
  */
 typedef npy_ulonglong __pyx_t_5numpy_ulonglong_t;
 
-/* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":808
+/* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":808
  * ctypedef npy_ulonglong  ulonglong_t
  * 
  * ctypedef npy_intp       intp_t             # <<<<<<<<<<<<<<
@@ -1146,7 +1133,7 @@ typedef npy_ulonglong __pyx_t_5numpy_ulonglong_t;
  */
 typedef npy_intp __pyx_t_5numpy_intp_t;
 
-/* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":809
+/* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":809
  * 
  * ctypedef npy_intp       intp_t
  * ctypedef npy_uintp      uintp_t             # <<<<<<<<<<<<<<
@@ -1155,7 +1142,7 @@ typedef npy_intp __pyx_t_5numpy_intp_t;
  */
 typedef npy_uintp __pyx_t_5numpy_uintp_t;
 
-/* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":811
+/* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":811
  * ctypedef npy_uintp      uintp_t
  * 
  * ctypedef npy_double     float_t             # <<<<<<<<<<<<<<
@@ -1164,7 +1151,7 @@ typedef npy_uintp __pyx_t_5numpy_uintp_t;
  */
 typedef npy_double __pyx_t_5numpy_float_t;
 
-/* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":812
+/* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":812
  * 
  * ctypedef npy_double     float_t
  * ctypedef npy_double     double_t             # <<<<<<<<<<<<<<
@@ -1173,7 +1160,7 @@ typedef npy_double __pyx_t_5numpy_float_t;
  */
 typedef npy_double __pyx_t_5numpy_double_t;
 
-/* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":813
+/* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":813
  * ctypedef npy_double     float_t
  * ctypedef npy_double     double_t
  * ctypedef npy_longdouble longdouble_t             # <<<<<<<<<<<<<<
@@ -1212,7 +1199,7 @@ struct __pyx_MemviewEnum_obj;
 struct __pyx_memoryview_obj;
 struct __pyx_memoryviewslice_obj;
 
-/* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":815
+/* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":815
  * ctypedef npy_longdouble longdouble_t
  * 
  * ctypedef npy_cfloat      cfloat_t             # <<<<<<<<<<<<<<
@@ -1221,7 +1208,7 @@ struct __pyx_memoryviewslice_obj;
  */
 typedef npy_cfloat __pyx_t_5numpy_cfloat_t;
 
-/* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":816
+/* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":816
  * 
  * ctypedef npy_cfloat      cfloat_t
  * ctypedef npy_cdouble     cdouble_t             # <<<<<<<<<<<<<<
@@ -1230,7 +1217,7 @@ typedef npy_cfloat __pyx_t_5numpy_cfloat_t;
  */
 typedef npy_cdouble __pyx_t_5numpy_cdouble_t;
 
-/* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":817
+/* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":817
  * ctypedef npy_cfloat      cfloat_t
  * ctypedef npy_cdouble     cdouble_t
  * ctypedef npy_clongdouble clongdouble_t             # <<<<<<<<<<<<<<
@@ -1239,7 +1226,7 @@ typedef npy_cdouble __pyx_t_5numpy_cdouble_t;
  */
 typedef npy_clongdouble __pyx_t_5numpy_clongdouble_t;
 
-/* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":819
+/* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":819
  * ctypedef npy_clongdouble clongdouble_t
  * 
  * ctypedef npy_cdouble     complex_t             # <<<<<<<<<<<<<<
@@ -1446,18 +1433,6 @@ static CYTHON_INLINE PyObject* __Pyx_PyObject_GetAttrStr(PyObject* obj, PyObject
 
 /* GetBuiltinName.proto */
 static PyObject *__Pyx_GetBuiltinName(PyObject *name);
-
-/* RaiseArgTupleInvalid.proto */
-static void __Pyx_RaiseArgtupleInvalid(const char* func_name, int exact,
-    Py_ssize_t num_min, Py_ssize_t num_max, Py_ssize_t num_found);
-
-/* RaiseDoubleKeywords.proto */
-static void __Pyx_RaiseDoubleKeywordsError(const char* func_name, PyObject* kw_name);
-
-/* ParseKeywords.proto */
-static int __Pyx_ParseOptionalKeywords(PyObject *kwds, PyObject **argnames[],\
-    PyObject *kwds2, PyObject *values[], Py_ssize_t num_pos_args,\
-    const char* function_name);
 
 /* PyThreadStateGet.proto */
 #if CYTHON_FAST_THREAD_STATE
@@ -1697,6 +1672,33 @@ static CYTHON_INLINE void __Pyx_ErrFetchInState(PyThreadState *tstate, PyObject 
   #define __Pyx_TraceLine(lineno, nogil, goto_error)   if ((1)); else goto_error;
 #endif
 
+/* PyObjectCall.proto */
+#if CYTHON_COMPILING_IN_CPYTHON
+static CYTHON_INLINE PyObject* __Pyx_PyObject_Call(PyObject *func, PyObject *arg, PyObject *kw);
+#else
+#define __Pyx_PyObject_Call(func, arg, kw) PyObject_Call(func, arg, kw)
+#endif
+
+/* RaiseException.proto */
+static void __Pyx_Raise(PyObject *type, PyObject *value, PyObject *tb, PyObject *cause);
+
+/* WriteUnraisableException.proto */
+static void __Pyx_WriteUnraisable(const char *name, int clineno,
+                                  int lineno, const char *filename,
+                                  int full_traceback, int nogil);
+
+/* RaiseArgTupleInvalid.proto */
+static void __Pyx_RaiseArgtupleInvalid(const char* func_name, int exact,
+    Py_ssize_t num_min, Py_ssize_t num_max, Py_ssize_t num_found);
+
+/* RaiseDoubleKeywords.proto */
+static void __Pyx_RaiseDoubleKeywordsError(const char* func_name, PyObject* kw_name);
+
+/* ParseKeywords.proto */
+static int __Pyx_ParseOptionalKeywords(PyObject *kwds, PyObject **argnames[],\
+    PyObject *kwds2, PyObject *values[], Py_ssize_t num_pos_args,\
+    const char* function_name);
+
 /* MemviewSliceInit.proto */
 #define __Pyx_BUF_MAX_NDIMS %(BUF_MAX_NDIMS)d
 #define __Pyx_MEMVIEW_DIRECT   1
@@ -1773,13 +1775,6 @@ static PyObject *__Pyx__GetModuleGlobalName(PyObject *name, PY_UINT64_T *dict_ve
 static CYTHON_INLINE PyObject *__Pyx__GetModuleGlobalName(PyObject *name);
 #endif
 
-/* PyObjectCall.proto */
-#if CYTHON_COMPILING_IN_CPYTHON
-static CYTHON_INLINE PyObject* __Pyx_PyObject_Call(PyObject *func, PyObject *arg, PyObject *kw);
-#else
-#define __Pyx_PyObject_Call(func, arg, kw) PyObject_Call(func, arg, kw)
-#endif
-
 /* PyCFunctionFastCall.proto */
 #if CYTHON_FAST_PYCCALL
 static CYTHON_INLINE PyObject *__Pyx_PyCFunction_FastCall(PyObject *func, PyObject **args, Py_ssize_t nargs);
@@ -1820,14 +1815,6 @@ static CYTHON_INLINE PyObject* __Pyx_PyObject_CallMethO(PyObject *func, PyObject
 
 /* PyObjectCallOneArg.proto */
 static CYTHON_INLINE PyObject* __Pyx_PyObject_CallOneArg(PyObject *func, PyObject *arg);
-
-/* WriteUnraisableException.proto */
-static void __Pyx_WriteUnraisable(const char *name, int clineno,
-                                  int lineno, const char *filename,
-                                  int full_traceback, int nogil);
-
-/* RaiseException.proto */
-static void __Pyx_Raise(PyObject *type, PyObject *value, PyObject *tb, PyObject *cause);
 
 /* DictGetItem.proto */
 #if PY_MAJOR_VERSION >= 3 && !CYTHON_COMPILING_IN_PYPY
@@ -2464,6 +2451,8 @@ static PyObject *contiguous = 0;
 static PyObject *indirect_contiguous = 0;
 static int __pyx_memoryview_thread_locks_used;
 static PyThread_type_lock __pyx_memoryview_thread_locks[8];
+static void *__pyx_f_8pymatgen_12optimization_9neighbors_safe_malloc(size_t); /*proto*/
+static void *__pyx_f_8pymatgen_12optimization_9neighbors_safe_realloc(void *, size_t); /*proto*/
 static double __pyx_f_8pymatgen_12optimization_9neighbors_distance2(__Pyx_memviewslice, __Pyx_memviewslice, long, long, long); /*proto*/
 static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_12optimization_9neighbors_get_cube_neighbors(__Pyx_memviewslice); /*proto*/
 static void __pyx_f_8pymatgen_12optimization_9neighbors_get_bounds(__Pyx_memviewslice, __Pyx_memviewslice, __Pyx_memviewslice, __Pyx_memviewslice, __Pyx_memviewslice); /*proto*/
@@ -2523,11 +2512,11 @@ extern int __pyx_module_is_main_pymatgen__optimization__neighbors;
 int __pyx_module_is_main_pymatgen__optimization__neighbors = 0;
 
 /* Implementation of 'pymatgen.optimization.neighbors' */
+static PyObject *__pyx_builtin_MemoryError;
 static PyObject *__pyx_builtin_range;
 static PyObject *__pyx_builtin_ValueError;
 static PyObject *__pyx_builtin_RuntimeError;
 static PyObject *__pyx_builtin_ImportError;
-static PyObject *__pyx_builtin_MemoryError;
 static PyObject *__pyx_builtin_enumerate;
 static PyObject *__pyx_builtin_TypeError;
 static PyObject *__pyx_builtin_Ellipsis;
@@ -2550,11 +2539,11 @@ static const char __pyx_k_it[] = "it";
 static const char __pyx_k_np[] = "np";
 static const char __pyx_k_r2[] = "r2";
 static const char __pyx_k_T_2[] = "T{";
-  static const char __pyx_k__32[] = "^";
-  static const char __pyx_k__33[] = "";
-  static const char __pyx_k__34[] = ":";
-static const char __pyx_k__35[] = "}";
-static const char __pyx_k__36[] = ",";
+  static const char __pyx_k__34[] = "^";
+  static const char __pyx_k__35[] = "";
+  static const char __pyx_k__36[] = ":";
+static const char __pyx_k__37[] = "}";
+static const char __pyx_k__38[] = ",";
 static const char __pyx_k_eye[] = "eye";
 static const char __pyx_k_ind[] = "ind";
 static const char __pyx_k_new[] = "__new__";
@@ -2658,6 +2647,7 @@ static const char __pyx_k_py_distances[] = "py_distances";
 static const char __pyx_k_pyx_checksum[] = "__pyx_checksum";
 static const char __pyx_k_stringsource[] = "stringsource";
 static const char __pyx_k_center_coords[] = "center_coords";
+static const char __pyx_k_neighbors_pyx[] = "neighbors.pyx";
 static const char __pyx_k_pyx_getbuffer[] = "__pyx_getbuffer";
 static const char __pyx_k_reduce_cython[] = "__reduce_cython__";
 static const char __pyx_k_coords_in_cell[] = "coords_in_cell";
@@ -2679,6 +2669,7 @@ static const char __pyx_k_cline_in_traceback[] = "cline_in_traceback";
 static const char __pyx_k_ncube_indices_temp[] = "ncube_indices_temp";
 static const char __pyx_k_strided_and_direct[] = "<strided and direct>";
 static const char __pyx_k_strided_and_indirect[] = "<strided and indirect>";
+static const char __pyx_k_Realloc_memory_failed[] = "Realloc memory failed!";
 static const char __pyx_k_contiguous_and_direct[] = "<contiguous and direct>";
 static const char __pyx_k_MemoryView_of_r_object[] = "<MemoryView of %r object>";
 static const char __pyx_k_compute_offset_vectors[] = "compute_offset_vectors";
@@ -2687,13 +2678,14 @@ static const char __pyx_k_find_points_in_spheres[] = "find_points_in_spheres";
 static const char __pyx_k_MemoryView_of_r_at_0x_x[] = "<MemoryView of %r at 0x%x>";
 static const char __pyx_k_contiguous_and_indirect[] = "<contiguous and indirect>";
 static const char __pyx_k_Cannot_index_with_type_s[] = "Cannot index with type '%s'";
+static const char __pyx_k_Memory_allocation_failed[] = "Memory allocation failed!";
 static const char __pyx_k_Invalid_shape_in_axis_d_d[] = "Invalid shape in axis %d: %d.";
 static const char __pyx_k_itemsize_0_for_cython_array[] = "itemsize <= 0 for cython.array";
 static const char __pyx_k_ndarray_is_not_C_contiguous[] = "ndarray is not C contiguous";
 static const char __pyx_k_unable_to_allocate_array_data[] = "unable to allocate array data.";
 static const char __pyx_k_strided_and_direct_or_indirect[] = "<strided and direct or indirect>";
 static const char __pyx_k_numpy_core_multiarray_failed_to[] = "numpy.core.multiarray failed to import";
-static const char __pyx_k_pymatgen_optimization_neighbors[] = "pymatgen/optimization/neighbors.pyx";
+static const char __pyx_k_pymatgen_optimization_neighbors[] = "pymatgen.optimization.neighbors";
 static const char __pyx_k_unknown_dtype_code_in_numpy_pxd[] = "unknown dtype code in numpy.pxd (%d)";
 static const char __pyx_k_Buffer_view_does_not_expose_stri[] = "Buffer view does not expose strides";
 static const char __pyx_k_Can_only_create_a_buffer_that_is[] = "Can only create a buffer that is contiguous in memory.";
@@ -2712,7 +2704,6 @@ static const char __pyx_k_ndarray_is_not_Fortran_contiguou[] = "ndarray is not F
 static const char __pyx_k_no_default___reduce___due_to_non[] = "no default __reduce__ due to non-trivial __cinit__";
 static const char __pyx_k_numpy_core_umath_failed_to_impor[] = "numpy.core.umath failed to import";
 static const char __pyx_k_unable_to_allocate_shape_and_str[] = "unable to allocate shape and strides.";
-static const char __pyx_k_pymatgen_optimization_neighbors_2[] = "pymatgen.optimization.neighbors";
 static const char __pyx_k_Format_string_allocated_too_shor_2[] = "Format string allocated too short.";
 static PyObject *__pyx_n_s_ASCII;
 static PyObject *__pyx_kp_s_Buffer_view_does_not_expose_stri;
@@ -2733,10 +2724,12 @@ static PyObject *__pyx_kp_s_Invalid_shape_in_axis_d_d;
 static PyObject *__pyx_n_s_MemoryError;
 static PyObject *__pyx_kp_s_MemoryView_of_r_at_0x_x;
 static PyObject *__pyx_kp_s_MemoryView_of_r_object;
+static PyObject *__pyx_kp_u_Memory_allocation_failed;
 static PyObject *__pyx_kp_u_Non_native_byte_order_not_suppor;
 static PyObject *__pyx_n_b_O;
 static PyObject *__pyx_kp_s_Out_of_bounds_on_buffer_access_a;
 static PyObject *__pyx_n_s_PickleError;
+static PyObject *__pyx_kp_u_Realloc_memory_failed;
 static PyObject *__pyx_n_s_RuntimeError;
 static PyObject *__pyx_n_s_T;
 static PyObject *__pyx_kp_b_T_2;
@@ -2744,11 +2737,11 @@ static PyObject *__pyx_n_s_TypeError;
 static PyObject *__pyx_kp_s_Unable_to_convert_item_to_object;
 static PyObject *__pyx_n_s_ValueError;
 static PyObject *__pyx_n_s_View_MemoryView;
-static PyObject *__pyx_kp_b__32;
-static PyObject *__pyx_kp_b__33;
 static PyObject *__pyx_kp_b__34;
 static PyObject *__pyx_kp_b__35;
-static PyObject *__pyx_kp_u__36;
+static PyObject *__pyx_kp_b__36;
+static PyObject *__pyx_kp_b__37;
+static PyObject *__pyx_kp_u__38;
 static PyObject *__pyx_n_s_all_coords;
 static PyObject *__pyx_n_s_all_fcoords;
 static PyObject *__pyx_n_s_all_indices1;
@@ -2835,6 +2828,7 @@ static PyObject *__pyx_kp_u_ndarray_is_not_C_contiguous;
 static PyObject *__pyx_kp_u_ndarray_is_not_Fortran_contiguou;
 static PyObject *__pyx_n_s_ndim;
 static PyObject *__pyx_n_s_neighbor_map;
+static PyObject *__pyx_kp_s_neighbors_pyx;
 static PyObject *__pyx_n_s_new;
 static PyObject *__pyx_n_s_nlattice;
 static PyObject *__pyx_kp_s_no_default___reduce___due_to_non;
@@ -2858,8 +2852,7 @@ static PyObject *__pyx_n_s_py_distances;
 static PyObject *__pyx_n_s_py_index_1;
 static PyObject *__pyx_n_s_py_index_2;
 static PyObject *__pyx_n_s_py_offsets;
-static PyObject *__pyx_kp_s_pymatgen_optimization_neighbors;
-static PyObject *__pyx_n_s_pymatgen_optimization_neighbors_2;
+static PyObject *__pyx_n_s_pymatgen_optimization_neighbors;
 static PyObject *__pyx_n_s_pyx_PickleError;
 static PyObject *__pyx_n_s_pyx_checksum;
 static PyObject *__pyx_n_s_pyx_getbuffer;
@@ -2952,15 +2945,14 @@ static PyObject *__pyx_int_1;
 static PyObject *__pyx_int_3;
 static PyObject *__pyx_int_184977713;
 static PyObject *__pyx_int_neg_1;
-static PyObject *__pyx_codeobj_;
+static PyObject *__pyx_tuple_;
 static PyObject *__pyx_tuple__2;
-static PyObject *__pyx_tuple__3;
 static PyObject *__pyx_tuple__4;
+static PyObject *__pyx_tuple__5;
 static PyObject *__pyx_tuple__6;
-static PyObject *__pyx_tuple__7;
 static PyObject *__pyx_tuple__8;
 static PyObject *__pyx_tuple__9;
-static PyObject *__pyx_slice__27;
+static PyObject *__pyx_slice__29;
 static PyObject *__pyx_tuple__10;
 static PyObject *__pyx_tuple__11;
 static PyObject *__pyx_tuple__12;
@@ -2978,22 +2970,201 @@ static PyObject *__pyx_tuple__23;
 static PyObject *__pyx_tuple__24;
 static PyObject *__pyx_tuple__25;
 static PyObject *__pyx_tuple__26;
+static PyObject *__pyx_tuple__27;
 static PyObject *__pyx_tuple__28;
-static PyObject *__pyx_tuple__29;
 static PyObject *__pyx_tuple__30;
-static PyObject *__pyx_tuple__37;
-static PyObject *__pyx_tuple__38;
+static PyObject *__pyx_tuple__31;
+static PyObject *__pyx_tuple__32;
 static PyObject *__pyx_tuple__39;
 static PyObject *__pyx_tuple__40;
 static PyObject *__pyx_tuple__41;
 static PyObject *__pyx_tuple__42;
 static PyObject *__pyx_tuple__43;
 static PyObject *__pyx_tuple__44;
-static PyObject *__pyx_codeobj__5;
-static PyObject *__pyx_codeobj__31;
+static PyObject *__pyx_tuple__45;
+static PyObject *__pyx_tuple__46;
+static PyObject *__pyx_codeobj__3;
+static PyObject *__pyx_codeobj__7;
+static PyObject *__pyx_codeobj__33;
 /* Late includes */
 
-/* "pymatgen/optimization/neighbors.pyx":19
+/* "pymatgen/optimization/neighbors.pyx":20
+ * 
+ * 
+ * cdef void *safe_malloc(size_t size):             # <<<<<<<<<<<<<<
+ *     """Raise memory error if malloc fails"""
+ *     cdef void *ptr = malloc(size)
+ */
+
+static void *__pyx_f_8pymatgen_12optimization_9neighbors_safe_malloc(size_t __pyx_v_size) {
+  void *__pyx_v_ptr;
+  void *__pyx_r;
+  __Pyx_TraceDeclarations
+  __Pyx_RefNannyDeclarations
+  int __pyx_t_1;
+  PyObject *__pyx_t_2 = NULL;
+  __Pyx_RefNannySetupContext("safe_malloc", 0);
+  __Pyx_TraceCall("safe_malloc", __pyx_f[0], 20, 0, __PYX_ERR(0, 20, __pyx_L1_error));
+
+  /* "pymatgen/optimization/neighbors.pyx":22
+ * cdef void *safe_malloc(size_t size):
+ *     """Raise memory error if malloc fails"""
+ *     cdef void *ptr = malloc(size)             # <<<<<<<<<<<<<<
+ *     if ptr == NULL:
+ *         raise MemoryError("Memory allocation failed!")
+ */
+  __pyx_v_ptr = malloc(__pyx_v_size);
+
+  /* "pymatgen/optimization/neighbors.pyx":23
+ *     """Raise memory error if malloc fails"""
+ *     cdef void *ptr = malloc(size)
+ *     if ptr == NULL:             # <<<<<<<<<<<<<<
+ *         raise MemoryError("Memory allocation failed!")
+ *     return ptr
+ */
+  __pyx_t_1 = ((__pyx_v_ptr == NULL) != 0);
+  if (unlikely(__pyx_t_1)) {
+
+    /* "pymatgen/optimization/neighbors.pyx":24
+ *     cdef void *ptr = malloc(size)
+ *     if ptr == NULL:
+ *         raise MemoryError("Memory allocation failed!")             # <<<<<<<<<<<<<<
+ *     return ptr
+ * 
+ */
+    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_MemoryError, __pyx_tuple_, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 24, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_2);
+    __Pyx_Raise(__pyx_t_2, 0, 0, 0);
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+    __PYX_ERR(0, 24, __pyx_L1_error)
+
+    /* "pymatgen/optimization/neighbors.pyx":23
+ *     """Raise memory error if malloc fails"""
+ *     cdef void *ptr = malloc(size)
+ *     if ptr == NULL:             # <<<<<<<<<<<<<<
+ *         raise MemoryError("Memory allocation failed!")
+ *     return ptr
+ */
+  }
+
+  /* "pymatgen/optimization/neighbors.pyx":25
+ *     if ptr == NULL:
+ *         raise MemoryError("Memory allocation failed!")
+ *     return ptr             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+  __pyx_r = __pyx_v_ptr;
+  goto __pyx_L0;
+
+  /* "pymatgen/optimization/neighbors.pyx":20
+ * 
+ * 
+ * cdef void *safe_malloc(size_t size):             # <<<<<<<<<<<<<<
+ *     """Raise memory error if malloc fails"""
+ *     cdef void *ptr = malloc(size)
+ */
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_2);
+  __Pyx_WriteUnraisable("pymatgen.optimization.neighbors.safe_malloc", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
+  __pyx_r = 0;
+  __pyx_L0:;
+  __Pyx_TraceReturn(Py_None, 0);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "pymatgen/optimization/neighbors.pyx":28
+ * 
+ * 
+ * cdef void *safe_realloc(void *ptr_orig, size_t size):             # <<<<<<<<<<<<<<
+ *     """Raise memory error if realloc fails"""
+ *     cdef void *ptr = realloc(ptr_orig, size)
+ */
+
+static void *__pyx_f_8pymatgen_12optimization_9neighbors_safe_realloc(void *__pyx_v_ptr_orig, size_t __pyx_v_size) {
+  void *__pyx_v_ptr;
+  void *__pyx_r;
+  __Pyx_TraceDeclarations
+  __Pyx_RefNannyDeclarations
+  int __pyx_t_1;
+  PyObject *__pyx_t_2 = NULL;
+  __Pyx_RefNannySetupContext("safe_realloc", 0);
+  __Pyx_TraceCall("safe_realloc", __pyx_f[0], 28, 0, __PYX_ERR(0, 28, __pyx_L1_error));
+
+  /* "pymatgen/optimization/neighbors.pyx":30
+ * cdef void *safe_realloc(void *ptr_orig, size_t size):
+ *     """Raise memory error if realloc fails"""
+ *     cdef void *ptr = realloc(ptr_orig, size)             # <<<<<<<<<<<<<<
+ *     if ptr == NULL:
+ *         raise MemoryError("Realloc memory failed!")
+ */
+  __pyx_v_ptr = realloc(__pyx_v_ptr_orig, __pyx_v_size);
+
+  /* "pymatgen/optimization/neighbors.pyx":31
+ *     """Raise memory error if realloc fails"""
+ *     cdef void *ptr = realloc(ptr_orig, size)
+ *     if ptr == NULL:             # <<<<<<<<<<<<<<
+ *         raise MemoryError("Realloc memory failed!")
+ *     return ptr
+ */
+  __pyx_t_1 = ((__pyx_v_ptr == NULL) != 0);
+  if (unlikely(__pyx_t_1)) {
+
+    /* "pymatgen/optimization/neighbors.pyx":32
+ *     cdef void *ptr = realloc(ptr_orig, size)
+ *     if ptr == NULL:
+ *         raise MemoryError("Realloc memory failed!")             # <<<<<<<<<<<<<<
+ *     return ptr
+ * 
+ */
+    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_MemoryError, __pyx_tuple__2, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 32, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_2);
+    __Pyx_Raise(__pyx_t_2, 0, 0, 0);
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+    __PYX_ERR(0, 32, __pyx_L1_error)
+
+    /* "pymatgen/optimization/neighbors.pyx":31
+ *     """Raise memory error if realloc fails"""
+ *     cdef void *ptr = realloc(ptr_orig, size)
+ *     if ptr == NULL:             # <<<<<<<<<<<<<<
+ *         raise MemoryError("Realloc memory failed!")
+ *     return ptr
+ */
+  }
+
+  /* "pymatgen/optimization/neighbors.pyx":33
+ *     if ptr == NULL:
+ *         raise MemoryError("Realloc memory failed!")
+ *     return ptr             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+  __pyx_r = __pyx_v_ptr;
+  goto __pyx_L0;
+
+  /* "pymatgen/optimization/neighbors.pyx":28
+ * 
+ * 
+ * cdef void *safe_realloc(void *ptr_orig, size_t size):             # <<<<<<<<<<<<<<
+ *     """Raise memory error if realloc fails"""
+ *     cdef void *ptr = realloc(ptr_orig, size)
+ */
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_2);
+  __Pyx_WriteUnraisable("pymatgen.optimization.neighbors.safe_realloc", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
+  __pyx_r = 0;
+  __pyx_L0:;
+  __Pyx_TraceReturn(Py_None, 0);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "pymatgen/optimization/neighbors.pyx":36
  * 
  * 
  * def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coords, float r, long[:] pbc, double[:, ::1] lattice, double tol=1e-8):             # <<<<<<<<<<<<<<
@@ -3003,7 +3174,7 @@ static PyObject *__pyx_codeobj__31;
 
 /* Python wrapper */
 static PyObject *__pyx_pw_8pymatgen_12optimization_9neighbors_1find_points_in_spheres(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_8pymatgen_12optimization_9neighbors_find_points_in_spheres[] = "\n    For each point in `center_coords`, get all the neighboring points in `all_coords` that are within the\n    cutoff radius `r`. All the coordinates should be in cartesian. \n\n    Args:\n        all_coords: (np.ndarray[double, dim=2]) all available points. When periodic boundary is considered,\n            this is all the points in the lattice.\n        center_coords: (np.ndarray[double, dim=2]) all centering points\n        r: (float) cutoff radius\n        pbc: (list of bool) whether to set periodic boundaries\n        lattice: (np.ndarray[double, dim=2]) 3x3 lattice matrix\n        numerical_tol: (float) numerical tolerance\n    Returns:\n        index1 (n, ), index2 (n, ), offset_vectors (n, 3), distances (n, ). index1 of center_coords, and index2 of all_coords that form the neighbor pair\n            offset_vectors are the periodic image offsets for the all_coords.\n    ";
+static char __pyx_doc_8pymatgen_12optimization_9neighbors_find_points_in_spheres[] = "\n    For each point in `center_coords`, get all the neighboring points in `all_coords` that are within the\n    cutoff radius `r`. All the coordinates should be in cartesian.\n\n    Args:\n        all_coords: (np.ndarray[double, dim=2]) all available points. When periodic boundary is considered,\n            this is all the points in the lattice.\n        center_coords: (np.ndarray[double, dim=2]) all centering points\n        r: (float) cutoff radius\n        pbc: (list of bool) whether to set periodic boundaries\n        lattice: (np.ndarray[double, dim=2]) 3x3 lattice matrix\n        numerical_tol: (float) numerical tolerance\n    Returns:\n        index1 (n, ), index2 (n, ), offset_vectors (n, 3), distances (n, ). index1 of center_coords, and index2 of all_coords that form the neighbor pair\n            offset_vectors are the periodic image offsets for the all_coords.\n    ";
 static PyMethodDef __pyx_mdef_8pymatgen_12optimization_9neighbors_1find_points_in_spheres = {"find_points_in_spheres", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_8pymatgen_12optimization_9neighbors_1find_points_in_spheres, METH_VARARGS|METH_KEYWORDS, __pyx_doc_8pymatgen_12optimization_9neighbors_find_points_in_spheres};
 static PyObject *__pyx_pw_8pymatgen_12optimization_9neighbors_1find_points_in_spheres(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   __Pyx_memviewslice __pyx_v_all_coords = { 0, 0, { 0 }, { 0 }, { 0 } };
@@ -3046,25 +3217,25 @@ static PyObject *__pyx_pw_8pymatgen_12optimization_9neighbors_1find_points_in_sp
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_center_coords)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("find_points_in_spheres", 0, 5, 6, 1); __PYX_ERR(0, 19, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("find_points_in_spheres", 0, 5, 6, 1); __PYX_ERR(0, 36, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
         if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_r)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("find_points_in_spheres", 0, 5, 6, 2); __PYX_ERR(0, 19, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("find_points_in_spheres", 0, 5, 6, 2); __PYX_ERR(0, 36, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  3:
         if (likely((values[3] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_pbc)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("find_points_in_spheres", 0, 5, 6, 3); __PYX_ERR(0, 19, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("find_points_in_spheres", 0, 5, 6, 3); __PYX_ERR(0, 36, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  4:
         if (likely((values[4] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_lattice)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("find_points_in_spheres", 0, 5, 6, 4); __PYX_ERR(0, 19, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("find_points_in_spheres", 0, 5, 6, 4); __PYX_ERR(0, 36, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  5:
@@ -3074,7 +3245,7 @@ static PyObject *__pyx_pw_8pymatgen_12optimization_9neighbors_1find_points_in_sp
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "find_points_in_spheres") < 0)) __PYX_ERR(0, 19, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "find_points_in_spheres") < 0)) __PYX_ERR(0, 36, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -3089,20 +3260,20 @@ static PyObject *__pyx_pw_8pymatgen_12optimization_9neighbors_1find_points_in_sp
         default: goto __pyx_L5_argtuple_error;
       }
     }
-    __pyx_v_all_coords = __Pyx_PyObject_to_MemoryviewSlice_d_dc_double(values[0], PyBUF_WRITABLE); if (unlikely(!__pyx_v_all_coords.memview)) __PYX_ERR(0, 19, __pyx_L3_error)
-    __pyx_v_center_coords = __Pyx_PyObject_to_MemoryviewSlice_d_dc_double(values[1], PyBUF_WRITABLE); if (unlikely(!__pyx_v_center_coords.memview)) __PYX_ERR(0, 19, __pyx_L3_error)
-    __pyx_v_r = __pyx_PyFloat_AsFloat(values[2]); if (unlikely((__pyx_v_r == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 19, __pyx_L3_error)
-    __pyx_v_pbc = __Pyx_PyObject_to_MemoryviewSlice_ds_long(values[3], PyBUF_WRITABLE); if (unlikely(!__pyx_v_pbc.memview)) __PYX_ERR(0, 19, __pyx_L3_error)
-    __pyx_v_lattice = __Pyx_PyObject_to_MemoryviewSlice_d_dc_double(values[4], PyBUF_WRITABLE); if (unlikely(!__pyx_v_lattice.memview)) __PYX_ERR(0, 19, __pyx_L3_error)
+    __pyx_v_all_coords = __Pyx_PyObject_to_MemoryviewSlice_d_dc_double(values[0], PyBUF_WRITABLE); if (unlikely(!__pyx_v_all_coords.memview)) __PYX_ERR(0, 36, __pyx_L3_error)
+    __pyx_v_center_coords = __Pyx_PyObject_to_MemoryviewSlice_d_dc_double(values[1], PyBUF_WRITABLE); if (unlikely(!__pyx_v_center_coords.memview)) __PYX_ERR(0, 36, __pyx_L3_error)
+    __pyx_v_r = __pyx_PyFloat_AsFloat(values[2]); if (unlikely((__pyx_v_r == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 36, __pyx_L3_error)
+    __pyx_v_pbc = __Pyx_PyObject_to_MemoryviewSlice_ds_long(values[3], PyBUF_WRITABLE); if (unlikely(!__pyx_v_pbc.memview)) __PYX_ERR(0, 36, __pyx_L3_error)
+    __pyx_v_lattice = __Pyx_PyObject_to_MemoryviewSlice_d_dc_double(values[4], PyBUF_WRITABLE); if (unlikely(!__pyx_v_lattice.memview)) __PYX_ERR(0, 36, __pyx_L3_error)
     if (values[5]) {
-      __pyx_v_tol = __pyx_PyFloat_AsDouble(values[5]); if (unlikely((__pyx_v_tol == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 19, __pyx_L3_error)
+      __pyx_v_tol = __pyx_PyFloat_AsDouble(values[5]); if (unlikely((__pyx_v_tol == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 36, __pyx_L3_error)
     } else {
       __pyx_v_tol = ((double)1e-8);
     }
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("find_points_in_spheres", 0, 5, 6, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 19, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("find_points_in_spheres", 0, 5, 6, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 36, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("pymatgen.optimization.neighbors.find_points_in_spheres", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -3283,11 +3454,11 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
   Py_ssize_t __pyx_t_108;
   Py_ssize_t __pyx_t_109;
   Py_ssize_t __pyx_t_110;
-  __Pyx_TraceFrameInit(__pyx_codeobj_)
+  __Pyx_TraceFrameInit(__pyx_codeobj__3)
   __Pyx_RefNannySetupContext("find_points_in_spheres", 0);
-  __Pyx_TraceCall("find_points_in_spheres", __pyx_f[0], 19, 0, __PYX_ERR(0, 19, __pyx_L1_error));
+  __Pyx_TraceCall("find_points_in_spheres", __pyx_f[0], 36, 0, __PYX_ERR(0, 36, __pyx_L1_error));
 
-  /* "pymatgen/optimization/neighbors.pyx":42
+  /* "pymatgen/optimization/neighbors.pyx":59
  *     cdef double valid_max[3]
  *     cdef double ledge
  *     if r < 0.1:             # <<<<<<<<<<<<<<
@@ -3297,7 +3468,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
   __pyx_t_1 = ((__pyx_v_r < 0.1) != 0);
   if (__pyx_t_1) {
 
-    /* "pymatgen/optimization/neighbors.pyx":43
+    /* "pymatgen/optimization/neighbors.pyx":60
  *     cdef double ledge
  *     if r < 0.1:
  *         ledge = 0.1             # <<<<<<<<<<<<<<
@@ -3306,7 +3477,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
  */
     __pyx_v_ledge = 0.1;
 
-    /* "pymatgen/optimization/neighbors.pyx":42
+    /* "pymatgen/optimization/neighbors.pyx":59
  *     cdef double valid_max[3]
  *     cdef double ledge
  *     if r < 0.1:             # <<<<<<<<<<<<<<
@@ -3316,7 +3487,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
     goto __pyx_L3;
   }
 
-  /* "pymatgen/optimization/neighbors.pyx":45
+  /* "pymatgen/optimization/neighbors.pyx":62
  *         ledge = 0.1
  *     else:
  *         ledge = r             # <<<<<<<<<<<<<<
@@ -3328,7 +3499,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
   }
   __pyx_L3:;
 
-  /* "pymatgen/optimization/neighbors.pyx":46
+  /* "pymatgen/optimization/neighbors.pyx":63
  *     else:
  *         ledge = r
  *     max_and_min(center_coords, valid_max, valid_min)             # <<<<<<<<<<<<<<
@@ -3337,29 +3508,29 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
  */
   __pyx_t_4 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_double);
   __pyx_t_3 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)3));
-  if (unlikely(!__pyx_t_4 || !__pyx_t_3 || !PyBytes_AsString(__pyx_t_4))) __PYX_ERR(0, 46, __pyx_L1_error)
+  if (unlikely(!__pyx_t_4 || !__pyx_t_3 || !PyBytes_AsString(__pyx_t_4))) __PYX_ERR(0, 63, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_2 = __pyx_array_new(__pyx_t_3, sizeof(double), PyBytes_AS_STRING(__pyx_t_4), (char *) "fortran", (char *) __pyx_v_valid_max);
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 46, __pyx_L1_error)
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 63, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_5 = __Pyx_PyObject_to_MemoryviewSlice_dc_double(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_5.memview)) __PYX_ERR(0, 46, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_to_MemoryviewSlice_dc_double(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_5.memview)) __PYX_ERR(0, 63, __pyx_L1_error)
   __Pyx_DECREF(((PyObject *)__pyx_t_2)); __pyx_t_2 = 0;
   __pyx_t_3 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_double);
   __pyx_t_4 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)3));
-  if (unlikely(!__pyx_t_3 || !__pyx_t_4 || !PyBytes_AsString(__pyx_t_3))) __PYX_ERR(0, 46, __pyx_L1_error)
+  if (unlikely(!__pyx_t_3 || !__pyx_t_4 || !PyBytes_AsString(__pyx_t_3))) __PYX_ERR(0, 63, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_2 = __pyx_array_new(__pyx_t_4, sizeof(double), PyBytes_AS_STRING(__pyx_t_3), (char *) "fortran", (char *) __pyx_v_valid_min);
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 46, __pyx_L1_error)
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 63, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_6 = __Pyx_PyObject_to_MemoryviewSlice_dc_double(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_6.memview)) __PYX_ERR(0, 46, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_to_MemoryviewSlice_dc_double(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_6.memview)) __PYX_ERR(0, 63, __pyx_L1_error)
   __Pyx_DECREF(((PyObject *)__pyx_t_2)); __pyx_t_2 = 0;
-  __pyx_t_3 = __pyx_f_8pymatgen_12optimization_9neighbors_max_and_min(__pyx_v_center_coords, __pyx_t_5, __pyx_t_6); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 46, __pyx_L1_error)
+  __pyx_t_3 = __pyx_f_8pymatgen_12optimization_9neighbors_max_and_min(__pyx_v_center_coords, __pyx_t_5, __pyx_t_6); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 63, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __PYX_XDEC_MEMVIEW(&__pyx_t_5, 1);
   __pyx_t_5.memview = NULL;
@@ -3369,7 +3540,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
   __pyx_t_6.data = NULL;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "pymatgen/optimization/neighbors.pyx":47
+  /* "pymatgen/optimization/neighbors.pyx":64
  *         ledge = r
  *     max_and_min(center_coords, valid_max, valid_min)
  *     for i in range(3):             # <<<<<<<<<<<<<<
@@ -3379,7 +3550,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
   for (__pyx_t_7 = 0; __pyx_t_7 < 3; __pyx_t_7+=1) {
     __pyx_v_i = __pyx_t_7;
 
-    /* "pymatgen/optimization/neighbors.pyx":48
+    /* "pymatgen/optimization/neighbors.pyx":65
  *     max_and_min(center_coords, valid_max, valid_min)
  *     for i in range(3):
  *         valid_max[i] = valid_max[i] + r + tol             # <<<<<<<<<<<<<<
@@ -3388,7 +3559,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
  */
     (__pyx_v_valid_max[__pyx_v_i]) = (((__pyx_v_valid_max[__pyx_v_i]) + __pyx_v_r) + __pyx_v_tol);
 
-    /* "pymatgen/optimization/neighbors.pyx":49
+    /* "pymatgen/optimization/neighbors.pyx":66
  *     for i in range(3):
  *         valid_max[i] = valid_max[i] + r + tol
  *         valid_min[i] = valid_min[i] - r - tol             # <<<<<<<<<<<<<<
@@ -3398,55 +3569,55 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
     (__pyx_v_valid_min[__pyx_v_i]) = (((__pyx_v_valid_min[__pyx_v_i]) - __pyx_v_r) - __pyx_v_tol);
   }
 
-  /* "pymatgen/optimization/neighbors.pyx":52
+  /* "pymatgen/optimization/neighbors.pyx":69
  * 
  *     # Process pbc
  *     cdef int n_center = center_coords.shape[0]             # <<<<<<<<<<<<<<
  *     cdef int n_total = all_coords.shape[0]
- *     cdef double [:, ::1] frac_coords =  <double[:n_center, :3]> malloc(n_center * 3 * sizeof(double))
+ *     cdef double [:, ::1] frac_coords =  <double[:n_center, :3]> safe_malloc(n_center * 3 * sizeof(double))
  */
   __pyx_v_n_center = (__pyx_v_center_coords.shape[0]);
 
-  /* "pymatgen/optimization/neighbors.pyx":53
+  /* "pymatgen/optimization/neighbors.pyx":70
  *     # Process pbc
  *     cdef int n_center = center_coords.shape[0]
  *     cdef int n_total = all_coords.shape[0]             # <<<<<<<<<<<<<<
- *     cdef double [:, ::1] frac_coords =  <double[:n_center, :3]> malloc(n_center * 3 * sizeof(double))
+ *     cdef double [:, ::1] frac_coords =  <double[:n_center, :3]> safe_malloc(n_center * 3 * sizeof(double))
  *     cdef long[3] max_bounds = [1, 1, 1]
  */
   __pyx_v_n_total = (__pyx_v_all_coords.shape[0]);
 
-  /* "pymatgen/optimization/neighbors.pyx":54
+  /* "pymatgen/optimization/neighbors.pyx":71
  *     cdef int n_center = center_coords.shape[0]
  *     cdef int n_total = all_coords.shape[0]
- *     cdef double [:, ::1] frac_coords =  <double[:n_center, :3]> malloc(n_center * 3 * sizeof(double))             # <<<<<<<<<<<<<<
+ *     cdef double [:, ::1] frac_coords =  <double[:n_center, :3]> safe_malloc(n_center * 3 * sizeof(double))             # <<<<<<<<<<<<<<
  *     cdef long[3] max_bounds = [1, 1, 1]
  *     cdef long[3] min_bounds = [0, 0, 0]
  */
-  __pyx_t_8 = malloc(((__pyx_v_n_center * 3) * (sizeof(double))));
+  __pyx_t_8 = __pyx_f_8pymatgen_12optimization_9neighbors_safe_malloc(((__pyx_v_n_center * 3) * (sizeof(double))));
   if (!__pyx_t_8) {
     PyErr_SetString(PyExc_ValueError,"Cannot create cython.array from NULL pointer");
-    __PYX_ERR(0, 54, __pyx_L1_error)
+    __PYX_ERR(0, 71, __pyx_L1_error)
   }
   __pyx_t_4 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_double);
   __pyx_t_3 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)__pyx_v_n_center), ((Py_ssize_t)3));
-  if (unlikely(!__pyx_t_4 || !__pyx_t_3 || !PyBytes_AsString(__pyx_t_4))) __PYX_ERR(0, 54, __pyx_L1_error)
+  if (unlikely(!__pyx_t_4 || !__pyx_t_3 || !PyBytes_AsString(__pyx_t_4))) __PYX_ERR(0, 71, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_2 = __pyx_array_new(__pyx_t_3, sizeof(double), PyBytes_AS_STRING(__pyx_t_4), (char *) "c", (char *) __pyx_t_8);
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 54, __pyx_L1_error)
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 71, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_double(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 54, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_double(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 71, __pyx_L1_error)
   __Pyx_DECREF(((PyObject *)__pyx_t_2)); __pyx_t_2 = 0;
   __pyx_v_frac_coords = __pyx_t_9;
   __pyx_t_9.memview = NULL;
   __pyx_t_9.data = NULL;
 
-  /* "pymatgen/optimization/neighbors.pyx":55
+  /* "pymatgen/optimization/neighbors.pyx":72
  *     cdef int n_total = all_coords.shape[0]
- *     cdef double [:, ::1] frac_coords =  <double[:n_center, :3]> malloc(n_center * 3 * sizeof(double))
+ *     cdef double [:, ::1] frac_coords =  <double[:n_center, :3]> safe_malloc(n_center * 3 * sizeof(double))
  *     cdef long[3] max_bounds = [1, 1, 1]             # <<<<<<<<<<<<<<
  *     cdef long[3] min_bounds = [0, 0, 0]
  *     cdef long nlattice = 1
@@ -3456,8 +3627,8 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
   __pyx_t_10[2] = 1;
   memcpy(&(__pyx_v_max_bounds[0]), __pyx_t_10, sizeof(__pyx_v_max_bounds[0]) * (3));
 
-  /* "pymatgen/optimization/neighbors.pyx":56
- *     cdef double [:, ::1] frac_coords =  <double[:n_center, :3]> malloc(n_center * 3 * sizeof(double))
+  /* "pymatgen/optimization/neighbors.pyx":73
+ *     cdef double [:, ::1] frac_coords =  <double[:n_center, :3]> safe_malloc(n_center * 3 * sizeof(double))
  *     cdef long[3] max_bounds = [1, 1, 1]
  *     cdef long[3] min_bounds = [0, 0, 0]             # <<<<<<<<<<<<<<
  *     cdef long nlattice = 1
@@ -3468,110 +3639,110 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
   __pyx_t_11[2] = 0;
   memcpy(&(__pyx_v_min_bounds[0]), __pyx_t_11, sizeof(__pyx_v_min_bounds[0]) * (3));
 
-  /* "pymatgen/optimization/neighbors.pyx":57
+  /* "pymatgen/optimization/neighbors.pyx":74
  *     cdef long[3] max_bounds = [1, 1, 1]
  *     cdef long[3] min_bounds = [0, 0, 0]
  *     cdef long nlattice = 1             # <<<<<<<<<<<<<<
  *     cdef long count = 0
- *     cdef double[:, ::1] all_fcoords = <double[:n_total, :3]> malloc(n_total * 3 * sizeof(double))
+ *     cdef double[:, ::1] all_fcoords = <double[:n_total, :3]> safe_malloc(n_total * 3 * sizeof(double))
  */
   __pyx_v_nlattice = 1;
 
-  /* "pymatgen/optimization/neighbors.pyx":58
+  /* "pymatgen/optimization/neighbors.pyx":75
  *     cdef long[3] min_bounds = [0, 0, 0]
  *     cdef long nlattice = 1
  *     cdef long count = 0             # <<<<<<<<<<<<<<
- *     cdef double[:, ::1] all_fcoords = <double[:n_total, :3]> malloc(n_total * 3 * sizeof(double))
- *     cdef double[:, ::1] coords_in_cell = <double[:n_total, :3]> malloc(n_total * 3 * sizeof(double))
+ *     cdef double[:, ::1] all_fcoords = <double[:n_total, :3]> safe_malloc(n_total * 3 * sizeof(double))
+ *     cdef double[:, ::1] coords_in_cell = <double[:n_total, :3]> safe_malloc(n_total * 3 * sizeof(double))
  */
   __pyx_v_count = 0;
 
-  /* "pymatgen/optimization/neighbors.pyx":59
+  /* "pymatgen/optimization/neighbors.pyx":76
  *     cdef long nlattice = 1
  *     cdef long count = 0
- *     cdef double[:, ::1] all_fcoords = <double[:n_total, :3]> malloc(n_total * 3 * sizeof(double))             # <<<<<<<<<<<<<<
- *     cdef double[:, ::1] coords_in_cell = <double[:n_total, :3]> malloc(n_total * 3 * sizeof(double))
- *     cdef double[:, ::1] offset_correction = <double[:n_total, :3]> malloc(n_total * 3 * sizeof(double))
+ *     cdef double[:, ::1] all_fcoords = <double[:n_total, :3]> safe_malloc(n_total * 3 * sizeof(double))             # <<<<<<<<<<<<<<
+ *     cdef double[:, ::1] coords_in_cell = <double[:n_total, :3]> safe_malloc(n_total * 3 * sizeof(double))
+ *     cdef double[:, ::1] offset_correction = <double[:n_total, :3]> safe_malloc(n_total * 3 * sizeof(double))
  */
-  __pyx_t_8 = malloc(((__pyx_v_n_total * 3) * (sizeof(double))));
+  __pyx_t_8 = __pyx_f_8pymatgen_12optimization_9neighbors_safe_malloc(((__pyx_v_n_total * 3) * (sizeof(double))));
   if (!__pyx_t_8) {
     PyErr_SetString(PyExc_ValueError,"Cannot create cython.array from NULL pointer");
-    __PYX_ERR(0, 59, __pyx_L1_error)
+    __PYX_ERR(0, 76, __pyx_L1_error)
   }
   __pyx_t_3 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_double);
   __pyx_t_4 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)__pyx_v_n_total), ((Py_ssize_t)3));
-  if (unlikely(!__pyx_t_3 || !__pyx_t_4 || !PyBytes_AsString(__pyx_t_3))) __PYX_ERR(0, 59, __pyx_L1_error)
+  if (unlikely(!__pyx_t_3 || !__pyx_t_4 || !PyBytes_AsString(__pyx_t_3))) __PYX_ERR(0, 76, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_2 = __pyx_array_new(__pyx_t_4, sizeof(double), PyBytes_AS_STRING(__pyx_t_3), (char *) "c", (char *) __pyx_t_8);
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 59, __pyx_L1_error)
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 76, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_double(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 59, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_double(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 76, __pyx_L1_error)
   __Pyx_DECREF(((PyObject *)__pyx_t_2)); __pyx_t_2 = 0;
   __pyx_v_all_fcoords = __pyx_t_9;
   __pyx_t_9.memview = NULL;
   __pyx_t_9.data = NULL;
 
-  /* "pymatgen/optimization/neighbors.pyx":60
+  /* "pymatgen/optimization/neighbors.pyx":77
  *     cdef long count = 0
- *     cdef double[:, ::1] all_fcoords = <double[:n_total, :3]> malloc(n_total * 3 * sizeof(double))
- *     cdef double[:, ::1] coords_in_cell = <double[:n_total, :3]> malloc(n_total * 3 * sizeof(double))             # <<<<<<<<<<<<<<
- *     cdef double[:, ::1] offset_correction = <double[:n_total, :3]> malloc(n_total * 3 * sizeof(double))
+ *     cdef double[:, ::1] all_fcoords = <double[:n_total, :3]> safe_malloc(n_total * 3 * sizeof(double))
+ *     cdef double[:, ::1] coords_in_cell = <double[:n_total, :3]> safe_malloc(n_total * 3 * sizeof(double))             # <<<<<<<<<<<<<<
+ *     cdef double[:, ::1] offset_correction = <double[:n_total, :3]> safe_malloc(n_total * 3 * sizeof(double))
  * 
  */
-  __pyx_t_8 = malloc(((__pyx_v_n_total * 3) * (sizeof(double))));
+  __pyx_t_8 = __pyx_f_8pymatgen_12optimization_9neighbors_safe_malloc(((__pyx_v_n_total * 3) * (sizeof(double))));
   if (!__pyx_t_8) {
     PyErr_SetString(PyExc_ValueError,"Cannot create cython.array from NULL pointer");
-    __PYX_ERR(0, 60, __pyx_L1_error)
+    __PYX_ERR(0, 77, __pyx_L1_error)
   }
   __pyx_t_4 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_double);
   __pyx_t_3 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)__pyx_v_n_total), ((Py_ssize_t)3));
-  if (unlikely(!__pyx_t_4 || !__pyx_t_3 || !PyBytes_AsString(__pyx_t_4))) __PYX_ERR(0, 60, __pyx_L1_error)
+  if (unlikely(!__pyx_t_4 || !__pyx_t_3 || !PyBytes_AsString(__pyx_t_4))) __PYX_ERR(0, 77, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_2 = __pyx_array_new(__pyx_t_3, sizeof(double), PyBytes_AS_STRING(__pyx_t_4), (char *) "c", (char *) __pyx_t_8);
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 60, __pyx_L1_error)
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 77, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_double(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 60, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_double(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 77, __pyx_L1_error)
   __Pyx_DECREF(((PyObject *)__pyx_t_2)); __pyx_t_2 = 0;
   __pyx_v_coords_in_cell = __pyx_t_9;
   __pyx_t_9.memview = NULL;
   __pyx_t_9.data = NULL;
 
-  /* "pymatgen/optimization/neighbors.pyx":61
- *     cdef double[:, ::1] all_fcoords = <double[:n_total, :3]> malloc(n_total * 3 * sizeof(double))
- *     cdef double[:, ::1] coords_in_cell = <double[:n_total, :3]> malloc(n_total * 3 * sizeof(double))
- *     cdef double[:, ::1] offset_correction = <double[:n_total, :3]> malloc(n_total * 3 * sizeof(double))             # <<<<<<<<<<<<<<
+  /* "pymatgen/optimization/neighbors.pyx":78
+ *     cdef double[:, ::1] all_fcoords = <double[:n_total, :3]> safe_malloc(n_total * 3 * sizeof(double))
+ *     cdef double[:, ::1] coords_in_cell = <double[:n_total, :3]> safe_malloc(n_total * 3 * sizeof(double))
+ *     cdef double[:, ::1] offset_correction = <double[:n_total, :3]> safe_malloc(n_total * 3 * sizeof(double))             # <<<<<<<<<<<<<<
  * 
  *     get_frac_coords(lattice, all_coords, offset_correction)
  */
-  __pyx_t_8 = malloc(((__pyx_v_n_total * 3) * (sizeof(double))));
+  __pyx_t_8 = __pyx_f_8pymatgen_12optimization_9neighbors_safe_malloc(((__pyx_v_n_total * 3) * (sizeof(double))));
   if (!__pyx_t_8) {
     PyErr_SetString(PyExc_ValueError,"Cannot create cython.array from NULL pointer");
-    __PYX_ERR(0, 61, __pyx_L1_error)
+    __PYX_ERR(0, 78, __pyx_L1_error)
   }
   __pyx_t_3 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_double);
   __pyx_t_4 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)__pyx_v_n_total), ((Py_ssize_t)3));
-  if (unlikely(!__pyx_t_3 || !__pyx_t_4 || !PyBytes_AsString(__pyx_t_3))) __PYX_ERR(0, 61, __pyx_L1_error)
+  if (unlikely(!__pyx_t_3 || !__pyx_t_4 || !PyBytes_AsString(__pyx_t_3))) __PYX_ERR(0, 78, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_2 = __pyx_array_new(__pyx_t_4, sizeof(double), PyBytes_AS_STRING(__pyx_t_3), (char *) "c", (char *) __pyx_t_8);
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 61, __pyx_L1_error)
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 78, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_double(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 61, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_double(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 78, __pyx_L1_error)
   __Pyx_DECREF(((PyObject *)__pyx_t_2)); __pyx_t_2 = 0;
   __pyx_v_offset_correction = __pyx_t_9;
   __pyx_t_9.memview = NULL;
   __pyx_t_9.data = NULL;
 
-  /* "pymatgen/optimization/neighbors.pyx":63
- *     cdef double[:, ::1] offset_correction = <double[:n_total, :3]> malloc(n_total * 3 * sizeof(double))
+  /* "pymatgen/optimization/neighbors.pyx":80
+ *     cdef double[:, ::1] offset_correction = <double[:n_total, :3]> safe_malloc(n_total * 3 * sizeof(double))
  * 
  *     get_frac_coords(lattice, all_coords, offset_correction)             # <<<<<<<<<<<<<<
  *     for i in range(n_total):
@@ -3579,7 +3750,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
  */
   __pyx_f_8pymatgen_12optimization_9neighbors_get_frac_coords(__pyx_v_lattice, __pyx_v_all_coords, __pyx_v_offset_correction);
 
-  /* "pymatgen/optimization/neighbors.pyx":64
+  /* "pymatgen/optimization/neighbors.pyx":81
  * 
  *     get_frac_coords(lattice, all_coords, offset_correction)
  *     for i in range(n_total):             # <<<<<<<<<<<<<<
@@ -3591,7 +3762,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
   for (__pyx_t_13 = 0; __pyx_t_13 < __pyx_t_12; __pyx_t_13+=1) {
     __pyx_v_i = __pyx_t_13;
 
-    /* "pymatgen/optimization/neighbors.pyx":65
+    /* "pymatgen/optimization/neighbors.pyx":82
  *     get_frac_coords(lattice, all_coords, offset_correction)
  *     for i in range(n_total):
  *         for j in range(3):             # <<<<<<<<<<<<<<
@@ -3601,7 +3772,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
     for (__pyx_t_14 = 0; __pyx_t_14 < 3; __pyx_t_14+=1) {
       __pyx_v_j = __pyx_t_14;
 
-      /* "pymatgen/optimization/neighbors.pyx":66
+      /* "pymatgen/optimization/neighbors.pyx":83
  *     for i in range(n_total):
  *         for j in range(3):
  *             if pbc[j]:             # <<<<<<<<<<<<<<
@@ -3612,7 +3783,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
       __pyx_t_1 = ((*((long *) ( /* dim=0 */ (__pyx_v_pbc.data + __pyx_t_15 * __pyx_v_pbc.strides[0]) ))) != 0);
       if (__pyx_t_1) {
 
-        /* "pymatgen/optimization/neighbors.pyx":68
+        /* "pymatgen/optimization/neighbors.pyx":85
  *             if pbc[j]:
  *                 # only wrap atoms when this dimension is PBC
  *                 all_fcoords[i, j] = offset_correction[i, j] % 1             # <<<<<<<<<<<<<<
@@ -3625,7 +3796,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
         __pyx_t_19 = __pyx_v_j;
         *((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_all_fcoords.data + __pyx_t_18 * __pyx_v_all_fcoords.strides[0]) )) + __pyx_t_19)) )) = fmod((*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_offset_correction.data + __pyx_t_16 * __pyx_v_offset_correction.strides[0]) )) + __pyx_t_17)) ))), 1.0);
 
-        /* "pymatgen/optimization/neighbors.pyx":69
+        /* "pymatgen/optimization/neighbors.pyx":86
  *                 # only wrap atoms when this dimension is PBC
  *                 all_fcoords[i, j] = offset_correction[i, j] % 1
  *                 offset_correction[i, j] = offset_correction[i, j] - all_fcoords[i, j]             # <<<<<<<<<<<<<<
@@ -3640,7 +3811,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
         __pyx_t_25 = __pyx_v_j;
         *((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_offset_correction.data + __pyx_t_24 * __pyx_v_offset_correction.strides[0]) )) + __pyx_t_25)) )) = ((*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_offset_correction.data + __pyx_t_20 * __pyx_v_offset_correction.strides[0]) )) + __pyx_t_21)) ))) - (*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_all_fcoords.data + __pyx_t_22 * __pyx_v_all_fcoords.strides[0]) )) + __pyx_t_23)) ))));
 
-        /* "pymatgen/optimization/neighbors.pyx":66
+        /* "pymatgen/optimization/neighbors.pyx":83
  *     for i in range(n_total):
  *         for j in range(3):
  *             if pbc[j]:             # <<<<<<<<<<<<<<
@@ -3650,7 +3821,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
         goto __pyx_L10;
       }
 
-      /* "pymatgen/optimization/neighbors.pyx":71
+      /* "pymatgen/optimization/neighbors.pyx":88
  *                 offset_correction[i, j] = offset_correction[i, j] - all_fcoords[i, j]
  *             else:
  *                 all_fcoords[i, j] = offset_correction[i, j]             # <<<<<<<<<<<<<<
@@ -3664,7 +3835,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
         __pyx_t_29 = __pyx_v_j;
         *((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_all_fcoords.data + __pyx_t_28 * __pyx_v_all_fcoords.strides[0]) )) + __pyx_t_29)) )) = (*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_offset_correction.data + __pyx_t_26 * __pyx_v_offset_correction.strides[0]) )) + __pyx_t_27)) )));
 
-        /* "pymatgen/optimization/neighbors.pyx":72
+        /* "pymatgen/optimization/neighbors.pyx":89
  *             else:
  *                 all_fcoords[i, j] = offset_correction[i, j]
  *                 offset_correction[i, j] = 0             # <<<<<<<<<<<<<<
@@ -3679,7 +3850,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
     }
   }
 
-  /* "pymatgen/optimization/neighbors.pyx":73
+  /* "pymatgen/optimization/neighbors.pyx":90
  *                 all_fcoords[i, j] = offset_correction[i, j]
  *                 offset_correction[i, j] = 0
  *     get_max_r(lattice, maxr, r)             # <<<<<<<<<<<<<<
@@ -3688,22 +3859,22 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
  */
   __pyx_t_4 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_double);
   __pyx_t_3 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)3));
-  if (unlikely(!__pyx_t_4 || !__pyx_t_3 || !PyBytes_AsString(__pyx_t_4))) __PYX_ERR(0, 73, __pyx_L1_error)
+  if (unlikely(!__pyx_t_4 || !__pyx_t_3 || !PyBytes_AsString(__pyx_t_4))) __PYX_ERR(0, 90, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_2 = __pyx_array_new(__pyx_t_3, sizeof(double), PyBytes_AS_STRING(__pyx_t_4), (char *) "fortran", (char *) __pyx_v_maxr);
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 73, __pyx_L1_error)
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 90, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_6 = __Pyx_PyObject_to_MemoryviewSlice_dc_double(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_6.memview)) __PYX_ERR(0, 73, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_to_MemoryviewSlice_dc_double(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_6.memview)) __PYX_ERR(0, 90, __pyx_L1_error)
   __Pyx_DECREF(((PyObject *)__pyx_t_2)); __pyx_t_2 = 0;
   __pyx_f_8pymatgen_12optimization_9neighbors_get_max_r(__pyx_v_lattice, __pyx_t_6, __pyx_v_r);
   __PYX_XDEC_MEMVIEW(&__pyx_t_6, 1);
   __pyx_t_6.memview = NULL;
   __pyx_t_6.data = NULL;
 
-  /* "pymatgen/optimization/neighbors.pyx":75
+  /* "pymatgen/optimization/neighbors.pyx":92
  *     get_max_r(lattice, maxr, r)
  *     # Get fractional coordinates of center points
  *     get_frac_coords(lattice, center_coords, frac_coords)             # <<<<<<<<<<<<<<
@@ -3712,7 +3883,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
  */
   __pyx_f_8pymatgen_12optimization_9neighbors_get_frac_coords(__pyx_v_lattice, __pyx_v_center_coords, __pyx_v_frac_coords);
 
-  /* "pymatgen/optimization/neighbors.pyx":76
+  /* "pymatgen/optimization/neighbors.pyx":93
  *     # Get fractional coordinates of center points
  *     get_frac_coords(lattice, center_coords, frac_coords)
  *     get_bounds(frac_coords, maxr, pbc, max_bounds, min_bounds)             # <<<<<<<<<<<<<<
@@ -3721,39 +3892,39 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
  */
   __pyx_t_3 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_double);
   __pyx_t_4 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)3));
-  if (unlikely(!__pyx_t_3 || !__pyx_t_4 || !PyBytes_AsString(__pyx_t_3))) __PYX_ERR(0, 76, __pyx_L1_error)
+  if (unlikely(!__pyx_t_3 || !__pyx_t_4 || !PyBytes_AsString(__pyx_t_3))) __PYX_ERR(0, 93, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_2 = __pyx_array_new(__pyx_t_4, sizeof(double), PyBytes_AS_STRING(__pyx_t_3), (char *) "fortran", (char *) __pyx_v_maxr);
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 76, __pyx_L1_error)
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 93, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_6 = __Pyx_PyObject_to_MemoryviewSlice_dc_double(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_6.memview)) __PYX_ERR(0, 76, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_to_MemoryviewSlice_dc_double(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_6.memview)) __PYX_ERR(0, 93, __pyx_L1_error)
   __Pyx_DECREF(((PyObject *)__pyx_t_2)); __pyx_t_2 = 0;
   __pyx_t_4 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_long);
   __pyx_t_3 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)3));
-  if (unlikely(!__pyx_t_4 || !__pyx_t_3 || !PyBytes_AsString(__pyx_t_4))) __PYX_ERR(0, 76, __pyx_L1_error)
+  if (unlikely(!__pyx_t_4 || !__pyx_t_3 || !PyBytes_AsString(__pyx_t_4))) __PYX_ERR(0, 93, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_2 = __pyx_array_new(__pyx_t_3, sizeof(long), PyBytes_AS_STRING(__pyx_t_4), (char *) "fortran", (char *) __pyx_v_max_bounds);
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 76, __pyx_L1_error)
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 93, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_32 = __Pyx_PyObject_to_MemoryviewSlice_ds_long(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_32.memview)) __PYX_ERR(0, 76, __pyx_L1_error)
+  __pyx_t_32 = __Pyx_PyObject_to_MemoryviewSlice_ds_long(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_32.memview)) __PYX_ERR(0, 93, __pyx_L1_error)
   __Pyx_DECREF(((PyObject *)__pyx_t_2)); __pyx_t_2 = 0;
   __pyx_t_3 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_long);
   __pyx_t_4 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)3));
-  if (unlikely(!__pyx_t_3 || !__pyx_t_4 || !PyBytes_AsString(__pyx_t_3))) __PYX_ERR(0, 76, __pyx_L1_error)
+  if (unlikely(!__pyx_t_3 || !__pyx_t_4 || !PyBytes_AsString(__pyx_t_3))) __PYX_ERR(0, 93, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_2 = __pyx_array_new(__pyx_t_4, sizeof(long), PyBytes_AS_STRING(__pyx_t_3), (char *) "fortran", (char *) __pyx_v_min_bounds);
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 76, __pyx_L1_error)
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 93, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_33 = __Pyx_PyObject_to_MemoryviewSlice_ds_long(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_33.memview)) __PYX_ERR(0, 76, __pyx_L1_error)
+  __pyx_t_33 = __Pyx_PyObject_to_MemoryviewSlice_ds_long(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_33.memview)) __PYX_ERR(0, 93, __pyx_L1_error)
   __Pyx_DECREF(((PyObject *)__pyx_t_2)); __pyx_t_2 = 0;
   __pyx_f_8pymatgen_12optimization_9neighbors_get_bounds(__pyx_v_frac_coords, __pyx_t_6, __pyx_v_pbc, __pyx_t_32, __pyx_t_33);
   __PYX_XDEC_MEMVIEW(&__pyx_t_6, 1);
@@ -3766,7 +3937,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
   __pyx_t_33.memview = NULL;
   __pyx_t_33.data = NULL;
 
-  /* "pymatgen/optimization/neighbors.pyx":77
+  /* "pymatgen/optimization/neighbors.pyx":94
  *     get_frac_coords(lattice, center_coords, frac_coords)
  *     get_bounds(frac_coords, maxr, pbc, max_bounds, min_bounds)
  *     for i in range(3):             # <<<<<<<<<<<<<<
@@ -3776,7 +3947,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
   for (__pyx_t_7 = 0; __pyx_t_7 < 3; __pyx_t_7+=1) {
     __pyx_v_i = __pyx_t_7;
 
-    /* "pymatgen/optimization/neighbors.pyx":78
+    /* "pymatgen/optimization/neighbors.pyx":95
  *     get_bounds(frac_coords, maxr, pbc, max_bounds, min_bounds)
  *     for i in range(3):
  *         nlattice *= (max_bounds[i] - min_bounds[i])             # <<<<<<<<<<<<<<
@@ -3786,7 +3957,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
     __pyx_v_nlattice = (__pyx_v_nlattice * ((__pyx_v_max_bounds[__pyx_v_i]) - (__pyx_v_min_bounds[__pyx_v_i])));
   }
 
-  /* "pymatgen/optimization/neighbors.pyx":79
+  /* "pymatgen/optimization/neighbors.pyx":96
  *     for i in range(3):
  *         nlattice *= (max_bounds[i] - min_bounds[i])
  *     matmul(all_fcoords, lattice, coords_in_cell)             # <<<<<<<<<<<<<<
@@ -3795,43 +3966,43 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
  */
   __pyx_f_8pymatgen_12optimization_9neighbors_matmul(__pyx_v_all_fcoords, __pyx_v_lattice, __pyx_v_coords_in_cell);
 
-  /* "pymatgen/optimization/neighbors.pyx":82
+  /* "pymatgen/optimization/neighbors.pyx":99
  * 
  *     # Get translated images, coordinates and indices
- *     cdef long natoms = nlattice * n_total             # <<<<<<<<<<<<<<
- *     cdef double *offsets_p_temp = <double*> malloc(natoms * 3 * sizeof(double))
- *     cdef double *expanded_coords_p_temp = <double *> malloc(natoms * 3 * sizeof(double))
+ *     cdef long natoms = n_total             # <<<<<<<<<<<<<<
+ *     cdef double *offsets_p_temp = <double*> safe_malloc(natoms * 3 * sizeof(double))
+ *     cdef double *expanded_coords_p_temp = <double *> safe_malloc(natoms * 3 * sizeof(double))
  */
-  __pyx_v_natoms = (__pyx_v_nlattice * __pyx_v_n_total);
+  __pyx_v_natoms = __pyx_v_n_total;
 
-  /* "pymatgen/optimization/neighbors.pyx":83
+  /* "pymatgen/optimization/neighbors.pyx":100
  *     # Get translated images, coordinates and indices
- *     cdef long natoms = nlattice * n_total
- *     cdef double *offsets_p_temp = <double*> malloc(natoms * 3 * sizeof(double))             # <<<<<<<<<<<<<<
- *     cdef double *expanded_coords_p_temp = <double *> malloc(natoms * 3 * sizeof(double))
- *     cdef long *indices_p_temp = <long*> malloc(natoms * sizeof(long))
+ *     cdef long natoms = n_total
+ *     cdef double *offsets_p_temp = <double*> safe_malloc(natoms * 3 * sizeof(double))             # <<<<<<<<<<<<<<
+ *     cdef double *expanded_coords_p_temp = <double *> safe_malloc(natoms * 3 * sizeof(double))
+ *     cdef long *indices_p_temp = <long*> safe_malloc(natoms * sizeof(long))
  */
-  __pyx_v_offsets_p_temp = ((double *)malloc(((__pyx_v_natoms * 3) * (sizeof(double)))));
+  __pyx_v_offsets_p_temp = ((double *)__pyx_f_8pymatgen_12optimization_9neighbors_safe_malloc(((__pyx_v_natoms * 3) * (sizeof(double)))));
 
-  /* "pymatgen/optimization/neighbors.pyx":84
- *     cdef long natoms = nlattice * n_total
- *     cdef double *offsets_p_temp = <double*> malloc(natoms * 3 * sizeof(double))
- *     cdef double *expanded_coords_p_temp = <double *> malloc(natoms * 3 * sizeof(double))             # <<<<<<<<<<<<<<
- *     cdef long *indices_p_temp = <long*> malloc(natoms * sizeof(long))
+  /* "pymatgen/optimization/neighbors.pyx":101
+ *     cdef long natoms = n_total
+ *     cdef double *offsets_p_temp = <double*> safe_malloc(natoms * 3 * sizeof(double))
+ *     cdef double *expanded_coords_p_temp = <double *> safe_malloc(natoms * 3 * sizeof(double))             # <<<<<<<<<<<<<<
+ *     cdef long *indices_p_temp = <long*> safe_malloc(natoms * sizeof(long))
  *     cdef double coord_temp[3]
  */
-  __pyx_v_expanded_coords_p_temp = ((double *)malloc(((__pyx_v_natoms * 3) * (sizeof(double)))));
+  __pyx_v_expanded_coords_p_temp = ((double *)__pyx_f_8pymatgen_12optimization_9neighbors_safe_malloc(((__pyx_v_natoms * 3) * (sizeof(double)))));
 
-  /* "pymatgen/optimization/neighbors.pyx":85
- *     cdef double *offsets_p_temp = <double*> malloc(natoms * 3 * sizeof(double))
- *     cdef double *expanded_coords_p_temp = <double *> malloc(natoms * 3 * sizeof(double))
- *     cdef long *indices_p_temp = <long*> malloc(natoms * sizeof(long))             # <<<<<<<<<<<<<<
+  /* "pymatgen/optimization/neighbors.pyx":102
+ *     cdef double *offsets_p_temp = <double*> safe_malloc(natoms * 3 * sizeof(double))
+ *     cdef double *expanded_coords_p_temp = <double *> safe_malloc(natoms * 3 * sizeof(double))
+ *     cdef long *indices_p_temp = <long*> safe_malloc(natoms * sizeof(long))             # <<<<<<<<<<<<<<
  *     cdef double coord_temp[3]
  * 
  */
-  __pyx_v_indices_p_temp = ((long *)malloc((__pyx_v_natoms * (sizeof(long)))));
+  __pyx_v_indices_p_temp = ((long *)__pyx_f_8pymatgen_12optimization_9neighbors_safe_malloc((__pyx_v_natoms * (sizeof(long)))));
 
-  /* "pymatgen/optimization/neighbors.pyx":88
+  /* "pymatgen/optimization/neighbors.pyx":105
  *     cdef double coord_temp[3]
  * 
  *     count = 0             # <<<<<<<<<<<<<<
@@ -3840,7 +4011,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
  */
   __pyx_v_count = 0;
 
-  /* "pymatgen/optimization/neighbors.pyx":89
+  /* "pymatgen/optimization/neighbors.pyx":106
  * 
  *     count = 0
  *     for i in range(min_bounds[0], max_bounds[0]):             # <<<<<<<<<<<<<<
@@ -3852,7 +4023,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
   for (__pyx_t_7 = (__pyx_v_min_bounds[0]); __pyx_t_7 < __pyx_t_35; __pyx_t_7+=1) {
     __pyx_v_i = __pyx_t_7;
 
-    /* "pymatgen/optimization/neighbors.pyx":90
+    /* "pymatgen/optimization/neighbors.pyx":107
  *     count = 0
  *     for i in range(min_bounds[0], max_bounds[0]):
  *         for j in range(min_bounds[1], max_bounds[1]):             # <<<<<<<<<<<<<<
@@ -3864,7 +4035,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
     for (__pyx_t_12 = (__pyx_v_min_bounds[1]); __pyx_t_12 < __pyx_t_37; __pyx_t_12+=1) {
       __pyx_v_j = __pyx_t_12;
 
-      /* "pymatgen/optimization/neighbors.pyx":91
+      /* "pymatgen/optimization/neighbors.pyx":108
  *     for i in range(min_bounds[0], max_bounds[0]):
  *         for j in range(min_bounds[1], max_bounds[1]):
  *             for k in range(min_bounds[2], max_bounds[2]):             # <<<<<<<<<<<<<<
@@ -3876,33 +4047,33 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
       for (__pyx_t_13 = (__pyx_v_min_bounds[2]); __pyx_t_13 < __pyx_t_39; __pyx_t_13+=1) {
         __pyx_v_k = __pyx_t_13;
 
-        /* "pymatgen/optimization/neighbors.pyx":92
+        /* "pymatgen/optimization/neighbors.pyx":109
  *         for j in range(min_bounds[1], max_bounds[1]):
  *             for k in range(min_bounds[2], max_bounds[2]):
  *                 for l in range(n_total):             # <<<<<<<<<<<<<<
  *                     for m in range(3):
- *                         coord_temp[m] = i * lattice[0, m] + <double>j * lattice[1, m] + \
+ *                         coord_temp[m] = <double>i * lattice[0, m] + <double>j * lattice[1, m] + \
  */
         __pyx_t_14 = __pyx_v_n_total;
         __pyx_t_40 = __pyx_t_14;
         for (__pyx_t_41 = 0; __pyx_t_41 < __pyx_t_40; __pyx_t_41+=1) {
           __pyx_v_l = __pyx_t_41;
 
-          /* "pymatgen/optimization/neighbors.pyx":93
+          /* "pymatgen/optimization/neighbors.pyx":110
  *             for k in range(min_bounds[2], max_bounds[2]):
  *                 for l in range(n_total):
  *                     for m in range(3):             # <<<<<<<<<<<<<<
- *                         coord_temp[m] = i * lattice[0, m] + <double>j * lattice[1, m] + \
- *                             k * lattice[2, m] + coords_in_cell[l, m]
+ *                         coord_temp[m] = <double>i * lattice[0, m] + <double>j * lattice[1, m] + \
+ *                             <double>k * lattice[2, m] + coords_in_cell[l, m]
  */
           for (__pyx_t_42 = 0; __pyx_t_42 < 3; __pyx_t_42+=1) {
             __pyx_v_m = __pyx_t_42;
 
-            /* "pymatgen/optimization/neighbors.pyx":94
+            /* "pymatgen/optimization/neighbors.pyx":111
  *                 for l in range(n_total):
  *                     for m in range(3):
- *                         coord_temp[m] = i * lattice[0, m] + <double>j * lattice[1, m] + \             # <<<<<<<<<<<<<<
- *                             k * lattice[2, m] + coords_in_cell[l, m]
+ *                         coord_temp[m] = <double>i * lattice[0, m] + <double>j * lattice[1, m] + \             # <<<<<<<<<<<<<<
+ *                             <double>k * lattice[2, m] + coords_in_cell[l, m]
  *                     if (coord_temp[0] > valid_min[0]) & (coord_temp[0] < valid_max[0]) & \
  */
             __pyx_t_43 = 0;
@@ -3910,37 +4081,37 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
             __pyx_t_45 = 1;
             __pyx_t_46 = __pyx_v_m;
 
-            /* "pymatgen/optimization/neighbors.pyx":95
+            /* "pymatgen/optimization/neighbors.pyx":112
  *                     for m in range(3):
- *                         coord_temp[m] = i * lattice[0, m] + <double>j * lattice[1, m] + \
- *                             k * lattice[2, m] + coords_in_cell[l, m]             # <<<<<<<<<<<<<<
+ *                         coord_temp[m] = <double>i * lattice[0, m] + <double>j * lattice[1, m] + \
+ *                             <double>k * lattice[2, m] + coords_in_cell[l, m]             # <<<<<<<<<<<<<<
  *                     if (coord_temp[0] > valid_min[0]) & (coord_temp[0] < valid_max[0]) & \
  *                         (coord_temp[1] > valid_min[1]) & (coord_temp[1] < valid_max[1]) & \
  */
             __pyx_t_47 = 2;
             __pyx_t_48 = __pyx_v_m;
 
-            /* "pymatgen/optimization/neighbors.pyx":94
+            /* "pymatgen/optimization/neighbors.pyx":111
  *                 for l in range(n_total):
  *                     for m in range(3):
- *                         coord_temp[m] = i * lattice[0, m] + <double>j * lattice[1, m] + \             # <<<<<<<<<<<<<<
- *                             k * lattice[2, m] + coords_in_cell[l, m]
+ *                         coord_temp[m] = <double>i * lattice[0, m] + <double>j * lattice[1, m] + \             # <<<<<<<<<<<<<<
+ *                             <double>k * lattice[2, m] + coords_in_cell[l, m]
  *                     if (coord_temp[0] > valid_min[0]) & (coord_temp[0] < valid_max[0]) & \
  */
             __pyx_t_49 = __pyx_v_l;
             __pyx_t_50 = __pyx_v_m;
 
-            /* "pymatgen/optimization/neighbors.pyx":95
+            /* "pymatgen/optimization/neighbors.pyx":112
  *                     for m in range(3):
- *                         coord_temp[m] = i * lattice[0, m] + <double>j * lattice[1, m] + \
- *                             k * lattice[2, m] + coords_in_cell[l, m]             # <<<<<<<<<<<<<<
+ *                         coord_temp[m] = <double>i * lattice[0, m] + <double>j * lattice[1, m] + \
+ *                             <double>k * lattice[2, m] + coords_in_cell[l, m]             # <<<<<<<<<<<<<<
  *                     if (coord_temp[0] > valid_min[0]) & (coord_temp[0] < valid_max[0]) & \
  *                         (coord_temp[1] > valid_min[1]) & (coord_temp[1] < valid_max[1]) & \
  */
-            (__pyx_v_coord_temp[__pyx_v_m]) = ((((__pyx_v_i * (*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_lattice.data + __pyx_t_43 * __pyx_v_lattice.strides[0]) )) + __pyx_t_44)) )))) + (((double)__pyx_v_j) * (*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_lattice.data + __pyx_t_45 * __pyx_v_lattice.strides[0]) )) + __pyx_t_46)) ))))) + (__pyx_v_k * (*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_lattice.data + __pyx_t_47 * __pyx_v_lattice.strides[0]) )) + __pyx_t_48)) ))))) + (*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_coords_in_cell.data + __pyx_t_49 * __pyx_v_coords_in_cell.strides[0]) )) + __pyx_t_50)) ))));
+            (__pyx_v_coord_temp[__pyx_v_m]) = ((((((double)__pyx_v_i) * (*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_lattice.data + __pyx_t_43 * __pyx_v_lattice.strides[0]) )) + __pyx_t_44)) )))) + (((double)__pyx_v_j) * (*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_lattice.data + __pyx_t_45 * __pyx_v_lattice.strides[0]) )) + __pyx_t_46)) ))))) + (((double)__pyx_v_k) * (*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_lattice.data + __pyx_t_47 * __pyx_v_lattice.strides[0]) )) + __pyx_t_48)) ))))) + (*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_coords_in_cell.data + __pyx_t_49 * __pyx_v_coords_in_cell.strides[0]) )) + __pyx_t_50)) ))));
           }
 
-          /* "pymatgen/optimization/neighbors.pyx":98
+          /* "pymatgen/optimization/neighbors.pyx":115
  *                     if (coord_temp[0] > valid_min[0]) & (coord_temp[0] < valid_max[0]) & \
  *                         (coord_temp[1] > valid_min[1]) & (coord_temp[1] < valid_max[1]) & \
  *                         (coord_temp[2] > valid_min[2]) & (coord_temp[2] < valid_max[2]):             # <<<<<<<<<<<<<<
@@ -3949,16 +4120,16 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
  */
           __pyx_t_1 = ((((((((__pyx_v_coord_temp[0]) > (__pyx_v_valid_min[0])) & ((__pyx_v_coord_temp[0]) < (__pyx_v_valid_max[0]))) & ((__pyx_v_coord_temp[1]) > (__pyx_v_valid_min[1]))) & ((__pyx_v_coord_temp[1]) < (__pyx_v_valid_max[1]))) & ((__pyx_v_coord_temp[2]) > (__pyx_v_valid_min[2]))) & ((__pyx_v_coord_temp[2]) < (__pyx_v_valid_max[2]))) != 0);
 
-          /* "pymatgen/optimization/neighbors.pyx":96
- *                         coord_temp[m] = i * lattice[0, m] + <double>j * lattice[1, m] + \
- *                             k * lattice[2, m] + coords_in_cell[l, m]
+          /* "pymatgen/optimization/neighbors.pyx":113
+ *                         coord_temp[m] = <double>i * lattice[0, m] + <double>j * lattice[1, m] + \
+ *                             <double>k * lattice[2, m] + coords_in_cell[l, m]
  *                     if (coord_temp[0] > valid_min[0]) & (coord_temp[0] < valid_max[0]) & \             # <<<<<<<<<<<<<<
  *                         (coord_temp[1] > valid_min[1]) & (coord_temp[1] < valid_max[1]) & \
  *                         (coord_temp[2] > valid_min[2]) & (coord_temp[2] < valid_max[2]):
  */
           if (__pyx_t_1) {
 
-            /* "pymatgen/optimization/neighbors.pyx":99
+            /* "pymatgen/optimization/neighbors.pyx":116
  *                         (coord_temp[1] > valid_min[1]) & (coord_temp[1] < valid_max[1]) & \
  *                         (coord_temp[2] > valid_min[2]) & (coord_temp[2] < valid_max[2]):
  *                         offsets_p_temp[3*count] = i             # <<<<<<<<<<<<<<
@@ -3967,7 +4138,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
  */
             (__pyx_v_offsets_p_temp[(3 * __pyx_v_count)]) = __pyx_v_i;
 
-            /* "pymatgen/optimization/neighbors.pyx":100
+            /* "pymatgen/optimization/neighbors.pyx":117
  *                         (coord_temp[2] > valid_min[2]) & (coord_temp[2] < valid_max[2]):
  *                         offsets_p_temp[3*count] = i
  *                         offsets_p_temp[3*count+1] = j             # <<<<<<<<<<<<<<
@@ -3976,7 +4147,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
  */
             (__pyx_v_offsets_p_temp[((3 * __pyx_v_count) + 1)]) = __pyx_v_j;
 
-            /* "pymatgen/optimization/neighbors.pyx":101
+            /* "pymatgen/optimization/neighbors.pyx":118
  *                         offsets_p_temp[3*count] = i
  *                         offsets_p_temp[3*count+1] = j
  *                         offsets_p_temp[3*count+2] = k             # <<<<<<<<<<<<<<
@@ -3985,7 +4156,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
  */
             (__pyx_v_offsets_p_temp[((3 * __pyx_v_count) + 2)]) = __pyx_v_k;
 
-            /* "pymatgen/optimization/neighbors.pyx":102
+            /* "pymatgen/optimization/neighbors.pyx":119
  *                         offsets_p_temp[3*count+1] = j
  *                         offsets_p_temp[3*count+2] = k
  *                         indices_p_temp[count] = l             # <<<<<<<<<<<<<<
@@ -3994,7 +4165,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
  */
             (__pyx_v_indices_p_temp[__pyx_v_count]) = __pyx_v_l;
 
-            /* "pymatgen/optimization/neighbors.pyx":103
+            /* "pymatgen/optimization/neighbors.pyx":120
  *                         offsets_p_temp[3*count+2] = k
  *                         indices_p_temp[count] = l
  *                         expanded_coords_p_temp[3*count] = coord_temp[0]             # <<<<<<<<<<<<<<
@@ -4003,7 +4174,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
  */
             (__pyx_v_expanded_coords_p_temp[(3 * __pyx_v_count)]) = (__pyx_v_coord_temp[0]);
 
-            /* "pymatgen/optimization/neighbors.pyx":104
+            /* "pymatgen/optimization/neighbors.pyx":121
  *                         indices_p_temp[count] = l
  *                         expanded_coords_p_temp[3*count] = coord_temp[0]
  *                         expanded_coords_p_temp[3*count+1] = coord_temp[1]             # <<<<<<<<<<<<<<
@@ -4012,27 +4183,82 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
  */
             (__pyx_v_expanded_coords_p_temp[((3 * __pyx_v_count) + 1)]) = (__pyx_v_coord_temp[1]);
 
-            /* "pymatgen/optimization/neighbors.pyx":105
+            /* "pymatgen/optimization/neighbors.pyx":122
  *                         expanded_coords_p_temp[3*count] = coord_temp[0]
  *                         expanded_coords_p_temp[3*count+1] = coord_temp[1]
  *                         expanded_coords_p_temp[3*count+2] = coord_temp[2]             # <<<<<<<<<<<<<<
  *                         count += 1
- * 
+ *                         if count >= natoms:  # exceeding current memory
  */
             (__pyx_v_expanded_coords_p_temp[((3 * __pyx_v_count) + 2)]) = (__pyx_v_coord_temp[2]);
 
-            /* "pymatgen/optimization/neighbors.pyx":106
+            /* "pymatgen/optimization/neighbors.pyx":123
  *                         expanded_coords_p_temp[3*count+1] = coord_temp[1]
  *                         expanded_coords_p_temp[3*count+2] = coord_temp[2]
  *                         count += 1             # <<<<<<<<<<<<<<
- * 
- *     # if no valid neighbors were found return empty
+ *                         if count >= natoms:  # exceeding current memory
+ *                             natoms += natoms
  */
             __pyx_v_count = (__pyx_v_count + 1);
 
-            /* "pymatgen/optimization/neighbors.pyx":96
- *                         coord_temp[m] = i * lattice[0, m] + <double>j * lattice[1, m] + \
- *                             k * lattice[2, m] + coords_in_cell[l, m]
+            /* "pymatgen/optimization/neighbors.pyx":124
+ *                         expanded_coords_p_temp[3*count+2] = coord_temp[2]
+ *                         count += 1
+ *                         if count >= natoms:  # exceeding current memory             # <<<<<<<<<<<<<<
+ *                             natoms += natoms
+ *                             offsets_p_temp = <double*>safe_realloc(offsets_p_temp, natoms * 3 * sizeof(double))
+ */
+            __pyx_t_1 = ((__pyx_v_count >= __pyx_v_natoms) != 0);
+            if (__pyx_t_1) {
+
+              /* "pymatgen/optimization/neighbors.pyx":125
+ *                         count += 1
+ *                         if count >= natoms:  # exceeding current memory
+ *                             natoms += natoms             # <<<<<<<<<<<<<<
+ *                             offsets_p_temp = <double*>safe_realloc(offsets_p_temp, natoms * 3 * sizeof(double))
+ *                             expanded_coords_p_temp = <double*>safe_realloc(expanded_coords_p_temp, natoms * 3 * sizeof(double))
+ */
+              __pyx_v_natoms = (__pyx_v_natoms + __pyx_v_natoms);
+
+              /* "pymatgen/optimization/neighbors.pyx":126
+ *                         if count >= natoms:  # exceeding current memory
+ *                             natoms += natoms
+ *                             offsets_p_temp = <double*>safe_realloc(offsets_p_temp, natoms * 3 * sizeof(double))             # <<<<<<<<<<<<<<
+ *                             expanded_coords_p_temp = <double*>safe_realloc(expanded_coords_p_temp, natoms * 3 * sizeof(double))
+ *                             indices_p_temp = <long*>safe_realloc(indices_p_temp, natoms * sizeof(long))
+ */
+              __pyx_v_offsets_p_temp = ((double *)__pyx_f_8pymatgen_12optimization_9neighbors_safe_realloc(__pyx_v_offsets_p_temp, ((__pyx_v_natoms * 3) * (sizeof(double)))));
+
+              /* "pymatgen/optimization/neighbors.pyx":127
+ *                             natoms += natoms
+ *                             offsets_p_temp = <double*>safe_realloc(offsets_p_temp, natoms * 3 * sizeof(double))
+ *                             expanded_coords_p_temp = <double*>safe_realloc(expanded_coords_p_temp, natoms * 3 * sizeof(double))             # <<<<<<<<<<<<<<
+ *                             indices_p_temp = <long*>safe_realloc(indices_p_temp, natoms * sizeof(long))
+ * 
+ */
+              __pyx_v_expanded_coords_p_temp = ((double *)__pyx_f_8pymatgen_12optimization_9neighbors_safe_realloc(__pyx_v_expanded_coords_p_temp, ((__pyx_v_natoms * 3) * (sizeof(double)))));
+
+              /* "pymatgen/optimization/neighbors.pyx":128
+ *                             offsets_p_temp = <double*>safe_realloc(offsets_p_temp, natoms * 3 * sizeof(double))
+ *                             expanded_coords_p_temp = <double*>safe_realloc(expanded_coords_p_temp, natoms * 3 * sizeof(double))
+ *                             indices_p_temp = <long*>safe_realloc(indices_p_temp, natoms * sizeof(long))             # <<<<<<<<<<<<<<
+ * 
+ *     # if no valid neighbors were found return empty
+ */
+              __pyx_v_indices_p_temp = ((long *)__pyx_f_8pymatgen_12optimization_9neighbors_safe_realloc(__pyx_v_indices_p_temp, (__pyx_v_natoms * (sizeof(long)))));
+
+              /* "pymatgen/optimization/neighbors.pyx":124
+ *                         expanded_coords_p_temp[3*count+2] = coord_temp[2]
+ *                         count += 1
+ *                         if count >= natoms:  # exceeding current memory             # <<<<<<<<<<<<<<
+ *                             natoms += natoms
+ *                             offsets_p_temp = <double*>safe_realloc(offsets_p_temp, natoms * 3 * sizeof(double))
+ */
+            }
+
+            /* "pymatgen/optimization/neighbors.pyx":113
+ *                         coord_temp[m] = <double>i * lattice[0, m] + <double>j * lattice[1, m] + \
+ *                             <double>k * lattice[2, m] + coords_in_cell[l, m]
  *                     if (coord_temp[0] > valid_min[0]) & (coord_temp[0] < valid_max[0]) & \             # <<<<<<<<<<<<<<
  *                         (coord_temp[1] > valid_min[1]) & (coord_temp[1] < valid_max[1]) & \
  *                         (coord_temp[2] > valid_min[2]) & (coord_temp[2] < valid_max[2]):
@@ -4043,7 +4269,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
     }
   }
 
-  /* "pymatgen/optimization/neighbors.pyx":109
+  /* "pymatgen/optimization/neighbors.pyx":131
  * 
  *     # if no valid neighbors were found return empty
  *     if count == 0:             # <<<<<<<<<<<<<<
@@ -4053,7 +4279,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
   __pyx_t_1 = ((__pyx_v_count == 0) != 0);
   if (__pyx_t_1) {
 
-    /* "pymatgen/optimization/neighbors.pyx":110
+    /* "pymatgen/optimization/neighbors.pyx":132
  *     # if no valid neighbors were found return empty
  *     if count == 0:
  *         free(&frac_coords[0, 0])             # <<<<<<<<<<<<<<
@@ -4064,7 +4290,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
     __pyx_t_52 = 0;
     free((&(*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_frac_coords.data + __pyx_t_51 * __pyx_v_frac_coords.strides[0]) )) + __pyx_t_52)) )))));
 
-    /* "pymatgen/optimization/neighbors.pyx":111
+    /* "pymatgen/optimization/neighbors.pyx":133
  *     if count == 0:
  *         free(&frac_coords[0, 0])
  *         free(&all_fcoords[0, 0])             # <<<<<<<<<<<<<<
@@ -4075,7 +4301,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
     __pyx_t_54 = 0;
     free((&(*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_all_fcoords.data + __pyx_t_53 * __pyx_v_all_fcoords.strides[0]) )) + __pyx_t_54)) )))));
 
-    /* "pymatgen/optimization/neighbors.pyx":112
+    /* "pymatgen/optimization/neighbors.pyx":134
  *         free(&frac_coords[0, 0])
  *         free(&all_fcoords[0, 0])
  *         free(&coords_in_cell[0, 0])             # <<<<<<<<<<<<<<
@@ -4086,7 +4312,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
     __pyx_t_56 = 0;
     free((&(*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_coords_in_cell.data + __pyx_t_55 * __pyx_v_coords_in_cell.strides[0]) )) + __pyx_t_56)) )))));
 
-    /* "pymatgen/optimization/neighbors.pyx":113
+    /* "pymatgen/optimization/neighbors.pyx":135
  *         free(&all_fcoords[0, 0])
  *         free(&coords_in_cell[0, 0])
  *         free(&offset_correction[0, 0])             # <<<<<<<<<<<<<<
@@ -4097,7 +4323,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
     __pyx_t_58 = 0;
     free((&(*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_offset_correction.data + __pyx_t_57 * __pyx_v_offset_correction.strides[0]) )) + __pyx_t_58)) )))));
 
-    /* "pymatgen/optimization/neighbors.pyx":114
+    /* "pymatgen/optimization/neighbors.pyx":136
  *         free(&coords_in_cell[0, 0])
  *         free(&offset_correction[0, 0])
  *         free(offsets_p_temp)             # <<<<<<<<<<<<<<
@@ -4106,7 +4332,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
  */
     free(__pyx_v_offsets_p_temp);
 
-    /* "pymatgen/optimization/neighbors.pyx":115
+    /* "pymatgen/optimization/neighbors.pyx":137
  *         free(&offset_correction[0, 0])
  *         free(offsets_p_temp)
  *         free(expanded_coords_p_temp)             # <<<<<<<<<<<<<<
@@ -4115,7 +4341,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
  */
     free(__pyx_v_expanded_coords_p_temp);
 
-    /* "pymatgen/optimization/neighbors.pyx":116
+    /* "pymatgen/optimization/neighbors.pyx":138
  *         free(offsets_p_temp)
  *         free(expanded_coords_p_temp)
  *         free(indices_p_temp)             # <<<<<<<<<<<<<<
@@ -4124,7 +4350,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
  */
     free(__pyx_v_indices_p_temp);
 
-    /* "pymatgen/optimization/neighbors.pyx":117
+    /* "pymatgen/optimization/neighbors.pyx":139
  *         free(expanded_coords_p_temp)
  *         free(indices_p_temp)
  *         return (np.array([], dtype=int), np.array([], dtype=int),             # <<<<<<<<<<<<<<
@@ -4132,66 +4358,66 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
  * 
  */
     __Pyx_XDECREF(__pyx_r);
-    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 117, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 139, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_array); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 117, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_array); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 139, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_3 = PyList_New(0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 117, __pyx_L1_error)
+    __pyx_t_3 = PyList_New(0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 139, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_59 = PyTuple_New(1); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 117, __pyx_L1_error)
+    __pyx_t_59 = PyTuple_New(1); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 139, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_59);
     __Pyx_GIVEREF(__pyx_t_3);
     PyTuple_SET_ITEM(__pyx_t_59, 0, __pyx_t_3);
     __pyx_t_3 = 0;
-    __pyx_t_3 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 117, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 139, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_dtype, ((PyObject *)(&PyInt_Type))) < 0) __PYX_ERR(0, 117, __pyx_L1_error)
-    __pyx_t_60 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_59, __pyx_t_3); if (unlikely(!__pyx_t_60)) __PYX_ERR(0, 117, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_dtype, ((PyObject *)(&PyInt_Type))) < 0) __PYX_ERR(0, 139, __pyx_L1_error)
+    __pyx_t_60 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_59, __pyx_t_3); if (unlikely(!__pyx_t_60)) __PYX_ERR(0, 139, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_60);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_59); __pyx_t_59 = 0;
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 117, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 139, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_59 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_array); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 117, __pyx_L1_error)
+    __pyx_t_59 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_array); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 139, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_59);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_3 = PyList_New(0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 117, __pyx_L1_error)
+    __pyx_t_3 = PyList_New(0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 139, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_4 = PyTuple_New(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 117, __pyx_L1_error)
+    __pyx_t_4 = PyTuple_New(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 139, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_GIVEREF(__pyx_t_3);
     PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_3);
     __pyx_t_3 = 0;
-    __pyx_t_3 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 117, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 139, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_dtype, ((PyObject *)(&PyInt_Type))) < 0) __PYX_ERR(0, 117, __pyx_L1_error)
-    __pyx_t_61 = __Pyx_PyObject_Call(__pyx_t_59, __pyx_t_4, __pyx_t_3); if (unlikely(!__pyx_t_61)) __PYX_ERR(0, 117, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_dtype, ((PyObject *)(&PyInt_Type))) < 0) __PYX_ERR(0, 139, __pyx_L1_error)
+    __pyx_t_61 = __Pyx_PyObject_Call(__pyx_t_59, __pyx_t_4, __pyx_t_3); if (unlikely(!__pyx_t_61)) __PYX_ERR(0, 139, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_61);
     __Pyx_DECREF(__pyx_t_59); __pyx_t_59 = 0;
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-    /* "pymatgen/optimization/neighbors.pyx":118
+    /* "pymatgen/optimization/neighbors.pyx":140
  *         free(indices_p_temp)
  *         return (np.array([], dtype=int), np.array([], dtype=int),
  *             np.array([[], [], []], dtype=float).T, np.array([], dtype=float))             # <<<<<<<<<<<<<<
  * 
  *     # Delete those beyond (min_center_coords - r, max_center_coords + r)
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 118, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 140, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_array); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 118, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_array); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 140, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_3 = PyList_New(0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 118, __pyx_L1_error)
+    __pyx_t_3 = PyList_New(0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 140, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_59 = PyList_New(0); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 118, __pyx_L1_error)
+    __pyx_t_59 = PyList_New(0); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 140, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_59);
-    __pyx_t_62 = PyList_New(0); if (unlikely(!__pyx_t_62)) __PYX_ERR(0, 118, __pyx_L1_error)
+    __pyx_t_62 = PyList_New(0); if (unlikely(!__pyx_t_62)) __PYX_ERR(0, 140, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_62);
-    __pyx_t_63 = PyList_New(3); if (unlikely(!__pyx_t_63)) __PYX_ERR(0, 118, __pyx_L1_error)
+    __pyx_t_63 = PyList_New(3); if (unlikely(!__pyx_t_63)) __PYX_ERR(0, 140, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_63);
     __Pyx_GIVEREF(__pyx_t_3);
     PyList_SET_ITEM(__pyx_t_63, 0, __pyx_t_3);
@@ -4202,51 +4428,51 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
     __pyx_t_3 = 0;
     __pyx_t_59 = 0;
     __pyx_t_62 = 0;
-    __pyx_t_62 = PyTuple_New(1); if (unlikely(!__pyx_t_62)) __PYX_ERR(0, 118, __pyx_L1_error)
+    __pyx_t_62 = PyTuple_New(1); if (unlikely(!__pyx_t_62)) __PYX_ERR(0, 140, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_62);
     __Pyx_GIVEREF(__pyx_t_63);
     PyTuple_SET_ITEM(__pyx_t_62, 0, __pyx_t_63);
     __pyx_t_63 = 0;
-    __pyx_t_63 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_63)) __PYX_ERR(0, 118, __pyx_L1_error)
+    __pyx_t_63 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_63)) __PYX_ERR(0, 140, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_63);
-    if (PyDict_SetItem(__pyx_t_63, __pyx_n_s_dtype, ((PyObject *)(&PyFloat_Type))) < 0) __PYX_ERR(0, 118, __pyx_L1_error)
-    __pyx_t_59 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_62, __pyx_t_63); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 118, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_63, __pyx_n_s_dtype, ((PyObject *)(&PyFloat_Type))) < 0) __PYX_ERR(0, 140, __pyx_L1_error)
+    __pyx_t_59 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_62, __pyx_t_63); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 140, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_59);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_62); __pyx_t_62 = 0;
     __Pyx_DECREF(__pyx_t_63); __pyx_t_63 = 0;
-    __pyx_t_63 = __Pyx_PyObject_GetAttrStr(__pyx_t_59, __pyx_n_s_T); if (unlikely(!__pyx_t_63)) __PYX_ERR(0, 118, __pyx_L1_error)
+    __pyx_t_63 = __Pyx_PyObject_GetAttrStr(__pyx_t_59, __pyx_n_s_T); if (unlikely(!__pyx_t_63)) __PYX_ERR(0, 140, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_63);
     __Pyx_DECREF(__pyx_t_59); __pyx_t_59 = 0;
-    __Pyx_GetModuleGlobalName(__pyx_t_59, __pyx_n_s_np); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 118, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_59, __pyx_n_s_np); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 140, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_59);
-    __pyx_t_62 = __Pyx_PyObject_GetAttrStr(__pyx_t_59, __pyx_n_s_array); if (unlikely(!__pyx_t_62)) __PYX_ERR(0, 118, __pyx_L1_error)
+    __pyx_t_62 = __Pyx_PyObject_GetAttrStr(__pyx_t_59, __pyx_n_s_array); if (unlikely(!__pyx_t_62)) __PYX_ERR(0, 140, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_62);
     __Pyx_DECREF(__pyx_t_59); __pyx_t_59 = 0;
-    __pyx_t_59 = PyList_New(0); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 118, __pyx_L1_error)
+    __pyx_t_59 = PyList_New(0); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 140, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_59);
-    __pyx_t_4 = PyTuple_New(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 118, __pyx_L1_error)
+    __pyx_t_4 = PyTuple_New(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 140, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_GIVEREF(__pyx_t_59);
     PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_59);
     __pyx_t_59 = 0;
-    __pyx_t_59 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 118, __pyx_L1_error)
+    __pyx_t_59 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 140, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_59);
-    if (PyDict_SetItem(__pyx_t_59, __pyx_n_s_dtype, ((PyObject *)(&PyFloat_Type))) < 0) __PYX_ERR(0, 118, __pyx_L1_error)
-    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_62, __pyx_t_4, __pyx_t_59); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 118, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_59, __pyx_n_s_dtype, ((PyObject *)(&PyFloat_Type))) < 0) __PYX_ERR(0, 140, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_62, __pyx_t_4, __pyx_t_59); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 140, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_62); __pyx_t_62 = 0;
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_59); __pyx_t_59 = 0;
 
-    /* "pymatgen/optimization/neighbors.pyx":117
+    /* "pymatgen/optimization/neighbors.pyx":139
  *         free(expanded_coords_p_temp)
  *         free(indices_p_temp)
  *         return (np.array([], dtype=int), np.array([], dtype=int),             # <<<<<<<<<<<<<<
  *             np.array([[], [], []], dtype=float).T, np.array([], dtype=float))
  * 
  */
-    __pyx_t_59 = PyTuple_New(4); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 117, __pyx_L1_error)
+    __pyx_t_59 = PyTuple_New(4); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 139, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_59);
     __Pyx_GIVEREF(__pyx_t_60);
     PyTuple_SET_ITEM(__pyx_t_59, 0, __pyx_t_60);
@@ -4264,7 +4490,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
     __pyx_t_59 = 0;
     goto __pyx_L0;
 
-    /* "pymatgen/optimization/neighbors.pyx":109
+    /* "pymatgen/optimization/neighbors.pyx":131
  * 
  *     # if no valid neighbors were found return empty
  *     if count == 0:             # <<<<<<<<<<<<<<
@@ -4273,35 +4499,35 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
  */
   }
 
-  /* "pymatgen/optimization/neighbors.pyx":121
+  /* "pymatgen/optimization/neighbors.pyx":143
  * 
  *     # Delete those beyond (min_center_coords - r, max_center_coords + r)
- *     cdef double *offsets_p = <double*> realloc(offsets_p_temp, count * 3 * sizeof(double))             # <<<<<<<<<<<<<<
- *     cdef double *expanded_coords_p = <double*> realloc(expanded_coords_p_temp, count * 3 * sizeof(double))
- *     cdef long *indices_p = <long*> realloc(indices_p_temp, count * sizeof(long))
+ *     cdef double *offsets_p = <double*> safe_realloc(offsets_p_temp, count * 3 * sizeof(double))             # <<<<<<<<<<<<<<
+ *     cdef double *expanded_coords_p = <double*> safe_realloc(expanded_coords_p_temp, count * 3 * sizeof(double))
+ *     cdef long *indices_p = <long*> safe_realloc(indices_p_temp, count * sizeof(long))
  */
-  __pyx_v_offsets_p = ((double *)realloc(__pyx_v_offsets_p_temp, ((__pyx_v_count * 3) * (sizeof(double)))));
+  __pyx_v_offsets_p = ((double *)__pyx_f_8pymatgen_12optimization_9neighbors_safe_realloc(__pyx_v_offsets_p_temp, ((__pyx_v_count * 3) * (sizeof(double)))));
 
-  /* "pymatgen/optimization/neighbors.pyx":122
+  /* "pymatgen/optimization/neighbors.pyx":144
  *     # Delete those beyond (min_center_coords - r, max_center_coords + r)
- *     cdef double *offsets_p = <double*> realloc(offsets_p_temp, count * 3 * sizeof(double))
- *     cdef double *expanded_coords_p = <double*> realloc(expanded_coords_p_temp, count * 3 * sizeof(double))             # <<<<<<<<<<<<<<
- *     cdef long *indices_p = <long*> realloc(indices_p_temp, count * sizeof(long))
+ *     cdef double *offsets_p = <double*> safe_realloc(offsets_p_temp, count * 3 * sizeof(double))
+ *     cdef double *expanded_coords_p = <double*> safe_realloc(expanded_coords_p_temp, count * 3 * sizeof(double))             # <<<<<<<<<<<<<<
+ *     cdef long *indices_p = <long*> safe_realloc(indices_p_temp, count * sizeof(long))
  * 
  */
-  __pyx_v_expanded_coords_p = ((double *)realloc(__pyx_v_expanded_coords_p_temp, ((__pyx_v_count * 3) * (sizeof(double)))));
+  __pyx_v_expanded_coords_p = ((double *)__pyx_f_8pymatgen_12optimization_9neighbors_safe_realloc(__pyx_v_expanded_coords_p_temp, ((__pyx_v_count * 3) * (sizeof(double)))));
 
-  /* "pymatgen/optimization/neighbors.pyx":123
- *     cdef double *offsets_p = <double*> realloc(offsets_p_temp, count * 3 * sizeof(double))
- *     cdef double *expanded_coords_p = <double*> realloc(expanded_coords_p_temp, count * 3 * sizeof(double))
- *     cdef long *indices_p = <long*> realloc(indices_p_temp, count * sizeof(long))             # <<<<<<<<<<<<<<
+  /* "pymatgen/optimization/neighbors.pyx":145
+ *     cdef double *offsets_p = <double*> safe_realloc(offsets_p_temp, count * 3 * sizeof(double))
+ *     cdef double *expanded_coords_p = <double*> safe_realloc(expanded_coords_p_temp, count * 3 * sizeof(double))
+ *     cdef long *indices_p = <long*> safe_realloc(indices_p_temp, count * sizeof(long))             # <<<<<<<<<<<<<<
  * 
  *     cdef double[:, ::1] offsets = <double[:count, :3]> offsets_p
  */
-  __pyx_v_indices_p = ((long *)realloc(__pyx_v_indices_p_temp, (__pyx_v_count * (sizeof(long)))));
+  __pyx_v_indices_p = ((long *)__pyx_f_8pymatgen_12optimization_9neighbors_safe_realloc(__pyx_v_indices_p_temp, (__pyx_v_count * (sizeof(long)))));
 
-  /* "pymatgen/optimization/neighbors.pyx":125
- *     cdef long *indices_p = <long*> realloc(indices_p_temp, count * sizeof(long))
+  /* "pymatgen/optimization/neighbors.pyx":147
+ *     cdef long *indices_p = <long*> safe_realloc(indices_p_temp, count * sizeof(long))
  * 
  *     cdef double[:, ::1] offsets = <double[:count, :3]> offsets_p             # <<<<<<<<<<<<<<
  *     cdef double[:, ::1] expanded_coords = <double[:count, :3]> expanded_coords_p
@@ -4309,25 +4535,25 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
  */
   if (!__pyx_v_offsets_p) {
     PyErr_SetString(PyExc_ValueError,"Cannot create cython.array from NULL pointer");
-    __PYX_ERR(0, 125, __pyx_L1_error)
+    __PYX_ERR(0, 147, __pyx_L1_error)
   }
   __pyx_t_3 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_double);
   __pyx_t_59 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)__pyx_v_count), ((Py_ssize_t)3));
-  if (unlikely(!__pyx_t_3 || !__pyx_t_59 || !PyBytes_AsString(__pyx_t_3))) __PYX_ERR(0, 125, __pyx_L1_error)
+  if (unlikely(!__pyx_t_3 || !__pyx_t_59 || !PyBytes_AsString(__pyx_t_3))) __PYX_ERR(0, 147, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_GOTREF(__pyx_t_59);
   __pyx_t_2 = __pyx_array_new(__pyx_t_59, sizeof(double), PyBytes_AS_STRING(__pyx_t_3), (char *) "c", (char *) __pyx_v_offsets_p);
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 125, __pyx_L1_error)
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 147, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_59); __pyx_t_59 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_double(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 125, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_double(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 147, __pyx_L1_error)
   __Pyx_DECREF(((PyObject *)__pyx_t_2)); __pyx_t_2 = 0;
   __pyx_v_offsets = __pyx_t_9;
   __pyx_t_9.memview = NULL;
   __pyx_t_9.data = NULL;
 
-  /* "pymatgen/optimization/neighbors.pyx":126
+  /* "pymatgen/optimization/neighbors.pyx":148
  * 
  *     cdef double[:, ::1] offsets = <double[:count, :3]> offsets_p
  *     cdef double[:, ::1] expanded_coords = <double[:count, :3]> expanded_coords_p             # <<<<<<<<<<<<<<
@@ -4336,25 +4562,25 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
  */
   if (!__pyx_v_expanded_coords_p) {
     PyErr_SetString(PyExc_ValueError,"Cannot create cython.array from NULL pointer");
-    __PYX_ERR(0, 126, __pyx_L1_error)
+    __PYX_ERR(0, 148, __pyx_L1_error)
   }
   __pyx_t_59 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_double);
   __pyx_t_3 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)__pyx_v_count), ((Py_ssize_t)3));
-  if (unlikely(!__pyx_t_59 || !__pyx_t_3 || !PyBytes_AsString(__pyx_t_59))) __PYX_ERR(0, 126, __pyx_L1_error)
+  if (unlikely(!__pyx_t_59 || !__pyx_t_3 || !PyBytes_AsString(__pyx_t_59))) __PYX_ERR(0, 148, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_59);
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_2 = __pyx_array_new(__pyx_t_3, sizeof(double), PyBytes_AS_STRING(__pyx_t_59), (char *) "c", (char *) __pyx_v_expanded_coords_p);
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 126, __pyx_L1_error)
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 148, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_59); __pyx_t_59 = 0;
-  __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_double(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 126, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_double(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 148, __pyx_L1_error)
   __Pyx_DECREF(((PyObject *)__pyx_t_2)); __pyx_t_2 = 0;
   __pyx_v_expanded_coords = __pyx_t_9;
   __pyx_t_9.memview = NULL;
   __pyx_t_9.data = NULL;
 
-  /* "pymatgen/optimization/neighbors.pyx":127
+  /* "pymatgen/optimization/neighbors.pyx":149
  *     cdef double[:, ::1] offsets = <double[:count, :3]> offsets_p
  *     cdef double[:, ::1] expanded_coords = <double[:count, :3]> expanded_coords_p
  *     cdef long[::1] indices = <long[:count]> indices_p             # <<<<<<<<<<<<<<
@@ -4363,91 +4589,91 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
  */
   if (!__pyx_v_indices_p) {
     PyErr_SetString(PyExc_ValueError,"Cannot create cython.array from NULL pointer");
-    __PYX_ERR(0, 127, __pyx_L1_error)
+    __PYX_ERR(0, 149, __pyx_L1_error)
   }
   __pyx_t_3 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_long);
   __pyx_t_59 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)__pyx_v_count));
-  if (unlikely(!__pyx_t_3 || !__pyx_t_59 || !PyBytes_AsString(__pyx_t_3))) __PYX_ERR(0, 127, __pyx_L1_error)
+  if (unlikely(!__pyx_t_3 || !__pyx_t_59 || !PyBytes_AsString(__pyx_t_3))) __PYX_ERR(0, 149, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_GOTREF(__pyx_t_59);
   __pyx_t_2 = __pyx_array_new(__pyx_t_59, sizeof(long), PyBytes_AS_STRING(__pyx_t_3), (char *) "c", (char *) __pyx_v_indices_p);
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 127, __pyx_L1_error)
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 149, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_59); __pyx_t_59 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_64 = __Pyx_PyObject_to_MemoryviewSlice_dc_long(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_64.memview)) __PYX_ERR(0, 127, __pyx_L1_error)
+  __pyx_t_64 = __Pyx_PyObject_to_MemoryviewSlice_dc_long(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_64.memview)) __PYX_ERR(0, 149, __pyx_L1_error)
   __Pyx_DECREF(((PyObject *)__pyx_t_2)); __pyx_t_2 = 0;
   __pyx_v_indices = __pyx_t_64;
   __pyx_t_64.memview = NULL;
   __pyx_t_64.data = NULL;
 
-  /* "pymatgen/optimization/neighbors.pyx":130
+  /* "pymatgen/optimization/neighbors.pyx":152
  * 
  *     # Construct linked cell list
  *     natoms = count             # <<<<<<<<<<<<<<
  *     cdef long ncube[3]
- *     cdef long[:, ::1] all_indices3 = <long[:natoms, :3]> malloc(natoms * 3 * sizeof(long))
+ *     cdef long[:, ::1] all_indices3 = <long[:natoms, :3]> safe_malloc(natoms * 3 * sizeof(long))
  */
   __pyx_v_natoms = __pyx_v_count;
 
-  /* "pymatgen/optimization/neighbors.pyx":132
+  /* "pymatgen/optimization/neighbors.pyx":154
  *     natoms = count
  *     cdef long ncube[3]
- *     cdef long[:, ::1] all_indices3 = <long[:natoms, :3]> malloc(natoms * 3 * sizeof(long))             # <<<<<<<<<<<<<<
- *     cdef long[::1] all_indices1 = <long[:natoms]> malloc(natoms * sizeof(long))
+ *     cdef long[:, ::1] all_indices3 = <long[:natoms, :3]> safe_malloc(natoms * 3 * sizeof(long))             # <<<<<<<<<<<<<<
+ *     cdef long[::1] all_indices1 = <long[:natoms]> safe_malloc(natoms * sizeof(long))
  * 
  */
-  __pyx_t_8 = malloc(((__pyx_v_natoms * 3) * (sizeof(long))));
+  __pyx_t_8 = __pyx_f_8pymatgen_12optimization_9neighbors_safe_malloc(((__pyx_v_natoms * 3) * (sizeof(long))));
   if (!__pyx_t_8) {
     PyErr_SetString(PyExc_ValueError,"Cannot create cython.array from NULL pointer");
-    __PYX_ERR(0, 132, __pyx_L1_error)
+    __PYX_ERR(0, 154, __pyx_L1_error)
   }
   __pyx_t_59 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_long);
   __pyx_t_3 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)__pyx_v_natoms), ((Py_ssize_t)3));
-  if (unlikely(!__pyx_t_59 || !__pyx_t_3 || !PyBytes_AsString(__pyx_t_59))) __PYX_ERR(0, 132, __pyx_L1_error)
+  if (unlikely(!__pyx_t_59 || !__pyx_t_3 || !PyBytes_AsString(__pyx_t_59))) __PYX_ERR(0, 154, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_59);
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_2 = __pyx_array_new(__pyx_t_3, sizeof(long), PyBytes_AS_STRING(__pyx_t_59), (char *) "c", (char *) __pyx_t_8);
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 132, __pyx_L1_error)
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 154, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_59); __pyx_t_59 = 0;
-  __pyx_t_65 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_long(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_65.memview)) __PYX_ERR(0, 132, __pyx_L1_error)
+  __pyx_t_65 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_long(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_65.memview)) __PYX_ERR(0, 154, __pyx_L1_error)
   __Pyx_DECREF(((PyObject *)__pyx_t_2)); __pyx_t_2 = 0;
   __pyx_v_all_indices3 = __pyx_t_65;
   __pyx_t_65.memview = NULL;
   __pyx_t_65.data = NULL;
 
-  /* "pymatgen/optimization/neighbors.pyx":133
+  /* "pymatgen/optimization/neighbors.pyx":155
  *     cdef long ncube[3]
- *     cdef long[:, ::1] all_indices3 = <long[:natoms, :3]> malloc(natoms * 3 * sizeof(long))
- *     cdef long[::1] all_indices1 = <long[:natoms]> malloc(natoms * sizeof(long))             # <<<<<<<<<<<<<<
+ *     cdef long[:, ::1] all_indices3 = <long[:natoms, :3]> safe_malloc(natoms * 3 * sizeof(long))
+ *     cdef long[::1] all_indices1 = <long[:natoms]> safe_malloc(natoms * sizeof(long))             # <<<<<<<<<<<<<<
  * 
  *     for i in range(3):
  */
-  __pyx_t_8 = malloc((__pyx_v_natoms * (sizeof(long))));
+  __pyx_t_8 = __pyx_f_8pymatgen_12optimization_9neighbors_safe_malloc((__pyx_v_natoms * (sizeof(long))));
   if (!__pyx_t_8) {
     PyErr_SetString(PyExc_ValueError,"Cannot create cython.array from NULL pointer");
-    __PYX_ERR(0, 133, __pyx_L1_error)
+    __PYX_ERR(0, 155, __pyx_L1_error)
   }
   __pyx_t_3 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_long);
   __pyx_t_59 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)__pyx_v_natoms));
-  if (unlikely(!__pyx_t_3 || !__pyx_t_59 || !PyBytes_AsString(__pyx_t_3))) __PYX_ERR(0, 133, __pyx_L1_error)
+  if (unlikely(!__pyx_t_3 || !__pyx_t_59 || !PyBytes_AsString(__pyx_t_3))) __PYX_ERR(0, 155, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_GOTREF(__pyx_t_59);
   __pyx_t_2 = __pyx_array_new(__pyx_t_59, sizeof(long), PyBytes_AS_STRING(__pyx_t_3), (char *) "c", (char *) __pyx_t_8);
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 133, __pyx_L1_error)
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 155, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_59); __pyx_t_59 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_64 = __Pyx_PyObject_to_MemoryviewSlice_dc_long(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_64.memview)) __PYX_ERR(0, 133, __pyx_L1_error)
+  __pyx_t_64 = __Pyx_PyObject_to_MemoryviewSlice_dc_long(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_64.memview)) __PYX_ERR(0, 155, __pyx_L1_error)
   __Pyx_DECREF(((PyObject *)__pyx_t_2)); __pyx_t_2 = 0;
   __pyx_v_all_indices1 = __pyx_t_64;
   __pyx_t_64.memview = NULL;
   __pyx_t_64.data = NULL;
 
-  /* "pymatgen/optimization/neighbors.pyx":135
- *     cdef long[::1] all_indices1 = <long[:natoms]> malloc(natoms * sizeof(long))
+  /* "pymatgen/optimization/neighbors.pyx":157
+ *     cdef long[::1] all_indices1 = <long[:natoms]> safe_malloc(natoms * sizeof(long))
  * 
  *     for i in range(3):             # <<<<<<<<<<<<<<
  *         ncube[i] = <long>(ceil((valid_max[i] - valid_min[i]) / ledge))
@@ -4456,7 +4682,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
   for (__pyx_t_7 = 0; __pyx_t_7 < 3; __pyx_t_7+=1) {
     __pyx_v_i = __pyx_t_7;
 
-    /* "pymatgen/optimization/neighbors.pyx":136
+    /* "pymatgen/optimization/neighbors.pyx":158
  * 
  *     for i in range(3):
  *         ncube[i] = <long>(ceil((valid_max[i] - valid_min[i]) / ledge))             # <<<<<<<<<<<<<<
@@ -4466,7 +4692,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
     (__pyx_v_ncube[__pyx_v_i]) = ((long)ceil((((__pyx_v_valid_max[__pyx_v_i]) - (__pyx_v_valid_min[__pyx_v_i])) / __pyx_v_ledge)));
   }
 
-  /* "pymatgen/optimization/neighbors.pyx":138
+  /* "pymatgen/optimization/neighbors.pyx":160
  *         ncube[i] = <long>(ceil((valid_max[i] - valid_min[i]) / ledge))
  * 
  *     compute_cube_index(expanded_coords, valid_min, ledge, all_indices3)             # <<<<<<<<<<<<<<
@@ -4475,22 +4701,22 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
  */
   __pyx_t_59 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_double);
   __pyx_t_3 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)3));
-  if (unlikely(!__pyx_t_59 || !__pyx_t_3 || !PyBytes_AsString(__pyx_t_59))) __PYX_ERR(0, 138, __pyx_L1_error)
+  if (unlikely(!__pyx_t_59 || !__pyx_t_3 || !PyBytes_AsString(__pyx_t_59))) __PYX_ERR(0, 160, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_59);
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_2 = __pyx_array_new(__pyx_t_3, sizeof(double), PyBytes_AS_STRING(__pyx_t_59), (char *) "fortran", (char *) __pyx_v_valid_min);
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 138, __pyx_L1_error)
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 160, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_59); __pyx_t_59 = 0;
-  __pyx_t_66 = __Pyx_PyObject_to_MemoryviewSlice_ds_double(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_66.memview)) __PYX_ERR(0, 138, __pyx_L1_error)
+  __pyx_t_66 = __Pyx_PyObject_to_MemoryviewSlice_ds_double(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_66.memview)) __PYX_ERR(0, 160, __pyx_L1_error)
   __Pyx_DECREF(((PyObject *)__pyx_t_2)); __pyx_t_2 = 0;
   __pyx_f_8pymatgen_12optimization_9neighbors_compute_cube_index(__pyx_v_expanded_coords, __pyx_t_66, __pyx_v_ledge, __pyx_v_all_indices3);
   __PYX_XDEC_MEMVIEW(&__pyx_t_66, 1);
   __pyx_t_66.memview = NULL;
   __pyx_t_66.data = NULL;
 
-  /* "pymatgen/optimization/neighbors.pyx":139
+  /* "pymatgen/optimization/neighbors.pyx":161
  * 
  *     compute_cube_index(expanded_coords, valid_min, ledge, all_indices3)
  *     three_to_one(all_indices3, ncube[1], ncube[2], all_indices1)             # <<<<<<<<<<<<<<
@@ -4499,44 +4725,44 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
  */
   __pyx_f_8pymatgen_12optimization_9neighbors_three_to_one(__pyx_v_all_indices3, (__pyx_v_ncube[1]), (__pyx_v_ncube[2]), __pyx_v_all_indices1);
 
-  /* "pymatgen/optimization/neighbors.pyx":141
+  /* "pymatgen/optimization/neighbors.pyx":163
  *     three_to_one(all_indices3, ncube[1], ncube[2], all_indices1)
  * 
  *     cdef long nb_cubes = ncube[0] * ncube[1] * ncube[2]             # <<<<<<<<<<<<<<
- *     cdef long *head = <long*> malloc(nb_cubes*sizeof(long))
- *     cdef long *atom_indices = <long*> malloc(natoms*sizeof(long))
+ *     cdef long *head = <long*> safe_malloc(nb_cubes*sizeof(long))
+ *     cdef long *atom_indices = <long*> safe_malloc(natoms*sizeof(long))
  */
   __pyx_v_nb_cubes = (((__pyx_v_ncube[0]) * (__pyx_v_ncube[1])) * (__pyx_v_ncube[2]));
 
-  /* "pymatgen/optimization/neighbors.pyx":142
+  /* "pymatgen/optimization/neighbors.pyx":164
  * 
  *     cdef long nb_cubes = ncube[0] * ncube[1] * ncube[2]
- *     cdef long *head = <long*> malloc(nb_cubes*sizeof(long))             # <<<<<<<<<<<<<<
- *     cdef long *atom_indices = <long*> malloc(natoms*sizeof(long))
+ *     cdef long *head = <long*> safe_malloc(nb_cubes*sizeof(long))             # <<<<<<<<<<<<<<
+ *     cdef long *atom_indices = <long*> safe_malloc(natoms*sizeof(long))
  *     memset(<void*>head, -1, nb_cubes*sizeof(long))
  */
-  __pyx_v_head = ((long *)malloc((__pyx_v_nb_cubes * (sizeof(long)))));
+  __pyx_v_head = ((long *)__pyx_f_8pymatgen_12optimization_9neighbors_safe_malloc((__pyx_v_nb_cubes * (sizeof(long)))));
 
-  /* "pymatgen/optimization/neighbors.pyx":143
+  /* "pymatgen/optimization/neighbors.pyx":165
  *     cdef long nb_cubes = ncube[0] * ncube[1] * ncube[2]
- *     cdef long *head = <long*> malloc(nb_cubes*sizeof(long))
- *     cdef long *atom_indices = <long*> malloc(natoms*sizeof(long))             # <<<<<<<<<<<<<<
+ *     cdef long *head = <long*> safe_malloc(nb_cubes*sizeof(long))
+ *     cdef long *atom_indices = <long*> safe_malloc(natoms*sizeof(long))             # <<<<<<<<<<<<<<
  *     memset(<void*>head, -1, nb_cubes*sizeof(long))
  *     memset(<void*>atom_indices, -1, natoms*sizeof(long))
  */
-  __pyx_v_atom_indices = ((long *)malloc((__pyx_v_natoms * (sizeof(long)))));
+  __pyx_v_atom_indices = ((long *)__pyx_f_8pymatgen_12optimization_9neighbors_safe_malloc((__pyx_v_natoms * (sizeof(long)))));
 
-  /* "pymatgen/optimization/neighbors.pyx":144
- *     cdef long *head = <long*> malloc(nb_cubes*sizeof(long))
- *     cdef long *atom_indices = <long*> malloc(natoms*sizeof(long))
+  /* "pymatgen/optimization/neighbors.pyx":166
+ *     cdef long *head = <long*> safe_malloc(nb_cubes*sizeof(long))
+ *     cdef long *atom_indices = <long*> safe_malloc(natoms*sizeof(long))
  *     memset(<void*>head, -1, nb_cubes*sizeof(long))             # <<<<<<<<<<<<<<
  *     memset(<void*>atom_indices, -1, natoms*sizeof(long))
  *     cdef map[long, vector[long]] neighbor_map = get_cube_neighbors(ncube)
  */
   (void)(memset(((void *)__pyx_v_head), -1, (__pyx_v_nb_cubes * (sizeof(long)))));
 
-  /* "pymatgen/optimization/neighbors.pyx":145
- *     cdef long *atom_indices = <long*> malloc(natoms*sizeof(long))
+  /* "pymatgen/optimization/neighbors.pyx":167
+ *     cdef long *atom_indices = <long*> safe_malloc(natoms*sizeof(long))
  *     memset(<void*>head, -1, nb_cubes*sizeof(long))
  *     memset(<void*>atom_indices, -1, natoms*sizeof(long))             # <<<<<<<<<<<<<<
  *     cdef map[long, vector[long]] neighbor_map = get_cube_neighbors(ncube)
@@ -4544,7 +4770,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
  */
   (void)(memset(((void *)__pyx_v_atom_indices), -1, (__pyx_v_natoms * (sizeof(long)))));
 
-  /* "pymatgen/optimization/neighbors.pyx":146
+  /* "pymatgen/optimization/neighbors.pyx":168
  *     memset(<void*>head, -1, nb_cubes*sizeof(long))
  *     memset(<void*>atom_indices, -1, natoms*sizeof(long))
  *     cdef map[long, vector[long]] neighbor_map = get_cube_neighbors(ncube)             # <<<<<<<<<<<<<<
@@ -4553,22 +4779,22 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
  */
   __pyx_t_3 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_long);
   __pyx_t_59 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)3));
-  if (unlikely(!__pyx_t_3 || !__pyx_t_59 || !PyBytes_AsString(__pyx_t_3))) __PYX_ERR(0, 146, __pyx_L1_error)
+  if (unlikely(!__pyx_t_3 || !__pyx_t_59 || !PyBytes_AsString(__pyx_t_3))) __PYX_ERR(0, 168, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_GOTREF(__pyx_t_59);
   __pyx_t_2 = __pyx_array_new(__pyx_t_59, sizeof(long), PyBytes_AS_STRING(__pyx_t_3), (char *) "fortran", (char *) __pyx_v_ncube);
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 146, __pyx_L1_error)
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 168, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_59); __pyx_t_59 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_33 = __Pyx_PyObject_to_MemoryviewSlice_ds_long(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_33.memview)) __PYX_ERR(0, 146, __pyx_L1_error)
+  __pyx_t_33 = __Pyx_PyObject_to_MemoryviewSlice_ds_long(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_33.memview)) __PYX_ERR(0, 168, __pyx_L1_error)
   __Pyx_DECREF(((PyObject *)__pyx_t_2)); __pyx_t_2 = 0;
   __pyx_v_neighbor_map = __pyx_f_8pymatgen_12optimization_9neighbors_get_cube_neighbors(__pyx_t_33);
   __PYX_XDEC_MEMVIEW(&__pyx_t_33, 1);
   __pyx_t_33.memview = NULL;
   __pyx_t_33.data = NULL;
 
-  /* "pymatgen/optimization/neighbors.pyx":147
+  /* "pymatgen/optimization/neighbors.pyx":169
  *     memset(<void*>atom_indices, -1, natoms*sizeof(long))
  *     cdef map[long, vector[long]] neighbor_map = get_cube_neighbors(ncube)
  *     for i in range(natoms):             # <<<<<<<<<<<<<<
@@ -4580,7 +4806,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
   for (__pyx_t_7 = 0; __pyx_t_7 < __pyx_t_35; __pyx_t_7+=1) {
     __pyx_v_i = __pyx_t_7;
 
-    /* "pymatgen/optimization/neighbors.pyx":148
+    /* "pymatgen/optimization/neighbors.pyx":170
  *     cdef map[long, vector[long]] neighbor_map = get_cube_neighbors(ncube)
  *     for i in range(natoms):
  *         atom_indices[i] = head[all_indices1[i]]             # <<<<<<<<<<<<<<
@@ -4590,7 +4816,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
     __pyx_t_67 = __pyx_v_i;
     (__pyx_v_atom_indices[__pyx_v_i]) = (__pyx_v_head[(*((long *) ( /* dim=0 */ ((char *) (((long *) __pyx_v_all_indices1.data) + __pyx_t_67)) )))]);
 
-    /* "pymatgen/optimization/neighbors.pyx":149
+    /* "pymatgen/optimization/neighbors.pyx":171
  *     for i in range(natoms):
  *         atom_indices[i] = head[all_indices1[i]]
  *         head[all_indices1[i]] = i             # <<<<<<<<<<<<<<
@@ -4601,69 +4827,69 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
     (__pyx_v_head[(*((long *) ( /* dim=0 */ ((char *) (((long *) __pyx_v_all_indices1.data) + __pyx_t_68)) )))]) = __pyx_v_i;
   }
 
-  /* "pymatgen/optimization/neighbors.pyx":152
+  /* "pymatgen/optimization/neighbors.pyx":174
  * 
  *     # Get center atoms' cube indices
- *     cdef long[:, ::1] center_indices3 = <long[:n_center, :3]> malloc(n_center*3*sizeof(long))             # <<<<<<<<<<<<<<
- *     cdef long *center_indices1 = <long*> malloc(n_center*sizeof(long))
+ *     cdef long[:, ::1] center_indices3 = <long[:n_center, :3]> safe_malloc(n_center*3*sizeof(long))             # <<<<<<<<<<<<<<
+ *     cdef long *center_indices1 = <long*> safe_malloc(n_center*sizeof(long))
  *     compute_cube_index(center_coords, valid_min, ledge, center_indices3)
  */
-  __pyx_t_8 = malloc(((__pyx_v_n_center * 3) * (sizeof(long))));
+  __pyx_t_8 = __pyx_f_8pymatgen_12optimization_9neighbors_safe_malloc(((__pyx_v_n_center * 3) * (sizeof(long))));
   if (!__pyx_t_8) {
     PyErr_SetString(PyExc_ValueError,"Cannot create cython.array from NULL pointer");
-    __PYX_ERR(0, 152, __pyx_L1_error)
+    __PYX_ERR(0, 174, __pyx_L1_error)
   }
   __pyx_t_59 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_long);
   __pyx_t_3 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)__pyx_v_n_center), ((Py_ssize_t)3));
-  if (unlikely(!__pyx_t_59 || !__pyx_t_3 || !PyBytes_AsString(__pyx_t_59))) __PYX_ERR(0, 152, __pyx_L1_error)
+  if (unlikely(!__pyx_t_59 || !__pyx_t_3 || !PyBytes_AsString(__pyx_t_59))) __PYX_ERR(0, 174, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_59);
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_2 = __pyx_array_new(__pyx_t_3, sizeof(long), PyBytes_AS_STRING(__pyx_t_59), (char *) "c", (char *) __pyx_t_8);
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 152, __pyx_L1_error)
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 174, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_59); __pyx_t_59 = 0;
-  __pyx_t_65 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_long(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_65.memview)) __PYX_ERR(0, 152, __pyx_L1_error)
+  __pyx_t_65 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_long(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_65.memview)) __PYX_ERR(0, 174, __pyx_L1_error)
   __Pyx_DECREF(((PyObject *)__pyx_t_2)); __pyx_t_2 = 0;
   __pyx_v_center_indices3 = __pyx_t_65;
   __pyx_t_65.memview = NULL;
   __pyx_t_65.data = NULL;
 
-  /* "pymatgen/optimization/neighbors.pyx":153
+  /* "pymatgen/optimization/neighbors.pyx":175
  *     # Get center atoms' cube indices
- *     cdef long[:, ::1] center_indices3 = <long[:n_center, :3]> malloc(n_center*3*sizeof(long))
- *     cdef long *center_indices1 = <long*> malloc(n_center*sizeof(long))             # <<<<<<<<<<<<<<
+ *     cdef long[:, ::1] center_indices3 = <long[:n_center, :3]> safe_malloc(n_center*3*sizeof(long))
+ *     cdef long *center_indices1 = <long*> safe_malloc(n_center*sizeof(long))             # <<<<<<<<<<<<<<
  *     compute_cube_index(center_coords, valid_min, ledge, center_indices3)
  *     three_to_one(center_indices3, ncube[1], ncube[2], <long[:n_center]>center_indices1)
  */
-  __pyx_v_center_indices1 = ((long *)malloc((__pyx_v_n_center * (sizeof(long)))));
+  __pyx_v_center_indices1 = ((long *)__pyx_f_8pymatgen_12optimization_9neighbors_safe_malloc((__pyx_v_n_center * (sizeof(long)))));
 
-  /* "pymatgen/optimization/neighbors.pyx":154
- *     cdef long[:, ::1] center_indices3 = <long[:n_center, :3]> malloc(n_center*3*sizeof(long))
- *     cdef long *center_indices1 = <long*> malloc(n_center*sizeof(long))
+  /* "pymatgen/optimization/neighbors.pyx":176
+ *     cdef long[:, ::1] center_indices3 = <long[:n_center, :3]> safe_malloc(n_center*3*sizeof(long))
+ *     cdef long *center_indices1 = <long*> safe_malloc(n_center*sizeof(long))
  *     compute_cube_index(center_coords, valid_min, ledge, center_indices3)             # <<<<<<<<<<<<<<
  *     three_to_one(center_indices3, ncube[1], ncube[2], <long[:n_center]>center_indices1)
  * 
  */
   __pyx_t_3 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_double);
   __pyx_t_59 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)3));
-  if (unlikely(!__pyx_t_3 || !__pyx_t_59 || !PyBytes_AsString(__pyx_t_3))) __PYX_ERR(0, 154, __pyx_L1_error)
+  if (unlikely(!__pyx_t_3 || !__pyx_t_59 || !PyBytes_AsString(__pyx_t_3))) __PYX_ERR(0, 176, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_GOTREF(__pyx_t_59);
   __pyx_t_2 = __pyx_array_new(__pyx_t_59, sizeof(double), PyBytes_AS_STRING(__pyx_t_3), (char *) "fortran", (char *) __pyx_v_valid_min);
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 154, __pyx_L1_error)
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 176, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_59); __pyx_t_59 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_66 = __Pyx_PyObject_to_MemoryviewSlice_ds_double(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_66.memview)) __PYX_ERR(0, 154, __pyx_L1_error)
+  __pyx_t_66 = __Pyx_PyObject_to_MemoryviewSlice_ds_double(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_66.memview)) __PYX_ERR(0, 176, __pyx_L1_error)
   __Pyx_DECREF(((PyObject *)__pyx_t_2)); __pyx_t_2 = 0;
   __pyx_f_8pymatgen_12optimization_9neighbors_compute_cube_index(__pyx_v_center_coords, __pyx_t_66, __pyx_v_ledge, __pyx_v_center_indices3);
   __PYX_XDEC_MEMVIEW(&__pyx_t_66, 1);
   __pyx_t_66.memview = NULL;
   __pyx_t_66.data = NULL;
 
-  /* "pymatgen/optimization/neighbors.pyx":155
- *     cdef long *center_indices1 = <long*> malloc(n_center*sizeof(long))
+  /* "pymatgen/optimization/neighbors.pyx":177
+ *     cdef long *center_indices1 = <long*> safe_malloc(n_center*sizeof(long))
  *     compute_cube_index(center_coords, valid_min, ledge, center_indices3)
  *     three_to_one(center_indices3, ncube[1], ncube[2], <long[:n_center]>center_indices1)             # <<<<<<<<<<<<<<
  * 
@@ -4671,71 +4897,71 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
  */
   if (!__pyx_v_center_indices1) {
     PyErr_SetString(PyExc_ValueError,"Cannot create cython.array from NULL pointer");
-    __PYX_ERR(0, 155, __pyx_L1_error)
+    __PYX_ERR(0, 177, __pyx_L1_error)
   }
   __pyx_t_59 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_long);
   __pyx_t_3 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)__pyx_v_n_center));
-  if (unlikely(!__pyx_t_59 || !__pyx_t_3 || !PyBytes_AsString(__pyx_t_59))) __PYX_ERR(0, 155, __pyx_L1_error)
+  if (unlikely(!__pyx_t_59 || !__pyx_t_3 || !PyBytes_AsString(__pyx_t_59))) __PYX_ERR(0, 177, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_59);
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_2 = __pyx_array_new(__pyx_t_3, sizeof(long), PyBytes_AS_STRING(__pyx_t_59), (char *) "c", (char *) __pyx_v_center_indices1);
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 155, __pyx_L1_error)
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 177, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_59); __pyx_t_59 = 0;
-  __pyx_t_64 = __Pyx_PyObject_to_MemoryviewSlice_dc_long(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_64.memview)) __PYX_ERR(0, 155, __pyx_L1_error)
+  __pyx_t_64 = __Pyx_PyObject_to_MemoryviewSlice_dc_long(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_64.memview)) __PYX_ERR(0, 177, __pyx_L1_error)
   __Pyx_DECREF(((PyObject *)__pyx_t_2)); __pyx_t_2 = 0;
   __pyx_f_8pymatgen_12optimization_9neighbors_three_to_one(__pyx_v_center_indices3, (__pyx_v_ncube[1]), (__pyx_v_ncube[2]), __pyx_t_64);
   __PYX_XDEC_MEMVIEW(&__pyx_t_64, 1);
   __pyx_t_64.memview = NULL;
   __pyx_t_64.data = NULL;
 
-  /* "pymatgen/optimization/neighbors.pyx":159
+  /* "pymatgen/optimization/neighbors.pyx":181
  *     # it works by allocate incrementally n more memory locations, I found it 3x faster to do so
  *     # compared to using vectors in cpp
  *     n = 10000             # <<<<<<<<<<<<<<
- *     cdef long *index_1 = <long*> malloc(n*sizeof(long))
- *     cdef long *index_2 = <long*> malloc(n*sizeof(long))
+ *     cdef long *index_1 = <long*> safe_malloc(n*sizeof(long))
+ *     cdef long *index_2 = <long*> safe_malloc(n*sizeof(long))
  */
   __pyx_v_n = 0x2710;
 
-  /* "pymatgen/optimization/neighbors.pyx":160
+  /* "pymatgen/optimization/neighbors.pyx":182
  *     # compared to using vectors in cpp
  *     n = 10000
- *     cdef long *index_1 = <long*> malloc(n*sizeof(long))             # <<<<<<<<<<<<<<
- *     cdef long *index_2 = <long*> malloc(n*sizeof(long))
- *     cdef double *offset_final = <double*> malloc(3*n*sizeof(double))
+ *     cdef long *index_1 = <long*> safe_malloc(n*sizeof(long))             # <<<<<<<<<<<<<<
+ *     cdef long *index_2 = <long*> safe_malloc(n*sizeof(long))
+ *     cdef double *offset_final = <double*> safe_malloc(3*n*sizeof(double))
  */
-  __pyx_v_index_1 = ((long *)malloc((__pyx_v_n * (sizeof(long)))));
+  __pyx_v_index_1 = ((long *)__pyx_f_8pymatgen_12optimization_9neighbors_safe_malloc((__pyx_v_n * (sizeof(long)))));
 
-  /* "pymatgen/optimization/neighbors.pyx":161
+  /* "pymatgen/optimization/neighbors.pyx":183
  *     n = 10000
- *     cdef long *index_1 = <long*> malloc(n*sizeof(long))
- *     cdef long *index_2 = <long*> malloc(n*sizeof(long))             # <<<<<<<<<<<<<<
- *     cdef double *offset_final = <double*> malloc(3*n*sizeof(double))
- *     cdef double *distances = <double*> malloc(n*sizeof(double))
+ *     cdef long *index_1 = <long*> safe_malloc(n*sizeof(long))
+ *     cdef long *index_2 = <long*> safe_malloc(n*sizeof(long))             # <<<<<<<<<<<<<<
+ *     cdef double *offset_final = <double*> safe_malloc(3*n*sizeof(double))
+ *     cdef double *distances = <double*> safe_malloc(n*sizeof(double))
  */
-  __pyx_v_index_2 = ((long *)malloc((__pyx_v_n * (sizeof(long)))));
+  __pyx_v_index_2 = ((long *)__pyx_f_8pymatgen_12optimization_9neighbors_safe_malloc((__pyx_v_n * (sizeof(long)))));
 
-  /* "pymatgen/optimization/neighbors.pyx":162
- *     cdef long *index_1 = <long*> malloc(n*sizeof(long))
- *     cdef long *index_2 = <long*> malloc(n*sizeof(long))
- *     cdef double *offset_final = <double*> malloc(3*n*sizeof(double))             # <<<<<<<<<<<<<<
- *     cdef double *distances = <double*> malloc(n*sizeof(double))
+  /* "pymatgen/optimization/neighbors.pyx":184
+ *     cdef long *index_1 = <long*> safe_malloc(n*sizeof(long))
+ *     cdef long *index_2 = <long*> safe_malloc(n*sizeof(long))
+ *     cdef double *offset_final = <double*> safe_malloc(3*n*sizeof(double))             # <<<<<<<<<<<<<<
+ *     cdef double *distances = <double*> safe_malloc(n*sizeof(double))
  *     cdef vector[long] ncube_indices_temp
  */
-  __pyx_v_offset_final = ((double *)malloc(((3 * __pyx_v_n) * (sizeof(double)))));
+  __pyx_v_offset_final = ((double *)__pyx_f_8pymatgen_12optimization_9neighbors_safe_malloc(((3 * __pyx_v_n) * (sizeof(double)))));
 
-  /* "pymatgen/optimization/neighbors.pyx":163
- *     cdef long *index_2 = <long*> malloc(n*sizeof(long))
- *     cdef double *offset_final = <double*> malloc(3*n*sizeof(double))
- *     cdef double *distances = <double*> malloc(n*sizeof(double))             # <<<<<<<<<<<<<<
+  /* "pymatgen/optimization/neighbors.pyx":185
+ *     cdef long *index_2 = <long*> safe_malloc(n*sizeof(long))
+ *     cdef double *offset_final = <double*> safe_malloc(3*n*sizeof(double))
+ *     cdef double *distances = <double*> safe_malloc(n*sizeof(double))             # <<<<<<<<<<<<<<
  *     cdef vector[long] ncube_indices_temp
  *     cdef vector[long].iterator it
  */
-  __pyx_v_distances = ((double *)malloc((__pyx_v_n * (sizeof(double)))));
+  __pyx_v_distances = ((double *)__pyx_f_8pymatgen_12optimization_9neighbors_safe_malloc((__pyx_v_n * (sizeof(double)))));
 
-  /* "pymatgen/optimization/neighbors.pyx":169
+  /* "pymatgen/optimization/neighbors.pyx":191
  *     cdef long link_index
  *     cdef double d_temp2
  *     cdef double r2 = r * r             # <<<<<<<<<<<<<<
@@ -4744,7 +4970,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
  */
   __pyx_v_r2 = (__pyx_v_r * __pyx_v_r);
 
-  /* "pymatgen/optimization/neighbors.pyx":171
+  /* "pymatgen/optimization/neighbors.pyx":193
  *     cdef double r2 = r * r
  * 
  *     count = 0             # <<<<<<<<<<<<<<
@@ -4753,7 +4979,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
  */
   __pyx_v_count = 0;
 
-  /* "pymatgen/optimization/neighbors.pyx":172
+  /* "pymatgen/optimization/neighbors.pyx":194
  * 
  *     count = 0
  *     for i in range(n_center):             # <<<<<<<<<<<<<<
@@ -4765,7 +4991,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
   for (__pyx_t_13 = 0; __pyx_t_13 < __pyx_t_12; __pyx_t_13+=1) {
     __pyx_v_i = __pyx_t_13;
 
-    /* "pymatgen/optimization/neighbors.pyx":173
+    /* "pymatgen/optimization/neighbors.pyx":195
  *     count = 0
  *     for i in range(n_center):
  *         ncube_indices_temp = neighbor_map[center_indices1[i]]             # <<<<<<<<<<<<<<
@@ -4774,7 +5000,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
  */
     __pyx_v_ncube_indices_temp = (__pyx_v_neighbor_map[(__pyx_v_center_indices1[__pyx_v_i])]);
 
-    /* "pymatgen/optimization/neighbors.pyx":174
+    /* "pymatgen/optimization/neighbors.pyx":196
  *     for i in range(n_center):
  *         ncube_indices_temp = neighbor_map[center_indices1[i]]
  *         it = ncube_indices_temp.begin()             # <<<<<<<<<<<<<<
@@ -4783,7 +5009,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
  */
     __pyx_v_it = __pyx_v_ncube_indices_temp.begin();
 
-    /* "pymatgen/optimization/neighbors.pyx":175
+    /* "pymatgen/optimization/neighbors.pyx":197
  *         ncube_indices_temp = neighbor_map[center_indices1[i]]
  *         it = ncube_indices_temp.begin()
  *         while (it != ncube_indices_temp.end()):             # <<<<<<<<<<<<<<
@@ -4794,7 +5020,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
       __pyx_t_1 = ((__pyx_v_it != __pyx_v_ncube_indices_temp.end()) != 0);
       if (!__pyx_t_1) break;
 
-      /* "pymatgen/optimization/neighbors.pyx":176
+      /* "pymatgen/optimization/neighbors.pyx":198
  *         it = ncube_indices_temp.begin()
  *         while (it != ncube_indices_temp.end()):
  *             cube_index_temp = dereference(it)             # <<<<<<<<<<<<<<
@@ -4803,7 +5029,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
  */
       __pyx_v_cube_index_temp = (*__pyx_v_it);
 
-      /* "pymatgen/optimization/neighbors.pyx":177
+      /* "pymatgen/optimization/neighbors.pyx":199
  *         while (it != ncube_indices_temp.end()):
  *             cube_index_temp = dereference(it)
  *             link_index = head[cube_index_temp]             # <<<<<<<<<<<<<<
@@ -4812,7 +5038,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
  */
       __pyx_v_link_index = (__pyx_v_head[__pyx_v_cube_index_temp]);
 
-      /* "pymatgen/optimization/neighbors.pyx":178
+      /* "pymatgen/optimization/neighbors.pyx":200
  *             cube_index_temp = dereference(it)
  *             link_index = head[cube_index_temp]
  *             while (link_index != -1):             # <<<<<<<<<<<<<<
@@ -4823,7 +5049,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
         __pyx_t_1 = ((__pyx_v_link_index != -1L) != 0);
         if (!__pyx_t_1) break;
 
-        /* "pymatgen/optimization/neighbors.pyx":179
+        /* "pymatgen/optimization/neighbors.pyx":201
  *             link_index = head[cube_index_temp]
  *             while (link_index != -1):
  *                 d_temp2 = distance2(expanded_coords, center_coords, link_index, i, 3)             # <<<<<<<<<<<<<<
@@ -4832,7 +5058,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
  */
         __pyx_v_d_temp2 = __pyx_f_8pymatgen_12optimization_9neighbors_distance2(__pyx_v_expanded_coords, __pyx_v_center_coords, __pyx_v_link_index, __pyx_v_i, 3);
 
-        /* "pymatgen/optimization/neighbors.pyx":180
+        /* "pymatgen/optimization/neighbors.pyx":202
  *             while (link_index != -1):
  *                 d_temp2 = distance2(expanded_coords, center_coords, link_index, i, 3)
  *                 if d_temp2 < r2 + tol:             # <<<<<<<<<<<<<<
@@ -4842,7 +5068,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
         __pyx_t_1 = ((__pyx_v_d_temp2 < (__pyx_v_r2 + __pyx_v_tol)) != 0);
         if (__pyx_t_1) {
 
-          /* "pymatgen/optimization/neighbors.pyx":181
+          /* "pymatgen/optimization/neighbors.pyx":203
  *                 d_temp2 = distance2(expanded_coords, center_coords, link_index, i, 3)
  *                 if d_temp2 < r2 + tol:
  *                     index_1[count] = i             # <<<<<<<<<<<<<<
@@ -4851,7 +5077,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
  */
           (__pyx_v_index_1[__pyx_v_count]) = __pyx_v_i;
 
-          /* "pymatgen/optimization/neighbors.pyx":182
+          /* "pymatgen/optimization/neighbors.pyx":204
  *                 if d_temp2 < r2 + tol:
  *                     index_1[count] = i
  *                     index_2[count] = indices[link_index]             # <<<<<<<<<<<<<<
@@ -4861,7 +5087,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
           __pyx_t_69 = __pyx_v_link_index;
           (__pyx_v_index_2[__pyx_v_count]) = (*((long *) ( /* dim=0 */ ((char *) (((long *) __pyx_v_indices.data) + __pyx_t_69)) )));
 
-          /* "pymatgen/optimization/neighbors.pyx":183
+          /* "pymatgen/optimization/neighbors.pyx":205
  *                     index_1[count] = i
  *                     index_2[count] = indices[link_index]
  *                     offset_final[3*count] = offsets[link_index, 0] - offset_correction[indices[link_index], 0]             # <<<<<<<<<<<<<<
@@ -4875,7 +5101,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
           __pyx_t_74 = 0;
           (__pyx_v_offset_final[(3 * __pyx_v_count)]) = ((*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_offsets.data + __pyx_t_70 * __pyx_v_offsets.strides[0]) )) + __pyx_t_71)) ))) - (*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_offset_correction.data + __pyx_t_73 * __pyx_v_offset_correction.strides[0]) )) + __pyx_t_74)) ))));
 
-          /* "pymatgen/optimization/neighbors.pyx":184
+          /* "pymatgen/optimization/neighbors.pyx":206
  *                     index_2[count] = indices[link_index]
  *                     offset_final[3*count] = offsets[link_index, 0] - offset_correction[indices[link_index], 0]
  *                     offset_final[3*count + 1] = offsets[link_index, 1] - offset_correction[indices[link_index], 1]             # <<<<<<<<<<<<<<
@@ -4889,7 +5115,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
           __pyx_t_79 = 1;
           (__pyx_v_offset_final[((3 * __pyx_v_count) + 1)]) = ((*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_offsets.data + __pyx_t_75 * __pyx_v_offsets.strides[0]) )) + __pyx_t_76)) ))) - (*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_offset_correction.data + __pyx_t_78 * __pyx_v_offset_correction.strides[0]) )) + __pyx_t_79)) ))));
 
-          /* "pymatgen/optimization/neighbors.pyx":185
+          /* "pymatgen/optimization/neighbors.pyx":207
  *                     offset_final[3*count] = offsets[link_index, 0] - offset_correction[indices[link_index], 0]
  *                     offset_final[3*count + 1] = offsets[link_index, 1] - offset_correction[indices[link_index], 1]
  *                     offset_final[3*count + 2] = offsets[link_index, 2] - offset_correction[indices[link_index], 2]             # <<<<<<<<<<<<<<
@@ -4903,7 +5129,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
           __pyx_t_84 = 2;
           (__pyx_v_offset_final[((3 * __pyx_v_count) + 2)]) = ((*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_offsets.data + __pyx_t_80 * __pyx_v_offsets.strides[0]) )) + __pyx_t_81)) ))) - (*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_offset_correction.data + __pyx_t_83 * __pyx_v_offset_correction.strides[0]) )) + __pyx_t_84)) ))));
 
-          /* "pymatgen/optimization/neighbors.pyx":186
+          /* "pymatgen/optimization/neighbors.pyx":208
  *                     offset_final[3*count + 1] = offsets[link_index, 1] - offset_correction[indices[link_index], 1]
  *                     offset_final[3*count + 2] = offsets[link_index, 2] - offset_correction[indices[link_index], 2]
  *                     distances[count] = sqrt(d_temp2)             # <<<<<<<<<<<<<<
@@ -4912,7 +5138,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
  */
           (__pyx_v_distances[__pyx_v_count]) = sqrt(__pyx_v_d_temp2);
 
-          /* "pymatgen/optimization/neighbors.pyx":188
+          /* "pymatgen/optimization/neighbors.pyx":210
  *                     distances[count] = sqrt(d_temp2)
  * 
  *                     count += 1             # <<<<<<<<<<<<<<
@@ -4921,71 +5147,71 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
  */
           __pyx_v_count = (__pyx_v_count + 1);
 
-          /* "pymatgen/optimization/neighbors.pyx":190
+          /* "pymatgen/optimization/neighbors.pyx":212
  *                     count += 1
  *                     # increasing the memory size
  *                     if count >= n:             # <<<<<<<<<<<<<<
- *                         n += 10000
- *                         # may not be safe to assign so, but if realloc fails the program fails
+ *                         n += n  # double the size
+ *                         index_1 = <long*>safe_realloc(index_1, n * sizeof(long))
  */
           __pyx_t_1 = ((__pyx_v_count >= __pyx_v_n) != 0);
           if (__pyx_t_1) {
 
-            /* "pymatgen/optimization/neighbors.pyx":191
+            /* "pymatgen/optimization/neighbors.pyx":213
  *                     # increasing the memory size
  *                     if count >= n:
- *                         n += 10000             # <<<<<<<<<<<<<<
- *                         # may not be safe to assign so, but if realloc fails the program fails
- *                         index_1 = <long*>realloc(index_1, n * sizeof(long))
+ *                         n += n  # double the size             # <<<<<<<<<<<<<<
+ *                         index_1 = <long*>safe_realloc(index_1, n * sizeof(long))
+ *                         index_2 = <long*>safe_realloc(index_2, n*sizeof(long))
  */
-            __pyx_v_n = (__pyx_v_n + 0x2710);
+            __pyx_v_n = (__pyx_v_n + __pyx_v_n);
 
-            /* "pymatgen/optimization/neighbors.pyx":193
- *                         n += 10000
- *                         # may not be safe to assign so, but if realloc fails the program fails
- *                         index_1 = <long*>realloc(index_1, n * sizeof(long))             # <<<<<<<<<<<<<<
- *                         index_2 = <long*>realloc(index_2, n*sizeof(long))
- *                         offset_final = <double*> realloc(offset_final, 3*n*sizeof(double))
+            /* "pymatgen/optimization/neighbors.pyx":214
+ *                     if count >= n:
+ *                         n += n  # double the size
+ *                         index_1 = <long*>safe_realloc(index_1, n * sizeof(long))             # <<<<<<<<<<<<<<
+ *                         index_2 = <long*>safe_realloc(index_2, n*sizeof(long))
+ *                         offset_final = <double*>safe_realloc(offset_final, 3*n*sizeof(double))
  */
-            __pyx_v_index_1 = ((long *)realloc(__pyx_v_index_1, (__pyx_v_n * (sizeof(long)))));
+            __pyx_v_index_1 = ((long *)__pyx_f_8pymatgen_12optimization_9neighbors_safe_realloc(__pyx_v_index_1, (__pyx_v_n * (sizeof(long)))));
 
-            /* "pymatgen/optimization/neighbors.pyx":194
- *                         # may not be safe to assign so, but if realloc fails the program fails
- *                         index_1 = <long*>realloc(index_1, n * sizeof(long))
- *                         index_2 = <long*>realloc(index_2, n*sizeof(long))             # <<<<<<<<<<<<<<
- *                         offset_final = <double*> realloc(offset_final, 3*n*sizeof(double))
- *                         distances = <double*> realloc(distances, n*sizeof(double))
+            /* "pymatgen/optimization/neighbors.pyx":215
+ *                         n += n  # double the size
+ *                         index_1 = <long*>safe_realloc(index_1, n * sizeof(long))
+ *                         index_2 = <long*>safe_realloc(index_2, n*sizeof(long))             # <<<<<<<<<<<<<<
+ *                         offset_final = <double*>safe_realloc(offset_final, 3*n*sizeof(double))
+ *                         distances = <double*>safe_realloc(distances, n*sizeof(double))
  */
-            __pyx_v_index_2 = ((long *)realloc(__pyx_v_index_2, (__pyx_v_n * (sizeof(long)))));
+            __pyx_v_index_2 = ((long *)__pyx_f_8pymatgen_12optimization_9neighbors_safe_realloc(__pyx_v_index_2, (__pyx_v_n * (sizeof(long)))));
 
-            /* "pymatgen/optimization/neighbors.pyx":195
- *                         index_1 = <long*>realloc(index_1, n * sizeof(long))
- *                         index_2 = <long*>realloc(index_2, n*sizeof(long))
- *                         offset_final = <double*> realloc(offset_final, 3*n*sizeof(double))             # <<<<<<<<<<<<<<
- *                         distances = <double*> realloc(distances, n*sizeof(double))
+            /* "pymatgen/optimization/neighbors.pyx":216
+ *                         index_1 = <long*>safe_realloc(index_1, n * sizeof(long))
+ *                         index_2 = <long*>safe_realloc(index_2, n*sizeof(long))
+ *                         offset_final = <double*>safe_realloc(offset_final, 3*n*sizeof(double))             # <<<<<<<<<<<<<<
+ *                         distances = <double*>safe_realloc(distances, n*sizeof(double))
  *                 link_index = atom_indices[link_index]
  */
-            __pyx_v_offset_final = ((double *)realloc(__pyx_v_offset_final, ((3 * __pyx_v_n) * (sizeof(double)))));
+            __pyx_v_offset_final = ((double *)__pyx_f_8pymatgen_12optimization_9neighbors_safe_realloc(__pyx_v_offset_final, ((3 * __pyx_v_n) * (sizeof(double)))));
 
-            /* "pymatgen/optimization/neighbors.pyx":196
- *                         index_2 = <long*>realloc(index_2, n*sizeof(long))
- *                         offset_final = <double*> realloc(offset_final, 3*n*sizeof(double))
- *                         distances = <double*> realloc(distances, n*sizeof(double))             # <<<<<<<<<<<<<<
+            /* "pymatgen/optimization/neighbors.pyx":217
+ *                         index_2 = <long*>safe_realloc(index_2, n*sizeof(long))
+ *                         offset_final = <double*>safe_realloc(offset_final, 3*n*sizeof(double))
+ *                         distances = <double*>safe_realloc(distances, n*sizeof(double))             # <<<<<<<<<<<<<<
  *                 link_index = atom_indices[link_index]
  *             postincrement(it)
  */
-            __pyx_v_distances = ((double *)realloc(__pyx_v_distances, (__pyx_v_n * (sizeof(double)))));
+            __pyx_v_distances = ((double *)__pyx_f_8pymatgen_12optimization_9neighbors_safe_realloc(__pyx_v_distances, (__pyx_v_n * (sizeof(double)))));
 
-            /* "pymatgen/optimization/neighbors.pyx":190
+            /* "pymatgen/optimization/neighbors.pyx":212
  *                     count += 1
  *                     # increasing the memory size
  *                     if count >= n:             # <<<<<<<<<<<<<<
- *                         n += 10000
- *                         # may not be safe to assign so, but if realloc fails the program fails
+ *                         n += n  # double the size
+ *                         index_1 = <long*>safe_realloc(index_1, n * sizeof(long))
  */
           }
 
-          /* "pymatgen/optimization/neighbors.pyx":180
+          /* "pymatgen/optimization/neighbors.pyx":202
  *             while (link_index != -1):
  *                 d_temp2 = distance2(expanded_coords, center_coords, link_index, i, 3)
  *                 if d_temp2 < r2 + tol:             # <<<<<<<<<<<<<<
@@ -4994,9 +5220,9 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
  */
         }
 
-        /* "pymatgen/optimization/neighbors.pyx":197
- *                         offset_final = <double*> realloc(offset_final, 3*n*sizeof(double))
- *                         distances = <double*> realloc(distances, n*sizeof(double))
+        /* "pymatgen/optimization/neighbors.pyx":218
+ *                         offset_final = <double*>safe_realloc(offset_final, 3*n*sizeof(double))
+ *                         distances = <double*>safe_realloc(distances, n*sizeof(double))
  *                 link_index = atom_indices[link_index]             # <<<<<<<<<<<<<<
  *             postincrement(it)
  * 
@@ -5004,8 +5230,8 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
         __pyx_v_link_index = (__pyx_v_atom_indices[__pyx_v_link_index]);
       }
 
-      /* "pymatgen/optimization/neighbors.pyx":198
- *                         distances = <double*> realloc(distances, n*sizeof(double))
+      /* "pymatgen/optimization/neighbors.pyx":219
+ *                         distances = <double*>safe_realloc(distances, n*sizeof(double))
  *                 link_index = atom_indices[link_index]
  *             postincrement(it)             # <<<<<<<<<<<<<<
  * 
@@ -5015,7 +5241,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
     }
   }
 
-  /* "pymatgen/optimization/neighbors.pyx":200
+  /* "pymatgen/optimization/neighbors.pyx":221
  *             postincrement(it)
  * 
  *     if count == 0:             # <<<<<<<<<<<<<<
@@ -5025,7 +5251,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
   __pyx_t_1 = ((__pyx_v_count == 0) != 0);
   if (__pyx_t_1) {
 
-    /* "pymatgen/optimization/neighbors.pyx":201
+    /* "pymatgen/optimization/neighbors.pyx":222
  * 
  *     if count == 0:
  *         free(index_1)             # <<<<<<<<<<<<<<
@@ -5034,7 +5260,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
  */
     free(__pyx_v_index_1);
 
-    /* "pymatgen/optimization/neighbors.pyx":202
+    /* "pymatgen/optimization/neighbors.pyx":223
  *     if count == 0:
  *         free(index_1)
  *         free(index_2)             # <<<<<<<<<<<<<<
@@ -5043,7 +5269,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
  */
     free(__pyx_v_index_2);
 
-    /* "pymatgen/optimization/neighbors.pyx":203
+    /* "pymatgen/optimization/neighbors.pyx":224
  *         free(index_1)
  *         free(index_2)
  *         free(offset_final)             # <<<<<<<<<<<<<<
@@ -5052,7 +5278,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
  */
     free(__pyx_v_offset_final);
 
-    /* "pymatgen/optimization/neighbors.pyx":204
+    /* "pymatgen/optimization/neighbors.pyx":225
  *         free(index_2)
  *         free(offset_final)
  *         free(distances)             # <<<<<<<<<<<<<<
@@ -5061,7 +5287,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
  */
     free(__pyx_v_distances);
 
-    /* "pymatgen/optimization/neighbors.pyx":205
+    /* "pymatgen/optimization/neighbors.pyx":226
  *         free(offset_final)
  *         free(distances)
  *         free(&offset_correction[0, 0])             # <<<<<<<<<<<<<<
@@ -5072,7 +5298,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
     __pyx_t_86 = 0;
     free((&(*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_offset_correction.data + __pyx_t_85 * __pyx_v_offset_correction.strides[0]) )) + __pyx_t_86)) )))));
 
-    /* "pymatgen/optimization/neighbors.pyx":206
+    /* "pymatgen/optimization/neighbors.pyx":227
  *         free(distances)
  *         free(&offset_correction[0, 0])
  *         free(&frac_coords[0, 0])             # <<<<<<<<<<<<<<
@@ -5083,7 +5309,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
     __pyx_t_88 = 0;
     free((&(*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_frac_coords.data + __pyx_t_87 * __pyx_v_frac_coords.strides[0]) )) + __pyx_t_88)) )))));
 
-    /* "pymatgen/optimization/neighbors.pyx":207
+    /* "pymatgen/optimization/neighbors.pyx":228
  *         free(&offset_correction[0, 0])
  *         free(&frac_coords[0, 0])
  *         free(&all_fcoords[0, 0])             # <<<<<<<<<<<<<<
@@ -5094,7 +5320,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
     __pyx_t_90 = 0;
     free((&(*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_all_fcoords.data + __pyx_t_89 * __pyx_v_all_fcoords.strides[0]) )) + __pyx_t_90)) )))));
 
-    /* "pymatgen/optimization/neighbors.pyx":208
+    /* "pymatgen/optimization/neighbors.pyx":229
  *         free(&frac_coords[0, 0])
  *         free(&all_fcoords[0, 0])
  *         free(&coords_in_cell[0, 0])             # <<<<<<<<<<<<<<
@@ -5105,7 +5331,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
     __pyx_t_92 = 0;
     free((&(*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_coords_in_cell.data + __pyx_t_91 * __pyx_v_coords_in_cell.strides[0]) )) + __pyx_t_92)) )))));
 
-    /* "pymatgen/optimization/neighbors.pyx":209
+    /* "pymatgen/optimization/neighbors.pyx":230
  *         free(&all_fcoords[0, 0])
  *         free(&coords_in_cell[0, 0])
  *         free(&center_indices3[0, 0])             # <<<<<<<<<<<<<<
@@ -5116,7 +5342,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
     __pyx_t_94 = 0;
     free((&(*((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_center_indices3.data + __pyx_t_93 * __pyx_v_center_indices3.strides[0]) )) + __pyx_t_94)) )))));
 
-    /* "pymatgen/optimization/neighbors.pyx":210
+    /* "pymatgen/optimization/neighbors.pyx":231
  *         free(&coords_in_cell[0, 0])
  *         free(&center_indices3[0, 0])
  *         free(offsets_p)             # <<<<<<<<<<<<<<
@@ -5125,7 +5351,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
  */
     free(__pyx_v_offsets_p);
 
-    /* "pymatgen/optimization/neighbors.pyx":211
+    /* "pymatgen/optimization/neighbors.pyx":232
  *         free(&center_indices3[0, 0])
  *         free(offsets_p)
  *         free(expanded_coords_p)             # <<<<<<<<<<<<<<
@@ -5134,7 +5360,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
  */
     free(__pyx_v_expanded_coords_p);
 
-    /* "pymatgen/optimization/neighbors.pyx":212
+    /* "pymatgen/optimization/neighbors.pyx":233
  *         free(offsets_p)
  *         free(expanded_coords_p)
  *         free(indices_p)             # <<<<<<<<<<<<<<
@@ -5143,7 +5369,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
  */
     free(__pyx_v_indices_p);
 
-    /* "pymatgen/optimization/neighbors.pyx":213
+    /* "pymatgen/optimization/neighbors.pyx":234
  *         free(expanded_coords_p)
  *         free(indices_p)
  *         free(&all_indices3[0, 0])             # <<<<<<<<<<<<<<
@@ -5154,7 +5380,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
     __pyx_t_96 = 0;
     free((&(*((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_all_indices3.data + __pyx_t_95 * __pyx_v_all_indices3.strides[0]) )) + __pyx_t_96)) )))));
 
-    /* "pymatgen/optimization/neighbors.pyx":214
+    /* "pymatgen/optimization/neighbors.pyx":235
  *         free(indices_p)
  *         free(&all_indices3[0, 0])
  *         free(&all_indices1[0])             # <<<<<<<<<<<<<<
@@ -5164,7 +5390,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
     __pyx_t_97 = 0;
     free((&(*((long *) ( /* dim=0 */ ((char *) (((long *) __pyx_v_all_indices1.data) + __pyx_t_97)) )))));
 
-    /* "pymatgen/optimization/neighbors.pyx":215
+    /* "pymatgen/optimization/neighbors.pyx":236
  *         free(&all_indices3[0, 0])
  *         free(&all_indices1[0])
  *         free(center_indices1)             # <<<<<<<<<<<<<<
@@ -5173,7 +5399,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
  */
     free(__pyx_v_center_indices1);
 
-    /* "pymatgen/optimization/neighbors.pyx":216
+    /* "pymatgen/optimization/neighbors.pyx":237
  *         free(&all_indices1[0])
  *         free(center_indices1)
  *         free(head)             # <<<<<<<<<<<<<<
@@ -5182,7 +5408,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
  */
     free(__pyx_v_head);
 
-    /* "pymatgen/optimization/neighbors.pyx":217
+    /* "pymatgen/optimization/neighbors.pyx":238
  *         free(center_indices1)
  *         free(head)
  *         free(atom_indices)             # <<<<<<<<<<<<<<
@@ -5191,66 +5417,66 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
  */
     free(__pyx_v_atom_indices);
 
-    /* "pymatgen/optimization/neighbors.pyx":218
+    /* "pymatgen/optimization/neighbors.pyx":239
  *         free(head)
  *         free(atom_indices)
  *         return np.array([], dtype=int), np.array([], dtype=int), np.array([[], [], []], dtype=float).T, np.array([], dtype=float)             # <<<<<<<<<<<<<<
  * 
- *     index_1 = <long*>realloc(index_1, count * sizeof(long))
+ *     index_1 = <long*>safe_realloc(index_1, count * sizeof(long))
  */
     __Pyx_XDECREF(__pyx_r);
-    __Pyx_GetModuleGlobalName(__pyx_t_59, __pyx_n_s_np); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 218, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_59, __pyx_n_s_np); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 239, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_59);
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_59, __pyx_n_s_array); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 218, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_59, __pyx_n_s_array); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 239, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_59); __pyx_t_59 = 0;
-    __pyx_t_59 = PyList_New(0); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 218, __pyx_L1_error)
+    __pyx_t_59 = PyList_New(0); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 239, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_59);
-    __pyx_t_63 = PyTuple_New(1); if (unlikely(!__pyx_t_63)) __PYX_ERR(0, 218, __pyx_L1_error)
+    __pyx_t_63 = PyTuple_New(1); if (unlikely(!__pyx_t_63)) __PYX_ERR(0, 239, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_63);
     __Pyx_GIVEREF(__pyx_t_59);
     PyTuple_SET_ITEM(__pyx_t_63, 0, __pyx_t_59);
     __pyx_t_59 = 0;
-    __pyx_t_59 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 218, __pyx_L1_error)
+    __pyx_t_59 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 239, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_59);
-    if (PyDict_SetItem(__pyx_t_59, __pyx_n_s_dtype, ((PyObject *)(&PyInt_Type))) < 0) __PYX_ERR(0, 218, __pyx_L1_error)
-    __pyx_t_61 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_63, __pyx_t_59); if (unlikely(!__pyx_t_61)) __PYX_ERR(0, 218, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_59, __pyx_n_s_dtype, ((PyObject *)(&PyInt_Type))) < 0) __PYX_ERR(0, 239, __pyx_L1_error)
+    __pyx_t_61 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_63, __pyx_t_59); if (unlikely(!__pyx_t_61)) __PYX_ERR(0, 239, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_61);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_DECREF(__pyx_t_63); __pyx_t_63 = 0;
     __Pyx_DECREF(__pyx_t_59); __pyx_t_59 = 0;
-    __Pyx_GetModuleGlobalName(__pyx_t_59, __pyx_n_s_np); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 218, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_59, __pyx_n_s_np); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 239, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_59);
-    __pyx_t_63 = __Pyx_PyObject_GetAttrStr(__pyx_t_59, __pyx_n_s_array); if (unlikely(!__pyx_t_63)) __PYX_ERR(0, 218, __pyx_L1_error)
+    __pyx_t_63 = __Pyx_PyObject_GetAttrStr(__pyx_t_59, __pyx_n_s_array); if (unlikely(!__pyx_t_63)) __PYX_ERR(0, 239, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_63);
     __Pyx_DECREF(__pyx_t_59); __pyx_t_59 = 0;
-    __pyx_t_59 = PyList_New(0); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 218, __pyx_L1_error)
+    __pyx_t_59 = PyList_New(0); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 239, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_59);
-    __pyx_t_3 = PyTuple_New(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 218, __pyx_L1_error)
+    __pyx_t_3 = PyTuple_New(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 239, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_GIVEREF(__pyx_t_59);
     PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_59);
     __pyx_t_59 = 0;
-    __pyx_t_59 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 218, __pyx_L1_error)
+    __pyx_t_59 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 239, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_59);
-    if (PyDict_SetItem(__pyx_t_59, __pyx_n_s_dtype, ((PyObject *)(&PyInt_Type))) < 0) __PYX_ERR(0, 218, __pyx_L1_error)
-    __pyx_t_60 = __Pyx_PyObject_Call(__pyx_t_63, __pyx_t_3, __pyx_t_59); if (unlikely(!__pyx_t_60)) __PYX_ERR(0, 218, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_59, __pyx_n_s_dtype, ((PyObject *)(&PyInt_Type))) < 0) __PYX_ERR(0, 239, __pyx_L1_error)
+    __pyx_t_60 = __Pyx_PyObject_Call(__pyx_t_63, __pyx_t_3, __pyx_t_59); if (unlikely(!__pyx_t_60)) __PYX_ERR(0, 239, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_60);
     __Pyx_DECREF(__pyx_t_63); __pyx_t_63 = 0;
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_DECREF(__pyx_t_59); __pyx_t_59 = 0;
-    __Pyx_GetModuleGlobalName(__pyx_t_59, __pyx_n_s_np); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 218, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_59, __pyx_n_s_np); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 239, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_59);
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_59, __pyx_n_s_array); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 218, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_59, __pyx_n_s_array); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 239, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_59); __pyx_t_59 = 0;
-    __pyx_t_59 = PyList_New(0); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 218, __pyx_L1_error)
+    __pyx_t_59 = PyList_New(0); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 239, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_59);
-    __pyx_t_63 = PyList_New(0); if (unlikely(!__pyx_t_63)) __PYX_ERR(0, 218, __pyx_L1_error)
+    __pyx_t_63 = PyList_New(0); if (unlikely(!__pyx_t_63)) __PYX_ERR(0, 239, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_63);
-    __pyx_t_4 = PyList_New(0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 218, __pyx_L1_error)
+    __pyx_t_4 = PyList_New(0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 239, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_62 = PyList_New(3); if (unlikely(!__pyx_t_62)) __PYX_ERR(0, 218, __pyx_L1_error)
+    __pyx_t_62 = PyList_New(3); if (unlikely(!__pyx_t_62)) __PYX_ERR(0, 239, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_62);
     __Pyx_GIVEREF(__pyx_t_59);
     PyList_SET_ITEM(__pyx_t_62, 0, __pyx_t_59);
@@ -5261,43 +5487,43 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
     __pyx_t_59 = 0;
     __pyx_t_63 = 0;
     __pyx_t_4 = 0;
-    __pyx_t_4 = PyTuple_New(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 218, __pyx_L1_error)
+    __pyx_t_4 = PyTuple_New(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 239, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_GIVEREF(__pyx_t_62);
     PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_62);
     __pyx_t_62 = 0;
-    __pyx_t_62 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_62)) __PYX_ERR(0, 218, __pyx_L1_error)
+    __pyx_t_62 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_62)) __PYX_ERR(0, 239, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_62);
-    if (PyDict_SetItem(__pyx_t_62, __pyx_n_s_dtype, ((PyObject *)(&PyFloat_Type))) < 0) __PYX_ERR(0, 218, __pyx_L1_error)
-    __pyx_t_63 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_4, __pyx_t_62); if (unlikely(!__pyx_t_63)) __PYX_ERR(0, 218, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_62, __pyx_n_s_dtype, ((PyObject *)(&PyFloat_Type))) < 0) __PYX_ERR(0, 239, __pyx_L1_error)
+    __pyx_t_63 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_4, __pyx_t_62); if (unlikely(!__pyx_t_63)) __PYX_ERR(0, 239, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_63);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_62); __pyx_t_62 = 0;
-    __pyx_t_62 = __Pyx_PyObject_GetAttrStr(__pyx_t_63, __pyx_n_s_T); if (unlikely(!__pyx_t_62)) __PYX_ERR(0, 218, __pyx_L1_error)
+    __pyx_t_62 = __Pyx_PyObject_GetAttrStr(__pyx_t_63, __pyx_n_s_T); if (unlikely(!__pyx_t_62)) __PYX_ERR(0, 239, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_62);
     __Pyx_DECREF(__pyx_t_63); __pyx_t_63 = 0;
-    __Pyx_GetModuleGlobalName(__pyx_t_63, __pyx_n_s_np); if (unlikely(!__pyx_t_63)) __PYX_ERR(0, 218, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_63, __pyx_n_s_np); if (unlikely(!__pyx_t_63)) __PYX_ERR(0, 239, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_63);
-    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_63, __pyx_n_s_array); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 218, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_63, __pyx_n_s_array); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 239, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_63); __pyx_t_63 = 0;
-    __pyx_t_63 = PyList_New(0); if (unlikely(!__pyx_t_63)) __PYX_ERR(0, 218, __pyx_L1_error)
+    __pyx_t_63 = PyList_New(0); if (unlikely(!__pyx_t_63)) __PYX_ERR(0, 239, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_63);
-    __pyx_t_3 = PyTuple_New(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 218, __pyx_L1_error)
+    __pyx_t_3 = PyTuple_New(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 239, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_GIVEREF(__pyx_t_63);
     PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_63);
     __pyx_t_63 = 0;
-    __pyx_t_63 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_63)) __PYX_ERR(0, 218, __pyx_L1_error)
+    __pyx_t_63 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_63)) __PYX_ERR(0, 239, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_63);
-    if (PyDict_SetItem(__pyx_t_63, __pyx_n_s_dtype, ((PyObject *)(&PyFloat_Type))) < 0) __PYX_ERR(0, 218, __pyx_L1_error)
-    __pyx_t_59 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_3, __pyx_t_63); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 218, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_63, __pyx_n_s_dtype, ((PyObject *)(&PyFloat_Type))) < 0) __PYX_ERR(0, 239, __pyx_L1_error)
+    __pyx_t_59 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_3, __pyx_t_63); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 239, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_59);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_DECREF(__pyx_t_63); __pyx_t_63 = 0;
-    __pyx_t_63 = PyTuple_New(4); if (unlikely(!__pyx_t_63)) __PYX_ERR(0, 218, __pyx_L1_error)
+    __pyx_t_63 = PyTuple_New(4); if (unlikely(!__pyx_t_63)) __PYX_ERR(0, 239, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_63);
     __Pyx_GIVEREF(__pyx_t_61);
     PyTuple_SET_ITEM(__pyx_t_63, 0, __pyx_t_61);
@@ -5315,7 +5541,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
     __pyx_t_63 = 0;
     goto __pyx_L0;
 
-    /* "pymatgen/optimization/neighbors.pyx":200
+    /* "pymatgen/optimization/neighbors.pyx":221
  *             postincrement(it)
  * 
  *     if count == 0:             # <<<<<<<<<<<<<<
@@ -5324,65 +5550,65 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
  */
   }
 
-  /* "pymatgen/optimization/neighbors.pyx":220
+  /* "pymatgen/optimization/neighbors.pyx":241
  *         return np.array([], dtype=int), np.array([], dtype=int), np.array([[], [], []], dtype=float).T, np.array([], dtype=float)
  * 
- *     index_1 = <long*>realloc(index_1, count * sizeof(long))             # <<<<<<<<<<<<<<
- *     index_2 = <long*>realloc(index_2, count*sizeof(long))
- *     offset_final = <double*> realloc(offset_final, 3*count*sizeof(double))
+ *     index_1 = <long*>safe_realloc(index_1, count * sizeof(long))             # <<<<<<<<<<<<<<
+ *     index_2 = <long*>safe_realloc(index_2, count*sizeof(long))
+ *     offset_final = <double*>safe_realloc(offset_final, 3*count*sizeof(double))
  */
-  __pyx_v_index_1 = ((long *)realloc(__pyx_v_index_1, (__pyx_v_count * (sizeof(long)))));
+  __pyx_v_index_1 = ((long *)__pyx_f_8pymatgen_12optimization_9neighbors_safe_realloc(__pyx_v_index_1, (__pyx_v_count * (sizeof(long)))));
 
-  /* "pymatgen/optimization/neighbors.pyx":221
+  /* "pymatgen/optimization/neighbors.pyx":242
  * 
- *     index_1 = <long*>realloc(index_1, count * sizeof(long))
- *     index_2 = <long*>realloc(index_2, count*sizeof(long))             # <<<<<<<<<<<<<<
- *     offset_final = <double*> realloc(offset_final, 3*count*sizeof(double))
- *     distances = <double*> realloc(distances, count*sizeof(double))
+ *     index_1 = <long*>safe_realloc(index_1, count * sizeof(long))
+ *     index_2 = <long*>safe_realloc(index_2, count*sizeof(long))             # <<<<<<<<<<<<<<
+ *     offset_final = <double*>safe_realloc(offset_final, 3*count*sizeof(double))
+ *     distances = <double*>safe_realloc(distances, count*sizeof(double))
  */
-  __pyx_v_index_2 = ((long *)realloc(__pyx_v_index_2, (__pyx_v_count * (sizeof(long)))));
+  __pyx_v_index_2 = ((long *)__pyx_f_8pymatgen_12optimization_9neighbors_safe_realloc(__pyx_v_index_2, (__pyx_v_count * (sizeof(long)))));
 
-  /* "pymatgen/optimization/neighbors.pyx":222
- *     index_1 = <long*>realloc(index_1, count * sizeof(long))
- *     index_2 = <long*>realloc(index_2, count*sizeof(long))
- *     offset_final = <double*> realloc(offset_final, 3*count*sizeof(double))             # <<<<<<<<<<<<<<
- *     distances = <double*> realloc(distances, count*sizeof(double))
+  /* "pymatgen/optimization/neighbors.pyx":243
+ *     index_1 = <long*>safe_realloc(index_1, count * sizeof(long))
+ *     index_2 = <long*>safe_realloc(index_2, count*sizeof(long))
+ *     offset_final = <double*>safe_realloc(offset_final, 3*count*sizeof(double))             # <<<<<<<<<<<<<<
+ *     distances = <double*>safe_realloc(distances, count*sizeof(double))
  * 
  */
-  __pyx_v_offset_final = ((double *)realloc(__pyx_v_offset_final, ((3 * __pyx_v_count) * (sizeof(double)))));
+  __pyx_v_offset_final = ((double *)__pyx_f_8pymatgen_12optimization_9neighbors_safe_realloc(__pyx_v_offset_final, ((3 * __pyx_v_count) * (sizeof(double)))));
 
-  /* "pymatgen/optimization/neighbors.pyx":223
- *     index_2 = <long*>realloc(index_2, count*sizeof(long))
- *     offset_final = <double*> realloc(offset_final, 3*count*sizeof(double))
- *     distances = <double*> realloc(distances, count*sizeof(double))             # <<<<<<<<<<<<<<
+  /* "pymatgen/optimization/neighbors.pyx":244
+ *     index_2 = <long*>safe_realloc(index_2, count*sizeof(long))
+ *     offset_final = <double*>safe_realloc(offset_final, 3*count*sizeof(double))
+ *     distances = <double*>safe_realloc(distances, count*sizeof(double))             # <<<<<<<<<<<<<<
  * 
  *     # convert to python objects
  */
-  __pyx_v_distances = ((double *)realloc(__pyx_v_distances, (__pyx_v_count * (sizeof(double)))));
+  __pyx_v_distances = ((double *)__pyx_f_8pymatgen_12optimization_9neighbors_safe_realloc(__pyx_v_distances, (__pyx_v_count * (sizeof(double)))));
 
-  /* "pymatgen/optimization/neighbors.pyx":226
+  /* "pymatgen/optimization/neighbors.pyx":247
  * 
  *     # convert to python objects
  *     py_index_1 = np.array(<long[:count]>index_1)             # <<<<<<<<<<<<<<
  *     py_index_2 = np.array(<long[:count]>index_2)
  *     py_offsets = np.array(<double[:count, :3]>offset_final)
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_59, __pyx_n_s_np); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 226, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_59, __pyx_n_s_np); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 247, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_59);
-  __pyx_t_62 = __Pyx_PyObject_GetAttrStr(__pyx_t_59, __pyx_n_s_array); if (unlikely(!__pyx_t_62)) __PYX_ERR(0, 226, __pyx_L1_error)
+  __pyx_t_62 = __Pyx_PyObject_GetAttrStr(__pyx_t_59, __pyx_n_s_array); if (unlikely(!__pyx_t_62)) __PYX_ERR(0, 247, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_62);
   __Pyx_DECREF(__pyx_t_59); __pyx_t_59 = 0;
   if (!__pyx_v_index_1) {
     PyErr_SetString(PyExc_ValueError,"Cannot create cython.array from NULL pointer");
-    __PYX_ERR(0, 226, __pyx_L1_error)
+    __PYX_ERR(0, 247, __pyx_L1_error)
   }
   __pyx_t_60 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_long);
   __pyx_t_59 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)__pyx_v_count));
-  if (unlikely(!__pyx_t_60 || !__pyx_t_59 || !PyBytes_AsString(__pyx_t_60))) __PYX_ERR(0, 226, __pyx_L1_error)
+  if (unlikely(!__pyx_t_60 || !__pyx_t_59 || !PyBytes_AsString(__pyx_t_60))) __PYX_ERR(0, 247, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_60);
   __Pyx_GOTREF(__pyx_t_59);
   __pyx_t_2 = __pyx_array_new(__pyx_t_59, sizeof(long), PyBytes_AS_STRING(__pyx_t_60), (char *) "c", (char *) __pyx_v_index_1);
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 226, __pyx_L1_error)
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 247, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_59); __pyx_t_59 = 0;
   __Pyx_DECREF(__pyx_t_60); __pyx_t_60 = 0;
@@ -5399,35 +5625,35 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
   __pyx_t_63 = (__pyx_t_60) ? __Pyx_PyObject_Call2Args(__pyx_t_62, __pyx_t_60, ((PyObject *)__pyx_t_2)) : __Pyx_PyObject_CallOneArg(__pyx_t_62, ((PyObject *)__pyx_t_2));
   __Pyx_XDECREF(__pyx_t_60); __pyx_t_60 = 0;
   __Pyx_DECREF(((PyObject *)__pyx_t_2)); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_t_63)) __PYX_ERR(0, 226, __pyx_L1_error)
+  if (unlikely(!__pyx_t_63)) __PYX_ERR(0, 247, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_63);
   __Pyx_DECREF(__pyx_t_62); __pyx_t_62 = 0;
   __pyx_v_py_index_1 = __pyx_t_63;
   __pyx_t_63 = 0;
 
-  /* "pymatgen/optimization/neighbors.pyx":227
+  /* "pymatgen/optimization/neighbors.pyx":248
  *     # convert to python objects
  *     py_index_1 = np.array(<long[:count]>index_1)
  *     py_index_2 = np.array(<long[:count]>index_2)             # <<<<<<<<<<<<<<
  *     py_offsets = np.array(<double[:count, :3]>offset_final)
  *     py_distances = np.array(<double[:count]>distances)
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_62, __pyx_n_s_np); if (unlikely(!__pyx_t_62)) __PYX_ERR(0, 227, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_62, __pyx_n_s_np); if (unlikely(!__pyx_t_62)) __PYX_ERR(0, 248, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_62);
-  __pyx_t_60 = __Pyx_PyObject_GetAttrStr(__pyx_t_62, __pyx_n_s_array); if (unlikely(!__pyx_t_60)) __PYX_ERR(0, 227, __pyx_L1_error)
+  __pyx_t_60 = __Pyx_PyObject_GetAttrStr(__pyx_t_62, __pyx_n_s_array); if (unlikely(!__pyx_t_60)) __PYX_ERR(0, 248, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_60);
   __Pyx_DECREF(__pyx_t_62); __pyx_t_62 = 0;
   if (!__pyx_v_index_2) {
     PyErr_SetString(PyExc_ValueError,"Cannot create cython.array from NULL pointer");
-    __PYX_ERR(0, 227, __pyx_L1_error)
+    __PYX_ERR(0, 248, __pyx_L1_error)
   }
   __pyx_t_59 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_long);
   __pyx_t_62 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)__pyx_v_count));
-  if (unlikely(!__pyx_t_59 || !__pyx_t_62 || !PyBytes_AsString(__pyx_t_59))) __PYX_ERR(0, 227, __pyx_L1_error)
+  if (unlikely(!__pyx_t_59 || !__pyx_t_62 || !PyBytes_AsString(__pyx_t_59))) __PYX_ERR(0, 248, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_59);
   __Pyx_GOTREF(__pyx_t_62);
   __pyx_t_2 = __pyx_array_new(__pyx_t_62, sizeof(long), PyBytes_AS_STRING(__pyx_t_59), (char *) "c", (char *) __pyx_v_index_2);
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 227, __pyx_L1_error)
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 248, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_62); __pyx_t_62 = 0;
   __Pyx_DECREF(__pyx_t_59); __pyx_t_59 = 0;
@@ -5444,35 +5670,35 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
   __pyx_t_63 = (__pyx_t_59) ? __Pyx_PyObject_Call2Args(__pyx_t_60, __pyx_t_59, ((PyObject *)__pyx_t_2)) : __Pyx_PyObject_CallOneArg(__pyx_t_60, ((PyObject *)__pyx_t_2));
   __Pyx_XDECREF(__pyx_t_59); __pyx_t_59 = 0;
   __Pyx_DECREF(((PyObject *)__pyx_t_2)); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_t_63)) __PYX_ERR(0, 227, __pyx_L1_error)
+  if (unlikely(!__pyx_t_63)) __PYX_ERR(0, 248, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_63);
   __Pyx_DECREF(__pyx_t_60); __pyx_t_60 = 0;
   __pyx_v_py_index_2 = __pyx_t_63;
   __pyx_t_63 = 0;
 
-  /* "pymatgen/optimization/neighbors.pyx":228
+  /* "pymatgen/optimization/neighbors.pyx":249
  *     py_index_1 = np.array(<long[:count]>index_1)
  *     py_index_2 = np.array(<long[:count]>index_2)
  *     py_offsets = np.array(<double[:count, :3]>offset_final)             # <<<<<<<<<<<<<<
  *     py_distances = np.array(<double[:count]>distances)
  * 
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_60, __pyx_n_s_np); if (unlikely(!__pyx_t_60)) __PYX_ERR(0, 228, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_60, __pyx_n_s_np); if (unlikely(!__pyx_t_60)) __PYX_ERR(0, 249, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_60);
-  __pyx_t_59 = __Pyx_PyObject_GetAttrStr(__pyx_t_60, __pyx_n_s_array); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 228, __pyx_L1_error)
+  __pyx_t_59 = __Pyx_PyObject_GetAttrStr(__pyx_t_60, __pyx_n_s_array); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 249, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_59);
   __Pyx_DECREF(__pyx_t_60); __pyx_t_60 = 0;
   if (!__pyx_v_offset_final) {
     PyErr_SetString(PyExc_ValueError,"Cannot create cython.array from NULL pointer");
-    __PYX_ERR(0, 228, __pyx_L1_error)
+    __PYX_ERR(0, 249, __pyx_L1_error)
   }
   __pyx_t_62 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_double);
   __pyx_t_60 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)__pyx_v_count), ((Py_ssize_t)3));
-  if (unlikely(!__pyx_t_62 || !__pyx_t_60 || !PyBytes_AsString(__pyx_t_62))) __PYX_ERR(0, 228, __pyx_L1_error)
+  if (unlikely(!__pyx_t_62 || !__pyx_t_60 || !PyBytes_AsString(__pyx_t_62))) __PYX_ERR(0, 249, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_62);
   __Pyx_GOTREF(__pyx_t_60);
   __pyx_t_2 = __pyx_array_new(__pyx_t_60, sizeof(double), PyBytes_AS_STRING(__pyx_t_62), (char *) "c", (char *) __pyx_v_offset_final);
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 228, __pyx_L1_error)
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 249, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_60); __pyx_t_60 = 0;
   __Pyx_DECREF(__pyx_t_62); __pyx_t_62 = 0;
@@ -5489,35 +5715,35 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
   __pyx_t_63 = (__pyx_t_62) ? __Pyx_PyObject_Call2Args(__pyx_t_59, __pyx_t_62, ((PyObject *)__pyx_t_2)) : __Pyx_PyObject_CallOneArg(__pyx_t_59, ((PyObject *)__pyx_t_2));
   __Pyx_XDECREF(__pyx_t_62); __pyx_t_62 = 0;
   __Pyx_DECREF(((PyObject *)__pyx_t_2)); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_t_63)) __PYX_ERR(0, 228, __pyx_L1_error)
+  if (unlikely(!__pyx_t_63)) __PYX_ERR(0, 249, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_63);
   __Pyx_DECREF(__pyx_t_59); __pyx_t_59 = 0;
   __pyx_v_py_offsets = __pyx_t_63;
   __pyx_t_63 = 0;
 
-  /* "pymatgen/optimization/neighbors.pyx":229
+  /* "pymatgen/optimization/neighbors.pyx":250
  *     py_index_2 = np.array(<long[:count]>index_2)
  *     py_offsets = np.array(<double[:count, :3]>offset_final)
  *     py_distances = np.array(<double[:count]>distances)             # <<<<<<<<<<<<<<
  * 
  *     # free allocated memories
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_59, __pyx_n_s_np); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 229, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_59, __pyx_n_s_np); if (unlikely(!__pyx_t_59)) __PYX_ERR(0, 250, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_59);
-  __pyx_t_62 = __Pyx_PyObject_GetAttrStr(__pyx_t_59, __pyx_n_s_array); if (unlikely(!__pyx_t_62)) __PYX_ERR(0, 229, __pyx_L1_error)
+  __pyx_t_62 = __Pyx_PyObject_GetAttrStr(__pyx_t_59, __pyx_n_s_array); if (unlikely(!__pyx_t_62)) __PYX_ERR(0, 250, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_62);
   __Pyx_DECREF(__pyx_t_59); __pyx_t_59 = 0;
   if (!__pyx_v_distances) {
     PyErr_SetString(PyExc_ValueError,"Cannot create cython.array from NULL pointer");
-    __PYX_ERR(0, 229, __pyx_L1_error)
+    __PYX_ERR(0, 250, __pyx_L1_error)
   }
   __pyx_t_60 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_double);
   __pyx_t_59 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)__pyx_v_count));
-  if (unlikely(!__pyx_t_60 || !__pyx_t_59 || !PyBytes_AsString(__pyx_t_60))) __PYX_ERR(0, 229, __pyx_L1_error)
+  if (unlikely(!__pyx_t_60 || !__pyx_t_59 || !PyBytes_AsString(__pyx_t_60))) __PYX_ERR(0, 250, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_60);
   __Pyx_GOTREF(__pyx_t_59);
   __pyx_t_2 = __pyx_array_new(__pyx_t_59, sizeof(double), PyBytes_AS_STRING(__pyx_t_60), (char *) "c", (char *) __pyx_v_distances);
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 229, __pyx_L1_error)
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 250, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_59); __pyx_t_59 = 0;
   __Pyx_DECREF(__pyx_t_60); __pyx_t_60 = 0;
@@ -5534,13 +5760,13 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
   __pyx_t_63 = (__pyx_t_60) ? __Pyx_PyObject_Call2Args(__pyx_t_62, __pyx_t_60, ((PyObject *)__pyx_t_2)) : __Pyx_PyObject_CallOneArg(__pyx_t_62, ((PyObject *)__pyx_t_2));
   __Pyx_XDECREF(__pyx_t_60); __pyx_t_60 = 0;
   __Pyx_DECREF(((PyObject *)__pyx_t_2)); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_t_63)) __PYX_ERR(0, 229, __pyx_L1_error)
+  if (unlikely(!__pyx_t_63)) __PYX_ERR(0, 250, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_63);
   __Pyx_DECREF(__pyx_t_62); __pyx_t_62 = 0;
   __pyx_v_py_distances = __pyx_t_63;
   __pyx_t_63 = 0;
 
-  /* "pymatgen/optimization/neighbors.pyx":232
+  /* "pymatgen/optimization/neighbors.pyx":253
  * 
  *     # free allocated memories
  *     free(index_1)             # <<<<<<<<<<<<<<
@@ -5549,7 +5775,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
  */
   free(__pyx_v_index_1);
 
-  /* "pymatgen/optimization/neighbors.pyx":233
+  /* "pymatgen/optimization/neighbors.pyx":254
  *     # free allocated memories
  *     free(index_1)
  *     free(index_2)             # <<<<<<<<<<<<<<
@@ -5558,7 +5784,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
  */
   free(__pyx_v_index_2);
 
-  /* "pymatgen/optimization/neighbors.pyx":234
+  /* "pymatgen/optimization/neighbors.pyx":255
  *     free(index_1)
  *     free(index_2)
  *     free(offset_final)             # <<<<<<<<<<<<<<
@@ -5567,7 +5793,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
  */
   free(__pyx_v_offset_final);
 
-  /* "pymatgen/optimization/neighbors.pyx":235
+  /* "pymatgen/optimization/neighbors.pyx":256
  *     free(index_2)
  *     free(offset_final)
  *     free(distances)             # <<<<<<<<<<<<<<
@@ -5576,7 +5802,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
  */
   free(__pyx_v_distances);
 
-  /* "pymatgen/optimization/neighbors.pyx":236
+  /* "pymatgen/optimization/neighbors.pyx":257
  *     free(offset_final)
  *     free(distances)
  *     free(&offset_correction[0, 0])             # <<<<<<<<<<<<<<
@@ -5587,7 +5813,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
   __pyx_t_99 = 0;
   free((&(*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_offset_correction.data + __pyx_t_98 * __pyx_v_offset_correction.strides[0]) )) + __pyx_t_99)) )))));
 
-  /* "pymatgen/optimization/neighbors.pyx":237
+  /* "pymatgen/optimization/neighbors.pyx":258
  *     free(distances)
  *     free(&offset_correction[0, 0])
  *     free(&frac_coords[0, 0])             # <<<<<<<<<<<<<<
@@ -5598,7 +5824,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
   __pyx_t_101 = 0;
   free((&(*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_frac_coords.data + __pyx_t_100 * __pyx_v_frac_coords.strides[0]) )) + __pyx_t_101)) )))));
 
-  /* "pymatgen/optimization/neighbors.pyx":238
+  /* "pymatgen/optimization/neighbors.pyx":259
  *     free(&offset_correction[0, 0])
  *     free(&frac_coords[0, 0])
  *     free(&all_fcoords[0, 0])             # <<<<<<<<<<<<<<
@@ -5609,7 +5835,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
   __pyx_t_103 = 0;
   free((&(*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_all_fcoords.data + __pyx_t_102 * __pyx_v_all_fcoords.strides[0]) )) + __pyx_t_103)) )))));
 
-  /* "pymatgen/optimization/neighbors.pyx":239
+  /* "pymatgen/optimization/neighbors.pyx":260
  *     free(&frac_coords[0, 0])
  *     free(&all_fcoords[0, 0])
  *     free(&coords_in_cell[0, 0])             # <<<<<<<<<<<<<<
@@ -5620,7 +5846,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
   __pyx_t_105 = 0;
   free((&(*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_coords_in_cell.data + __pyx_t_104 * __pyx_v_coords_in_cell.strides[0]) )) + __pyx_t_105)) )))));
 
-  /* "pymatgen/optimization/neighbors.pyx":240
+  /* "pymatgen/optimization/neighbors.pyx":261
  *     free(&all_fcoords[0, 0])
  *     free(&coords_in_cell[0, 0])
  *     free(&center_indices3[0, 0])             # <<<<<<<<<<<<<<
@@ -5631,7 +5857,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
   __pyx_t_107 = 0;
   free((&(*((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_center_indices3.data + __pyx_t_106 * __pyx_v_center_indices3.strides[0]) )) + __pyx_t_107)) )))));
 
-  /* "pymatgen/optimization/neighbors.pyx":241
+  /* "pymatgen/optimization/neighbors.pyx":262
  *     free(&coords_in_cell[0, 0])
  *     free(&center_indices3[0, 0])
  *     free(offsets_p)             # <<<<<<<<<<<<<<
@@ -5640,7 +5866,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
  */
   free(__pyx_v_offsets_p);
 
-  /* "pymatgen/optimization/neighbors.pyx":242
+  /* "pymatgen/optimization/neighbors.pyx":263
  *     free(&center_indices3[0, 0])
  *     free(offsets_p)
  *     free(expanded_coords_p)             # <<<<<<<<<<<<<<
@@ -5649,7 +5875,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
  */
   free(__pyx_v_expanded_coords_p);
 
-  /* "pymatgen/optimization/neighbors.pyx":243
+  /* "pymatgen/optimization/neighbors.pyx":264
  *     free(offsets_p)
  *     free(expanded_coords_p)
  *     free(indices_p)             # <<<<<<<<<<<<<<
@@ -5658,7 +5884,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
  */
   free(__pyx_v_indices_p);
 
-  /* "pymatgen/optimization/neighbors.pyx":244
+  /* "pymatgen/optimization/neighbors.pyx":265
  *     free(expanded_coords_p)
  *     free(indices_p)
  *     free(&all_indices3[0, 0])             # <<<<<<<<<<<<<<
@@ -5669,7 +5895,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
   __pyx_t_109 = 0;
   free((&(*((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_all_indices3.data + __pyx_t_108 * __pyx_v_all_indices3.strides[0]) )) + __pyx_t_109)) )))));
 
-  /* "pymatgen/optimization/neighbors.pyx":245
+  /* "pymatgen/optimization/neighbors.pyx":266
  *     free(indices_p)
  *     free(&all_indices3[0, 0])
  *     free(&all_indices1[0])             # <<<<<<<<<<<<<<
@@ -5679,7 +5905,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
   __pyx_t_110 = 0;
   free((&(*((long *) ( /* dim=0 */ ((char *) (((long *) __pyx_v_all_indices1.data) + __pyx_t_110)) )))));
 
-  /* "pymatgen/optimization/neighbors.pyx":246
+  /* "pymatgen/optimization/neighbors.pyx":267
  *     free(&all_indices3[0, 0])
  *     free(&all_indices1[0])
  *     free(center_indices1)             # <<<<<<<<<<<<<<
@@ -5688,7 +5914,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
  */
   free(__pyx_v_center_indices1);
 
-  /* "pymatgen/optimization/neighbors.pyx":247
+  /* "pymatgen/optimization/neighbors.pyx":268
  *     free(&all_indices1[0])
  *     free(center_indices1)
  *     free(head)             # <<<<<<<<<<<<<<
@@ -5697,7 +5923,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
  */
   free(__pyx_v_head);
 
-  /* "pymatgen/optimization/neighbors.pyx":248
+  /* "pymatgen/optimization/neighbors.pyx":269
  *     free(center_indices1)
  *     free(head)
  *     free(atom_indices)             # <<<<<<<<<<<<<<
@@ -5706,7 +5932,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
  */
   free(__pyx_v_atom_indices);
 
-  /* "pymatgen/optimization/neighbors.pyx":249
+  /* "pymatgen/optimization/neighbors.pyx":270
  *     free(head)
  *     free(atom_indices)
  *     return py_index_1, py_index_2, py_offsets, py_distances             # <<<<<<<<<<<<<<
@@ -5714,7 +5940,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
  * cdef double distance2(double[:, ::1] m1, double[:, ::1] m2, long index1, long index2, long size):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_63 = PyTuple_New(4); if (unlikely(!__pyx_t_63)) __PYX_ERR(0, 249, __pyx_L1_error)
+  __pyx_t_63 = PyTuple_New(4); if (unlikely(!__pyx_t_63)) __PYX_ERR(0, 270, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_63);
   __Pyx_INCREF(__pyx_v_py_index_1);
   __Pyx_GIVEREF(__pyx_v_py_index_1);
@@ -5732,7 +5958,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
   __pyx_t_63 = 0;
   goto __pyx_L0;
 
-  /* "pymatgen/optimization/neighbors.pyx":19
+  /* "pymatgen/optimization/neighbors.pyx":36
  * 
  * 
  * def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coords, float r, long[:] pbc, double[:, ::1] lattice, double tol=1e-8):             # <<<<<<<<<<<<<<
@@ -5785,7 +6011,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_find_points_in_sph
   return __pyx_r;
 }
 
-/* "pymatgen/optimization/neighbors.pyx":251
+/* "pymatgen/optimization/neighbors.pyx":272
  *     return py_index_1, py_index_2, py_offsets, py_distances
  * 
  * cdef double distance2(double[:, ::1] m1, double[:, ::1] m2, long index1, long index2, long size):             # <<<<<<<<<<<<<<
@@ -5811,9 +6037,9 @@ static double __pyx_f_8pymatgen_12optimization_9neighbors_distance2(__Pyx_memvie
   Py_ssize_t __pyx_t_10;
   Py_ssize_t __pyx_t_11;
   __Pyx_RefNannySetupContext("distance2", 0);
-  __Pyx_TraceCall("distance2", __pyx_f[0], 251, 0, __PYX_ERR(0, 251, __pyx_L1_error));
+  __Pyx_TraceCall("distance2", __pyx_f[0], 272, 0, __PYX_ERR(0, 272, __pyx_L1_error));
 
-  /* "pymatgen/optimization/neighbors.pyx":256
+  /* "pymatgen/optimization/neighbors.pyx":277
  * 
  *     """
  *     cdef double s = 0             # <<<<<<<<<<<<<<
@@ -5822,7 +6048,7 @@ static double __pyx_f_8pymatgen_12optimization_9neighbors_distance2(__Pyx_memvie
  */
   __pyx_v_s = 0.0;
 
-  /* "pymatgen/optimization/neighbors.pyx":258
+  /* "pymatgen/optimization/neighbors.pyx":279
  *     cdef double s = 0
  *     cdef long i
  *     for i in range(size):             # <<<<<<<<<<<<<<
@@ -5834,7 +6060,7 @@ static double __pyx_f_8pymatgen_12optimization_9neighbors_distance2(__Pyx_memvie
   for (__pyx_t_3 = 0; __pyx_t_3 < __pyx_t_2; __pyx_t_3+=1) {
     __pyx_v_i = __pyx_t_3;
 
-    /* "pymatgen/optimization/neighbors.pyx":259
+    /* "pymatgen/optimization/neighbors.pyx":280
  *     cdef long i
  *     for i in range(size):
  *         s += (m1[index1, i] - m2[index2, i]) * (m1[index1, i] - m2[index2, i])             # <<<<<<<<<<<<<<
@@ -5852,7 +6078,7 @@ static double __pyx_f_8pymatgen_12optimization_9neighbors_distance2(__Pyx_memvie
     __pyx_v_s = (__pyx_v_s + (((*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_m1.data + __pyx_t_4 * __pyx_v_m1.strides[0]) )) + __pyx_t_5)) ))) - (*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_m2.data + __pyx_t_6 * __pyx_v_m2.strides[0]) )) + __pyx_t_7)) )))) * ((*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_m1.data + __pyx_t_8 * __pyx_v_m1.strides[0]) )) + __pyx_t_9)) ))) - (*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_m2.data + __pyx_t_10 * __pyx_v_m2.strides[0]) )) + __pyx_t_11)) ))))));
   }
 
-  /* "pymatgen/optimization/neighbors.pyx":260
+  /* "pymatgen/optimization/neighbors.pyx":281
  *     for i in range(size):
  *         s += (m1[index1, i] - m2[index2, i]) * (m1[index1, i] - m2[index2, i])
  *     return s             # <<<<<<<<<<<<<<
@@ -5862,7 +6088,7 @@ static double __pyx_f_8pymatgen_12optimization_9neighbors_distance2(__Pyx_memvie
   __pyx_r = __pyx_v_s;
   goto __pyx_L0;
 
-  /* "pymatgen/optimization/neighbors.pyx":251
+  /* "pymatgen/optimization/neighbors.pyx":272
  *     return py_index_1, py_index_2, py_offsets, py_distances
  * 
  * cdef double distance2(double[:, ::1] m1, double[:, ::1] m2, long index1, long index2, long size):             # <<<<<<<<<<<<<<
@@ -5880,7 +6106,7 @@ static double __pyx_f_8pymatgen_12optimization_9neighbors_distance2(__Pyx_memvie
   return __pyx_r;
 }
 
-/* "pymatgen/optimization/neighbors.pyx":262
+/* "pymatgen/optimization/neighbors.pyx":283
  *     return s
  * 
  * cdef map[long, vector[long]] get_cube_neighbors(long [:] ncube):             # <<<<<<<<<<<<<<
@@ -5975,86 +6201,86 @@ static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_12optimization_9neig
   Py_ssize_t __pyx_t_70;
   Py_ssize_t __pyx_t_71;
   __Pyx_RefNannySetupContext("get_cube_neighbors", 0);
-  __Pyx_TraceCall("get_cube_neighbors", __pyx_f[0], 262, 0, __PYX_ERR(0, 262, __pyx_L1_error));
+  __Pyx_TraceCall("get_cube_neighbors", __pyx_f[0], 283, 0, __PYX_ERR(0, 283, __pyx_L1_error));
 
-  /* "pymatgen/optimization/neighbors.pyx":266
+  /* "pymatgen/optimization/neighbors.pyx":287
  *     Get {cube_index: cube_neighbor_indices} map
  *     """
  *     cdef long ncubes = ncube[0] * ncube[1] * ncube[2]             # <<<<<<<<<<<<<<
- *     cdef long[:, ::1] cube_indices_3d = <long[:ncubes, :3]> malloc(ncubes*3*sizeof(long))
- *     cdef long[::1] cube_indices_1d = <long[:ncubes]> malloc(ncubes*sizeof(long))
+ *     cdef long[:, ::1] cube_indices_3d = <long[:ncubes, :3]> safe_malloc(ncubes*3*sizeof(long))
+ *     cdef long[::1] cube_indices_1d = <long[:ncubes]> safe_malloc(ncubes*sizeof(long))
  */
   __pyx_t_1 = 0;
   __pyx_t_2 = 1;
   __pyx_t_3 = 2;
   __pyx_v_ncubes = (((*((long *) ( /* dim=0 */ (__pyx_v_ncube.data + __pyx_t_1 * __pyx_v_ncube.strides[0]) ))) * (*((long *) ( /* dim=0 */ (__pyx_v_ncube.data + __pyx_t_2 * __pyx_v_ncube.strides[0]) )))) * (*((long *) ( /* dim=0 */ (__pyx_v_ncube.data + __pyx_t_3 * __pyx_v_ncube.strides[0]) ))));
 
-  /* "pymatgen/optimization/neighbors.pyx":267
+  /* "pymatgen/optimization/neighbors.pyx":288
  *     """
  *     cdef long ncubes = ncube[0] * ncube[1] * ncube[2]
- *     cdef long[:, ::1] cube_indices_3d = <long[:ncubes, :3]> malloc(ncubes*3*sizeof(long))             # <<<<<<<<<<<<<<
- *     cdef long[::1] cube_indices_1d = <long[:ncubes]> malloc(ncubes*sizeof(long))
+ *     cdef long[:, ::1] cube_indices_3d = <long[:ncubes, :3]> safe_malloc(ncubes*3*sizeof(long))             # <<<<<<<<<<<<<<
+ *     cdef long[::1] cube_indices_1d = <long[:ncubes]> safe_malloc(ncubes*sizeof(long))
  *     cdef long count = 0
  */
-  __pyx_t_4 = malloc(((__pyx_v_ncubes * 3) * (sizeof(long))));
+  __pyx_t_4 = __pyx_f_8pymatgen_12optimization_9neighbors_safe_malloc(((__pyx_v_ncubes * 3) * (sizeof(long))));
   if (!__pyx_t_4) {
     PyErr_SetString(PyExc_ValueError,"Cannot create cython.array from NULL pointer");
-    __PYX_ERR(0, 267, __pyx_L1_error)
+    __PYX_ERR(0, 288, __pyx_L1_error)
   }
   __pyx_t_7 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_long);
   __pyx_t_6 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)__pyx_v_ncubes), ((Py_ssize_t)3));
-  if (unlikely(!__pyx_t_7 || !__pyx_t_6 || !PyBytes_AsString(__pyx_t_7))) __PYX_ERR(0, 267, __pyx_L1_error)
+  if (unlikely(!__pyx_t_7 || !__pyx_t_6 || !PyBytes_AsString(__pyx_t_7))) __PYX_ERR(0, 288, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_GOTREF(__pyx_t_6);
   __pyx_t_5 = __pyx_array_new(__pyx_t_6, sizeof(long), PyBytes_AS_STRING(__pyx_t_7), (char *) "c", (char *) __pyx_t_4);
-  if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 267, __pyx_L1_error)
+  if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 288, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_8 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_long(((PyObject *)__pyx_t_5), PyBUF_WRITABLE); if (unlikely(!__pyx_t_8.memview)) __PYX_ERR(0, 267, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_long(((PyObject *)__pyx_t_5), PyBUF_WRITABLE); if (unlikely(!__pyx_t_8.memview)) __PYX_ERR(0, 288, __pyx_L1_error)
   __Pyx_DECREF(((PyObject *)__pyx_t_5)); __pyx_t_5 = 0;
   __pyx_v_cube_indices_3d = __pyx_t_8;
   __pyx_t_8.memview = NULL;
   __pyx_t_8.data = NULL;
 
-  /* "pymatgen/optimization/neighbors.pyx":268
+  /* "pymatgen/optimization/neighbors.pyx":289
  *     cdef long ncubes = ncube[0] * ncube[1] * ncube[2]
- *     cdef long[:, ::1] cube_indices_3d = <long[:ncubes, :3]> malloc(ncubes*3*sizeof(long))
- *     cdef long[::1] cube_indices_1d = <long[:ncubes]> malloc(ncubes*sizeof(long))             # <<<<<<<<<<<<<<
+ *     cdef long[:, ::1] cube_indices_3d = <long[:ncubes, :3]> safe_malloc(ncubes*3*sizeof(long))
+ *     cdef long[::1] cube_indices_1d = <long[:ncubes]> safe_malloc(ncubes*sizeof(long))             # <<<<<<<<<<<<<<
  *     cdef long count = 0
  *     cdef int i, j, k
  */
-  __pyx_t_4 = malloc((__pyx_v_ncubes * (sizeof(long))));
+  __pyx_t_4 = __pyx_f_8pymatgen_12optimization_9neighbors_safe_malloc((__pyx_v_ncubes * (sizeof(long))));
   if (!__pyx_t_4) {
     PyErr_SetString(PyExc_ValueError,"Cannot create cython.array from NULL pointer");
-    __PYX_ERR(0, 268, __pyx_L1_error)
+    __PYX_ERR(0, 289, __pyx_L1_error)
   }
   __pyx_t_6 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_long);
   __pyx_t_7 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)__pyx_v_ncubes));
-  if (unlikely(!__pyx_t_6 || !__pyx_t_7 || !PyBytes_AsString(__pyx_t_6))) __PYX_ERR(0, 268, __pyx_L1_error)
+  if (unlikely(!__pyx_t_6 || !__pyx_t_7 || !PyBytes_AsString(__pyx_t_6))) __PYX_ERR(0, 289, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __Pyx_GOTREF(__pyx_t_7);
   __pyx_t_5 = __pyx_array_new(__pyx_t_7, sizeof(long), PyBytes_AS_STRING(__pyx_t_6), (char *) "c", (char *) __pyx_t_4);
-  if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 268, __pyx_L1_error)
+  if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 289, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_dc_long(((PyObject *)__pyx_t_5), PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 268, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_dc_long(((PyObject *)__pyx_t_5), PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 289, __pyx_L1_error)
   __Pyx_DECREF(((PyObject *)__pyx_t_5)); __pyx_t_5 = 0;
   __pyx_v_cube_indices_1d = __pyx_t_9;
   __pyx_t_9.memview = NULL;
   __pyx_t_9.data = NULL;
 
-  /* "pymatgen/optimization/neighbors.pyx":269
- *     cdef long[:, ::1] cube_indices_3d = <long[:ncubes, :3]> malloc(ncubes*3*sizeof(long))
- *     cdef long[::1] cube_indices_1d = <long[:ncubes]> malloc(ncubes*sizeof(long))
+  /* "pymatgen/optimization/neighbors.pyx":290
+ *     cdef long[:, ::1] cube_indices_3d = <long[:ncubes, :3]> safe_malloc(ncubes*3*sizeof(long))
+ *     cdef long[::1] cube_indices_1d = <long[:ncubes]> safe_malloc(ncubes*sizeof(long))
  *     cdef long count = 0             # <<<<<<<<<<<<<<
  *     cdef int i, j, k
  * 
  */
   __pyx_v_count = 0;
 
-  /* "pymatgen/optimization/neighbors.pyx":272
+  /* "pymatgen/optimization/neighbors.pyx":293
  *     cdef int i, j, k
  * 
  *     for i in range(ncube[0]):             # <<<<<<<<<<<<<<
@@ -6067,7 +6293,7 @@ static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_12optimization_9neig
   for (__pyx_t_13 = 0; __pyx_t_13 < __pyx_t_12; __pyx_t_13+=1) {
     __pyx_v_i = __pyx_t_13;
 
-    /* "pymatgen/optimization/neighbors.pyx":273
+    /* "pymatgen/optimization/neighbors.pyx":294
  * 
  *     for i in range(ncube[0]):
  *         for j in range(ncube[1]):             # <<<<<<<<<<<<<<
@@ -6080,7 +6306,7 @@ static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_12optimization_9neig
     for (__pyx_t_17 = 0; __pyx_t_17 < __pyx_t_16; __pyx_t_17+=1) {
       __pyx_v_j = __pyx_t_17;
 
-      /* "pymatgen/optimization/neighbors.pyx":274
+      /* "pymatgen/optimization/neighbors.pyx":295
  *     for i in range(ncube[0]):
  *         for j in range(ncube[1]):
  *             for k in range(ncube[2]):             # <<<<<<<<<<<<<<
@@ -6093,7 +6319,7 @@ static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_12optimization_9neig
       for (__pyx_t_21 = 0; __pyx_t_21 < __pyx_t_20; __pyx_t_21+=1) {
         __pyx_v_k = __pyx_t_21;
 
-        /* "pymatgen/optimization/neighbors.pyx":275
+        /* "pymatgen/optimization/neighbors.pyx":296
  *         for j in range(ncube[1]):
  *             for k in range(ncube[2]):
  *                 cube_indices_3d[count, 0] = i             # <<<<<<<<<<<<<<
@@ -6104,7 +6330,7 @@ static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_12optimization_9neig
         __pyx_t_23 = 0;
         *((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_cube_indices_3d.data + __pyx_t_22 * __pyx_v_cube_indices_3d.strides[0]) )) + __pyx_t_23)) )) = __pyx_v_i;
 
-        /* "pymatgen/optimization/neighbors.pyx":276
+        /* "pymatgen/optimization/neighbors.pyx":297
  *             for k in range(ncube[2]):
  *                 cube_indices_3d[count, 0] = i
  *                 cube_indices_3d[count, 1] = j             # <<<<<<<<<<<<<<
@@ -6115,7 +6341,7 @@ static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_12optimization_9neig
         __pyx_t_25 = 1;
         *((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_cube_indices_3d.data + __pyx_t_24 * __pyx_v_cube_indices_3d.strides[0]) )) + __pyx_t_25)) )) = __pyx_v_j;
 
-        /* "pymatgen/optimization/neighbors.pyx":277
+        /* "pymatgen/optimization/neighbors.pyx":298
  *                 cube_indices_3d[count, 0] = i
  *                 cube_indices_3d[count, 1] = j
  *                 cube_indices_3d[count, 2] = k             # <<<<<<<<<<<<<<
@@ -6126,65 +6352,65 @@ static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_12optimization_9neig
         __pyx_t_27 = 2;
         *((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_cube_indices_3d.data + __pyx_t_26 * __pyx_v_cube_indices_3d.strides[0]) )) + __pyx_t_27)) )) = __pyx_v_k;
 
-        /* "pymatgen/optimization/neighbors.pyx":278
+        /* "pymatgen/optimization/neighbors.pyx":299
  *                 cube_indices_3d[count, 1] = j
  *                 cube_indices_3d[count, 2] = k
  *                 count += 1             # <<<<<<<<<<<<<<
  *     three_to_one(cube_indices_3d, ncube[1], ncube[2], cube_indices_1d)
- *     cdef long[:, ::1] index3 = <long[:1, :3]> malloc(3*sizeof(long))
+ *     cdef long[:, ::1] index3 = <long[:1, :3]> safe_malloc(3*sizeof(long))
  */
         __pyx_v_count = (__pyx_v_count + 1);
       }
     }
   }
 
-  /* "pymatgen/optimization/neighbors.pyx":279
+  /* "pymatgen/optimization/neighbors.pyx":300
  *                 cube_indices_3d[count, 2] = k
  *                 count += 1
  *     three_to_one(cube_indices_3d, ncube[1], ncube[2], cube_indices_1d)             # <<<<<<<<<<<<<<
- *     cdef long[:, ::1] index3 = <long[:1, :3]> malloc(3*sizeof(long))
+ *     cdef long[:, ::1] index3 = <long[:1, :3]> safe_malloc(3*sizeof(long))
  *     cdef long index1[1]
  */
   __pyx_t_28 = 1;
   __pyx_t_29 = 2;
   __pyx_f_8pymatgen_12optimization_9neighbors_three_to_one(__pyx_v_cube_indices_3d, (*((long *) ( /* dim=0 */ (__pyx_v_ncube.data + __pyx_t_28 * __pyx_v_ncube.strides[0]) ))), (*((long *) ( /* dim=0 */ (__pyx_v_ncube.data + __pyx_t_29 * __pyx_v_ncube.strides[0]) ))), __pyx_v_cube_indices_1d);
 
-  /* "pymatgen/optimization/neighbors.pyx":280
+  /* "pymatgen/optimization/neighbors.pyx":301
  *                 count += 1
  *     three_to_one(cube_indices_3d, ncube[1], ncube[2], cube_indices_1d)
- *     cdef long[:, ::1] index3 = <long[:1, :3]> malloc(3*sizeof(long))             # <<<<<<<<<<<<<<
+ *     cdef long[:, ::1] index3 = <long[:1, :3]> safe_malloc(3*sizeof(long))             # <<<<<<<<<<<<<<
  *     cdef long index1[1]
  *     cdef map[long, vector[long]] neighbor_map
  */
-  __pyx_t_4 = malloc((3 * (sizeof(long))));
+  __pyx_t_4 = __pyx_f_8pymatgen_12optimization_9neighbors_safe_malloc((3 * (sizeof(long))));
   if (!__pyx_t_4) {
     PyErr_SetString(PyExc_ValueError,"Cannot create cython.array from NULL pointer");
-    __PYX_ERR(0, 280, __pyx_L1_error)
+    __PYX_ERR(0, 301, __pyx_L1_error)
   }
   __pyx_t_7 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_long);
   __pyx_t_6 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)1), ((Py_ssize_t)3));
-  if (unlikely(!__pyx_t_7 || !__pyx_t_6 || !PyBytes_AsString(__pyx_t_7))) __PYX_ERR(0, 280, __pyx_L1_error)
+  if (unlikely(!__pyx_t_7 || !__pyx_t_6 || !PyBytes_AsString(__pyx_t_7))) __PYX_ERR(0, 301, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_GOTREF(__pyx_t_6);
   __pyx_t_5 = __pyx_array_new(__pyx_t_6, sizeof(long), PyBytes_AS_STRING(__pyx_t_7), (char *) "c", (char *) __pyx_t_4);
-  if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 280, __pyx_L1_error)
+  if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 301, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_8 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_long(((PyObject *)__pyx_t_5), PyBUF_WRITABLE); if (unlikely(!__pyx_t_8.memview)) __PYX_ERR(0, 280, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_long(((PyObject *)__pyx_t_5), PyBUF_WRITABLE); if (unlikely(!__pyx_t_8.memview)) __PYX_ERR(0, 301, __pyx_L1_error)
   __Pyx_DECREF(((PyObject *)__pyx_t_5)); __pyx_t_5 = 0;
   __pyx_v_index3 = __pyx_t_8;
   __pyx_t_8.memview = NULL;
   __pyx_t_8.data = NULL;
 
-  /* "pymatgen/optimization/neighbors.pyx":283
+  /* "pymatgen/optimization/neighbors.pyx":304
  *     cdef long index1[1]
  *     cdef map[long, vector[long]] neighbor_map
  *     cdef long[:, ::1] ovectors = compute_offset_vectors(1)             # <<<<<<<<<<<<<<
  *     for i in range(ncubes):
  *         for j in range(27):
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_compute_offset_vectors); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 283, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_compute_offset_vectors); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 304, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __pyx_t_30 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_6))) {
@@ -6198,16 +6424,16 @@ static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_12optimization_9neig
   }
   __pyx_t_7 = (__pyx_t_30) ? __Pyx_PyObject_Call2Args(__pyx_t_6, __pyx_t_30, __pyx_int_1) : __Pyx_PyObject_CallOneArg(__pyx_t_6, __pyx_int_1);
   __Pyx_XDECREF(__pyx_t_30); __pyx_t_30 = 0;
-  if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 283, __pyx_L1_error)
+  if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 304, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  __pyx_t_8 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_long(__pyx_t_7, PyBUF_WRITABLE); if (unlikely(!__pyx_t_8.memview)) __PYX_ERR(0, 283, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_long(__pyx_t_7, PyBUF_WRITABLE); if (unlikely(!__pyx_t_8.memview)) __PYX_ERR(0, 304, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
   __pyx_v_ovectors = __pyx_t_8;
   __pyx_t_8.memview = NULL;
   __pyx_t_8.data = NULL;
 
-  /* "pymatgen/optimization/neighbors.pyx":284
+  /* "pymatgen/optimization/neighbors.pyx":305
  *     cdef map[long, vector[long]] neighbor_map
  *     cdef long[:, ::1] ovectors = compute_offset_vectors(1)
  *     for i in range(ncubes):             # <<<<<<<<<<<<<<
@@ -6219,7 +6445,7 @@ static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_12optimization_9neig
   for (__pyx_t_13 = 0; __pyx_t_13 < __pyx_t_12; __pyx_t_13+=1) {
     __pyx_v_i = __pyx_t_13;
 
-    /* "pymatgen/optimization/neighbors.pyx":285
+    /* "pymatgen/optimization/neighbors.pyx":306
  *     cdef long[:, ::1] ovectors = compute_offset_vectors(1)
  *     for i in range(ncubes):
  *         for j in range(27):             # <<<<<<<<<<<<<<
@@ -6229,7 +6455,7 @@ static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_12optimization_9neig
     for (__pyx_t_17 = 0; __pyx_t_17 < 27; __pyx_t_17+=1) {
       __pyx_v_j = __pyx_t_17;
 
-      /* "pymatgen/optimization/neighbors.pyx":286
+      /* "pymatgen/optimization/neighbors.pyx":307
  *     for i in range(ncubes):
  *         for j in range(27):
  *             index3[0, 0] = ovectors[j, 0] + cube_indices_3d[i, 0]             # <<<<<<<<<<<<<<
@@ -6244,7 +6470,7 @@ static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_12optimization_9neig
       __pyx_t_36 = 0;
       *((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_index3.data + __pyx_t_35 * __pyx_v_index3.strides[0]) )) + __pyx_t_36)) )) = ((*((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_ovectors.data + __pyx_t_31 * __pyx_v_ovectors.strides[0]) )) + __pyx_t_32)) ))) + (*((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_cube_indices_3d.data + __pyx_t_33 * __pyx_v_cube_indices_3d.strides[0]) )) + __pyx_t_34)) ))));
 
-      /* "pymatgen/optimization/neighbors.pyx":287
+      /* "pymatgen/optimization/neighbors.pyx":308
  *         for j in range(27):
  *             index3[0, 0] = ovectors[j, 0] + cube_indices_3d[i, 0]
  *             index3[0, 1] = ovectors[j, 1] + cube_indices_3d[i, 1]             # <<<<<<<<<<<<<<
@@ -6259,7 +6485,7 @@ static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_12optimization_9neig
       __pyx_t_42 = 1;
       *((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_index3.data + __pyx_t_41 * __pyx_v_index3.strides[0]) )) + __pyx_t_42)) )) = ((*((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_ovectors.data + __pyx_t_37 * __pyx_v_ovectors.strides[0]) )) + __pyx_t_38)) ))) + (*((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_cube_indices_3d.data + __pyx_t_39 * __pyx_v_cube_indices_3d.strides[0]) )) + __pyx_t_40)) ))));
 
-      /* "pymatgen/optimization/neighbors.pyx":288
+      /* "pymatgen/optimization/neighbors.pyx":309
  *             index3[0, 0] = ovectors[j, 0] + cube_indices_3d[i, 0]
  *             index3[0, 1] = ovectors[j, 1] + cube_indices_3d[i, 1]
  *             index3[0, 2] = ovectors[j, 2] + cube_indices_3d[i, 2]             # <<<<<<<<<<<<<<
@@ -6274,7 +6500,7 @@ static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_12optimization_9neig
       __pyx_t_48 = 2;
       *((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_index3.data + __pyx_t_47 * __pyx_v_index3.strides[0]) )) + __pyx_t_48)) )) = ((*((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_ovectors.data + __pyx_t_43 * __pyx_v_ovectors.strides[0]) )) + __pyx_t_44)) ))) + (*((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_cube_indices_3d.data + __pyx_t_45 * __pyx_v_cube_indices_3d.strides[0]) )) + __pyx_t_46)) ))));
 
-      /* "pymatgen/optimization/neighbors.pyx":289
+      /* "pymatgen/optimization/neighbors.pyx":310
  *             index3[0, 1] = ovectors[j, 1] + cube_indices_3d[i, 1]
  *             index3[0, 2] = ovectors[j, 2] + cube_indices_3d[i, 2]
  *             if (index3[0, 0] < ncube[0]) & (index3[0, 0] >= 0) & (index3[0, 1] < ncube[1]) & \             # <<<<<<<<<<<<<<
@@ -6290,7 +6516,7 @@ static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_12optimization_9neig
       __pyx_t_55 = 1;
       __pyx_t_56 = 1;
 
-      /* "pymatgen/optimization/neighbors.pyx":290
+      /* "pymatgen/optimization/neighbors.pyx":311
  *             index3[0, 2] = ovectors[j, 2] + cube_indices_3d[i, 2]
  *             if (index3[0, 0] < ncube[0]) & (index3[0, 0] >= 0) & (index3[0, 1] < ncube[1]) & \
  *                 (index3[0, 1] >= 0) & (index3[0, 2] < ncube[2]) & (index3[0, 2] >= 0):             # <<<<<<<<<<<<<<
@@ -6300,7 +6526,7 @@ static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_12optimization_9neig
       __pyx_t_57 = 0;
       __pyx_t_58 = 1;
 
-      /* "pymatgen/optimization/neighbors.pyx":289
+      /* "pymatgen/optimization/neighbors.pyx":310
  *             index3[0, 1] = ovectors[j, 1] + cube_indices_3d[i, 1]
  *             index3[0, 2] = ovectors[j, 2] + cube_indices_3d[i, 2]
  *             if (index3[0, 0] < ncube[0]) & (index3[0, 0] >= 0) & (index3[0, 1] < ncube[1]) & \             # <<<<<<<<<<<<<<
@@ -6310,7 +6536,7 @@ static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_12optimization_9neig
       __pyx_t_59 = 0;
       __pyx_t_60 = 2;
 
-      /* "pymatgen/optimization/neighbors.pyx":290
+      /* "pymatgen/optimization/neighbors.pyx":311
  *             index3[0, 2] = ovectors[j, 2] + cube_indices_3d[i, 2]
  *             if (index3[0, 0] < ncube[0]) & (index3[0, 0] >= 0) & (index3[0, 1] < ncube[1]) & \
  *                 (index3[0, 1] >= 0) & (index3[0, 2] < ncube[2]) & (index3[0, 2] >= 0):             # <<<<<<<<<<<<<<
@@ -6322,7 +6548,7 @@ static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_12optimization_9neig
       __pyx_t_63 = 2;
       __pyx_t_64 = ((((((((*((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_index3.data + __pyx_t_49 * __pyx_v_index3.strides[0]) )) + __pyx_t_50)) ))) < (*((long *) ( /* dim=0 */ (__pyx_v_ncube.data + __pyx_t_51 * __pyx_v_ncube.strides[0]) )))) & ((*((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_index3.data + __pyx_t_52 * __pyx_v_index3.strides[0]) )) + __pyx_t_53)) ))) >= 0)) & ((*((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_index3.data + __pyx_t_54 * __pyx_v_index3.strides[0]) )) + __pyx_t_55)) ))) < (*((long *) ( /* dim=0 */ (__pyx_v_ncube.data + __pyx_t_56 * __pyx_v_ncube.strides[0]) ))))) & ((*((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_index3.data + __pyx_t_57 * __pyx_v_index3.strides[0]) )) + __pyx_t_58)) ))) >= 0)) & ((*((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_index3.data + __pyx_t_59 * __pyx_v_index3.strides[0]) )) + __pyx_t_60)) ))) < (*((long *) ( /* dim=0 */ (__pyx_v_ncube.data + __pyx_t_61 * __pyx_v_ncube.strides[0]) ))))) & ((*((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_index3.data + __pyx_t_62 * __pyx_v_index3.strides[0]) )) + __pyx_t_63)) ))) >= 0)) != 0);
 
-      /* "pymatgen/optimization/neighbors.pyx":289
+      /* "pymatgen/optimization/neighbors.pyx":310
  *             index3[0, 1] = ovectors[j, 1] + cube_indices_3d[i, 1]
  *             index3[0, 2] = ovectors[j, 2] + cube_indices_3d[i, 2]
  *             if (index3[0, 0] < ncube[0]) & (index3[0, 0] >= 0) & (index3[0, 1] < ncube[1]) & \             # <<<<<<<<<<<<<<
@@ -6331,7 +6557,7 @@ static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_12optimization_9neig
  */
       if (__pyx_t_64) {
 
-        /* "pymatgen/optimization/neighbors.pyx":291
+        /* "pymatgen/optimization/neighbors.pyx":312
  *             if (index3[0, 0] < ncube[0]) & (index3[0, 0] >= 0) & (index3[0, 1] < ncube[1]) & \
  *                 (index3[0, 1] >= 0) & (index3[0, 2] < ncube[2]) & (index3[0, 2] >= 0):
  *                 three_to_one(index3, ncube[1], ncube[2], index1)             # <<<<<<<<<<<<<<
@@ -6342,22 +6568,22 @@ static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_12optimization_9neig
         __pyx_t_66 = 2;
         __pyx_t_6 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_long);
         __pyx_t_7 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)1));
-        if (unlikely(!__pyx_t_6 || !__pyx_t_7 || !PyBytes_AsString(__pyx_t_6))) __PYX_ERR(0, 291, __pyx_L1_error)
+        if (unlikely(!__pyx_t_6 || !__pyx_t_7 || !PyBytes_AsString(__pyx_t_6))) __PYX_ERR(0, 312, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_6);
         __Pyx_GOTREF(__pyx_t_7);
         __pyx_t_5 = __pyx_array_new(__pyx_t_7, sizeof(long), PyBytes_AS_STRING(__pyx_t_6), (char *) "fortran", (char *) __pyx_v_index1);
-        if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 291, __pyx_L1_error)
+        if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 312, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
         __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
         __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-        __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_dc_long(((PyObject *)__pyx_t_5), PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 291, __pyx_L1_error)
+        __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_dc_long(((PyObject *)__pyx_t_5), PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 312, __pyx_L1_error)
         __Pyx_DECREF(((PyObject *)__pyx_t_5)); __pyx_t_5 = 0;
         __pyx_f_8pymatgen_12optimization_9neighbors_three_to_one(__pyx_v_index3, (*((long *) ( /* dim=0 */ (__pyx_v_ncube.data + __pyx_t_65 * __pyx_v_ncube.strides[0]) ))), (*((long *) ( /* dim=0 */ (__pyx_v_ncube.data + __pyx_t_66 * __pyx_v_ncube.strides[0]) ))), __pyx_t_9);
         __PYX_XDEC_MEMVIEW(&__pyx_t_9, 1);
         __pyx_t_9.memview = NULL;
         __pyx_t_9.data = NULL;
 
-        /* "pymatgen/optimization/neighbors.pyx":292
+        /* "pymatgen/optimization/neighbors.pyx":313
  *                 (index3[0, 1] >= 0) & (index3[0, 2] < ncube[2]) & (index3[0, 2] >= 0):
  *                 three_to_one(index3, ncube[1], ncube[2], index1)
  *                 neighbor_map[i].push_back(index1[0])             # <<<<<<<<<<<<<<
@@ -6368,10 +6594,10 @@ static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_12optimization_9neig
           (__pyx_v_neighbor_map[__pyx_v_i]).push_back((__pyx_v_index1[0]));
         } catch(...) {
           __Pyx_CppExn2PyErr();
-          __PYX_ERR(0, 292, __pyx_L1_error)
+          __PYX_ERR(0, 313, __pyx_L1_error)
         }
 
-        /* "pymatgen/optimization/neighbors.pyx":289
+        /* "pymatgen/optimization/neighbors.pyx":310
  *             index3[0, 1] = ovectors[j, 1] + cube_indices_3d[i, 1]
  *             index3[0, 2] = ovectors[j, 2] + cube_indices_3d[i, 2]
  *             if (index3[0, 0] < ncube[0]) & (index3[0, 0] >= 0) & (index3[0, 1] < ncube[1]) & \             # <<<<<<<<<<<<<<
@@ -6382,7 +6608,7 @@ static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_12optimization_9neig
     }
   }
 
-  /* "pymatgen/optimization/neighbors.pyx":293
+  /* "pymatgen/optimization/neighbors.pyx":314
  *                 three_to_one(index3, ncube[1], ncube[2], index1)
  *                 neighbor_map[i].push_back(index1[0])
  *     free(&cube_indices_3d[0, 0])             # <<<<<<<<<<<<<<
@@ -6393,7 +6619,7 @@ static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_12optimization_9neig
   __pyx_t_68 = 0;
   free((&(*((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_cube_indices_3d.data + __pyx_t_67 * __pyx_v_cube_indices_3d.strides[0]) )) + __pyx_t_68)) )))));
 
-  /* "pymatgen/optimization/neighbors.pyx":294
+  /* "pymatgen/optimization/neighbors.pyx":315
  *                 neighbor_map[i].push_back(index1[0])
  *     free(&cube_indices_3d[0, 0])
  *     free(&cube_indices_1d[0])             # <<<<<<<<<<<<<<
@@ -6403,7 +6629,7 @@ static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_12optimization_9neig
   __pyx_t_69 = 0;
   free((&(*((long *) ( /* dim=0 */ ((char *) (((long *) __pyx_v_cube_indices_1d.data) + __pyx_t_69)) )))));
 
-  /* "pymatgen/optimization/neighbors.pyx":295
+  /* "pymatgen/optimization/neighbors.pyx":316
  *     free(&cube_indices_3d[0, 0])
  *     free(&cube_indices_1d[0])
  *     free(&index3[0, 0])             # <<<<<<<<<<<<<<
@@ -6414,7 +6640,7 @@ static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_12optimization_9neig
   __pyx_t_71 = 0;
   free((&(*((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_index3.data + __pyx_t_70 * __pyx_v_index3.strides[0]) )) + __pyx_t_71)) )))));
 
-  /* "pymatgen/optimization/neighbors.pyx":296
+  /* "pymatgen/optimization/neighbors.pyx":317
  *     free(&cube_indices_1d[0])
  *     free(&index3[0, 0])
  *     return neighbor_map             # <<<<<<<<<<<<<<
@@ -6424,7 +6650,7 @@ static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_12optimization_9neig
   __pyx_r = __pyx_v_neighbor_map;
   goto __pyx_L0;
 
-  /* "pymatgen/optimization/neighbors.pyx":262
+  /* "pymatgen/optimization/neighbors.pyx":283
  *     return s
  * 
  * cdef map[long, vector[long]] get_cube_neighbors(long [:] ncube):             # <<<<<<<<<<<<<<
@@ -6452,7 +6678,7 @@ static std::map<long,std::vector<long> >  __pyx_f_8pymatgen_12optimization_9neig
   return __pyx_r;
 }
 
-/* "pymatgen/optimization/neighbors.pyx":298
+/* "pymatgen/optimization/neighbors.pyx":319
  *     return neighbor_map
  * 
  * cdef void get_bounds(double[:, ::1] frac_coords, double[::1] maxr, long[:] pbc, long[:] max_bounds, long[:] min_bounds):             # <<<<<<<<<<<<<<
@@ -6481,9 +6707,9 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_get_bounds(__Pyx_memview
   Py_ssize_t __pyx_t_13;
   Py_ssize_t __pyx_t_14;
   __Pyx_RefNannySetupContext("get_bounds", 0);
-  __Pyx_TraceCall("get_bounds", __pyx_f[0], 298, 0, __PYX_ERR(0, 298, __pyx_L1_error));
+  __Pyx_TraceCall("get_bounds", __pyx_f[0], 319, 0, __PYX_ERR(0, 319, __pyx_L1_error));
 
-  /* "pymatgen/optimization/neighbors.pyx":304
+  /* "pymatgen/optimization/neighbors.pyx":325
  *     cdef double max_fcoords[3]
  *     cdef double min_fcoords[3]
  *     max_and_min(frac_coords, max_fcoords, min_fcoords)             # <<<<<<<<<<<<<<
@@ -6492,29 +6718,29 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_get_bounds(__Pyx_memview
  */
   __pyx_t_3 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_double);
   __pyx_t_2 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)3));
-  if (unlikely(!__pyx_t_3 || !__pyx_t_2 || !PyBytes_AsString(__pyx_t_3))) __PYX_ERR(0, 304, __pyx_L1_error)
+  if (unlikely(!__pyx_t_3 || !__pyx_t_2 || !PyBytes_AsString(__pyx_t_3))) __PYX_ERR(0, 325, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_1 = __pyx_array_new(__pyx_t_2, sizeof(double), PyBytes_AS_STRING(__pyx_t_3), (char *) "fortran", (char *) __pyx_v_max_fcoords);
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 304, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 325, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_4 = __Pyx_PyObject_to_MemoryviewSlice_dc_double(((PyObject *)__pyx_t_1), PyBUF_WRITABLE); if (unlikely(!__pyx_t_4.memview)) __PYX_ERR(0, 304, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_to_MemoryviewSlice_dc_double(((PyObject *)__pyx_t_1), PyBUF_WRITABLE); if (unlikely(!__pyx_t_4.memview)) __PYX_ERR(0, 325, __pyx_L1_error)
   __Pyx_DECREF(((PyObject *)__pyx_t_1)); __pyx_t_1 = 0;
   __pyx_t_2 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_double);
   __pyx_t_3 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)3));
-  if (unlikely(!__pyx_t_2 || !__pyx_t_3 || !PyBytes_AsString(__pyx_t_2))) __PYX_ERR(0, 304, __pyx_L1_error)
+  if (unlikely(!__pyx_t_2 || !__pyx_t_3 || !PyBytes_AsString(__pyx_t_2))) __PYX_ERR(0, 325, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_1 = __pyx_array_new(__pyx_t_3, sizeof(double), PyBytes_AS_STRING(__pyx_t_2), (char *) "fortran", (char *) __pyx_v_min_fcoords);
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 304, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 325, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_5 = __Pyx_PyObject_to_MemoryviewSlice_dc_double(((PyObject *)__pyx_t_1), PyBUF_WRITABLE); if (unlikely(!__pyx_t_5.memview)) __PYX_ERR(0, 304, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_to_MemoryviewSlice_dc_double(((PyObject *)__pyx_t_1), PyBUF_WRITABLE); if (unlikely(!__pyx_t_5.memview)) __PYX_ERR(0, 325, __pyx_L1_error)
   __Pyx_DECREF(((PyObject *)__pyx_t_1)); __pyx_t_1 = 0;
-  __pyx_t_2 = __pyx_f_8pymatgen_12optimization_9neighbors_max_and_min(__pyx_v_frac_coords, __pyx_t_4, __pyx_t_5); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 304, __pyx_L1_error)
+  __pyx_t_2 = __pyx_f_8pymatgen_12optimization_9neighbors_max_and_min(__pyx_v_frac_coords, __pyx_t_4, __pyx_t_5); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 325, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __PYX_XDEC_MEMVIEW(&__pyx_t_4, 1);
   __pyx_t_4.memview = NULL;
@@ -6524,7 +6750,7 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_get_bounds(__Pyx_memview
   __pyx_t_5.data = NULL;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "pymatgen/optimization/neighbors.pyx":306
+  /* "pymatgen/optimization/neighbors.pyx":327
  *     max_and_min(frac_coords, max_fcoords, min_fcoords)
  *     cdef int i
  *     for i in range(3):             # <<<<<<<<<<<<<<
@@ -6534,7 +6760,7 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_get_bounds(__Pyx_memview
   for (__pyx_t_6 = 0; __pyx_t_6 < 3; __pyx_t_6+=1) {
     __pyx_v_i = __pyx_t_6;
 
-    /* "pymatgen/optimization/neighbors.pyx":307
+    /* "pymatgen/optimization/neighbors.pyx":328
  *     cdef int i
  *     for i in range(3):
  *         min_bounds[i] = 0             # <<<<<<<<<<<<<<
@@ -6544,7 +6770,7 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_get_bounds(__Pyx_memview
     __pyx_t_7 = __pyx_v_i;
     *((long *) ( /* dim=0 */ (__pyx_v_min_bounds.data + __pyx_t_7 * __pyx_v_min_bounds.strides[0]) )) = 0;
 
-    /* "pymatgen/optimization/neighbors.pyx":308
+    /* "pymatgen/optimization/neighbors.pyx":329
  *     for i in range(3):
  *         min_bounds[i] = 0
  *         max_bounds[i] = 1             # <<<<<<<<<<<<<<
@@ -6555,7 +6781,7 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_get_bounds(__Pyx_memview
     *((long *) ( /* dim=0 */ (__pyx_v_max_bounds.data + __pyx_t_8 * __pyx_v_max_bounds.strides[0]) )) = 1;
   }
 
-  /* "pymatgen/optimization/neighbors.pyx":310
+  /* "pymatgen/optimization/neighbors.pyx":331
  *         max_bounds[i] = 1
  * 
  *     for i in range(3):             # <<<<<<<<<<<<<<
@@ -6565,7 +6791,7 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_get_bounds(__Pyx_memview
   for (__pyx_t_6 = 0; __pyx_t_6 < 3; __pyx_t_6+=1) {
     __pyx_v_i = __pyx_t_6;
 
-    /* "pymatgen/optimization/neighbors.pyx":311
+    /* "pymatgen/optimization/neighbors.pyx":332
  * 
  *     for i in range(3):
  *         if pbc[i]:             # <<<<<<<<<<<<<<
@@ -6576,7 +6802,7 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_get_bounds(__Pyx_memview
     __pyx_t_10 = ((*((long *) ( /* dim=0 */ (__pyx_v_pbc.data + __pyx_t_9 * __pyx_v_pbc.strides[0]) ))) != 0);
     if (__pyx_t_10) {
 
-      /* "pymatgen/optimization/neighbors.pyx":312
+      /* "pymatgen/optimization/neighbors.pyx":333
  *     for i in range(3):
  *         if pbc[i]:
  *             min_bounds[i] = <long>(floor(min_fcoords[i] - maxr[i] - 1e-8))             # <<<<<<<<<<<<<<
@@ -6587,7 +6813,7 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_get_bounds(__Pyx_memview
       __pyx_t_12 = __pyx_v_i;
       *((long *) ( /* dim=0 */ (__pyx_v_min_bounds.data + __pyx_t_12 * __pyx_v_min_bounds.strides[0]) )) = ((long)floor((((__pyx_v_min_fcoords[__pyx_v_i]) - (*((double *) ( /* dim=0 */ ((char *) (((double *) __pyx_v_maxr.data) + __pyx_t_11)) )))) - 1e-8)));
 
-      /* "pymatgen/optimization/neighbors.pyx":313
+      /* "pymatgen/optimization/neighbors.pyx":334
  *         if pbc[i]:
  *             min_bounds[i] = <long>(floor(min_fcoords[i] - maxr[i] - 1e-8))
  *             max_bounds[i] = <long>(ceil(max_fcoords[i] + maxr[i] + 1e-8))             # <<<<<<<<<<<<<<
@@ -6598,7 +6824,7 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_get_bounds(__Pyx_memview
       __pyx_t_14 = __pyx_v_i;
       *((long *) ( /* dim=0 */ (__pyx_v_max_bounds.data + __pyx_t_14 * __pyx_v_max_bounds.strides[0]) )) = ((long)ceil((((__pyx_v_max_fcoords[__pyx_v_i]) + (*((double *) ( /* dim=0 */ ((char *) (((double *) __pyx_v_maxr.data) + __pyx_t_13)) )))) + 1e-8)));
 
-      /* "pymatgen/optimization/neighbors.pyx":311
+      /* "pymatgen/optimization/neighbors.pyx":332
  * 
  *     for i in range(3):
  *         if pbc[i]:             # <<<<<<<<<<<<<<
@@ -6608,7 +6834,7 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_get_bounds(__Pyx_memview
     }
   }
 
-  /* "pymatgen/optimization/neighbors.pyx":298
+  /* "pymatgen/optimization/neighbors.pyx":319
  *     return neighbor_map
  * 
  * cdef void get_bounds(double[:, ::1] frac_coords, double[::1] maxr, long[:] pbc, long[:] max_bounds, long[:] min_bounds):             # <<<<<<<<<<<<<<
@@ -6630,7 +6856,7 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_get_bounds(__Pyx_memview
   __Pyx_RefNannyFinishContext();
 }
 
-/* "pymatgen/optimization/neighbors.pyx":315
+/* "pymatgen/optimization/neighbors.pyx":336
  *             max_bounds[i] = <long>(ceil(max_fcoords[i] + maxr[i] + 1e-8))
  * 
  * cdef void get_frac_coords(double[:, ::1] lattice, double[:, ::1] cart_coords, double [:, ::1] frac_coords):             # <<<<<<<<<<<<<<
@@ -6648,40 +6874,40 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_get_frac_coords(__Pyx_me
   PyObject *__pyx_t_4 = NULL;
   __Pyx_memviewslice __pyx_t_5 = { 0, 0, { 0 }, { 0 }, { 0 } };
   __Pyx_RefNannySetupContext("get_frac_coords", 0);
-  __Pyx_TraceCall("get_frac_coords", __pyx_f[0], 315, 0, __PYX_ERR(0, 315, __pyx_L1_error));
+  __Pyx_TraceCall("get_frac_coords", __pyx_f[0], 336, 0, __PYX_ERR(0, 336, __pyx_L1_error));
 
-  /* "pymatgen/optimization/neighbors.pyx":319
+  /* "pymatgen/optimization/neighbors.pyx":340
  *     Compute the fractional coordinates
  *     """
  *     cdef double[:, ::1] inv_lattice = np.empty((3, 3), dtype=np.float64)             # <<<<<<<<<<<<<<
  *     matrix_inv(lattice, inv_lattice)
  *     matmul(cart_coords, inv_lattice, frac_coords)
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 319, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 340, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_empty); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 319, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_empty); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 340, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 319, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 340, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 319, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 340, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_float64); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 319, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_float64); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 340, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_dtype, __pyx_t_4) < 0) __PYX_ERR(0, 319, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_dtype, __pyx_t_4) < 0) __PYX_ERR(0, 340, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_tuple__3, __pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 319, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_tuple__5, __pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 340, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_5 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_double(__pyx_t_4, PyBUF_WRITABLE); if (unlikely(!__pyx_t_5.memview)) __PYX_ERR(0, 319, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_double(__pyx_t_4, PyBUF_WRITABLE); if (unlikely(!__pyx_t_5.memview)) __PYX_ERR(0, 340, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __pyx_v_inv_lattice = __pyx_t_5;
   __pyx_t_5.memview = NULL;
   __pyx_t_5.data = NULL;
 
-  /* "pymatgen/optimization/neighbors.pyx":320
+  /* "pymatgen/optimization/neighbors.pyx":341
  *     """
  *     cdef double[:, ::1] inv_lattice = np.empty((3, 3), dtype=np.float64)
  *     matrix_inv(lattice, inv_lattice)             # <<<<<<<<<<<<<<
@@ -6690,7 +6916,7 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_get_frac_coords(__Pyx_me
  */
   __pyx_f_8pymatgen_12optimization_9neighbors_matrix_inv(__pyx_v_lattice, __pyx_v_inv_lattice);
 
-  /* "pymatgen/optimization/neighbors.pyx":321
+  /* "pymatgen/optimization/neighbors.pyx":342
  *     cdef double[:, ::1] inv_lattice = np.empty((3, 3), dtype=np.float64)
  *     matrix_inv(lattice, inv_lattice)
  *     matmul(cart_coords, inv_lattice, frac_coords)             # <<<<<<<<<<<<<<
@@ -6699,7 +6925,7 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_get_frac_coords(__Pyx_me
  */
   __pyx_f_8pymatgen_12optimization_9neighbors_matmul(__pyx_v_cart_coords, __pyx_v_inv_lattice, __pyx_v_frac_coords);
 
-  /* "pymatgen/optimization/neighbors.pyx":315
+  /* "pymatgen/optimization/neighbors.pyx":336
  *             max_bounds[i] = <long>(ceil(max_fcoords[i] + maxr[i] + 1e-8))
  * 
  * cdef void get_frac_coords(double[:, ::1] lattice, double[:, ::1] cart_coords, double [:, ::1] frac_coords):             # <<<<<<<<<<<<<<
@@ -6722,7 +6948,7 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_get_frac_coords(__Pyx_me
   __Pyx_RefNannyFinishContext();
 }
 
-/* "pymatgen/optimization/neighbors.pyx":323
+/* "pymatgen/optimization/neighbors.pyx":344
  *     matmul(cart_coords, inv_lattice, frac_coords)
  * 
  * cdef void matmul(double [:, ::1] m1, double [:, ::1] m2, double [:, ::1] out):             # <<<<<<<<<<<<<<
@@ -6757,9 +6983,9 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_matmul(__Pyx_memviewslic
   Py_ssize_t __pyx_t_16;
   Py_ssize_t __pyx_t_17;
   __Pyx_RefNannySetupContext("matmul", 0);
-  __Pyx_TraceCall("matmul", __pyx_f[0], 323, 0, __PYX_ERR(0, 323, __pyx_L1_error));
+  __Pyx_TraceCall("matmul", __pyx_f[0], 344, 0, __PYX_ERR(0, 344, __pyx_L1_error));
 
-  /* "pymatgen/optimization/neighbors.pyx":327
+  /* "pymatgen/optimization/neighbors.pyx":348
  *     Matrix multiplication
  *     """
  *     cdef int m = m1.shape[0], n = m1.shape[1], l = m2.shape[1]             # <<<<<<<<<<<<<<
@@ -6770,7 +6996,7 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_matmul(__Pyx_memviewslic
   __pyx_v_n = (__pyx_v_m1.shape[1]);
   __pyx_v_l = (__pyx_v_m2.shape[1]);
 
-  /* "pymatgen/optimization/neighbors.pyx":329
+  /* "pymatgen/optimization/neighbors.pyx":350
  *     cdef int m = m1.shape[0], n = m1.shape[1], l = m2.shape[1]
  *     cdef int i, j, k
  *     for i in range(m):             # <<<<<<<<<<<<<<
@@ -6782,7 +7008,7 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_matmul(__Pyx_memviewslic
   for (__pyx_t_3 = 0; __pyx_t_3 < __pyx_t_2; __pyx_t_3+=1) {
     __pyx_v_i = __pyx_t_3;
 
-    /* "pymatgen/optimization/neighbors.pyx":330
+    /* "pymatgen/optimization/neighbors.pyx":351
  *     cdef int i, j, k
  *     for i in range(m):
  *         for j in range(l):             # <<<<<<<<<<<<<<
@@ -6794,7 +7020,7 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_matmul(__Pyx_memviewslic
     for (__pyx_t_6 = 0; __pyx_t_6 < __pyx_t_5; __pyx_t_6+=1) {
       __pyx_v_j = __pyx_t_6;
 
-      /* "pymatgen/optimization/neighbors.pyx":331
+      /* "pymatgen/optimization/neighbors.pyx":352
  *     for i in range(m):
  *         for j in range(l):
  *             out[i, j] = 0             # <<<<<<<<<<<<<<
@@ -6805,7 +7031,7 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_matmul(__Pyx_memviewslic
       __pyx_t_8 = __pyx_v_j;
       *((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_out.data + __pyx_t_7 * __pyx_v_out.strides[0]) )) + __pyx_t_8)) )) = 0.0;
 
-      /* "pymatgen/optimization/neighbors.pyx":332
+      /* "pymatgen/optimization/neighbors.pyx":353
  *         for j in range(l):
  *             out[i, j] = 0
  *             for k in range(n):             # <<<<<<<<<<<<<<
@@ -6817,7 +7043,7 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_matmul(__Pyx_memviewslic
       for (__pyx_t_11 = 0; __pyx_t_11 < __pyx_t_10; __pyx_t_11+=1) {
         __pyx_v_k = __pyx_t_11;
 
-        /* "pymatgen/optimization/neighbors.pyx":333
+        /* "pymatgen/optimization/neighbors.pyx":354
  *             out[i, j] = 0
  *             for k in range(n):
  *                 out[i, j] += m1[i, k] * m2[k, j]             # <<<<<<<<<<<<<<
@@ -6835,7 +7061,7 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_matmul(__Pyx_memviewslic
     }
   }
 
-  /* "pymatgen/optimization/neighbors.pyx":323
+  /* "pymatgen/optimization/neighbors.pyx":344
  *     matmul(cart_coords, inv_lattice, frac_coords)
  * 
  * cdef void matmul(double [:, ::1] m1, double [:, ::1] m2, double [:, ::1] out):             # <<<<<<<<<<<<<<
@@ -6852,7 +7078,7 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_matmul(__Pyx_memviewslic
   __Pyx_RefNannyFinishContext();
 }
 
-/* "pymatgen/optimization/neighbors.pyx":335
+/* "pymatgen/optimization/neighbors.pyx":356
  *                 out[i, j] += m1[i, k] * m2[k, j]
  * 
  * cdef void matrix_inv(double[:, ::1] matrix, double[:, ::1] inv):             # <<<<<<<<<<<<<<
@@ -6879,9 +7105,9 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_matrix_inv(__Pyx_memview
   Py_ssize_t __pyx_t_11;
   Py_ssize_t __pyx_t_12;
   __Pyx_RefNannySetupContext("matrix_inv", 0);
-  __Pyx_TraceCall("matrix_inv", __pyx_f[0], 335, 0, __PYX_ERR(0, 335, __pyx_L1_error));
+  __Pyx_TraceCall("matrix_inv", __pyx_f[0], 356, 0, __PYX_ERR(0, 356, __pyx_L1_error));
 
-  /* "pymatgen/optimization/neighbors.pyx":339
+  /* "pymatgen/optimization/neighbors.pyx":360
  *     Matrix inversion
  *     """
  *     cdef double det = matrix_det(matrix)             # <<<<<<<<<<<<<<
@@ -6890,7 +7116,7 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_matrix_inv(__Pyx_memview
  */
   __pyx_v_det = __pyx_f_8pymatgen_12optimization_9neighbors_matrix_det(__pyx_v_matrix);
 
-  /* "pymatgen/optimization/neighbors.pyx":341
+  /* "pymatgen/optimization/neighbors.pyx":362
  *     cdef double det = matrix_det(matrix)
  *     cdef int i, j
  *     for i in range(3):             # <<<<<<<<<<<<<<
@@ -6900,7 +7126,7 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_matrix_inv(__Pyx_memview
   for (__pyx_t_1 = 0; __pyx_t_1 < 3; __pyx_t_1+=1) {
     __pyx_v_i = __pyx_t_1;
 
-    /* "pymatgen/optimization/neighbors.pyx":342
+    /* "pymatgen/optimization/neighbors.pyx":363
  *     cdef int i, j
  *     for i in range(3):
  *         for j in range(3):             # <<<<<<<<<<<<<<
@@ -6910,7 +7136,7 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_matrix_inv(__Pyx_memview
     for (__pyx_t_2 = 0; __pyx_t_2 < 3; __pyx_t_2+=1) {
       __pyx_v_j = __pyx_t_2;
 
-      /* "pymatgen/optimization/neighbors.pyx":343
+      /* "pymatgen/optimization/neighbors.pyx":364
  *     for i in range(3):
  *         for j in range(3):
  *             inv[i, j] = (matrix[(j+1)%3, (i+1)%3] * matrix[(j+2)%3, (i+2)%3] - \             # <<<<<<<<<<<<<<
@@ -6922,7 +7148,7 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_matrix_inv(__Pyx_memview
       __pyx_t_5 = ((__pyx_v_j + 2) % 3);
       __pyx_t_6 = ((__pyx_v_i + 2) % 3);
 
-      /* "pymatgen/optimization/neighbors.pyx":344
+      /* "pymatgen/optimization/neighbors.pyx":365
  *         for j in range(3):
  *             inv[i, j] = (matrix[(j+1)%3, (i+1)%3] * matrix[(j+2)%3, (i+2)%3] - \
  *                 matrix[(j+2)%3, (i+1)%3] * matrix[(j+1)%3, (i+2)%3]) / det             # <<<<<<<<<<<<<<
@@ -6934,7 +7160,7 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_matrix_inv(__Pyx_memview
       __pyx_t_9 = ((__pyx_v_j + 1) % 3);
       __pyx_t_10 = ((__pyx_v_i + 2) % 3);
 
-      /* "pymatgen/optimization/neighbors.pyx":343
+      /* "pymatgen/optimization/neighbors.pyx":364
  *     for i in range(3):
  *         for j in range(3):
  *             inv[i, j] = (matrix[(j+1)%3, (i+1)%3] * matrix[(j+2)%3, (i+2)%3] - \             # <<<<<<<<<<<<<<
@@ -6947,7 +7173,7 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_matrix_inv(__Pyx_memview
     }
   }
 
-  /* "pymatgen/optimization/neighbors.pyx":335
+  /* "pymatgen/optimization/neighbors.pyx":356
  *                 out[i, j] += m1[i, k] * m2[k, j]
  * 
  * cdef void matrix_inv(double[:, ::1] matrix, double[:, ::1] inv):             # <<<<<<<<<<<<<<
@@ -6964,7 +7190,7 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_matrix_inv(__Pyx_memview
   __Pyx_RefNannyFinishContext();
 }
 
-/* "pymatgen/optimization/neighbors.pyx":346
+/* "pymatgen/optimization/neighbors.pyx":367
  *                 matrix[(j+2)%3, (i+1)%3] * matrix[(j+1)%3, (i+2)%3]) / det
  * 
  * cdef double matrix_det(double[:, ::1] matrix):             # <<<<<<<<<<<<<<
@@ -7007,9 +7233,9 @@ static double __pyx_f_8pymatgen_12optimization_9neighbors_matrix_det(__Pyx_memvi
   Py_ssize_t __pyx_t_29;
   Py_ssize_t __pyx_t_30;
   __Pyx_RefNannySetupContext("matrix_det", 0);
-  __Pyx_TraceCall("matrix_det", __pyx_f[0], 346, 0, __PYX_ERR(0, 346, __pyx_L1_error));
+  __Pyx_TraceCall("matrix_det", __pyx_f[0], 367, 0, __PYX_ERR(0, 367, __pyx_L1_error));
 
-  /* "pymatgen/optimization/neighbors.pyx":350
+  /* "pymatgen/optimization/neighbors.pyx":371
  *     Matrix determinant
  *     """
  *     return matrix[0, 0] * (matrix[1, 1] * matrix[2, 2] - matrix[1, 2] * matrix[2, 1]) + \             # <<<<<<<<<<<<<<
@@ -7027,7 +7253,7 @@ static double __pyx_f_8pymatgen_12optimization_9neighbors_matrix_det(__Pyx_memvi
   __pyx_t_9 = 2;
   __pyx_t_10 = 1;
 
-  /* "pymatgen/optimization/neighbors.pyx":351
+  /* "pymatgen/optimization/neighbors.pyx":372
  *     """
  *     return matrix[0, 0] * (matrix[1, 1] * matrix[2, 2] - matrix[1, 2] * matrix[2, 1]) + \
  *         matrix[0, 1] * (matrix[1, 2] * matrix[2, 0] - matrix[1, 0] * matrix[2, 2]) + \             # <<<<<<<<<<<<<<
@@ -7045,7 +7271,7 @@ static double __pyx_f_8pymatgen_12optimization_9neighbors_matrix_det(__Pyx_memvi
   __pyx_t_19 = 2;
   __pyx_t_20 = 2;
 
-  /* "pymatgen/optimization/neighbors.pyx":352
+  /* "pymatgen/optimization/neighbors.pyx":373
  *     return matrix[0, 0] * (matrix[1, 1] * matrix[2, 2] - matrix[1, 2] * matrix[2, 1]) + \
  *         matrix[0, 1] * (matrix[1, 2] * matrix[2, 0] - matrix[1, 0] * matrix[2, 2]) + \
  *             matrix[0, 2] * (matrix[1, 0] * matrix[2, 1] - matrix[1, 1] * matrix[2, 0])             # <<<<<<<<<<<<<<
@@ -7063,7 +7289,7 @@ static double __pyx_f_8pymatgen_12optimization_9neighbors_matrix_det(__Pyx_memvi
   __pyx_t_29 = 2;
   __pyx_t_30 = 0;
 
-  /* "pymatgen/optimization/neighbors.pyx":351
+  /* "pymatgen/optimization/neighbors.pyx":372
  *     """
  *     return matrix[0, 0] * (matrix[1, 1] * matrix[2, 2] - matrix[1, 2] * matrix[2, 1]) + \
  *         matrix[0, 1] * (matrix[1, 2] * matrix[2, 0] - matrix[1, 0] * matrix[2, 2]) + \             # <<<<<<<<<<<<<<
@@ -7073,7 +7299,7 @@ static double __pyx_f_8pymatgen_12optimization_9neighbors_matrix_det(__Pyx_memvi
   __pyx_r = ((((*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_matrix.data + __pyx_t_1 * __pyx_v_matrix.strides[0]) )) + __pyx_t_2)) ))) * (((*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_matrix.data + __pyx_t_3 * __pyx_v_matrix.strides[0]) )) + __pyx_t_4)) ))) * (*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_matrix.data + __pyx_t_5 * __pyx_v_matrix.strides[0]) )) + __pyx_t_6)) )))) - ((*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_matrix.data + __pyx_t_7 * __pyx_v_matrix.strides[0]) )) + __pyx_t_8)) ))) * (*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_matrix.data + __pyx_t_9 * __pyx_v_matrix.strides[0]) )) + __pyx_t_10)) )))))) + ((*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_matrix.data + __pyx_t_11 * __pyx_v_matrix.strides[0]) )) + __pyx_t_12)) ))) * (((*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_matrix.data + __pyx_t_13 * __pyx_v_matrix.strides[0]) )) + __pyx_t_14)) ))) * (*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_matrix.data + __pyx_t_15 * __pyx_v_matrix.strides[0]) )) + __pyx_t_16)) )))) - ((*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_matrix.data + __pyx_t_17 * __pyx_v_matrix.strides[0]) )) + __pyx_t_18)) ))) * (*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_matrix.data + __pyx_t_19 * __pyx_v_matrix.strides[0]) )) + __pyx_t_20)) ))))))) + ((*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_matrix.data + __pyx_t_21 * __pyx_v_matrix.strides[0]) )) + __pyx_t_22)) ))) * (((*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_matrix.data + __pyx_t_23 * __pyx_v_matrix.strides[0]) )) + __pyx_t_24)) ))) * (*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_matrix.data + __pyx_t_25 * __pyx_v_matrix.strides[0]) )) + __pyx_t_26)) )))) - ((*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_matrix.data + __pyx_t_27 * __pyx_v_matrix.strides[0]) )) + __pyx_t_28)) ))) * (*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_matrix.data + __pyx_t_29 * __pyx_v_matrix.strides[0]) )) + __pyx_t_30)) )))))));
   goto __pyx_L0;
 
-  /* "pymatgen/optimization/neighbors.pyx":346
+  /* "pymatgen/optimization/neighbors.pyx":367
  *                 matrix[(j+2)%3, (i+1)%3] * matrix[(j+1)%3, (i+2)%3]) / det
  * 
  * cdef double matrix_det(double[:, ::1] matrix):             # <<<<<<<<<<<<<<
@@ -7091,7 +7317,7 @@ static double __pyx_f_8pymatgen_12optimization_9neighbors_matrix_det(__Pyx_memvi
   return __pyx_r;
 }
 
-/* "pymatgen/optimization/neighbors.pyx":354
+/* "pymatgen/optimization/neighbors.pyx":375
  *             matrix[0, 2] * (matrix[1, 0] * matrix[2, 1] - matrix[1, 1] * matrix[2, 0])
  * 
  * cdef void get_max_r(double[:, ::1] lattice, double [::1] maxr, double r):             # <<<<<<<<<<<<<<
@@ -7117,40 +7343,40 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_get_max_r(__Pyx_memviews
   __Pyx_memviewslice __pyx_t_9 = { 0, 0, { 0 }, { 0 }, { 0 } };
   Py_ssize_t __pyx_t_10;
   __Pyx_RefNannySetupContext("get_max_r", 0);
-  __Pyx_TraceCall("get_max_r", __pyx_f[0], 354, 0, __PYX_ERR(0, 354, __pyx_L1_error));
+  __Pyx_TraceCall("get_max_r", __pyx_f[0], 375, 0, __PYX_ERR(0, 375, __pyx_L1_error));
 
-  /* "pymatgen/optimization/neighbors.pyx":358
+  /* "pymatgen/optimization/neighbors.pyx":379
  *     Get maximum repetition in each directions
  *     """
  *     cdef double [:, ::1] reciprocal_lattice = np.eye(3, dtype=np.float64)             # <<<<<<<<<<<<<<
  *     cdef int i
  *     cdef int n = lattice.shape[1]
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 358, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 379, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_eye); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 358, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_eye); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 379, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 358, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 379, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 358, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 379, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_float64); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 358, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_float64); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 379, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_dtype, __pyx_t_4) < 0) __PYX_ERR(0, 358, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_dtype, __pyx_t_4) < 0) __PYX_ERR(0, 379, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_tuple__4, __pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 358, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_tuple__6, __pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 379, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_5 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_double(__pyx_t_4, PyBUF_WRITABLE); if (unlikely(!__pyx_t_5.memview)) __PYX_ERR(0, 358, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_double(__pyx_t_4, PyBUF_WRITABLE); if (unlikely(!__pyx_t_5.memview)) __PYX_ERR(0, 379, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __pyx_v_reciprocal_lattice = __pyx_t_5;
   __pyx_t_5.memview = NULL;
   __pyx_t_5.data = NULL;
 
-  /* "pymatgen/optimization/neighbors.pyx":360
+  /* "pymatgen/optimization/neighbors.pyx":381
  *     cdef double [:, ::1] reciprocal_lattice = np.eye(3, dtype=np.float64)
  *     cdef int i
  *     cdef int n = lattice.shape[1]             # <<<<<<<<<<<<<<
@@ -7159,7 +7385,7 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_get_max_r(__Pyx_memviews
  */
   __pyx_v_n = (__pyx_v_lattice.shape[1]);
 
-  /* "pymatgen/optimization/neighbors.pyx":362
+  /* "pymatgen/optimization/neighbors.pyx":383
  *     cdef int n = lattice.shape[1]
  *     cdef double recp_len
  *     get_reciprocal_lattice(lattice, reciprocal_lattice)             # <<<<<<<<<<<<<<
@@ -7168,7 +7394,7 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_get_max_r(__Pyx_memviews
  */
   __pyx_f_8pymatgen_12optimization_9neighbors_get_reciprocal_lattice(__pyx_v_lattice, __pyx_v_reciprocal_lattice);
 
-  /* "pymatgen/optimization/neighbors.pyx":363
+  /* "pymatgen/optimization/neighbors.pyx":384
  *     cdef double recp_len
  *     get_reciprocal_lattice(lattice, reciprocal_lattice)
  *     for i in range(n):             # <<<<<<<<<<<<<<
@@ -7180,7 +7406,7 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_get_max_r(__Pyx_memviews
   for (__pyx_t_8 = 0; __pyx_t_8 < __pyx_t_7; __pyx_t_8+=1) {
     __pyx_v_i = __pyx_t_8;
 
-    /* "pymatgen/optimization/neighbors.pyx":364
+    /* "pymatgen/optimization/neighbors.pyx":385
  *     get_reciprocal_lattice(lattice, reciprocal_lattice)
  *     for i in range(n):
  *         recp_len = norm(reciprocal_lattice[i, :])             # <<<<<<<<<<<<<<
@@ -7193,7 +7419,7 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_get_max_r(__Pyx_memviews
     {
     Py_ssize_t __pyx_tmp_idx = __pyx_v_i;
     Py_ssize_t __pyx_tmp_stride = __pyx_v_reciprocal_lattice.strides[0];
-        if ((0)) __PYX_ERR(0, 364, __pyx_L1_error)
+        if ((0)) __PYX_ERR(0, 385, __pyx_L1_error)
         __pyx_t_9.data += __pyx_tmp_idx * __pyx_tmp_stride;
 }
 
@@ -7206,7 +7432,7 @@ __pyx_v_recp_len = __pyx_f_8pymatgen_12optimization_9neighbors_norm(__pyx_t_9);
     __pyx_t_9.memview = NULL;
     __pyx_t_9.data = NULL;
 
-    /* "pymatgen/optimization/neighbors.pyx":365
+    /* "pymatgen/optimization/neighbors.pyx":386
  *     for i in range(n):
  *         recp_len = norm(reciprocal_lattice[i, :])
  *         maxr[i] = ceil((r + 0.15) * recp_len / (2 * pi))             # <<<<<<<<<<<<<<
@@ -7217,7 +7443,7 @@ __pyx_v_recp_len = __pyx_f_8pymatgen_12optimization_9neighbors_norm(__pyx_t_9);
     *((double *) ( /* dim=0 */ ((char *) (((double *) __pyx_v_maxr.data) + __pyx_t_10)) )) = ceil((((__pyx_v_r + 0.15) * __pyx_v_recp_len) / (2.0 * M_PI)));
   }
 
-  /* "pymatgen/optimization/neighbors.pyx":354
+  /* "pymatgen/optimization/neighbors.pyx":375
  *             matrix[0, 2] * (matrix[1, 0] * matrix[2, 1] - matrix[1, 1] * matrix[2, 0])
  * 
  * cdef void get_max_r(double[:, ::1] lattice, double [::1] maxr, double r):             # <<<<<<<<<<<<<<
@@ -7241,7 +7467,7 @@ __pyx_v_recp_len = __pyx_f_8pymatgen_12optimization_9neighbors_norm(__pyx_t_9);
   __Pyx_RefNannyFinishContext();
 }
 
-/* "pymatgen/optimization/neighbors.pyx":367
+/* "pymatgen/optimization/neighbors.pyx":388
  *         maxr[i] = ceil((r + 0.15) * recp_len / (2 * pi))
  * 
  * cdef void get_reciprocal_lattice(double[:, ::1] lattice, double[:, ::1] reciprocal):             # <<<<<<<<<<<<<<
@@ -7259,9 +7485,9 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_get_reciprocal_lattice(_
   __Pyx_memviewslice __pyx_t_4 = { 0, 0, { 0 }, { 0 }, { 0 } };
   __Pyx_memviewslice __pyx_t_5 = { 0, 0, { 0 }, { 0 }, { 0 } };
   __Pyx_RefNannySetupContext("get_reciprocal_lattice", 0);
-  __Pyx_TraceCall("get_reciprocal_lattice", __pyx_f[0], 367, 0, __PYX_ERR(0, 367, __pyx_L1_error));
+  __Pyx_TraceCall("get_reciprocal_lattice", __pyx_f[0], 388, 0, __PYX_ERR(0, 388, __pyx_L1_error));
 
-  /* "pymatgen/optimization/neighbors.pyx":372
+  /* "pymatgen/optimization/neighbors.pyx":393
  *     """
  *     cdef int i
  *     for i in range(3):             # <<<<<<<<<<<<<<
@@ -7271,7 +7497,7 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_get_reciprocal_lattice(_
   for (__pyx_t_1 = 0; __pyx_t_1 < 3; __pyx_t_1+=1) {
     __pyx_v_i = __pyx_t_1;
 
-    /* "pymatgen/optimization/neighbors.pyx":373
+    /* "pymatgen/optimization/neighbors.pyx":394
  *     cdef int i
  *     for i in range(3):
  *         recip_component(lattice[i, :], lattice[(i+1)%3, :], lattice[(i+2)%3, :], reciprocal[i, :])             # <<<<<<<<<<<<<<
@@ -7284,7 +7510,7 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_get_reciprocal_lattice(_
     {
     Py_ssize_t __pyx_tmp_idx = __pyx_v_i;
     Py_ssize_t __pyx_tmp_stride = __pyx_v_lattice.strides[0];
-        if ((0)) __PYX_ERR(0, 373, __pyx_L1_error)
+        if ((0)) __PYX_ERR(0, 394, __pyx_L1_error)
         __pyx_t_2.data += __pyx_tmp_idx * __pyx_tmp_stride;
 }
 
@@ -7298,7 +7524,7 @@ __pyx_t_3.data = __pyx_v_lattice.data;
     {
     Py_ssize_t __pyx_tmp_idx = ((__pyx_v_i + 1) % 3);
     Py_ssize_t __pyx_tmp_stride = __pyx_v_lattice.strides[0];
-        if ((0)) __PYX_ERR(0, 373, __pyx_L1_error)
+        if ((0)) __PYX_ERR(0, 394, __pyx_L1_error)
         __pyx_t_3.data += __pyx_tmp_idx * __pyx_tmp_stride;
 }
 
@@ -7312,7 +7538,7 @@ __pyx_t_4.data = __pyx_v_lattice.data;
     {
     Py_ssize_t __pyx_tmp_idx = ((__pyx_v_i + 2) % 3);
     Py_ssize_t __pyx_tmp_stride = __pyx_v_lattice.strides[0];
-        if ((0)) __PYX_ERR(0, 373, __pyx_L1_error)
+        if ((0)) __PYX_ERR(0, 394, __pyx_L1_error)
         __pyx_t_4.data += __pyx_tmp_idx * __pyx_tmp_stride;
 }
 
@@ -7326,7 +7552,7 @@ __pyx_t_5.data = __pyx_v_reciprocal.data;
     {
     Py_ssize_t __pyx_tmp_idx = __pyx_v_i;
     Py_ssize_t __pyx_tmp_stride = __pyx_v_reciprocal.strides[0];
-        if ((0)) __PYX_ERR(0, 373, __pyx_L1_error)
+        if ((0)) __PYX_ERR(0, 394, __pyx_L1_error)
         __pyx_t_5.data += __pyx_tmp_idx * __pyx_tmp_stride;
 }
 
@@ -7349,7 +7575,7 @@ __pyx_f_8pymatgen_12optimization_9neighbors_recip_component(__pyx_t_2, __pyx_t_3
     __pyx_t_5.data = NULL;
   }
 
-  /* "pymatgen/optimization/neighbors.pyx":367
+  /* "pymatgen/optimization/neighbors.pyx":388
  *         maxr[i] = ceil((r + 0.15) * recp_len / (2 * pi))
  * 
  * cdef void get_reciprocal_lattice(double[:, ::1] lattice, double[:, ::1] reciprocal):             # <<<<<<<<<<<<<<
@@ -7370,7 +7596,7 @@ __pyx_f_8pymatgen_12optimization_9neighbors_recip_component(__pyx_t_2, __pyx_t_3
   __Pyx_RefNannyFinishContext();
 }
 
-/* "pymatgen/optimization/neighbors.pyx":375
+/* "pymatgen/optimization/neighbors.pyx":396
  *         recip_component(lattice[i, :], lattice[(i+1)%3, :], lattice[(i+2)%3, :], reciprocal[i, :])
  * 
  * cdef void recip_component(double[::1] a1, double[::1] a2, double[::1] a3, double[::1] out):             # <<<<<<<<<<<<<<
@@ -7393,9 +7619,9 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_recip_component(__Pyx_me
   int __pyx_t_7;
   Py_ssize_t __pyx_t_8;
   __Pyx_RefNannySetupContext("recip_component", 0);
-  __Pyx_TraceCall("recip_component", __pyx_f[0], 375, 0, __PYX_ERR(0, 375, __pyx_L1_error));
+  __Pyx_TraceCall("recip_component", __pyx_f[0], 396, 0, __PYX_ERR(0, 396, __pyx_L1_error));
 
-  /* "pymatgen/optimization/neighbors.pyx":382
+  /* "pymatgen/optimization/neighbors.pyx":403
  *     cdef double prod
  *     cdef int i
  *     cross(a2, a3, ai_cross_aj)             # <<<<<<<<<<<<<<
@@ -7404,22 +7630,22 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_recip_component(__Pyx_me
  */
   __pyx_t_3 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_double);
   __pyx_t_2 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)3));
-  if (unlikely(!__pyx_t_3 || !__pyx_t_2 || !PyBytes_AsString(__pyx_t_3))) __PYX_ERR(0, 382, __pyx_L1_error)
+  if (unlikely(!__pyx_t_3 || !__pyx_t_2 || !PyBytes_AsString(__pyx_t_3))) __PYX_ERR(0, 403, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_1 = __pyx_array_new(__pyx_t_2, sizeof(double), PyBytes_AS_STRING(__pyx_t_3), (char *) "fortran", (char *) __pyx_v_ai_cross_aj);
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 382, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 403, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_4 = __Pyx_PyObject_to_MemoryviewSlice_ds_double(((PyObject *)__pyx_t_1), PyBUF_WRITABLE); if (unlikely(!__pyx_t_4.memview)) __PYX_ERR(0, 382, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_to_MemoryviewSlice_ds_double(((PyObject *)__pyx_t_1), PyBUF_WRITABLE); if (unlikely(!__pyx_t_4.memview)) __PYX_ERR(0, 403, __pyx_L1_error)
   __Pyx_DECREF(((PyObject *)__pyx_t_1)); __pyx_t_1 = 0;
   __pyx_f_8pymatgen_12optimization_9neighbors_cross(__pyx_v_a2, __pyx_v_a3, __pyx_t_4);
   __PYX_XDEC_MEMVIEW(&__pyx_t_4, 1);
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pymatgen/optimization/neighbors.pyx":383
+  /* "pymatgen/optimization/neighbors.pyx":404
  *     cdef int i
  *     cross(a2, a3, ai_cross_aj)
  *     prod = inner(a1, ai_cross_aj)             # <<<<<<<<<<<<<<
@@ -7428,22 +7654,22 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_recip_component(__Pyx_me
  */
   __pyx_t_2 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_double);
   __pyx_t_3 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)3));
-  if (unlikely(!__pyx_t_2 || !__pyx_t_3 || !PyBytes_AsString(__pyx_t_2))) __PYX_ERR(0, 383, __pyx_L1_error)
+  if (unlikely(!__pyx_t_2 || !__pyx_t_3 || !PyBytes_AsString(__pyx_t_2))) __PYX_ERR(0, 404, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_1 = __pyx_array_new(__pyx_t_3, sizeof(double), PyBytes_AS_STRING(__pyx_t_2), (char *) "fortran", (char *) __pyx_v_ai_cross_aj);
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 383, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 404, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_4 = __Pyx_PyObject_to_MemoryviewSlice_ds_double(((PyObject *)__pyx_t_1), PyBUF_WRITABLE); if (unlikely(!__pyx_t_4.memview)) __PYX_ERR(0, 383, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_to_MemoryviewSlice_ds_double(((PyObject *)__pyx_t_1), PyBUF_WRITABLE); if (unlikely(!__pyx_t_4.memview)) __PYX_ERR(0, 404, __pyx_L1_error)
   __Pyx_DECREF(((PyObject *)__pyx_t_1)); __pyx_t_1 = 0;
   __pyx_v_prod = __pyx_f_8pymatgen_12optimization_9neighbors_inner(__pyx_v_a1, __pyx_t_4);
   __PYX_XDEC_MEMVIEW(&__pyx_t_4, 1);
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pymatgen/optimization/neighbors.pyx":384
+  /* "pymatgen/optimization/neighbors.pyx":405
  *     cross(a2, a3, ai_cross_aj)
  *     prod = inner(a1, ai_cross_aj)
  *     for i in range(a1.shape[0]):             # <<<<<<<<<<<<<<
@@ -7455,7 +7681,7 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_recip_component(__Pyx_me
   for (__pyx_t_7 = 0; __pyx_t_7 < __pyx_t_6; __pyx_t_7+=1) {
     __pyx_v_i = __pyx_t_7;
 
-    /* "pymatgen/optimization/neighbors.pyx":385
+    /* "pymatgen/optimization/neighbors.pyx":406
  *     prod = inner(a1, ai_cross_aj)
  *     for i in range(a1.shape[0]):
  *         out[i] = 2 * pi * ai_cross_aj[i] / prod             # <<<<<<<<<<<<<<
@@ -7466,7 +7692,7 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_recip_component(__Pyx_me
     *((double *) ( /* dim=0 */ ((char *) (((double *) __pyx_v_out.data) + __pyx_t_8)) )) = (((2.0 * M_PI) * (__pyx_v_ai_cross_aj[__pyx_v_i])) / __pyx_v_prod);
   }
 
-  /* "pymatgen/optimization/neighbors.pyx":375
+  /* "pymatgen/optimization/neighbors.pyx":396
  *         recip_component(lattice[i, :], lattice[(i+1)%3, :], lattice[(i+2)%3, :], reciprocal[i, :])
  * 
  * cdef void recip_component(double[::1] a1, double[::1] a2, double[::1] a3, double[::1] out):             # <<<<<<<<<<<<<<
@@ -7487,7 +7713,7 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_recip_component(__Pyx_me
   __Pyx_RefNannyFinishContext();
 }
 
-/* "pymatgen/optimization/neighbors.pyx":387
+/* "pymatgen/optimization/neighbors.pyx":408
  *         out[i] = 2 * pi * ai_cross_aj[i] / prod
  * 
  * cdef double inner(double[:] x, double[:] y):             # <<<<<<<<<<<<<<
@@ -7508,9 +7734,9 @@ static double __pyx_f_8pymatgen_12optimization_9neighbors_inner(__Pyx_memviewsli
   Py_ssize_t __pyx_t_4;
   Py_ssize_t __pyx_t_5;
   __Pyx_RefNannySetupContext("inner", 0);
-  __Pyx_TraceCall("inner", __pyx_f[0], 387, 0, __PYX_ERR(0, 387, __pyx_L1_error));
+  __Pyx_TraceCall("inner", __pyx_f[0], 408, 0, __PYX_ERR(0, 408, __pyx_L1_error));
 
-  /* "pymatgen/optimization/neighbors.pyx":391
+  /* "pymatgen/optimization/neighbors.pyx":412
  *     Compute inner product
  *     """
  *     cdef double sum = 0             # <<<<<<<<<<<<<<
@@ -7519,7 +7745,7 @@ static double __pyx_f_8pymatgen_12optimization_9neighbors_inner(__Pyx_memviewsli
  */
   __pyx_v_sum = 0.0;
 
-  /* "pymatgen/optimization/neighbors.pyx":392
+  /* "pymatgen/optimization/neighbors.pyx":413
  *     """
  *     cdef double sum = 0
  *     cdef int i, n = x.shape[0]             # <<<<<<<<<<<<<<
@@ -7528,7 +7754,7 @@ static double __pyx_f_8pymatgen_12optimization_9neighbors_inner(__Pyx_memviewsli
  */
   __pyx_v_n = (__pyx_v_x.shape[0]);
 
-  /* "pymatgen/optimization/neighbors.pyx":393
+  /* "pymatgen/optimization/neighbors.pyx":414
  *     cdef double sum = 0
  *     cdef int i, n = x.shape[0]
  *     for i in range(n):             # <<<<<<<<<<<<<<
@@ -7540,7 +7766,7 @@ static double __pyx_f_8pymatgen_12optimization_9neighbors_inner(__Pyx_memviewsli
   for (__pyx_t_3 = 0; __pyx_t_3 < __pyx_t_2; __pyx_t_3+=1) {
     __pyx_v_i = __pyx_t_3;
 
-    /* "pymatgen/optimization/neighbors.pyx":394
+    /* "pymatgen/optimization/neighbors.pyx":415
  *     cdef int i, n = x.shape[0]
  *     for i in range(n):
  *         sum += x[i] * y[i]             # <<<<<<<<<<<<<<
@@ -7552,7 +7778,7 @@ static double __pyx_f_8pymatgen_12optimization_9neighbors_inner(__Pyx_memviewsli
     __pyx_v_sum = (__pyx_v_sum + ((*((double *) ( /* dim=0 */ (__pyx_v_x.data + __pyx_t_4 * __pyx_v_x.strides[0]) ))) * (*((double *) ( /* dim=0 */ (__pyx_v_y.data + __pyx_t_5 * __pyx_v_y.strides[0]) )))));
   }
 
-  /* "pymatgen/optimization/neighbors.pyx":395
+  /* "pymatgen/optimization/neighbors.pyx":416
  *     for i in range(n):
  *         sum += x[i] * y[i]
  *     return sum             # <<<<<<<<<<<<<<
@@ -7562,7 +7788,7 @@ static double __pyx_f_8pymatgen_12optimization_9neighbors_inner(__Pyx_memviewsli
   __pyx_r = __pyx_v_sum;
   goto __pyx_L0;
 
-  /* "pymatgen/optimization/neighbors.pyx":387
+  /* "pymatgen/optimization/neighbors.pyx":408
  *         out[i] = 2 * pi * ai_cross_aj[i] / prod
  * 
  * cdef double inner(double[:] x, double[:] y):             # <<<<<<<<<<<<<<
@@ -7580,7 +7806,7 @@ static double __pyx_f_8pymatgen_12optimization_9neighbors_inner(__Pyx_memviewsli
   return __pyx_r;
 }
 
-/* "pymatgen/optimization/neighbors.pyx":397
+/* "pymatgen/optimization/neighbors.pyx":418
  *     return sum
  * 
  * cdef void cross(double[:] x, double[:] y, double[:] out) nogil:             # <<<<<<<<<<<<<<
@@ -7605,9 +7831,9 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_cross(__Pyx_memviewslice
   Py_ssize_t __pyx_t_13;
   Py_ssize_t __pyx_t_14;
   Py_ssize_t __pyx_t_15;
-  __Pyx_TraceCall("cross", __pyx_f[0], 397, 1, __PYX_ERR(0, 397, __pyx_L1_error));
+  __Pyx_TraceCall("cross", __pyx_f[0], 418, 1, __PYX_ERR(0, 418, __pyx_L1_error));
 
-  /* "pymatgen/optimization/neighbors.pyx":401
+  /* "pymatgen/optimization/neighbors.pyx":422
  *     Cross product of vector x and y, output in out
  *     """
  *     out[0] = x[1] * y[2] - x[2] * y[1]             # <<<<<<<<<<<<<<
@@ -7621,7 +7847,7 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_cross(__Pyx_memviewslice
   __pyx_t_5 = 0;
   *((double *) ( /* dim=0 */ (__pyx_v_out.data + __pyx_t_5 * __pyx_v_out.strides[0]) )) = (((*((double *) ( /* dim=0 */ (__pyx_v_x.data + __pyx_t_1 * __pyx_v_x.strides[0]) ))) * (*((double *) ( /* dim=0 */ (__pyx_v_y.data + __pyx_t_2 * __pyx_v_y.strides[0]) )))) - ((*((double *) ( /* dim=0 */ (__pyx_v_x.data + __pyx_t_3 * __pyx_v_x.strides[0]) ))) * (*((double *) ( /* dim=0 */ (__pyx_v_y.data + __pyx_t_4 * __pyx_v_y.strides[0]) )))));
 
-  /* "pymatgen/optimization/neighbors.pyx":402
+  /* "pymatgen/optimization/neighbors.pyx":423
  *     """
  *     out[0] = x[1] * y[2] - x[2] * y[1]
  *     out[1] = x[2] * y[0] - x[0] * y[2]             # <<<<<<<<<<<<<<
@@ -7635,7 +7861,7 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_cross(__Pyx_memviewslice
   __pyx_t_10 = 1;
   *((double *) ( /* dim=0 */ (__pyx_v_out.data + __pyx_t_10 * __pyx_v_out.strides[0]) )) = (((*((double *) ( /* dim=0 */ (__pyx_v_x.data + __pyx_t_6 * __pyx_v_x.strides[0]) ))) * (*((double *) ( /* dim=0 */ (__pyx_v_y.data + __pyx_t_7 * __pyx_v_y.strides[0]) )))) - ((*((double *) ( /* dim=0 */ (__pyx_v_x.data + __pyx_t_8 * __pyx_v_x.strides[0]) ))) * (*((double *) ( /* dim=0 */ (__pyx_v_y.data + __pyx_t_9 * __pyx_v_y.strides[0]) )))));
 
-  /* "pymatgen/optimization/neighbors.pyx":403
+  /* "pymatgen/optimization/neighbors.pyx":424
  *     out[0] = x[1] * y[2] - x[2] * y[1]
  *     out[1] = x[2] * y[0] - x[0] * y[2]
  *     out[2] = x[0] * y[1] - x[1] * y[0]             # <<<<<<<<<<<<<<
@@ -7649,7 +7875,7 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_cross(__Pyx_memviewslice
   __pyx_t_15 = 2;
   *((double *) ( /* dim=0 */ (__pyx_v_out.data + __pyx_t_15 * __pyx_v_out.strides[0]) )) = (((*((double *) ( /* dim=0 */ (__pyx_v_x.data + __pyx_t_11 * __pyx_v_x.strides[0]) ))) * (*((double *) ( /* dim=0 */ (__pyx_v_y.data + __pyx_t_12 * __pyx_v_y.strides[0]) )))) - ((*((double *) ( /* dim=0 */ (__pyx_v_x.data + __pyx_t_13 * __pyx_v_x.strides[0]) ))) * (*((double *) ( /* dim=0 */ (__pyx_v_y.data + __pyx_t_14 * __pyx_v_y.strides[0]) )))));
 
-  /* "pymatgen/optimization/neighbors.pyx":397
+  /* "pymatgen/optimization/neighbors.pyx":418
  *     return sum
  * 
  * cdef void cross(double[:] x, double[:] y, double[:] out) nogil:             # <<<<<<<<<<<<<<
@@ -7665,7 +7891,7 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_cross(__Pyx_memviewslice
   __Pyx_TraceReturn(Py_None, 1);
 }
 
-/* "pymatgen/optimization/neighbors.pyx":405
+/* "pymatgen/optimization/neighbors.pyx":426
  *     out[2] = x[0] * y[1] - x[1] * y[0]
  * 
  * cdef double norm(double[::1] vec) nogil:             # <<<<<<<<<<<<<<
@@ -7684,9 +7910,9 @@ static double __pyx_f_8pymatgen_12optimization_9neighbors_norm(__Pyx_memviewslic
   int __pyx_t_3;
   Py_ssize_t __pyx_t_4;
   Py_ssize_t __pyx_t_5;
-  __Pyx_TraceCall("norm", __pyx_f[0], 405, 1, __PYX_ERR(0, 405, __pyx_L1_error));
+  __Pyx_TraceCall("norm", __pyx_f[0], 426, 1, __PYX_ERR(0, 426, __pyx_L1_error));
 
-  /* "pymatgen/optimization/neighbors.pyx":409
+  /* "pymatgen/optimization/neighbors.pyx":430
  *     Vector norm
  *     """
  *     cdef int i, n = vec.shape[0]             # <<<<<<<<<<<<<<
@@ -7695,7 +7921,7 @@ static double __pyx_f_8pymatgen_12optimization_9neighbors_norm(__Pyx_memviewslic
  */
   __pyx_v_n = (__pyx_v_vec.shape[0]);
 
-  /* "pymatgen/optimization/neighbors.pyx":410
+  /* "pymatgen/optimization/neighbors.pyx":431
  *     """
  *     cdef int i, n = vec.shape[0]
  *     cdef double sum = 0             # <<<<<<<<<<<<<<
@@ -7704,7 +7930,7 @@ static double __pyx_f_8pymatgen_12optimization_9neighbors_norm(__Pyx_memviewslic
  */
   __pyx_v_sum = 0.0;
 
-  /* "pymatgen/optimization/neighbors.pyx":411
+  /* "pymatgen/optimization/neighbors.pyx":432
  *     cdef int i, n = vec.shape[0]
  *     cdef double sum = 0
  *     for i in range(n):             # <<<<<<<<<<<<<<
@@ -7716,7 +7942,7 @@ static double __pyx_f_8pymatgen_12optimization_9neighbors_norm(__Pyx_memviewslic
   for (__pyx_t_3 = 0; __pyx_t_3 < __pyx_t_2; __pyx_t_3+=1) {
     __pyx_v_i = __pyx_t_3;
 
-    /* "pymatgen/optimization/neighbors.pyx":412
+    /* "pymatgen/optimization/neighbors.pyx":433
  *     cdef double sum = 0
  *     for i in range(n):
  *         sum += vec[i] * vec[i]             # <<<<<<<<<<<<<<
@@ -7728,7 +7954,7 @@ static double __pyx_f_8pymatgen_12optimization_9neighbors_norm(__Pyx_memviewslic
     __pyx_v_sum = (__pyx_v_sum + ((*((double *) ( /* dim=0 */ ((char *) (((double *) __pyx_v_vec.data) + __pyx_t_4)) ))) * (*((double *) ( /* dim=0 */ ((char *) (((double *) __pyx_v_vec.data) + __pyx_t_5)) )))));
   }
 
-  /* "pymatgen/optimization/neighbors.pyx":413
+  /* "pymatgen/optimization/neighbors.pyx":434
  *     for i in range(n):
  *         sum += vec[i] * vec[i]
  *     return sqrt(sum)             # <<<<<<<<<<<<<<
@@ -7738,7 +7964,7 @@ static double __pyx_f_8pymatgen_12optimization_9neighbors_norm(__Pyx_memviewslic
   __pyx_r = sqrt(__pyx_v_sum);
   goto __pyx_L0;
 
-  /* "pymatgen/optimization/neighbors.pyx":405
+  /* "pymatgen/optimization/neighbors.pyx":426
  *     out[2] = x[0] * y[1] - x[1] * y[0]
  * 
  * cdef double norm(double[::1] vec) nogil:             # <<<<<<<<<<<<<<
@@ -7755,7 +7981,7 @@ static double __pyx_f_8pymatgen_12optimization_9neighbors_norm(__Pyx_memviewslic
   return __pyx_r;
 }
 
-/* "pymatgen/optimization/neighbors.pyx":415
+/* "pymatgen/optimization/neighbors.pyx":436
  *     return sqrt(sum)
  * 
  * cdef max_and_min(double[:, ::1] coords, double[::1] max_coords, double[::1] min_coords):             # <<<<<<<<<<<<<<
@@ -7797,9 +8023,9 @@ static PyObject *__pyx_f_8pymatgen_12optimization_9neighbors_max_and_min(__Pyx_m
   Py_ssize_t __pyx_t_24;
   Py_ssize_t __pyx_t_25;
   __Pyx_RefNannySetupContext("max_and_min", 0);
-  __Pyx_TraceCall("max_and_min", __pyx_f[0], 415, 0, __PYX_ERR(0, 415, __pyx_L1_error));
+  __Pyx_TraceCall("max_and_min", __pyx_f[0], 436, 0, __PYX_ERR(0, 436, __pyx_L1_error));
 
-  /* "pymatgen/optimization/neighbors.pyx":420
+  /* "pymatgen/optimization/neighbors.pyx":441
  *     """
  *     cdef int i, j
  *     cdef int M = coords.shape[0]             # <<<<<<<<<<<<<<
@@ -7808,7 +8034,7 @@ static PyObject *__pyx_f_8pymatgen_12optimization_9neighbors_max_and_min(__Pyx_m
  */
   __pyx_v_M = (__pyx_v_coords.shape[0]);
 
-  /* "pymatgen/optimization/neighbors.pyx":421
+  /* "pymatgen/optimization/neighbors.pyx":442
  *     cdef int i, j
  *     cdef int M = coords.shape[0]
  *     cdef int N = coords.shape[1]             # <<<<<<<<<<<<<<
@@ -7817,7 +8043,7 @@ static PyObject *__pyx_f_8pymatgen_12optimization_9neighbors_max_and_min(__Pyx_m
  */
   __pyx_v_N = (__pyx_v_coords.shape[1]);
 
-  /* "pymatgen/optimization/neighbors.pyx":422
+  /* "pymatgen/optimization/neighbors.pyx":443
  *     cdef int M = coords.shape[0]
  *     cdef int N = coords.shape[1]
  *     for i in range(N):             # <<<<<<<<<<<<<<
@@ -7829,7 +8055,7 @@ static PyObject *__pyx_f_8pymatgen_12optimization_9neighbors_max_and_min(__Pyx_m
   for (__pyx_t_3 = 0; __pyx_t_3 < __pyx_t_2; __pyx_t_3+=1) {
     __pyx_v_i = __pyx_t_3;
 
-    /* "pymatgen/optimization/neighbors.pyx":423
+    /* "pymatgen/optimization/neighbors.pyx":444
  *     cdef int N = coords.shape[1]
  *     for i in range(N):
  *         max_coords[i] = coords[0, i]             # <<<<<<<<<<<<<<
@@ -7841,7 +8067,7 @@ static PyObject *__pyx_f_8pymatgen_12optimization_9neighbors_max_and_min(__Pyx_m
     __pyx_t_6 = __pyx_v_i;
     *((double *) ( /* dim=0 */ ((char *) (((double *) __pyx_v_max_coords.data) + __pyx_t_6)) )) = (*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_coords.data + __pyx_t_4 * __pyx_v_coords.strides[0]) )) + __pyx_t_5)) )));
 
-    /* "pymatgen/optimization/neighbors.pyx":424
+    /* "pymatgen/optimization/neighbors.pyx":445
  *     for i in range(N):
  *         max_coords[i] = coords[0, i]
  *         min_coords[i] = coords[0, i]             # <<<<<<<<<<<<<<
@@ -7854,7 +8080,7 @@ static PyObject *__pyx_f_8pymatgen_12optimization_9neighbors_max_and_min(__Pyx_m
     *((double *) ( /* dim=0 */ ((char *) (((double *) __pyx_v_min_coords.data) + __pyx_t_9)) )) = (*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_coords.data + __pyx_t_7 * __pyx_v_coords.strides[0]) )) + __pyx_t_8)) )));
   }
 
-  /* "pymatgen/optimization/neighbors.pyx":425
+  /* "pymatgen/optimization/neighbors.pyx":446
  *         max_coords[i] = coords[0, i]
  *         min_coords[i] = coords[0, i]
  *     for i in range(M):             # <<<<<<<<<<<<<<
@@ -7866,7 +8092,7 @@ static PyObject *__pyx_f_8pymatgen_12optimization_9neighbors_max_and_min(__Pyx_m
   for (__pyx_t_3 = 0; __pyx_t_3 < __pyx_t_2; __pyx_t_3+=1) {
     __pyx_v_i = __pyx_t_3;
 
-    /* "pymatgen/optimization/neighbors.pyx":426
+    /* "pymatgen/optimization/neighbors.pyx":447
  *         min_coords[i] = coords[0, i]
  *     for i in range(M):
  *         for j in range(N):             # <<<<<<<<<<<<<<
@@ -7878,7 +8104,7 @@ static PyObject *__pyx_f_8pymatgen_12optimization_9neighbors_max_and_min(__Pyx_m
     for (__pyx_t_12 = 0; __pyx_t_12 < __pyx_t_11; __pyx_t_12+=1) {
       __pyx_v_j = __pyx_t_12;
 
-      /* "pymatgen/optimization/neighbors.pyx":427
+      /* "pymatgen/optimization/neighbors.pyx":448
  *     for i in range(M):
  *         for j in range(N):
  *             if coords[i, j] >= max_coords[j]:             # <<<<<<<<<<<<<<
@@ -7891,7 +8117,7 @@ static PyObject *__pyx_f_8pymatgen_12optimization_9neighbors_max_and_min(__Pyx_m
       __pyx_t_16 = (((*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_coords.data + __pyx_t_13 * __pyx_v_coords.strides[0]) )) + __pyx_t_14)) ))) >= (*((double *) ( /* dim=0 */ ((char *) (((double *) __pyx_v_max_coords.data) + __pyx_t_15)) )))) != 0);
       if (__pyx_t_16) {
 
-        /* "pymatgen/optimization/neighbors.pyx":428
+        /* "pymatgen/optimization/neighbors.pyx":449
  *         for j in range(N):
  *             if coords[i, j] >= max_coords[j]:
  *                 max_coords[j] = coords[i, j]             # <<<<<<<<<<<<<<
@@ -7903,7 +8129,7 @@ static PyObject *__pyx_f_8pymatgen_12optimization_9neighbors_max_and_min(__Pyx_m
         __pyx_t_19 = __pyx_v_j;
         *((double *) ( /* dim=0 */ ((char *) (((double *) __pyx_v_max_coords.data) + __pyx_t_19)) )) = (*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_coords.data + __pyx_t_17 * __pyx_v_coords.strides[0]) )) + __pyx_t_18)) )));
 
-        /* "pymatgen/optimization/neighbors.pyx":427
+        /* "pymatgen/optimization/neighbors.pyx":448
  *     for i in range(M):
  *         for j in range(N):
  *             if coords[i, j] >= max_coords[j]:             # <<<<<<<<<<<<<<
@@ -7912,7 +8138,7 @@ static PyObject *__pyx_f_8pymatgen_12optimization_9neighbors_max_and_min(__Pyx_m
  */
       }
 
-      /* "pymatgen/optimization/neighbors.pyx":429
+      /* "pymatgen/optimization/neighbors.pyx":450
  *             if coords[i, j] >= max_coords[j]:
  *                 max_coords[j] = coords[i, j]
  *             if coords[i, j] <= min_coords[j]:             # <<<<<<<<<<<<<<
@@ -7925,7 +8151,7 @@ static PyObject *__pyx_f_8pymatgen_12optimization_9neighbors_max_and_min(__Pyx_m
       __pyx_t_16 = (((*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_coords.data + __pyx_t_20 * __pyx_v_coords.strides[0]) )) + __pyx_t_21)) ))) <= (*((double *) ( /* dim=0 */ ((char *) (((double *) __pyx_v_min_coords.data) + __pyx_t_22)) )))) != 0);
       if (__pyx_t_16) {
 
-        /* "pymatgen/optimization/neighbors.pyx":430
+        /* "pymatgen/optimization/neighbors.pyx":451
  *                 max_coords[j] = coords[i, j]
  *             if coords[i, j] <= min_coords[j]:
  *                 min_coords[j] = coords[i, j]             # <<<<<<<<<<<<<<
@@ -7937,7 +8163,7 @@ static PyObject *__pyx_f_8pymatgen_12optimization_9neighbors_max_and_min(__Pyx_m
         __pyx_t_25 = __pyx_v_j;
         *((double *) ( /* dim=0 */ ((char *) (((double *) __pyx_v_min_coords.data) + __pyx_t_25)) )) = (*((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_coords.data + __pyx_t_23 * __pyx_v_coords.strides[0]) )) + __pyx_t_24)) )));
 
-        /* "pymatgen/optimization/neighbors.pyx":429
+        /* "pymatgen/optimization/neighbors.pyx":450
  *             if coords[i, j] >= max_coords[j]:
  *                 max_coords[j] = coords[i, j]
  *             if coords[i, j] <= min_coords[j]:             # <<<<<<<<<<<<<<
@@ -7948,7 +8174,7 @@ static PyObject *__pyx_f_8pymatgen_12optimization_9neighbors_max_and_min(__Pyx_m
     }
   }
 
-  /* "pymatgen/optimization/neighbors.pyx":415
+  /* "pymatgen/optimization/neighbors.pyx":436
  *     return sqrt(sum)
  * 
  * cdef max_and_min(double[:, ::1] coords, double[::1] max_coords, double[::1] min_coords):             # <<<<<<<<<<<<<<
@@ -7969,7 +8195,7 @@ static PyObject *__pyx_f_8pymatgen_12optimization_9neighbors_max_and_min(__Pyx_m
   return __pyx_r;
 }
 
-/* "pymatgen/optimization/neighbors.pyx":432
+/* "pymatgen/optimization/neighbors.pyx":453
  *                 min_coords[j] = coords[i, j]
  * 
  * cdef void compute_cube_index(double[:, ::1] coords, double [:] global_min, double radius, long[:, ::1] return_indice) nogil:             # <<<<<<<<<<<<<<
@@ -7992,9 +8218,9 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_compute_cube_index(__Pyx
   Py_ssize_t __pyx_t_9;
   Py_ssize_t __pyx_t_10;
   Py_ssize_t __pyx_t_11;
-  __Pyx_TraceCall("compute_cube_index", __pyx_f[0], 432, 1, __PYX_ERR(0, 432, __pyx_L1_error));
+  __Pyx_TraceCall("compute_cube_index", __pyx_f[0], 453, 1, __PYX_ERR(0, 453, __pyx_L1_error));
 
-  /* "pymatgen/optimization/neighbors.pyx":434
+  /* "pymatgen/optimization/neighbors.pyx":455
  * cdef void compute_cube_index(double[:, ::1] coords, double [:] global_min, double radius, long[:, ::1] return_indice) nogil:
  *     cdef int i, j
  *     for i in range(coords.shape[0]):             # <<<<<<<<<<<<<<
@@ -8006,7 +8232,7 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_compute_cube_index(__Pyx
   for (__pyx_t_3 = 0; __pyx_t_3 < __pyx_t_2; __pyx_t_3+=1) {
     __pyx_v_i = __pyx_t_3;
 
-    /* "pymatgen/optimization/neighbors.pyx":435
+    /* "pymatgen/optimization/neighbors.pyx":456
  *     cdef int i, j
  *     for i in range(coords.shape[0]):
  *         for j in range(coords.shape[1]):             # <<<<<<<<<<<<<<
@@ -8018,7 +8244,7 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_compute_cube_index(__Pyx
     for (__pyx_t_6 = 0; __pyx_t_6 < __pyx_t_5; __pyx_t_6+=1) {
       __pyx_v_j = __pyx_t_6;
 
-      /* "pymatgen/optimization/neighbors.pyx":436
+      /* "pymatgen/optimization/neighbors.pyx":457
  *     for i in range(coords.shape[0]):
  *         for j in range(coords.shape[1]):
  *             return_indice[i, j] = <long>(floor((coords[i, j] - global_min[j] + 1e-8) / radius))             # <<<<<<<<<<<<<<
@@ -8034,7 +8260,7 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_compute_cube_index(__Pyx
     }
   }
 
-  /* "pymatgen/optimization/neighbors.pyx":432
+  /* "pymatgen/optimization/neighbors.pyx":453
  *                 min_coords[j] = coords[i, j]
  * 
  * cdef void compute_cube_index(double[:, ::1] coords, double [:] global_min, double radius, long[:, ::1] return_indice) nogil:             # <<<<<<<<<<<<<<
@@ -8050,7 +8276,7 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_compute_cube_index(__Pyx
   __Pyx_TraceReturn(Py_None, 1);
 }
 
-/* "pymatgen/optimization/neighbors.pyx":439
+/* "pymatgen/optimization/neighbors.pyx":460
  * 
  * 
  * cdef void one_to_three(long[::1] label1d, long ny, long nz, long[:, ::1] label3d) nogil:             # <<<<<<<<<<<<<<
@@ -8080,9 +8306,9 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_one_to_three(__Pyx_memvi
   Py_ssize_t __pyx_t_16;
   Py_ssize_t __pyx_t_17;
   Py_ssize_t __pyx_t_18;
-  __Pyx_TraceCall("one_to_three", __pyx_f[0], 439, 1, __PYX_ERR(0, 439, __pyx_L1_error));
+  __Pyx_TraceCall("one_to_three", __pyx_f[0], 460, 1, __PYX_ERR(0, 460, __pyx_L1_error));
 
-  /* "pymatgen/optimization/neighbors.pyx":444
+  /* "pymatgen/optimization/neighbors.pyx":465
  *     """
  *     cdef int i
  *     cdef int n = label1d.shape[0]             # <<<<<<<<<<<<<<
@@ -8091,7 +8317,7 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_one_to_three(__Pyx_memvi
  */
   __pyx_v_n = (__pyx_v_label1d.shape[0]);
 
-  /* "pymatgen/optimization/neighbors.pyx":445
+  /* "pymatgen/optimization/neighbors.pyx":466
  *     cdef int i
  *     cdef int n = label1d.shape[0]
  *     for i in range(n):             # <<<<<<<<<<<<<<
@@ -8103,7 +8329,7 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_one_to_three(__Pyx_memvi
   for (__pyx_t_3 = 0; __pyx_t_3 < __pyx_t_2; __pyx_t_3+=1) {
     __pyx_v_i = __pyx_t_3;
 
-    /* "pymatgen/optimization/neighbors.pyx":446
+    /* "pymatgen/optimization/neighbors.pyx":467
  *     cdef int n = label1d.shape[0]
  *     for i in range(n):
  *         label3d[i, 2] = label1d[i] % nz             # <<<<<<<<<<<<<<
@@ -8115,7 +8341,7 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_one_to_three(__Pyx_memvi
     __pyx_t_6 = 2;
     *((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_label3d.data + __pyx_t_5 * __pyx_v_label3d.strides[0]) )) + __pyx_t_6)) )) = ((*((long *) ( /* dim=0 */ ((char *) (((long *) __pyx_v_label1d.data) + __pyx_t_4)) ))) % __pyx_v_nz);
 
-    /* "pymatgen/optimization/neighbors.pyx":447
+    /* "pymatgen/optimization/neighbors.pyx":468
  *     for i in range(n):
  *         label3d[i, 2] = label1d[i] % nz
  *         label3d[i, 1] = ((label1d[i] - label3d[i, 2]) / nz) % ny             # <<<<<<<<<<<<<<
@@ -8129,7 +8355,7 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_one_to_three(__Pyx_memvi
     __pyx_t_11 = 1;
     *((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_label3d.data + __pyx_t_10 * __pyx_v_label3d.strides[0]) )) + __pyx_t_11)) )) = ((((*((long *) ( /* dim=0 */ ((char *) (((long *) __pyx_v_label1d.data) + __pyx_t_7)) ))) - (*((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_label3d.data + __pyx_t_8 * __pyx_v_label3d.strides[0]) )) + __pyx_t_9)) )))) / __pyx_v_nz) % __pyx_v_ny);
 
-    /* "pymatgen/optimization/neighbors.pyx":448
+    /* "pymatgen/optimization/neighbors.pyx":469
  *         label3d[i, 2] = label1d[i] % nz
  *         label3d[i, 1] = ((label1d[i] - label3d[i, 2]) / nz) % ny
  *         label3d[i, 0] = (label1d[i] - label3d[i, 2] - label3d[i, 1] * nz) / (ny * nz)             # <<<<<<<<<<<<<<
@@ -8146,7 +8372,7 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_one_to_three(__Pyx_memvi
     *((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_label3d.data + __pyx_t_17 * __pyx_v_label3d.strides[0]) )) + __pyx_t_18)) )) = ((((*((long *) ( /* dim=0 */ ((char *) (((long *) __pyx_v_label1d.data) + __pyx_t_12)) ))) - (*((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_label3d.data + __pyx_t_13 * __pyx_v_label3d.strides[0]) )) + __pyx_t_14)) )))) - ((*((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_label3d.data + __pyx_t_15 * __pyx_v_label3d.strides[0]) )) + __pyx_t_16)) ))) * __pyx_v_nz)) / (__pyx_v_ny * __pyx_v_nz));
   }
 
-  /* "pymatgen/optimization/neighbors.pyx":439
+  /* "pymatgen/optimization/neighbors.pyx":460
  * 
  * 
  * cdef void one_to_three(long[::1] label1d, long ny, long nz, long[:, ::1] label3d) nogil:             # <<<<<<<<<<<<<<
@@ -8162,7 +8388,7 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_one_to_three(__Pyx_memvi
   __Pyx_TraceReturn(Py_None, 1);
 }
 
-/* "pymatgen/optimization/neighbors.pyx":451
+/* "pymatgen/optimization/neighbors.pyx":472
  * 
  * 
  * cdef void three_to_one(long[:, ::1] label3d, long ny, long nz, long[::1] label1d) nogil:             # <<<<<<<<<<<<<<
@@ -8184,9 +8410,9 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_three_to_one(__Pyx_memvi
   Py_ssize_t __pyx_t_8;
   Py_ssize_t __pyx_t_9;
   Py_ssize_t __pyx_t_10;
-  __Pyx_TraceCall("three_to_one", __pyx_f[0], 451, 1, __PYX_ERR(0, 451, __pyx_L1_error));
+  __Pyx_TraceCall("three_to_one", __pyx_f[0], 472, 1, __PYX_ERR(0, 472, __pyx_L1_error));
 
-  /* "pymatgen/optimization/neighbors.pyx":456
+  /* "pymatgen/optimization/neighbors.pyx":477
  *     """
  *     cdef int i
  *     cdef int n = label3d.shape[0]             # <<<<<<<<<<<<<<
@@ -8195,7 +8421,7 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_three_to_one(__Pyx_memvi
  */
   __pyx_v_n = (__pyx_v_label3d.shape[0]);
 
-  /* "pymatgen/optimization/neighbors.pyx":457
+  /* "pymatgen/optimization/neighbors.pyx":478
  *     cdef int i
  *     cdef int n = label3d.shape[0]
  *     for i in range(n):             # <<<<<<<<<<<<<<
@@ -8207,7 +8433,7 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_three_to_one(__Pyx_memvi
   for (__pyx_t_3 = 0; __pyx_t_3 < __pyx_t_2; __pyx_t_3+=1) {
     __pyx_v_i = __pyx_t_3;
 
-    /* "pymatgen/optimization/neighbors.pyx":458
+    /* "pymatgen/optimization/neighbors.pyx":479
  *     cdef int n = label3d.shape[0]
  *     for i in range(n):
  *         label1d[i] = label3d[i, 0] * ny * nz + label3d[i, 1] * nz + label3d[i, 2]             # <<<<<<<<<<<<<<
@@ -8224,7 +8450,7 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_three_to_one(__Pyx_memvi
     *((long *) ( /* dim=0 */ ((char *) (((long *) __pyx_v_label1d.data) + __pyx_t_10)) )) = (((((*((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_label3d.data + __pyx_t_4 * __pyx_v_label3d.strides[0]) )) + __pyx_t_5)) ))) * __pyx_v_ny) * __pyx_v_nz) + ((*((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_label3d.data + __pyx_t_6 * __pyx_v_label3d.strides[0]) )) + __pyx_t_7)) ))) * __pyx_v_nz)) + (*((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_label3d.data + __pyx_t_8 * __pyx_v_label3d.strides[0]) )) + __pyx_t_9)) ))));
   }
 
-  /* "pymatgen/optimization/neighbors.pyx":451
+  /* "pymatgen/optimization/neighbors.pyx":472
  * 
  * 
  * cdef void three_to_one(long[:, ::1] label3d, long ny, long nz, long[::1] label1d) nogil:             # <<<<<<<<<<<<<<
@@ -8240,7 +8466,7 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_three_to_one(__Pyx_memvi
   __Pyx_TraceReturn(Py_None, 1);
 }
 
-/* "pymatgen/optimization/neighbors.pyx":460
+/* "pymatgen/optimization/neighbors.pyx":481
  *         label1d[i] = label3d[i, 0] * ny * nz + label3d[i, 1] * nz + label3d[i, 2]
  * 
  * def compute_offset_vectors(long n):             # <<<<<<<<<<<<<<
@@ -8257,7 +8483,7 @@ static PyObject *__pyx_pw_8pymatgen_12optimization_9neighbors_3compute_offset_ve
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("compute_offset_vectors (wrapper)", 0);
   assert(__pyx_arg_n); {
-    __pyx_v_n = __Pyx_PyInt_As_long(__pyx_arg_n); if (unlikely((__pyx_v_n == (long)-1) && PyErr_Occurred())) __PYX_ERR(0, 460, __pyx_L3_error)
+    __pyx_v_n = __Pyx_PyInt_As_long(__pyx_arg_n); if (unlikely((__pyx_v_n == (long)-1) && PyErr_Occurred())) __PYX_ERR(0, 481, __pyx_L3_error)
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -8301,39 +8527,39 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_2compute_offset_ve
   PyObject *__pyx_t_13 = NULL;
   struct __pyx_array_obj *__pyx_t_14 = NULL;
   PyObject *__pyx_t_15 = NULL;
-  __Pyx_TraceFrameInit(__pyx_codeobj__5)
+  __Pyx_TraceFrameInit(__pyx_codeobj__7)
   __Pyx_RefNannySetupContext("compute_offset_vectors", 0);
-  __Pyx_TraceCall("compute_offset_vectors", __pyx_f[0], 460, 0, __PYX_ERR(0, 460, __pyx_L1_error));
+  __Pyx_TraceCall("compute_offset_vectors", __pyx_f[0], 481, 0, __PYX_ERR(0, 481, __pyx_L1_error));
 
-  /* "pymatgen/optimization/neighbors.pyx":466
+  /* "pymatgen/optimization/neighbors.pyx":487
  *     cdef int ind
  *     cdef bint is_within
  *     cdef long ntotal = (2*n+1) * (2*n+1) * (2*n+1)             # <<<<<<<<<<<<<<
- *     cdef long *ovectors = <long*> malloc(ntotal*3*sizeof(long))
+ *     cdef long *ovectors = <long*> safe_malloc(ntotal*3*sizeof(long))
  *     cdef long count = 0
  */
   __pyx_v_ntotal = ((((2 * __pyx_v_n) + 1) * ((2 * __pyx_v_n) + 1)) * ((2 * __pyx_v_n) + 1));
 
-  /* "pymatgen/optimization/neighbors.pyx":467
+  /* "pymatgen/optimization/neighbors.pyx":488
  *     cdef bint is_within
  *     cdef long ntotal = (2*n+1) * (2*n+1) * (2*n+1)
- *     cdef long *ovectors = <long*> malloc(ntotal*3*sizeof(long))             # <<<<<<<<<<<<<<
+ *     cdef long *ovectors = <long*> safe_malloc(ntotal*3*sizeof(long))             # <<<<<<<<<<<<<<
  *     cdef long count = 0
  *     for i in range(2):
  */
-  __pyx_v_ovectors = ((long *)malloc(((__pyx_v_ntotal * 3) * (sizeof(long)))));
+  __pyx_v_ovectors = ((long *)__pyx_f_8pymatgen_12optimization_9neighbors_safe_malloc(((__pyx_v_ntotal * 3) * (sizeof(long)))));
 
-  /* "pymatgen/optimization/neighbors.pyx":468
+  /* "pymatgen/optimization/neighbors.pyx":489
  *     cdef long ntotal = (2*n+1) * (2*n+1) * (2*n+1)
- *     cdef long *ovectors = <long*> malloc(ntotal*3*sizeof(long))
+ *     cdef long *ovectors = <long*> safe_malloc(ntotal*3*sizeof(long))
  *     cdef long count = 0             # <<<<<<<<<<<<<<
  *     for i in range(2):
  *         for j in range(2):
  */
   __pyx_v_count = 0;
 
-  /* "pymatgen/optimization/neighbors.pyx":469
- *     cdef long *ovectors = <long*> malloc(ntotal*3*sizeof(long))
+  /* "pymatgen/optimization/neighbors.pyx":490
+ *     cdef long *ovectors = <long*> safe_malloc(ntotal*3*sizeof(long))
  *     cdef long count = 0
  *     for i in range(2):             # <<<<<<<<<<<<<<
  *         for j in range(2):
@@ -8342,7 +8568,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_2compute_offset_ve
   for (__pyx_t_1 = 0; __pyx_t_1 < 2; __pyx_t_1+=1) {
     __pyx_v_i = __pyx_t_1;
 
-    /* "pymatgen/optimization/neighbors.pyx":470
+    /* "pymatgen/optimization/neighbors.pyx":491
  *     cdef long count = 0
  *     for i in range(2):
  *         for j in range(2):             # <<<<<<<<<<<<<<
@@ -8352,7 +8578,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_2compute_offset_ve
     for (__pyx_t_2 = 0; __pyx_t_2 < 2; __pyx_t_2+=1) {
       __pyx_v_j = __pyx_t_2;
 
-      /* "pymatgen/optimization/neighbors.pyx":471
+      /* "pymatgen/optimization/neighbors.pyx":492
  *     for i in range(2):
  *         for j in range(2):
  *             for k in range(2):             # <<<<<<<<<<<<<<
@@ -8362,7 +8588,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_2compute_offset_ve
       for (__pyx_t_3 = 0; __pyx_t_3 < 2; __pyx_t_3+=1) {
         __pyx_v_k = __pyx_t_3;
 
-        /* "pymatgen/optimization/neighbors.pyx":472
+        /* "pymatgen/optimization/neighbors.pyx":493
  *         for j in range(2):
  *             for k in range(2):
  *                 ind = i * 4 + j * 2 + k             # <<<<<<<<<<<<<<
@@ -8371,7 +8597,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_2compute_offset_ve
  */
         __pyx_v_ind = (((__pyx_v_i * 4) + (__pyx_v_j * 2)) + __pyx_v_k);
 
-        /* "pymatgen/optimization/neighbors.pyx":473
+        /* "pymatgen/optimization/neighbors.pyx":494
  *             for k in range(2):
  *                 ind = i * 4 + j * 2 + k
  *                 center[ind][0] = i - 0.5             # <<<<<<<<<<<<<<
@@ -8380,7 +8606,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_2compute_offset_ve
  */
         ((__pyx_v_center[__pyx_v_ind])[0]) = (__pyx_v_i - 0.5);
 
-        /* "pymatgen/optimization/neighbors.pyx":474
+        /* "pymatgen/optimization/neighbors.pyx":495
  *                 ind = i * 4 + j * 2 + k
  *                 center[ind][0] = i - 0.5
  *                 center[ind][1] = j - 0.5             # <<<<<<<<<<<<<<
@@ -8389,7 +8615,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_2compute_offset_ve
  */
         ((__pyx_v_center[__pyx_v_ind])[1]) = (__pyx_v_j - 0.5);
 
-        /* "pymatgen/optimization/neighbors.pyx":475
+        /* "pymatgen/optimization/neighbors.pyx":496
  *                 center[ind][0] = i - 0.5
  *                 center[ind][1] = j - 0.5
  *                 center[ind][2] = k - 0.5             # <<<<<<<<<<<<<<
@@ -8401,7 +8627,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_2compute_offset_ve
     }
   }
 
-  /* "pymatgen/optimization/neighbors.pyx":478
+  /* "pymatgen/optimization/neighbors.pyx":499
  * 
  *     cdef double off[8][3] # offseted vertices
  *     for i in range(-n, n + 1):             # <<<<<<<<<<<<<<
@@ -8413,7 +8639,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_2compute_offset_ve
   for (__pyx_t_3 = (-__pyx_v_n); __pyx_t_3 < __pyx_t_2; __pyx_t_3+=1) {
     __pyx_v_i = __pyx_t_3;
 
-    /* "pymatgen/optimization/neighbors.pyx":479
+    /* "pymatgen/optimization/neighbors.pyx":500
  *     cdef double off[8][3] # offseted vertices
  *     for i in range(-n, n + 1):
  *         for j in range(-n, n + 1):             # <<<<<<<<<<<<<<
@@ -8425,7 +8651,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_2compute_offset_ve
     for (__pyx_t_6 = (-__pyx_v_n); __pyx_t_6 < __pyx_t_5; __pyx_t_6+=1) {
       __pyx_v_j = __pyx_t_6;
 
-      /* "pymatgen/optimization/neighbors.pyx":480
+      /* "pymatgen/optimization/neighbors.pyx":501
  *     for i in range(-n, n + 1):
  *         for j in range(-n, n + 1):
  *             for k in range(-n, n + 1):             # <<<<<<<<<<<<<<
@@ -8437,7 +8663,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_2compute_offset_ve
       for (__pyx_t_9 = (-__pyx_v_n); __pyx_t_9 < __pyx_t_8; __pyx_t_9+=1) {
         __pyx_v_k = __pyx_t_9;
 
-        /* "pymatgen/optimization/neighbors.pyx":481
+        /* "pymatgen/optimization/neighbors.pyx":502
  *         for j in range(-n, n + 1):
  *             for k in range(-n, n + 1):
  *                 offset_cube(center, i, j, k, off)             # <<<<<<<<<<<<<<
@@ -8446,7 +8672,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_2compute_offset_ve
  */
         __pyx_f_8pymatgen_12optimization_9neighbors_offset_cube(__pyx_v_center, __pyx_v_i, __pyx_v_j, __pyx_v_k, __pyx_v_off);
 
-        /* "pymatgen/optimization/neighbors.pyx":482
+        /* "pymatgen/optimization/neighbors.pyx":503
  *             for k in range(-n, n + 1):
  *                 offset_cube(center, i, j, k, off)
  *                 if distance_vertices(center, off, n):             # <<<<<<<<<<<<<<
@@ -8456,7 +8682,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_2compute_offset_ve
         __pyx_t_10 = (__pyx_f_8pymatgen_12optimization_9neighbors_distance_vertices(__pyx_v_center, __pyx_v_off, __pyx_v_n) != 0);
         if (__pyx_t_10) {
 
-          /* "pymatgen/optimization/neighbors.pyx":483
+          /* "pymatgen/optimization/neighbors.pyx":504
  *                 offset_cube(center, i, j, k, off)
  *                 if distance_vertices(center, off, n):
  *                     ovectors[3*count] = i             # <<<<<<<<<<<<<<
@@ -8465,7 +8691,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_2compute_offset_ve
  */
           (__pyx_v_ovectors[(3 * __pyx_v_count)]) = __pyx_v_i;
 
-          /* "pymatgen/optimization/neighbors.pyx":484
+          /* "pymatgen/optimization/neighbors.pyx":505
  *                 if distance_vertices(center, off, n):
  *                     ovectors[3*count] = i
  *                     ovectors[3*count + 1] = j             # <<<<<<<<<<<<<<
@@ -8474,25 +8700,25 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_2compute_offset_ve
  */
           (__pyx_v_ovectors[((3 * __pyx_v_count) + 1)]) = __pyx_v_j;
 
-          /* "pymatgen/optimization/neighbors.pyx":485
+          /* "pymatgen/optimization/neighbors.pyx":506
  *                     ovectors[3*count] = i
  *                     ovectors[3*count + 1] = j
  *                     ovectors[3*count + 2] = k             # <<<<<<<<<<<<<<
  *                     count += 1
- *     ovectors = <long*> realloc(ovectors, count*3*sizeof(long))
+ *     ovectors = <long*>safe_realloc(ovectors, count*3*sizeof(long))
  */
           (__pyx_v_ovectors[((3 * __pyx_v_count) + 2)]) = __pyx_v_k;
 
-          /* "pymatgen/optimization/neighbors.pyx":486
+          /* "pymatgen/optimization/neighbors.pyx":507
  *                     ovectors[3*count + 1] = j
  *                     ovectors[3*count + 2] = k
  *                     count += 1             # <<<<<<<<<<<<<<
- *     ovectors = <long*> realloc(ovectors, count*3*sizeof(long))
+ *     ovectors = <long*>safe_realloc(ovectors, count*3*sizeof(long))
  *     array = np.array(<long[:count, :3]>ovectors)
  */
           __pyx_v_count = (__pyx_v_count + 1);
 
-          /* "pymatgen/optimization/neighbors.pyx":482
+          /* "pymatgen/optimization/neighbors.pyx":503
  *             for k in range(-n, n + 1):
  *                 offset_cube(center, i, j, k, off)
  *                 if distance_vertices(center, off, n):             # <<<<<<<<<<<<<<
@@ -8504,38 +8730,38 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_2compute_offset_ve
     }
   }
 
-  /* "pymatgen/optimization/neighbors.pyx":487
+  /* "pymatgen/optimization/neighbors.pyx":508
  *                     ovectors[3*count + 2] = k
  *                     count += 1
- *     ovectors = <long*> realloc(ovectors, count*3*sizeof(long))             # <<<<<<<<<<<<<<
+ *     ovectors = <long*>safe_realloc(ovectors, count*3*sizeof(long))             # <<<<<<<<<<<<<<
  *     array = np.array(<long[:count, :3]>ovectors)
  *     free(ovectors)
  */
-  __pyx_v_ovectors = ((long *)realloc(__pyx_v_ovectors, ((__pyx_v_count * 3) * (sizeof(long)))));
+  __pyx_v_ovectors = ((long *)__pyx_f_8pymatgen_12optimization_9neighbors_safe_realloc(__pyx_v_ovectors, ((__pyx_v_count * 3) * (sizeof(long)))));
 
-  /* "pymatgen/optimization/neighbors.pyx":488
+  /* "pymatgen/optimization/neighbors.pyx":509
  *                     count += 1
- *     ovectors = <long*> realloc(ovectors, count*3*sizeof(long))
+ *     ovectors = <long*>safe_realloc(ovectors, count*3*sizeof(long))
  *     array = np.array(<long[:count, :3]>ovectors)             # <<<<<<<<<<<<<<
  *     free(ovectors)
  *     return array
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_12, __pyx_n_s_np); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 488, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_12, __pyx_n_s_np); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 509, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_12);
-  __pyx_t_13 = __Pyx_PyObject_GetAttrStr(__pyx_t_12, __pyx_n_s_array); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 488, __pyx_L1_error)
+  __pyx_t_13 = __Pyx_PyObject_GetAttrStr(__pyx_t_12, __pyx_n_s_array); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 509, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_13);
   __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
   if (!__pyx_v_ovectors) {
     PyErr_SetString(PyExc_ValueError,"Cannot create cython.array from NULL pointer");
-    __PYX_ERR(0, 488, __pyx_L1_error)
+    __PYX_ERR(0, 509, __pyx_L1_error)
   }
   __pyx_t_15 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_long);
   __pyx_t_12 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)__pyx_v_count), ((Py_ssize_t)3));
-  if (unlikely(!__pyx_t_15 || !__pyx_t_12 || !PyBytes_AsString(__pyx_t_15))) __PYX_ERR(0, 488, __pyx_L1_error)
+  if (unlikely(!__pyx_t_15 || !__pyx_t_12 || !PyBytes_AsString(__pyx_t_15))) __PYX_ERR(0, 509, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_15);
   __Pyx_GOTREF(__pyx_t_12);
   __pyx_t_14 = __pyx_array_new(__pyx_t_12, sizeof(long), PyBytes_AS_STRING(__pyx_t_15), (char *) "c", (char *) __pyx_v_ovectors);
-  if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 488, __pyx_L1_error)
+  if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 509, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_14);
   __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
   __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
@@ -8552,14 +8778,14 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_2compute_offset_ve
   __pyx_t_11 = (__pyx_t_15) ? __Pyx_PyObject_Call2Args(__pyx_t_13, __pyx_t_15, ((PyObject *)__pyx_t_14)) : __Pyx_PyObject_CallOneArg(__pyx_t_13, ((PyObject *)__pyx_t_14));
   __Pyx_XDECREF(__pyx_t_15); __pyx_t_15 = 0;
   __Pyx_DECREF(((PyObject *)__pyx_t_14)); __pyx_t_14 = 0;
-  if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 488, __pyx_L1_error)
+  if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 509, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_11);
   __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
   __pyx_v_array = __pyx_t_11;
   __pyx_t_11 = 0;
 
-  /* "pymatgen/optimization/neighbors.pyx":489
- *     ovectors = <long*> realloc(ovectors, count*3*sizeof(long))
+  /* "pymatgen/optimization/neighbors.pyx":510
+ *     ovectors = <long*>safe_realloc(ovectors, count*3*sizeof(long))
  *     array = np.array(<long[:count, :3]>ovectors)
  *     free(ovectors)             # <<<<<<<<<<<<<<
  *     return array
@@ -8567,7 +8793,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_2compute_offset_ve
  */
   free(__pyx_v_ovectors);
 
-  /* "pymatgen/optimization/neighbors.pyx":490
+  /* "pymatgen/optimization/neighbors.pyx":511
  *     array = np.array(<long[:count, :3]>ovectors)
  *     free(ovectors)
  *     return array             # <<<<<<<<<<<<<<
@@ -8579,7 +8805,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_2compute_offset_ve
   __pyx_r = __pyx_v_array;
   goto __pyx_L0;
 
-  /* "pymatgen/optimization/neighbors.pyx":460
+  /* "pymatgen/optimization/neighbors.pyx":481
  *         label1d[i] = label3d[i, 0] * ny * nz + label3d[i, 1] * nz + label3d[i, 2]
  * 
  * def compute_offset_vectors(long n):             # <<<<<<<<<<<<<<
@@ -8604,7 +8830,7 @@ static PyObject *__pyx_pf_8pymatgen_12optimization_9neighbors_2compute_offset_ve
   return __pyx_r;
 }
 
-/* "pymatgen/optimization/neighbors.pyx":492
+/* "pymatgen/optimization/neighbors.pyx":513
  *     return array
  * 
  * cdef bint distance_vertices(double center[8][3], double off[8][3], double r):             # <<<<<<<<<<<<<<
@@ -8624,9 +8850,9 @@ static int __pyx_f_8pymatgen_12optimization_9neighbors_distance_vertices(double 
   int __pyx_t_2;
   int __pyx_t_3;
   __Pyx_RefNannySetupContext("distance_vertices", 0);
-  __Pyx_TraceCall("distance_vertices", __pyx_f[0], 492, 0, __PYX_ERR(0, 492, __pyx_L1_error));
+  __Pyx_TraceCall("distance_vertices", __pyx_f[0], 513, 0, __PYX_ERR(0, 513, __pyx_L1_error));
 
-  /* "pymatgen/optimization/neighbors.pyx":495
+  /* "pymatgen/optimization/neighbors.pyx":516
  *     cdef int i, j
  *     cdef double d2
  *     cdef double r2 = r * r             # <<<<<<<<<<<<<<
@@ -8635,7 +8861,7 @@ static int __pyx_f_8pymatgen_12optimization_9neighbors_distance_vertices(double 
  */
   __pyx_v_r2 = (__pyx_v_r * __pyx_v_r);
 
-  /* "pymatgen/optimization/neighbors.pyx":496
+  /* "pymatgen/optimization/neighbors.pyx":517
  *     cdef double d2
  *     cdef double r2 = r * r
  *     for i in range(8):             # <<<<<<<<<<<<<<
@@ -8645,7 +8871,7 @@ static int __pyx_f_8pymatgen_12optimization_9neighbors_distance_vertices(double 
   for (__pyx_t_1 = 0; __pyx_t_1 < 8; __pyx_t_1+=1) {
     __pyx_v_i = __pyx_t_1;
 
-    /* "pymatgen/optimization/neighbors.pyx":497
+    /* "pymatgen/optimization/neighbors.pyx":518
  *     cdef double r2 = r * r
  *     for i in range(8):
  *         for j in range(8):             # <<<<<<<<<<<<<<
@@ -8655,7 +8881,7 @@ static int __pyx_f_8pymatgen_12optimization_9neighbors_distance_vertices(double 
     for (__pyx_t_2 = 0; __pyx_t_2 < 8; __pyx_t_2+=1) {
       __pyx_v_j = __pyx_t_2;
 
-      /* "pymatgen/optimization/neighbors.pyx":498
+      /* "pymatgen/optimization/neighbors.pyx":519
  *     for i in range(8):
  *         for j in range(8):
  *             d2 = (center[i][0] - off[j][0]) * (center[i][0] - off[j][0]) + (center[i][1] - off[j][1]) * (center[i][1] - off[j][1]) + \             # <<<<<<<<<<<<<<
@@ -8664,7 +8890,7 @@ static int __pyx_f_8pymatgen_12optimization_9neighbors_distance_vertices(double 
  */
       __pyx_v_d2 = ((((((__pyx_v_center[__pyx_v_i])[0]) - ((__pyx_v_off[__pyx_v_j])[0])) * (((__pyx_v_center[__pyx_v_i])[0]) - ((__pyx_v_off[__pyx_v_j])[0]))) + ((((__pyx_v_center[__pyx_v_i])[1]) - ((__pyx_v_off[__pyx_v_j])[1])) * (((__pyx_v_center[__pyx_v_i])[1]) - ((__pyx_v_off[__pyx_v_j])[1])))) + ((((__pyx_v_center[__pyx_v_i])[2]) - ((__pyx_v_off[__pyx_v_j])[2])) * (((__pyx_v_center[__pyx_v_i])[2]) - ((__pyx_v_off[__pyx_v_j])[2]))));
 
-      /* "pymatgen/optimization/neighbors.pyx":500
+      /* "pymatgen/optimization/neighbors.pyx":521
  *             d2 = (center[i][0] - off[j][0]) * (center[i][0] - off[j][0]) + (center[i][1] - off[j][1]) * (center[i][1] - off[j][1]) + \
  *                 (center[i][2] - off[j][2]) * (center[i][2] - off[j][2])
  *             if d2 <= r2:             # <<<<<<<<<<<<<<
@@ -8674,7 +8900,7 @@ static int __pyx_f_8pymatgen_12optimization_9neighbors_distance_vertices(double 
       __pyx_t_3 = ((__pyx_v_d2 <= __pyx_v_r2) != 0);
       if (__pyx_t_3) {
 
-        /* "pymatgen/optimization/neighbors.pyx":501
+        /* "pymatgen/optimization/neighbors.pyx":522
  *                 (center[i][2] - off[j][2]) * (center[i][2] - off[j][2])
  *             if d2 <= r2:
  *                 return 1             # <<<<<<<<<<<<<<
@@ -8684,7 +8910,7 @@ static int __pyx_f_8pymatgen_12optimization_9neighbors_distance_vertices(double 
         __pyx_r = 1;
         goto __pyx_L0;
 
-        /* "pymatgen/optimization/neighbors.pyx":500
+        /* "pymatgen/optimization/neighbors.pyx":521
  *             d2 = (center[i][0] - off[j][0]) * (center[i][0] - off[j][0]) + (center[i][1] - off[j][1]) * (center[i][1] - off[j][1]) + \
  *                 (center[i][2] - off[j][2]) * (center[i][2] - off[j][2])
  *             if d2 <= r2:             # <<<<<<<<<<<<<<
@@ -8695,7 +8921,7 @@ static int __pyx_f_8pymatgen_12optimization_9neighbors_distance_vertices(double 
     }
   }
 
-  /* "pymatgen/optimization/neighbors.pyx":502
+  /* "pymatgen/optimization/neighbors.pyx":523
  *             if d2 <= r2:
  *                 return 1
  *     return 0             # <<<<<<<<<<<<<<
@@ -8705,7 +8931,7 @@ static int __pyx_f_8pymatgen_12optimization_9neighbors_distance_vertices(double 
   __pyx_r = 0;
   goto __pyx_L0;
 
-  /* "pymatgen/optimization/neighbors.pyx":492
+  /* "pymatgen/optimization/neighbors.pyx":513
  *     return array
  * 
  * cdef bint distance_vertices(double center[8][3], double off[8][3], double r):             # <<<<<<<<<<<<<<
@@ -8723,7 +8949,7 @@ static int __pyx_f_8pymatgen_12optimization_9neighbors_distance_vertices(double 
   return __pyx_r;
 }
 
-/* "pymatgen/optimization/neighbors.pyx":504
+/* "pymatgen/optimization/neighbors.pyx":525
  *     return 0
  * 
  * cdef void offset_cube(double center[8][3], long n, long m, long l, double (&offseted)[8][3]):             # <<<<<<<<<<<<<<
@@ -8742,9 +8968,9 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_offset_cube(double (*__p
   int __pyx_t_2;
   int __pyx_t_3;
   __Pyx_RefNannySetupContext("offset_cube", 0);
-  __Pyx_TraceCall("offset_cube", __pyx_f[0], 504, 0, __PYX_ERR(0, 504, __pyx_L1_error));
+  __Pyx_TraceCall("offset_cube", __pyx_f[0], 525, 0, __PYX_ERR(0, 525, __pyx_L1_error));
 
-  /* "pymatgen/optimization/neighbors.pyx":506
+  /* "pymatgen/optimization/neighbors.pyx":527
  * cdef void offset_cube(double center[8][3], long n, long m, long l, double (&offseted)[8][3]):
  *     cdef int i, j, k
  *     for i in range(2):             # <<<<<<<<<<<<<<
@@ -8754,7 +8980,7 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_offset_cube(double (*__p
   for (__pyx_t_1 = 0; __pyx_t_1 < 2; __pyx_t_1+=1) {
     __pyx_v_i = __pyx_t_1;
 
-    /* "pymatgen/optimization/neighbors.pyx":507
+    /* "pymatgen/optimization/neighbors.pyx":528
  *     cdef int i, j, k
  *     for i in range(2):
  *         for j in range(2):             # <<<<<<<<<<<<<<
@@ -8764,7 +8990,7 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_offset_cube(double (*__p
     for (__pyx_t_2 = 0; __pyx_t_2 < 2; __pyx_t_2+=1) {
       __pyx_v_j = __pyx_t_2;
 
-      /* "pymatgen/optimization/neighbors.pyx":508
+      /* "pymatgen/optimization/neighbors.pyx":529
  *     for i in range(2):
  *         for j in range(2):
  *             for k in range(2):             # <<<<<<<<<<<<<<
@@ -8774,7 +9000,7 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_offset_cube(double (*__p
       for (__pyx_t_3 = 0; __pyx_t_3 < 2; __pyx_t_3+=1) {
         __pyx_v_k = __pyx_t_3;
 
-        /* "pymatgen/optimization/neighbors.pyx":509
+        /* "pymatgen/optimization/neighbors.pyx":530
  *         for j in range(2):
  *             for k in range(2):
  *                 ind = i * 4 + j * 2 + k             # <<<<<<<<<<<<<<
@@ -8783,7 +9009,7 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_offset_cube(double (*__p
  */
         __pyx_v_ind = (((__pyx_v_i * 4) + (__pyx_v_j * 2)) + __pyx_v_k);
 
-        /* "pymatgen/optimization/neighbors.pyx":510
+        /* "pymatgen/optimization/neighbors.pyx":531
  *             for k in range(2):
  *                 ind = i * 4 + j * 2 + k
  *                 offseted[ind][0] = center[ind][0] + n             # <<<<<<<<<<<<<<
@@ -8792,7 +9018,7 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_offset_cube(double (*__p
  */
         ((__pyx_v_offseted[__pyx_v_ind])[0]) = (((__pyx_v_center[__pyx_v_ind])[0]) + __pyx_v_n);
 
-        /* "pymatgen/optimization/neighbors.pyx":511
+        /* "pymatgen/optimization/neighbors.pyx":532
  *                 ind = i * 4 + j * 2 + k
  *                 offseted[ind][0] = center[ind][0] + n
  *                 offseted[ind][1] = center[ind][1] + m             # <<<<<<<<<<<<<<
@@ -8800,7 +9026,7 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_offset_cube(double (*__p
  */
         ((__pyx_v_offseted[__pyx_v_ind])[1]) = (((__pyx_v_center[__pyx_v_ind])[1]) + __pyx_v_m);
 
-        /* "pymatgen/optimization/neighbors.pyx":512
+        /* "pymatgen/optimization/neighbors.pyx":533
  *                 offseted[ind][0] = center[ind][0] + n
  *                 offseted[ind][1] = center[ind][1] + m
  *                 offseted[ind][2] = center[ind][2] + l             # <<<<<<<<<<<<<<
@@ -8810,7 +9036,7 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_offset_cube(double (*__p
     }
   }
 
-  /* "pymatgen/optimization/neighbors.pyx":504
+  /* "pymatgen/optimization/neighbors.pyx":525
  *     return 0
  * 
  * cdef void offset_cube(double center[8][3], long n, long m, long l, double (&offseted)[8][3]):             # <<<<<<<<<<<<<<
@@ -8827,7 +9053,7 @@ static void __pyx_f_8pymatgen_12optimization_9neighbors_offset_cube(double (*__p
   __Pyx_RefNannyFinishContext();
 }
 
-/* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":258
+/* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":258
  *         # experimental exception made for __getbuffer__ and __releasebuffer__
  *         # -- the details of this may change.
  *         def __getbuffer__(ndarray self, Py_buffer* info, int flags):             # <<<<<<<<<<<<<<
@@ -8878,7 +9104,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
   __Pyx_GIVEREF(__pyx_v_info->obj);
   __Pyx_TraceCall("__getbuffer__", __pyx_f[1], 258, 0, __PYX_ERR(1, 258, __pyx_L1_error));
 
-  /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":265
+  /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":265
  * 
  *             cdef int i, ndim
  *             cdef int endian_detector = 1             # <<<<<<<<<<<<<<
@@ -8887,7 +9113,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
   __pyx_v_endian_detector = 1;
 
-  /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":266
+  /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":266
  *             cdef int i, ndim
  *             cdef int endian_detector = 1
  *             cdef bint little_endian = ((<char*>&endian_detector)[0] != 0)             # <<<<<<<<<<<<<<
@@ -8896,7 +9122,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
   __pyx_v_little_endian = ((((char *)(&__pyx_v_endian_detector))[0]) != 0);
 
-  /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":268
+  /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":268
  *             cdef bint little_endian = ((<char*>&endian_detector)[0] != 0)
  * 
  *             ndim = PyArray_NDIM(self)             # <<<<<<<<<<<<<<
@@ -8905,7 +9131,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
   __pyx_v_ndim = PyArray_NDIM(__pyx_v_self);
 
-  /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":270
+  /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":270
  *             ndim = PyArray_NDIM(self)
  * 
  *             if ((flags & pybuf.PyBUF_C_CONTIGUOUS == pybuf.PyBUF_C_CONTIGUOUS)             # <<<<<<<<<<<<<<
@@ -8919,7 +9145,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
     goto __pyx_L4_bool_binop_done;
   }
 
-  /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":271
+  /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":271
  * 
  *             if ((flags & pybuf.PyBUF_C_CONTIGUOUS == pybuf.PyBUF_C_CONTIGUOUS)
  *                 and not PyArray_CHKFLAGS(self, NPY_ARRAY_C_CONTIGUOUS)):             # <<<<<<<<<<<<<<
@@ -8930,7 +9156,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
   __pyx_t_1 = __pyx_t_2;
   __pyx_L4_bool_binop_done:;
 
-  /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":270
+  /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":270
  *             ndim = PyArray_NDIM(self)
  * 
  *             if ((flags & pybuf.PyBUF_C_CONTIGUOUS == pybuf.PyBUF_C_CONTIGUOUS)             # <<<<<<<<<<<<<<
@@ -8939,20 +9165,20 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
   if (unlikely(__pyx_t_1)) {
 
-    /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":272
+    /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":272
  *             if ((flags & pybuf.PyBUF_C_CONTIGUOUS == pybuf.PyBUF_C_CONTIGUOUS)
  *                 and not PyArray_CHKFLAGS(self, NPY_ARRAY_C_CONTIGUOUS)):
  *                 raise ValueError(u"ndarray is not C contiguous")             # <<<<<<<<<<<<<<
  * 
  *             if ((flags & pybuf.PyBUF_F_CONTIGUOUS == pybuf.PyBUF_F_CONTIGUOUS)
  */
-    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__6, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 272, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__8, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 272, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_Raise(__pyx_t_3, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __PYX_ERR(1, 272, __pyx_L1_error)
 
-    /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":270
+    /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":270
  *             ndim = PyArray_NDIM(self)
  * 
  *             if ((flags & pybuf.PyBUF_C_CONTIGUOUS == pybuf.PyBUF_C_CONTIGUOUS)             # <<<<<<<<<<<<<<
@@ -8961,7 +9187,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
   }
 
-  /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":274
+  /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":274
  *                 raise ValueError(u"ndarray is not C contiguous")
  * 
  *             if ((flags & pybuf.PyBUF_F_CONTIGUOUS == pybuf.PyBUF_F_CONTIGUOUS)             # <<<<<<<<<<<<<<
@@ -8975,7 +9201,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
     goto __pyx_L7_bool_binop_done;
   }
 
-  /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":275
+  /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":275
  * 
  *             if ((flags & pybuf.PyBUF_F_CONTIGUOUS == pybuf.PyBUF_F_CONTIGUOUS)
  *                 and not PyArray_CHKFLAGS(self, NPY_ARRAY_F_CONTIGUOUS)):             # <<<<<<<<<<<<<<
@@ -8986,7 +9212,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
   __pyx_t_1 = __pyx_t_2;
   __pyx_L7_bool_binop_done:;
 
-  /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":274
+  /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":274
  *                 raise ValueError(u"ndarray is not C contiguous")
  * 
  *             if ((flags & pybuf.PyBUF_F_CONTIGUOUS == pybuf.PyBUF_F_CONTIGUOUS)             # <<<<<<<<<<<<<<
@@ -8995,20 +9221,20 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
   if (unlikely(__pyx_t_1)) {
 
-    /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":276
+    /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":276
  *             if ((flags & pybuf.PyBUF_F_CONTIGUOUS == pybuf.PyBUF_F_CONTIGUOUS)
  *                 and not PyArray_CHKFLAGS(self, NPY_ARRAY_F_CONTIGUOUS)):
  *                 raise ValueError(u"ndarray is not Fortran contiguous")             # <<<<<<<<<<<<<<
  * 
  *             info.buf = PyArray_DATA(self)
  */
-    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__7, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 276, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__9, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 276, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_Raise(__pyx_t_3, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __PYX_ERR(1, 276, __pyx_L1_error)
 
-    /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":274
+    /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":274
  *                 raise ValueError(u"ndarray is not C contiguous")
  * 
  *             if ((flags & pybuf.PyBUF_F_CONTIGUOUS == pybuf.PyBUF_F_CONTIGUOUS)             # <<<<<<<<<<<<<<
@@ -9017,7 +9243,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
   }
 
-  /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":278
+  /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":278
  *                 raise ValueError(u"ndarray is not Fortran contiguous")
  * 
  *             info.buf = PyArray_DATA(self)             # <<<<<<<<<<<<<<
@@ -9026,7 +9252,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
   __pyx_v_info->buf = PyArray_DATA(__pyx_v_self);
 
-  /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":279
+  /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":279
  * 
  *             info.buf = PyArray_DATA(self)
  *             info.ndim = ndim             # <<<<<<<<<<<<<<
@@ -9035,7 +9261,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
   __pyx_v_info->ndim = __pyx_v_ndim;
 
-  /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":280
+  /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":280
  *             info.buf = PyArray_DATA(self)
  *             info.ndim = ndim
  *             if sizeof(npy_intp) != sizeof(Py_ssize_t):             # <<<<<<<<<<<<<<
@@ -9045,7 +9271,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
   __pyx_t_1 = (((sizeof(npy_intp)) != (sizeof(Py_ssize_t))) != 0);
   if (__pyx_t_1) {
 
-    /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":283
+    /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":283
  *                 # Allocate new buffer for strides and shape info.
  *                 # This is allocated as one block, strides first.
  *                 info.strides = <Py_ssize_t*>PyObject_Malloc(sizeof(Py_ssize_t) * 2 * <size_t>ndim)             # <<<<<<<<<<<<<<
@@ -9054,7 +9280,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
     __pyx_v_info->strides = ((Py_ssize_t *)PyObject_Malloc((((sizeof(Py_ssize_t)) * 2) * ((size_t)__pyx_v_ndim))));
 
-    /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":284
+    /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":284
  *                 # This is allocated as one block, strides first.
  *                 info.strides = <Py_ssize_t*>PyObject_Malloc(sizeof(Py_ssize_t) * 2 * <size_t>ndim)
  *                 info.shape = info.strides + ndim             # <<<<<<<<<<<<<<
@@ -9063,7 +9289,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
     __pyx_v_info->shape = (__pyx_v_info->strides + __pyx_v_ndim);
 
-    /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":285
+    /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":285
  *                 info.strides = <Py_ssize_t*>PyObject_Malloc(sizeof(Py_ssize_t) * 2 * <size_t>ndim)
  *                 info.shape = info.strides + ndim
  *                 for i in range(ndim):             # <<<<<<<<<<<<<<
@@ -9075,7 +9301,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
     for (__pyx_t_6 = 0; __pyx_t_6 < __pyx_t_5; __pyx_t_6+=1) {
       __pyx_v_i = __pyx_t_6;
 
-      /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":286
+      /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":286
  *                 info.shape = info.strides + ndim
  *                 for i in range(ndim):
  *                     info.strides[i] = PyArray_STRIDES(self)[i]             # <<<<<<<<<<<<<<
@@ -9084,7 +9310,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
       (__pyx_v_info->strides[__pyx_v_i]) = (PyArray_STRIDES(__pyx_v_self)[__pyx_v_i]);
 
-      /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":287
+      /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":287
  *                 for i in range(ndim):
  *                     info.strides[i] = PyArray_STRIDES(self)[i]
  *                     info.shape[i] = PyArray_DIMS(self)[i]             # <<<<<<<<<<<<<<
@@ -9094,7 +9320,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
       (__pyx_v_info->shape[__pyx_v_i]) = (PyArray_DIMS(__pyx_v_self)[__pyx_v_i]);
     }
 
-    /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":280
+    /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":280
  *             info.buf = PyArray_DATA(self)
  *             info.ndim = ndim
  *             if sizeof(npy_intp) != sizeof(Py_ssize_t):             # <<<<<<<<<<<<<<
@@ -9104,7 +9330,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
     goto __pyx_L9;
   }
 
-  /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":289
+  /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":289
  *                     info.shape[i] = PyArray_DIMS(self)[i]
  *             else:
  *                 info.strides = <Py_ssize_t*>PyArray_STRIDES(self)             # <<<<<<<<<<<<<<
@@ -9114,7 +9340,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
   /*else*/ {
     __pyx_v_info->strides = ((Py_ssize_t *)PyArray_STRIDES(__pyx_v_self));
 
-    /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":290
+    /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":290
  *             else:
  *                 info.strides = <Py_ssize_t*>PyArray_STRIDES(self)
  *                 info.shape = <Py_ssize_t*>PyArray_DIMS(self)             # <<<<<<<<<<<<<<
@@ -9125,7 +9351,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
   }
   __pyx_L9:;
 
-  /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":291
+  /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":291
  *                 info.strides = <Py_ssize_t*>PyArray_STRIDES(self)
  *                 info.shape = <Py_ssize_t*>PyArray_DIMS(self)
  *             info.suboffsets = NULL             # <<<<<<<<<<<<<<
@@ -9134,7 +9360,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
   __pyx_v_info->suboffsets = NULL;
 
-  /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":292
+  /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":292
  *                 info.shape = <Py_ssize_t*>PyArray_DIMS(self)
  *             info.suboffsets = NULL
  *             info.itemsize = PyArray_ITEMSIZE(self)             # <<<<<<<<<<<<<<
@@ -9143,7 +9369,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
   __pyx_v_info->itemsize = PyArray_ITEMSIZE(__pyx_v_self);
 
-  /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":293
+  /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":293
  *             info.suboffsets = NULL
  *             info.itemsize = PyArray_ITEMSIZE(self)
  *             info.readonly = not PyArray_ISWRITEABLE(self)             # <<<<<<<<<<<<<<
@@ -9152,7 +9378,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
   __pyx_v_info->readonly = (!(PyArray_ISWRITEABLE(__pyx_v_self) != 0));
 
-  /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":296
+  /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":296
  * 
  *             cdef int t
  *             cdef char* f = NULL             # <<<<<<<<<<<<<<
@@ -9161,7 +9387,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
   __pyx_v_f = NULL;
 
-  /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":297
+  /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":297
  *             cdef int t
  *             cdef char* f = NULL
  *             cdef dtype descr = <dtype>PyArray_DESCR(self)             # <<<<<<<<<<<<<<
@@ -9174,7 +9400,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
   __pyx_v_descr = ((PyArray_Descr *)__pyx_t_3);
   __pyx_t_3 = 0;
 
-  /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":300
+  /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":300
  *             cdef int offset
  * 
  *             info.obj = self             # <<<<<<<<<<<<<<
@@ -9187,7 +9413,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
   __Pyx_DECREF(__pyx_v_info->obj);
   __pyx_v_info->obj = ((PyObject *)__pyx_v_self);
 
-  /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":302
+  /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":302
  *             info.obj = self
  * 
  *             if not PyDataType_HASFIELDS(descr):             # <<<<<<<<<<<<<<
@@ -9197,7 +9423,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
   __pyx_t_1 = ((!(PyDataType_HASFIELDS(__pyx_v_descr) != 0)) != 0);
   if (__pyx_t_1) {
 
-    /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":303
+    /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":303
  * 
  *             if not PyDataType_HASFIELDS(descr):
  *                 t = descr.type_num             # <<<<<<<<<<<<<<
@@ -9207,7 +9433,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
     __pyx_t_4 = __pyx_v_descr->type_num;
     __pyx_v_t = __pyx_t_4;
 
-    /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":304
+    /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":304
  *             if not PyDataType_HASFIELDS(descr):
  *                 t = descr.type_num
  *                 if ((descr.byteorder == c'>' and little_endian) or             # <<<<<<<<<<<<<<
@@ -9227,7 +9453,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
     }
     __pyx_L15_next_or:;
 
-    /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":305
+    /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":305
  *                 t = descr.type_num
  *                 if ((descr.byteorder == c'>' and little_endian) or
  *                     (descr.byteorder == c'<' and not little_endian)):             # <<<<<<<<<<<<<<
@@ -9244,7 +9470,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
     __pyx_t_1 = __pyx_t_2;
     __pyx_L14_bool_binop_done:;
 
-    /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":304
+    /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":304
  *             if not PyDataType_HASFIELDS(descr):
  *                 t = descr.type_num
  *                 if ((descr.byteorder == c'>' and little_endian) or             # <<<<<<<<<<<<<<
@@ -9253,20 +9479,20 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
     if (unlikely(__pyx_t_1)) {
 
-      /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":306
+      /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":306
  *                 if ((descr.byteorder == c'>' and little_endian) or
  *                     (descr.byteorder == c'<' and not little_endian)):
  *                     raise ValueError(u"Non-native byte order not supported")             # <<<<<<<<<<<<<<
  *                 if   t == NPY_BYTE:        f = "b"
  *                 elif t == NPY_UBYTE:       f = "B"
  */
-      __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__8, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 306, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__10, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 306, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_Raise(__pyx_t_3, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       __PYX_ERR(1, 306, __pyx_L1_error)
 
-      /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":304
+      /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":304
  *             if not PyDataType_HASFIELDS(descr):
  *                 t = descr.type_num
  *                 if ((descr.byteorder == c'>' and little_endian) or             # <<<<<<<<<<<<<<
@@ -9275,7 +9501,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
     }
 
-    /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":307
+    /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":307
  *                     (descr.byteorder == c'<' and not little_endian)):
  *                     raise ValueError(u"Non-native byte order not supported")
  *                 if   t == NPY_BYTE:        f = "b"             # <<<<<<<<<<<<<<
@@ -9288,7 +9514,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
       break;
       case NPY_UBYTE:
 
-      /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":308
+      /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":308
  *                     raise ValueError(u"Non-native byte order not supported")
  *                 if   t == NPY_BYTE:        f = "b"
  *                 elif t == NPY_UBYTE:       f = "B"             # <<<<<<<<<<<<<<
@@ -9299,7 +9525,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
       break;
       case NPY_SHORT:
 
-      /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":309
+      /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":309
  *                 if   t == NPY_BYTE:        f = "b"
  *                 elif t == NPY_UBYTE:       f = "B"
  *                 elif t == NPY_SHORT:       f = "h"             # <<<<<<<<<<<<<<
@@ -9310,7 +9536,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
       break;
       case NPY_USHORT:
 
-      /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":310
+      /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":310
  *                 elif t == NPY_UBYTE:       f = "B"
  *                 elif t == NPY_SHORT:       f = "h"
  *                 elif t == NPY_USHORT:      f = "H"             # <<<<<<<<<<<<<<
@@ -9321,7 +9547,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
       break;
       case NPY_INT:
 
-      /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":311
+      /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":311
  *                 elif t == NPY_SHORT:       f = "h"
  *                 elif t == NPY_USHORT:      f = "H"
  *                 elif t == NPY_INT:         f = "i"             # <<<<<<<<<<<<<<
@@ -9332,7 +9558,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
       break;
       case NPY_UINT:
 
-      /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":312
+      /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":312
  *                 elif t == NPY_USHORT:      f = "H"
  *                 elif t == NPY_INT:         f = "i"
  *                 elif t == NPY_UINT:        f = "I"             # <<<<<<<<<<<<<<
@@ -9343,7 +9569,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
       break;
       case NPY_LONG:
 
-      /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":313
+      /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":313
  *                 elif t == NPY_INT:         f = "i"
  *                 elif t == NPY_UINT:        f = "I"
  *                 elif t == NPY_LONG:        f = "l"             # <<<<<<<<<<<<<<
@@ -9354,7 +9580,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
       break;
       case NPY_ULONG:
 
-      /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":314
+      /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":314
  *                 elif t == NPY_UINT:        f = "I"
  *                 elif t == NPY_LONG:        f = "l"
  *                 elif t == NPY_ULONG:       f = "L"             # <<<<<<<<<<<<<<
@@ -9365,7 +9591,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
       break;
       case NPY_LONGLONG:
 
-      /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":315
+      /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":315
  *                 elif t == NPY_LONG:        f = "l"
  *                 elif t == NPY_ULONG:       f = "L"
  *                 elif t == NPY_LONGLONG:    f = "q"             # <<<<<<<<<<<<<<
@@ -9376,7 +9602,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
       break;
       case NPY_ULONGLONG:
 
-      /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":316
+      /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":316
  *                 elif t == NPY_ULONG:       f = "L"
  *                 elif t == NPY_LONGLONG:    f = "q"
  *                 elif t == NPY_ULONGLONG:   f = "Q"             # <<<<<<<<<<<<<<
@@ -9387,7 +9613,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
       break;
       case NPY_FLOAT:
 
-      /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":317
+      /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":317
  *                 elif t == NPY_LONGLONG:    f = "q"
  *                 elif t == NPY_ULONGLONG:   f = "Q"
  *                 elif t == NPY_FLOAT:       f = "f"             # <<<<<<<<<<<<<<
@@ -9398,7 +9624,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
       break;
       case NPY_DOUBLE:
 
-      /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":318
+      /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":318
  *                 elif t == NPY_ULONGLONG:   f = "Q"
  *                 elif t == NPY_FLOAT:       f = "f"
  *                 elif t == NPY_DOUBLE:      f = "d"             # <<<<<<<<<<<<<<
@@ -9409,7 +9635,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
       break;
       case NPY_LONGDOUBLE:
 
-      /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":319
+      /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":319
  *                 elif t == NPY_FLOAT:       f = "f"
  *                 elif t == NPY_DOUBLE:      f = "d"
  *                 elif t == NPY_LONGDOUBLE:  f = "g"             # <<<<<<<<<<<<<<
@@ -9420,7 +9646,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
       break;
       case NPY_CFLOAT:
 
-      /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":320
+      /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":320
  *                 elif t == NPY_DOUBLE:      f = "d"
  *                 elif t == NPY_LONGDOUBLE:  f = "g"
  *                 elif t == NPY_CFLOAT:      f = "Zf"             # <<<<<<<<<<<<<<
@@ -9431,7 +9657,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
       break;
       case NPY_CDOUBLE:
 
-      /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":321
+      /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":321
  *                 elif t == NPY_LONGDOUBLE:  f = "g"
  *                 elif t == NPY_CFLOAT:      f = "Zf"
  *                 elif t == NPY_CDOUBLE:     f = "Zd"             # <<<<<<<<<<<<<<
@@ -9442,7 +9668,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
       break;
       case NPY_CLONGDOUBLE:
 
-      /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":322
+      /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":322
  *                 elif t == NPY_CFLOAT:      f = "Zf"
  *                 elif t == NPY_CDOUBLE:     f = "Zd"
  *                 elif t == NPY_CLONGDOUBLE: f = "Zg"             # <<<<<<<<<<<<<<
@@ -9453,7 +9679,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
       break;
       case NPY_OBJECT:
 
-      /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":323
+      /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":323
  *                 elif t == NPY_CDOUBLE:     f = "Zd"
  *                 elif t == NPY_CLONGDOUBLE: f = "Zg"
  *                 elif t == NPY_OBJECT:      f = "O"             # <<<<<<<<<<<<<<
@@ -9464,7 +9690,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
       break;
       default:
 
-      /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":325
+      /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":325
  *                 elif t == NPY_OBJECT:      f = "O"
  *                 else:
  *                     raise ValueError(u"unknown dtype code in numpy.pxd (%d)" % t)             # <<<<<<<<<<<<<<
@@ -9485,7 +9711,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
       break;
     }
 
-    /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":326
+    /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":326
  *                 else:
  *                     raise ValueError(u"unknown dtype code in numpy.pxd (%d)" % t)
  *                 info.format = f             # <<<<<<<<<<<<<<
@@ -9494,7 +9720,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
     __pyx_v_info->format = __pyx_v_f;
 
-    /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":327
+    /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":327
  *                     raise ValueError(u"unknown dtype code in numpy.pxd (%d)" % t)
  *                 info.format = f
  *                 return             # <<<<<<<<<<<<<<
@@ -9504,7 +9730,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
     __pyx_r = 0;
     goto __pyx_L0;
 
-    /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":302
+    /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":302
  *             info.obj = self
  * 
  *             if not PyDataType_HASFIELDS(descr):             # <<<<<<<<<<<<<<
@@ -9513,7 +9739,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
   }
 
-  /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":329
+  /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":329
  *                 return
  *             else:
  *                 info.format = <char*>PyObject_Malloc(_buffer_format_string_len)             # <<<<<<<<<<<<<<
@@ -9523,7 +9749,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
   /*else*/ {
     __pyx_v_info->format = ((char *)PyObject_Malloc(0xFF));
 
-    /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":330
+    /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":330
  *             else:
  *                 info.format = <char*>PyObject_Malloc(_buffer_format_string_len)
  *                 info.format[0] = c'^' # Native data types, manual alignment             # <<<<<<<<<<<<<<
@@ -9532,7 +9758,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
     (__pyx_v_info->format[0]) = '^';
 
-    /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":331
+    /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":331
  *                 info.format = <char*>PyObject_Malloc(_buffer_format_string_len)
  *                 info.format[0] = c'^' # Native data types, manual alignment
  *                 offset = 0             # <<<<<<<<<<<<<<
@@ -9541,7 +9767,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
     __pyx_v_offset = 0;
 
-    /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":332
+    /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":332
  *                 info.format[0] = c'^' # Native data types, manual alignment
  *                 offset = 0
  *                 f = _util_dtypestring(descr, info.format + 1,             # <<<<<<<<<<<<<<
@@ -9551,7 +9777,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
     __pyx_t_9 = __pyx_f_5numpy__util_dtypestring(__pyx_v_descr, (__pyx_v_info->format + 1), (__pyx_v_info->format + 0xFF), (&__pyx_v_offset)); if (unlikely(__pyx_t_9 == ((char *)NULL))) __PYX_ERR(1, 332, __pyx_L1_error)
     __pyx_v_f = __pyx_t_9;
 
-    /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":335
+    /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":335
  *                                       info.format + _buffer_format_string_len,
  *                                       &offset)
  *                 f[0] = c'\0' # Terminate format string             # <<<<<<<<<<<<<<
@@ -9561,7 +9787,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
     (__pyx_v_f[0]) = '\x00';
   }
 
-  /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":258
+  /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":258
  *         # experimental exception made for __getbuffer__ and __releasebuffer__
  *         # -- the details of this may change.
  *         def __getbuffer__(ndarray self, Py_buffer* info, int flags):             # <<<<<<<<<<<<<<
@@ -9594,7 +9820,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
   return __pyx_r;
 }
 
-/* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":337
+/* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":337
  *                 f[0] = c'\0' # Terminate format string
  * 
  *         def __releasebuffer__(ndarray self, Py_buffer* info):             # <<<<<<<<<<<<<<
@@ -9620,7 +9846,7 @@ static void __pyx_pf_5numpy_7ndarray_2__releasebuffer__(PyArrayObject *__pyx_v_s
   __Pyx_RefNannySetupContext("__releasebuffer__", 0);
   __Pyx_TraceCall("__releasebuffer__", __pyx_f[1], 337, 0, __PYX_ERR(1, 337, __pyx_L1_error));
 
-  /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":338
+  /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":338
  * 
  *         def __releasebuffer__(ndarray self, Py_buffer* info):
  *             if PyArray_HASFIELDS(self):             # <<<<<<<<<<<<<<
@@ -9630,7 +9856,7 @@ static void __pyx_pf_5numpy_7ndarray_2__releasebuffer__(PyArrayObject *__pyx_v_s
   __pyx_t_1 = (PyArray_HASFIELDS(__pyx_v_self) != 0);
   if (__pyx_t_1) {
 
-    /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":339
+    /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":339
  *         def __releasebuffer__(ndarray self, Py_buffer* info):
  *             if PyArray_HASFIELDS(self):
  *                 PyObject_Free(info.format)             # <<<<<<<<<<<<<<
@@ -9639,7 +9865,7 @@ static void __pyx_pf_5numpy_7ndarray_2__releasebuffer__(PyArrayObject *__pyx_v_s
  */
     PyObject_Free(__pyx_v_info->format);
 
-    /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":338
+    /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":338
  * 
  *         def __releasebuffer__(ndarray self, Py_buffer* info):
  *             if PyArray_HASFIELDS(self):             # <<<<<<<<<<<<<<
@@ -9648,7 +9874,7 @@ static void __pyx_pf_5numpy_7ndarray_2__releasebuffer__(PyArrayObject *__pyx_v_s
  */
   }
 
-  /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":340
+  /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":340
  *             if PyArray_HASFIELDS(self):
  *                 PyObject_Free(info.format)
  *             if sizeof(npy_intp) != sizeof(Py_ssize_t):             # <<<<<<<<<<<<<<
@@ -9658,7 +9884,7 @@ static void __pyx_pf_5numpy_7ndarray_2__releasebuffer__(PyArrayObject *__pyx_v_s
   __pyx_t_1 = (((sizeof(npy_intp)) != (sizeof(Py_ssize_t))) != 0);
   if (__pyx_t_1) {
 
-    /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":341
+    /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":341
  *                 PyObject_Free(info.format)
  *             if sizeof(npy_intp) != sizeof(Py_ssize_t):
  *                 PyObject_Free(info.strides)             # <<<<<<<<<<<<<<
@@ -9667,7 +9893,7 @@ static void __pyx_pf_5numpy_7ndarray_2__releasebuffer__(PyArrayObject *__pyx_v_s
  */
     PyObject_Free(__pyx_v_info->strides);
 
-    /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":340
+    /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":340
  *             if PyArray_HASFIELDS(self):
  *                 PyObject_Free(info.format)
  *             if sizeof(npy_intp) != sizeof(Py_ssize_t):             # <<<<<<<<<<<<<<
@@ -9676,7 +9902,7 @@ static void __pyx_pf_5numpy_7ndarray_2__releasebuffer__(PyArrayObject *__pyx_v_s
  */
   }
 
-  /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":337
+  /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":337
  *                 f[0] = c'\0' # Terminate format string
  * 
  *         def __releasebuffer__(ndarray self, Py_buffer* info):             # <<<<<<<<<<<<<<
@@ -9693,7 +9919,7 @@ static void __pyx_pf_5numpy_7ndarray_2__releasebuffer__(PyArrayObject *__pyx_v_s
   __Pyx_RefNannyFinishContext();
 }
 
-/* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":821
+/* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":821
  * ctypedef npy_cdouble     complex_t
  * 
  * cdef inline object PyArray_MultiIterNew1(a):             # <<<<<<<<<<<<<<
@@ -9709,7 +9935,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew1(PyObject *__
   __Pyx_RefNannySetupContext("PyArray_MultiIterNew1", 0);
   __Pyx_TraceCall("PyArray_MultiIterNew1", __pyx_f[1], 821, 0, __PYX_ERR(1, 821, __pyx_L1_error));
 
-  /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":822
+  /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":822
  * 
  * cdef inline object PyArray_MultiIterNew1(a):
  *     return PyArray_MultiIterNew(1, <void*>a)             # <<<<<<<<<<<<<<
@@ -9723,7 +9949,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew1(PyObject *__
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":821
+  /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":821
  * ctypedef npy_cdouble     complex_t
  * 
  * cdef inline object PyArray_MultiIterNew1(a):             # <<<<<<<<<<<<<<
@@ -9743,7 +9969,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew1(PyObject *__
   return __pyx_r;
 }
 
-/* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":824
+/* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":824
  *     return PyArray_MultiIterNew(1, <void*>a)
  * 
  * cdef inline object PyArray_MultiIterNew2(a, b):             # <<<<<<<<<<<<<<
@@ -9759,7 +9985,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew2(PyObject *__
   __Pyx_RefNannySetupContext("PyArray_MultiIterNew2", 0);
   __Pyx_TraceCall("PyArray_MultiIterNew2", __pyx_f[1], 824, 0, __PYX_ERR(1, 824, __pyx_L1_error));
 
-  /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":825
+  /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":825
  * 
  * cdef inline object PyArray_MultiIterNew2(a, b):
  *     return PyArray_MultiIterNew(2, <void*>a, <void*>b)             # <<<<<<<<<<<<<<
@@ -9773,7 +9999,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew2(PyObject *__
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":824
+  /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":824
  *     return PyArray_MultiIterNew(1, <void*>a)
  * 
  * cdef inline object PyArray_MultiIterNew2(a, b):             # <<<<<<<<<<<<<<
@@ -9793,7 +10019,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew2(PyObject *__
   return __pyx_r;
 }
 
-/* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":827
+/* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":827
  *     return PyArray_MultiIterNew(2, <void*>a, <void*>b)
  * 
  * cdef inline object PyArray_MultiIterNew3(a, b, c):             # <<<<<<<<<<<<<<
@@ -9809,7 +10035,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew3(PyObject *__
   __Pyx_RefNannySetupContext("PyArray_MultiIterNew3", 0);
   __Pyx_TraceCall("PyArray_MultiIterNew3", __pyx_f[1], 827, 0, __PYX_ERR(1, 827, __pyx_L1_error));
 
-  /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":828
+  /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":828
  * 
  * cdef inline object PyArray_MultiIterNew3(a, b, c):
  *     return PyArray_MultiIterNew(3, <void*>a, <void*>b, <void*> c)             # <<<<<<<<<<<<<<
@@ -9823,7 +10049,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew3(PyObject *__
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":827
+  /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":827
  *     return PyArray_MultiIterNew(2, <void*>a, <void*>b)
  * 
  * cdef inline object PyArray_MultiIterNew3(a, b, c):             # <<<<<<<<<<<<<<
@@ -9843,7 +10069,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew3(PyObject *__
   return __pyx_r;
 }
 
-/* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":830
+/* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":830
  *     return PyArray_MultiIterNew(3, <void*>a, <void*>b, <void*> c)
  * 
  * cdef inline object PyArray_MultiIterNew4(a, b, c, d):             # <<<<<<<<<<<<<<
@@ -9859,7 +10085,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew4(PyObject *__
   __Pyx_RefNannySetupContext("PyArray_MultiIterNew4", 0);
   __Pyx_TraceCall("PyArray_MultiIterNew4", __pyx_f[1], 830, 0, __PYX_ERR(1, 830, __pyx_L1_error));
 
-  /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":831
+  /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":831
  * 
  * cdef inline object PyArray_MultiIterNew4(a, b, c, d):
  *     return PyArray_MultiIterNew(4, <void*>a, <void*>b, <void*>c, <void*> d)             # <<<<<<<<<<<<<<
@@ -9873,7 +10099,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew4(PyObject *__
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":830
+  /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":830
  *     return PyArray_MultiIterNew(3, <void*>a, <void*>b, <void*> c)
  * 
  * cdef inline object PyArray_MultiIterNew4(a, b, c, d):             # <<<<<<<<<<<<<<
@@ -9893,7 +10119,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew4(PyObject *__
   return __pyx_r;
 }
 
-/* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":833
+/* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":833
  *     return PyArray_MultiIterNew(4, <void*>a, <void*>b, <void*>c, <void*> d)
  * 
  * cdef inline object PyArray_MultiIterNew5(a, b, c, d, e):             # <<<<<<<<<<<<<<
@@ -9909,7 +10135,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew5(PyObject *__
   __Pyx_RefNannySetupContext("PyArray_MultiIterNew5", 0);
   __Pyx_TraceCall("PyArray_MultiIterNew5", __pyx_f[1], 833, 0, __PYX_ERR(1, 833, __pyx_L1_error));
 
-  /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":834
+  /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":834
  * 
  * cdef inline object PyArray_MultiIterNew5(a, b, c, d, e):
  *     return PyArray_MultiIterNew(5, <void*>a, <void*>b, <void*>c, <void*> d, <void*> e)             # <<<<<<<<<<<<<<
@@ -9923,7 +10149,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew5(PyObject *__
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":833
+  /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":833
  *     return PyArray_MultiIterNew(4, <void*>a, <void*>b, <void*>c, <void*> d)
  * 
  * cdef inline object PyArray_MultiIterNew5(a, b, c, d, e):             # <<<<<<<<<<<<<<
@@ -9943,7 +10169,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew5(PyObject *__
   return __pyx_r;
 }
 
-/* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":836
+/* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":836
  *     return PyArray_MultiIterNew(5, <void*>a, <void*>b, <void*>c, <void*> d, <void*> e)
  * 
  * cdef inline tuple PyDataType_SHAPE(dtype d):             # <<<<<<<<<<<<<<
@@ -9959,7 +10185,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyDataType_SHAPE(PyArray_Descr *__
   __Pyx_RefNannySetupContext("PyDataType_SHAPE", 0);
   __Pyx_TraceCall("PyDataType_SHAPE", __pyx_f[1], 836, 0, __PYX_ERR(1, 836, __pyx_L1_error));
 
-  /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":837
+  /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":837
  * 
  * cdef inline tuple PyDataType_SHAPE(dtype d):
  *     if PyDataType_HASSUBARRAY(d):             # <<<<<<<<<<<<<<
@@ -9969,7 +10195,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyDataType_SHAPE(PyArray_Descr *__
   __pyx_t_1 = (PyDataType_HASSUBARRAY(__pyx_v_d) != 0);
   if (__pyx_t_1) {
 
-    /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":838
+    /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":838
  * cdef inline tuple PyDataType_SHAPE(dtype d):
  *     if PyDataType_HASSUBARRAY(d):
  *         return <tuple>d.subarray.shape             # <<<<<<<<<<<<<<
@@ -9981,7 +10207,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyDataType_SHAPE(PyArray_Descr *__
     __pyx_r = ((PyObject*)__pyx_v_d->subarray->shape);
     goto __pyx_L0;
 
-    /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":837
+    /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":837
  * 
  * cdef inline tuple PyDataType_SHAPE(dtype d):
  *     if PyDataType_HASSUBARRAY(d):             # <<<<<<<<<<<<<<
@@ -9990,7 +10216,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyDataType_SHAPE(PyArray_Descr *__
  */
   }
 
-  /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":840
+  /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":840
  *         return <tuple>d.subarray.shape
  *     else:
  *         return ()             # <<<<<<<<<<<<<<
@@ -10004,7 +10230,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyDataType_SHAPE(PyArray_Descr *__
     goto __pyx_L0;
   }
 
-  /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":836
+  /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":836
  *     return PyArray_MultiIterNew(5, <void*>a, <void*>b, <void*>c, <void*> d, <void*> e)
  * 
  * cdef inline tuple PyDataType_SHAPE(dtype d):             # <<<<<<<<<<<<<<
@@ -10023,7 +10249,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyDataType_SHAPE(PyArray_Descr *__
   return __pyx_r;
 }
 
-/* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":842
+/* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":842
  *         return ()
  * 
  * cdef inline char* _util_dtypestring(dtype descr, char* f, char* end, int* offset) except NULL:             # <<<<<<<<<<<<<<
@@ -10054,7 +10280,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
   __Pyx_RefNannySetupContext("_util_dtypestring", 0);
   __Pyx_TraceCall("_util_dtypestring", __pyx_f[1], 842, 0, __PYX_ERR(1, 842, __pyx_L1_error));
 
-  /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":847
+  /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":847
  * 
  *     cdef dtype child
  *     cdef int endian_detector = 1             # <<<<<<<<<<<<<<
@@ -10063,7 +10289,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
  */
   __pyx_v_endian_detector = 1;
 
-  /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":848
+  /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":848
  *     cdef dtype child
  *     cdef int endian_detector = 1
  *     cdef bint little_endian = ((<char*>&endian_detector)[0] != 0)             # <<<<<<<<<<<<<<
@@ -10072,7 +10298,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
  */
   __pyx_v_little_endian = ((((char *)(&__pyx_v_endian_detector))[0]) != 0);
 
-  /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":851
+  /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":851
  *     cdef tuple fields
  * 
  *     for childname in descr.names:             # <<<<<<<<<<<<<<
@@ -10095,7 +10321,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
     __Pyx_XDECREF_SET(__pyx_v_childname, __pyx_t_3);
     __pyx_t_3 = 0;
 
-    /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":852
+    /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":852
  * 
  *     for childname in descr.names:
  *         fields = descr.fields[childname]             # <<<<<<<<<<<<<<
@@ -10112,7 +10338,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
     __Pyx_XDECREF_SET(__pyx_v_fields, ((PyObject*)__pyx_t_3));
     __pyx_t_3 = 0;
 
-    /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":853
+    /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":853
  *     for childname in descr.names:
  *         fields = descr.fields[childname]
  *         child, new_offset = fields             # <<<<<<<<<<<<<<
@@ -10147,7 +10373,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
     __Pyx_XDECREF_SET(__pyx_v_new_offset, __pyx_t_4);
     __pyx_t_4 = 0;
 
-    /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":855
+    /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":855
  *         child, new_offset = fields
  * 
  *         if (end - f) - <int>(new_offset - offset[0]) < 15:             # <<<<<<<<<<<<<<
@@ -10164,20 +10390,20 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
     __pyx_t_6 = ((((__pyx_v_end - __pyx_v_f) - ((int)__pyx_t_5)) < 15) != 0);
     if (unlikely(__pyx_t_6)) {
 
-      /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":856
+      /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":856
  * 
  *         if (end - f) - <int>(new_offset - offset[0]) < 15:
  *             raise RuntimeError(u"Format string allocated too short, see comment in numpy.pxd")             # <<<<<<<<<<<<<<
  * 
  *         if ((child.byteorder == c'>' and little_endian) or
  */
-      __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_RuntimeError, __pyx_tuple__9, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 856, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_RuntimeError, __pyx_tuple__11, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 856, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_Raise(__pyx_t_3, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       __PYX_ERR(1, 856, __pyx_L1_error)
 
-      /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":855
+      /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":855
  *         child, new_offset = fields
  * 
  *         if (end - f) - <int>(new_offset - offset[0]) < 15:             # <<<<<<<<<<<<<<
@@ -10186,7 +10412,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
  */
     }
 
-    /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":858
+    /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":858
  *             raise RuntimeError(u"Format string allocated too short, see comment in numpy.pxd")
  * 
  *         if ((child.byteorder == c'>' and little_endian) or             # <<<<<<<<<<<<<<
@@ -10206,7 +10432,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
     }
     __pyx_L8_next_or:;
 
-    /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":859
+    /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":859
  * 
  *         if ((child.byteorder == c'>' and little_endian) or
  *             (child.byteorder == c'<' and not little_endian)):             # <<<<<<<<<<<<<<
@@ -10223,7 +10449,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
     __pyx_t_6 = __pyx_t_7;
     __pyx_L7_bool_binop_done:;
 
-    /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":858
+    /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":858
  *             raise RuntimeError(u"Format string allocated too short, see comment in numpy.pxd")
  * 
  *         if ((child.byteorder == c'>' and little_endian) or             # <<<<<<<<<<<<<<
@@ -10232,20 +10458,20 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
  */
     if (unlikely(__pyx_t_6)) {
 
-      /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":860
+      /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":860
  *         if ((child.byteorder == c'>' and little_endian) or
  *             (child.byteorder == c'<' and not little_endian)):
  *             raise ValueError(u"Non-native byte order not supported")             # <<<<<<<<<<<<<<
  *             # One could encode it in the format string and have Cython
  *             # complain instead, BUT: < and > in format strings also imply
  */
-      __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__8, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 860, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__10, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 860, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_Raise(__pyx_t_3, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       __PYX_ERR(1, 860, __pyx_L1_error)
 
-      /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":858
+      /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":858
  *             raise RuntimeError(u"Format string allocated too short, see comment in numpy.pxd")
  * 
  *         if ((child.byteorder == c'>' and little_endian) or             # <<<<<<<<<<<<<<
@@ -10254,7 +10480,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
  */
     }
 
-    /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":870
+    /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":870
  * 
  *         # Output padding bytes
  *         while offset[0] < new_offset:             # <<<<<<<<<<<<<<
@@ -10270,7 +10496,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
       if (!__pyx_t_6) break;
 
-      /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":871
+      /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":871
  *         # Output padding bytes
  *         while offset[0] < new_offset:
  *             f[0] = 120 # "x"; pad byte             # <<<<<<<<<<<<<<
@@ -10279,7 +10505,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
  */
       (__pyx_v_f[0]) = 0x78;
 
-      /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":872
+      /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":872
  *         while offset[0] < new_offset:
  *             f[0] = 120 # "x"; pad byte
  *             f += 1             # <<<<<<<<<<<<<<
@@ -10288,7 +10514,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
  */
       __pyx_v_f = (__pyx_v_f + 1);
 
-      /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":873
+      /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":873
  *             f[0] = 120 # "x"; pad byte
  *             f += 1
  *             offset[0] += 1             # <<<<<<<<<<<<<<
@@ -10299,7 +10525,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
       (__pyx_v_offset[__pyx_t_8]) = ((__pyx_v_offset[__pyx_t_8]) + 1);
     }
 
-    /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":875
+    /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":875
  *             offset[0] += 1
  * 
  *         offset[0] += child.itemsize             # <<<<<<<<<<<<<<
@@ -10309,7 +10535,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
     __pyx_t_8 = 0;
     (__pyx_v_offset[__pyx_t_8]) = ((__pyx_v_offset[__pyx_t_8]) + __pyx_v_child->elsize);
 
-    /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":877
+    /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":877
  *         offset[0] += child.itemsize
  * 
  *         if not PyDataType_HASFIELDS(child):             # <<<<<<<<<<<<<<
@@ -10319,7 +10545,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
     __pyx_t_6 = ((!(PyDataType_HASFIELDS(__pyx_v_child) != 0)) != 0);
     if (__pyx_t_6) {
 
-      /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":878
+      /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":878
  * 
  *         if not PyDataType_HASFIELDS(child):
  *             t = child.type_num             # <<<<<<<<<<<<<<
@@ -10331,7 +10557,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
       __Pyx_XDECREF_SET(__pyx_v_t, __pyx_t_4);
       __pyx_t_4 = 0;
 
-      /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":879
+      /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":879
  *         if not PyDataType_HASFIELDS(child):
  *             t = child.type_num
  *             if end - f < 5:             # <<<<<<<<<<<<<<
@@ -10341,20 +10567,20 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
       __pyx_t_6 = (((__pyx_v_end - __pyx_v_f) < 5) != 0);
       if (unlikely(__pyx_t_6)) {
 
-        /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":880
+        /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":880
  *             t = child.type_num
  *             if end - f < 5:
  *                 raise RuntimeError(u"Format string allocated too short.")             # <<<<<<<<<<<<<<
  * 
  *             # Until ticket #99 is fixed, use integers to avoid warnings
  */
-        __pyx_t_4 = __Pyx_PyObject_Call(__pyx_builtin_RuntimeError, __pyx_tuple__10, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 880, __pyx_L1_error)
+        __pyx_t_4 = __Pyx_PyObject_Call(__pyx_builtin_RuntimeError, __pyx_tuple__12, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 880, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_4);
         __Pyx_Raise(__pyx_t_4, 0, 0, 0);
         __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
         __PYX_ERR(1, 880, __pyx_L1_error)
 
-        /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":879
+        /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":879
  *         if not PyDataType_HASFIELDS(child):
  *             t = child.type_num
  *             if end - f < 5:             # <<<<<<<<<<<<<<
@@ -10363,7 +10589,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
  */
       }
 
-      /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":883
+      /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":883
  * 
  *             # Until ticket #99 is fixed, use integers to avoid warnings
  *             if   t == NPY_BYTE:        f[0] =  98 #"b"             # <<<<<<<<<<<<<<
@@ -10381,7 +10607,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
         goto __pyx_L15;
       }
 
-      /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":884
+      /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":884
  *             # Until ticket #99 is fixed, use integers to avoid warnings
  *             if   t == NPY_BYTE:        f[0] =  98 #"b"
  *             elif t == NPY_UBYTE:       f[0] =  66 #"B"             # <<<<<<<<<<<<<<
@@ -10399,7 +10625,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
         goto __pyx_L15;
       }
 
-      /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":885
+      /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":885
  *             if   t == NPY_BYTE:        f[0] =  98 #"b"
  *             elif t == NPY_UBYTE:       f[0] =  66 #"B"
  *             elif t == NPY_SHORT:       f[0] = 104 #"h"             # <<<<<<<<<<<<<<
@@ -10417,7 +10643,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
         goto __pyx_L15;
       }
 
-      /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":886
+      /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":886
  *             elif t == NPY_UBYTE:       f[0] =  66 #"B"
  *             elif t == NPY_SHORT:       f[0] = 104 #"h"
  *             elif t == NPY_USHORT:      f[0] =  72 #"H"             # <<<<<<<<<<<<<<
@@ -10435,7 +10661,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
         goto __pyx_L15;
       }
 
-      /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":887
+      /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":887
  *             elif t == NPY_SHORT:       f[0] = 104 #"h"
  *             elif t == NPY_USHORT:      f[0] =  72 #"H"
  *             elif t == NPY_INT:         f[0] = 105 #"i"             # <<<<<<<<<<<<<<
@@ -10453,7 +10679,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
         goto __pyx_L15;
       }
 
-      /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":888
+      /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":888
  *             elif t == NPY_USHORT:      f[0] =  72 #"H"
  *             elif t == NPY_INT:         f[0] = 105 #"i"
  *             elif t == NPY_UINT:        f[0] =  73 #"I"             # <<<<<<<<<<<<<<
@@ -10471,7 +10697,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
         goto __pyx_L15;
       }
 
-      /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":889
+      /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":889
  *             elif t == NPY_INT:         f[0] = 105 #"i"
  *             elif t == NPY_UINT:        f[0] =  73 #"I"
  *             elif t == NPY_LONG:        f[0] = 108 #"l"             # <<<<<<<<<<<<<<
@@ -10489,7 +10715,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
         goto __pyx_L15;
       }
 
-      /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":890
+      /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":890
  *             elif t == NPY_UINT:        f[0] =  73 #"I"
  *             elif t == NPY_LONG:        f[0] = 108 #"l"
  *             elif t == NPY_ULONG:       f[0] = 76  #"L"             # <<<<<<<<<<<<<<
@@ -10507,7 +10733,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
         goto __pyx_L15;
       }
 
-      /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":891
+      /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":891
  *             elif t == NPY_LONG:        f[0] = 108 #"l"
  *             elif t == NPY_ULONG:       f[0] = 76  #"L"
  *             elif t == NPY_LONGLONG:    f[0] = 113 #"q"             # <<<<<<<<<<<<<<
@@ -10525,7 +10751,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
         goto __pyx_L15;
       }
 
-      /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":892
+      /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":892
  *             elif t == NPY_ULONG:       f[0] = 76  #"L"
  *             elif t == NPY_LONGLONG:    f[0] = 113 #"q"
  *             elif t == NPY_ULONGLONG:   f[0] = 81  #"Q"             # <<<<<<<<<<<<<<
@@ -10543,7 +10769,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
         goto __pyx_L15;
       }
 
-      /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":893
+      /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":893
  *             elif t == NPY_LONGLONG:    f[0] = 113 #"q"
  *             elif t == NPY_ULONGLONG:   f[0] = 81  #"Q"
  *             elif t == NPY_FLOAT:       f[0] = 102 #"f"             # <<<<<<<<<<<<<<
@@ -10561,7 +10787,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
         goto __pyx_L15;
       }
 
-      /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":894
+      /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":894
  *             elif t == NPY_ULONGLONG:   f[0] = 81  #"Q"
  *             elif t == NPY_FLOAT:       f[0] = 102 #"f"
  *             elif t == NPY_DOUBLE:      f[0] = 100 #"d"             # <<<<<<<<<<<<<<
@@ -10579,7 +10805,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
         goto __pyx_L15;
       }
 
-      /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":895
+      /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":895
  *             elif t == NPY_FLOAT:       f[0] = 102 #"f"
  *             elif t == NPY_DOUBLE:      f[0] = 100 #"d"
  *             elif t == NPY_LONGDOUBLE:  f[0] = 103 #"g"             # <<<<<<<<<<<<<<
@@ -10597,7 +10823,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
         goto __pyx_L15;
       }
 
-      /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":896
+      /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":896
  *             elif t == NPY_DOUBLE:      f[0] = 100 #"d"
  *             elif t == NPY_LONGDOUBLE:  f[0] = 103 #"g"
  *             elif t == NPY_CFLOAT:      f[0] = 90; f[1] = 102; f += 1 # Zf             # <<<<<<<<<<<<<<
@@ -10617,7 +10843,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
         goto __pyx_L15;
       }
 
-      /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":897
+      /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":897
  *             elif t == NPY_LONGDOUBLE:  f[0] = 103 #"g"
  *             elif t == NPY_CFLOAT:      f[0] = 90; f[1] = 102; f += 1 # Zf
  *             elif t == NPY_CDOUBLE:     f[0] = 90; f[1] = 100; f += 1 # Zd             # <<<<<<<<<<<<<<
@@ -10637,7 +10863,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
         goto __pyx_L15;
       }
 
-      /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":898
+      /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":898
  *             elif t == NPY_CFLOAT:      f[0] = 90; f[1] = 102; f += 1 # Zf
  *             elif t == NPY_CDOUBLE:     f[0] = 90; f[1] = 100; f += 1 # Zd
  *             elif t == NPY_CLONGDOUBLE: f[0] = 90; f[1] = 103; f += 1 # Zg             # <<<<<<<<<<<<<<
@@ -10657,7 +10883,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
         goto __pyx_L15;
       }
 
-      /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":899
+      /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":899
  *             elif t == NPY_CDOUBLE:     f[0] = 90; f[1] = 100; f += 1 # Zd
  *             elif t == NPY_CLONGDOUBLE: f[0] = 90; f[1] = 103; f += 1 # Zg
  *             elif t == NPY_OBJECT:      f[0] = 79 #"O"             # <<<<<<<<<<<<<<
@@ -10675,7 +10901,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
         goto __pyx_L15;
       }
 
-      /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":901
+      /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":901
  *             elif t == NPY_OBJECT:      f[0] = 79 #"O"
  *             else:
  *                 raise ValueError(u"unknown dtype code in numpy.pxd (%d)" % t)             # <<<<<<<<<<<<<<
@@ -10694,7 +10920,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
       }
       __pyx_L15:;
 
-      /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":902
+      /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":902
  *             else:
  *                 raise ValueError(u"unknown dtype code in numpy.pxd (%d)" % t)
  *             f += 1             # <<<<<<<<<<<<<<
@@ -10703,7 +10929,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
  */
       __pyx_v_f = (__pyx_v_f + 1);
 
-      /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":877
+      /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":877
  *         offset[0] += child.itemsize
  * 
  *         if not PyDataType_HASFIELDS(child):             # <<<<<<<<<<<<<<
@@ -10713,7 +10939,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
       goto __pyx_L13;
     }
 
-    /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":906
+    /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":906
  *             # Cython ignores struct boundary information ("T{...}"),
  *             # so don't output it
  *             f = _util_dtypestring(child, f, end, offset)             # <<<<<<<<<<<<<<
@@ -10726,7 +10952,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
     }
     __pyx_L13:;
 
-    /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":851
+    /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":851
  *     cdef tuple fields
  * 
  *     for childname in descr.names:             # <<<<<<<<<<<<<<
@@ -10736,7 +10962,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":907
+  /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":907
  *             # so don't output it
  *             f = _util_dtypestring(child, f, end, offset)
  *     return f             # <<<<<<<<<<<<<<
@@ -10746,7 +10972,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
   __pyx_r = __pyx_v_f;
   goto __pyx_L0;
 
-  /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":842
+  /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":842
  *         return ()
  * 
  * cdef inline char* _util_dtypestring(dtype descr, char* f, char* end, int* offset) except NULL:             # <<<<<<<<<<<<<<
@@ -10772,7 +10998,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
   return __pyx_r;
 }
 
-/* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1022
+/* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1022
  *     int _import_umath() except -1
  * 
  * cdef inline void set_array_base(ndarray arr, object base):             # <<<<<<<<<<<<<<
@@ -10786,7 +11012,7 @@ static CYTHON_INLINE void __pyx_f_5numpy_set_array_base(PyArrayObject *__pyx_v_a
   __Pyx_RefNannySetupContext("set_array_base", 0);
   __Pyx_TraceCall("set_array_base", __pyx_f[1], 1022, 0, __PYX_ERR(1, 1022, __pyx_L1_error));
 
-  /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1023
+  /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1023
  * 
  * cdef inline void set_array_base(ndarray arr, object base):
  *     Py_INCREF(base) # important to do this before stealing the reference below!             # <<<<<<<<<<<<<<
@@ -10795,7 +11021,7 @@ static CYTHON_INLINE void __pyx_f_5numpy_set_array_base(PyArrayObject *__pyx_v_a
  */
   Py_INCREF(__pyx_v_base);
 
-  /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1024
+  /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1024
  * cdef inline void set_array_base(ndarray arr, object base):
  *     Py_INCREF(base) # important to do this before stealing the reference below!
  *     PyArray_SetBaseObject(arr, base)             # <<<<<<<<<<<<<<
@@ -10804,7 +11030,7 @@ static CYTHON_INLINE void __pyx_f_5numpy_set_array_base(PyArrayObject *__pyx_v_a
  */
   (void)(PyArray_SetBaseObject(__pyx_v_arr, __pyx_v_base));
 
-  /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1022
+  /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1022
  *     int _import_umath() except -1
  * 
  * cdef inline void set_array_base(ndarray arr, object base):             # <<<<<<<<<<<<<<
@@ -10821,7 +11047,7 @@ static CYTHON_INLINE void __pyx_f_5numpy_set_array_base(PyArrayObject *__pyx_v_a
   __Pyx_RefNannyFinishContext();
 }
 
-/* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1026
+/* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1026
  *     PyArray_SetBaseObject(arr, base)
  * 
  * cdef inline object get_array_base(ndarray arr):             # <<<<<<<<<<<<<<
@@ -10838,7 +11064,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_get_array_base(PyArrayObject *__py
   __Pyx_RefNannySetupContext("get_array_base", 0);
   __Pyx_TraceCall("get_array_base", __pyx_f[1], 1026, 0, __PYX_ERR(1, 1026, __pyx_L1_error));
 
-  /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1027
+  /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1027
  * 
  * cdef inline object get_array_base(ndarray arr):
  *     base = PyArray_BASE(arr)             # <<<<<<<<<<<<<<
@@ -10847,7 +11073,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_get_array_base(PyArrayObject *__py
  */
   __pyx_v_base = PyArray_BASE(__pyx_v_arr);
 
-  /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1028
+  /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1028
  * cdef inline object get_array_base(ndarray arr):
  *     base = PyArray_BASE(arr)
  *     if base is NULL:             # <<<<<<<<<<<<<<
@@ -10857,7 +11083,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_get_array_base(PyArrayObject *__py
   __pyx_t_1 = ((__pyx_v_base == NULL) != 0);
   if (__pyx_t_1) {
 
-    /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1029
+    /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1029
  *     base = PyArray_BASE(arr)
  *     if base is NULL:
  *         return None             # <<<<<<<<<<<<<<
@@ -10868,7 +11094,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_get_array_base(PyArrayObject *__py
     __pyx_r = Py_None; __Pyx_INCREF(Py_None);
     goto __pyx_L0;
 
-    /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1028
+    /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1028
  * cdef inline object get_array_base(ndarray arr):
  *     base = PyArray_BASE(arr)
  *     if base is NULL:             # <<<<<<<<<<<<<<
@@ -10877,7 +11103,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_get_array_base(PyArrayObject *__py
  */
   }
 
-  /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1030
+  /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1030
  *     if base is NULL:
  *         return None
  *     return <object>base             # <<<<<<<<<<<<<<
@@ -10889,7 +11115,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_get_array_base(PyArrayObject *__py
   __pyx_r = ((PyObject *)__pyx_v_base);
   goto __pyx_L0;
 
-  /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1026
+  /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1026
  *     PyArray_SetBaseObject(arr, base)
  * 
  * cdef inline object get_array_base(ndarray arr):             # <<<<<<<<<<<<<<
@@ -10908,7 +11134,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_get_array_base(PyArrayObject *__py
   return __pyx_r;
 }
 
-/* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1034
+/* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1034
  * # Versions of the import_* functions which are more suitable for
  * # Cython code.
  * cdef inline int import_array() except -1:             # <<<<<<<<<<<<<<
@@ -10931,7 +11157,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_array(void) {
   __Pyx_RefNannySetupContext("import_array", 0);
   __Pyx_TraceCall("import_array", __pyx_f[1], 1034, 0, __PYX_ERR(1, 1034, __pyx_L1_error));
 
-  /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1035
+  /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1035
  * # Cython code.
  * cdef inline int import_array() except -1:
  *     try:             # <<<<<<<<<<<<<<
@@ -10947,7 +11173,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_array(void) {
     __Pyx_XGOTREF(__pyx_t_3);
     /*try:*/ {
 
-      /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1036
+      /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1036
  * cdef inline int import_array() except -1:
  *     try:
  *         _import_array()             # <<<<<<<<<<<<<<
@@ -10956,7 +11182,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_array(void) {
  */
       __pyx_t_4 = _import_array(); if (unlikely(__pyx_t_4 == ((int)-1))) __PYX_ERR(1, 1036, __pyx_L3_error)
 
-      /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1035
+      /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1035
  * # Cython code.
  * cdef inline int import_array() except -1:
  *     try:             # <<<<<<<<<<<<<<
@@ -10970,7 +11196,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_array(void) {
     goto __pyx_L8_try_end;
     __pyx_L3_error:;
 
-    /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1037
+    /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1037
  *     try:
  *         _import_array()
  *     except Exception:             # <<<<<<<<<<<<<<
@@ -10985,14 +11211,14 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_array(void) {
       __Pyx_GOTREF(__pyx_t_6);
       __Pyx_GOTREF(__pyx_t_7);
 
-      /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1038
+      /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1038
  *         _import_array()
  *     except Exception:
  *         raise ImportError("numpy.core.multiarray failed to import")             # <<<<<<<<<<<<<<
  * 
  * cdef inline int import_umath() except -1:
  */
-      __pyx_t_8 = __Pyx_PyObject_Call(__pyx_builtin_ImportError, __pyx_tuple__11, NULL); if (unlikely(!__pyx_t_8)) __PYX_ERR(1, 1038, __pyx_L5_except_error)
+      __pyx_t_8 = __Pyx_PyObject_Call(__pyx_builtin_ImportError, __pyx_tuple__13, NULL); if (unlikely(!__pyx_t_8)) __PYX_ERR(1, 1038, __pyx_L5_except_error)
       __Pyx_GOTREF(__pyx_t_8);
       __Pyx_Raise(__pyx_t_8, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
@@ -11001,7 +11227,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_array(void) {
     goto __pyx_L5_except_error;
     __pyx_L5_except_error:;
 
-    /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1035
+    /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1035
  * # Cython code.
  * cdef inline int import_array() except -1:
  *     try:             # <<<<<<<<<<<<<<
@@ -11016,7 +11242,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_array(void) {
     __pyx_L8_try_end:;
   }
 
-  /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1034
+  /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1034
  * # Versions of the import_* functions which are more suitable for
  * # Cython code.
  * cdef inline int import_array() except -1:             # <<<<<<<<<<<<<<
@@ -11040,7 +11266,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_array(void) {
   return __pyx_r;
 }
 
-/* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1040
+/* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1040
  *         raise ImportError("numpy.core.multiarray failed to import")
  * 
  * cdef inline int import_umath() except -1:             # <<<<<<<<<<<<<<
@@ -11063,7 +11289,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_umath(void) {
   __Pyx_RefNannySetupContext("import_umath", 0);
   __Pyx_TraceCall("import_umath", __pyx_f[1], 1040, 0, __PYX_ERR(1, 1040, __pyx_L1_error));
 
-  /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1041
+  /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1041
  * 
  * cdef inline int import_umath() except -1:
  *     try:             # <<<<<<<<<<<<<<
@@ -11079,7 +11305,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_umath(void) {
     __Pyx_XGOTREF(__pyx_t_3);
     /*try:*/ {
 
-      /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1042
+      /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1042
  * cdef inline int import_umath() except -1:
  *     try:
  *         _import_umath()             # <<<<<<<<<<<<<<
@@ -11088,7 +11314,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_umath(void) {
  */
       __pyx_t_4 = _import_umath(); if (unlikely(__pyx_t_4 == ((int)-1))) __PYX_ERR(1, 1042, __pyx_L3_error)
 
-      /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1041
+      /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1041
  * 
  * cdef inline int import_umath() except -1:
  *     try:             # <<<<<<<<<<<<<<
@@ -11102,7 +11328,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_umath(void) {
     goto __pyx_L8_try_end;
     __pyx_L3_error:;
 
-    /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1043
+    /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1043
  *     try:
  *         _import_umath()
  *     except Exception:             # <<<<<<<<<<<<<<
@@ -11117,14 +11343,14 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_umath(void) {
       __Pyx_GOTREF(__pyx_t_6);
       __Pyx_GOTREF(__pyx_t_7);
 
-      /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1044
+      /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1044
  *         _import_umath()
  *     except Exception:
  *         raise ImportError("numpy.core.umath failed to import")             # <<<<<<<<<<<<<<
  * 
  * cdef inline int import_ufunc() except -1:
  */
-      __pyx_t_8 = __Pyx_PyObject_Call(__pyx_builtin_ImportError, __pyx_tuple__12, NULL); if (unlikely(!__pyx_t_8)) __PYX_ERR(1, 1044, __pyx_L5_except_error)
+      __pyx_t_8 = __Pyx_PyObject_Call(__pyx_builtin_ImportError, __pyx_tuple__14, NULL); if (unlikely(!__pyx_t_8)) __PYX_ERR(1, 1044, __pyx_L5_except_error)
       __Pyx_GOTREF(__pyx_t_8);
       __Pyx_Raise(__pyx_t_8, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
@@ -11133,7 +11359,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_umath(void) {
     goto __pyx_L5_except_error;
     __pyx_L5_except_error:;
 
-    /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1041
+    /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1041
  * 
  * cdef inline int import_umath() except -1:
  *     try:             # <<<<<<<<<<<<<<
@@ -11148,7 +11374,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_umath(void) {
     __pyx_L8_try_end:;
   }
 
-  /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1040
+  /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1040
  *         raise ImportError("numpy.core.multiarray failed to import")
  * 
  * cdef inline int import_umath() except -1:             # <<<<<<<<<<<<<<
@@ -11172,7 +11398,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_umath(void) {
   return __pyx_r;
 }
 
-/* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1046
+/* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1046
  *         raise ImportError("numpy.core.umath failed to import")
  * 
  * cdef inline int import_ufunc() except -1:             # <<<<<<<<<<<<<<
@@ -11195,7 +11421,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_ufunc(void) {
   __Pyx_RefNannySetupContext("import_ufunc", 0);
   __Pyx_TraceCall("import_ufunc", __pyx_f[1], 1046, 0, __PYX_ERR(1, 1046, __pyx_L1_error));
 
-  /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1047
+  /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1047
  * 
  * cdef inline int import_ufunc() except -1:
  *     try:             # <<<<<<<<<<<<<<
@@ -11211,7 +11437,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_ufunc(void) {
     __Pyx_XGOTREF(__pyx_t_3);
     /*try:*/ {
 
-      /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1048
+      /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1048
  * cdef inline int import_ufunc() except -1:
  *     try:
  *         _import_umath()             # <<<<<<<<<<<<<<
@@ -11220,7 +11446,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_ufunc(void) {
  */
       __pyx_t_4 = _import_umath(); if (unlikely(__pyx_t_4 == ((int)-1))) __PYX_ERR(1, 1048, __pyx_L3_error)
 
-      /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1047
+      /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1047
  * 
  * cdef inline int import_ufunc() except -1:
  *     try:             # <<<<<<<<<<<<<<
@@ -11234,7 +11460,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_ufunc(void) {
     goto __pyx_L8_try_end;
     __pyx_L3_error:;
 
-    /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1049
+    /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1049
  *     try:
  *         _import_umath()
  *     except Exception:             # <<<<<<<<<<<<<<
@@ -11248,12 +11474,12 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_ufunc(void) {
       __Pyx_GOTREF(__pyx_t_6);
       __Pyx_GOTREF(__pyx_t_7);
 
-      /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1050
+      /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1050
  *         _import_umath()
  *     except Exception:
  *         raise ImportError("numpy.core.umath failed to import")             # <<<<<<<<<<<<<<
  */
-      __pyx_t_8 = __Pyx_PyObject_Call(__pyx_builtin_ImportError, __pyx_tuple__12, NULL); if (unlikely(!__pyx_t_8)) __PYX_ERR(1, 1050, __pyx_L5_except_error)
+      __pyx_t_8 = __Pyx_PyObject_Call(__pyx_builtin_ImportError, __pyx_tuple__14, NULL); if (unlikely(!__pyx_t_8)) __PYX_ERR(1, 1050, __pyx_L5_except_error)
       __Pyx_GOTREF(__pyx_t_8);
       __Pyx_Raise(__pyx_t_8, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
@@ -11262,7 +11488,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_ufunc(void) {
     goto __pyx_L5_except_error;
     __pyx_L5_except_error:;
 
-    /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1047
+    /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1047
  * 
  * cdef inline int import_ufunc() except -1:
  *     try:             # <<<<<<<<<<<<<<
@@ -11277,7 +11503,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_ufunc(void) {
     __pyx_L8_try_end:;
   }
 
-  /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1046
+  /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1046
  *         raise ImportError("numpy.core.umath failed to import")
  * 
  * cdef inline int import_ufunc() except -1:             # <<<<<<<<<<<<<<
@@ -11500,7 +11726,7 @@ static int __pyx_array___pyx_pf_15View_dot_MemoryView_5array___cinit__(struct __
  * 
  *         if itemsize <= 0:
  */
-    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__13, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 133, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__15, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 133, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_Raise(__pyx_t_3, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -11532,7 +11758,7 @@ static int __pyx_array___pyx_pf_15View_dot_MemoryView_5array___cinit__(struct __
  * 
  *         if not isinstance(format, bytes):
  */
-    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__14, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 136, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__16, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 136, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_Raise(__pyx_t_3, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -11659,7 +11885,7 @@ static int __pyx_array___pyx_pf_15View_dot_MemoryView_5array___cinit__(struct __
  * 
  * 
  */
-    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_MemoryError, __pyx_tuple__15, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 148, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_MemoryError, __pyx_tuple__17, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 148, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_Raise(__pyx_t_3, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -11933,7 +12159,7 @@ static int __pyx_array___pyx_pf_15View_dot_MemoryView_5array___cinit__(struct __
  * 
  *             if self.dtype_is_object:
  */
-      __pyx_t_10 = __Pyx_PyObject_Call(__pyx_builtin_MemoryError, __pyx_tuple__16, NULL); if (unlikely(!__pyx_t_10)) __PYX_ERR(2, 176, __pyx_L1_error)
+      __pyx_t_10 = __Pyx_PyObject_Call(__pyx_builtin_MemoryError, __pyx_tuple__18, NULL); if (unlikely(!__pyx_t_10)) __PYX_ERR(2, 176, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_10);
       __Pyx_Raise(__pyx_t_10, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
@@ -12177,7 +12403,7 @@ static int __pyx_array___pyx_pf_15View_dot_MemoryView_5array_2__getbuffer__(stru
  *         info.buf = self.data
  *         info.len = self.len
  */
-    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__17, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 192, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__19, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 192, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_Raise(__pyx_t_3, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -12924,7 +13150,7 @@ static PyObject *__pyx_pf___pyx_array___reduce_cython__(CYTHON_UNUSED struct __p
  * def __setstate_cython__(self, __pyx_state):
  *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
  */
-  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__18, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 2, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__20, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 2, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_Raise(__pyx_t_1, 0, 0, 0);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -12980,7 +13206,7 @@ static PyObject *__pyx_pf___pyx_array_2__setstate_cython__(CYTHON_UNUSED struct 
  * def __setstate_cython__(self, __pyx_state):
  *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")             # <<<<<<<<<<<<<<
  */
-  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__19, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 4, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__21, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 4, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_Raise(__pyx_t_1, 0, 0, 0);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -14711,7 +14937,7 @@ static int __pyx_memoryview___pyx_pf_15View_dot_MemoryView_10memoryview_6__setit
  * 
  *         have_slices, index = _unellipsify(index, self.view.ndim)
  */
-    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__20, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(2, 418, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__22, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(2, 418, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_Raise(__pyx_t_2, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -15753,7 +15979,7 @@ static PyObject *__pyx_memoryview_convert_item_to_object(struct __pyx_memoryview
  *         else:
  *             if len(self.view.format) == 1:
  */
-      __pyx_t_6 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__21, NULL); if (unlikely(!__pyx_t_6)) __PYX_ERR(2, 495, __pyx_L5_except_error)
+      __pyx_t_6 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__23, NULL); if (unlikely(!__pyx_t_6)) __PYX_ERR(2, 495, __pyx_L5_except_error)
       __Pyx_GOTREF(__pyx_t_6);
       __Pyx_Raise(__pyx_t_6, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
@@ -16115,7 +16341,7 @@ static int __pyx_memoryview___pyx_pf_15View_dot_MemoryView_10memoryview_8__getbu
  * 
  *         if flags & PyBUF_ND:
  */
-    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__22, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 520, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__24, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 520, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_Raise(__pyx_t_3, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -16670,7 +16896,7 @@ static PyObject *__pyx_pf_15View_dot_MemoryView_10memoryview_7strides___get__(st
  * 
  *         return tuple([stride for stride in self.view.strides[:self.view.ndim]])
  */
-    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__23, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(2, 570, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__25, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(2, 570, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_Raise(__pyx_t_2, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -16787,7 +17013,7 @@ static PyObject *__pyx_pf_15View_dot_MemoryView_10memoryview_10suboffsets___get_
     __Pyx_XDECREF(__pyx_r);
     __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_self->view.ndim); if (unlikely(!__pyx_t_2)) __PYX_ERR(2, 577, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_3 = PyNumber_Multiply(__pyx_tuple__24, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 577, __pyx_L1_error)
+    __pyx_t_3 = PyNumber_Multiply(__pyx_tuple__26, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 577, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __pyx_r = __pyx_t_3;
@@ -17827,7 +18053,7 @@ static PyObject *__pyx_pf___pyx_memoryview___reduce_cython__(CYTHON_UNUSED struc
  * def __setstate_cython__(self, __pyx_state):
  *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
  */
-  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__25, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 2, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__27, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 2, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_Raise(__pyx_t_1, 0, 0, 0);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -17883,7 +18109,7 @@ static PyObject *__pyx_pf___pyx_memoryview_2__setstate_cython__(CYTHON_UNUSED st
  * def __setstate_cython__(self, __pyx_state):
  *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")             # <<<<<<<<<<<<<<
  */
-  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__26, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 4, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__28, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 4, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_Raise(__pyx_t_1, 0, 0, 0);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -18246,9 +18472,9 @@ static PyObject *_unellipsify(PyObject *__pyx_v_index, int __pyx_v_ndim) {
         __Pyx_GOTREF(__pyx_t_7);
         { Py_ssize_t __pyx_temp;
           for (__pyx_temp=0; __pyx_temp < ((__pyx_v_ndim - __pyx_t_8) + 1); __pyx_temp++) {
-            __Pyx_INCREF(__pyx_slice__27);
-            __Pyx_GIVEREF(__pyx_slice__27);
-            PyList_SET_ITEM(__pyx_t_7, __pyx_temp, __pyx_slice__27);
+            __Pyx_INCREF(__pyx_slice__29);
+            __Pyx_GIVEREF(__pyx_slice__29);
+            PyList_SET_ITEM(__pyx_t_7, __pyx_temp, __pyx_slice__29);
           }
         }
         __pyx_t_9 = __Pyx_PyList_Extend(__pyx_v_result, __pyx_t_7); if (unlikely(__pyx_t_9 == ((int)-1))) __PYX_ERR(2, 682, __pyx_L1_error)
@@ -18281,7 +18507,7 @@ static PyObject *_unellipsify(PyObject *__pyx_v_index, int __pyx_v_ndim) {
  *         else:
  */
       /*else*/ {
-        __pyx_t_9 = __Pyx_PyList_Append(__pyx_v_result, __pyx_slice__27); if (unlikely(__pyx_t_9 == ((int)-1))) __PYX_ERR(2, 685, __pyx_L1_error)
+        __pyx_t_9 = __Pyx_PyList_Append(__pyx_v_result, __pyx_slice__29); if (unlikely(__pyx_t_9 == ((int)-1))) __PYX_ERR(2, 685, __pyx_L1_error)
       }
       __pyx_L7:;
 
@@ -18421,9 +18647,9 @@ static PyObject *_unellipsify(PyObject *__pyx_v_index, int __pyx_v_ndim) {
     __Pyx_GOTREF(__pyx_t_3);
     { Py_ssize_t __pyx_temp;
       for (__pyx_temp=0; __pyx_temp < __pyx_v_nslices; __pyx_temp++) {
-        __Pyx_INCREF(__pyx_slice__27);
-        __Pyx_GIVEREF(__pyx_slice__27);
-        PyList_SET_ITEM(__pyx_t_3, __pyx_temp, __pyx_slice__27);
+        __Pyx_INCREF(__pyx_slice__29);
+        __Pyx_GIVEREF(__pyx_slice__29);
+        PyList_SET_ITEM(__pyx_t_3, __pyx_temp, __pyx_slice__29);
       }
     }
     __pyx_t_9 = __Pyx_PyList_Extend(__pyx_v_result, __pyx_t_3); if (unlikely(__pyx_t_9 == ((int)-1))) __PYX_ERR(2, 696, __pyx_L1_error)
@@ -18550,7 +18776,7 @@ static PyObject *assert_direct_dimensions(Py_ssize_t *__pyx_v_suboffsets, int __
  * 
  * 
  */
-      __pyx_t_5 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__28, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(2, 703, __pyx_L1_error)
+      __pyx_t_5 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__30, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(2, 703, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_5);
       __Pyx_Raise(__pyx_t_5, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
@@ -20747,7 +20973,7 @@ static PyObject *__pyx_pf___pyx_memoryviewslice___reduce_cython__(CYTHON_UNUSED 
  * def __setstate_cython__(self, __pyx_state):
  *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
  */
-  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__29, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 2, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__31, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 2, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_Raise(__pyx_t_1, 0, 0, 0);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -20803,7 +21029,7 @@ static PyObject *__pyx_pf___pyx_memoryviewslice_2__setstate_cython__(CYTHON_UNUS
  * def __setstate_cython__(self, __pyx_state):
  *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")             # <<<<<<<<<<<<<<
  */
-  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__30, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 4, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__32, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 4, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_Raise(__pyx_t_1, 0, 0, 0);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -24145,7 +24371,7 @@ static PyObject *__pyx_pf_15View_dot_MemoryView___pyx_unpickle_Enum(CYTHON_UNUSE
   PyObject *__pyx_t_4 = NULL;
   PyObject *__pyx_t_5 = NULL;
   int __pyx_t_6;
-  __Pyx_TraceFrameInit(__pyx_codeobj__31)
+  __Pyx_TraceFrameInit(__pyx_codeobj__33)
   __Pyx_RefNannySetupContext("__pyx_unpickle_Enum", 0);
   __Pyx_TraceCall("__pyx_unpickle_Enum", __pyx_f[2], 1, 0, __PYX_ERR(2, 1, __pyx_L1_error));
 
@@ -24534,8 +24760,8 @@ static PyObject *__pyx_format_from_typeinfo(__Pyx_TypeInfo *__pyx_v_type) {
  *         else:
  *             alignment = b''
  */
-      __Pyx_INCREF(__pyx_kp_b__32);
-      __pyx_v_alignment = __pyx_kp_b__32;
+      __Pyx_INCREF(__pyx_kp_b__34);
+      __pyx_v_alignment = __pyx_kp_b__34;
 
       /* "BufferFormatFromTypeInfo":1472
  *         assert type.fields != NULL and type.fields.type != NULL
@@ -24555,8 +24781,8 @@ static PyObject *__pyx_format_from_typeinfo(__Pyx_TypeInfo *__pyx_v_type) {
  *         parts = [b"T{"]
  */
     /*else*/ {
-      __Pyx_INCREF(__pyx_kp_b__33);
-      __pyx_v_alignment = __pyx_kp_b__33;
+      __Pyx_INCREF(__pyx_kp_b__35);
+      __pyx_v_alignment = __pyx_kp_b__35;
     }
     __pyx_L6:;
 
@@ -24615,7 +24841,7 @@ static PyObject *__pyx_format_from_typeinfo(__Pyx_TypeInfo *__pyx_v_type) {
  *             field += 1
  * 
  */
-      __pyx_t_3 = PyNumber_Add(__pyx_v_part, __pyx_kp_b__34); if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 1482, __pyx_L1_error)
+      __pyx_t_3 = PyNumber_Add(__pyx_v_part, __pyx_kp_b__36); if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 1482, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       __pyx_t_5 = __Pyx_PyBytes_FromString(__pyx_v_field->name); if (unlikely(!__pyx_t_5)) __PYX_ERR(2, 1482, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_5);
@@ -24623,7 +24849,7 @@ static PyObject *__pyx_format_from_typeinfo(__Pyx_TypeInfo *__pyx_v_type) {
       __Pyx_GOTREF(__pyx_t_6);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-      __pyx_t_5 = PyNumber_Add(__pyx_t_6, __pyx_kp_b__34); if (unlikely(!__pyx_t_5)) __PYX_ERR(2, 1482, __pyx_L1_error)
+      __pyx_t_5 = PyNumber_Add(__pyx_t_6, __pyx_kp_b__36); if (unlikely(!__pyx_t_5)) __PYX_ERR(2, 1482, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_5);
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
       __pyx_t_7 = __Pyx_PyList_Append(__pyx_v_parts, __pyx_t_5); if (unlikely(__pyx_t_7 == ((int)-1))) __PYX_ERR(2, 1482, __pyx_L1_error)
@@ -24648,7 +24874,7 @@ static PyObject *__pyx_format_from_typeinfo(__Pyx_TypeInfo *__pyx_v_type) {
  */
     __pyx_t_5 = __Pyx_PyBytes_Join(__pyx_v_alignment, __pyx_v_parts); if (unlikely(!__pyx_t_5)) __PYX_ERR(2, 1485, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_6 = PyNumber_Add(__pyx_t_5, __pyx_kp_b__35); if (unlikely(!__pyx_t_6)) __PYX_ERR(2, 1485, __pyx_L1_error)
+    __pyx_t_6 = PyNumber_Add(__pyx_t_5, __pyx_kp_b__37); if (unlikely(!__pyx_t_6)) __PYX_ERR(2, 1485, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     if (!(likely(PyBytes_CheckExact(__pyx_t_6))||((__pyx_t_6) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "bytes", Py_TYPE(__pyx_t_6)->tp_name), 0))) __PYX_ERR(2, 1485, __pyx_L1_error)
@@ -24716,7 +24942,7 @@ static PyObject *__pyx_format_from_typeinfo(__Pyx_TypeInfo *__pyx_v_type) {
  *         else:
  *             result = fmt.string
  */
-      __pyx_t_6 = PyUnicode_Join(__pyx_kp_u__36, __pyx_v_extents); if (unlikely(!__pyx_t_6)) __PYX_ERR(2, 1490, __pyx_L1_error)
+      __pyx_t_6 = PyUnicode_Join(__pyx_kp_u__38, __pyx_v_extents); if (unlikely(!__pyx_t_6)) __PYX_ERR(2, 1490, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_6);
       __pyx_t_3 = PyUnicode_Format(__pyx_kp_u_s, __pyx_t_6); if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 1490, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
@@ -25546,10 +25772,12 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_MemoryError, __pyx_k_MemoryError, sizeof(__pyx_k_MemoryError), 0, 0, 1, 1},
   {&__pyx_kp_s_MemoryView_of_r_at_0x_x, __pyx_k_MemoryView_of_r_at_0x_x, sizeof(__pyx_k_MemoryView_of_r_at_0x_x), 0, 0, 1, 0},
   {&__pyx_kp_s_MemoryView_of_r_object, __pyx_k_MemoryView_of_r_object, sizeof(__pyx_k_MemoryView_of_r_object), 0, 0, 1, 0},
+  {&__pyx_kp_u_Memory_allocation_failed, __pyx_k_Memory_allocation_failed, sizeof(__pyx_k_Memory_allocation_failed), 0, 1, 0, 0},
   {&__pyx_kp_u_Non_native_byte_order_not_suppor, __pyx_k_Non_native_byte_order_not_suppor, sizeof(__pyx_k_Non_native_byte_order_not_suppor), 0, 1, 0, 0},
   {&__pyx_n_b_O, __pyx_k_O, sizeof(__pyx_k_O), 0, 0, 0, 1},
   {&__pyx_kp_s_Out_of_bounds_on_buffer_access_a, __pyx_k_Out_of_bounds_on_buffer_access_a, sizeof(__pyx_k_Out_of_bounds_on_buffer_access_a), 0, 0, 1, 0},
   {&__pyx_n_s_PickleError, __pyx_k_PickleError, sizeof(__pyx_k_PickleError), 0, 0, 1, 1},
+  {&__pyx_kp_u_Realloc_memory_failed, __pyx_k_Realloc_memory_failed, sizeof(__pyx_k_Realloc_memory_failed), 0, 1, 0, 0},
   {&__pyx_n_s_RuntimeError, __pyx_k_RuntimeError, sizeof(__pyx_k_RuntimeError), 0, 0, 1, 1},
   {&__pyx_n_s_T, __pyx_k_T, sizeof(__pyx_k_T), 0, 0, 1, 1},
   {&__pyx_kp_b_T_2, __pyx_k_T_2, sizeof(__pyx_k_T_2), 0, 0, 0, 0},
@@ -25557,11 +25785,11 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_kp_s_Unable_to_convert_item_to_object, __pyx_k_Unable_to_convert_item_to_object, sizeof(__pyx_k_Unable_to_convert_item_to_object), 0, 0, 1, 0},
   {&__pyx_n_s_ValueError, __pyx_k_ValueError, sizeof(__pyx_k_ValueError), 0, 0, 1, 1},
   {&__pyx_n_s_View_MemoryView, __pyx_k_View_MemoryView, sizeof(__pyx_k_View_MemoryView), 0, 0, 1, 1},
-  {&__pyx_kp_b__32, __pyx_k__32, sizeof(__pyx_k__32), 0, 0, 0, 0},
-  {&__pyx_kp_b__33, __pyx_k__33, sizeof(__pyx_k__33), 0, 0, 0, 0},
   {&__pyx_kp_b__34, __pyx_k__34, sizeof(__pyx_k__34), 0, 0, 0, 0},
   {&__pyx_kp_b__35, __pyx_k__35, sizeof(__pyx_k__35), 0, 0, 0, 0},
-  {&__pyx_kp_u__36, __pyx_k__36, sizeof(__pyx_k__36), 0, 1, 0, 0},
+  {&__pyx_kp_b__36, __pyx_k__36, sizeof(__pyx_k__36), 0, 0, 0, 0},
+  {&__pyx_kp_b__37, __pyx_k__37, sizeof(__pyx_k__37), 0, 0, 0, 0},
+  {&__pyx_kp_u__38, __pyx_k__38, sizeof(__pyx_k__38), 0, 1, 0, 0},
   {&__pyx_n_s_all_coords, __pyx_k_all_coords, sizeof(__pyx_k_all_coords), 0, 0, 1, 1},
   {&__pyx_n_s_all_fcoords, __pyx_k_all_fcoords, sizeof(__pyx_k_all_fcoords), 0, 0, 1, 1},
   {&__pyx_n_s_all_indices1, __pyx_k_all_indices1, sizeof(__pyx_k_all_indices1), 0, 0, 1, 1},
@@ -25648,6 +25876,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_kp_u_ndarray_is_not_Fortran_contiguou, __pyx_k_ndarray_is_not_Fortran_contiguou, sizeof(__pyx_k_ndarray_is_not_Fortran_contiguou), 0, 1, 0, 0},
   {&__pyx_n_s_ndim, __pyx_k_ndim, sizeof(__pyx_k_ndim), 0, 0, 1, 1},
   {&__pyx_n_s_neighbor_map, __pyx_k_neighbor_map, sizeof(__pyx_k_neighbor_map), 0, 0, 1, 1},
+  {&__pyx_kp_s_neighbors_pyx, __pyx_k_neighbors_pyx, sizeof(__pyx_k_neighbors_pyx), 0, 0, 1, 0},
   {&__pyx_n_s_new, __pyx_k_new, sizeof(__pyx_k_new), 0, 0, 1, 1},
   {&__pyx_n_s_nlattice, __pyx_k_nlattice, sizeof(__pyx_k_nlattice), 0, 0, 1, 1},
   {&__pyx_kp_s_no_default___reduce___due_to_non, __pyx_k_no_default___reduce___due_to_non, sizeof(__pyx_k_no_default___reduce___due_to_non), 0, 0, 1, 0},
@@ -25671,8 +25900,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_py_index_1, __pyx_k_py_index_1, sizeof(__pyx_k_py_index_1), 0, 0, 1, 1},
   {&__pyx_n_s_py_index_2, __pyx_k_py_index_2, sizeof(__pyx_k_py_index_2), 0, 0, 1, 1},
   {&__pyx_n_s_py_offsets, __pyx_k_py_offsets, sizeof(__pyx_k_py_offsets), 0, 0, 1, 1},
-  {&__pyx_kp_s_pymatgen_optimization_neighbors, __pyx_k_pymatgen_optimization_neighbors, sizeof(__pyx_k_pymatgen_optimization_neighbors), 0, 0, 1, 0},
-  {&__pyx_n_s_pymatgen_optimization_neighbors_2, __pyx_k_pymatgen_optimization_neighbors_2, sizeof(__pyx_k_pymatgen_optimization_neighbors_2), 0, 0, 1, 1},
+  {&__pyx_n_s_pymatgen_optimization_neighbors, __pyx_k_pymatgen_optimization_neighbors, sizeof(__pyx_k_pymatgen_optimization_neighbors), 0, 0, 1, 1},
   {&__pyx_n_s_pyx_PickleError, __pyx_k_pyx_PickleError, sizeof(__pyx_k_pyx_PickleError), 0, 0, 1, 1},
   {&__pyx_n_s_pyx_checksum, __pyx_k_pyx_checksum, sizeof(__pyx_k_pyx_checksum), 0, 0, 1, 1},
   {&__pyx_n_s_pyx_getbuffer, __pyx_k_pyx_getbuffer, sizeof(__pyx_k_pyx_getbuffer), 0, 0, 1, 1},
@@ -25713,11 +25941,11 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {0, 0, 0, 0, 0, 0, 0}
 };
 static CYTHON_SMALL_CODE int __Pyx_InitCachedBuiltins(void) {
-  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 47, __pyx_L1_error)
+  __pyx_builtin_MemoryError = __Pyx_GetBuiltinName(__pyx_n_s_MemoryError); if (!__pyx_builtin_MemoryError) __PYX_ERR(0, 24, __pyx_L1_error)
+  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 64, __pyx_L1_error)
   __pyx_builtin_ValueError = __Pyx_GetBuiltinName(__pyx_n_s_ValueError); if (!__pyx_builtin_ValueError) __PYX_ERR(1, 272, __pyx_L1_error)
   __pyx_builtin_RuntimeError = __Pyx_GetBuiltinName(__pyx_n_s_RuntimeError); if (!__pyx_builtin_RuntimeError) __PYX_ERR(1, 856, __pyx_L1_error)
   __pyx_builtin_ImportError = __Pyx_GetBuiltinName(__pyx_n_s_ImportError); if (!__pyx_builtin_ImportError) __PYX_ERR(1, 1038, __pyx_L1_error)
-  __pyx_builtin_MemoryError = __Pyx_GetBuiltinName(__pyx_n_s_MemoryError); if (!__pyx_builtin_MemoryError) __PYX_ERR(2, 148, __pyx_L1_error)
   __pyx_builtin_enumerate = __Pyx_GetBuiltinName(__pyx_n_s_enumerate); if (!__pyx_builtin_enumerate) __PYX_ERR(2, 151, __pyx_L1_error)
   __pyx_builtin_TypeError = __Pyx_GetBuiltinName(__pyx_n_s_TypeError); if (!__pyx_builtin_TypeError) __PYX_ERR(2, 2, __pyx_L1_error)
   __pyx_builtin_Ellipsis = __Pyx_GetBuiltinName(__pyx_n_s_Ellipsis); if (!__pyx_builtin_Ellipsis) __PYX_ERR(2, 404, __pyx_L1_error)
@@ -25732,107 +25960,129 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__Pyx_InitCachedConstants", 0);
 
-  /* "pymatgen/optimization/neighbors.pyx":319
+  /* "pymatgen/optimization/neighbors.pyx":24
+ *     cdef void *ptr = malloc(size)
+ *     if ptr == NULL:
+ *         raise MemoryError("Memory allocation failed!")             # <<<<<<<<<<<<<<
+ *     return ptr
+ * 
+ */
+  __pyx_tuple_ = PyTuple_Pack(1, __pyx_kp_u_Memory_allocation_failed); if (unlikely(!__pyx_tuple_)) __PYX_ERR(0, 24, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple_);
+  __Pyx_GIVEREF(__pyx_tuple_);
+
+  /* "pymatgen/optimization/neighbors.pyx":32
+ *     cdef void *ptr = realloc(ptr_orig, size)
+ *     if ptr == NULL:
+ *         raise MemoryError("Realloc memory failed!")             # <<<<<<<<<<<<<<
+ *     return ptr
+ * 
+ */
+  __pyx_tuple__2 = PyTuple_Pack(1, __pyx_kp_u_Realloc_memory_failed); if (unlikely(!__pyx_tuple__2)) __PYX_ERR(0, 32, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__2);
+  __Pyx_GIVEREF(__pyx_tuple__2);
+
+  /* "pymatgen/optimization/neighbors.pyx":340
  *     Compute the fractional coordinates
  *     """
  *     cdef double[:, ::1] inv_lattice = np.empty((3, 3), dtype=np.float64)             # <<<<<<<<<<<<<<
  *     matrix_inv(lattice, inv_lattice)
  *     matmul(cart_coords, inv_lattice, frac_coords)
  */
-  __pyx_tuple__2 = PyTuple_Pack(2, __pyx_int_3, __pyx_int_3); if (unlikely(!__pyx_tuple__2)) __PYX_ERR(0, 319, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__2);
-  __Pyx_GIVEREF(__pyx_tuple__2);
-  __pyx_tuple__3 = PyTuple_Pack(1, __pyx_tuple__2); if (unlikely(!__pyx_tuple__3)) __PYX_ERR(0, 319, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__3);
-  __Pyx_GIVEREF(__pyx_tuple__3);
+  __pyx_tuple__4 = PyTuple_Pack(2, __pyx_int_3, __pyx_int_3); if (unlikely(!__pyx_tuple__4)) __PYX_ERR(0, 340, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__4);
+  __Pyx_GIVEREF(__pyx_tuple__4);
+  __pyx_tuple__5 = PyTuple_Pack(1, __pyx_tuple__4); if (unlikely(!__pyx_tuple__5)) __PYX_ERR(0, 340, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__5);
+  __Pyx_GIVEREF(__pyx_tuple__5);
 
-  /* "pymatgen/optimization/neighbors.pyx":358
+  /* "pymatgen/optimization/neighbors.pyx":379
  *     Get maximum repetition in each directions
  *     """
  *     cdef double [:, ::1] reciprocal_lattice = np.eye(3, dtype=np.float64)             # <<<<<<<<<<<<<<
  *     cdef int i
  *     cdef int n = lattice.shape[1]
  */
-  __pyx_tuple__4 = PyTuple_Pack(1, __pyx_int_3); if (unlikely(!__pyx_tuple__4)) __PYX_ERR(0, 358, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__4);
-  __Pyx_GIVEREF(__pyx_tuple__4);
+  __pyx_tuple__6 = PyTuple_Pack(1, __pyx_int_3); if (unlikely(!__pyx_tuple__6)) __PYX_ERR(0, 379, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__6);
+  __Pyx_GIVEREF(__pyx_tuple__6);
 
-  /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":272
+  /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":272
  *             if ((flags & pybuf.PyBUF_C_CONTIGUOUS == pybuf.PyBUF_C_CONTIGUOUS)
  *                 and not PyArray_CHKFLAGS(self, NPY_ARRAY_C_CONTIGUOUS)):
  *                 raise ValueError(u"ndarray is not C contiguous")             # <<<<<<<<<<<<<<
  * 
  *             if ((flags & pybuf.PyBUF_F_CONTIGUOUS == pybuf.PyBUF_F_CONTIGUOUS)
  */
-  __pyx_tuple__6 = PyTuple_Pack(1, __pyx_kp_u_ndarray_is_not_C_contiguous); if (unlikely(!__pyx_tuple__6)) __PYX_ERR(1, 272, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__6);
-  __Pyx_GIVEREF(__pyx_tuple__6);
+  __pyx_tuple__8 = PyTuple_Pack(1, __pyx_kp_u_ndarray_is_not_C_contiguous); if (unlikely(!__pyx_tuple__8)) __PYX_ERR(1, 272, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__8);
+  __Pyx_GIVEREF(__pyx_tuple__8);
 
-  /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":276
+  /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":276
  *             if ((flags & pybuf.PyBUF_F_CONTIGUOUS == pybuf.PyBUF_F_CONTIGUOUS)
  *                 and not PyArray_CHKFLAGS(self, NPY_ARRAY_F_CONTIGUOUS)):
  *                 raise ValueError(u"ndarray is not Fortran contiguous")             # <<<<<<<<<<<<<<
  * 
  *             info.buf = PyArray_DATA(self)
  */
-  __pyx_tuple__7 = PyTuple_Pack(1, __pyx_kp_u_ndarray_is_not_Fortran_contiguou); if (unlikely(!__pyx_tuple__7)) __PYX_ERR(1, 276, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__7);
-  __Pyx_GIVEREF(__pyx_tuple__7);
+  __pyx_tuple__9 = PyTuple_Pack(1, __pyx_kp_u_ndarray_is_not_Fortran_contiguou); if (unlikely(!__pyx_tuple__9)) __PYX_ERR(1, 276, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__9);
+  __Pyx_GIVEREF(__pyx_tuple__9);
 
-  /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":306
+  /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":306
  *                 if ((descr.byteorder == c'>' and little_endian) or
  *                     (descr.byteorder == c'<' and not little_endian)):
  *                     raise ValueError(u"Non-native byte order not supported")             # <<<<<<<<<<<<<<
  *                 if   t == NPY_BYTE:        f = "b"
  *                 elif t == NPY_UBYTE:       f = "B"
  */
-  __pyx_tuple__8 = PyTuple_Pack(1, __pyx_kp_u_Non_native_byte_order_not_suppor); if (unlikely(!__pyx_tuple__8)) __PYX_ERR(1, 306, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__8);
-  __Pyx_GIVEREF(__pyx_tuple__8);
+  __pyx_tuple__10 = PyTuple_Pack(1, __pyx_kp_u_Non_native_byte_order_not_suppor); if (unlikely(!__pyx_tuple__10)) __PYX_ERR(1, 306, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__10);
+  __Pyx_GIVEREF(__pyx_tuple__10);
 
-  /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":856
+  /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":856
  * 
  *         if (end - f) - <int>(new_offset - offset[0]) < 15:
  *             raise RuntimeError(u"Format string allocated too short, see comment in numpy.pxd")             # <<<<<<<<<<<<<<
  * 
  *         if ((child.byteorder == c'>' and little_endian) or
  */
-  __pyx_tuple__9 = PyTuple_Pack(1, __pyx_kp_u_Format_string_allocated_too_shor); if (unlikely(!__pyx_tuple__9)) __PYX_ERR(1, 856, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__9);
-  __Pyx_GIVEREF(__pyx_tuple__9);
+  __pyx_tuple__11 = PyTuple_Pack(1, __pyx_kp_u_Format_string_allocated_too_shor); if (unlikely(!__pyx_tuple__11)) __PYX_ERR(1, 856, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__11);
+  __Pyx_GIVEREF(__pyx_tuple__11);
 
-  /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":880
+  /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":880
  *             t = child.type_num
  *             if end - f < 5:
  *                 raise RuntimeError(u"Format string allocated too short.")             # <<<<<<<<<<<<<<
  * 
  *             # Until ticket #99 is fixed, use integers to avoid warnings
  */
-  __pyx_tuple__10 = PyTuple_Pack(1, __pyx_kp_u_Format_string_allocated_too_shor_2); if (unlikely(!__pyx_tuple__10)) __PYX_ERR(1, 880, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__10);
-  __Pyx_GIVEREF(__pyx_tuple__10);
+  __pyx_tuple__12 = PyTuple_Pack(1, __pyx_kp_u_Format_string_allocated_too_shor_2); if (unlikely(!__pyx_tuple__12)) __PYX_ERR(1, 880, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__12);
+  __Pyx_GIVEREF(__pyx_tuple__12);
 
-  /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1038
+  /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1038
  *         _import_array()
  *     except Exception:
  *         raise ImportError("numpy.core.multiarray failed to import")             # <<<<<<<<<<<<<<
  * 
  * cdef inline int import_umath() except -1:
  */
-  __pyx_tuple__11 = PyTuple_Pack(1, __pyx_kp_u_numpy_core_multiarray_failed_to); if (unlikely(!__pyx_tuple__11)) __PYX_ERR(1, 1038, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__11);
-  __Pyx_GIVEREF(__pyx_tuple__11);
+  __pyx_tuple__13 = PyTuple_Pack(1, __pyx_kp_u_numpy_core_multiarray_failed_to); if (unlikely(!__pyx_tuple__13)) __PYX_ERR(1, 1038, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__13);
+  __Pyx_GIVEREF(__pyx_tuple__13);
 
-  /* "../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1044
+  /* "../../../../../miniconda3/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1044
  *         _import_umath()
  *     except Exception:
  *         raise ImportError("numpy.core.umath failed to import")             # <<<<<<<<<<<<<<
  * 
  * cdef inline int import_ufunc() except -1:
  */
-  __pyx_tuple__12 = PyTuple_Pack(1, __pyx_kp_u_numpy_core_umath_failed_to_impor); if (unlikely(!__pyx_tuple__12)) __PYX_ERR(1, 1044, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__12);
-  __Pyx_GIVEREF(__pyx_tuple__12);
+  __pyx_tuple__14 = PyTuple_Pack(1, __pyx_kp_u_numpy_core_umath_failed_to_impor); if (unlikely(!__pyx_tuple__14)) __PYX_ERR(1, 1044, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__14);
+  __Pyx_GIVEREF(__pyx_tuple__14);
 
   /* "View.MemoryView":133
  * 
@@ -25841,9 +26091,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * 
  *         if itemsize <= 0:
  */
-  __pyx_tuple__13 = PyTuple_Pack(1, __pyx_kp_s_Empty_shape_tuple_for_cython_arr); if (unlikely(!__pyx_tuple__13)) __PYX_ERR(2, 133, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__13);
-  __Pyx_GIVEREF(__pyx_tuple__13);
+  __pyx_tuple__15 = PyTuple_Pack(1, __pyx_kp_s_Empty_shape_tuple_for_cython_arr); if (unlikely(!__pyx_tuple__15)) __PYX_ERR(2, 133, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__15);
+  __Pyx_GIVEREF(__pyx_tuple__15);
 
   /* "View.MemoryView":136
  * 
@@ -25852,9 +26102,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * 
  *         if not isinstance(format, bytes):
  */
-  __pyx_tuple__14 = PyTuple_Pack(1, __pyx_kp_s_itemsize_0_for_cython_array); if (unlikely(!__pyx_tuple__14)) __PYX_ERR(2, 136, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__14);
-  __Pyx_GIVEREF(__pyx_tuple__14);
+  __pyx_tuple__16 = PyTuple_Pack(1, __pyx_kp_s_itemsize_0_for_cython_array); if (unlikely(!__pyx_tuple__16)) __PYX_ERR(2, 136, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__16);
+  __Pyx_GIVEREF(__pyx_tuple__16);
 
   /* "View.MemoryView":148
  * 
@@ -25863,9 +26113,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * 
  * 
  */
-  __pyx_tuple__15 = PyTuple_Pack(1, __pyx_kp_s_unable_to_allocate_shape_and_str); if (unlikely(!__pyx_tuple__15)) __PYX_ERR(2, 148, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__15);
-  __Pyx_GIVEREF(__pyx_tuple__15);
+  __pyx_tuple__17 = PyTuple_Pack(1, __pyx_kp_s_unable_to_allocate_shape_and_str); if (unlikely(!__pyx_tuple__17)) __PYX_ERR(2, 148, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__17);
+  __Pyx_GIVEREF(__pyx_tuple__17);
 
   /* "View.MemoryView":176
  *             self.data = <char *>malloc(self.len)
@@ -25874,9 +26124,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * 
  *             if self.dtype_is_object:
  */
-  __pyx_tuple__16 = PyTuple_Pack(1, __pyx_kp_s_unable_to_allocate_array_data); if (unlikely(!__pyx_tuple__16)) __PYX_ERR(2, 176, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__16);
-  __Pyx_GIVEREF(__pyx_tuple__16);
+  __pyx_tuple__18 = PyTuple_Pack(1, __pyx_kp_s_unable_to_allocate_array_data); if (unlikely(!__pyx_tuple__18)) __PYX_ERR(2, 176, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__18);
+  __Pyx_GIVEREF(__pyx_tuple__18);
 
   /* "View.MemoryView":192
  *             bufmode = PyBUF_F_CONTIGUOUS | PyBUF_ANY_CONTIGUOUS
@@ -25885,9 +26135,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  *         info.buf = self.data
  *         info.len = self.len
  */
-  __pyx_tuple__17 = PyTuple_Pack(1, __pyx_kp_s_Can_only_create_a_buffer_that_is); if (unlikely(!__pyx_tuple__17)) __PYX_ERR(2, 192, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__17);
-  __Pyx_GIVEREF(__pyx_tuple__17);
+  __pyx_tuple__19 = PyTuple_Pack(1, __pyx_kp_s_Can_only_create_a_buffer_that_is); if (unlikely(!__pyx_tuple__19)) __PYX_ERR(2, 192, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__19);
+  __Pyx_GIVEREF(__pyx_tuple__19);
 
   /* "(tree fragment)":2
  * def __reduce_cython__(self):
@@ -25895,18 +26145,18 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * def __setstate_cython__(self, __pyx_state):
  *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
  */
-  __pyx_tuple__18 = PyTuple_Pack(1, __pyx_kp_s_no_default___reduce___due_to_non); if (unlikely(!__pyx_tuple__18)) __PYX_ERR(2, 2, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__18);
-  __Pyx_GIVEREF(__pyx_tuple__18);
+  __pyx_tuple__20 = PyTuple_Pack(1, __pyx_kp_s_no_default___reduce___due_to_non); if (unlikely(!__pyx_tuple__20)) __PYX_ERR(2, 2, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__20);
+  __Pyx_GIVEREF(__pyx_tuple__20);
 
   /* "(tree fragment)":4
  *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
  * def __setstate_cython__(self, __pyx_state):
  *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")             # <<<<<<<<<<<<<<
  */
-  __pyx_tuple__19 = PyTuple_Pack(1, __pyx_kp_s_no_default___reduce___due_to_non); if (unlikely(!__pyx_tuple__19)) __PYX_ERR(2, 4, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__19);
-  __Pyx_GIVEREF(__pyx_tuple__19);
+  __pyx_tuple__21 = PyTuple_Pack(1, __pyx_kp_s_no_default___reduce___due_to_non); if (unlikely(!__pyx_tuple__21)) __PYX_ERR(2, 4, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__21);
+  __Pyx_GIVEREF(__pyx_tuple__21);
 
   /* "View.MemoryView":418
  *     def __setitem__(memoryview self, object index, object value):
@@ -25915,9 +26165,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * 
  *         have_slices, index = _unellipsify(index, self.view.ndim)
  */
-  __pyx_tuple__20 = PyTuple_Pack(1, __pyx_kp_s_Cannot_assign_to_read_only_memor); if (unlikely(!__pyx_tuple__20)) __PYX_ERR(2, 418, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__20);
-  __Pyx_GIVEREF(__pyx_tuple__20);
+  __pyx_tuple__22 = PyTuple_Pack(1, __pyx_kp_s_Cannot_assign_to_read_only_memor); if (unlikely(!__pyx_tuple__22)) __PYX_ERR(2, 418, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__22);
+  __Pyx_GIVEREF(__pyx_tuple__22);
 
   /* "View.MemoryView":495
  *             result = struct.unpack(self.view.format, bytesitem)
@@ -25926,9 +26176,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  *         else:
  *             if len(self.view.format) == 1:
  */
-  __pyx_tuple__21 = PyTuple_Pack(1, __pyx_kp_s_Unable_to_convert_item_to_object); if (unlikely(!__pyx_tuple__21)) __PYX_ERR(2, 495, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__21);
-  __Pyx_GIVEREF(__pyx_tuple__21);
+  __pyx_tuple__23 = PyTuple_Pack(1, __pyx_kp_s_Unable_to_convert_item_to_object); if (unlikely(!__pyx_tuple__23)) __PYX_ERR(2, 495, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__23);
+  __Pyx_GIVEREF(__pyx_tuple__23);
 
   /* "View.MemoryView":520
  *     def __getbuffer__(self, Py_buffer *info, int flags):
@@ -25937,9 +26187,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * 
  *         if flags & PyBUF_ND:
  */
-  __pyx_tuple__22 = PyTuple_Pack(1, __pyx_kp_s_Cannot_create_writable_memory_vi); if (unlikely(!__pyx_tuple__22)) __PYX_ERR(2, 520, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__22);
-  __Pyx_GIVEREF(__pyx_tuple__22);
+  __pyx_tuple__24 = PyTuple_Pack(1, __pyx_kp_s_Cannot_create_writable_memory_vi); if (unlikely(!__pyx_tuple__24)) __PYX_ERR(2, 520, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__24);
+  __Pyx_GIVEREF(__pyx_tuple__24);
 
   /* "View.MemoryView":570
  *         if self.view.strides == NULL:
@@ -25948,9 +26198,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * 
  *         return tuple([stride for stride in self.view.strides[:self.view.ndim]])
  */
-  __pyx_tuple__23 = PyTuple_Pack(1, __pyx_kp_s_Buffer_view_does_not_expose_stri); if (unlikely(!__pyx_tuple__23)) __PYX_ERR(2, 570, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__23);
-  __Pyx_GIVEREF(__pyx_tuple__23);
+  __pyx_tuple__25 = PyTuple_Pack(1, __pyx_kp_s_Buffer_view_does_not_expose_stri); if (unlikely(!__pyx_tuple__25)) __PYX_ERR(2, 570, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__25);
+  __Pyx_GIVEREF(__pyx_tuple__25);
 
   /* "View.MemoryView":577
  *     def suboffsets(self):
@@ -25959,12 +26209,12 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * 
  *         return tuple([suboffset for suboffset in self.view.suboffsets[:self.view.ndim]])
  */
-  __pyx_tuple__24 = PyTuple_New(1); if (unlikely(!__pyx_tuple__24)) __PYX_ERR(2, 577, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__24);
+  __pyx_tuple__26 = PyTuple_New(1); if (unlikely(!__pyx_tuple__26)) __PYX_ERR(2, 577, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__26);
   __Pyx_INCREF(__pyx_int_neg_1);
   __Pyx_GIVEREF(__pyx_int_neg_1);
-  PyTuple_SET_ITEM(__pyx_tuple__24, 0, __pyx_int_neg_1);
-  __Pyx_GIVEREF(__pyx_tuple__24);
+  PyTuple_SET_ITEM(__pyx_tuple__26, 0, __pyx_int_neg_1);
+  __Pyx_GIVEREF(__pyx_tuple__26);
 
   /* "(tree fragment)":2
  * def __reduce_cython__(self):
@@ -25972,18 +26222,18 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * def __setstate_cython__(self, __pyx_state):
  *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
  */
-  __pyx_tuple__25 = PyTuple_Pack(1, __pyx_kp_s_no_default___reduce___due_to_non); if (unlikely(!__pyx_tuple__25)) __PYX_ERR(2, 2, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__25);
-  __Pyx_GIVEREF(__pyx_tuple__25);
+  __pyx_tuple__27 = PyTuple_Pack(1, __pyx_kp_s_no_default___reduce___due_to_non); if (unlikely(!__pyx_tuple__27)) __PYX_ERR(2, 2, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__27);
+  __Pyx_GIVEREF(__pyx_tuple__27);
 
   /* "(tree fragment)":4
  *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
  * def __setstate_cython__(self, __pyx_state):
  *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")             # <<<<<<<<<<<<<<
  */
-  __pyx_tuple__26 = PyTuple_Pack(1, __pyx_kp_s_no_default___reduce___due_to_non); if (unlikely(!__pyx_tuple__26)) __PYX_ERR(2, 4, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__26);
-  __Pyx_GIVEREF(__pyx_tuple__26);
+  __pyx_tuple__28 = PyTuple_Pack(1, __pyx_kp_s_no_default___reduce___due_to_non); if (unlikely(!__pyx_tuple__28)) __PYX_ERR(2, 4, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__28);
+  __Pyx_GIVEREF(__pyx_tuple__28);
 
   /* "View.MemoryView":682
  *         if item is Ellipsis:
@@ -25992,9 +26242,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  *                 seen_ellipsis = True
  *             else:
  */
-  __pyx_slice__27 = PySlice_New(Py_None, Py_None, Py_None); if (unlikely(!__pyx_slice__27)) __PYX_ERR(2, 682, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_slice__27);
-  __Pyx_GIVEREF(__pyx_slice__27);
+  __pyx_slice__29 = PySlice_New(Py_None, Py_None, Py_None); if (unlikely(!__pyx_slice__29)) __PYX_ERR(2, 682, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_slice__29);
+  __Pyx_GIVEREF(__pyx_slice__29);
 
   /* "View.MemoryView":703
  *     for suboffset in suboffsets[:ndim]:
@@ -26003,9 +26253,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * 
  * 
  */
-  __pyx_tuple__28 = PyTuple_Pack(1, __pyx_kp_s_Indirect_dimensions_not_supporte); if (unlikely(!__pyx_tuple__28)) __PYX_ERR(2, 703, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__28);
-  __Pyx_GIVEREF(__pyx_tuple__28);
+  __pyx_tuple__30 = PyTuple_Pack(1, __pyx_kp_s_Indirect_dimensions_not_supporte); if (unlikely(!__pyx_tuple__30)) __PYX_ERR(2, 703, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__30);
+  __Pyx_GIVEREF(__pyx_tuple__30);
 
   /* "(tree fragment)":2
  * def __reduce_cython__(self):
@@ -26013,42 +26263,42 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * def __setstate_cython__(self, __pyx_state):
  *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
  */
-  __pyx_tuple__29 = PyTuple_Pack(1, __pyx_kp_s_no_default___reduce___due_to_non); if (unlikely(!__pyx_tuple__29)) __PYX_ERR(2, 2, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__29);
-  __Pyx_GIVEREF(__pyx_tuple__29);
+  __pyx_tuple__31 = PyTuple_Pack(1, __pyx_kp_s_no_default___reduce___due_to_non); if (unlikely(!__pyx_tuple__31)) __PYX_ERR(2, 2, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__31);
+  __Pyx_GIVEREF(__pyx_tuple__31);
 
   /* "(tree fragment)":4
  *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
  * def __setstate_cython__(self, __pyx_state):
  *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")             # <<<<<<<<<<<<<<
  */
-  __pyx_tuple__30 = PyTuple_Pack(1, __pyx_kp_s_no_default___reduce___due_to_non); if (unlikely(!__pyx_tuple__30)) __PYX_ERR(2, 4, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__30);
-  __Pyx_GIVEREF(__pyx_tuple__30);
+  __pyx_tuple__32 = PyTuple_Pack(1, __pyx_kp_s_no_default___reduce___due_to_non); if (unlikely(!__pyx_tuple__32)) __PYX_ERR(2, 4, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__32);
+  __Pyx_GIVEREF(__pyx_tuple__32);
 
-  /* "pymatgen/optimization/neighbors.pyx":19
+  /* "pymatgen/optimization/neighbors.pyx":36
  * 
  * 
  * def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coords, float r, long[:] pbc, double[:, ::1] lattice, double tol=1e-8):             # <<<<<<<<<<<<<<
  *     """
  *     For each point in `center_coords`, get all the neighboring points in `all_coords` that are within the
  */
-  __pyx_tuple__37 = PyTuple_Pack(60, __pyx_n_s_all_coords, __pyx_n_s_center_coords, __pyx_n_s_r, __pyx_n_s_pbc, __pyx_n_s_lattice, __pyx_n_s_tol, __pyx_n_s_i, __pyx_n_s_j, __pyx_n_s_k, __pyx_n_s_l, __pyx_n_s_m, __pyx_n_s_n, __pyx_n_s_maxr, __pyx_n_s_valid_min, __pyx_n_s_valid_max, __pyx_n_s_ledge, __pyx_n_s_n_center, __pyx_n_s_n_total, __pyx_n_s_frac_coords, __pyx_n_s_max_bounds, __pyx_n_s_min_bounds, __pyx_n_s_nlattice, __pyx_n_s_count, __pyx_n_s_all_fcoords, __pyx_n_s_coords_in_cell, __pyx_n_s_offset_correction, __pyx_n_s_natoms, __pyx_n_s_offsets_p_temp, __pyx_n_s_expanded_coords_p_temp, __pyx_n_s_indices_p_temp, __pyx_n_s_coord_temp, __pyx_n_s_offsets_p, __pyx_n_s_expanded_coords_p, __pyx_n_s_indices_p, __pyx_n_s_offsets, __pyx_n_s_expanded_coords, __pyx_n_s_indices, __pyx_n_s_ncube, __pyx_n_s_all_indices3, __pyx_n_s_all_indices1, __pyx_n_s_nb_cubes, __pyx_n_s_head, __pyx_n_s_atom_indices, __pyx_n_s_neighbor_map, __pyx_n_s_center_indices3, __pyx_n_s_center_indices1, __pyx_n_s_index_1, __pyx_n_s_index_2, __pyx_n_s_offset_final, __pyx_n_s_distances, __pyx_n_s_ncube_indices_temp, __pyx_n_s_it, __pyx_n_s_cube_index_temp, __pyx_n_s_link_index, __pyx_n_s_d_temp2, __pyx_n_s_r2, __pyx_n_s_py_index_1, __pyx_n_s_py_index_2, __pyx_n_s_py_offsets, __pyx_n_s_py_distances); if (unlikely(!__pyx_tuple__37)) __PYX_ERR(0, 19, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__37);
-  __Pyx_GIVEREF(__pyx_tuple__37);
-  __pyx_codeobj_ = (PyObject*)__Pyx_PyCode_New(6, 0, 60, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__37, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_pymatgen_optimization_neighbors, __pyx_n_s_find_points_in_spheres, 19, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj_)) __PYX_ERR(0, 19, __pyx_L1_error)
+  __pyx_tuple__39 = PyTuple_Pack(60, __pyx_n_s_all_coords, __pyx_n_s_center_coords, __pyx_n_s_r, __pyx_n_s_pbc, __pyx_n_s_lattice, __pyx_n_s_tol, __pyx_n_s_i, __pyx_n_s_j, __pyx_n_s_k, __pyx_n_s_l, __pyx_n_s_m, __pyx_n_s_n, __pyx_n_s_maxr, __pyx_n_s_valid_min, __pyx_n_s_valid_max, __pyx_n_s_ledge, __pyx_n_s_n_center, __pyx_n_s_n_total, __pyx_n_s_frac_coords, __pyx_n_s_max_bounds, __pyx_n_s_min_bounds, __pyx_n_s_nlattice, __pyx_n_s_count, __pyx_n_s_all_fcoords, __pyx_n_s_coords_in_cell, __pyx_n_s_offset_correction, __pyx_n_s_natoms, __pyx_n_s_offsets_p_temp, __pyx_n_s_expanded_coords_p_temp, __pyx_n_s_indices_p_temp, __pyx_n_s_coord_temp, __pyx_n_s_offsets_p, __pyx_n_s_expanded_coords_p, __pyx_n_s_indices_p, __pyx_n_s_offsets, __pyx_n_s_expanded_coords, __pyx_n_s_indices, __pyx_n_s_ncube, __pyx_n_s_all_indices3, __pyx_n_s_all_indices1, __pyx_n_s_nb_cubes, __pyx_n_s_head, __pyx_n_s_atom_indices, __pyx_n_s_neighbor_map, __pyx_n_s_center_indices3, __pyx_n_s_center_indices1, __pyx_n_s_index_1, __pyx_n_s_index_2, __pyx_n_s_offset_final, __pyx_n_s_distances, __pyx_n_s_ncube_indices_temp, __pyx_n_s_it, __pyx_n_s_cube_index_temp, __pyx_n_s_link_index, __pyx_n_s_d_temp2, __pyx_n_s_r2, __pyx_n_s_py_index_1, __pyx_n_s_py_index_2, __pyx_n_s_py_offsets, __pyx_n_s_py_distances); if (unlikely(!__pyx_tuple__39)) __PYX_ERR(0, 36, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__39);
+  __Pyx_GIVEREF(__pyx_tuple__39);
+  __pyx_codeobj__3 = (PyObject*)__Pyx_PyCode_New(6, 0, 60, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__39, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_neighbors_pyx, __pyx_n_s_find_points_in_spheres, 36, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__3)) __PYX_ERR(0, 36, __pyx_L1_error)
 
-  /* "pymatgen/optimization/neighbors.pyx":460
+  /* "pymatgen/optimization/neighbors.pyx":481
  *         label1d[i] = label3d[i, 0] * ny * nz + label3d[i, 1] * nz + label3d[i, 2]
  * 
  * def compute_offset_vectors(long n):             # <<<<<<<<<<<<<<
  *     cdef long i, j, k
  *     cdef long v[3]
  */
-  __pyx_tuple__38 = PyTuple_Pack(14, __pyx_n_s_n, __pyx_n_s_n, __pyx_n_s_i, __pyx_n_s_j, __pyx_n_s_k, __pyx_n_s_v, __pyx_n_s_center, __pyx_n_s_ind, __pyx_n_s_is_within, __pyx_n_s_ntotal, __pyx_n_s_ovectors, __pyx_n_s_count, __pyx_n_s_off, __pyx_n_s_array); if (unlikely(!__pyx_tuple__38)) __PYX_ERR(0, 460, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__38);
-  __Pyx_GIVEREF(__pyx_tuple__38);
-  __pyx_codeobj__5 = (PyObject*)__Pyx_PyCode_New(1, 0, 14, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__38, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_pymatgen_optimization_neighbors, __pyx_n_s_compute_offset_vectors, 460, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__5)) __PYX_ERR(0, 460, __pyx_L1_error)
+  __pyx_tuple__40 = PyTuple_Pack(14, __pyx_n_s_n, __pyx_n_s_n, __pyx_n_s_i, __pyx_n_s_j, __pyx_n_s_k, __pyx_n_s_v, __pyx_n_s_center, __pyx_n_s_ind, __pyx_n_s_is_within, __pyx_n_s_ntotal, __pyx_n_s_ovectors, __pyx_n_s_count, __pyx_n_s_off, __pyx_n_s_array); if (unlikely(!__pyx_tuple__40)) __PYX_ERR(0, 481, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__40);
+  __Pyx_GIVEREF(__pyx_tuple__40);
+  __pyx_codeobj__7 = (PyObject*)__Pyx_PyCode_New(1, 0, 14, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__40, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_neighbors_pyx, __pyx_n_s_compute_offset_vectors, 481, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__7)) __PYX_ERR(0, 481, __pyx_L1_error)
 
   /* "View.MemoryView":286
  *         return self.name
@@ -26057,9 +26307,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * cdef strided = Enum("<strided and direct>") # default
  * cdef indirect = Enum("<strided and indirect>")
  */
-  __pyx_tuple__39 = PyTuple_Pack(1, __pyx_kp_s_strided_and_direct_or_indirect); if (unlikely(!__pyx_tuple__39)) __PYX_ERR(2, 286, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__39);
-  __Pyx_GIVEREF(__pyx_tuple__39);
+  __pyx_tuple__41 = PyTuple_Pack(1, __pyx_kp_s_strided_and_direct_or_indirect); if (unlikely(!__pyx_tuple__41)) __PYX_ERR(2, 286, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__41);
+  __Pyx_GIVEREF(__pyx_tuple__41);
 
   /* "View.MemoryView":287
  * 
@@ -26068,9 +26318,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * cdef indirect = Enum("<strided and indirect>")
  * 
  */
-  __pyx_tuple__40 = PyTuple_Pack(1, __pyx_kp_s_strided_and_direct); if (unlikely(!__pyx_tuple__40)) __PYX_ERR(2, 287, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__40);
-  __Pyx_GIVEREF(__pyx_tuple__40);
+  __pyx_tuple__42 = PyTuple_Pack(1, __pyx_kp_s_strided_and_direct); if (unlikely(!__pyx_tuple__42)) __PYX_ERR(2, 287, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__42);
+  __Pyx_GIVEREF(__pyx_tuple__42);
 
   /* "View.MemoryView":288
  * cdef generic = Enum("<strided and direct or indirect>")
@@ -26079,9 +26329,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * 
  * 
  */
-  __pyx_tuple__41 = PyTuple_Pack(1, __pyx_kp_s_strided_and_indirect); if (unlikely(!__pyx_tuple__41)) __PYX_ERR(2, 288, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__41);
-  __Pyx_GIVEREF(__pyx_tuple__41);
+  __pyx_tuple__43 = PyTuple_Pack(1, __pyx_kp_s_strided_and_indirect); if (unlikely(!__pyx_tuple__43)) __PYX_ERR(2, 288, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__43);
+  __Pyx_GIVEREF(__pyx_tuple__43);
 
   /* "View.MemoryView":291
  * 
@@ -26090,9 +26340,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * cdef indirect_contiguous = Enum("<contiguous and indirect>")
  * 
  */
-  __pyx_tuple__42 = PyTuple_Pack(1, __pyx_kp_s_contiguous_and_direct); if (unlikely(!__pyx_tuple__42)) __PYX_ERR(2, 291, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__42);
-  __Pyx_GIVEREF(__pyx_tuple__42);
+  __pyx_tuple__44 = PyTuple_Pack(1, __pyx_kp_s_contiguous_and_direct); if (unlikely(!__pyx_tuple__44)) __PYX_ERR(2, 291, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__44);
+  __Pyx_GIVEREF(__pyx_tuple__44);
 
   /* "View.MemoryView":292
  * 
@@ -26101,19 +26351,19 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * 
  * 
  */
-  __pyx_tuple__43 = PyTuple_Pack(1, __pyx_kp_s_contiguous_and_indirect); if (unlikely(!__pyx_tuple__43)) __PYX_ERR(2, 292, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__43);
-  __Pyx_GIVEREF(__pyx_tuple__43);
+  __pyx_tuple__45 = PyTuple_Pack(1, __pyx_kp_s_contiguous_and_indirect); if (unlikely(!__pyx_tuple__45)) __PYX_ERR(2, 292, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__45);
+  __Pyx_GIVEREF(__pyx_tuple__45);
 
   /* "(tree fragment)":1
  * def __pyx_unpickle_Enum(__pyx_type, long __pyx_checksum, __pyx_state):             # <<<<<<<<<<<<<<
  *     cdef object __pyx_PickleError
  *     cdef object __pyx_result
  */
-  __pyx_tuple__44 = PyTuple_Pack(5, __pyx_n_s_pyx_type, __pyx_n_s_pyx_checksum, __pyx_n_s_pyx_state, __pyx_n_s_pyx_PickleError, __pyx_n_s_pyx_result); if (unlikely(!__pyx_tuple__44)) __PYX_ERR(2, 1, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__44);
-  __Pyx_GIVEREF(__pyx_tuple__44);
-  __pyx_codeobj__31 = (PyObject*)__Pyx_PyCode_New(3, 0, 5, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__44, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_pyx_unpickle_Enum, 1, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__31)) __PYX_ERR(2, 1, __pyx_L1_error)
+  __pyx_tuple__46 = PyTuple_Pack(5, __pyx_n_s_pyx_type, __pyx_n_s_pyx_checksum, __pyx_n_s_pyx_state, __pyx_n_s_pyx_PickleError, __pyx_n_s_pyx_result); if (unlikely(!__pyx_tuple__46)) __PYX_ERR(2, 1, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__46);
+  __Pyx_GIVEREF(__pyx_tuple__46);
+  __pyx_codeobj__33 = (PyObject*)__Pyx_PyCode_New(3, 0, 5, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__46, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_pyx_unpickle_Enum, 1, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__33)) __PYX_ERR(2, 1, __pyx_L1_error)
   __Pyx_RefNannyFinishContext();
   return 0;
   __pyx_L1_error:;
@@ -26485,40 +26735,40 @@ if (!__Pyx_RefNanny) {
   #endif
   __Pyx_TraceCall("__Pyx_PyMODINIT_FUNC PyInit_neighbors(void)", __pyx_f[0], 1, 0, __PYX_ERR(0, 1, __pyx_L1_error));
 
-  /* "pymatgen/optimization/neighbors.pyx":8
- * # cython: language_level=3
+  /* "pymatgen/optimization/neighbors.pyx":9
+ * # distutils: language = c++
  * from __future__ import print_function
  * import numpy as np             # <<<<<<<<<<<<<<
  * cimport numpy as np
  * cimport cython
  */
-  __pyx_t_1 = __Pyx_Import(__pyx_n_s_numpy, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 8, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_Import(__pyx_n_s_numpy, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 9, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_np, __pyx_t_1) < 0) __PYX_ERR(0, 8, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_np, __pyx_t_1) < 0) __PYX_ERR(0, 9, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "pymatgen/optimization/neighbors.pyx":19
+  /* "pymatgen/optimization/neighbors.pyx":36
  * 
  * 
  * def find_points_in_spheres(double[:, ::1] all_coords, double[:, ::1] center_coords, float r, long[:] pbc, double[:, ::1] lattice, double tol=1e-8):             # <<<<<<<<<<<<<<
  *     """
  *     For each point in `center_coords`, get all the neighboring points in `all_coords` that are within the
  */
-  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_8pymatgen_12optimization_9neighbors_1find_points_in_spheres, NULL, __pyx_n_s_pymatgen_optimization_neighbors_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 19, __pyx_L1_error)
+  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_8pymatgen_12optimization_9neighbors_1find_points_in_spheres, NULL, __pyx_n_s_pymatgen_optimization_neighbors); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 36, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_find_points_in_spheres, __pyx_t_1) < 0) __PYX_ERR(0, 19, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_find_points_in_spheres, __pyx_t_1) < 0) __PYX_ERR(0, 36, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "pymatgen/optimization/neighbors.pyx":460
+  /* "pymatgen/optimization/neighbors.pyx":481
  *         label1d[i] = label3d[i, 0] * ny * nz + label3d[i, 1] * nz + label3d[i, 2]
  * 
  * def compute_offset_vectors(long n):             # <<<<<<<<<<<<<<
  *     cdef long i, j, k
  *     cdef long v[3]
  */
-  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_8pymatgen_12optimization_9neighbors_3compute_offset_vectors, NULL, __pyx_n_s_pymatgen_optimization_neighbors_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 460, __pyx_L1_error)
+  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_8pymatgen_12optimization_9neighbors_3compute_offset_vectors, NULL, __pyx_n_s_pymatgen_optimization_neighbors); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 481, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_compute_offset_vectors, __pyx_t_1) < 0) __PYX_ERR(0, 460, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_compute_offset_vectors, __pyx_t_1) < 0) __PYX_ERR(0, 481, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "pymatgen/optimization/neighbors.pyx":1
@@ -26551,7 +26801,7 @@ if (!__Pyx_RefNanny) {
  * cdef strided = Enum("<strided and direct>") # default
  * cdef indirect = Enum("<strided and indirect>")
  */
-  __pyx_t_1 = __Pyx_PyObject_Call(((PyObject *)__pyx_MemviewEnum_type), __pyx_tuple__39, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 286, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Call(((PyObject *)__pyx_MemviewEnum_type), __pyx_tuple__41, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 286, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_XGOTREF(generic);
   __Pyx_DECREF_SET(generic, __pyx_t_1);
@@ -26565,7 +26815,7 @@ if (!__Pyx_RefNanny) {
  * cdef indirect = Enum("<strided and indirect>")
  * 
  */
-  __pyx_t_1 = __Pyx_PyObject_Call(((PyObject *)__pyx_MemviewEnum_type), __pyx_tuple__40, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 287, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Call(((PyObject *)__pyx_MemviewEnum_type), __pyx_tuple__42, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 287, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_XGOTREF(strided);
   __Pyx_DECREF_SET(strided, __pyx_t_1);
@@ -26579,7 +26829,7 @@ if (!__Pyx_RefNanny) {
  * 
  * 
  */
-  __pyx_t_1 = __Pyx_PyObject_Call(((PyObject *)__pyx_MemviewEnum_type), __pyx_tuple__41, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 288, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Call(((PyObject *)__pyx_MemviewEnum_type), __pyx_tuple__43, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 288, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_XGOTREF(indirect);
   __Pyx_DECREF_SET(indirect, __pyx_t_1);
@@ -26593,7 +26843,7 @@ if (!__Pyx_RefNanny) {
  * cdef indirect_contiguous = Enum("<contiguous and indirect>")
  * 
  */
-  __pyx_t_1 = __Pyx_PyObject_Call(((PyObject *)__pyx_MemviewEnum_type), __pyx_tuple__42, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 291, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Call(((PyObject *)__pyx_MemviewEnum_type), __pyx_tuple__44, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 291, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_XGOTREF(contiguous);
   __Pyx_DECREF_SET(contiguous, __pyx_t_1);
@@ -26607,7 +26857,7 @@ if (!__Pyx_RefNanny) {
  * 
  * 
  */
-  __pyx_t_1 = __Pyx_PyObject_Call(((PyObject *)__pyx_MemviewEnum_type), __pyx_tuple__43, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 292, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Call(((PyObject *)__pyx_MemviewEnum_type), __pyx_tuple__45, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 292, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_XGOTREF(indirect_contiguous);
   __Pyx_DECREF_SET(indirect_contiguous, __pyx_t_1);
@@ -26755,6 +27005,344 @@ static PyObject *__Pyx_GetBuiltinName(PyObject *name) {
     return result;
 }
 
+/* PyErrFetchRestore */
+#if CYTHON_FAST_THREAD_STATE
+static CYTHON_INLINE void __Pyx_ErrRestoreInState(PyThreadState *tstate, PyObject *type, PyObject *value, PyObject *tb) {
+    PyObject *tmp_type, *tmp_value, *tmp_tb;
+    tmp_type = tstate->curexc_type;
+    tmp_value = tstate->curexc_value;
+    tmp_tb = tstate->curexc_traceback;
+    tstate->curexc_type = type;
+    tstate->curexc_value = value;
+    tstate->curexc_traceback = tb;
+    Py_XDECREF(tmp_type);
+    Py_XDECREF(tmp_value);
+    Py_XDECREF(tmp_tb);
+}
+static CYTHON_INLINE void __Pyx_ErrFetchInState(PyThreadState *tstate, PyObject **type, PyObject **value, PyObject **tb) {
+    *type = tstate->curexc_type;
+    *value = tstate->curexc_value;
+    *tb = tstate->curexc_traceback;
+    tstate->curexc_type = 0;
+    tstate->curexc_value = 0;
+    tstate->curexc_traceback = 0;
+}
+#endif
+
+/* Profile */
+#if CYTHON_PROFILE
+static int __Pyx_TraceSetupAndCall(PyCodeObject** code,
+                                   PyFrameObject** frame,
+                                   PyThreadState* tstate,
+                                   const char *funcname,
+                                   const char *srcfile,
+                                   int firstlineno) {
+    PyObject *type, *value, *traceback;
+    int retval;
+    if (*frame == NULL || !CYTHON_PROFILE_REUSE_FRAME) {
+        if (*code == NULL) {
+            *code = __Pyx_createFrameCodeObject(funcname, srcfile, firstlineno);
+            if (*code == NULL) return 0;
+        }
+        *frame = PyFrame_New(
+            tstate,                          /*PyThreadState *tstate*/
+            *code,                           /*PyCodeObject *code*/
+            __pyx_d,                  /*PyObject *globals*/
+            0                                /*PyObject *locals*/
+        );
+        if (*frame == NULL) return 0;
+        if (CYTHON_TRACE && (*frame)->f_trace == NULL) {
+            Py_INCREF(Py_None);
+            (*frame)->f_trace = Py_None;
+        }
+#if PY_VERSION_HEX < 0x030400B1
+    } else {
+        (*frame)->f_tstate = tstate;
+#endif
+    }
+      __Pyx_PyFrame_SetLineNumber(*frame, firstlineno);
+    retval = 1;
+    tstate->tracing++;
+    tstate->use_tracing = 0;
+    __Pyx_ErrFetchInState(tstate, &type, &value, &traceback);
+    #if CYTHON_TRACE
+    if (tstate->c_tracefunc)
+        retval = tstate->c_tracefunc(tstate->c_traceobj, *frame, PyTrace_CALL, NULL) == 0;
+    if (retval && tstate->c_profilefunc)
+    #endif
+        retval = tstate->c_profilefunc(tstate->c_profileobj, *frame, PyTrace_CALL, NULL) == 0;
+    tstate->use_tracing = (tstate->c_profilefunc ||
+                           (CYTHON_TRACE && tstate->c_tracefunc));
+    tstate->tracing--;
+    if (retval) {
+        __Pyx_ErrRestoreInState(tstate, type, value, traceback);
+        return tstate->use_tracing && retval;
+    } else {
+        Py_XDECREF(type);
+        Py_XDECREF(value);
+        Py_XDECREF(traceback);
+        return -1;
+    }
+}
+static PyCodeObject *__Pyx_createFrameCodeObject(const char *funcname, const char *srcfile, int firstlineno) {
+    PyCodeObject *py_code = 0;
+#if PY_MAJOR_VERSION >= 3
+    py_code = PyCode_NewEmpty(srcfile, funcname, firstlineno);
+    if (likely(py_code)) {
+        py_code->co_flags |= CO_OPTIMIZED | CO_NEWLOCALS;
+    }
+#else
+    PyObject *py_srcfile = 0;
+    PyObject *py_funcname = 0;
+    py_funcname = PyString_FromString(funcname);
+    if (unlikely(!py_funcname)) goto bad;
+    py_srcfile = PyString_FromString(srcfile);
+    if (unlikely(!py_srcfile)) goto bad;
+    py_code = PyCode_New(
+        0,
+        0,
+        0,
+        CO_OPTIMIZED | CO_NEWLOCALS,
+        __pyx_empty_bytes,     /*PyObject *code,*/
+        __pyx_empty_tuple,     /*PyObject *consts,*/
+        __pyx_empty_tuple,     /*PyObject *names,*/
+        __pyx_empty_tuple,     /*PyObject *varnames,*/
+        __pyx_empty_tuple,     /*PyObject *freevars,*/
+        __pyx_empty_tuple,     /*PyObject *cellvars,*/
+        py_srcfile,       /*PyObject *filename,*/
+        py_funcname,      /*PyObject *name,*/
+        firstlineno,
+        __pyx_empty_bytes      /*PyObject *lnotab*/
+    );
+bad:
+    Py_XDECREF(py_srcfile);
+    Py_XDECREF(py_funcname);
+#endif
+    return py_code;
+}
+#endif
+
+/* PyObjectCall */
+#if CYTHON_COMPILING_IN_CPYTHON
+static CYTHON_INLINE PyObject* __Pyx_PyObject_Call(PyObject *func, PyObject *arg, PyObject *kw) {
+    PyObject *result;
+    ternaryfunc call = func->ob_type->tp_call;
+    if (unlikely(!call))
+        return PyObject_Call(func, arg, kw);
+    if (unlikely(Py_EnterRecursiveCall((char*)" while calling a Python object")))
+        return NULL;
+    result = (*call)(func, arg, kw);
+    Py_LeaveRecursiveCall();
+    if (unlikely(!result) && unlikely(!PyErr_Occurred())) {
+        PyErr_SetString(
+            PyExc_SystemError,
+            "NULL result without error in PyObject_Call");
+    }
+    return result;
+}
+#endif
+
+/* RaiseException */
+#if PY_MAJOR_VERSION < 3
+static void __Pyx_Raise(PyObject *type, PyObject *value, PyObject *tb,
+                        CYTHON_UNUSED PyObject *cause) {
+    __Pyx_PyThreadState_declare
+    Py_XINCREF(type);
+    if (!value || value == Py_None)
+        value = NULL;
+    else
+        Py_INCREF(value);
+    if (!tb || tb == Py_None)
+        tb = NULL;
+    else {
+        Py_INCREF(tb);
+        if (!PyTraceBack_Check(tb)) {
+            PyErr_SetString(PyExc_TypeError,
+                "raise: arg 3 must be a traceback or None");
+            goto raise_error;
+        }
+    }
+    if (PyType_Check(type)) {
+#if CYTHON_COMPILING_IN_PYPY
+        if (!value) {
+            Py_INCREF(Py_None);
+            value = Py_None;
+        }
+#endif
+        PyErr_NormalizeException(&type, &value, &tb);
+    } else {
+        if (value) {
+            PyErr_SetString(PyExc_TypeError,
+                "instance exception may not have a separate value");
+            goto raise_error;
+        }
+        value = type;
+        type = (PyObject*) Py_TYPE(type);
+        Py_INCREF(type);
+        if (!PyType_IsSubtype((PyTypeObject *)type, (PyTypeObject *)PyExc_BaseException)) {
+            PyErr_SetString(PyExc_TypeError,
+                "raise: exception class must be a subclass of BaseException");
+            goto raise_error;
+        }
+    }
+    __Pyx_PyThreadState_assign
+    __Pyx_ErrRestore(type, value, tb);
+    return;
+raise_error:
+    Py_XDECREF(value);
+    Py_XDECREF(type);
+    Py_XDECREF(tb);
+    return;
+}
+#else
+static void __Pyx_Raise(PyObject *type, PyObject *value, PyObject *tb, PyObject *cause) {
+    PyObject* owned_instance = NULL;
+    if (tb == Py_None) {
+        tb = 0;
+    } else if (tb && !PyTraceBack_Check(tb)) {
+        PyErr_SetString(PyExc_TypeError,
+            "raise: arg 3 must be a traceback or None");
+        goto bad;
+    }
+    if (value == Py_None)
+        value = 0;
+    if (PyExceptionInstance_Check(type)) {
+        if (value) {
+            PyErr_SetString(PyExc_TypeError,
+                "instance exception may not have a separate value");
+            goto bad;
+        }
+        value = type;
+        type = (PyObject*) Py_TYPE(value);
+    } else if (PyExceptionClass_Check(type)) {
+        PyObject *instance_class = NULL;
+        if (value && PyExceptionInstance_Check(value)) {
+            instance_class = (PyObject*) Py_TYPE(value);
+            if (instance_class != type) {
+                int is_subclass = PyObject_IsSubclass(instance_class, type);
+                if (!is_subclass) {
+                    instance_class = NULL;
+                } else if (unlikely(is_subclass == -1)) {
+                    goto bad;
+                } else {
+                    type = instance_class;
+                }
+            }
+        }
+        if (!instance_class) {
+            PyObject *args;
+            if (!value)
+                args = PyTuple_New(0);
+            else if (PyTuple_Check(value)) {
+                Py_INCREF(value);
+                args = value;
+            } else
+                args = PyTuple_Pack(1, value);
+            if (!args)
+                goto bad;
+            owned_instance = PyObject_Call(type, args, NULL);
+            Py_DECREF(args);
+            if (!owned_instance)
+                goto bad;
+            value = owned_instance;
+            if (!PyExceptionInstance_Check(value)) {
+                PyErr_Format(PyExc_TypeError,
+                             "calling %R should have returned an instance of "
+                             "BaseException, not %R",
+                             type, Py_TYPE(value));
+                goto bad;
+            }
+        }
+    } else {
+        PyErr_SetString(PyExc_TypeError,
+            "raise: exception class must be a subclass of BaseException");
+        goto bad;
+    }
+    if (cause) {
+        PyObject *fixed_cause;
+        if (cause == Py_None) {
+            fixed_cause = NULL;
+        } else if (PyExceptionClass_Check(cause)) {
+            fixed_cause = PyObject_CallObject(cause, NULL);
+            if (fixed_cause == NULL)
+                goto bad;
+        } else if (PyExceptionInstance_Check(cause)) {
+            fixed_cause = cause;
+            Py_INCREF(fixed_cause);
+        } else {
+            PyErr_SetString(PyExc_TypeError,
+                            "exception causes must derive from "
+                            "BaseException");
+            goto bad;
+        }
+        PyException_SetCause(value, fixed_cause);
+    }
+    PyErr_SetObject(type, value);
+    if (tb) {
+#if CYTHON_COMPILING_IN_PYPY
+        PyObject *tmp_type, *tmp_value, *tmp_tb;
+        PyErr_Fetch(&tmp_type, &tmp_value, &tmp_tb);
+        Py_INCREF(tb);
+        PyErr_Restore(tmp_type, tmp_value, tb);
+        Py_XDECREF(tmp_tb);
+#else
+        PyThreadState *tstate = __Pyx_PyThreadState_Current;
+        PyObject* tmp_tb = tstate->curexc_traceback;
+        if (tb != tmp_tb) {
+            Py_INCREF(tb);
+            tstate->curexc_traceback = tb;
+            Py_XDECREF(tmp_tb);
+        }
+#endif
+    }
+bad:
+    Py_XDECREF(owned_instance);
+    return;
+}
+#endif
+
+/* WriteUnraisableException */
+static void __Pyx_WriteUnraisable(const char *name, CYTHON_UNUSED int clineno,
+                                  CYTHON_UNUSED int lineno, CYTHON_UNUSED const char *filename,
+                                  int full_traceback, CYTHON_UNUSED int nogil) {
+    PyObject *old_exc, *old_val, *old_tb;
+    PyObject *ctx;
+    __Pyx_PyThreadState_declare
+#ifdef WITH_THREAD
+    PyGILState_STATE state;
+    if (nogil)
+        state = PyGILState_Ensure();
+#ifdef _MSC_VER
+    else state = (PyGILState_STATE)-1;
+#endif
+#endif
+    __Pyx_PyThreadState_assign
+    __Pyx_ErrFetch(&old_exc, &old_val, &old_tb);
+    if (full_traceback) {
+        Py_XINCREF(old_exc);
+        Py_XINCREF(old_val);
+        Py_XINCREF(old_tb);
+        __Pyx_ErrRestore(old_exc, old_val, old_tb);
+        PyErr_PrintEx(1);
+    }
+    #if PY_MAJOR_VERSION < 3
+    ctx = PyString_FromString(name);
+    #else
+    ctx = PyUnicode_FromString(name);
+    #endif
+    __Pyx_ErrRestore(old_exc, old_val, old_tb);
+    if (!ctx) {
+        PyErr_WriteUnraisable(Py_None);
+    } else {
+        PyErr_WriteUnraisable(ctx);
+        Py_DECREF(ctx);
+    }
+#ifdef WITH_THREAD
+    if (nogil)
+        PyGILState_Release(state);
+#endif
+}
+
 /* RaiseArgTupleInvalid */
 static void __Pyx_RaiseArgtupleInvalid(
     const char* func_name,
@@ -26896,123 +27484,6 @@ invalid_keyword:
 bad:
     return -1;
 }
-
-/* PyErrFetchRestore */
-#if CYTHON_FAST_THREAD_STATE
-static CYTHON_INLINE void __Pyx_ErrRestoreInState(PyThreadState *tstate, PyObject *type, PyObject *value, PyObject *tb) {
-    PyObject *tmp_type, *tmp_value, *tmp_tb;
-    tmp_type = tstate->curexc_type;
-    tmp_value = tstate->curexc_value;
-    tmp_tb = tstate->curexc_traceback;
-    tstate->curexc_type = type;
-    tstate->curexc_value = value;
-    tstate->curexc_traceback = tb;
-    Py_XDECREF(tmp_type);
-    Py_XDECREF(tmp_value);
-    Py_XDECREF(tmp_tb);
-}
-static CYTHON_INLINE void __Pyx_ErrFetchInState(PyThreadState *tstate, PyObject **type, PyObject **value, PyObject **tb) {
-    *type = tstate->curexc_type;
-    *value = tstate->curexc_value;
-    *tb = tstate->curexc_traceback;
-    tstate->curexc_type = 0;
-    tstate->curexc_value = 0;
-    tstate->curexc_traceback = 0;
-}
-#endif
-
-/* Profile */
-#if CYTHON_PROFILE
-static int __Pyx_TraceSetupAndCall(PyCodeObject** code,
-                                   PyFrameObject** frame,
-                                   PyThreadState* tstate,
-                                   const char *funcname,
-                                   const char *srcfile,
-                                   int firstlineno) {
-    PyObject *type, *value, *traceback;
-    int retval;
-    if (*frame == NULL || !CYTHON_PROFILE_REUSE_FRAME) {
-        if (*code == NULL) {
-            *code = __Pyx_createFrameCodeObject(funcname, srcfile, firstlineno);
-            if (*code == NULL) return 0;
-        }
-        *frame = PyFrame_New(
-            tstate,                          /*PyThreadState *tstate*/
-            *code,                           /*PyCodeObject *code*/
-            __pyx_d,                  /*PyObject *globals*/
-            0                                /*PyObject *locals*/
-        );
-        if (*frame == NULL) return 0;
-        if (CYTHON_TRACE && (*frame)->f_trace == NULL) {
-            Py_INCREF(Py_None);
-            (*frame)->f_trace = Py_None;
-        }
-#if PY_VERSION_HEX < 0x030400B1
-    } else {
-        (*frame)->f_tstate = tstate;
-#endif
-    }
-      __Pyx_PyFrame_SetLineNumber(*frame, firstlineno);
-    retval = 1;
-    tstate->tracing++;
-    tstate->use_tracing = 0;
-    __Pyx_ErrFetchInState(tstate, &type, &value, &traceback);
-    #if CYTHON_TRACE
-    if (tstate->c_tracefunc)
-        retval = tstate->c_tracefunc(tstate->c_traceobj, *frame, PyTrace_CALL, NULL) == 0;
-    if (retval && tstate->c_profilefunc)
-    #endif
-        retval = tstate->c_profilefunc(tstate->c_profileobj, *frame, PyTrace_CALL, NULL) == 0;
-    tstate->use_tracing = (tstate->c_profilefunc ||
-                           (CYTHON_TRACE && tstate->c_tracefunc));
-    tstate->tracing--;
-    if (retval) {
-        __Pyx_ErrRestoreInState(tstate, type, value, traceback);
-        return tstate->use_tracing && retval;
-    } else {
-        Py_XDECREF(type);
-        Py_XDECREF(value);
-        Py_XDECREF(traceback);
-        return -1;
-    }
-}
-static PyCodeObject *__Pyx_createFrameCodeObject(const char *funcname, const char *srcfile, int firstlineno) {
-    PyCodeObject *py_code = 0;
-#if PY_MAJOR_VERSION >= 3
-    py_code = PyCode_NewEmpty(srcfile, funcname, firstlineno);
-    if (likely(py_code)) {
-        py_code->co_flags |= CO_OPTIMIZED | CO_NEWLOCALS;
-    }
-#else
-    PyObject *py_srcfile = 0;
-    PyObject *py_funcname = 0;
-    py_funcname = PyString_FromString(funcname);
-    if (unlikely(!py_funcname)) goto bad;
-    py_srcfile = PyString_FromString(srcfile);
-    if (unlikely(!py_srcfile)) goto bad;
-    py_code = PyCode_New(
-        0,
-        0,
-        0,
-        CO_OPTIMIZED | CO_NEWLOCALS,
-        __pyx_empty_bytes,     /*PyObject *code,*/
-        __pyx_empty_tuple,     /*PyObject *consts,*/
-        __pyx_empty_tuple,     /*PyObject *names,*/
-        __pyx_empty_tuple,     /*PyObject *varnames,*/
-        __pyx_empty_tuple,     /*PyObject *freevars,*/
-        __pyx_empty_tuple,     /*PyObject *cellvars,*/
-        py_srcfile,       /*PyObject *filename,*/
-        py_funcname,      /*PyObject *name,*/
-        firstlineno,
-        __pyx_empty_bytes      /*PyObject *lnotab*/
-    );
-bad:
-    Py_XDECREF(py_srcfile);
-    Py_XDECREF(py_funcname);
-#endif
-    return py_code;
-}
-#endif
 
 /* MemviewSliceInit */
 static int
@@ -27208,26 +27679,6 @@ static CYTHON_INLINE PyObject *__Pyx__GetModuleGlobalName(PyObject *name)
 #endif
     return __Pyx_GetBuiltinName(name);
 }
-
-/* PyObjectCall */
-#if CYTHON_COMPILING_IN_CPYTHON
-static CYTHON_INLINE PyObject* __Pyx_PyObject_Call(PyObject *func, PyObject *arg, PyObject *kw) {
-    PyObject *result;
-    ternaryfunc call = func->ob_type->tp_call;
-    if (unlikely(!call))
-        return PyObject_Call(func, arg, kw);
-    if (unlikely(Py_EnterRecursiveCall((char*)" while calling a Python object")))
-        return NULL;
-    result = (*call)(func, arg, kw);
-    Py_LeaveRecursiveCall();
-    if (unlikely(!result) && unlikely(!PyErr_Occurred())) {
-        PyErr_SetString(
-            PyExc_SystemError,
-            "NULL result without error in PyObject_Call");
-    }
-    return result;
-}
-#endif
 
 /* PyCFunctionFastCall */
 #if CYTHON_FAST_PYCCALL
@@ -27457,207 +27908,6 @@ static CYTHON_INLINE PyObject* __Pyx_PyObject_CallOneArg(PyObject *func, PyObjec
     result = __Pyx_PyObject_Call(func, args, NULL);
     Py_DECREF(args);
     return result;
-}
-#endif
-
-/* WriteUnraisableException */
-static void __Pyx_WriteUnraisable(const char *name, CYTHON_UNUSED int clineno,
-                                  CYTHON_UNUSED int lineno, CYTHON_UNUSED const char *filename,
-                                  int full_traceback, CYTHON_UNUSED int nogil) {
-    PyObject *old_exc, *old_val, *old_tb;
-    PyObject *ctx;
-    __Pyx_PyThreadState_declare
-#ifdef WITH_THREAD
-    PyGILState_STATE state;
-    if (nogil)
-        state = PyGILState_Ensure();
-#ifdef _MSC_VER
-    else state = (PyGILState_STATE)-1;
-#endif
-#endif
-    __Pyx_PyThreadState_assign
-    __Pyx_ErrFetch(&old_exc, &old_val, &old_tb);
-    if (full_traceback) {
-        Py_XINCREF(old_exc);
-        Py_XINCREF(old_val);
-        Py_XINCREF(old_tb);
-        __Pyx_ErrRestore(old_exc, old_val, old_tb);
-        PyErr_PrintEx(1);
-    }
-    #if PY_MAJOR_VERSION < 3
-    ctx = PyString_FromString(name);
-    #else
-    ctx = PyUnicode_FromString(name);
-    #endif
-    __Pyx_ErrRestore(old_exc, old_val, old_tb);
-    if (!ctx) {
-        PyErr_WriteUnraisable(Py_None);
-    } else {
-        PyErr_WriteUnraisable(ctx);
-        Py_DECREF(ctx);
-    }
-#ifdef WITH_THREAD
-    if (nogil)
-        PyGILState_Release(state);
-#endif
-}
-
-/* RaiseException */
-#if PY_MAJOR_VERSION < 3
-static void __Pyx_Raise(PyObject *type, PyObject *value, PyObject *tb,
-                        CYTHON_UNUSED PyObject *cause) {
-    __Pyx_PyThreadState_declare
-    Py_XINCREF(type);
-    if (!value || value == Py_None)
-        value = NULL;
-    else
-        Py_INCREF(value);
-    if (!tb || tb == Py_None)
-        tb = NULL;
-    else {
-        Py_INCREF(tb);
-        if (!PyTraceBack_Check(tb)) {
-            PyErr_SetString(PyExc_TypeError,
-                "raise: arg 3 must be a traceback or None");
-            goto raise_error;
-        }
-    }
-    if (PyType_Check(type)) {
-#if CYTHON_COMPILING_IN_PYPY
-        if (!value) {
-            Py_INCREF(Py_None);
-            value = Py_None;
-        }
-#endif
-        PyErr_NormalizeException(&type, &value, &tb);
-    } else {
-        if (value) {
-            PyErr_SetString(PyExc_TypeError,
-                "instance exception may not have a separate value");
-            goto raise_error;
-        }
-        value = type;
-        type = (PyObject*) Py_TYPE(type);
-        Py_INCREF(type);
-        if (!PyType_IsSubtype((PyTypeObject *)type, (PyTypeObject *)PyExc_BaseException)) {
-            PyErr_SetString(PyExc_TypeError,
-                "raise: exception class must be a subclass of BaseException");
-            goto raise_error;
-        }
-    }
-    __Pyx_PyThreadState_assign
-    __Pyx_ErrRestore(type, value, tb);
-    return;
-raise_error:
-    Py_XDECREF(value);
-    Py_XDECREF(type);
-    Py_XDECREF(tb);
-    return;
-}
-#else
-static void __Pyx_Raise(PyObject *type, PyObject *value, PyObject *tb, PyObject *cause) {
-    PyObject* owned_instance = NULL;
-    if (tb == Py_None) {
-        tb = 0;
-    } else if (tb && !PyTraceBack_Check(tb)) {
-        PyErr_SetString(PyExc_TypeError,
-            "raise: arg 3 must be a traceback or None");
-        goto bad;
-    }
-    if (value == Py_None)
-        value = 0;
-    if (PyExceptionInstance_Check(type)) {
-        if (value) {
-            PyErr_SetString(PyExc_TypeError,
-                "instance exception may not have a separate value");
-            goto bad;
-        }
-        value = type;
-        type = (PyObject*) Py_TYPE(value);
-    } else if (PyExceptionClass_Check(type)) {
-        PyObject *instance_class = NULL;
-        if (value && PyExceptionInstance_Check(value)) {
-            instance_class = (PyObject*) Py_TYPE(value);
-            if (instance_class != type) {
-                int is_subclass = PyObject_IsSubclass(instance_class, type);
-                if (!is_subclass) {
-                    instance_class = NULL;
-                } else if (unlikely(is_subclass == -1)) {
-                    goto bad;
-                } else {
-                    type = instance_class;
-                }
-            }
-        }
-        if (!instance_class) {
-            PyObject *args;
-            if (!value)
-                args = PyTuple_New(0);
-            else if (PyTuple_Check(value)) {
-                Py_INCREF(value);
-                args = value;
-            } else
-                args = PyTuple_Pack(1, value);
-            if (!args)
-                goto bad;
-            owned_instance = PyObject_Call(type, args, NULL);
-            Py_DECREF(args);
-            if (!owned_instance)
-                goto bad;
-            value = owned_instance;
-            if (!PyExceptionInstance_Check(value)) {
-                PyErr_Format(PyExc_TypeError,
-                             "calling %R should have returned an instance of "
-                             "BaseException, not %R",
-                             type, Py_TYPE(value));
-                goto bad;
-            }
-        }
-    } else {
-        PyErr_SetString(PyExc_TypeError,
-            "raise: exception class must be a subclass of BaseException");
-        goto bad;
-    }
-    if (cause) {
-        PyObject *fixed_cause;
-        if (cause == Py_None) {
-            fixed_cause = NULL;
-        } else if (PyExceptionClass_Check(cause)) {
-            fixed_cause = PyObject_CallObject(cause, NULL);
-            if (fixed_cause == NULL)
-                goto bad;
-        } else if (PyExceptionInstance_Check(cause)) {
-            fixed_cause = cause;
-            Py_INCREF(fixed_cause);
-        } else {
-            PyErr_SetString(PyExc_TypeError,
-                            "exception causes must derive from "
-                            "BaseException");
-            goto bad;
-        }
-        PyException_SetCause(value, fixed_cause);
-    }
-    PyErr_SetObject(type, value);
-    if (tb) {
-#if CYTHON_COMPILING_IN_PYPY
-        PyObject *tmp_type, *tmp_value, *tmp_tb;
-        PyErr_Fetch(&tmp_type, &tmp_value, &tmp_tb);
-        Py_INCREF(tb);
-        PyErr_Restore(tmp_type, tmp_value, tb);
-        Py_XDECREF(tmp_tb);
-#else
-        PyThreadState *tstate = __Pyx_PyThreadState_Current;
-        PyObject* tmp_tb = tstate->curexc_traceback;
-        if (tb != tmp_tb) {
-            Py_INCREF(tb);
-            tstate->curexc_traceback = tb;
-            Py_XDECREF(tmp_tb);
-        }
-#endif
-    }
-bad:
-    Py_XDECREF(owned_instance);
-    return;
 }
 #endif
 

@@ -5,6 +5,7 @@ Subpackages
 -----------
 
 .. toctree::
+   :maxdepth: 7
 
    pymatgen.io.abinit
    pymatgen.io.exciting
@@ -17,6 +18,7 @@ Submodules
 ----------
 
 .. toctree::
+   :maxdepth: 7
 
    pymatgen.io.adf
    pymatgen.io.aiida
@@ -34,6 +36,7 @@ Submodules
    pymatgen.io.prismatic
    pymatgen.io.pwscf
    pymatgen.io.shengbte
+   pymatgen.io.wannier90
    pymatgen.io.xcrysden
    pymatgen.io.xr
    pymatgen.io.xyz

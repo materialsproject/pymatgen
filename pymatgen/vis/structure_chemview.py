@@ -1,3 +1,7 @@
+"""
+Visualization for structures using chemview.
+"""
+
 import numpy as np
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.analysis.molecule_structure_comparator import CovalentRadius

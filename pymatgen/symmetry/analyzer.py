@@ -50,7 +50,7 @@ class SpacegroupAnalyzer:
     Uses spglib to perform various symmetry finding operations.
     """
 
-    def __init__(self, structure, symprec=0.01, angle_tolerance=5):
+    def __init__(self, structure, symprec=0.01, angle_tolerance=5.0):
         """
         Args:
             structure (Structure/IStructure): Structure to find symmetry
@@ -1557,8 +1557,8 @@ class SpacegroupOperations(list):
         symmetrically distinct arrangements of atoms.
 
         Args:
-            sites1 ([Site]): 1st set of sites
-            sites2 ([Site]): 2nd set of sites
+            sites1 ([PeriodicSite]): 1st set of sites
+            sites2 ([PeriodicSite]): 2nd set of sites
             symm_prec (float): Tolerance in atomic distance to test if atoms
                 are symmetrically similar.
 

@@ -21,8 +21,8 @@ from pymatgen import Element, Molecule, Structure, Lattice
 from pymatgen.util.testing import PymatgenTest
 
 try:
-    import openbabel as ob
-    import pybel as pb
+    from openbabel import openbabel as ob
+    from openbabel import pybel as pb
 except ImportError:
     pb = None
     ob = None
@@ -375,70 +375,69 @@ class MiniDistNNTest(PymatgenTest):
             Lattice([[3.19, 0, 0], [-1.595, 2.763, 0], [0, 0, 17.44]]),
             ['Mo', 'S', 'S'], [[-1e-06, 1.842, 3.72], [1.595, 0.92, 5.29],
                                [1.595, 0.92, 2.155]], coords_are_cartesian=True)
+        self.lifepo4 = self.get_structure("LiFePO4")
+        self.lifepo4.add_oxidation_state_by_guess()
 
     def test_all_nn_classes(self):
-        self.assertAlmostEqual(MinimumDistanceNN(cutoff=5, get_all_sites=True).get_cn(
+        self.assertEqual(MinimumDistanceNN(cutoff=5, get_all_sites=True).get_cn(
             self.cscl, 0), 14)
-        self.assertAlmostEqual(MinimumDistanceNN().get_cn(
-            self.diamond, 0), 4)
-        self.assertAlmostEqual(MinimumDistanceNN().get_cn(
-            self.nacl, 0), 6)
-        self.assertAlmostEqual(MinimumDistanceNN(tol=0.01).get_cn(
-            self.cscl, 0), 8)
-        self.assertAlmostEqual(MinimumDistanceNN(tol=0.1).get_cn(
-            self.mos2, 0), 6)
+        self.assertEqual(MinimumDistanceNN().get_cn(self.diamond, 0), 4)
+        self.assertEqual(MinimumDistanceNN().get_cn(self.nacl, 0), 6)
+        self.assertEqual(MinimumDistanceNN().get_cn(self.lifepo4, 0), 6)
+        self.assertEqual(MinimumDistanceNN(tol=0.01).get_cn(self.cscl, 0), 8)
+        self.assertEqual(MinimumDistanceNN(tol=0.1).get_cn(self.mos2, 0), 6)
+
         for image in MinimumDistanceNN(tol=0.1).get_nn_images(self.mos2, 0):
             self.assertTrue(image in [(0, 0, 0), (0, 1, 0), (-1, 0, 0),
                                       (0, 0, 0), (0, 1, 0), (-1, 0, 0)])
 
-        self.assertAlmostEqual(MinimumOKeeffeNN(tol=0.01).get_cn(
-            self.diamond, 0), 4)
-        self.assertAlmostEqual(MinimumOKeeffeNN(tol=0.01).get_cn(
-            self.nacl, 0), 6)
-        self.assertAlmostEqual(MinimumOKeeffeNN(tol=0.01).get_cn(
-            self.cscl, 0), 8)
+        okeeffe = MinimumOKeeffeNN(tol=0.01)
+        self.assertEqual(okeeffe.get_cn(self.diamond, 0), 4)
+        self.assertEqual(okeeffe.get_cn(self.nacl, 0), 6)
+        self.assertEqual(okeeffe.get_cn(self.cscl, 0), 8)
+        self.assertEqual(okeeffe.get_cn(self.lifepo4, 0), 2)
 
-        self.assertAlmostEqual(MinimumVIRENN(tol=0.01).get_cn(
-            self.diamond, 0), 4)
-        self.assertAlmostEqual(MinimumVIRENN(tol=0.01).get_cn(
-            self.nacl, 0), 6)
-        self.assertAlmostEqual(MinimumVIRENN(tol=0.01).get_cn(
-            self.cscl, 0), 8)
+        virenn = MinimumVIRENN(tol=0.01)
+        self.assertEqual(virenn.get_cn(self.diamond, 0), 4)
+        self.assertEqual(virenn.get_cn(self.nacl, 0), 6)
+        self.assertEqual(virenn.get_cn(self.cscl, 0), 8)
+        self.assertEqual(virenn.get_cn(self.lifepo4, 0), 2)
 
-        self.assertAlmostEqual(BrunnerNN_reciprocal(tol=0.01).get_cn(
-            self.diamond, 0), 4)
-        self.assertAlmostEqual(BrunnerNN_reciprocal(tol=0.01).get_cn(
-            self.nacl, 0), 6)
-        self.assertAlmostEqual(BrunnerNN_reciprocal(tol=0.01).get_cn(
-            self.cscl, 0), 14)
+        brunner_recip = BrunnerNN_reciprocal(tol=0.01)
+        self.assertEqual(brunner_recip.get_cn(self.diamond, 0), 4)
+        self.assertEqual(brunner_recip.get_cn(self.nacl, 0), 6)
+        self.assertEqual(brunner_recip.get_cn(self.cscl, 0), 14)
+        self.assertEqual(brunner_recip.get_cn(self.lifepo4, 0), 6)
 
-        self.assertAlmostEqual(BrunnerNN_relative(tol=0.01).get_cn(
-            self.diamond, 0), 16)
-        self.assertAlmostEqual(BrunnerNN_relative(tol=0.01).get_cn(
-            self.nacl, 0), 18)
-        self.assertAlmostEqual(BrunnerNN_relative(tol=0.01).get_cn(
-            self.cscl, 0), 8)
+        brunner_rel = BrunnerNN_relative(tol=0.01)
+        self.assertEqual(brunner_rel.get_cn(self.diamond, 0), 4)
+        self.assertEqual(brunner_rel.get_cn(self.nacl, 0), 6)
+        self.assertEqual(brunner_rel.get_cn(self.cscl, 0), 14)
+        self.assertEqual(brunner_rel.get_cn(self.lifepo4, 0), 6)
 
-        self.assertAlmostEqual(BrunnerNN_real(tol=0.01).get_cn(
-            self.diamond, 0), 16)
-        self.assertAlmostEqual(BrunnerNN_real(tol=0.01).get_cn(
-            self.nacl, 0), 18)
-        self.assertAlmostEqual(BrunnerNN_real(tol=0.01).get_cn(
-            self.cscl, 0), 8)
+        brunner_real = BrunnerNN_real(tol=0.01)
+        self.assertEqual(brunner_real.get_cn(self.diamond, 0), 4)
+        self.assertEqual(brunner_real.get_cn(self.nacl, 0), 6)
+        self.assertEqual(brunner_real.get_cn(self.cscl, 0), 14)
+        self.assertEqual(brunner_real.get_cn(self.lifepo4, 0), 30)
 
-        self.assertAlmostEqual(EconNN(tol=0.01).get_cn(
-            self.diamond, 0), 4)
-        self.assertAlmostEqual(EconNN(tol=0.01).get_cn(
-            self.nacl, 0), 6)
-        self.assertAlmostEqual(EconNN(tol=0.01).get_cn(
-            self.cscl, 0), 14)
+        econn = EconNN()
+        self.assertEqual(econn.get_cn(self.diamond, 0), 4)
+        self.assertEqual(econn.get_cn(self.nacl, 0), 6)
+        self.assertEqual(econn.get_cn(self.cscl, 0), 14)
+        self.assertEqual(econn.get_cn(self.lifepo4, 0), 6)
 
-        self.assertAlmostEqual(VoronoiNN(tol=0.5).get_cn(
-            self.diamond, 0), 4)
-        self.assertAlmostEqual(VoronoiNN(tol=0.5).get_cn(
-            self.nacl, 0), 6)
-        self.assertAlmostEqual(VoronoiNN(tol=0.5).get_cn(
-            self.cscl, 0), 8)
+        voroinn = VoronoiNN(tol=0.5)
+        self.assertEqual(voroinn.get_cn(self.diamond, 0), 4)
+        self.assertEqual(voroinn.get_cn(self.nacl, 0), 6)
+        self.assertEqual(voroinn.get_cn(self.cscl, 0), 8)
+        self.assertEqual(voroinn.get_cn(self.lifepo4, 0), 6)
+
+        crystalnn = CrystalNN()
+        self.assertEqual(crystalnn.get_cn(self.diamond, 0), 4)
+        self.assertEqual(crystalnn.get_cn(self.nacl, 0), 6)
+        self.assertEqual(crystalnn.get_cn(self.cscl, 0), 8)
+        self.assertEqual(crystalnn.get_cn(self.lifepo4, 0), 6)
 
     def test_get_local_order_params(self):
         nn = MinimumDistanceNN()
@@ -447,12 +446,6 @@ class MiniDistNNTest(PymatgenTest):
 
         ops = nn.get_local_order_parameters(self.nacl, 0)
         self.assertAlmostEqual(ops['octahedral'], 0.9999995266669)
-
-    def tearDown(self):
-        del self.diamond
-        del self.nacl
-        del self.cscl
-        del self.mos2
 
 
 class MotifIdentificationTest(PymatgenTest):

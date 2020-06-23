@@ -27,10 +27,10 @@ import copy
 
 from monty.json import MSONable
 from monty.dev import requires
-from pymatgen.io.babel import BabelMolAdaptor
 
 try:
-    import openbabel as ob
+    from openbabel import openbabel as ob
+    from pymatgen.io.babel import BabelMolAdaptor
 except ImportError:
     ob = None
 
@@ -78,6 +78,13 @@ class AbstractMolAtomMapper(MSONable, metaclass=abc.ABCMeta):
 
     @classmethod
     def from_dict(cls, d):
+        """
+        Args:
+            d (): Dict
+
+        Returns:
+            AbstractMolAtomMapper
+        """
         for trans_modules in ['molecule_matcher']:
             import sys
             if sys.version_info > (3, 0):
@@ -171,33 +178,56 @@ class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
         return match.group("inchi")
 
     def as_dict(self):
+        """
+        Returns:
+            Jsonable dict.
+        """
         return {"version": __version__, "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__}
 
     @classmethod
     def from_dict(cls, d):
+        """
+        Args:
+            d (dict): Dict representation
+
+        Returns:
+            IsomorphismMolAtomMapper
+        """
         return IsomorphismMolAtomMapper()
 
 
 class InchiMolAtomMapper(AbstractMolAtomMapper):
     """
     Pair atoms by inchi labels.
-
-    Args:
-        angle_tolerance: Angle threshold to assume linear molecule. In degrees.
     """
 
     def __init__(self, angle_tolerance=10.0):
+        """
+        Args:
+            angle_tolerance (float): Angle threshold to assume linear molecule. In degrees.
+        """
         self._angle_tolerance = angle_tolerance
         self._assistant_mapper = IsomorphismMolAtomMapper()
 
     def as_dict(self):
+        """
+        Returns:
+            MSONAble dict.
+        """
         return {"version": __version__, "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "angle_tolerance": self._angle_tolerance}
 
     @classmethod
     def from_dict(cls, d):
+        """
+        Args:
+            d (dict): Dict Representation
+
+        Returns:
+            InchiMolAtomMapper
+        """
         return InchiMolAtomMapper(angle_tolerance=d["angle_tolerance"])
 
     @staticmethod
@@ -499,6 +529,14 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         return True
 
     def uniform_labels(self, mol1, mol2):
+        """
+        Args:
+            mol1 (Molecule): Molecule 1
+            mol2 (Molecule): Molecule 2
+
+        Returns:
+            Labels
+        """
         obmol1 = BabelMolAdaptor(mol1).openbabel_mol
         obmol2 = BabelMolAdaptor(mol2).openbabel_mol
 
@@ -549,18 +587,20 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
 class MoleculeMatcher(MSONable):
     """
     Class to match molecules and identify whether molecules are the same.
-
-    Args:
-        tolerance: RMSD difference threshold whether two molecules are
-            different
-        mapper: MolAtomMapper object that is able to map the atoms of two
-            molecule to uniform order
     """
 
     @requires(ob,
               "BabelMolAdaptor requires openbabel to be installed with "
-              "Python bindings. Please get it at http://openbabel.org.")
+              "Python bindings. Please get it at http://openbabel.org "
+              "(version >=3.0.0).")
     def __init__(self, tolerance=0.01, mapper=InchiMolAtomMapper()):
+        """
+        Args:
+            tolerance (float): RMSD difference threshold whether two molecules are
+                different
+            mapper (AbstractMolAtomMapper): MolAtomMapper object that is able to map the atoms of two
+                molecule to uniform order
+        """
         self._tolerance = tolerance
         self._mapper = mapper
 
@@ -680,12 +720,23 @@ class MoleculeMatcher(MSONable):
         return all_groups
 
     def as_dict(self):
+        """
+        Returns:
+            MSONAble dict.
+        """
         return {"version": __version__, "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "tolerance": self._tolerance, "mapper": self._mapper.as_dict()}
 
     @classmethod
     def from_dict(cls, d):
+        """
+        Args:
+            d (dict): Dict representation
+
+        Returns:
+            MoleculeMatcher
+        """
         return MoleculeMatcher(
             tolerance=d["tolerance"],
             mapper=AbstractMolAtomMapper.from_dict(d["mapper"]))

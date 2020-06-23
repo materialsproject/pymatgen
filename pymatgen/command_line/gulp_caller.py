@@ -82,7 +82,7 @@ class GulpIO:
     """
 
     def keyword_line(self, *args):
-        """
+        r"""
         Checks if the input args are proper gulp keywords and
         generates the 1st line of gulp input. Full keywords are expected.
 
@@ -155,7 +155,7 @@ class GulpIO:
         return gin
 
     def specie_potential_lines(self, structure, potential, **kwargs):
-        """
+        r"""
         Generates GULP input specie and potential string for pymatgen
         structure.
 
@@ -362,6 +362,13 @@ class GulpIO:
         return gin
 
     def get_energy(self, gout):
+        """
+        Args:
+            gout ():
+
+        Returns:
+            Energy
+        """
         energy = None
         for line in gout.split("\n"):
             if "Total lattice energy" in line and "eV" in line:
@@ -374,6 +381,13 @@ class GulpIO:
             raise GulpError("Energy not found in Gulp output")
 
     def get_relaxed_structure(self, gout):
+        """
+        Args:
+            gout ():
+
+        Returns:
+            (Structure) relaxed structure.
+        """
         # Find the structure lines
         structure_lines = []
         cell_param_lines = []
@@ -603,6 +617,10 @@ class GulpError(Exception):
     """
 
     def __init__(self, msg):
+        """
+        Args:
+            msg (str): Message
+        """
         self.msg = msg
 
     def __str__(self):
@@ -617,6 +635,10 @@ class GulpConvergenceError(Exception):
     """
 
     def __init__(self, msg=""):
+        """
+        Args:
+            msg (str): Message
+        """
         self.msg = msg
 
     def __str__(self):
@@ -635,6 +657,10 @@ class BuckinghamPotential:
     """
 
     def __init__(self, bush_lewis_flag):
+        """
+        Args:
+            bush_lewis_flag (str): Flag for using Bush or Lewis potential.
+        """
         assert bush_lewis_flag in {'bush', 'lewis'}
         pot_file = "bush.lib" if bush_lewis_flag == "bush" else "lewis.lib"
         with open(os.path.join(os.environ["GULP_LIB"], pot_file), 'rt') as f:
@@ -706,6 +732,9 @@ class TersoffPotential:
     """
 
     def __init__(self):
+        """
+        Init TersoffPotential
+        """
         module_dir = os.path.dirname(os.path.abspath(__file__))
         with open(os.path.join(module_dir, "OxideTersoffPotentials"), "r") as f:
             data = dict()

@@ -838,7 +838,7 @@ class IStructure(SiteCollection, MSONable):
     @classmethod
     def from_magnetic_spacegroup(
             cls,
-            msg: Union[str, 'MagneticSpaceGroup'],  # type: ignore
+            msg: Union[str, 'MagneticSpaceGroup'],  # type: ignore  # noqa: F821
             lattice: Union[List, np.ndarray, Lattice],
             species: Sequence[Union[str, Element, Specie, DummySpecie, Composition]],
             coords: Sequence[Sequence[float]],
@@ -2081,6 +2081,28 @@ class IStructure(SiteCollection, MSONable):
             d["sites"].append(site_dict)
         return d
 
+    def as_dataframe(self):
+        """
+        Returns a Pandas dataframe of the sites. Structure level attributes are stored in DataFrame.attrs. Example:
+
+        Species    a    b             c    x             y             z  magmom
+        0    (Si)  0.0  0.0  0.000000e+00  0.0  0.000000e+00  0.000000e+00       5
+        1    (Si)  0.0  0.0  1.000000e-07  0.0 -2.217138e-07  3.135509e-07      -5
+        """
+        data = []
+        site_properties = self.site_properties
+        prop_keys = list(site_properties.keys())
+        for site in self:
+            row = [site.species] + list(site.frac_coords) + list(site.coords)
+            for k in prop_keys:
+                row.append(site.properties.get(k))
+            data.append(row)
+        import pandas as pd
+        df = pd.DataFrame(data, columns=["Species", "a", "b", "c", "x", "y", "z"] + prop_keys)
+        df.attrs["Reduced Formula"] = self.composition.reduced_formula
+        df.attrs["Lattice"] = self.lattice
+        return df
+
     @classmethod
     def from_dict(cls, d, fmt=None):
         """
@@ -2610,7 +2632,7 @@ class IMolecule(SiteCollection, MSONable):
         Find all sites within a sphere from a point.
 
         Args:
-            pt (3x1 array): Cartesian coordinates of center of sphere.
+            pt (3x1 array): Cartesian coordinates of center of sphere
             r (float): Radius of sphere.
 
         Returns:
@@ -2661,7 +2683,7 @@ class IMolecule(SiteCollection, MSONable):
 
     def get_boxed_structure(self, a, b, c, images=(1, 1, 1),
                             random_rotation=False, min_dist=1, cls=None,
-                            offset=None, no_cross=False):
+                            offset=None, no_cross=False, reorder=True):
         """
         Creates a Structure from a Molecule by putting the Molecule in the
         center of a orthorhombic box. Useful for creating Structure for
@@ -2686,6 +2708,8 @@ class IMolecule(SiteCollection, MSONable):
             offset: Translation to offset molecule from center of mass coords
             no_cross: Whether to forbid molecule coords from extending beyond
                 boundary of box.
+            reorder: Whether to reorder the sites to be in electronegativity
+                order.
 
         Returns:
             Structure containing molecule in a box.
@@ -2746,9 +2770,14 @@ class IMolecule(SiteCollection, MSONable):
         if cls is None:
             cls = Structure
 
-        return cls(lattice, self.species * nimages, coords,
-                   coords_are_cartesian=True,
-                   site_properties=sprops).get_sorted_structure()
+        if reorder:
+            return cls(lattice, self.species * nimages, coords,
+                       coords_are_cartesian=True,
+                       site_properties=sprops).get_sorted_structure()
+        else:
+            return cls(lattice, self.species * nimages, coords,
+                       coords_are_cartesian=True,
+                       site_properties=sprops)
 
     def get_centered_molecule(self):
         """

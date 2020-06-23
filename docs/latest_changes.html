@@ -8,12 +8,10 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Change log &mdash; pymatgen 2020.1.10 documentation</title>
+  <title>Change log &mdash; pymatgen 2020.4.29 documentation</title>
   
 
   
-  
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
   
   
   
@@ -25,11 +23,11 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -71,7 +69,7 @@
             
             
               <div class="version">
-                2020.1.10
+                2020.4.29
               </div>
             
           
@@ -171,13 +169,17 @@
             
   <div class="section" id="change-log">
 <h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="v2020-1-10">
-<h2>v2020.1.10<a class="headerlink" href="#v2020-1-10" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="v2020-6-8">
+<h2>v2020.6.8<a class="headerlink" href="#v2020-6-8" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li><p>New connectivity analysis in Chemenv (&#64;davidwaroquiers)</p></li>
-<li><p>Improvements to DOSPlotter (&#64;uthpalah)</p></li>
-<li><p>Improvements to writing VASP input sets (&#64;rkingsbury)</p></li>
-<li><p>Bug fix for PhaseDiagram (&#64;montoyjh)</p></li>
+<li><p>New: Support for parsing WAVECARS with spin-orbit coupling (&#64;mturiansky, #1861)</p></li>
+<li><p>New: Support to convert WAVECAR to wannier90 UNK files (&#64;mturiansky, #1861)</p></li>
+<li><p>New: Site-weighted XAS spectrum (&#64;yimingchen95, #1837)</p></li>
+<li><p>Fixed: Elfcar serialization (&#64;ayushgupta, #1859)</p></li>
+<li><p>Fixed: Units in label for phonon plot (&#64;ab5424, #1857)</p></li>
+<li><p>Fixed: StructureMatcher serialization (&#64;lbluque, #1850)</p></li>
+<li><p>Fixed: Comment string in KPOINTS file (&#64;arosen93, #1842)</p></li>
+<li><p>Fixed: parsing of dielectric function in VASP output (&#64;computron, #1836)</p></li>
 </ul>
 </div>
 </div>

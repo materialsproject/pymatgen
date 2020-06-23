@@ -2,6 +2,9 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+Classes and methods related to the Structure Notation Language (SNL)
+"""
 
 import sys
 import re
@@ -16,9 +19,6 @@ from pymatgen.core.structure import Structure, Molecule
 from pybtex.database.input import bibtex
 from pybtex import errors
 
-"""
-Classes and methods related to the Structure Notation Language (SNL)
-"""
 
 __author__ = 'Anubhav Jain, Shyue Ping Ong'
 __credits__ = 'Dan Gunter'
@@ -82,11 +82,21 @@ class HistoryNode(namedtuple('HistoryNode', ['name', 'url', 'description'])):
     """
 
     def as_dict(self):
+        """
+        Returns: Dict
+        """
         return {"name": self.name, "url": self.url,
                 "description": self.description}
 
     @staticmethod
     def from_dict(h_node):
+        """
+        Args:
+            d (dict): Dict representation
+
+        Returns:
+            HistoryNode
+        """
         return HistoryNode(h_node['name'], h_node['url'],
                            h_node['description'])
 
@@ -133,10 +143,20 @@ class Author(namedtuple('Author', ['name', 'email'])):
         return '{} <{}>'.format(self.name, self.email)
 
     def as_dict(self):
+        """
+        Returns: MSONable dict.
+        """
         return {"name": self.name, "email": self.email}
 
     @staticmethod
     def from_dict(d):
+        """
+        Args:
+            d (dict): Dict representation
+
+        Returns:
+            Author
+        """
         return Author(d['name'], d['email'])
 
     @staticmethod
@@ -184,23 +204,24 @@ class StructureNL:
         - history
     - lattice (optional)
     - sites
-
-    Args:
-        struct_or_mol: A pymatgen.core.structure Structure/Molecule object
-        authors: *List* of {"name":'', "email":''} dicts,
-            *list* of Strings as 'John Doe <johndoe@gmail.com>',
-            or a single String with commas separating authors
-        projects: List of Strings ['Project A', 'Project B']
-        references: A String in BibTeX format
-        remarks: List of Strings ['Remark A', 'Remark B']
-        data: A free form dict. Namespaced at the root level with an
-            underscore, e.g. {"_materialsproject": <custom data>}
-        history: List of dicts - [{'name':'', 'url':'', 'description':{}}]
-        created_at: A datetime object
     """
 
     def __init__(self, struct_or_mol, authors, projects=None, references='',
                  remarks=None, data=None, history=None, created_at=None):
+        """
+        Args:
+            struct_or_mol: A pymatgen.core.structure Structure/Molecule object
+            authors: *List* of {"name":'', "email":''} dicts,
+                *list* of Strings as 'John Doe <johndoe@gmail.com>',
+                or a single String with commas separating authors
+            projects: List of Strings ['Project A', 'Project B']
+            references: A String in BibTeX format
+            remarks: List of Strings ['Remark A', 'Remark B']
+            data: A free form dict. Namespaced at the root level with an
+                underscore, e.g. {"_materialsproject": <custom data>}
+            history: List of dicts - [{'name':'', 'url':'', 'description':{}}]
+            created_at: A datetime object
+        """
         # initialize root-level structure keys
         self.structure = struct_or_mol
 
@@ -265,6 +286,9 @@ class StructureNL:
             else datetime.datetime.utcnow()
 
     def as_dict(self):
+        """
+        Returns: MSONable dict
+        """
         d = self.structure.as_dict()
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
@@ -281,6 +305,13 @@ class StructureNL:
 
     @classmethod
     def from_dict(cls, d):
+        """
+        Args:
+            d (dict): Dict representation
+
+        Returns:
+            Class
+        """
         a = d["about"]
         dec = MontyDecoder()
 

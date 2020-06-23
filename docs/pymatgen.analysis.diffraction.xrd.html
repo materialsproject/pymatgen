@@ -8,12 +8,10 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.analysis.diffraction.xrd module &mdash; pymatgen 2020.1.10 documentation</title>
+  <title>pymatgen.analysis.diffraction.xrd module &mdash; pymatgen 2020.4.29 documentation</title>
   
 
   
-  
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
   
   
   
@@ -25,11 +23,11 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -42,7 +40,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.analysis.elasticity package" href="pymatgen.analysis.elasticity.html" />
-    <link rel="prev" title="pymatgen.analysis.diffraction.neutron module" href="pymatgen.analysis.diffraction.neutron.html" />
+    <link rel="prev" title="pymatgen.analysis.diffraction.tem module" href="pymatgen.analysis.diffraction.tem.html" />
  
 <script type="text/javascript">
   var _gaq = _gaq || [];
@@ -73,7 +71,7 @@
             
             
               <div class="version">
-                2020.1.10
+                2020.4.29
               </div>
             
           
@@ -119,6 +117,7 @@
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html">pymatgen.io package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.plugins.html">pymatgen.plugins package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
@@ -207,9 +206,10 @@
             
   <div class="section" id="module-pymatgen.analysis.diffraction.xrd">
 <span id="pymatgen-analysis-diffraction-xrd-module"></span><h1>pymatgen.analysis.diffraction.xrd module<a class="headerlink" href="#module-pymatgen.analysis.diffraction.xrd" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
+<p>This module implements an XRD pattern calculator.</p>
+<dl class="py class">
 <dt id="pymatgen.analysis.diffraction.xrd.XRDCalculator">
-<em class="property">class </em><code class="sig-name descname">XRDCalculator</code><span class="sig-paren">(</span><em class="sig-param">wavelength='CuKa'</em>, <em class="sig-param">symprec=0</em>, <em class="sig-param">debye_waller_factors=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/analysis/diffraction/xrd.py#L62-L298"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.xrd.XRDCalculator" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">XRDCalculator</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">wavelength</span><span class="o">=</span><span class="default_value">'CuKa'</span></em>, <em class="sig-param"><span class="n">symprec</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">debye_waller_factors</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/diffraction/xrd.py#L61-L297"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.xrd.XRDCalculator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.analysis.diffraction.core.html#pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator" title="pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.diffraction.core.AbstractDiffractionPatternCalculator</span></code></a></p>
 <p>Computes the XRD pattern of a crystal structure.</p>
 <p>This code is implemented by Shyue Ping Ong as part of UCSD’s NANO106 -
@@ -224,20 +224,21 @@ sphere, which includes all symmetrically equivalent facets. The algorithm
 is as follows</p>
 <ol class="arabic">
 <li><p>Calculate reciprocal lattice of structure. Find all reciprocal points
-within the limiting sphere given by <span class="math notranslate nohighlight">\(\frac{2}{\lambda}\)</span>.</p></li>
-<li><p>For each reciprocal point <span class="math notranslate nohighlight">\(\mathbf{g_{hkl}}\)</span> corresponding to
+within the limiting sphere given by <span class="math notranslate nohighlight">\(\\frac{2}{\\lambda}\)</span>.</p></li>
+<li><p>For each reciprocal point <span class="math notranslate nohighlight">\(\\mathbf{g_{hkl}}\)</span> corresponding to
 lattice plane <span class="math notranslate nohighlight">\((hkl)\)</span>, compute the Bragg condition
-<span class="math notranslate nohighlight">\(\sin(\theta) = \frac{\lambda}{2d_{hkl}}\)</span></p></li>
+<span class="math notranslate nohighlight">\(\\sin(\\theta) = \\frac{\\lambda}{2d_{hkl}}\)</span></p></li>
 <li><p>Compute the structure factor as the sum of the atomic scattering
 factors. The atomic scattering factors are given by</p>
 <div class="math notranslate nohighlight">
-\[f(s) = Z - 41.78214 \times s^2 \times \sum\limits_{i=1}^n a_i            \exp(-b_is^2)\]</div>
-<p>where <span class="math notranslate nohighlight">\(s = \frac{\sin(\theta)}{\lambda}\)</span> and <span class="math notranslate nohighlight">\(a_i\)</span>
+\[\begin{split}f(s) = Z - 41.78214 \\times s^2 \\times \\sum\\limits_{i=1}^n a_i \
+\\exp(-b_is^2)\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(s = \\frac{\\sin(\\theta)}{\\lambda}\)</span> and <span class="math notranslate nohighlight">\(a_i\)</span>
 and <span class="math notranslate nohighlight">\(b_i\)</span> are the fitted parameters for each element. The
 structure factor is then given by</p>
 <div class="math notranslate nohighlight">
-\[F_{hkl} = \sum\limits_{j=1}^N f_j \exp(2\pi i \mathbf{g_{hkl}}
-\cdot \mathbf{r})\]</div>
+\[\begin{split}F_{hkl} = \\sum\\limits_{j=1}^N f_j \\exp(2\\pi i \\mathbf{g_{hkl}}
+\\cdot \\mathbf{r})\end{split}\]</div>
 </li>
 <li><p>The intensity is then given by the modulus square of the structure
 factor.</p>
@@ -247,8 +248,8 @@ factor.</p>
 <li><p>Finally, the Lorentz polarization correction factor is applied. This
 factor is given by:</p>
 <div class="math notranslate nohighlight">
-\[P(\theta) = \frac{1 + \cos^2(2\theta)}
-{\sin^2(\theta)\cos(\theta)}\]</div>
+\[\begin{split}P(\\theta) = \\frac{1 + \\cos^2(2\\theta)}
+{\\sin^2(\\theta)\\cos(\\theta)}\end{split}\]</div>
 </li>
 </ol>
 <p>Initializes the XRD calculator with a given radiation.</p>
@@ -270,14 +271,14 @@ factors are temperature dependent.</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="pymatgen.analysis.diffraction.xrd.XRDCalculator.AVAILABLE_RADIATION">
-<code class="sig-name descname">AVAILABLE_RADIATION</code><em class="property"> = ('CuKa', 'CuKa2', 'CuKa1', 'CuKb1', 'MoKa', 'MoKa2', 'MoKa1', 'MoKb1', 'CrKa', 'CrKa2', 'CrKa1', 'CrKb1', 'FeKa', 'FeKa2', 'FeKa1', 'FeKb1', 'CoKa', 'CoKa2', 'CoKa1', 'CoKb1', 'AgKa', 'AgKa2', 'AgKa1', 'AgKb1')</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/analysis/diffraction/xrd.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.xrd.XRDCalculator.AVAILABLE_RADIATION" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">AVAILABLE_RADIATION</code><em class="property"> = ('CuKa', 'CuKa2', 'CuKa1', 'CuKb1', 'MoKa', 'MoKa2', 'MoKa1', 'MoKb1', 'CrKa', 'CrKa2', 'CrKa1', 'CrKb1', 'FeKa', 'FeKa2', 'FeKa1', 'FeKb1', 'CoKa', 'CoKa2', 'CoKa1', 'CoKb1', 'AgKa', 'AgKa2', 'AgKa1', 'AgKb1')</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/diffraction/xrd.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.xrd.XRDCalculator.AVAILABLE_RADIATION" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.analysis.diffraction.xrd.XRDCalculator.get_pattern">
-<code class="sig-name descname">get_pattern</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">scaled=True</em>, <em class="sig-param">two_theta_range=(0</em>, <em class="sig-param">90)</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.1.10/pymatgen/analysis/diffraction/xrd.py#L146-L298"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.xrd.XRDCalculator.get_pattern" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_pattern</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">scaled</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">two_theta_range</span><span class="o">=</span><span class="default_value">0, 90</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.29/pymatgen/analysis/diffraction/xrd.py#L145-L297"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.xrd.XRDCalculator.get_pattern" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the diffraction pattern for a structure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>

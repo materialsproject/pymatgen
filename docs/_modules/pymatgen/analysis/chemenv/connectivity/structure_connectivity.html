@@ -1,0 +1,450 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>pymatgen.analysis.chemenv.connectivity.structure_connectivity &#8212; pymatgen 2020.3.2 documentation</title>
+    <link rel="stylesheet" href="../../../../../_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../../../" src="../../../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.analysis.chemenv.connectivity.structure_connectivity</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Structure connectivity class.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nx</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">collections</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.coordination_environments.structure_environments</span> <span class="k">import</span> <span class="n">LightStructureEnvironments</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.connectivity.environment_nodes</span> <span class="k">import</span> <span class="n">get_environment_node</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.connectivity.connected_components</span> <span class="k">import</span> <span class="n">ConnectedComponent</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">jsanitize</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;David Waroquiers&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2012, The Materials Project&quot;</span>
+<span class="n">__credits__</span> <span class="o">=</span> <span class="s2">&quot;Geoffroy Hautier&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;1.0&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;David Waroquiers&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;david.waroquiers@gmail.com&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;June 25, 2019&quot;</span>
+
+
+<div class="viewcode-block" id="get_delta_image"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.connectivity.structure_connectivity.html#pymatgen.analysis.chemenv.connectivity.structure_connectivity.get_delta_image">[docs]</a><span class="k">def</span> <span class="nf">get_delta_image</span><span class="p">(</span><span class="n">isite1</span><span class="p">,</span> <span class="n">isite2</span><span class="p">,</span> <span class="n">data1</span><span class="p">,</span> <span class="n">data2</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Helper method to get the delta image between one environment and another</span>
+<span class="sd">    from the ligand&#39;s delta images.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">data1</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">isite1</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">data2</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">isite2</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data1</span><span class="p">[</span><span class="s1">&#39;delta&#39;</span><span class="p">])</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data2</span><span class="p">[</span><span class="s1">&#39;delta&#39;</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data1</span><span class="p">[</span><span class="s1">&#39;delta&#39;</span><span class="p">])</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data2</span><span class="p">[</span><span class="s1">&#39;delta&#39;</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">data2</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">isite2</span><span class="p">:</span>
+            <span class="k">return</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data1</span><span class="p">[</span><span class="s1">&#39;delta&#39;</span><span class="p">])</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data2</span><span class="p">[</span><span class="s1">&#39;delta&#39;</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data1</span><span class="p">[</span><span class="s1">&#39;delta&#39;</span><span class="p">])</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data2</span><span class="p">[</span><span class="s1">&#39;delta&#39;</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="StructureConnectivity"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.connectivity.structure_connectivity.html#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity">[docs]</a><span class="k">class</span> <span class="nc">StructureConnectivity</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Main class containing the connectivity of a structure.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">light_structure_environment</span><span class="p">,</span> <span class="n">connectivity_graph</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">environment_subgraphs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructor for the StructureConnectivity object.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            light_structure_environment: a LightStructureEnvironments object</span>
+<span class="sd">                                         containing the relevant local environments</span>
+<span class="sd">                                         for the sites in the structure.</span>
+<span class="sd">            connectivity_graph: the networkx MultiGraph if it has already been computed,</span>
+<span class="sd">                                e.g. stored in a file or dict and StructureConnectivity</span>
+<span class="sd">                                is reconstructed from that file or dict.</span>
+<span class="sd">            environment_subgraphs: the different subgraphs of environments that have</span>
+<span class="sd">                                   been computed if any (as for connectivity_graph, only</span>
+<span class="sd">                                   if it is reconstructed from a file or dict).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">light_structure_environments</span> <span class="o">=</span> <span class="n">light_structure_environment</span>
+        <span class="k">if</span> <span class="n">connectivity_graph</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">MultiGraph</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span> <span class="o">=</span> <span class="n">connectivity_graph</span>
+        <span class="k">if</span> <span class="n">environment_subgraphs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">environment_subgraphs</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">environment_subgraphs</span> <span class="o">=</span> <span class="n">environment_subgraphs</span>
+
+<div class="viewcode-block" id="StructureConnectivity.environment_subgraph"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.connectivity.structure_connectivity.html#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.environment_subgraph">[docs]</a>    <span class="k">def</span> <span class="nf">environment_subgraph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">environments_symbols</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">only_atoms</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            environments_symbols ():</span>
+<span class="sd">            only_atoms ():</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">environments_symbols</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setup_environment_subgraph</span><span class="p">(</span><span class="n">environments_symbols</span><span class="o">=</span><span class="n">environments_symbols</span><span class="p">,</span> <span class="n">only_atoms</span><span class="o">=</span><span class="n">only_atoms</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_environment_subgraph</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="n">all_envs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">light_structure_environments</span><span class="o">.</span><span class="n">environments_identified</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setup_environment_subgraph</span><span class="p">(</span><span class="n">environments_symbols</span><span class="o">=</span><span class="n">all_envs</span><span class="p">,</span> <span class="n">only_atoms</span><span class="o">=</span><span class="n">only_atoms</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_environment_subgraph</span></div>
+
+<div class="viewcode-block" id="StructureConnectivity.add_sites"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.connectivity.structure_connectivity.html#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.add_sites">[docs]</a>    <span class="k">def</span> <span class="nf">add_sites</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add the sites in the structure connectivity graph.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span><span class="o">.</span><span class="n">add_nodes_from</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">light_structure_environments</span><span class="o">.</span><span class="n">structure</span><span class="p">))))</span></div>
+
+<div class="viewcode-block" id="StructureConnectivity.add_bonds"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.connectivity.structure_connectivity.html#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.add_bonds">[docs]</a>    <span class="k">def</span> <span class="nf">add_bonds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">isite</span><span class="p">,</span> <span class="n">site_neighbors_set</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add the bonds for a given site index to the structure connectivity graph.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            isite: Index of the site for which the bonds have to be added.</span>
+<span class="sd">            site_neighbors_set: site_neighbors_set: Neighbors set of the site</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">existing_edges</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">nbunch</span><span class="o">=</span><span class="p">[</span><span class="n">isite</span><span class="p">],</span> <span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">nb_index_and_image</span> <span class="ow">in</span> <span class="n">site_neighbors_set</span><span class="o">.</span><span class="n">neighb_indices_and_images</span><span class="p">:</span>
+            <span class="n">nb_index_unitcell</span> <span class="o">=</span> <span class="n">nb_index_and_image</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]</span>
+            <span class="n">nb_image_cell</span> <span class="o">=</span> <span class="n">nb_index_and_image</span><span class="p">[</span><span class="s1">&#39;image_cell&#39;</span><span class="p">]</span>
+            <span class="n">exists</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">nb_image_cell</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">)):</span>
+                <span class="k">for</span> <span class="p">(</span><span class="n">isite1</span><span class="p">,</span> <span class="n">ineighb1</span><span class="p">,</span> <span class="n">data1</span><span class="p">)</span> <span class="ow">in</span> <span class="n">existing_edges</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">data1</span><span class="p">[</span><span class="s1">&#39;delta&#39;</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span> <span class="ow">and</span> <span class="n">nb_index_unitcell</span> <span class="o">==</span> <span class="n">ineighb1</span><span class="p">:</span>
+                        <span class="n">exists</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="k">break</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">isite</span> <span class="o">==</span> <span class="n">nb_index_unitcell</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="p">(</span><span class="n">isite1</span><span class="p">,</span> <span class="n">ineighb1</span><span class="p">,</span> <span class="n">data1</span><span class="p">)</span> <span class="ow">in</span> <span class="n">existing_edges</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">isite1</span> <span class="o">==</span> <span class="n">ineighb1</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">data1</span><span class="p">[</span><span class="s1">&#39;delta&#39;</span><span class="p">],</span>
+                                           <span class="n">nb_image_cell</span><span class="p">)</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">data1</span><span class="p">[</span><span class="s1">&#39;delta&#39;</span><span class="p">],</span>
+                                                                         <span class="o">-</span><span class="n">nb_image_cell</span><span class="p">):</span>
+                                <span class="n">exists</span> <span class="o">=</span> <span class="kc">True</span>
+                                <span class="k">break</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="p">(</span><span class="n">isite1</span><span class="p">,</span> <span class="n">ineighb1</span><span class="p">,</span> <span class="n">data1</span><span class="p">)</span> <span class="ow">in</span> <span class="n">existing_edges</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">nb_index_unitcell</span> <span class="o">==</span> <span class="n">ineighb1</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="n">data1</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">isite</span><span class="p">:</span>
+                                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">data1</span><span class="p">[</span><span class="s1">&#39;delta&#39;</span><span class="p">],</span> <span class="n">nb_image_cell</span><span class="p">):</span>
+                                    <span class="n">exists</span> <span class="o">=</span> <span class="kc">True</span>
+                                    <span class="k">break</span>
+                            <span class="k">elif</span> <span class="n">data1</span><span class="p">[</span><span class="s1">&#39;end&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">isite</span><span class="p">:</span>
+                                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">data1</span><span class="p">[</span><span class="s1">&#39;delta&#39;</span><span class="p">],</span> <span class="o">-</span><span class="n">nb_image_cell</span><span class="p">):</span>
+                                    <span class="n">exists</span> <span class="o">=</span> <span class="kc">True</span>
+                                    <span class="k">break</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;SHOULD NOT HAPPEN ???&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">exists</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">isite</span><span class="p">,</span> <span class="n">nb_index_unitcell</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">isite</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">nb_index_unitcell</span><span class="p">,</span> <span class="n">delta</span><span class="o">=</span><span class="n">nb_image_cell</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="StructureConnectivity.setup_environment_subgraph"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.connectivity.structure_connectivity.html#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.setup_environment_subgraph">[docs]</a>    <span class="k">def</span> <span class="nf">setup_environment_subgraph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">environments_symbols</span><span class="p">,</span> <span class="n">only_atoms</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set up the graph for predefined environments and optionally atoms.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            environments_symbols: Symbols of the environments for the environment subgraph.</span>
+<span class="sd">            only_atoms: Atoms to be considered.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Setup of environment subgraph for environments </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">environments_symbols</span><span class="p">)))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">environments_symbols</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Iterable</span><span class="p">):</span>
+            <span class="n">environments_symbols</span> <span class="o">=</span> <span class="p">[</span><span class="n">environments_symbols</span><span class="p">]</span>
+        <span class="n">environments_symbols</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">environments_symbols</span><span class="p">)</span>
+        <span class="n">envs_string</span> <span class="o">=</span> <span class="s1">&#39;-&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">environments_symbols</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">only_atoms</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">envs_string</span> <span class="o">+=</span> <span class="s1">&#39;#&#39;</span> <span class="o">+</span> <span class="s1">&#39;-&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">only_atoms</span><span class="p">))</span>
+        <span class="c1"># Get it directly if it was already computed</span>
+        <span class="k">if</span> <span class="n">envs_string</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment_subgraphs</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_environment_subgraph</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment_subgraphs</span><span class="p">[</span><span class="n">envs_string</span><span class="p">]</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Initialize graph for a subset of environments</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_environment_subgraph</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">MultiGraph</span><span class="p">()</span>
+        <span class="c1"># Add the sites with the required environment(s)</span>
+        <span class="k">for</span> <span class="n">isite</span><span class="p">,</span> <span class="n">ce_this_site_all</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">light_structure_environments</span><span class="o">.</span><span class="n">coordination_environments</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">ce_this_site_all</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ce_this_site_all</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">ce_this_site</span> <span class="o">=</span> <span class="n">ce_this_site_all</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;ce_symbol&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">ce_this_site</span> <span class="ow">in</span> <span class="n">environments_symbols</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">only_atoms</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">env_node</span> <span class="o">=</span> <span class="n">get_environment_node</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">light_structure_environments</span><span class="o">.</span><span class="n">structure</span><span class="p">[</span><span class="n">isite</span><span class="p">],</span> <span class="n">isite</span><span class="p">,</span>
+                                                    <span class="n">ce_this_site</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_environment_subgraph</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">env_node</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">light_structure_environments</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">is_ordered</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">light_structure_environments</span><span class="o">.</span><span class="n">structure</span><span class="p">[</span><span class="n">isite</span><span class="p">]</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">symbol</span> <span class="ow">in</span> <span class="n">only_atoms</span><span class="p">:</span>
+                            <span class="n">env_node</span> <span class="o">=</span> <span class="n">get_environment_node</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">light_structure_environments</span><span class="o">.</span><span class="n">structure</span><span class="p">[</span><span class="n">isite</span><span class="p">],</span> <span class="n">isite</span><span class="p">,</span>
+                                                            <span class="n">ce_this_site</span><span class="p">)</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">_environment_subgraph</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">env_node</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="c1">#  TODO: add the possibility of a &quot;constraint&quot; on the minimum percentage</span>
+                        <span class="c1">#        of the atoms on the site</span>
+                        <span class="n">this_site_elements</span> <span class="o">=</span> <span class="p">[</span><span class="n">sp</span><span class="o">.</span><span class="n">symbol</span> <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span>
+                                              <span class="bp">self</span><span class="o">.</span><span class="n">light_structure_environments</span><span class="o">.</span><span class="n">structure</span><span class="p">[</span><span class="n">isite</span><span class="p">]</span><span class="o">.</span><span class="n">species_and_occu</span><span class="p">]</span>
+                        <span class="k">for</span> <span class="n">elem_symbol</span> <span class="ow">in</span> <span class="n">this_site_elements</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="n">elem_symbol</span> <span class="ow">in</span> <span class="n">only_atoms</span><span class="p">:</span>
+                                <span class="n">env_node</span> <span class="o">=</span> <span class="n">get_environment_node</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">light_structure_environments</span><span class="o">.</span><span class="n">structure</span><span class="p">[</span><span class="n">isite</span><span class="p">],</span>
+                                                                <span class="n">isite</span><span class="p">,</span> <span class="n">ce_this_site</span><span class="p">)</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">_environment_subgraph</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">env_node</span><span class="p">)</span>
+                                <span class="k">break</span>
+        <span class="c1"># Find the connections between the environments</span>
+        <span class="n">nodes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_environment_subgraph</span><span class="o">.</span><span class="n">nodes</span><span class="p">())</span>
+        <span class="k">for</span> <span class="n">inode1</span><span class="p">,</span> <span class="n">node1</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">nodes</span><span class="p">):</span>
+            <span class="n">isite1</span> <span class="o">=</span> <span class="n">node1</span><span class="o">.</span><span class="n">isite</span>
+            <span class="n">links_node1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">isite1</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">inode2</span><span class="p">,</span> <span class="n">node2</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">nodes</span><span class="p">[</span><span class="n">inode1</span><span class="p">:]):</span>
+                <span class="n">isite2</span> <span class="o">=</span> <span class="n">node2</span><span class="o">.</span><span class="n">isite</span>
+                <span class="n">links_node2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">isite2</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="c1"># We look for ligands that are common to both site1 and site2</span>
+                <span class="n">connections_site1_site2</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="k">for</span> <span class="p">(</span><span class="n">site1_1</span><span class="p">,</span> <span class="n">ilig_site1</span><span class="p">,</span> <span class="n">d1</span><span class="p">)</span> <span class="ow">in</span> <span class="n">links_node1</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="p">(</span><span class="n">site2_1</span><span class="p">,</span> <span class="n">ilig_site2</span><span class="p">,</span> <span class="n">d2</span><span class="p">)</span> <span class="ow">in</span> <span class="n">links_node2</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">ilig_site1</span> <span class="o">==</span> <span class="n">ilig_site2</span><span class="p">:</span>
+                            <span class="n">delta_image</span> <span class="o">=</span> <span class="n">get_delta_image</span><span class="p">(</span><span class="n">isite1</span><span class="p">,</span> <span class="n">isite2</span><span class="p">,</span> <span class="n">d1</span><span class="p">,</span> <span class="n">d2</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="n">isite1</span> <span class="o">==</span> <span class="n">isite2</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">delta_image</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+                                <span class="k">continue</span>
+                            <span class="n">tuple_delta_image</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">delta_image</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="n">tuple_delta_image</span> <span class="ow">in</span> <span class="n">connections_site1_site2</span><span class="p">:</span>
+                                <span class="n">connections_site1_site2</span><span class="p">[</span><span class="n">tuple_delta_image</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">ilig_site1</span><span class="p">,</span> <span class="n">d1</span><span class="p">,</span> <span class="n">d2</span><span class="p">))</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="n">connections_site1_site2</span><span class="p">[</span><span class="n">tuple_delta_image</span><span class="p">]</span> <span class="o">=</span> <span class="p">[(</span><span class="n">ilig_site1</span><span class="p">,</span> <span class="n">d1</span><span class="p">,</span> <span class="n">d2</span><span class="p">)]</span>
+                <span class="c1"># Remove the double self-loops ...</span>
+                <span class="k">if</span> <span class="n">isite1</span> <span class="o">==</span> <span class="n">isite2</span><span class="p">:</span>
+                    <span class="n">remove_deltas</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="n">alldeltas</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">connections_site1_site2</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+                    <span class="n">alldeltas2</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">connections_site1_site2</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+                    <span class="k">if</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">in</span> <span class="n">alldeltas</span><span class="p">:</span>
+                        <span class="n">alldeltas</span><span class="o">.</span><span class="n">remove</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+                        <span class="n">alldeltas2</span><span class="o">.</span><span class="n">remove</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+                    <span class="k">for</span> <span class="n">current_delta</span> <span class="ow">in</span> <span class="n">alldeltas</span><span class="p">:</span>
+                        <span class="n">opp_current_delta</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="o">-</span><span class="n">dd</span> <span class="k">for</span> <span class="n">dd</span> <span class="ow">in</span> <span class="n">current_delta</span><span class="p">])</span>
+                        <span class="k">if</span> <span class="n">opp_current_delta</span> <span class="ow">in</span> <span class="n">alldeltas2</span><span class="p">:</span>
+                            <span class="n">remove_deltas</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current_delta</span><span class="p">)</span>
+                            <span class="n">alldeltas2</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">current_delta</span><span class="p">)</span>
+                            <span class="n">alldeltas2</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">opp_current_delta</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">remove_delta</span> <span class="ow">in</span> <span class="n">remove_deltas</span><span class="p">:</span>
+                        <span class="n">connections_site1_site2</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">remove_delta</span><span class="p">)</span>
+                <span class="c1"># Add all the edges</span>
+                <span class="k">for</span> <span class="n">conn</span><span class="p">,</span> <span class="n">ligands</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">connections_site1_site2</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_environment_subgraph</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">node1</span><span class="p">,</span> <span class="n">node2</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">node1</span><span class="o">.</span><span class="n">isite</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">node2</span><span class="o">.</span><span class="n">isite</span><span class="p">,</span>
+                                                        <span class="n">delta</span><span class="o">=</span><span class="n">conn</span><span class="p">,</span> <span class="n">ligands</span><span class="o">=</span><span class="n">ligands</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">environment_subgraphs</span><span class="p">[</span><span class="n">envs_string</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_environment_subgraph</span></div>
+
+<div class="viewcode-block" id="StructureConnectivity.setup_connectivity_description"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.connectivity.structure_connectivity.html#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.setup_connectivity_description">[docs]</a>    <span class="k">def</span> <span class="nf">setup_connectivity_description</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="StructureConnectivity.get_connected_components"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.connectivity.structure_connectivity.html#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.get_connected_components">[docs]</a>    <span class="k">def</span> <span class="nf">get_connected_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">environments_symbols</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">only_atoms</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            environments_symbols ():</span>
+<span class="sd">            only_atoms ():</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">connected_components</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">env_subgraph</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment_subgraph</span><span class="p">(</span><span class="n">environments_symbols</span><span class="o">=</span><span class="n">environments_symbols</span><span class="p">,</span> <span class="n">only_atoms</span><span class="o">=</span><span class="n">only_atoms</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">component_nodes</span> <span class="ow">in</span> <span class="n">nx</span><span class="o">.</span><span class="n">connected_components</span><span class="p">(</span><span class="n">env_subgraph</span><span class="p">):</span>
+            <span class="n">graph</span> <span class="o">=</span> <span class="n">env_subgraph</span><span class="o">.</span><span class="n">subgraph</span><span class="p">(</span><span class="n">component_nodes</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">connected_components</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ConnectedComponent</span><span class="o">.</span><span class="n">from_graph</span><span class="p">(</span><span class="n">graph</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">connected_components</span></div>
+
+<div class="viewcode-block" id="StructureConnectivity.setup_atom_environment_subgraph"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.connectivity.structure_connectivity.html#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.setup_atom_environment_subgraph">[docs]</a>    <span class="k">def</span> <span class="nf">setup_atom_environment_subgraph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atom_environment</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            atom_environment ():</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="StructureConnectivity.setup_environments_subgraph"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.connectivity.structure_connectivity.html#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.setup_environments_subgraph">[docs]</a>    <span class="k">def</span> <span class="nf">setup_environments_subgraph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">environments_symbols</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            environments_symbols ():</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="StructureConnectivity.setup_atom_environments_subgraph"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.connectivity.structure_connectivity.html#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.setup_atom_environments_subgraph">[docs]</a>    <span class="k">def</span> <span class="nf">setup_atom_environments_subgraph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atoms_environments</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            atoms_environments ():</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="StructureConnectivity.print_links"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.connectivity.structure_connectivity.html#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.print_links">[docs]</a>    <span class="k">def</span> <span class="nf">print_links</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">nodes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment_subgraph</span><span class="p">()</span><span class="o">.</span><span class="n">nodes</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Links in graph :&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">isite</span><span class="p">,</span> <span class="s1">&#39; is connected with : &#39;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="p">(</span><span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment_subgraph</span><span class="p">()</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">n1</span><span class="o">.</span><span class="n">isite</span> <span class="o">==</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">]:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;  - </span><span class="si">{:d}</span><span class="s1"> by </span><span class="si">{:d}</span><span class="s1"> ligands (</span><span class="si">{:d}</span><span class="s1"> </span><span class="si">{:d}</span><span class="s1"> </span><span class="si">{:d}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">n2</span><span class="o">.</span><span class="n">isite</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;ligands&#39;</span><span class="p">]),</span>
+                                                                             <span class="n">data</span><span class="p">[</span><span class="s1">&#39;delta&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;delta&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
+                                                                             <span class="n">data</span><span class="p">[</span><span class="s1">&#39;delta&#39;</span><span class="p">][</span><span class="mi">2</span><span class="p">]))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;  - </span><span class="si">{:d}</span><span class="s1"> by </span><span class="si">{:d}</span><span class="s1"> ligands (</span><span class="si">{:d}</span><span class="s1"> </span><span class="si">{:d}</span><span class="s1"> </span><span class="si">{:d}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">n2</span><span class="o">.</span><span class="n">isite</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;ligands&#39;</span><span class="p">]),</span>
+                                                                             <span class="o">-</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;delta&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="o">-</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;delta&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
+                                                                             <span class="o">-</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;delta&#39;</span><span class="p">][</span><span class="mi">2</span><span class="p">]))</span></div>
+
+<div class="viewcode-block" id="StructureConnectivity.as_dict"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.connectivity.structure_connectivity.html#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
+                <span class="s2">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+                <span class="s2">&quot;light_structure_environments&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">light_structure_environments</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(),</span>
+                <span class="s2">&quot;connectivity_graph&quot;</span><span class="p">:</span> <span class="n">jsanitize</span><span class="p">(</span><span class="n">nx</span><span class="o">.</span><span class="n">to_dict_of_dicts</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_graph</span><span class="p">)),</span>
+                <span class="s2">&quot;environment_subgraphs&quot;</span><span class="p">:</span> <span class="p">{</span><span class="n">env_key</span><span class="p">:</span> <span class="n">jsanitize</span><span class="p">(</span><span class="n">nx</span><span class="o">.</span><span class="n">to_dict_of_dicts</span><span class="p">(</span><span class="n">subgraph</span><span class="p">))</span>
+                                          <span class="k">for</span> <span class="n">env_key</span><span class="p">,</span> <span class="n">subgraph</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment_subgraphs</span><span class="o">.</span><span class="n">items</span><span class="p">()}}</span></div>
+
+<div class="viewcode-block" id="StructureConnectivity.from_dict"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.connectivity.structure_connectivity.html#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            d ():</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Reconstructs the graph with integer as nodes (json&#39;s as_dict replaces integer keys with str keys)</span>
+        <span class="n">cgraph</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">from_dict_of_dicts</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;connectivity_graph&#39;</span><span class="p">],</span> <span class="n">create_using</span><span class="o">=</span><span class="n">nx</span><span class="o">.</span><span class="n">MultiGraph</span><span class="p">,</span> <span class="n">multigraph_input</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">cgraph</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">relabel_nodes</span><span class="p">(</span><span class="n">cgraph</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>  <span class="c1"># Just relabel the nodes using integer casting (maps str-&gt;int)</span>
+        <span class="c1"># Relabel multiedges (removes multiedges with str keys and adds them back with int keys)</span>
+        <span class="n">edges</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">cgraph</span><span class="o">.</span><span class="n">edges</span><span class="p">())</span>
+        <span class="k">for</span> <span class="n">n1</span><span class="p">,</span> <span class="n">n2</span> <span class="ow">in</span> <span class="n">edges</span><span class="p">:</span>
+            <span class="n">new_edges</span> <span class="o">=</span> <span class="p">{</span><span class="nb">int</span><span class="p">(</span><span class="n">iedge</span><span class="p">):</span> <span class="n">edata</span> <span class="k">for</span> <span class="n">iedge</span><span class="p">,</span> <span class="n">edata</span> <span class="ow">in</span> <span class="n">cgraph</span><span class="p">[</span><span class="n">n1</span><span class="p">][</span><span class="n">n2</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+            <span class="n">cgraph</span><span class="o">.</span><span class="n">remove_edges_from</span><span class="p">([(</span><span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">,</span> <span class="n">iedge</span><span class="p">)</span> <span class="k">for</span> <span class="n">iedge</span><span class="p">,</span> <span class="n">edata</span> <span class="ow">in</span> <span class="n">cgraph</span><span class="p">[</span><span class="n">n1</span><span class="p">][</span><span class="n">n2</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
+            <span class="n">cgraph</span><span class="o">.</span><span class="n">add_edges_from</span><span class="p">([(</span><span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">,</span> <span class="n">iedge</span><span class="p">,</span> <span class="n">edata</span><span class="p">)</span> <span class="k">for</span> <span class="n">iedge</span><span class="p">,</span> <span class="n">edata</span> <span class="ow">in</span> <span class="n">new_edges</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">LightStructureEnvironments</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;light_structure_environments&#39;</span><span class="p">]),</span>
+                   <span class="n">connectivity_graph</span><span class="o">=</span><span class="n">cgraph</span><span class="p">,</span>
+                   <span class="n">environment_subgraphs</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></div></div>
+        <span class="c1"># TODO: also deserialize the environment_subgraphs</span>
+        <span class="c1">#            environment_subgraphs={env_key: nx.from_dict_of_dicts(subgraph, multigraph_input=True)</span>
+        <span class="c1">#                                   for env_key, subgraph in d[&#39;environment_subgraphs&#39;].items()})</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../../pymatgen.html" >pymatgen</a> &#187;</li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

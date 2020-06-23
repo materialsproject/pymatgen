@@ -40,6 +40,11 @@ class IStructureTest(PymatgenTest):
             self.lattice, ["Si"] * 2, coords,
             site_properties={'magmom': [5, -5]})
 
+    def test_as_dataframe(self):
+        df = self.propertied_structure.as_dataframe()
+        self.assertEqual(df.attrs["Reduced Formula"], "Si")
+        self.assertEqual(df.shape, (2, 8))
+
     def test_matches(self):
         ss = self.struct * 2
         self.assertTrue(ss.matches(self.struct))
@@ -1219,6 +1224,11 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         # Test no_cross option
         self.assertRaises(ValueError, self.mol.get_boxed_structure,
                           5, 5, 5, offset=[10, 10, 10], no_cross=True)
+
+        # Test reorder option
+        no_reorder = self.mol.get_boxed_structure(10, 10, 10, reorder=False)
+        self.assertEqual(str(s3[0].specie), "H")
+        self.assertEqual(str(no_reorder[0].specie), "C")
 
     def test_get_distance(self):
         self.assertAlmostEqual(self.mol.get_distance(0, 1), 1.089)

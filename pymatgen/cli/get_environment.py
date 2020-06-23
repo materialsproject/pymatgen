@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 
+"""
+Implementation for get_environment CLI.
+"""
+
 from pymatgen.analysis.chemenv.utils.scripts_utils import compute_environments, welcome, thankyou
 from pymatgen.analysis.chemenv.utils.chemenv_config import ChemEnvConfig
 from argparse import ArgumentParser
@@ -10,6 +14,9 @@ __author__ = 'waroquiers'
 
 
 def main():
+    """
+    Main function.
+    """
     m_description = 'Welcome to the Chemical Environment Package.'
     parser = ArgumentParser(description=m_description)
     setup_help = 'Used to setup the configuration of the package '

@@ -41,16 +41,3 @@ OxideCorrections:
 
 SulfideCorrections:
   sulfide:     -0.66346     #Sulfide Correction fit to Li2S, Na2S, K2S, Rb2S, CsS, MgS, CaS, BaS, Al2S3.
-
-# Entropic Correction term for gases. 
-# For H2O, energy is corrected such that the experimental formation energy of water of -2.46 eV is reproduced.
-# H2 is corrected such that the experimental formation energy of water is reproduced. 
-AqueousCompoundEnergies:
-  O2:  -0.316731
-  N2:  -0.295729
-  F2:  -0.313025
-  Cl2: -0.344373
-  Br:  -0.235039
-  Hg:  -0.234421
-  H2:  -3.6018845
-  H2O: -4.972

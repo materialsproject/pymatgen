@@ -1,0 +1,173 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>pymatgen.analysis.chemenv.connectivity.connectivity_finder &#8212; pymatgen 2020.3.2 documentation</title>
+    <link rel="stylesheet" href="../../../../../_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../../../" src="../../../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.analysis.chemenv.connectivity.connectivity_finder</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">pymatgen.analysis.chemenv.connectivity.structure_connectivity</span> <span class="k">import</span> <span class="n">StructureConnectivity</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;David Waroquiers&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2012, The Materials Project&quot;</span>
+<span class="n">__credits__</span> <span class="o">=</span> <span class="s2">&quot;Geoffroy Hautier&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;1.0&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;David Waroquiers&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;david.waroquiers@gmail.com&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;June 25, 2019&quot;</span>
+
+
+<div class="viewcode-block" id="ConnectivityFinder"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.connectivity.connectivity_finder.html#pymatgen.analysis.chemenv.connectivity.connectivity_finder.ConnectivityFinder">[docs]</a><span class="k">class</span> <span class="nc">ConnectivityFinder</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Main class used to find the structure connectivity of a structure</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">multiple_environments_choice</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructor for the ConnectivityFinder.</span>
+
+<span class="sd">        :param multiple_environments_choice: defines the procedure to apply when</span>
+<span class="sd">        the environment of a given site is described as a &quot;mix&quot; of more than one</span>
+<span class="sd">        coordination environments.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setup_parameters</span><span class="p">(</span><span class="n">multiple_environments_choice</span><span class="o">=</span><span class="n">multiple_environments_choice</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ConnectivityFinder.get_structure_connectivity"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.connectivity.connectivity_finder.html#pymatgen.analysis.chemenv.connectivity.connectivity_finder.ConnectivityFinder.get_structure_connectivity">[docs]</a>    <span class="k">def</span> <span class="nf">get_structure_connectivity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">light_structure_environments</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the structure connectivity from the coordination environments provided</span>
+<span class="sd">        as an input.</span>
+
+<span class="sd">        :param light_structure_environments: LightStructureEnvironments with the</span>
+<span class="sd">        relevant coordination environments in the structure</span>
+<span class="sd">        :return: a StructureConnectivity object describing the connectivity of</span>
+<span class="sd">        the environments in the structure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Setup of structure connectivity graph&#39;</span><span class="p">)</span>
+        <span class="n">structure_connectivity</span> <span class="o">=</span> <span class="n">StructureConnectivity</span><span class="p">(</span><span class="n">light_structure_environments</span><span class="p">)</span>
+        <span class="n">structure_connectivity</span><span class="o">.</span><span class="n">add_sites</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">isite</span><span class="p">,</span> <span class="n">site</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">light_structure_environments</span><span class="o">.</span><span class="n">structure</span><span class="p">):</span>
+            <span class="n">site_neighbors_sets</span> <span class="o">=</span> <span class="n">light_structure_environments</span><span class="o">.</span><span class="n">neighbors_sets</span><span class="p">[</span><span class="n">isite</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">site_neighbors_sets</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">site_neighbors_sets</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">multiple_environments_choice</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Local environment of site </span><span class="si">{:d}</span><span class="s1"> is a mix and &#39;</span>
+                                     <span class="s1">&#39;nothing is asked about it&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">isite</span><span class="p">))</span>
+                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">multiple_environments_choice</span> <span class="o">==</span> <span class="s1">&#39;TAKE_HIGHEST_FRACTION&#39;</span><span class="p">:</span>
+                    <span class="n">imax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">([</span><span class="n">ee</span><span class="p">[</span><span class="s1">&#39;ce_fraction&#39;</span><span class="p">]</span>
+                                      <span class="k">for</span> <span class="n">ee</span> <span class="ow">in</span> <span class="n">light_structure_environments</span><span class="o">.</span><span class="n">coordination_environments</span><span class="p">[</span><span class="n">isite</span><span class="p">]])</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;IMAX </span><span class="si">{:d}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">imax</span><span class="p">))</span>
+                    <span class="n">site_neighbors_set</span> <span class="o">=</span> <span class="n">site_neighbors_sets</span><span class="p">[</span><span class="n">imax</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Should not be here&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">site_neighbors_set</span> <span class="o">=</span> <span class="n">site_neighbors_sets</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">structure_connectivity</span><span class="o">.</span><span class="n">add_bonds</span><span class="p">(</span><span class="n">isite</span><span class="p">,</span> <span class="n">site_neighbors_set</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">structure_connectivity</span></div>
+
+<div class="viewcode-block" id="ConnectivityFinder.setup_parameters"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.connectivity.connectivity_finder.html#pymatgen.analysis.chemenv.connectivity.connectivity_finder.ConnectivityFinder.setup_parameters">[docs]</a>    <span class="k">def</span> <span class="nf">setup_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">multiple_environments_choice</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Setup of the parameters for the connectivity finder.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">multiple_environments_choice</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">multiple_environments_choice</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;TAKE_HIGHEST_FRACTION&#39;</span><span class="p">]:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Option &quot;</span><span class="si">{}</span><span class="s1">&quot; for multiple_environments_choice is &#39;</span>
+                                 <span class="s1">&#39;not allowed&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">multiple_environments_choice</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">multiple_environments_choice</span> <span class="o">=</span> <span class="n">multiple_environments_choice</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../../pymatgen.html" >pymatgen</a> &#187;</li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

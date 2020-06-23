@@ -788,7 +788,8 @@ class LammpsData(MSONable):
         return cls(**items)
 
     @classmethod
-    def from_structure(cls, structure, ff_elements=None, atom_style="charge"):
+    def from_structure(cls, structure, ff_elements=None, atom_style="charge",
+                       is_sort=False):
         """
         Simple constructor building LammpsData from a structure without
         force field parameters and topologies.
@@ -799,10 +800,14 @@ class LammpsData(MSONable):
                 be present due to force field settings but not
                 necessarily in the structure. Default to None.
             atom_style (str): Choose between "atomic" (neutral) and
-            "charge" (charged). Default to "charge".
+                "charge" (charged). Default to "charge".
+            is_sort (bool): whether to sort sites
 
         """
-        s = structure.get_sorted_structure()
+        if is_sort:
+            s = structure.get_sorted_structure()
+        else:
+            s = structure.copy()
         box, symmop = lattice_2_lmpbox(s.lattice)
         coords = symmop.operate_multi(s.cart_coords)
         site_properties = s.site_properties
@@ -1239,7 +1244,9 @@ class CombinedData(LammpsData):
 
         """
 
-        self.box = list_of_molecules[0].box
+        max_xyz = coordinates[['x', 'y', 'z']].max().max()
+        min_xyz = coordinates[['x', 'y', 'z']].min().min()
+        self.box = LammpsBox(np.array(3*[[min_xyz - 0.5, max_xyz + 0.5]]))
         self.atom_style = atom_style
         self.n = sum(list_of_numbers)
         self.names = list_of_names
@@ -1387,7 +1394,8 @@ class CombinedData(LammpsData):
 @deprecated(LammpsData.from_structure,
             "structure_2_lmpdata has been deprecated "
             "in favor of LammpsData.from_structure")
-def structure_2_lmpdata(structure, ff_elements=None, atom_style="charge"):
+def structure_2_lmpdata(structure, ff_elements=None, atom_style="charge",
+                        is_sort=False):
     """
     Converts a structure to a LammpsData object with no force field
     parameters and topologies.
@@ -1399,12 +1407,15 @@ def structure_2_lmpdata(structure, ff_elements=None, atom_style="charge"):
             the structure. Default to None.
         atom_style (str): Choose between "atomic" (neutral) and
             "charge" (charged). Default to "charge".
-
+        is_sort (bool): whether to sort the structure sites
     Returns:
         LammpsData
 
     """
-    s = structure.get_sorted_structure()
+    if is_sort:
+        s = structure.get_sorted_structure()
+    else:
+        s = structure.copy()
 
     a, b, c = s.lattice.abc
     m = s.lattice.matrix

@@ -1,3 +1,7 @@
+"""
+Structure connectivity class.
+"""
+
 import networkx as nx
 import numpy as np
 import collections
@@ -38,6 +42,7 @@ class StructureConnectivity(MSONable):
     """
     Main class containing the connectivity of a structure.
     """
+
     def __init__(self, light_structure_environment, connectivity_graph=None, environment_subgraphs=None):
         """
         Constructor for the StructureConnectivity object.
@@ -64,6 +69,15 @@ class StructureConnectivity(MSONable):
             self.environment_subgraphs = environment_subgraphs
 
     def environment_subgraph(self, environments_symbols=None, only_atoms=None):
+        """
+
+        Args:
+            environments_symbols ():
+            only_atoms ():
+
+        Returns:
+
+        """
         if environments_symbols is not None:
             self.setup_environment_subgraph(environments_symbols=environments_symbols, only_atoms=only_atoms)
         try:
@@ -217,9 +231,22 @@ class StructureConnectivity(MSONable):
         self.environment_subgraphs[envs_string] = self._environment_subgraph
 
     def setup_connectivity_description(self):
+        """
+
+        Returns:
+
+        """
         pass
 
     def get_connected_components(self, environments_symbols=None, only_atoms=None):
+        """
+        Args:
+            environments_symbols ():
+            only_atoms ():
+
+        Returns:
+
+        """
         connected_components = []
         env_subgraph = self.environment_subgraph(environments_symbols=environments_symbols, only_atoms=only_atoms)
         for component_nodes in nx.connected_components(env_subgraph):
@@ -228,15 +255,44 @@ class StructureConnectivity(MSONable):
         return connected_components
 
     def setup_atom_environment_subgraph(self, atom_environment):
+        """
+
+        Args:
+            atom_environment ():
+
+        Returns:
+
+        """
         raise NotImplementedError()
 
     def setup_environments_subgraph(self, environments_symbols):
+        """
+
+        Args:
+            environments_symbols ():
+
+        Returns:
+
+        """
         raise NotImplementedError()
 
     def setup_atom_environments_subgraph(self, atoms_environments):
+        """
+
+        Args:
+            atoms_environments ():
+
+        Returns:
+
+        """
         raise NotImplementedError()
 
     def print_links(self):
+        """
+
+        Returns:
+
+        """
         nodes = self.environment_subgraph().nodes()
         print('Links in graph :')
         for node in nodes:
@@ -252,6 +308,11 @@ class StructureConnectivity(MSONable):
                                                                              -data['delta'][2]))
 
     def as_dict(self):
+        """
+
+        Returns:
+
+        """
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "light_structure_environments": self.light_structure_environments.as_dict(),
@@ -261,7 +322,26 @@ class StructureConnectivity(MSONable):
 
     @classmethod
     def from_dict(cls, d):
+        """
+
+        Args:
+            d ():
+
+        Returns:
+
+        """
+        # Reconstructs the graph with integer as nodes (json's as_dict replaces integer keys with str keys)
+        cgraph = nx.from_dict_of_dicts(d['connectivity_graph'], create_using=nx.MultiGraph, multigraph_input=True)
+        cgraph = nx.relabel_nodes(cgraph, int)  # Just relabel the nodes using integer casting (maps str->int)
+        # Relabel multiedges (removes multiedges with str keys and adds them back with int keys)
+        edges = set(cgraph.edges())
+        for n1, n2 in edges:
+            new_edges = {int(iedge): edata for iedge, edata in cgraph[n1][n2].items()}
+            cgraph.remove_edges_from([(n1, n2, iedge) for iedge, edata in cgraph[n1][n2].items()])
+            cgraph.add_edges_from([(n1, n2, iedge, edata) for iedge, edata in new_edges.items()])
         return cls(LightStructureEnvironments.from_dict(d['light_structure_environments']),
-                   connectivity_graph=nx.from_dict_of_dicts(d['connectivity_graph'], multigraph_input=True),
-                   environment_subgraphs={env_key: nx.from_dict_of_dicts(subgraph, multigraph_input=True)
-                                          for env_key, subgraph in d['environment_subgraphs'].items()})
+                   connectivity_graph=cgraph,
+                   environment_subgraphs=None)
+        # TODO: also deserialize the environment_subgraphs
+        #            environment_subgraphs={env_key: nx.from_dict_of_dicts(subgraph, multigraph_input=True)
+        #                                   for env_key, subgraph in d['environment_subgraphs'].items()})

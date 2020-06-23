@@ -5,6 +5,7 @@ Subpackages
 -----------
 
 .. toctree::
+   :maxdepth: 7
 
    pymatgen.alchemy
    pymatgen.analysis
@@ -18,6 +19,7 @@ Subpackages
    pymatgen.io
    pymatgen.optimization
    pymatgen.phonon
+   pymatgen.plugins
    pymatgen.symmetry
    pymatgen.transformations
    pymatgen.util
@@ -27,6 +29,7 @@ Submodules
 ----------
 
 .. toctree::
+   :maxdepth: 7
 
    pymatgen.dao
 

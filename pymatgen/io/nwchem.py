@@ -2,22 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-
-import re
-import os
-import warnings
-from string import Template
-
-import numpy as np
-
-from monty.io import zopen
-
-from pymatgen.core.structure import Molecule, Structure
-from monty.json import MSONable
-from pymatgen.core.units import Energy
-from pymatgen.core.units import FloatWithUnit
-from pymatgen.analysis.excitation import ExcitationSpectrum
-
 """
 This module implements input and output processing from Nwchem.
 
@@ -36,8 +20,23 @@ This module implements input and output processing from Nwchem.
     NwOutput will read new kinds of data:
 
         1. forces.                      ["forces"]
-
 """
+
+import re
+import os
+import warnings
+from string import Template
+
+import numpy as np
+
+from monty.io import zopen
+
+from pymatgen.core.structure import Molecule, Structure
+from monty.json import MSONable
+from pymatgen.core.units import Energy
+from pymatgen.core.units import FloatWithUnit
+from pymatgen.analysis.excitation import ExcitationSpectrum
+
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -193,6 +192,9 @@ $theory_spec
         return output
 
     def as_dict(self):
+        """
+        Returns: MSONable dict.
+        """
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "charge": self.charge,
@@ -205,6 +207,13 @@ $theory_spec
 
     @classmethod
     def from_dict(cls, d):
+        """
+        Args:
+            d (dict): Dict representation
+
+        Returns:
+            NwTask
+        """
         return NwTask(charge=d["charge"],
                       spin_multiplicity=d["spin_multiplicity"],
                       title=d["title"], theory=d["theory"],
@@ -279,7 +288,7 @@ $theory_spec
 
     @classmethod
     def dft_task(cls, mol, xc="b3lyp", **kwargs):
-        """
+        r"""
         A class method for quickly creating DFT tasks with optional
         cosmo parameter .
 
@@ -296,7 +305,7 @@ $theory_spec
 
     @classmethod
     def esp_task(cls, mol, **kwargs):
-        """
+        r"""
         A class method for quickly creating ESP tasks with RESP
         charge fitting.
 
@@ -312,27 +321,28 @@ class NwInput(MSONable):
     """
     An object representing a Nwchem input file, which is essentially a list
     of tasks on a particular molecule.
-
-    Args:
-        mol: Input molecule. If molecule is a single string, it is used as a
-            direct input to the geometry section of the Gaussian input
-            file.
-        tasks: List of NwTasks.
-        directives: List of root level directives as tuple. E.g.,
-            [("start", "water"), ("print", "high")]
-        geometry_options: Additional list of options to be supplied to the
-            geometry. E.g., ["units", "angstroms", "noautoz"]. Defaults to
-            ("units", "angstroms").
-        symmetry_options: Addition list of option to be supplied to the
-            symmetry. E.g. ["c1"] to turn off the symmetry
-        memory_options: Memory controlling options. str.
-            E.g "total 1000 mb stack 400 mb"
     """
 
     def __init__(self, mol, tasks, directives=None,
                  geometry_options=("units", "angstroms"),
                  symmetry_options=None,
                  memory_options=None):
+        """
+        Args:
+            mol: Input molecule. If molecule is a single string, it is used as a
+                direct input to the geometry section of the Gaussian input
+                file.
+            tasks: List of NwTasks.
+            directives: List of root level directives as tuple. E.g.,
+                [("start", "water"), ("print", "high")]
+            geometry_options: Additional list of options to be supplied to the
+                geometry. E.g., ["units", "angstroms", "noautoz"]. Defaults to
+                ("units", "angstroms").
+            symmetry_options: Addition list of option to be supplied to the
+                symmetry. E.g. ["c1"] to turn off the symmetry
+            memory_options: Memory controlling options. str.
+                E.g "total 1000 mb stack 400 mb"
+        """
         self._mol = mol
         self.directives = directives if directives is not None else []
         self.tasks = tasks
@@ -367,10 +377,17 @@ class NwInput(MSONable):
         return "\n".join(o)
 
     def write_file(self, filename):
+        """
+        Args:
+            filename (str): Filename
+        """
         with zopen(filename, "w") as f:
             f.write(self.__str__())
 
     def as_dict(self):
+        """
+        Returns: MSONable dict
+        """
         return {
             "mol": self._mol.as_dict(),
             "tasks": [t.as_dict() for t in self.tasks],
@@ -382,6 +399,13 @@ class NwInput(MSONable):
 
     @classmethod
     def from_dict(cls, d):
+        """
+        Args:
+            d (dict): Dict representation
+
+        Returns:
+            NwInput
+        """
         return NwInput(Molecule.from_dict(d["mol"]),
                        tasks=[NwTask.from_dict(dt) for dt in d["tasks"]],
                        directives=[tuple(li) for li in d["directives"]],
@@ -508,12 +532,13 @@ class NwOutput:
     only parses energies and geometries. Please note that Nwchem typically
     outputs energies in either au or kJ/mol. All energies are converted to
     eV in the parser.
-
-    Args:
-        filename: Filename to read.
     """
 
     def __init__(self, filename):
+        """
+        Args:
+            filename: Filename to read.
+        """
         self.filename = filename
 
         with zopen(filename) as f:

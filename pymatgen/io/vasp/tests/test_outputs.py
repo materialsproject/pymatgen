@@ -17,6 +17,7 @@ from monty.tempfile import ScratchDir
 import xml.etree.cElementTree as ET
 
 from pymatgen.electronic_structure.core import OrbitalType
+from pymatgen.io.wannier90 import Unk
 from pymatgen.io.vasp.inputs import Kpoints, Poscar
 from pymatgen.io.vasp.outputs import Chgcar, Locpot, Oszicar, Outcar, \
     Vasprun, Procar, Xdatcar, Dynmat, BSVasprun, UnconvergedVASPWarning, \
@@ -25,6 +26,7 @@ from pymatgen import Spin, Orbital, Lattice, Structure
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.util.testing import PymatgenTest
+from pymatgen.core import Element
 
 
 class VasprunTest(PymatgenTest):
@@ -127,6 +129,10 @@ class VasprunTest(PymatgenTest):
                             for i in vasprun.ionic_steps])
         self.assertEqual(29, len(vasprun.ionic_steps))
         self.assertEqual(len(vasprun.structures), len(vasprun.ionic_steps))
+
+        trajectory = vasprun.get_trajectory()
+        self.assertEqual(len(trajectory), len(vasprun.ionic_steps))
+        self.assertIn("forces", trajectory[0].site_properties)
 
         for i, step in enumerate(vasprun.ionic_steps):
             self.assertEqual(vasprun.structures[i], step["structure"])
@@ -787,6 +793,19 @@ class OutcarTest(PymatgenTest):
                                       outcar.dielectric_tensor_function[
                                           0].transpose())
 
+    def test_parse_sci_notation(self):
+        invalid_pattern = "23535.35 35235.34 325325.3"
+        valid_pattern1 = " 0.00000E+00 0.00000E+00 0.00000E+00 0.00000E+00 0.00000E+00 0.00000E+00 0.00000E+00"
+        valid_pattern2 = " 0.62963E+00 0.15467E+02 0.15467E+02 0.15467E+02-0.30654E-16-0.91612E-16 0.52388E-16"
+
+        self.assertEqual(Outcar._parse_sci_notation(invalid_pattern), [])
+        self.assertEqual(Outcar._parse_sci_notation(valid_pattern1),
+                         [0, 0, 0, 0, 0, 0, 0])
+        self.assertEqual(Outcar._parse_sci_notation(valid_pattern2),
+                         [0.62963, 0.15467E+02, 0.15467E+02,
+                          0.15467E+02, -0.30654E-16, -0.91612E-16,
+                          0.52388E-16])
+
     def test_read_elastic_tensor(self):
         filepath = self.TEST_FILES_DIR / "OUTCAR.total_tensor.Li2O.gz"
         outcar = Outcar(filepath)
@@ -998,6 +1017,20 @@ class OutcarTest(PymatgenTest):
         self.assertEqual(len(matrices[0][Spin.up][0]), 7)
         self.assertTrue("onsite_density_matrices" in outcar.as_dict())
 
+    def test_nplwvs(self):
+        outcar = Outcar(self.TEST_FILES_DIR / "OUTCAR")
+        self.assertEqual(outcar.data["nplwv"], [[34560]])
+        self.assertEqual(outcar.data["nplwvs_at_kpoints"],
+                         [1719, 1714, 1722, 1728, 1722, 1726, 1722, 1720, 1717, 1724, 1715, 1724, 1726, 1724, 1728,
+                          1715, 1722, 1715, 1726, 1730, 1730, 1715, 1716, 1729, 1727, 1723, 1721, 1712, 1723, 1719,
+                          1717, 1717, 1724, 1719, 1719, 1727, 1726, 1730, 1719, 1720, 1718, 1717, 1722, 1719, 1709,
+                          1714, 1724, 1726, 1718, 1713, 1720, 1713, 1711, 1713, 1715, 1717, 1728, 1726, 1712, 1722,
+                          1714, 1713, 1717, 1714, 1714, 1717, 1712, 1710, 1721, 1722, 1724, 1720, 1726, 1719, 1722,
+                          1714])
+        outcar = Outcar(self.TEST_FILES_DIR / "OUTCAR.CL")
+        self.assertEqual(outcar.data["nplwv"], [[None]])
+        self.assertEqual(outcar.data["nplwvs_at_kpoints"], [85687])
+
 
 class BSVasprunTest(PymatgenTest):
     _multiprocess_shared_ = True
@@ -1113,29 +1146,30 @@ class ChgcarTest(PymatgenTest):
         self.assertTrue(chg_from_file.is_soc)
         os.remove("CHGCAR_pmg_soc")
 
-    # def test_hdf5(self):
-    #     chgcar = Chgcar.from_file(self.TEST_FILES_DIR / "CHGCAR.NiO_SOC.gz")
-    #     chgcar.to_hdf5("chgcar_test.hdf5")
-    #     import h5py
-    #     with h5py.File("chgcar_test.hdf5", "r") as f:
-    #         self.assertArrayAlmostEqual(np.array(f["vdata"]["total"]),
-    #                                     chgcar.data["total"])
-    #         self.assertArrayAlmostEqual(np.array(f["vdata"]["diff"]),
-    #                                     chgcar.data["diff"])
-    #         self.assertArrayAlmostEqual(np.array(f["lattice"]),
-    #                                     chgcar.structure.lattice.matrix)
-    #         self.assertArrayAlmostEqual(np.array(f["fcoords"]),
-    #                                     chgcar.structure.frac_coords)
-    #         for z in f["Z"]:
-    #             self.assertIn(z, [Element.Ni.Z, Element.O.Z])
-    #
-    #         for sp in f["species"]:
-    #             self.assertIn(sp, ["Ni", "O"])
-    #
-    #     chgcar2 = Chgcar.from_hdf5("chgcar_test.hdf5")
-    #     self.assertArrayAlmostEqual(chgcar2.data["total"],
-    #                                 chgcar.data["total"])
-    #     os.remove("chgcar_test.hdf5")
+    def test_hdf5(self):
+        print(self.TEST_FILES_DIR)
+        chgcar = Chgcar.from_file(self.TEST_FILES_DIR / "CHGCAR.NiO_SOC.gz")
+        chgcar.to_hdf5("chgcar_test.hdf5")
+        import h5py
+        with h5py.File("chgcar_test.hdf5", "r") as f:
+            self.assertArrayAlmostEqual(np.array(f["vdata"]["total"]),
+                                        chgcar.data["total"])
+            self.assertArrayAlmostEqual(np.array(f["vdata"]["diff"]),
+                                        chgcar.data["diff"])
+            self.assertArrayAlmostEqual(np.array(f["lattice"]),
+                                        chgcar.structure.lattice.matrix)
+            self.assertArrayAlmostEqual(np.array(f["fcoords"]),
+                                        chgcar.structure.frac_coords)
+            for z in f["Z"]:
+                self.assertIn(z, [Element.Ni.Z, Element.O.Z])
+
+            for sp in f["species"]:
+                self.assertIn(sp, ["Ni", "O"])
+
+        chgcar2 = Chgcar.from_hdf5("chgcar_test.hdf5")
+        self.assertArrayAlmostEqual(chgcar2.data["total"],
+                                    chgcar.data["total"])
+        os.remove("chgcar_test.hdf5")
 
     def test_spin_data(self):
         d = self.chgcar_spin.spin_data
@@ -1172,11 +1206,19 @@ class ElfcarTest(PymatgenTest):
         elfcar = Elfcar.from_file(self.TEST_FILES_DIR / 'ELFCAR.gz')
         self.assertAlmostEqual(0.19076207645194002, np.mean(elfcar.data["total"]))
         self.assertAlmostEqual(0.19076046677910055, np.mean(elfcar.data["diff"]))
+        reconstituted = Elfcar.from_dict(elfcar.as_dict())
+        self.assertEqual(elfcar.data, reconstituted.data)
+        self.assertEqual(elfcar.poscar.structure, reconstituted.poscar.structure)
 
     def test_alpha(self):
         elfcar = Elfcar.from_file(self.TEST_FILES_DIR / 'ELFCAR.gz')
         alpha = elfcar.get_alpha()
         self.assertAlmostEqual(2.936678808979031, np.median(alpha.data["total"]))
+
+    def test_interpolation(self):
+        elfcar = Elfcar.from_file(self.TEST_FILES_DIR / 'ELFCAR.gz')
+        self.assertAlmostEqual(0.0918471, elfcar.value_at(0.4, 0.5, 0.6))
+        self.assertEqual(100, len(elfcar.linear_slice([0.0, 0.0, 0.0], [1.0, 1.0, 1.0])))
 
 
 class ProcarTest(PymatgenTest):
@@ -1285,6 +1327,9 @@ class WavecarTest(PymatgenTest):
         self.b = 2 * np.pi * b / self.vol
         self.a = a
         self.w = Wavecar(self.TEST_FILES_DIR / 'WAVECAR.N2')
+        self.wH2 = Wavecar(self.TEST_FILES_DIR / 'WAVECAR.H2_low_symm')
+        self.wH2_gamma = Wavecar(self.TEST_FILES_DIR / 'WAVECAR.H2_low_symm.gamma')
+        self.w_ncl = Wavecar(self.TEST_FILES_DIR / 'WAVECAR.H2.ncl')
 
     def test_standard(self):
         w = self.w
@@ -1317,6 +1362,15 @@ class WavecarTest(PymatgenTest):
 
         with self.assertRaises(ValueError):
             Wavecar(self.TEST_FILES_DIR / 'WAVECAR.N2.malformed')
+
+        with self.assertRaises(ValueError):
+            Wavecar(self.TEST_FILES_DIR / 'WAVECAR.N2', vasp_type='poop')
+
+        with self.assertRaises(ValueError):
+            Wavecar(self.TEST_FILES_DIR / 'WAVECAR.N2', vasp_type='g')
+
+        with self.assertRaises(ValueError):
+            Wavecar(self.TEST_FILES_DIR / 'WAVECAR.N2', vasp_type='n')
 
         import sys
         from io import StringIO
@@ -1357,7 +1411,7 @@ class WavecarTest(PymatgenTest):
 
         temp_ggp = Wavecar._generate_G_points
         try:
-            Wavecar._generate_G_points = lambda x, y: []
+            Wavecar._generate_G_points = lambda x, y, gamma: []
             with self.assertRaises(ValueError):
                 Wavecar(self.TEST_FILES_DIR / 'WAVECAR.N2')
         finally:
@@ -1381,8 +1435,14 @@ class WavecarTest(PymatgenTest):
         self.assertAlmostEqual(self.w.evaluate_wavefunc(0, 0, [0, 0, 0]),
                                np.sum(self.w.coeffs[0][0]) / np.sqrt(self.vol),
                                places=4)
+        w = Wavecar(self.TEST_FILES_DIR / 'WAVECAR.N2.spin')
+        w.Gpoints.append(np.array([0, 0, 0]))
+        w.kpoints.append(np.array([0, 0, 0]))
+        w.coeffs[0].append([[1 + 1j]])
+        self.assertAlmostEqual(w.evaluate_wavefunc(-1, -1, [0, 0, 0]),
+                               (1 + 1j) / np.sqrt(self.vol), places=4)
 
-    def test_fft_mesh(self):
+    def test_fft_mesh_basic(self):
         mesh = self.w.fft_mesh(0, 5)
         ind = np.argmax(np.abs(mesh))
         self.assertEqual(np.unravel_index(ind, mesh.shape), (14, 1, 1))
@@ -1392,19 +1452,71 @@ class WavecarTest(PymatgenTest):
         self.assertEqual(np.unravel_index(ind, mesh.shape), (6, 8, 8))
         self.assertEqual(mesh[0, 0, 0], 0j)
 
+    def test_fft_mesh_advanced(self):
+        ik = 0
+        ib = 0
+        mesh = self.wH2.fft_mesh(ik, ib)
+        mesh_gamma = self.wH2_gamma.fft_mesh(ik, ib)
+        mesh_ncl = self.w_ncl.fft_mesh(ik, ib)
+
+        # check equality of plane-wave coefficients
+        ind_max = np.unravel_index(np.argmax(np.abs(mesh)), mesh.shape)
+        phase = mesh[ind_max]/mesh_gamma[ind_max]
+        self.assertLessEqual(np.max(np.abs(mesh-phase*mesh_gamma)), 1.0e-6)
+
+        # transform to real space for further checking
+        mesh = np.fft.ifftn(mesh)
+        mesh_gamma = np.fft.ifftn(mesh_gamma)
+        mesh_ncl = np.fft.ifftn(mesh_ncl)
+
+        # check equality in real space for regular vs. gamma only
+        ind_max = np.unravel_index(np.argmax(np.abs(mesh)), mesh.shape)
+        phase = mesh[ind_max]/mesh_gamma[ind_max]
+        self.assertLessEqual(np.max(np.abs(mesh-phase*mesh_gamma)), 1.0e-6)
+
+        # spot check some points in real space
+        p1 = (int(mesh.shape[0]/2), int(mesh.shape[1]/2)-1, int(mesh.shape[2]/2)-2)
+        p2 = (p1[0]+1, p1[1], p1[2])
+        c = np.array([[5, 0, 0], [0, 4, 0], [0, 0, 6]])  # this needs to match POSCAR,  which we don't have
+        r1 = np.dot(np.array(p1)/mesh.shape, c)
+        r2 = np.dot(np.array(p2)/mesh.shape, c)
+
+        # check equality of FFT and slow FT for regular mesh (ratio, to account for normalization)
+        v1 = self.wH2.evaluate_wavefunc(ik, ib, r1)
+        v2 = self.wH2.evaluate_wavefunc(ik, ib, r2)
+        self.assertAlmostEqual(np.abs(mesh[p1])/np.abs(mesh[p2]), np.abs(v1)/np.abs(v2), places=6)
+
+        # spot check one value that we happen to know from reference run
+        self.assertAlmostEqual(v1, -0.01947068011502887+0.23340228099620275j, places=8)
+
+        # check equality of FFT and slow FT for gamma-only mesh (ratio again)
+        v1_gamma = self.wH2_gamma.evaluate_wavefunc(ik, ib, r1)
+        v2_gamma = self.wH2_gamma.evaluate_wavefunc(ik, ib, r2)
+        self.assertAlmostEqual(np.abs(mesh_gamma[p1])/np.abs(mesh_gamma[p2]),
+                               np.abs(v1_gamma)/np.abs(v2_gamma), places=6)
+
+        # check equality of FFT and slow FT for ncl mesh (ratio again)
+        v1_ncl = self.w_ncl.evaluate_wavefunc(ik, ib, r1)
+        v2_ncl = self.w_ncl.evaluate_wavefunc(ik, ib, r2)
+        self.assertAlmostEqual(np.abs(mesh_ncl[p1])/np.abs(mesh_ncl[p2]),
+                               np.abs(v1_ncl)/np.abs(v2_ncl), places=6)
+
     def test_get_parchg(self):
         poscar = Poscar.from_file(self.TEST_FILES_DIR / 'POSCAR')
+
         w = self.w
         c = w.get_parchg(poscar, 0, 0, spin=0, phase=False)
         self.assertTrue('total' in c.data)
         self.assertTrue('diff' not in c.data)
         self.assertEqual(np.prod(c.data['total'].shape), np.prod(w.ng * 2))
         self.assertTrue(np.all(c.data['total'] > 0.))
+
         c = w.get_parchg(poscar, 0, 0, spin=0, phase=True)
         self.assertTrue('total' in c.data)
         self.assertTrue('diff' not in c.data)
         self.assertEqual(np.prod(c.data['total'].shape), np.prod(w.ng * 2))
         self.assertFalse(np.all(c.data['total'] > 0.))
+
         w.kpoints.append([0.2, 0.2, 0.2])
         with warnings.catch_warnings(record=True) as wrns:
             try:
@@ -1412,6 +1524,7 @@ class WavecarTest(PymatgenTest):
             except IndexError:
                 pass
             self.assertEqual(len(wrns), 1)
+
         w = Wavecar(self.TEST_FILES_DIR / 'WAVECAR.N2.spin')
         c = w.get_parchg(poscar, 0, 0, phase=False, scale=1)
         self.assertTrue('total' in c.data)
@@ -1419,16 +1532,66 @@ class WavecarTest(PymatgenTest):
         self.assertEqual(np.prod(c.data['total'].shape), np.prod(w.ng))
         self.assertTrue(np.all(c.data['total'] > 0.))
         self.assertFalse(np.all(c.data['diff'] > 0.))
+
         c = w.get_parchg(poscar, 0, 0, spin=0, phase=False)
         self.assertTrue('total' in c.data)
         self.assertTrue('diff' not in c.data)
         self.assertEqual(np.prod(c.data['total'].shape), np.prod(w.ng * 2))
         self.assertTrue(np.all(c.data['total'] > 0.))
+
         c = w.get_parchg(poscar, 0, 0, spin=0, phase=True)
         self.assertTrue('total' in c.data)
         self.assertTrue('diff' not in c.data)
         self.assertEqual(np.prod(c.data['total'].shape), np.prod(w.ng * 2))
         self.assertFalse(np.all(c.data['total'] > 0.))
+
+        w = self.w_ncl
+        w.coeffs.append([np.ones((2, 100))])
+        c = w.get_parchg(poscar, -1, 0, phase=False, spinor=None)
+        self.assertTrue('total' in c.data)
+        self.assertTrue('diff' not in c.data)
+        self.assertEqual(np.prod(c.data['total'].shape), np.prod(w.ng * 2))
+        self.assertFalse(np.all(c.data['total'] > 0.))
+
+        c = w.get_parchg(poscar, -1, 0, phase=True, spinor=0)
+        self.assertTrue('total' in c.data)
+        self.assertTrue('diff' not in c.data)
+        self.assertEqual(np.prod(c.data['total'].shape), np.prod(w.ng * 2))
+        self.assertFalse(np.all(c.data['total'] > 0.))
+
+        w.coeffs[-1] = [np.zeros((2, 100))]
+        c = w.get_parchg(poscar, -1, 0, phase=False, spinor=1)
+        self.assertTrue('total' in c.data)
+        self.assertTrue('diff' not in c.data)
+        self.assertEqual(np.prod(c.data['total'].shape), np.prod(w.ng * 2))
+        self.assertTrue(np.allclose(c.data['total'], 0.))
+
+    def test_write_unks(self):
+        unk_std = Unk.from_file(self.TEST_FILES_DIR / 'UNK.N2.std')
+        unk_ncl = Unk.from_file(self.TEST_FILES_DIR / 'UNK.H2.ncl')
+
+        with self.assertRaises(ValueError):
+            self.w.write_unks(self.TEST_FILES_DIR / 'UNK.N2.std')
+
+        # different grids
+        with ScratchDir('.'):
+            self.w.write_unks('./unk_dir')
+            self.assertEqual(len(list(Path('./unk_dir').glob('UNK*'))), 1)
+            unk = Unk.from_file('./unk_dir/UNK00001.1')
+            self.assertNotEqual(unk, unk_std)
+
+        # correct grid
+        self.w.ng = np.array([12, 12, 12])
+        with ScratchDir('.'):
+            self.w.write_unks('.')
+            unk = Unk.from_file('UNK00001.1')
+            self.assertEqual(unk, unk_std)
+
+        # ncl test
+        with ScratchDir('.'):
+            self.w_ncl.write_unks('.')
+            unk = Unk.from_file('UNK00001.NC')
+            self.assertEqual(unk, unk_ncl)
 
 
 class EigenvalTest(PymatgenTest):
