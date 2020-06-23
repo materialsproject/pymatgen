@@ -91,6 +91,7 @@ class PMGLoaderTest(unittest.TestCase):
 
 
 @unittest.skipIf(not BOLTZTRAP2_PRESENT, "No boltztrap2, skipping tests...")
+@unittest.skip('Deprecated Loader')
 class BandstructureLoaderTest(unittest.TestCase):
     def setUp(self):
         bs = loadfn(os.path.join(test_dir, "PbTe_bandstructure.json"))
@@ -135,6 +136,7 @@ class BandstructureLoaderTest(unittest.TestCase):
 
 
 @unittest.skipIf(not BOLTZTRAP2_PRESENT, "No boltztrap2, skipping tests...")
+@unittest.skip('Deprecated Loader')
 class VasprunLoaderTest(unittest.TestCase):
     def setUp(self):
         self.loader = VasprunLoader(vrun)
