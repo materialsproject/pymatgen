@@ -32,7 +32,7 @@ import matplotlib.pyplot as plt
 from monty.serialization import dumpfn, loadfn
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 from pymatgen.electronic_structure.bandstructure import \
-    BandStructureSymmLine, BandStructure, Kpoint, Spin
+    BandStructureSymmLine, BandStructure, Spin
 from pymatgen.io.vasp import Vasprun
 from pymatgen.io.ase import AseAtomsAdaptor
 from pymatgen.electronic_structure.dos import Dos, CompleteDos, Orbital
@@ -948,31 +948,31 @@ class BztTransportProperties:
     def load(self, fname='bztTranspProps.json.gz'):
         """Load the tranport properties from fname file."""
         d = loadfn(fname)
-        self.temp_r, \
-        self.CRTA, \
-        self.epsilon, \
-        self.dos, \
-        self.vvdos, \
-        self.cdos, \
-        self.mu_r, \
-        self.mu_r_eV, \
-        self.Conductivity_mu, \
-        self.Seebeck_mu, \
-        self.Kappa_mu, \
-        self.Carrier_conc_mu, \
-        self.Hall_carrier_conc_trace_mu, \
-        self.Power_Factor_mu, \
-        self.Effective_mass_mu = d[:15]
+        (self.temp_r,
+         self.CRTA,
+         self.epsilon,
+         self.dos,
+         self.vvdos,
+         self.cdos,
+         self.mu_r,
+         self.mu_r_eV,
+         self.Conductivity_mu,
+         self.Seebeck_mu,
+         self.Kappa_mu,
+         self.Carrier_conc_mu,
+         self.Hall_carrier_conc_trace_mu,
+         self.Power_Factor_mu,
+         self.Effective_mass_mu) = d[:15]
         if len(d) > 15:
-            self.Conductivity_doping, \
-            self.Seebeck_doping,  \
-            self.Kappa_doping,  \
-            self.Power_Factor_doping,  \
-            self.Effective_mass_doping, \
-            self.Carriers_conc_doping, \
-            self.doping, \
-            self.mu_doping, \
-            self.mu_doping_eV = d[15:]
+            (self.Conductivity_doping,
+             self.Seebeck_doping,
+             self.Kappa_doping,
+             self.Power_Factor_doping,
+             self.Effective_mass_doping,
+             self.Carriers_conc_doping,
+             self.doping,
+             self.mu_doping,
+             self.mu_doping_eV) = d[15:]
             self.contains_doping_props = True
 
         return True
