@@ -457,9 +457,9 @@ class BztInterpolator:
                 and taken into account to calculate the transport properties.
             curvature: boolean value to enable/disable the calculation of second
                 derivative related trasport properties (Hall coefficient).
-            save_coeffs: Default False. If True coefficients and equivalences are 
+            save_coeffs: Default False. If True coefficients and equivalences are
                 saved in fname file.
-            load_bztinterp: Default False. If True the coefficients and equivalences 
+            load_bztinterp: Default False. If True the coefficients and equivalences
                 are loaded from fname file, not calculated. It can be faster than
                 re-calculate them in some cases.
             save_bands: Default False. If True interpolated bands are also stored.
@@ -527,13 +527,13 @@ class BztInterpolator:
                            density=20):
         """
             Return a BandStructureSymmLine object interpolating bands along a
-            High symmetry path calculated from the structure using HighSymmKpath 
-            function. If kpaths and kpoints_lbls_dict are provided, a custom 
+            High symmetry path calculated from the structure using HighSymmKpath
+            function. If kpaths and kpoints_lbls_dict are provided, a custom
             path is interpolated.
-            kpaths: List of lists of following kpoints labels defining 
+            kpaths: List of lists of following kpoints labels defining
                     the segments of the path. E.g. [['L','M'],['L','X']]
             kpoints_lbls_dict: Dict where keys are the kpoint labels used in kpaths
-                    and values are their fractional coordinates. 
+                    and values are their fractional coordinates.
                     E.g. {'L':np.array(0.5,0.5,0.5)},
                           'M':np.array(0.5,0.,0.5),
                           'X':np.array(0.5,0.5,0.)}
@@ -587,7 +587,7 @@ class BztInterpolator:
                     in the loader.
                 npts_mu: number of energy points of the Dos
                 T: parameter used to smooth the Dos
-                progress: Default False, If True a progress bar is shown when 
+                progress: Default False, If True a progress bar is shown when
                     partial dos are computed.
         """
         dos_dict = {}
@@ -647,7 +647,8 @@ class BztInterpolator:
                 if site not in pdoss:
                     pdoss[site] = {}
                 for iorb, orb in enumerate(Orbital):
-                    if progress: t.update()
+                    if progress:
+                        t.update()
                     if iorb == self.data.proj[spin].shape[-1]:
                         break
 
@@ -698,7 +699,7 @@ class BztTransportProperties:
             BztInterpolator: a BztInterpolator previously generated
             temp_r: numpy array of temperatures at which to calculate trasport properties
             doping: doping levels at which to calculate trasport properties. If provided,
-                transport properties w.r.t. these doping levels are also computed. See 
+                transport properties w.r.t. these doping levels are also computed. See
                 compute_properties_doping() method for details.
             npts_mu: number of energy points at which to calculate trasport properties
             CRTA: constant value of the relaxation time
@@ -761,8 +762,9 @@ class BztTransportProperties:
                                                     cdos=self.cdos)
 
             # Compute the Onsager coefficients from those Fermi integrals
-            self.Conductivity_mu, self.Seebeck_mu, self.Kappa_mu, Hall_mu = BL.calc_Onsager_coefficients(
-                L0, L1, L2, self.mu_r, temp_r, self.volume, Lm11=Lm11)
+            self.Conductivity_mu, self.Seebeck_mu, \
+                self.Kappa_mu, Hall_mu = BL.calc_Onsager_coefficients(
+                    L0, L1, L2, self.mu_r, temp_r, self.volume, Lm11=Lm11)
 
             # Common properties rescaling
             self.Conductivity_mu *= CRTA  # S / m
@@ -1124,9 +1126,8 @@ class BztPlotter:
                 plt.xlabel(r"$\mu$ (eV)", fontsize=30)
                 plt.xlim(xlim)
             else:
-                raise BoltztrapError(
-                    "only prop_x=mu and prop_z=temp are available for c.c. and Hall c.c.!"
-                )
+                raise BoltztrapError("only prop_x=mu and prop_z=temp are \
+                    available for c.c. and Hall c.c.!")
 
         elif prop_z == 'temp' and prop_x == 'mu':
             for temp in temps:
