@@ -83,6 +83,16 @@ C 1.16730636786 -1.38166622735 -2.77112970359e-06
         self.assertTrue(abs(mol[0].z) < 1e-5)
         self.assertTrue(abs(mol[1].z) < 1e-5)
 
+        mol_str = """2
+Random, Alternate Scientific Notation
+C 2.39132145462 -0.700993488928 -7.222*^-06
+C 1.16730636786 -1.38166622735 -2.771*^-06
+"""
+        xyz = XYZ.from_string(mol_str)
+        mol = xyz.molecule
+        self.assertEqual(mol[0].z, -7.222e-06)
+        self.assertEqual(mol[1].z, -2.771e-06)
+
         mol_str = """3
 Random
 C   0.000000000000E+00  2.232615992397E+01  0.000000000000E+00
