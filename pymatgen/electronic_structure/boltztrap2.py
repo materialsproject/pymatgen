@@ -814,7 +814,7 @@ class BztTransportProperties:
             Conductivity_doping, Seebeck_doping, Kappa_doping, Power_Factor_doping,
             cond_Effective_mass_doping are dictionaries with 'n' and 'p' keys and
             arrays of dim (len(temp_r),len(doping),3,3) as values.
-            doping_carriers: number of carriers for each doping level.
+            Carriers_conc_doping: carriers concentration for each doping level and T.
             mu_doping_eV: the chemical potential corrispondent to each doping level.
         """
 
