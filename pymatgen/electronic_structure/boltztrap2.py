@@ -711,7 +711,7 @@ class BztTransportProperties:
         Upon creation, it contains properties tensors w.r.t. the chemical potential
         of size (len(temp_r),npts_mu,3,3):
             Conductivity_mu (S/m), Seebeck_mu (microV/K), Kappa_mu (W/(m*K)),
-            Power_Factor_mu (milliW/K);
+            Power_Factor_mu (milliW/K m);
             cond_Effective_mass_mu (m_e) calculated as Ref.
         Also:
             Carrier_conc_mu: carrier concentration of size (len(temp_r),npts_mu)
@@ -836,7 +836,7 @@ class BztTransportProperties:
             cond = np.zeros((len(temp_r), len(doping), 3, 3))
             kappa = np.zeros((len(temp_r), len(doping), 3, 3))
             hall = np.zeros((len(temp_r), len(doping), 3, 3, 3))
-            cc = np.zeros((len(temp_r), len(doping)))
+            dc = np.zeros((len(temp_r), len(doping)))
 
             if dop_type == 'p':
                 doping_carriers = [-dop for dop in doping_carriers]
@@ -865,13 +865,13 @@ class BztTransportProperties:
                                                       np.array([temp]),
                                                       self.volume, Lm11)
 
-                cc[t] = self.nelect + N
+                dc[t] = self.nelect + N
 
             self.Conductivity_doping[dop_type] = cond * self.CRTA  # S / m
             self.Seebeck_doping[dop_type] = sbk * 1e6  # microVolt / K
             self.Kappa_doping[dop_type] = kappa * self.CRTA  # W / (m K)
             # self.Hall_doping[dop_type] = hall
-            self.Carriers_conc_doping[dop_type] = cc / (
+            self.Carriers_conc_doping[dop_type] = dc / (
                 self.volume / (units.Meter / 100.)**3)
 
             self.Power_Factor_doping[dop_type] = (
@@ -940,8 +940,8 @@ class BztTransportProperties:
             lst_props.extend([
                 self.Conductivity_doping, self.Seebeck_doping,
                 self.Kappa_doping, self.Power_Factor_doping,
-                self.Effective_mass_doping, self.doping_carriers, self.doping,
-                self.mu_doping, self.mu_doping_eV
+                self.Effective_mass_doping, self.Carriers_conc_doping,
+                self.doping, self.mu_doping, self.mu_doping_eV
             ])
         dumpfn(lst_props, fname)
 
@@ -969,7 +969,7 @@ class BztTransportProperties:
             self.Kappa_doping,  \
             self.Power_Factor_doping,  \
             self.Effective_mass_doping, \
-            self.doping_carriers, \
+            self.Carriers_conc_doping, \
             self.doping, \
             self.mu_doping, \
             self.mu_doping_eV = d[15:]
@@ -1060,7 +1060,7 @@ class BztPlotter:
                     when prop_z='doping'
                 temps: list of temperatures to plot, useful to reduce the number of curves
                     when prop_z='temp'
-                xlim: chemical potential range, useful when prop_x='mu'
+                xlim: chemical potential range in eV, useful when prop_x='mu'
                 ax: figure.axes where to plot. If None, a new figure is produced.
 
             Example:
