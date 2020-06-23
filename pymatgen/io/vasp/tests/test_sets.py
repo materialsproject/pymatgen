@@ -3,21 +3,21 @@
 # Distributed under the terms of the MIT License.
 
 
+import hashlib
+import tempfile
 import unittest
+
 import pytest  # type: ignore
 from _pytest.monkeypatch import MonkeyPatch  # type: ignore
-import os
-import tempfile
-import hashlib
-from zipfile import ZipFile
 from monty.json import MontyDecoder
+
 from pymatgen import SETTINGS
-from pymatgen.io.vasp.sets import *
-from pymatgen.io.vasp.inputs import Poscar, Kpoints
 from pymatgen.core import Specie, Lattice, Structure
 from pymatgen.core.surface import SlabGenerator
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.io.vasp.inputs import Poscar, Kpoints
 from pymatgen.io.vasp.outputs import Vasprun
+from pymatgen.io.vasp.sets import *
+from pymatgen.util.testing import PymatgenTest
 
 MODULE_DIR = Path(__file__).resolve().parent
 
@@ -523,7 +523,6 @@ class MPStaticSetTest(PymatgenTest):
         self.assertFalse(sm.fit(vis.structure, original_structure))
 
     def test_write_input_zipped(self):
-
         vis = MPStaticSet(self.get_structure("Si"))
         vis.write_input(output_dir=".", potcar_spec=True, zip_output=True)
 
@@ -1419,7 +1418,7 @@ class LobsterSetTest(PymatgenTest):
             )
         self.lobsterset7 = LobsterSet(
             self.struct,
-            address_basis_file=os.path.join(MODULE_DIR, "../../BASIS_PBE_54.yaml"),
+            address_basis_file=os.path.join(MODULE_DIR, "../../lobster/lobster_basis/BASIS_PBE_54_standard.yaml"),
         )
         with pytest.warns(BadInputSetWarning, match="Overriding the POTCAR"):
             self.lobsterset6 = LobsterSet(self.struct)
