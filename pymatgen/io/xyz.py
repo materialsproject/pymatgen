@@ -60,8 +60,8 @@ class XYZ:
         coords = []
         sp = []
         coord_patt = re.compile(
-            r"(\w+)\s+([0-9\-\+\.*^eEdD]+)\s+([0-9\-\+\.*^eEdD]+)\s+(["
-            r"0-9\-\+\.*^eEdD]+)"        )
+            r"(\w+)\s+([0-9\-\+\.*^eEdD]+)\s+([0-9\-\+\.*^eEdD]+)\s+"
+            r"([0-9\-\+\.*^eEdD]+)")
         for i in range(2, 2 + num_sites):
             m = coord_patt.search(lines[i])
             if m:
@@ -71,7 +71,7 @@ class XYZ:
                 # replace d or D by e for ten power exponent,
                 # and some files use *^ convention in place of e
                 xyz = [val.lower().replace("d", "e").replace('*^', 'e') for val
-                 in m.groups()[1:4]]
+                       in m.groups()[1:4]]
                 coords.append([float(val) for val in xyz])
         return Molecule(sp, coords)
 
