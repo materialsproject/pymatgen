@@ -28,6 +28,7 @@ TODO:
 """
 from tqdm import tqdm
 import numpy as np
+import warnings
 import matplotlib.pyplot as plt
 from monty.serialization import dumpfn, loadfn
 from pymatgen.symmetry.bandstructure import HighSymmKpath
@@ -202,15 +203,21 @@ class BandstructureLoader:
                  mommat=None,
                  magmom=None):
         """
-        :param bs_obj:
-        :param structure:
-        :param nelect:
-        :param spin:
-        :param momat:
-        :param magmom:
+        Args:
+            bs_obj: BandStructure object.
+            structure: Structure object. It is needed if it is not contained in the BandStructure obj.
+            nelect: Number of electrons in the calculation. 
+            momat: Matrix of derivatives of energy eigenvalues. Not implemented yet.
+            magmom: Matrix of magnetic moments in non collinear calculations. Not implemented yet.
+        Example:
+            vrun = Vasprun('vasprun.xml')
+            bs = vrun.get_band_structure()
+            st = vrun.final_structure
+            ne = vrun.parameters['NELECT']
+            data = BandstructureLoader(bs,st,ne)
         """
 
-        raise BoltztrapError("Deprecated Loader. Use PMGLoader instead.")
+        warning.warn("Deprecated Loader. Use PMGLoader instead.")
 
         self.kpoints = np.array([kp.frac_coords for kp in bs_obj.kpoints])
 
@@ -333,10 +340,10 @@ class VasprunLoader:
 
     def __init__(self, vrun_obj=None):
         """
-        :param vrun_obj: Vasprun object.
+        vrun_obj: Vasprun object.
         """
 
-        raise BoltztrapError("Deprecated Loader. Use PMGLoader instead.")
+        warning.warn("Deprecated Loader. Use PMGLoader instead.")
 
         if vrun_obj:
             self.kpoints = np.array(vrun_obj.actual_kpoints)
