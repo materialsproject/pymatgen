@@ -57,7 +57,7 @@ __status__ = "Development"
 __date__ = "August 2018"
 
 
-class PMGLoader:
+class VasprunBSLoader:
     """Loader for Bandstructure and Vasprun pmg objects"""
 
     def __init__(self, obj, structure=None, nelect=None):
@@ -68,7 +68,7 @@ class PMGLoader:
             nelect: number of electrons in case a BandStructure obj is provided.
         Example:
             vrun = Vasprun('vasprun.xml')
-            data = PMGLoader(vrun)
+            data = VasprunBSLoader(vrun)
         """
 
         if isinstance(obj, Vasprun):
@@ -139,7 +139,7 @@ class PMGLoader:
 
     @classmethod
     def from_file(cls, vasprun_file):
-        """Get a vasprun.xml file and return a PMGLoader"""
+        """Get a vasprun.xml file and return a VasprunBSLoader"""
         vrun_obj = Vasprun(vasprun_file, parse_projected_eigen=True)
         return cls(vrun_obj)
 
@@ -217,7 +217,7 @@ class BandstructureLoader:
             data = BandstructureLoader(bs,st,ne)
         """
 
-        warning.warn("Deprecated Loader. Use PMGLoader instead.")
+        warnings.warn("Deprecated Loader. Use VasprunBSLoader instead.")
 
         self.kpoints = np.array([kp.frac_coords for kp in bs_obj.kpoints])
 
@@ -343,7 +343,7 @@ class VasprunLoader:
         vrun_obj: Vasprun object.
         """
 
-        warning.warn("Deprecated Loader. Use PMGLoader instead.")
+        warnings.warn("Deprecated Loader. Use VasprunBSLoader instead.")
 
         if vrun_obj:
             self.kpoints = np.array(vrun_obj.actual_kpoints)
