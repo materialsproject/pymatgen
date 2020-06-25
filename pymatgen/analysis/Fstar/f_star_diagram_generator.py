@@ -1,13 +1,11 @@
 import os
-import math
+
 import numpy as np
 import pandas as pd
-from pymatgen.io.cif import CifParser
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 import plotly.express as px
 
-
-#Load in the form factors
+# Load in the form factors
 
 with open(os.path.join(os.path.dirname(__file__),
                        "xray_factors_2.csv")) as f:
@@ -16,7 +14,7 @@ with open(os.path.join(os.path.dirname(__file__),
 with open(os.path.join(os.path.dirname(__file__),
                        "neutron_factors.csv")) as f:
     neutron_scatter_df = pd.read_csv(f)
-    #from http://www.ccp14.ac.uk/ccp/web-mirrors/neutrons/n-scatter/n-lengths/LIST~1.HTM
+    # from http://www.ccp14.ac.uk/ccp/web-mirrors/neutrons/n-scatter/n-lengths/LIST~1.HTM
 
 
 class FStarDiagram:
@@ -155,8 +153,8 @@ class FStarDiagram:
         Plot an f* diagram using plotly express.
 
         Args:
-            combine_list(list): This is a list of lists which indicates what unique sites need to be combied to make the plot
-                ternary.
+            combine_list(list): This is a list of lists which indicates what unique sites need to be combied to make
+                the plot ternary.
             plot_list(list): This is a list that indecates what unique sites to plot and what order to plot them in.
             kwargs: use this to add any other arguments from scatter_ternary .
         """
@@ -173,7 +171,3 @@ class FStarDiagram:
         if plot_list:
             return px.scatter_ternary(data_frame=df, a=plot_list[0], b=plot_list[1], c=plot_list[2], **kwargs)
         return px.scatter_ternary(data_frame=df, a=site_lables[0], b=site_lables[1], c=site_lables[2], **kwargs)
-
-
-
-
