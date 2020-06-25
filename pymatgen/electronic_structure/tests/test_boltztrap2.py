@@ -97,7 +97,7 @@ class BandstructureLoaderTest(unittest.TestCase):
         self.assertIsNotNone(self.loader)
 
         self.loader_sp = BandstructureLoader(bs_sp, vrun_sp.structures[-1])
-        self.assertTupleEqual(self.loader_sp.ebands.shape, (24, 198))
+        self.assertTupleEqual(self.loader_sp.ebands_all.shape, (24, 198))
         self.assertIsNotNone(self.loader_sp)
 
         warnings.simplefilter("ignore")
@@ -106,7 +106,7 @@ class BandstructureLoaderTest(unittest.TestCase):
         warnings.simplefilter("default")
 
     def test_properties(self):
-        self.assertTupleEqual(self.loader.ebands.shape, (20, 120))
+        self.assertTupleEqual(self.loader.ebands_all.shape, (20, 120))
         self.assertAlmostEqual(self.loader.fermi, 0.185266535678, 5)
         self.assertAlmostEqual(self.loader.structure.lattice.a,
                                4.64303565932548, 5)
