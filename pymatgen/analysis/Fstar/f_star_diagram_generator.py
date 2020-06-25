@@ -24,15 +24,15 @@ class FStarDiagram:
 
     def __init__(self, structures, scattering_type='X-ray_simple', custom_scatter=None):
         """
-        Initalize the f* diagram generator with the list of structures and scattering type.
+        Initialize the f* diagram generator with the list of structures and scattering type.
 
         Args:
-            Structures(list): List of structure objects to use in the diagram.
-            Scattering_type(str): Type of scattering to use in the f* calculation. Defaults to 'X-ray_simple'
+            structures(list): List of structure objects to use in the diagram.
+            scattering_type(str): Type of scattering to use in the f* calculation. Defaults to 'X-ray_simple'
                 which uses the atomic number as the scattering factor. 'X-ray' and 'Neutron' are built in scattering
-                types which use X-ray and neutron scattering factors, respectivley. 'Custom' allows the user to supliment
-                their own calculation with any set of scattering factors.
-            custom_scatter(function): when using custom scattering set this equal to a global varialble that is equal
+                types which use X-ray and neutron scattering factors, respectively. 'Custom' allows the user to
+                supplement their own calculation with any set of scattering factors.
+            custom_scatter(function): when using custom scattering set this equal to a global variable that is equal
                 to the custom scattering function.
         """
 
@@ -42,9 +42,9 @@ class FStarDiagram:
         self._symstructs = [SpacegroupAnalyzer(structure).get_symmetrized_structure() for structure in structures]
         self._equiv_inds = [struct.equivalent_indices for struct in self._symstructs]
 
-    def get_site_lables(self):
+    def get_site_labels(self):
         """
-        Generates unique site lables based on composition, order, and symetry equivalence in the structure object.
+        Generates unique site labels based on composition, order, and symetry equivalence in the structure object.
         Ex:
         Structure Summary
         Lattice
@@ -68,19 +68,19 @@ class FStarDiagram:
         PeriodicSite: O (-0.0000, 1.6460, 5.9480) [0.3333, 0.6667, 0.4167]
 
         results in
-        lables - ['0Li','1Co','2O']
+        labels - ['0Li','1Co','2O']
         '0Li' - PeriodicSite: Li:0.990, Ni:0.010 (0.0000, 0.0000, 0.0000) [0.0000, 0.0000, 0.0000]
         '1Co' - PeriodicSite: Li:0.010, Mn:0.333, Co:0.333, Ni:0.323 (0.0000, 0.0000, 7.1375) [0.0000, 0.0000, 0.5000]
         '2O' - PeriodicSite: O (0.0000, 0.0000, 3.5688) [0.0000, 0.0000, 0.2500]
         """
 
-        site_lables = []
+        site_labels = []
 
         for ind, site in enumerate(self._equiv_inds[0]):
-            lable = str(ind) + [str(sp) for sp, occ in self._structures[0][site[0]].species_and_occu.items()][0]
-            if lable not in site_lables:
-                site_lables.append(lable)
-        return site_lables
+            label = str(ind) + [str(sp) for sp, occ in self._structures[0][site[0]].species_and_occu.items()][0]
+            if label not in site_labels:
+                site_labels.append(label)
+        return site_labels
 
     def get_fstar_coords(self):
 
@@ -153,21 +153,21 @@ class FStarDiagram:
         Plot an f* diagram using plotly express.
 
         Args:
-            combine_list(list): This is a list of lists which indicates what unique sites need to be combied to make
+            combine_list(list): This is a list of lists which indicates what unique sites need to be combined to make
                 the plot ternary.
-            plot_list(list): This is a list that indecates what unique sites to plot and what order to plot them in.
+            plot_list(list): This is a list that indicates what unique sites to plot and what order to plot them in.
             kwargs: use this to add any other arguments from scatter_ternary .
         """
-        site_lables = FStarDiagram(self._structures, scattering_type=self._scatter,
-                                   custom_scatter=self._custscat).get_site_lables()
+        site_labels = FStarDiagram(self._structures, scattering_type=self._scatter,
+                                   custom_scatter=self._custscat).get_site_labels()
         coords = FStarDiagram(self._structures, scattering_type=self._scatter,
                               custom_scatter=self._custscat).get_fstar_coords()
-        df = pd.DataFrame(columns=site_lables, data=coords)
+        df = pd.DataFrame(columns=site_labels, data=coords)
         df.replace('nan', 0.0, inplace=True)
         if combine_list:
             for combo in combine_list:
                 df[str(combo)] = sum([df[site] for site in combo])
-                site_lables.append(str(combo))
+                site_labels.append(str(combo))
         if plot_list:
             return px.scatter_ternary(data_frame=df, a=plot_list[0], b=plot_list[1], c=plot_list[2], **kwargs)
-        return px.scatter_ternary(data_frame=df, a=site_lables[0], b=site_lables[1], c=site_lables[2], **kwargs)
+        return px.scatter_ternary(data_frame=df, a=site_labels[0], b=site_labels[1], c=site_labels[2], **kwargs)
