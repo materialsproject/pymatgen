@@ -206,7 +206,7 @@ class BandstructureLoader:
         Args:
             bs_obj: BandStructure object.
             structure: Structure object. It is needed if it is not contained in the BandStructure obj.
-            nelect: Number of electrons in the calculation. 
+            nelect: Number of electrons in the calculation.
             momat: Matrix of derivatives of energy eigenvalues. Not implemented yet.
             magmom: Matrix of magnetic moments in non collinear calculations. Not implemented yet.
         Example:
@@ -312,7 +312,7 @@ class BandstructureLoader:
         """
         warnings.warn('This method does not work anymore in case of spin \
         polarized case due to the concatenation of bands !')
-        
+
         lower_band = e_lower * np.ones((1, self.ebands.shape[1]))
         upper_band = e_upper * np.ones((1, self.ebands.shape[1]))
 
@@ -958,30 +958,14 @@ class BztTransportProperties:
     def load(self, fname='bztTranspProps.json.gz'):
         """Load the tranport properties from fname file."""
         d = loadfn(fname)
-        (self.temp_r,
-         self.CRTA,
-         self.epsilon,
-         self.dos,
-         self.vvdos,
-         self.cdos,
-         self.mu_r,
-         self.mu_r_eV,
-         self.Conductivity_mu,
-         self.Seebeck_mu,
-         self.Kappa_mu,
-         self.Carrier_conc_mu,
-         self.Hall_carrier_conc_trace_mu,
-         self.Power_Factor_mu,
-         self.Effective_mass_mu) = d[:15]
+        (self.temp_r, self.CRTA, self.epsilon, self.dos, self.vvdos, self.cdos,
+         self.mu_r, self.mu_r_eV, self.Conductivity_mu, self.Seebeck_mu,
+         self.Kappa_mu, self.Carrier_conc_mu, self.Hall_carrier_conc_trace_mu,
+         self.Power_Factor_mu, self.Effective_mass_mu) = d[:15]
         if len(d) > 15:
-            (self.Conductivity_doping,
-             self.Seebeck_doping,
-             self.Kappa_doping,
-             self.Power_Factor_doping,
-             self.Effective_mass_doping,
-             self.Carriers_conc_doping,
-             self.doping,
-             self.mu_doping,
+            (self.Conductivity_doping, self.Seebeck_doping, self.Kappa_doping,
+             self.Power_Factor_doping, self.Effective_mass_doping,
+             self.Carriers_conc_doping, self.doping, self.mu_doping,
              self.mu_doping_eV) = d[15:]
             self.contains_doping_props = True
 
