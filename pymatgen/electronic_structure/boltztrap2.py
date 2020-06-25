@@ -310,8 +310,9 @@ class BandstructureLoader:
             Set fake upper/lower bands, useful to set the same energy
             range in the spin up/down bands when calculating the DOS
         """
-        # WARNING: the following does not work anymore in case of spin
-        # polarized due to the concatenation of bands !
+        warnings.warn('This method does not work anymore in case of spin \
+        polarized case due to the concatenation of bands !')
+        
         lower_band = e_lower * np.ones((1, self.ebands.shape[1]))
         upper_band = e_upper * np.ones((1, self.ebands.shape[1]))
 
@@ -1229,10 +1230,14 @@ class BztPlotter:
 def merge_up_down_doses(dos_up, dos_dn):
     """
     Merge the up and down DOSs.
-    :param dos_up: Up DOS.
-    :param dos_dn: Down DOS
-    :return: CompleteDos.
+    Args:
+    dos_up: Up DOS.
+    dos_dn: Down DOS
+    Return:
+    CompleteDos object
     """
+    warnings.warn("This function is not useful anymore. VasprunBSLoader deals \
+                   with spin case.")
     cdos = Dos(dos_up.efermi, dos_up.energies, {
         Spin.up: dos_up.densities[Spin.up],
         Spin.down: dos_dn.densities[Spin.down]
