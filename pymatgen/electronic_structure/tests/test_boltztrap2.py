@@ -13,7 +13,7 @@ import numpy as np
 from monty.serialization import loadfn
 
 try:
-    from pymatgen.electronic_structure.boltztrap2 import PMGLoader, \
+    from pymatgen.electronic_structure.boltztrap2 import VasprunBSLoader, \
         BandstructureLoader, VasprunLoader, BztInterpolator, \
         BztTransportProperties, BztPlotter
 
@@ -39,22 +39,22 @@ bzttransp_fn = os.path.join(test_dir, "bztTranspProps.json.gz")
 
 
 @unittest.skipIf(not BOLTZTRAP2_PRESENT, "No boltztrap2, skipping tests...")
-class PMGLoaderTest(unittest.TestCase):
+class VasprunBSLoaderTest(unittest.TestCase):
     def setUp(self):
-        self.loader = PMGLoader(vrun)
+        self.loader = VasprunBSLoader(vrun)
         self.assertIsNotNone(self.loader)
-        self.loader = PMGLoader(bs, vrun.final_structure)
+        self.loader = VasprunBSLoader(bs, vrun.final_structure)
         self.assertIsNotNone(self.loader)
-        self.loader = PMGLoader.from_file(vrunfile)
+        self.loader = VasprunBSLoader.from_file(vrunfile)
         self.assertIsNotNone(self.loader)
 
         warnings.simplefilter("ignore")
 
-        self.loader_sp = PMGLoader(vrun_sp)
+        self.loader_sp = VasprunBSLoader(vrun_sp)
         self.assertIsNotNone(self.loader_sp)
-        self.loader_sp = PMGLoader(bs_sp, vrun_sp.final_structure)
+        self.loader_sp = VasprunBSLoader(bs_sp, vrun_sp.final_structure)
         self.assertIsNotNone(self.loader_sp)
-        self.loader_sp = PMGLoader.from_file(vrunfile_sp)
+        self.loader_sp = VasprunBSLoader.from_file(vrunfile_sp)
         self.assertIsNotNone(self.loader_sp)
 
         warnings.simplefilter("ignore")
@@ -162,7 +162,7 @@ class VasprunLoaderTest(unittest.TestCase):
 @unittest.skipIf(not BOLTZTRAP2_PRESENT, "No boltztrap2, skipping tests...")
 class BztInterpolatorTest(unittest.TestCase):
     def setUp(self):
-        self.loader = PMGLoader(vrun)
+        self.loader = VasprunBSLoader(vrun)
         self.bztInterp = BztInterpolator(self.loader, lpfac=2)
         self.assertIsNotNone(self.bztInterp)
         self.bztInterp = BztInterpolator(self.loader,
@@ -177,7 +177,7 @@ class BztInterpolatorTest(unittest.TestCase):
 
         warnings.simplefilter("ignore")
 
-        self.loader_sp = PMGLoader(vrun_sp)
+        self.loader_sp = VasprunBSLoader(vrun_sp)
         self.bztInterp_sp = BztInterpolator(self.loader_sp, lpfac=2)
         self.assertIsNotNone(self.bztInterp_sp)
         self.bztInterp_sp = BztInterpolator(self.loader_sp,
@@ -266,7 +266,7 @@ class BztInterpolatorTest(unittest.TestCase):
 @unittest.skipIf(not BOLTZTRAP2_PRESENT, "No boltztrap2, skipping tests...")
 class BztTransportPropertiesTest(unittest.TestCase):
     def setUp(self):
-        loader = PMGLoader(vrun)
+        loader = VasprunBSLoader(vrun)
         bztInterp = BztInterpolator(loader, lpfac=2)
         self.bztTransp = BztTransportProperties(bztInterp,
                                                 temp_r=np.arange(
@@ -299,7 +299,7 @@ class BztTransportPropertiesTest(unittest.TestCase):
         self.assertIsNotNone(self.bztTransp)
         warnings.simplefilter("ignore")
 
-        loader_sp = PMGLoader(vrun_sp)
+        loader_sp = VasprunBSLoader(vrun_sp)
         bztInterp_sp = BztInterpolator(loader_sp, lpfac=2)
         self.bztTransp_sp = BztTransportProperties(bztInterp_sp,
                                                    temp_r=np.arange(
@@ -381,7 +381,7 @@ class BztTransportPropertiesTest(unittest.TestCase):
 @unittest.skipIf(not BOLTZTRAP2_PRESENT, "No boltztrap2, skipping tests...")
 class BztPlotterTest(unittest.TestCase):
     def test_plot(self):
-        loader = PMGLoader(vrun)
+        loader = VasprunBSLoader(vrun)
         bztInterp = BztInterpolator(loader, lpfac=2)
         bztTransp = BztTransportProperties(bztInterp,
                                            temp_r=np.arange(300, 600, 100))
