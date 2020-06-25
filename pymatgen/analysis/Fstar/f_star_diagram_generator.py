@@ -1,3 +1,5 @@
+""" This module implements an f* diagram generator."""
+
 import os
 import numpy as np
 import pandas as pd
@@ -5,7 +7,7 @@ import plotly.express as px
 
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
-""" This module implements an f* diagram generator."""
+
 # Load in the form factors
 
 with open(os.path.join(os.path.dirname(__file__),
