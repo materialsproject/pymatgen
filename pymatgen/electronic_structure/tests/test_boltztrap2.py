@@ -97,8 +97,8 @@ class BandstructureLoaderTest(unittest.TestCase):
         self.assertIsNotNone(self.loader)
 
         self.loader_sp = BandstructureLoader(bs_sp, vrun_sp.structures[-1])
-        self.assertTupleEqual(self.loader_sp.ebands_all.shape, (24, 198))
         self.assertIsNotNone(self.loader_sp)
+        self.assertTupleEqual(self.loader_sp.ebands_all.shape, (24, 198))
 
         warnings.simplefilter("ignore")
 
