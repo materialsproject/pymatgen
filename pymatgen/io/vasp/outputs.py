@@ -1951,15 +1951,21 @@ class Outcar:
                     plasma_frequencies[read_plasma].append(
                         Outcar._parse_sci_notation(l))
                 elif read_dielectric:
+                    toks = None
                     if re.match(row_pattern, l.strip()):
                         toks = l.strip().split()
+                    elif Outcar._parse_sci_notation(l.strip()):
+                        toks = Outcar._parse_sci_notation(l.strip())
+                    elif re.match(r"\s*-+\s*", l):
+                        count += 1
+
+                    if toks:
                         if component == "IMAGINARY":
                             energies.append(float(toks[0]))
                         xx, yy, zz, xy, yz, xz = [float(t) for t in toks[1:]]
                         matrix = [[xx, xy, xz], [xy, yy, yz], [xz, yz, zz]]
                         data[component].append(matrix)
-                    elif re.match(r"\s*-+\s*", l):
-                        count += 1
+
                     if count == 2:
                         component = "REAL"
                     elif count == 3:
