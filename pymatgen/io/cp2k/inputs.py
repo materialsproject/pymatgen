@@ -145,7 +145,7 @@ class Section(MSONable):
         Retrieve a keyword given its name
         """
         for i, k in enumerate(self.keywords):
-            if k.name == kwd:
+            if k.name.lower() == kwd.lower():
                 return k
 
     def set_keyword(self, kwd):

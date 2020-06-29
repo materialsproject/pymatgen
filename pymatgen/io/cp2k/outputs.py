@@ -379,18 +379,21 @@ class Cp2kOutput:
         """
         # SCF Loops
         uncoverged_inner_loop = re.compile(r"(Leaving inner SCF loop)")
-        scf_converged = re.compile(r"(SCF run converged)")
-        scf_not_converged = re.compile(r"(SCF run NOT converged)")
+        scf_converged = re.compile(r"(SCF run converged)|(SCF run NOT converged)")
         self.read_pattern(
             patterns={
                 "uncoverged_inner_loop": uncoverged_inner_loop,
                 "scf_converged": scf_converged,
-                "scf_not_converged": scf_not_converged,
             },
             reverse=True,
             terminate_on_match=False,
             postprocess=bool,
         )
+        for i, x in enumerate(self.data['scf_converged']):
+            if x[0]:
+                self.data['scf_converged'][i] = True
+            else:
+                self.data['scf_converged'][i] = False
 
         # GEO_OPT
         geo_opt_not_converged = re.compile(
@@ -407,7 +410,7 @@ class Cp2kOutput:
             postprocess=bool,
         )
 
-        if any(self.data["scf_not_converged"]):
+        if not all(self.data["scf_converged"]):
             warnings.warn(
                 "There is at least one unconverged SCF cycle in the provided cp2k calculation",
                 UserWarning,
