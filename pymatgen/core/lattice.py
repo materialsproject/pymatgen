@@ -508,6 +508,69 @@ class Lattice(MSONable):
         """
         return np.linalg.inv(self.lll_mapping)
 
+    @property
+    def selling_vector(self) -> np.ndarray:
+        """
+        Returns the (1,6) array of Selling Scalars.
+        """
+        a, b, c = self.matrix
+        d = - (a + b + c)
+
+        selling_vector = np.array([np.dot(b, c), np.dot(a, c), np.dot(a, b), np.dot(a, d), np.dot(b, d), np.dot(c, d)])
+
+    
+        reduction_matrices = [
+            np.array([[-1, 0, 0, 0, 0, 0],
+                    [1, 1, 0, 0, 0, 0],
+                    [1, 0, 0, 0, 1, 0],
+                    [-1, 0, 0, 1, 0, 0],
+                    [1, 0, 1, 0, 0, 0],
+                    [1, 0, 0, 0, 0, 1]]),
+        
+            np.array([[1, 1, 0, 0, 0, 0],
+                    [0, -1, 0, 0, 0, 0],
+                    [0, 1, 0, 1, 0, 0],
+                    [0, 1, 1, 0, 0, 0],
+                    [0, -1, 0, 0, 1, 0],
+                    [0, 1, 0, 0, 0, 1]]),
+        
+            np.array([[1, 0, 1, 0, 0, 0],
+                    [0, 0, 1, 1, 0, 0],
+                    [0, 0, -1, 0, 0, 0],
+                    [0, 1, 1, 0, 0, 0],
+                    [0, 0, 1, 0, 1, 0],
+                    [0, 0, -1, 0, 0, 1]]),
+        
+            np.array([[1, 0, 0, -1, 0, 0],
+                    [0, 0, 1, 1, 0, 0],
+                    [0, 1, 0, 1, 0, 0],
+                    [0, 0, 0, -1, 0, 0],
+                    [0, 0, 0, 1, 1, 0],
+                    [0, 0, 0, 1, 0, 1]]),
+        
+            np.array([[0, 0, 1, 0, 1, 0],
+                    [0, 1, 0, 0, -1, 0],
+                    [1, 0, 0, 0, 1, 0],
+                    [0, 0, 0, 1, 1, 0],
+                    [0, 0, 0, 0, -1, 0],
+                    [0, 0, 0, 0, 1, 1]]),
+            
+            np.array([[0, 1, 0, 0, 0, 1],
+                    [1, 0, 0, 0, 0, 1],
+                    [0, 0, 1, 0, 0, -1],
+                    [0, 0, 0, 1, 0, 1],
+                    [0, 0, 0, 0, 1, 1],
+                    [0, 0, 0, 0, 0, -1]])
+        ]
+        while len([*filter(lambda scalar: scalar > 0, selling_vector)]) > 0:
+            max_scalar = max(selling_vector)
+            max_index = selling_vector.argmax()
+            selling_vector = np.dot(reduction_matrices[max_index], selling_vector)
+            
+        selling_vector = selling_vector.reshape((1, 6))
+        
+        return selling_vector
+
     def __repr__(self):
         outs = [
             "Lattice",
