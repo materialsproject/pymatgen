@@ -6,6 +6,7 @@
 import unittest
 import warnings
 import numpy as np
+from collections import defaultdict
 from math import isnan
 from pymatgen import Composition
 from pymatgen.analysis.reaction_calculator import (
@@ -431,25 +432,39 @@ class ComputedReactionTest(unittest.TestCase):
             },
             {
                 "correction": 0.0,
-                "data": {"correction_uncertainty": 64 * 0.731},
-                "energy": -577.94689128,
-                "parameters": {},
-                "composition": {"O": 32, "Li": 64},
-            },
-            {
-                "correction": 0.0,
                 "data": {},
                 "energy": -17.02844794,
                 "parameters": {},
                 "composition": {"O": 2},
             },
-            {
-                "correction": 0.0,
-                "data": {"correction_uncertainty": 72 * 0.731},
-                "energy": -959.64693323,
-                "parameters": {},
-                "composition": {"O": 72, "Li": 72},
-            },
+            {'@module': 'pymatgen.entries.computed_entries',
+             '@class': 'ComputedEntry',
+             'energy': -38.76889738,
+             'composition': defaultdict(float, {'Li': 4.0, 'O': 4.0}),
+             'energy_adjustments': [{'@module': 'pymatgen.entries.computed_entries',
+                 '@class': 'ConstantEnergyAdjustment',
+                 '@version': '2020.6.8',
+                 'value': -1.864,
+                 'uncertainty': 0.0744,
+                 'name': 'MP2020 Composition Correction',
+                 'cls': {'@module': 'pymatgen.entries.compatibility',
+                 '@class': 'MaterialsProject2020Compatibility',
+                 '@version': '2020.6.8',
+                 'compat_type': 'Advanced',
+                 'correct_peroxide': True,
+                 'check_potcar_hash': False},
+                 'description': 'Constant energy adjustment (-1.864 eV)'}],
+             'parameters': {'run_type': 'GGA',
+             'is_hubbard': False,
+             'pseudo_potential': {'functional': 'PBE',
+                 'labels': ['Li_sv', 'O'],
+                 'pot_type': 'paw'},
+             'hubbards': {},
+             'potcar_symbols': ['PBE Li_sv', 'PBE O'],
+             'oxide_type': 'peroxide'},
+             'data': {'oxide_type': 'peroxide'},
+             'entry_id': 'mp-841',
+             'correction': -1.864},
         ]
         entries = []
         for e in d:
@@ -463,7 +478,7 @@ class ComputedReactionTest(unittest.TestCase):
 
         rxn_with_uncertainty = ComputedReaction(rcts, prods)
         self.assertAlmostEqual(
-            rxn_with_uncertainty.calculated_reaction_energy_uncertainty, 2 * 0.731
+            rxn_with_uncertainty.calculated_reaction_energy_uncertainty, 0.5 * 0.0744
         )
 
     def test_calculated_reaction_energy_uncertainty_for_no_uncertainty(self):
@@ -484,25 +499,39 @@ class ComputedReactionTest(unittest.TestCase):
             },
             {
                 "correction": 0.0,
-                "data": {"correction_uncertainty": np.nan},
-                "energy": -577.94689128,
-                "parameters": {},
-                "composition": {"O": 32, "Li": 64},
-            },
-            {
-                "correction": 0.0,
                 "data": {},
                 "energy": -17.02844794,
                 "parameters": {},
                 "composition": {"O": 2},
             },
-            {
-                "correction": 0.0,
-                "data": {"correction_uncertainty": np.nan},
-                "energy": -959.64693323,
-                "parameters": {},
-                "composition": {"O": 72, "Li": 72},
-            },
+            {'@module': 'pymatgen.entries.computed_entries',
+             '@class': 'ComputedEntry',
+             'energy': -38.76889738,
+             'composition': defaultdict(float, {'Li': 4.0, 'O': 4.0}),
+             'energy_adjustments': [{'@module': 'pymatgen.entries.computed_entries',
+                 '@class': 'ConstantEnergyAdjustment',
+                 '@version': '2020.6.8',
+                 'value': -1.864,
+                 'uncertainty': np.nan,
+                 'name': 'MP2020 Composition Correction',
+                 'cls': {'@module': 'pymatgen.entries.compatibility',
+                 '@class': 'MaterialsProject2020Compatibility',
+                 '@version': '2020.6.8',
+                 'compat_type': 'Advanced',
+                 'correct_peroxide': True,
+                 'check_potcar_hash': False},
+                 'description': 'Constant energy adjustment (-1.864 eV)'}],
+             'parameters': {'run_type': 'GGA',
+             'is_hubbard': False,
+             'pseudo_potential': {'functional': 'PBE',
+                 'labels': ['Li_sv', 'O'],
+                 'pot_type': 'paw'},
+             'hubbards': {},
+             'potcar_symbols': ['PBE Li_sv', 'PBE O'],
+             'oxide_type': 'peroxide'},
+             'data': {'oxide_type': 'peroxide'},
+             'entry_id': 'mp-841',
+             'correction': -1.864},
         ]
         entries = []
         for e in d:
