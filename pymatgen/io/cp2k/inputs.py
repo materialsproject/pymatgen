@@ -1129,7 +1129,7 @@ class V_Hartree_Cube(Section):
         )
 
         keywords = [
-            Keyword('stride', *kwargs.get('STRIDE', [2, 2, 2]))
+            Keyword('stride', *kwargs.get('STRIDE', [1, 1, 1]))
         ]
 
         super(V_Hartree_Cube, self).__init__(

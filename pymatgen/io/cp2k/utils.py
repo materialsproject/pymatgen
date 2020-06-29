@@ -134,9 +134,9 @@ def get_aux_basis(species, basis_filename=[], basis_type="cFIT"):
             for i in aux_bases[k]:
                 if i.startswith(basis_type):
                     basis[k] = i
+                    break
         else:
             basis[k] = aux_bases[k]
-
     return basis
 
 

@@ -324,13 +324,23 @@ class Cp2kOutput:
                     break
 
         lattice = self.parse_cell_params()
+        gs = {}
+        for k in self.data['atomic_kind_info'].values():
+            if k['pseudo_potential'].upper() == 'NONE':
+                gs[k['kind_number']] = True
+            else:
+                gs[k['kind_number']] = False
+
         self.initial_structure = Structure(
             lattice[0],
             species=[i[2] for i in coord_table],
             coords=[
                 [float(i[4]), float(i[5]), float(i[6])] for i in coord_table
-            ], coords_are_cartesian=True
+            ],
+            coords_are_cartesian=True,
+            site_properties={'ghost': [gs.get(int(i[1])) for i in coord_table]}
         )
+
         self.initial_structure.set_charge(self.input['FORCE_EVAL']['DFT']['CHARGE'])
         self.composition = self.initial_structure.composition
         return self.initial_structure
@@ -626,7 +636,7 @@ class Cp2kOutput:
         """
         kinds = re.compile(r"Atomic kind: (\w+)")
         orbital_basis_set = re.compile(r"Orbital Basis Set\s+(.+$)")
-        potential_information = re.compile(r"Potential information for\s+(.+$)")
+        potential_information = re.compile(r"(?:Potential information for\s+(.+$))|(?:atomic kind are GHOST atoms)")
         auxiliary_basis_set = re.compile(r"Auxiliary Fit Basis Set\s+(.+$)")
         core_electrons = re.compile(r"Total number of core electrons\s+(\d+)")
         valence_electrons = re.compile(
@@ -652,6 +662,7 @@ class Cp2kOutput:
             atomic_kind_info[kind[0]] = {
                 "orbital_basis_set": self.data.get("orbital_basis_set")[i][0],
                 "pseudo_potential": self.data.get("potential_info")[i][0],
+                "kind_number": i+1
             }
             try:
                 atomic_kind_info[kind[0]]["valence_electrons"] = self.data.get(
@@ -678,7 +689,6 @@ class Cp2kOutput:
                     "total_pseudopotential_energy")[i][0]*_hartree_to_ev_
             except (TypeError, IndexError):
                 atomic_kind_info[kind[0]]["total_pseudopotential_energy"] = None
-
         self.data["atomic_kind_info"] = atomic_kind_info
 
     def parse_total_numbers(self):
