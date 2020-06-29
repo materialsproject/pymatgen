@@ -1016,10 +1016,8 @@ class OutcarTest(PymatgenTest):
         self.assertEqual(len(matrices[0][Spin.up]), 7)
         self.assertEqual(len(matrices[0][Spin.up][0]), 7)
         self.assertTrue("onsite_density_matrices" in outcar.as_dict())
-
         outcar = Outcar(self.TEST_FILES_DIR / "OUTCAR_merged_numbers2")
         self.assertTrue("onsite_density_matrices" in outcar.as_dict())
-
 
     def test_nplwvs(self):
         outcar = Outcar(self.TEST_FILES_DIR / "OUTCAR")
