@@ -128,6 +128,7 @@ setup(
         "pymatgen.io": ["*.yaml"],
         "pymatgen.io.vasp": ["*.yaml", "*.json"],
         "pymatgen.io.lammps": ["templates/*.*", "*.yaml"],
+        "pymatgen.io.lobster": ["lobster_basis/*.yaml"],
         "pymatgen.io.feff": ["*.yaml"],
         "pymatgen.symmetry": ["*.yaml", "*.json", "*.sqlite"],
         "pymatgen.entries": ["*.yaml"],
