@@ -744,12 +744,10 @@ class MaterialsProject2020CompatibilityTest(unittest.TestCase):
             self.compat.process_entry(self.entry_sulfide).correction, -0.637
         )
 
-    def test_oxdiation_check(self):
+    def test_oxdiation_by_electronegativity(self):
         # make sure anion corrections are only applied when the element has
         # a negative oxidation state (e.g., correct CaSi but not SiO2 for Si)
-        self.assertAlmostEqual(
-            self.compat.process_entry(self.entry1).correction, -2.181 * 2 - 0.738 * 3
-        )
+        # as determined by electronegativity (i.e., the data.oxidation_states key is absent)
 
         entry1 = ComputedEntry.from_dict(
             {
@@ -796,6 +794,71 @@ class MaterialsProject2020CompatibilityTest(unittest.TestCase):
                     "oxide_type": "oxide",
                 },
                 "data": {"oxide_type": "oxide"},
+                "entry_id": "mp-546794",
+                "correction": 0.0,
+            }
+        )
+
+        # CaSi; only correction should be Si
+        self.assertAlmostEqual(self.compat.process_entry(entry1).correction, -0.406 * 2)
+
+        # SiO2; only corrections should be oxide
+        self.assertAlmostEqual(self.compat.process_entry(entry2).correction, -0.738 * 4)
+
+    def test_oxdiation(self):
+        # make sure anion corrections are only applied when the element has
+        # a negative oxidation state (e.g., correct CaSi but not SiO2 for Si)
+        # as determined by the data.oxidation_states key
+
+        entry1 = ComputedEntry.from_dict(
+            {
+                "@module": "pymatgen.entries.computed_entries",
+                "@class": "ComputedEntry",
+                "energy": -17.01015622,
+                "composition": defaultdict(float, {"Si": 2.0, "Ca": 2.0}),
+                "energy_adjustments": [],
+                "parameters": {
+                    "run_type": "GGA",
+                    "is_hubbard": False,
+                    "pseudo_potential": {
+                        "functional": "PBE",
+                        "labels": ["Ca_sv", "Si"],
+                        "pot_type": "paw",
+                    },
+                    "hubbards": {},
+                    "potcar_symbols": ["PBE Ca_sv", "PBE Si"],
+                    "oxide_type": "None",
+                },
+                "data": {"oxide_type": "None",
+                         "oxidation_states": {'Ca': 2.0, 'Si': -2.0}
+                         },
+                "entry_id": "mp-1563",
+                "correction": 0.0,
+            }
+        )
+
+        entry2 = ComputedEntry.from_dict(
+            {
+                "@module": "pymatgen.entries.computed_entries",
+                "@class": "ComputedEntry",
+                "energy": -47.49120119,
+                "composition": defaultdict(float, {"Si": 2.0, "O": 4.0}),
+                "energy_adjustments": [],
+                "parameters": {
+                    "run_type": "GGA",
+                    "is_hubbard": False,
+                    "pseudo_potential": {
+                        "functional": "PBE",
+                        "labels": ["Si", "O"],
+                        "pot_type": "paw",
+                    },
+                    "hubbards": {},
+                    "potcar_symbols": ["PBE Si", "PBE O"],
+                    "oxide_type": "oxide",
+                },
+                "data": {"oxide_type": "oxide",
+                         "oxidation_states": {'Si': 4.0, 'O': -2.0}
+                         },
                 "entry_id": "mp-546794",
                 "correction": 0.0,
             }

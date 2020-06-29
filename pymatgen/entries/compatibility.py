@@ -450,27 +450,29 @@ class CompositionCorrection(Correction):
                 )
 
         for anion in ["Br", "I", "Se", "Si", "Sb", "Te", "H", "N", "F", "Cl"]:
-            # only apply anion corrections if the element has a negative oxidation state
-            try:
-                if Element(anion) in comp and anion in self.comp_correction \
-                   and comp.oxi_state_guesses(all_oxi_states=True, max_sites=-80)[0].get(anion, 0) < 0:
+            if Element(anion) in comp and anion in self.comp_correction:
+                apply_correction = False
+                # only apply anion corrections if the element is an anion
+                # first check for a pre-populated oxidation states key
+                # the key is expected to comprise a dict corresponding to the first element output by 
+                # Composition.oxi_state_guesses(), e.g. {'Al': 3.0, 'S': 2.0, 'O': -2.0} for 'Al2SO4'
+                if entry.data.get("oxidation_states"):
+                    if entry.data["oxidation_states"].get(anion, 0) < 0:
+                        apply_correction = True
+                else:
+                    # if the oxidation_states key is not populated, only apply the correction if the anion
+                    # is the most electronegative element
+                    elements = sorted([el for el in comp.elements if comp[el] > 0], key=lambda el: el.X)
+                    most_electroneg = elements[-1].symbol
+
+                    if anion == most_electroneg:
+                        apply_correction = True
+
+                if apply_correction is True:
                     correction += (
-                        ufloat(self.comp_correction[anion], self.comp_errors[anion])
-                        * comp[anion]
-                    )
-
-            except IndexError:
-                # no correction if oxi_state_guesses is empty
-                warnings.warn("Cannot determine oxidation state for {} in compound {}."
-                              "No correction will be applied.".format(anion, comp.reduced_formula)
-                              )
-                continue
-
-            except ValueError:
-                # Composition cannot be reduced below 80 sites
-                warnings.warn("Compound {} cannot be reduced below 80 sites."
-                              "No correction will be applied".format(comp.formula)
-                              )
+                                ufloat(self.comp_correction[anion], self.comp_errors[anion])
+                                * comp[anion]
+                            )
 
         return correction
 
