@@ -555,7 +555,7 @@ class Cp2kOutput:
 
         self.data["dft"]["cutoffs"] = {}
         self.data["dft"]["cutoffs"]["density"] = self.data["dft"].pop(
-            "cutoffs:_density"
+            "Cutoffs:_density"
         )
         self.data["dft"]["cutoffs"]["gradient"] = self.data["dft"].pop(
             "gradient"
