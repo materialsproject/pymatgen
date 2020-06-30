@@ -247,8 +247,8 @@ class Section(MSONable):
         """
         for k, v in d2.items():
             if isinstance(v, (str, float, bool)):
-                kwds = [kwd.name for kwd in d1.keywords]
-                if k in kwds:
+                kwds = [kwd.name.upper() for kwd in d1.keywords]
+                if k.upper() in kwds:
                     i = kwds.index(k)
                     d1.keywords[i] = Keyword(k, v)
                 else:
