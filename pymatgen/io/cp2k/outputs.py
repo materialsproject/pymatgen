@@ -425,7 +425,7 @@ class Cp2kOutput:
         toten_pattern = re.compile(r"Total FORCE_EVAL.*\s(-?\d+.\d+)")
         self.read_pattern(
             {"total_energy": toten_pattern},
-            terminate_on_match=True,
+            terminate_on_match=False,
             postprocess=float,
             reverse=False,
         )
