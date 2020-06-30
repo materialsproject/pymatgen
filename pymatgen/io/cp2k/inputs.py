@@ -18,6 +18,7 @@ import copy
 import textwrap
 from monty.json import MSONable
 from monty.io import zopen
+from pymatgen.io.cp2k.utils import _postprocessor
 
 __author__ = "Nicholas Winner"
 __version__ = "0.2"
@@ -533,7 +534,7 @@ class Cp2kInput(Section):
                 self.by_path(current).insert(s)
                 current = current + "/" + name
             else:
-                args = map(str, line.split())
+                args = map(_postprocessor, line.split())
                 self.by_path(current).keywords.append(Keyword(*args))
 
     def write_file(

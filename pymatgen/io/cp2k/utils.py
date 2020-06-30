@@ -20,12 +20,11 @@ def _postprocessor(s):
     python types.
     """
     s = s.rstrip()  # Remove leading/trailing whitespace
-    s = s.lower()  # Turn to lower case for convenience
     s = s.replace(" ", "_")  # Remove whitespaces
 
-    if s == "no" or s == "none":
+    if s.lower() == "no" or s.lower() == "none":
         return False
-    elif s == "yes":
+    elif s.lower() == "yes":
         return True
     elif re.match(r"^-?\d+$", s):
         try:
