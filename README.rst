@@ -1,4 +1,8 @@
-**Official docs:** http://www.pymatgen.org
+**Documentation: http://www.pymatgen.org**
+
+**Please use our user support forum for questions: https://matsci.org/pymatgen**
+
+Bug reports can be posted to our GitHub Issues page. Code contributions and work-in-progress pull requests welcome.
 
 .. image:: https://circleci.com/gh/materialsproject/pymatgen.svg?style=shield&circle-token=:circle-token
         :alt: CircleCI Status
