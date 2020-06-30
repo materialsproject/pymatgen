@@ -1,4 +1,4 @@
-**Documentation: http://www.pymatgen.org**
+**Documentation: https://www.pymatgen.org**
 
 **Please use our user support forum for questions: https://matsci.org/pymatgen**
 
