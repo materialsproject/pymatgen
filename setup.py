@@ -106,7 +106,7 @@ setup(
     setup_requires=['numpy>=1.14.3', 'setuptools>=18.0'],
     python_requires='>=3.6',
     install_requires=["numpy>=1.14.3", "requests", "ruamel.yaml>=0.15.6",
-                      "monty>=3.0.2", "scipy>=1.0.1",
+                      "monty>=3.0.2", "scipy>=1.5.0",
                       "tabulate", "spglib>=1.9.9.44", "networkx>=2.2",
                       "matplotlib>=1.5", "palettable>=3.1.1", "sympy", "pandas",
                       "plotly>=4.5.0"],
