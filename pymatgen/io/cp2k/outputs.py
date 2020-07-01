@@ -28,7 +28,7 @@ from pymatgen.io.cp2k.sets import Cp2kInput
 from pymatgen.io.cp2k.utils import _postprocessor
 
 __author__ = "Nicholas Winner"
-__version__ = "0.1"
+__version__ = "0.2"
 __status__ = "Development"
 
 logger = logging.getLogger(__name__)
@@ -45,7 +45,7 @@ _bohr_to_angstrom_ = 5.29177208590000e-01
 
 class Cp2kOutput:
     """
-    Class for parsing output file from CP2K. The CP2K Input file is very flexible in the way that it is returned.
+    Class for parsing output file from CP2K. The CP2K output file is very flexible in the way that it is returned.
     This class will automatically parse parameters that should always be present, but other parsing features may be
     called depending on the run type.
     """
@@ -250,6 +250,7 @@ class Cp2kOutput:
                     if len(latfile.shape) > 1
                     else latfile[2:11].reshape(3, 3)
                 )
+                lattice.append(lattice[-1])  # TODO is this always needed? from re-eval at minimum
             else:
                 raise FileNotFoundError(
                     "Unable to automatically determine lattice file. More than one exist."
@@ -436,49 +437,73 @@ class Cp2kOutput:
         """
         Get the forces from the output file
         """
-        header_pattern = r"ATOMIC FORCES.+Z"
-        row_pattern = (
-            r"\s+\d+\s+\d+\s+\w+\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)"
-        )
-        footer_pattern = r"SUM OF ATOMIC FORCES"
 
-        self.data["forces"] = self.read_table_pattern(
-            header_pattern=header_pattern,
-            row_pattern=row_pattern,
-            footer_pattern=footer_pattern,
-            postprocess=_postprocessor,
-            last_one_only=False,
-        )
+        if len(self.filenames['forces']) == 1:
+            self.data['forces'] = [
+                [
+                    list(atom.coords) for atom in step
+                ]
+                for step in XYZ.from_file(self.filenames['forces'][0]).all_molecules
+            ]
+        else:
+            header_pattern = r"ATOMIC FORCES.+Z"
+            row_pattern = (
+                r"\s+\d+\s+\d+\s+\w+\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)"
+            )
+            footer_pattern = r"SUM OF ATOMIC FORCES"
+
+            self.data["forces"] = self.read_table_pattern(
+                header_pattern=header_pattern,
+                row_pattern=row_pattern,
+                footer_pattern=footer_pattern,
+                postprocess=_postprocessor,
+                last_one_only=False,
+            )
 
     def parse_stresses(self):
         """
         Get the stresses from the output file.
         """
-        header_pattern = r"STRESS TENSOR.+Z"
-        row_pattern = r"\s+\w+\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)"
-        footer_pattern = r"^$"
+        if len(self.filenames['stress']) == 1:
+            dat = np.loadtxt(self.filenames['stress'][0], skiprows=1)
+            self.data['stress_tensor'] = [
+                [
+                    list(d[2:5]), list(d[5:8]), list(d[8:11])
+                ]
+                for d in dat
+            ]
+        else:
+            header_pattern = r"STRESS TENSOR.+Z"
+            row_pattern = r"\s+\w+\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)"
+            footer_pattern = r"^$"
 
-        self.data["stress_tensor"] = self.read_table_pattern(
-            header_pattern=header_pattern,
-            row_pattern=row_pattern,
-            footer_pattern=footer_pattern,
-            postprocess=_postprocessor,
-            last_one_only=False,
-        )
+            self.data["stress_tensor"] = self.read_table_pattern(
+                header_pattern=header_pattern,
+                row_pattern=row_pattern,
+                footer_pattern=footer_pattern,
+                postprocess=_postprocessor,
+                last_one_only=False,
+            )
 
-        trace_pattern = re.compile(r"Trace\(stress tensor.+(-?\d+\.\d+E?-?\d+)")
-        self.read_pattern(
-            {"stress": trace_pattern},
-            terminate_on_match=False,
-            postprocess=float,
-            reverse=False,
-        )
+            trace_pattern = re.compile(r"Trace\(stress tensor.+(-?\d+\.\d+E?-?\d+)")
+            self.read_pattern(
+                {"stress": trace_pattern},
+                terminate_on_match=False,
+                postprocess=float,
+                reverse=False,
+            )
 
     def parse_ionic_steps(self):
         """
         Parse the ionic step info
         """
         self.ionic_steps = []
+
+        # TODO: find a better workaround. Currently when optimization is done there
+        # is an extra scf step before the optimization starts causing size difference
+        if len(self.structures) + 1 == len(self.data['total_energy']):
+            self.data['total_energy'] = self.data['total_energy'][1:]
+
         for i in range(len(self.data["total_energy"])):
             self.ionic_steps.append({})
             try:
@@ -490,7 +515,7 @@ class Cp2kOutput:
             except (TypeError, IndexError):
                 pass
             try:
-                self.ionic_steps[i]["stress"] = self.data["stress"][i][0]
+                self.ionic_steps[i]["stress_tensor"] = self.data["stress_tensor"][i][0]
             except (TypeError, IndexError):
                 pass
             try:
