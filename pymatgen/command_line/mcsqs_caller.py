@@ -25,6 +25,7 @@ class Sqs(NamedTuple):
     bestsqs: Structure
     objective_function: Union[float, Literal["Perfect_match"]]
     allsqs: List
+    clusters: List
     directory: str
 
 
@@ -234,9 +235,55 @@ def _parse_sqs_path(path) -> Sqs:
             obj = "Perfect_match"
         allsqs.append({"structure": sqs, "objective_function": obj})
 
+    clusters = _parse_clusters(path / "clusters.out")
+
     return Sqs(
         bestsqs=bestsqs,
         objective_function=objective_function,
         allsqs=allsqs,
         directory=str(path.resolve()),
+        clusters=clusters
     )
+
+
+def _parse_clusters(filename):
+    """
+    Private function to parse clusters.out file
+    Args:
+        path: directory to perform parsing
+
+    Returns:
+        List of dicts
+    """
+
+    with open(filename, "r") as f:
+        lines = f.readlines()
+
+    clusters = []
+    cluster_block = []
+    for line in lines:
+        line = line.split("\n")[0]
+        if line == '':
+            clusters.append(cluster_block)
+            cluster_block = []
+        else:
+            cluster_block.append(line)
+
+    cluster_dicts = []
+    for cluster in clusters:
+        cluster_dict = {"multiplicity": int(cluster[0]),
+                        "longest_pair_length": float(cluster[1]),
+                        "num_points_in_cluster": int(cluster[2])}
+        points = []
+        for point in range(cluster_dict["num_points_in_cluster"]):
+            line = cluster[3 + point].split(" ")
+            point_dict = {}
+            point_dict["coordinates"] = [float(line) for line in line[0:3]]
+            point_dict["num_possible_species_minus_2"] = int(line[3])
+            point_dict["cluster_function"] = float(line[4])
+            points.append(point_dict)
+
+        cluster_dict["coordinates"] = points
+        cluster_dicts.append(cluster_dict)
+
+    return cluster_dicts
