@@ -297,7 +297,7 @@ class Critic2Caller:
 
             if potcar_path:
                 potcar = Potcar.from_file(potcar_path)
-                zpsp = {p.symbol: p.zval for p in potcar}
+                zpsp = {p.element: p.zval for p in potcar}
 
         if not zpsp:
 
