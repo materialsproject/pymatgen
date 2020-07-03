@@ -444,7 +444,7 @@ class Slab(Structure):
         d["oriented_unit_cell"] = self.oriented_unit_cell.as_dict()
         d["miller_index"] = self.miller_index
         d["shift"] = self.shift
-        d["scale_factor"] = self.scale_factor
+        d["scale_factor"] = self.scale_factor.tolist()
         d["reconstruction"] = self.reconstruction
         d["energy"] = self.energy
         return d
@@ -798,7 +798,7 @@ class SlabGenerator:
         initial_structure.add_site_property("bulk_wyckoff",
                                             sg.get_symmetry_dataset()['wyckoffs'])
         initial_structure.add_site_property("bulk_equivalent",
-                                            sg.get_symmetry_dataset()['equivalent_atoms'])
+                                            sg.get_symmetry_dataset()['equivalent_atoms'].tolist())
         latt = initial_structure.lattice
         miller_index = _reduce_vector(miller_index)
         # Calculate the surface normal using the reciprocal lattice vector.
