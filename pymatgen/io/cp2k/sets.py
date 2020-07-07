@@ -637,8 +637,8 @@ class RelaxSet(DftSet):
     def __init__(
         self,
         structure,
-        max_drift=1e-3,
-        max_force=1e-3,
+        max_drift=3e-3,
+        max_force=4.5e-3,
         max_iter=200,
         project_name="Relax",
         optimizer="BFGS",
@@ -677,7 +677,7 @@ class RelaxSet(DftSet):
             Keyword("TYPE", "MINIMIZATION"),
             Keyword("MAX_DR", max_drift),
             Keyword("MAX_FORCE", max_force),
-            Keyword("RMS_DR", 1.0e-3),
+            Keyword("RMS_DR", 1.5e-3),
             Keyword("MAX_ITER", max_iter),
             Keyword("OPTIMIZER", optimizer),
         ]

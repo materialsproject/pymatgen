@@ -21,11 +21,11 @@ from monty.re import regrep
 from pymatgen.core.sites import Site
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.core import Spin, Orbital
-from pymatgen.electronic_structure.dos import Dos, CompleteDos, add_densities
+from pymatgen.electronic_structure.dos import Dos, add_densities
 from pymatgen.io.xyz import XYZ
 
 from pymatgen.io.cp2k.sets import Cp2kInput
-from pymatgen.io.cp2k.utils import _postprocessor
+from pymatgen.io.cp2k.utils import _postprocessor, natural_keys
 
 __author__ = "Nicholas Winner"
 __version__ = "0.2"
@@ -209,6 +209,8 @@ class Cp2kOutput:
         self.filenames["v_hartree"] = glob.glob(
             os.path.join(self.dir, "*hartree*.cube*")
         )
+        self.filenames["v_hartree"].sort(key=natural_keys)
+
         restart = glob.glob(os.path.join(self.dir, "*restart*"))
         self.filenames['restart.bak'] = []
         for r in restart:
@@ -1082,100 +1084,17 @@ class Cp2kOutput:
             postprocess=float,
         )
 
+    # TODO: Turn pdos and ldos functions into special instances of more general dos parser
     def parse_ldos(self, ldos_files=None):
         """
-        Parse the pdos files created by cp2k, and assimilate them into a CompleteDos object.
-        Either provide a list of PDOS file paths, or use glob to find the .pdos extension in
-        the calculation directory.
-
-        Args:
-            pdos_files (list): list of pdos file paths
-
-        Returns:
-            CompleteDos
+        Not implemented
         """
-        if ldos_files is None:
-            ldos_files = self.filenames["LDOS"]
-            if len(ldos_files) == 0:
-                raise FileNotFoundError(
-                    "Unable to automatically located LDOS files in the calculation directory"
-                )
-        ldoss = {}
-        for ldos_file in ldos_files:
-            if os.path.split(ldos_file)[-1].__contains__("BETA"):
-                spin = -1
-            else:
-                spin = 1
-            with zopen(ldos_file, "rt") as f:
-                lines = f.readlines()
-                site, num = re.search(r"list (\d+).+(\d+)", lines[0]).groups()
-                site = self.final_structure[
-                    int(site)
-                ]  # TODO assumes one site gets one LDOS, not always true..
-                if site not in ldoss.keys():
-                    ldoss[site] = {}
-                efermi = float(lines[0].split()[-2]) * _hartree_to_ev_
-                header = re.split(r"\s{2,}", lines[1].replace("#", "").strip())
-                dat = np.loadtxt(ldos_file)
-                dat[:, 1] = dat[:, 1] * _hartree_to_ev_
-                for i in range(len(header)):
-                    if header[i] == "d-2":
-                        header[i] = "dxy"
-                    elif header[i] == "d-1":
-                        header[i] = "dyz"
-                    elif header[i] == "d0":
-                        header[i] = "dz2"
-                    elif header[i] == "d+1":
-                        header[i] = "dxz"
-                    elif header[i] == "d+2":
-                        header[i] = "dx2"
-                    elif header[i] == "f-3":
-                        header[i] = "f_3"
-                    elif header[i] == "f-2":
-                        header[i] = "f_2"
-                    elif header[i] == "f-1":
-                        header[i] = "f_1"
-                    elif header[i] == "f0":
-                        header[i] = "f0"
-                    elif header[i] == "f+1":
-                        header[i] = "f1"
-                    elif header[i] == "f+2":
-                        header[i] = "f2"
-                    elif header[i] == "f+3":
-                        header[i] = "f3"
-                energies = []
-                for i in range(2, len(header)):
-                    if ldoss[site].get(getattr(Orbital, header[i])):
-                        continue
-                    else:
-                        ldoss[site][getattr(Orbital, header[i])] = {
-                            Spin.up: [],
-                            Spin.down: [],
-                        }
-                for r in dat:
-                    energies.append(float(r[1]))
-                    for i in range(3, len(r)):
-                        ldoss[site][getattr(Orbital, header[i - 1])][
-                            Spin(spin)
-                        ].append(r[i])
+        pass
 
-        tdos_densities = {
-            Spin.up: np.zeros(len(energies)),
-            Spin.down: np.zeros(len(energies)),
-        }
-        for site, orbitals in ldoss.items():
-            for orbital, d in orbitals.items():
-                if len(d[Spin.down]) == 0:
-                    d[Spin.down] = d[Spin.up].copy()
-                tdos_densities = add_densities(tdos_densities, d)
-
-        self.data["dos"] = CompleteDos(
-            self.final_structure,
-            Dos(efermi=efermi, energies=energies, densities=tdos_densities),
-            ldoss,
-        )
-
-    def parse_pdos(self, pdos_files=None):
+    # TODO: Pdos needs to be smeared when visualized (esp for Gamma point only DOS), but pymatgen smearing
+    # doesn't give correct looking DOS... Using in-method smearing until resolved.
+    # TODO: Turn pdos and ldos functions into special instances of more general dos parser
+    def parse_pdos(self, pdos_files=None, sigma=0.2):
         """
         Parse the pdos files created by cp2k, and assimilate them into a CompleteDos object.
         Either provide a list of PDOS file paths, or use glob to find the .pdos extension in
@@ -1234,6 +1153,16 @@ class Cp2kOutput:
                         header[i] = "f3"
                 energies = []
                 for i in range(2, len(header)):
+                    # TODO: How best to deal with this exception?
+                    # If you don't select "COMPONENTS" in PRINT/PDOS
+                    # then the names are not ang mom decomposed
+                    if header[i] == 'p':
+                        header[i] = 'px'
+                    elif header[i] == 'd':
+                        header[i] = 'dxy'
+                    elif header[i] == 'f':
+                        header[i] = 'f_3'
+
                     if pdoss[kind].get(getattr(Orbital, header[i])):
                         continue
                     else:
@@ -1247,23 +1176,57 @@ class Cp2kOutput:
                         pdoss[kind][getattr(Orbital, header[i - 1])][
                             Spin(spin)
                         ].append(r[i])
-
         tdos_densities = {
             Spin.up: np.zeros(len(energies)),
             Spin.down: np.zeros(len(energies)),
         }
+        pdos_dict = {}
         for el, orbitals in pdoss.items():
+            pdos_dict[el] = {}
+            pdos_densities = {
+                Spin.up: np.zeros(len(energies)),
+                Spin.down: np.zeros(len(energies)),
+            }
             for orbital, d in orbitals.items():
                 if len(d[Spin.down]) == 0:
                     d[Spin.down] = d[Spin.up].copy()
                 tdos_densities = add_densities(tdos_densities, d)
+                pdos_densities = add_densities(pdos_densities, d)
+
+            pdos_densities[Spin.up] = Cp2kOutput._gauss_smear(
+                pdos_densities[Spin.up], energies,
+                npts=len(energies), width=sigma)
+            pdos_densities[Spin.down] = Cp2kOutput._gauss_smear(
+                pdos_densities[Spin.down], energies,
+                npts=len(energies), width=sigma)
+
+            pdos_dict[el] = Dos(efermi=efermi,
+                                energies=np.linspace(min(energies), max(energies), len(energies)),
+                                densities=pdos_densities)
+
+        tdos_densities[Spin.up] = Cp2kOutput._gauss_smear(
+            tdos_densities[Spin.up], np.linspace(min(energies), max(energies), len(energies)),
+            npts=len(energies), width=sigma)
+        tdos_densities[Spin.down] = Cp2kOutput._gauss_smear(
+            tdos_densities[Spin.down], np.linspace(min(energies), max(energies), len(energies)),
+            npts=len(energies), width=sigma)
 
         self.data["dos"] = Dos(
             efermi=efermi, energies=energies, densities=tdos_densities
         )
         self.data[
             "pdos"
-        ] = pdoss  # TODO pymatgen dos objects are supposed to be site decomposed
+        ] = pdos_dict  # TODO pymatgen dos objects are supposed to be site decomposed
+
+    @staticmethod
+    def _gauss_smear(densities, energies, npts, width):
+        """Return a gaussian smeared DOS"""
+        d = np.zeros(npts)
+        for e, _pd in zip(energies, densities):
+            e_s = np.linspace(min(energies), max(energies), npts)
+            weight = np.exp(-((e_s - e) / width) ** 2) / (np.sqrt(np.pi) * width)
+            d += _pd * weight
+        return d
 
     def read_pattern(
         self, patterns, reverse=False, terminate_on_match=False, postprocess=str
@@ -1428,6 +1391,7 @@ def parse_energy_file(energy_file):
     return d
 
 
+# TODO: Move to pymatgen.io?
 class Cube:
     """
     From ERG Research Group with minor modifications.

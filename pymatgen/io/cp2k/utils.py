@@ -45,7 +45,18 @@ def _postprocessor(s):
         return s
 
 
-# TODO: Setting the default basis set to triple zeta double valence potential (highest accuracy). Check this.
+def natural_keys(text):
+    """
+    Sort text by numbers coming after an underscore with natural number
+    convention,
+    Ex: [file_1, file_12, file_2] becomes [file_1, file_2, file_12]
+    """
+    def atoi(t):
+        return int(t) if t.isdigit() else t
+
+    return [atoi(c) for c in re.split(r'_(\d+)', text)]
+
+
 def get_basis_and_potential(
     species, functional="PBE", basis_type="MOLOPT", cardinality="DZVP"
 ):
