@@ -24,7 +24,7 @@ class EwaldSummationTest(unittest.TestCase):
         self.original_s = p.structure
         self.s = self.original_s.copy()
         self.s.add_oxidation_state_by_element({"Li": 1, "Fe": 2,
-                                          "P": 5, "O": -2})
+                                               "P": 5, "O": -2})
 
     def tearDown(self):
         warnings.simplefilter("default")

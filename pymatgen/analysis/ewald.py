@@ -364,7 +364,7 @@ class EwaldSummation(MSONable):
             if self._compute_forces:
                 pref = 2 * expval / g2 * oxistates
                 factor = prefactor * pref * (
-                        sreal * np.sin(gr) - simag * np.cos(gr))
+                    sreal * np.sin(gr) - simag * np.cos(gr))
 
                 forces += factor[:, None] * g[None, :]
 
@@ -772,4 +772,3 @@ def compute_average_oxidation_state(site):
         raise ValueError("Ewald summation can only be performed on structures "
                          "that are either oxidation state decorated or have "
                          "site charges.")
-
