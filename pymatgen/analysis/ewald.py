@@ -462,10 +462,10 @@ class EwaldSummation(MSONable):
             "acc_factor": self._accf,
             "real_space_cut": self._rmax,
             "recip_space_cut": self._gmax,
-            "_recip": self._recip.tolist(),
-            "_real": self._real.tolist(),
-            "_point": self._point.tolist(),
-            "_forces": self._forces.tolist()
+            "_recip": None if self._recip is None else self._recip.tolist(),
+            "_real": None if self._real is None else self._real.tolist(),
+            "_point": None if self._point is None else self._point.tolist(),
+            "_forces": None if self._forces is None else self._forces.tolist()
         }
 
         return d
@@ -480,14 +480,15 @@ class EwaldSummation(MSONable):
                         recip_space_cut=d["recip_space_cut"],
                         eta=d["eta"],
                         acc_factor=d["acc_factor"],
-                        compute_forces=d["copmute_forces"])
+                        compute_forces=d["compute_forces"])
 
         # set previously computed private attributes
-        summation._recip = np.array(d["recip"])
-        summation._real = np.array(d["real"])
-        summation._point = np.array(d["point"])
-        summation._forces = np.array(d["forces"])
-        summation._initialized = True
+        if d["_recip"] is not None:
+            summation._recip = np.array(d["_recip"])
+            summation._real = np.array(d["_real"])
+            summation._point = np.array(d["_point"])
+            summation._forces = np.array(d["_forces"])
+            summation._initialized = True
 
         return summation
 
