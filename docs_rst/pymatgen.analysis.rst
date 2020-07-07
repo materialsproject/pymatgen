@@ -15,6 +15,7 @@ Subpackages
    pymatgen.analysis.gb
    pymatgen.analysis.magnetism
    pymatgen.analysis.structure_prediction
+   pymatgen.analysis.topological
    pymatgen.analysis.xas
 
 Submodules

@@ -241,6 +241,15 @@ class SlabTest(PymatgenTest):
         self.assertEqual(tuple(ranges[0]), (0, max(bottom_c)))
         self.assertEqual(tuple(ranges[1]), (min(top_c), 1))
 
+    def test_as_dict(self):
+        slabs = generate_all_slabs(self.ti, 1, 10, 10, bonds=None,
+                                   tol=1e-3, max_broken_bonds=0, lll_reduce=False, center_slab=False,
+                                   primitive=True)
+        slab = slabs[0]
+        s = json.dumps(slab.as_dict())
+        d = json.loads(s)
+        self.assertEqual(slab, Slab.from_dict(d))
+
 
 class SlabGeneratorTest(PymatgenTest):
 
