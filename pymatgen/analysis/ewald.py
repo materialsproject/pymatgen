@@ -12,11 +12,14 @@ from copy import deepcopy, copy
 from warnings import warn
 import bisect
 
+from typing import Dict
+
 import numpy as np
 from scipy.special import erfc, comb
 import scipy.constants as constants
 
 from monty.json import MSONable
+from pymatgen.core.structure import Structure
 
 
 __author__ = "Shyue Ping Ong, William Davidson Richard"
@@ -113,9 +116,10 @@ class EwaldSummation(MSONable):
 
         # Define the private attributes to lazy compute reciprocal and real
         # space terms.
-        self.__not_initialized = True
+        self._initialized = False
         self._recip = None
         self._real, self._point = None, None
+        self._forces = None
 
         # Compute the correction for a charged cell
         self._charged_cell_energy = - EwaldSummation.CONV_FACT / 2 * np.pi / \
@@ -184,9 +188,9 @@ class EwaldSummation(MSONable):
         """
         The reciprocal space energy.
         """
-        if self.__not_initialized:
+        if not self._initialized:
             self._calc_ewald_terms()
-            self.__not_initialized = False
+            self._initialized = True
         return sum(sum(self._recip))
 
     @property
@@ -196,9 +200,9 @@ class EwaldSummation(MSONable):
         corresponds to the interaction energy between site i and site j in
         reciprocal space.
         """
-        if self.__not_initialized:
+        if not self._initialized:
             self._calc_ewald_terms()
-            self.__not_initialized = False
+            self._initialized = True
         return self._recip
 
     @property
@@ -206,9 +210,9 @@ class EwaldSummation(MSONable):
         """
         The real space space energy.
         """
-        if self.__not_initialized:
+        if not self._initialized:
             self._calc_ewald_terms()
-            self.__not_initialized = False
+            self._initialized = True
         return sum(sum(self._real))
 
     @property
@@ -217,9 +221,9 @@ class EwaldSummation(MSONable):
         The real space energy matrix. Each matrix element (i, j) corresponds to
         the interaction energy between site i and site j in real space.
         """
-        if self.__not_initialized:
+        if not self._initialized:
             self._calc_ewald_terms()
-            self.__not_initialized = False
+            self._initialized = True
         return self._real
 
     @property
@@ -227,9 +231,9 @@ class EwaldSummation(MSONable):
         """
         The point energy.
         """
-        if self.__not_initialized:
+        if not self._initialized:
             self._calc_ewald_terms()
-            self.__not_initialized = False
+            self._initialized = True
         return sum(self._point)
 
     @property
@@ -238,9 +242,9 @@ class EwaldSummation(MSONable):
         The point space matrix. A diagonal matrix with the point terms for each
         site in the diagonal elements.
         """
-        if self.__not_initialized:
+        if not self._initialized:
             self._calc_ewald_terms()
-            self.__not_initialized = False
+            self._initialized = True
         return self._point
 
     @property
@@ -248,9 +252,9 @@ class EwaldSummation(MSONable):
         """
         The total energy.
         """
-        if self.__not_initialized:
+        if not self._initialized:
             self._calc_ewald_terms()
-            self.__not_initialized = False
+            self._initialized = True
         return sum(sum(self._recip)) + sum(sum(self._real)) + sum(self._point) + self._charged_cell_energy
 
     @property
@@ -262,9 +266,9 @@ class EwaldSummation(MSONable):
         Note that this does not include the charged-cell energy, which is only important
         when the simulation cell is not charge balanced.
         """
-        if self.__not_initialized:
+        if not self._initialized:
             self._calc_ewald_terms()
-            self.__not_initialized = False
+            self._initialized = True
 
         totalenergy = self._recip + self._real
         for i in range(len(self._point)):
@@ -277,9 +281,9 @@ class EwaldSummation(MSONable):
         The forces on each site as a Nx3 matrix. Each row corresponds to a
         site.
         """
-        if self.__not_initialized:
+        if not self._initialized:
             self._calc_ewald_terms()
-            self.__not_initialized = False
+            self._initialized = True
 
         if not self._compute_forces:
             raise AttributeError(
@@ -293,9 +297,9 @@ class EwaldSummation(MSONable):
             site_index (int): Index of site
         ReturnS:
             (float) - Energy of that site"""
-        if self.__not_initialized:
+        if not self._initialized:
             self._calc_ewald_terms()
-            self.__not_initialized = False
+            self._initialized = True
 
         if self._charged:
             warn('Per atom energies for charged structures not supported in EwaldSummation')
@@ -439,6 +443,53 @@ class EwaldSummation(MSONable):
                       "Total = " + str(self.total_energy),
                       "Forces were not computed"]
         return "\n".join(output)
+
+    def as_dict(self, verbosity: int = 0) -> Dict:
+        """
+        Json-serialization dict representation of EwaldSummation.
+
+        Args:
+            verbosity (int): Verbosity level. Default of 0 only includes the
+                matrix representation. Set to 1 for more details.
+        """
+
+        d = {
+            "@module": self.__class__.__module__,
+            "@class": self.__class__.__name__,
+            "structure": self._s.as_dict(),
+            "compute_forces": self._compute_forces,
+            "eta": self._eta,
+            "acc_factor": self._accf,
+            "real_space_cut": self._rmax,
+            "recip_space_cut": self._gmax,
+            "_recip": self._recip.tolist(),
+            "_real": self._real.tolist(),
+            "_point": self._point.tolist(),
+            "_forces": self._forces.tolist()
+        }
+
+        return d
+
+    @classmethod
+    def from_dict(cls, d: Dict, fmt: str = None, **kwargs):
+        """
+        Create an EwaldSummation instance from json serialized dictionary.
+        """
+        summation = cls(structure=Structure.from_dict(d["structure"]),
+                        real_space_cut=d["real_space_cut"],
+                        recip_space_cut=d["recip_space_cut"],
+                        eta=d["eta"],
+                        acc_factor=d["acc_factor"],
+                        compute_forces=d["copmute_forces"])
+
+        # set previously computed private attributes
+        summation._recip = np.array(d["recip"])
+        summation._real = np.array(d["real"])
+        summation._point = np.array(d["point"])
+        summation._forces = np.array(d["forces"])
+        summation._initialized = True
+
+        return summation
 
 
 class EwaldMinimizer:
@@ -720,3 +771,4 @@ def compute_average_oxidation_state(site):
         raise ValueError("Ewald summation can only be performed on structures "
                          "that are either oxidation state decorated or have "
                          "site charges.")
+
