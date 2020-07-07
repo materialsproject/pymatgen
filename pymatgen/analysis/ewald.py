@@ -16,6 +16,9 @@ import numpy as np
 from scipy.special import erfc, comb
 import scipy.constants as constants
 
+from monty.json import MSONable
+
+
 __author__ = "Shyue Ping Ong, William Davidson Richard"
 __copyright__ = "Copyright 2011, The Materials Project"
 __credits__ = "Christopher Fischer"
@@ -26,7 +29,7 @@ __status__ = "Production"
 __date__ = "Aug 1 2012"
 
 
-class EwaldSummation:
+class EwaldSummation(MSONable):
     """
     Calculates the electrostatic energy of a periodic array of charges using
     the Ewald technique.
@@ -108,13 +111,11 @@ class EwaldSummation:
 
         self._coords = np.array(self._s.cart_coords)
 
-        # Now we call the relevant private methods to calculate the reciprocal
-        # and real space terms.
-        (self._recip, recip_forces) = self._calc_recip()
-        (self._real, self._point, real_point_forces) = \
-            self._calc_real_and_point()
-        if self._compute_forces:
-            self._forces = recip_forces + real_point_forces
+        # Define the private attributes to lazy compute reciprocal and real
+        # space terms.
+        self.__not_initialized = True
+        self._recip = None
+        self._real, self._point = None, None
 
         # Compute the correction for a charged cell
         self._charged_cell_energy = - EwaldSummation.CONV_FACT / 2 * np.pi / \
@@ -183,6 +184,9 @@ class EwaldSummation:
         """
         The reciprocal space energy.
         """
+        if self.__not_initialized:
+            self._calc_ewald_terms()
+            self.__not_initialized = False
         return sum(sum(self._recip))
 
     @property
@@ -192,6 +196,9 @@ class EwaldSummation:
         corresponds to the interaction energy between site i and site j in
         reciprocal space.
         """
+        if self.__not_initialized:
+            self._calc_ewald_terms()
+            self.__not_initialized = False
         return self._recip
 
     @property
@@ -199,6 +206,9 @@ class EwaldSummation:
         """
         The real space space energy.
         """
+        if self.__not_initialized:
+            self._calc_ewald_terms()
+            self.__not_initialized = False
         return sum(sum(self._real))
 
     @property
@@ -207,6 +217,9 @@ class EwaldSummation:
         The real space energy matrix. Each matrix element (i, j) corresponds to
         the interaction energy between site i and site j in real space.
         """
+        if self.__not_initialized:
+            self._calc_ewald_terms()
+            self.__not_initialized = False
         return self._real
 
     @property
@@ -214,6 +227,9 @@ class EwaldSummation:
         """
         The point energy.
         """
+        if self.__not_initialized:
+            self._calc_ewald_terms()
+            self.__not_initialized = False
         return sum(self._point)
 
     @property
@@ -222,6 +238,9 @@ class EwaldSummation:
         The point space matrix. A diagonal matrix with the point terms for each
         site in the diagonal elements.
         """
+        if self.__not_initialized:
+            self._calc_ewald_terms()
+            self.__not_initialized = False
         return self._point
 
     @property
@@ -229,6 +248,9 @@ class EwaldSummation:
         """
         The total energy.
         """
+        if self.__not_initialized:
+            self._calc_ewald_terms()
+            self.__not_initialized = False
         return sum(sum(self._recip)) + sum(sum(self._real)) + sum(self._point) + self._charged_cell_energy
 
     @property
@@ -240,6 +262,10 @@ class EwaldSummation:
         Note that this does not include the charged-cell energy, which is only important
         when the simulation cell is not charge balanced.
         """
+        if self.__not_initialized:
+            self._calc_ewald_terms()
+            self.__not_initialized = False
+
         totalenergy = self._recip + self._real
         for i in range(len(self._point)):
             totalenergy[i, i] += self._point[i]
@@ -251,6 +277,10 @@ class EwaldSummation:
         The forces on each site as a Nx3 matrix. Each row corresponds to a
         site.
         """
+        if self.__not_initialized:
+            self._calc_ewald_terms()
+            self.__not_initialized = False
+
         if not self._compute_forces:
             raise AttributeError(
                 "Forces are available only if compute_forces is True!")
@@ -263,9 +293,23 @@ class EwaldSummation:
             site_index (int): Index of site
         ReturnS:
             (float) - Energy of that site"""
+        if self.__not_initialized:
+            self._calc_ewald_terms()
+            self.__not_initialized = False
+
         if self._charged:
             warn('Per atom energies for charged structures not supported in EwaldSummation')
         return np.sum(self._recip[:, site_index]) + np.sum(self._real[:, site_index]) + self._point[site_index]
+
+    def _calc_ewald_terms(self):
+        """
+        Calculates and sets all ewald terms (point, real and reciprocal)
+        """
+        self._recip, recip_forces = self._calc_recip()
+        self._real, self._point, real_point_forces = \
+            self._calc_real_and_point()
+        if self._compute_forces:
+            self._forces = recip_forces + real_point_forces
 
     def _calc_recip(self):
         """
