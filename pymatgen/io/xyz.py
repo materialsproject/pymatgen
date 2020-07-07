@@ -2,21 +2,14 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-import re
-import numpy as np
-from pymatgen.core.structure import Molecule
-from monty.io import zopen
-
 """
 Module implementing an XYZ file object class.
 """
 
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Apr 17, 2012"
+import re
+
+from pymatgen.core.structure import Molecule
+from monty.io import zopen
 
 
 class XYZ:
@@ -24,16 +17,18 @@ class XYZ:
     Basic class for importing and exporting Molecules or Structures in XYZ
     format.
 
-    Args:
-        mol: Input molecule or list of molecules
-
     .. note::
         Exporting periodic structures in the XYZ format will lose information
         about the periodicity. Essentially, only cartesian coordinates are
         written in this format and no information is retained about the
         lattice.
     """
-    def __init__(self, mol, coord_precision=6):
+    def __init__(self, mol: Molecule, coord_precision: int = 6):
+        """
+        Args:
+            mol: Input molecule or list of molecules
+            coord_precision: Precision to be used for coordinates.
+        """
         if isinstance(mol, Molecule) or not isinstance(mol, list):
             self._mols = [mol]
         else:
@@ -41,7 +36,7 @@ class XYZ:
         self.precision = coord_precision
 
     @property
-    def molecule(self):
+    def molecule(self) -> Molecule:
         """
         Returns molecule associated with this XYZ. In case multiple frame
         XYZ, returns the last frame.
@@ -79,7 +74,7 @@ class XYZ:
         return Molecule(sp, coords)
 
     @staticmethod
-    def from_string(contents, step_skip=1):
+    def from_string(contents):
         """
         Creates XYZ object from a string.
 
@@ -94,18 +89,17 @@ class XYZ:
         white_space = r"[ \t\r\f\v]"
         natoms_line = white_space + r"*\d+" + white_space + r"*\n"
         comment_line = r"[^\n]*\n"
-        coord_lines = r"(\s*\w+\s+[0-9\-\+\.eEdD]+\s+[0-9\-\+\.eEdD]+\s+[0-9\-\+\.eEdD]+\s*\n)+"
+        coord_lines = r"(\s*\w+\s+[0-9\-\+\.eEdD]+\s+[0-9\-\+\.eEdD]+\s+[0-9\-\+\.eEdD]+.*\n)+"
         frame_pattern_text = natoms_line + comment_line + coord_lines
         pat = re.compile(frame_pattern_text, re.MULTILINE)
         mols = []
-        for i, xyz_match in enumerate(pat.finditer(contents)):
+        for xyz_match in pat.finditer(contents):
             xyz_text = xyz_match.group(0)
-            if i % step_skip == 0:
-                mols.append(XYZ._from_frame_string(xyz_text))
+            mols.append(XYZ._from_frame_string(xyz_text))
         return XYZ(mols)
 
     @staticmethod
-    def from_file(filename, step_skip=1):
+    def from_file(filename):
         """
         Creates XYZ object from a file.
 
@@ -115,8 +109,8 @@ class XYZ:
         Returns:
             XYZ object
         """
-        with zopen(filename, 'rt') as f:
-            return XYZ.from_string(f.read(), step_skip)
+        with zopen(filename) as f:
+            return XYZ.from_string(f.read())
 
     def _frame_str(self, frame_mol):
         output = [str(len(frame_mol)), frame_mol.composition.formula]
