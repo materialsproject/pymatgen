@@ -17,6 +17,7 @@ from functools import lru_cache
 
 import numpy as np
 from scipy.spatial import ConvexHull
+from scipy.optimize import minimize
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element, DummySpecie, get_el_sp
@@ -579,7 +580,7 @@ class PhaseDiagram(MSONable):
         ehull = entry.energy_per_atom - np.dot(decomp_amts, energies)
         if allow_negative or ehull >= -PhaseDiagram.numerical_tol:
             return decomp, ehull
-        raise ValueError("No valid decomp found!")
+        raise ValueError("No valid decomp found for {}!".format(entry))
 
     def get_e_above_hull(self, entry):
         """
@@ -616,6 +617,145 @@ class PhaseDiagram(MSONable):
         modpd = PhaseDiagram(entries, self.elements)
         return modpd.get_decomp_and_e_above_hull(entry,
                                                  allow_negative=True)[1]
+
+    def get_decomposition_energy(self, entry):
+        """
+        NOTE a different name might be better to avoid confusion with 
+        the decomposition of unstable compounds. 
+
+        Provides the decomposition energy of an entry from the neighboring
+        stable entries excluding the entry in question. For unstable entries
+        this is the same as the energy above the hull.
+
+        Args:
+            entry: A PDEntry like object
+
+        Returns:
+            Decomposition energy per atom of entry. Stable entries should have
+            decomposition energies <= 0.
+        """
+        if entry.is_element:
+            return 0
+        elif entry not in self.stable_entries:
+            return self.get_e_above_hull(entry)
+        else:
+            decomp_products = self.decomp_products(entry)
+            if isinstance(decomp_products, float):
+                return np.nan
+            decomp_enthalpy = 0
+            for c, amt in decomp_products:
+                decomp_enthalpy += c.energy * amt
+            return (entry.energy - decomp_enthalpy) / entry.composition.num_atoms
+
+    def decomp_products(self, entry):
+        """
+        Args:
+            entry (str) - the entry (str) to analyze
+
+        Returns:
+            tuple of (composition, amt) for all entries in the competing reaction
+                np.nan if decomposition analysis fails
+        """   
+
+        # NOTE for phases diagrams with many entries even taking this subset
+        # is too large for the SLSQP optimizer. According to references it should
+        # work well up to ~300 competing entries.
+        # TODO explore other optimizers that work with equality constraints
+        competing_entries = [
+            c for c in self.all_entries if c != entry if set(c.composition.elements).issubset(entry.composition.elements)
+        ]
+
+        # TODO potentially could avoid optimization in rare cases.
+        # If the only competing entries are elements the solution is the formation energy
+        # if np.all([c.composition.is_element for c in competing_entries]):
+        #     competing_entries = [
+        #         c for c in self.stable_entries if c != entry if set(c.composition.elements).issubset(entry.composition.elements)
+        #     ]
+        #     decomp_products = [c for c in competing_entries if c.is_element]
+        #     decomp_amts = [0] * len(competing_entries)
+        #     amts = entry.composition.get_el_amt_dict()
+        #     for i, comp in enumerate(competing_entries):
+        #         comp_amts = comp.get_el_amt_dict()
+        #         for el in amts:
+        #             if comp_amts[el] != 0:
+        #                 decomp_amts[i] = amts[el]/comp_amts[el]
+
+        #     return tuple(zip(competing_entries, decomp_amts))
+
+        solution = self._decomp_solution(entry, competing_entries)
+
+        min_amt_to_show = 1e-4
+
+        if solution.success:
+            decomp_amts = solution.x
+            decomp_products = list(zip(competing_entries, decomp_amts))
+            relevant_decomp_products = tuple([(comp, amt) for comp, amt in decomp_products if amt > min_amt_to_show])
+            return relevant_decomp_products
+        else:
+            print("Failed to find decomposition energy for {}".format(entry))
+            # return NaN if no solution is found
+            return np.nan
+
+    def _decomp_solution(self, entry, competing_entries):
+        """
+        Args:
+            entry - the entry to analyze
+            competing_entries - the entries in the same chemical space
+
+        Returns:
+            scipy.optimize.minimize result
+                for finding the linear combination of competing entrys that
+                minimizes the competing formation energy
+        """
+        # elemental amount present in given entry
+        amts = entry.composition.get_el_amt_dict()
+        chemical_space = tuple(amts.keys())
+        b = np.array([amts[el] for el in chemical_space])
+
+        # elemental amounts present in competing entries
+        A_transpose = np.zeros((len(chemical_space), len(competing_entries)))
+        for j, comp_entry in enumerate(competing_entries):
+            amts = comp_entry.composition.get_el_amt_dict()
+            # print(amts)
+            for i, el in enumerate(chemical_space):
+                A_transpose[i, j] = amts[el]
+
+        # energies of competing entries
+        Es = np.array([comp_entry.energy for comp_entry in competing_entries])
+
+        def competing_formation_energy(nj):
+            nj = np.array(nj)
+            return np.dot(nj, Es)
+
+        molar_constraint = {
+            'type': 'eq',
+            'fun': lambda x: np.dot(A_transpose, x)-b
+        }
+
+        options = {
+            "maxiter": 1000,
+            "disp": False
+        }
+
+        max_bound = entry.composition.num_atoms
+        bounds = [(0, max_bound)] * len(competing_entries)
+        # n0 = [0.01] * len(competing_entries)
+        n0 = np.random.rand(len(competing_entries))
+        # n0 = [1/len(competing_entries)] * len(competing_entries)
+
+        for tol in [1e-4, 1e-3, 5e-3, 1e-2]:
+            solution = minimize(competing_formation_energy,
+                                n0,
+                                # method="COBYLA",
+                                method="SLSQP",
+                                bounds=bounds,
+                                constraints=[molar_constraint],
+                                tol=tol,
+                                options=options)
+            if solution.success:
+                return solution
+
+        return solution
 
     def get_composition_chempots(self, comp):
         """
