@@ -40,7 +40,7 @@ _static_run_names_ = [
     "WAVEFUNCTION_OPTIMIZATION",
     "WFN_OPT",
 ]
-_bohr_to_angstrom_ = 5.29177208590000e-01
+from pymatgen.core.units import bohr_to_angstrom as _bohr_to_angstrom_
 
 
 class Cp2kOutput:
