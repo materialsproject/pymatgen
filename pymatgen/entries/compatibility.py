@@ -264,15 +264,20 @@ class AnionCorrection(Correction):
 
         correction = ufloat(0.0, 0.0)
 
-        # set error to 0 because old MPCompatibility doesn't have errors
-
         # Check for sulfide corrections
         if Element("S") in comp:
             sf_type = "sulfide"
+
             if entry.data.get("sulfide_type"):
                 sf_type = entry.data["sulfide_type"]
             elif hasattr(entry, "structure"):
+                warnings.warn(sf_type)
                 sf_type = sulfide_type(entry.structure)
+
+            # use the same correction for polysulfides and sulfides
+            if sf_type == "polysulfide":
+                sf_type = "sulfide"
+
             if sf_type in self.sulfide_correction:
                 correction += self.sulfide_correction[sf_type] * comp["S"]
 
@@ -367,6 +372,11 @@ class CompositionCorrection(Correction):
                 sf_type = entry.data["sulfide_type"]
             elif hasattr(entry, "structure"):
                 sf_type = sulfide_type(entry.structure)
+
+            # use the same correction for polysulfides and sulfides
+            if sf_type == "polysulfide":
+                sf_type = "sulfide"
+
             if sf_type in self.comp_correction:
                 correction += (
                     ufloat(self.comp_correction[sf_type], self.comp_errors[sf_type])

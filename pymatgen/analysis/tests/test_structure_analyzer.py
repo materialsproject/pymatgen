@@ -202,7 +202,7 @@ class MiscFunctionTest(PymatgenTest):
         self.assertEqual(oxide_type(struct, 1.1), "None")
 
     def test_sulfide_type(self):
-        # NaS2 -> sulfide
+        # NaS2 -> polysulfide
         latt = Lattice.tetragonal(9.59650, 11.78850)
         species = ["Na"] * 2 + ["S"] * 2
         coords = [[0.00000, 0.00000, 0.17000],
@@ -210,7 +210,7 @@ class MiscFunctionTest(PymatgenTest):
                   [0.03400, 0.25000, 0.29600],
                   [0.14700, 0.11600, 0.40000]]
         struct = Structure.from_spacegroup(122, latt, species, coords)
-        self.assertEqual(sulfide_type(struct), "sulfide")
+        self.assertEqual(sulfide_type(struct), "polysulfide")
 
         # NaCl type NaS -> sulfide
         latt = Lattice.cubic(5.75)

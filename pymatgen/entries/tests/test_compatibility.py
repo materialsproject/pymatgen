@@ -1630,8 +1630,6 @@ class SulfideTypeCorrection2020Test(unittest.TestCase):
     def test_struct_no_struct(self):
         # Processing an Entry should produce the same correction whether or not
         # that entry has a Structure attached to it.
-        # This test will FAIL in previous version of pymatgen in which
-        # 'polysulfide' was a valid output from structure_analyzer.sulfide_type()
 
         # Na2S2, entry mp-2400, with and without structure
         from collections import defaultdict

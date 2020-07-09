@@ -603,13 +603,13 @@ def oxide_type(structure, relative_cutoff=1.1, return_nbonds=False):
 
 def sulfide_type(structure):
     """
-    Determines if a structure is a sulfide/sulfate
+    Determines if a structure is a sulfide/polysulfide/sulfate
 
     Args:
         structure (Structure): Input structure.
 
     Returns:
-        (str) sulfide/sulfate
+        (str) sulfide/polysulfide/sulfate
     """
     structure = structure.copy()
     structure.remove_oxidation_states()
@@ -642,11 +642,15 @@ def sulfide_type(structure):
         avg_electroneg = np.mean([e.X for e in coord_elements])
         if avg_electroneg > s.X:
             return "sulfate"
+        elif avg_electroneg == s.X and s in coord_elements:
+            return "polysulfide"
         else:
             return "sulfide"
 
     types = set([process_site(site) for site in s_sites])
     if "sulfate" in types:
         return None
+    elif "polysulfide" in types:
+        return "polysulfide"
     else:
         return "sulfide"
