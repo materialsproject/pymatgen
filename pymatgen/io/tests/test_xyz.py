@@ -178,10 +178,10 @@ O 9.960184 1.516793 1.393875"""
         test_df.insert(0, "atom", ["C", "H", "H", "H", "H"])
         test_df.index += 1
         coords2 = [[0.000000, 0.000000, 0.000000],
-                  [0.000000, 0.000000, 1.089000],
-                  [1.026719, 0.000000, 0.363000],
-                  [0.513360, 0.889165, 0.363000],
-                  [0.513360, 0.889165, 0.363000]]
+                   [0.000000, 0.000000, 1.089000],
+                   [1.026719, 0.000000, 0.363000],
+                   [0.513360, 0.889165, 0.363000],
+                   [0.513360, 0.889165, 0.363000]]
         test_df2 = pd.DataFrame(coords2, columns=['x', 'y', 'z'])
         test_df2.insert(0, "atom", ["C", "H", "H", "H", "H"])
         test_df2.index += 1
@@ -193,6 +193,7 @@ O 9.960184 1.516793 1.393875"""
         # index tests
         np.testing.assert_array_equal(mol_df.columns, test_df.columns)
         np.testing.assert_array_equal(mol_df.index, test_df.index)
+
 
 if __name__ == "__main__":
     unittest.main()
