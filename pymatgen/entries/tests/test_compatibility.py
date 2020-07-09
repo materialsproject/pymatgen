@@ -1441,11 +1441,6 @@ class MITCompatibilityTest(unittest.TestCase):
         temp_compat = decoder.process_decoded(compat_dict)
         self.assertIsInstance(temp_compat, MITCompatibility)
 
-    def test_deprecation_warning(self):
-        # test that initializing compatibility causes deprecation warning
-        with self.assertWarns(DeprecationWarning):
-            MITCompatibility(check_potcar_hash=True)
-
 
 class OxideTypeCorrectionTest(unittest.TestCase):
     def setUp(self):
@@ -2174,11 +2169,6 @@ class MITAqueousCompatibilityTest(unittest.TestCase):
             },
         )
         self.assertIsNone(self.compat.process_entry(entry))
-
-    def test_deprecation_warning(self):
-        # test that initializing compatibility causes deprecation warning
-        with self.assertWarns(DeprecationWarning):
-            MITAqueousCompatibility(check_potcar_hash=True)
 
 
 class CorrectionErrors2020CompatibilityTest(unittest.TestCase):
