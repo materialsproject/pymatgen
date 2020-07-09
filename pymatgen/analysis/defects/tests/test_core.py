@@ -19,14 +19,13 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
 
 class DefectsCoreTest(PymatgenTest):
 
-    def test_super_cell_lattice_mismatch(self):
+    def test_supercell_lattice_mismatch(self):
         struct = Structure.from_file(
                 os.path.join(self.TEST_FILES_DIR, "POSCAR.CdS_HSE"))
 
         import tempfile
         with tempfile.TemporaryDirectory() as tmpdir:
-            struct.to(
-                    fmt="poscar", filename=os.path.join(tmpdir, "POSCAR_copy"))
+            struct.to("poscar", os.path.join(tmpdir, "POSCAR_copy"))
             struct_copy = Structure.from_file(
                     os.path.join(tmpdir, "POSCAR_copy"))
         self.assertEqual(struct.lattice, struct_copy.lattice)
