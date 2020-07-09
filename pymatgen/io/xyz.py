@@ -10,6 +10,8 @@ import re
 
 from pymatgen.core.structure import Molecule
 from monty.io import zopen
+from io import StringIO
+import pandas as pd
 
 
 class XYZ:
@@ -114,6 +116,28 @@ class XYZ:
         """
         with zopen(filename) as f:
             return XYZ.from_string(f.read())
+
+    def as_dataframe(self):
+        """
+        Generates a coordinates data frame with columns: atom, x, y, and z
+        In case of multiple frame XYZ, returns the last frame.
+
+        Returns:
+            pandas.DataFrame
+
+        """
+        lines = str(self)
+
+        sio = StringIO(lines)
+        df = pd.read_csv(sio,
+                         header=None,
+                         skiprows=[0,1],
+                         comment="#",
+                         delim_whitespace=True,
+                         names=['atom', 'x', 'y', 'z'])
+        df.index += 1
+        return df
+
 
     def _frame_str(self, frame_mol):
         output = [str(len(frame_mol)), frame_mol.composition.formula]

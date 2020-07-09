@@ -22,7 +22,7 @@ except ImportError:
 from pymatgen import Molecule
 from pymatgen.core.operations import SymmOp
 from pymatgen.util.coord import get_angle
-from ..babel import BabelMolAdaptor
+from pymatgen.io.babel import BabelMolAdaptor
 
 from monty.os.path import which
 from monty.tempfile import ScratchDir
@@ -264,14 +264,14 @@ class PackmolRunner:
             for idx, mol in enumerate(self.mols):
                 filename = os.path.join(
                     input_dir, '{}.{}'.format(
-                        idx, self.control_params["filetype"])).encode("ascii")
+                        idx, self.control_params["filetype"]))
                 # pdb
                 if self.control_params["filetype"] == "pdb":
                     self.write_pdb(mol, filename, num=idx + 1)
                 # all other filetypes
                 else:
                     a = BabelMolAdaptor(mol)
-                    pm = pb.Molecule(a.openbabel_mol) ##
+                    pm = pb.Molecule(a.openbabel_mol)
                     pm.write(self.control_params["filetype"], filename=filename,
                              overwrite=True)
 
