@@ -1046,9 +1046,6 @@ class MITCompatibility(CorrectionsList):
     this compatibility scheme on runs with different parameters is not valid.
     """
 
-    @deprecated(
-        message=("MITCompatibility will be updated with new correction classes in 2020")
-    )
     def __init__(
         self, compat_type="Advanced", correct_peroxide=True, check_potcar_hash=False
     ):
@@ -1087,11 +1084,6 @@ class MITAqueousCompatibility(CorrectionsList):
     this compatibility scheme on runs with different parameters is not valid.
     """
 
-    @deprecated(
-        message=(
-            "MITAqueousCompatibility will be updated with new correction classes in 2020"
-        )
-    )
     def __init__(
         self, compat_type="Advanced", correct_peroxide=True, check_potcar_hash=False
     ):
