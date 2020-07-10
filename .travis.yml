@@ -2,7 +2,7 @@ services:
   - mysql
 language: python
 python:
-  - "3.6"
+  - "3.7"
 env:
   global:
     - secure: "LQDypjfjcQYVN1NYPYfBz1VqMSqjNQqEqGBp+R6u/opf8bRUtYUGdK1gR356U3ApPzgLl906M3rI2ZMNqxiROdB6RDZrDEzXLhushwCfqt0C9qmZFLsj7TtGCMT8qHahU/sfYKntYxlWDgTbvFVrHhmg6brWEObPYny5FUidJc4="
