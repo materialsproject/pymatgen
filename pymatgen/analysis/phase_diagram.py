@@ -12,8 +12,8 @@ import itertools
 import math
 import logging
 
-from monty.json import MSONable, MontyDecoder
 from functools import lru_cache
+from monty.json import MSONable, MontyDecoder
 
 import numpy as np
 from scipy.spatial import ConvexHull
@@ -609,14 +609,18 @@ class PhaseDiagram(MSONable):
             equilibrium reaction energy <= 0.
         """
         if entry not in self.stable_entries:
+            # NOTE Comprhys: wouldn't rasing a warning and returning NaN be 
+            # a better solution than raising an Error? as this would interupt a
+            # whole program even if it could complete with a NaN.
             raise ValueError("Equilibrium reaction energy is available only "
                              "for stable entries.")
         if entry.is_element:
             return 0
         entries = [e for e in self.stable_entries if e != entry]
         modpd = PhaseDiagram(entries, self.elements)
-        return modpd.get_decomp_and_e_above_hull(entry,
-                                                 allow_negative=True)[1]
+        # NOTE Comprhys: I have found examples where this doesn't give a
+        # decomposition that maintains the correct stoichiometry.
+        return modpd.get_decomp_and_e_above_hull(entry, allow_negative=True)[1]
 
     def get_decomposition_energy(self, entry):
         """
@@ -639,67 +643,63 @@ class PhaseDiagram(MSONable):
         elif entry not in self.stable_entries:
             return self.get_e_above_hull(entry)
         else:
-            decomp_products = self.decomp_products(entry)
-            if isinstance(decomp_products, float):
-                return np.nan
-            decomp_enthalpy = 0
-            for c, amt in decomp_products:
-                decomp_enthalpy += c.energy * amt
-            return (entry.energy - decomp_enthalpy) / entry.composition.num_atoms
+            return self.get_decomp_and_energy(entry)[1]
 
-    def decomp_products(self, entry):
+    def get_decomp_and_energy(self, entry, space_limit=200):
         """
         Args:
-            entry (str) - the entry (str) to analyze
+            entry (PDEntry): A PDEntry like object.
+            space_limit (int): The maximum number of competing entries to consider.
 
         Returns:
-            tuple of (composition, amt) for all entries in the competing reaction
-                np.nan if decomposition analysis fails
+            tuple of (PDEntry, amt) for all entries in the competing reaction.
+                If decomposition analysis fails returns ((), np.nan).
         """   
 
-        # NOTE for phases diagrams with many entries even taking this subset
-        # is too large for the SLSQP optimizer. According to references it should
-        # work well up to ~300 competing entries.
-        # TODO explore other optimizers that work with equality constraints
+        # Select a first pass at competing entries as being all the compositions.
+        # TODO reduce space futher to only those with negative formation enthalpies
         competing_entries = [
-            c for c in self.all_entries if c != entry if set(c.composition.elements).issubset(entry.composition.elements)
+            c for c in self.all_entries if c != entry
+                if set(c.composition.elements).issubset(entry.composition.elements)
         ]
 
-        # TODO potentially could avoid optimization in rare cases.
-        # If the only competing entries are elements the solution is the formation energy
-        # if np.all([c.composition.is_element for c in competing_entries]):
-        #     competing_entries = [
-        #         c for c in self.stable_entries if c != entry if set(c.composition.elements).issubset(entry.composition.elements)
-        #     ]
-        #     decomp_products = [c for c in competing_entries if c.is_element]
-        #     decomp_amts = [0] * len(competing_entries)
-        #     amts = entry.composition.get_el_amt_dict()
-        #     for i, comp in enumerate(competing_entries):
-        #         comp_amts = comp.get_el_amt_dict()
-        #         for el in amts:
-        #             if comp_amts[el] != 0:
-        #                 decomp_amts[i] = amts[el]/comp_amts[el]
+        # TODO potentially could avoid optimization in rare cases where the only competing
+        # entries are elements as then the solution is just the formation energy.
 
-        #     return tuple(zip(competing_entries, decomp_amts))
+        # NOTE SLSQP optimizer doesn't scale well for > 300 competing entries. As a result
+        # in phase diagrams where we have too many competing entries we can reduce the number
+        # by looking at the first and second convex hulls
+        if len(competing_entries) > space_limit:
+            inner_hull = PhaseDiagram(
+                list(set(competing_entries).intersection(set(self.unstable_entries))) + \
+                    list(self.el_refs.values())
+            )
+            competing_entries = list(self.stable_entries.union(inner_hull.stable_entries))
+            competing_entries = [c for c in competing_entries if c != entry]
 
         solution = self._decomp_solution(entry, competing_entries)
-
-        min_amt_to_show = 1e-4
 
         if solution.success:
             decomp_amts = solution.x
             decomp_products = list(zip(competing_entries, decomp_amts))
-            relevant_decomp_products = tuple([(comp, amt) for comp, amt in decomp_products if amt > min_amt_to_show])
-            return relevant_decomp_products
+            relevant_decomp_products = tuple(
+                [(comp, amt) for comp, amt in decomp_products
+                    if amt > PhaseDiagram.numerical_tol]
+            )
+
+            decomp_enthalpy = 0
+            for c, amt in relevant_decomp_products:
+                decomp_enthalpy += c.energy * amt
+            decomp_enthalpy = (entry.energy - decomp_enthalpy) / entry.composition.num_atoms
+            return relevant_decomp_products, decomp_enthalpy
         else:
-            print("Failed to find decomposition energy for {}".format(entry))
-            # return NaN if no solution is found
-            return np.nan
+            # Return empty tuple and NaN if no valid solution found.
+            return (), np.nan
 
     def _decomp_solution(self, entry, competing_entries):
         """
         Args:
-            entry - the entry to analyze
+            entry (PDEntry) - the entry to analyze
             competing_entries - the entries in the same chemical space
 
         Returns:
@@ -716,20 +716,16 @@ class PhaseDiagram(MSONable):
         A_transpose = np.zeros((len(chemical_space), len(competing_entries)))
         for j, comp_entry in enumerate(competing_entries):
             amts = comp_entry.composition.get_el_amt_dict()
-            # print(amts)
             for i, el in enumerate(chemical_space):
                 A_transpose[i, j] = amts[el]
 
         # energies of competing entries
         Es = np.array([comp_entry.energy for comp_entry in competing_entries])
 
-        def competing_formation_energy(nj):
-            nj = np.array(nj)
-            return np.dot(nj, Es)
-
         molar_constraint = {
-            'type': 'eq',
-            'fun': lambda x: np.dot(A_transpose, x)-b
+            "type": "eq",
+            "fun": lambda x: np.dot(A_transpose, x)-b,
+            "jac": lambda x: A_transpose
         }
 
         options = {
@@ -739,15 +735,13 @@ class PhaseDiagram(MSONable):
 
         max_bound = entry.composition.num_atoms
         bounds = [(0, max_bound)] * len(competing_entries)
-        # n0 = [0.01] * len(competing_entries)
-        n0 = np.random.rand(len(competing_entries))
-        # n0 = [1/len(competing_entries)] * len(competing_entries)
+        x0 = [1/len(competing_entries)] * len(competing_entries)
 
         for tol in [1e-4, 1e-3, 5e-3, 1e-2]:
-            solution = minimize(competing_formation_energy,
-                                n0,
-                                # method="COBYLA",
+            solution = minimize(fun=lambda x: np.dot(x, Es),
+                                x0=x0,
                                 method="SLSQP",
+                                jac=lambda x: Es,
                                 bounds=bounds,
                                 constraints=[molar_constraint],
                                 tol=tol,
