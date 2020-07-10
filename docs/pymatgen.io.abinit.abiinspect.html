@@ -221,7 +221,7 @@ by extracting information from the main output file (text format).</p>
 
 <dl class="py method">
 <dt id="pymatgen.io.abinit.abiinspect.CyclesPlotter.combiplot">
-<code class="sig-name descname">combiplot</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.7.3/pymatgen/util/plotting.py#L276-L291"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.CyclesPlotter.combiplot" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">combiplot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fontsize</span><span class="o">=</span><span class="default_value">8</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.7.3/pymatgen/util/plotting.py#L276-L291"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.CyclesPlotter.combiplot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compare multiple cycels on a grid: one subplot per quantity,
 all cycles on the same subplot.</p>
 <dl class="field-list simple">
@@ -362,7 +362,7 @@ the data as function of the relaxation step.</p>
 
 <dl class="py method">
 <dt id="pymatgen.io.abinit.abiinspect.Relaxation.plot">
-<code class="sig-name descname">plot</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.7.3/pymatgen/util/plotting.py#L400-L456"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.Relaxation.plot" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">plot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ax_list</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fontsize</span><span class="o">=</span><span class="default_value">12</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.7.3/pymatgen/util/plotting.py#L400-L456"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.Relaxation.plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot relaxation history i.e. the results of the last iteration of each SCF cycle.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -470,7 +470,7 @@ to list of floats containing the data at the different iterations.</p>
 
 <dl class="py method">
 <dt id="pymatgen.io.abinit.abiinspect.ScfCycle.plot">
-<code class="sig-name descname">plot</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.7.3/pymatgen/util/plotting.py#L175-L233"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.ScfCycle.plot" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">plot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ax_list</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fontsize</span><span class="o">=</span><span class="default_value">12</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.7.3/pymatgen/util/plotting.py#L175-L233"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.ScfCycle.plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Uses matplotlib to plot the evolution of the SCF cycle.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>

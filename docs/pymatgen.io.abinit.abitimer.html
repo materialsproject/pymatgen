@@ -225,7 +225,7 @@ It also provides tools to analye and to visualize the parallel efficiency.</p>
 </dl>
 <dl class="py method">
 <dt id="pymatgen.io.abinit.abitimer.AbinitTimer.cpuwall_histogram">
-<code class="sig-name descname">cpuwall_histogram</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.7.3/pymatgen/util/plotting.py#L815-L847"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimer.cpuwall_histogram" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">cpuwall_histogram</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ax</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.7.3/pymatgen/util/plotting.py#L815-L847"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimer.cpuwall_histogram" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot histogram with cpu- and wall-time on axis <cite>ax</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -315,7 +315,7 @@ Return the names of the sections and the corresponding values.</p>
 
 <dl class="py method">
 <dt id="pymatgen.io.abinit.abitimer.AbinitTimer.pie">
-<code class="sig-name descname">pie</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.7.3/pymatgen/util/plotting.py#L849-L867"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimer.pie" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">pie</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span><span class="o">=</span><span class="default_value">'wall_time'</span></em>, <em class="sig-param"><span class="n">minfract</span><span class="o">=</span><span class="default_value">0.05</span></em>, <em class="sig-param"><span class="n">ax</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.7.3/pymatgen/util/plotting.py#L849-L867"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimer.pie" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot pie chart for this timer.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -372,7 +372,7 @@ Default: False</p></td>
 
 <dl class="py method">
 <dt id="pymatgen.io.abinit.abitimer.AbinitTimer.scatter_hist">
-<code class="sig-name descname">scatter_hist</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.7.3/pymatgen/util/plotting.py#L869-L923"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimer.scatter_hist" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">scatter_hist</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ax</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.7.3/pymatgen/util/plotting.py#L869-L923"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimer.scatter_hist" title="Permalink to this definition">¶</a></dt>
 <dd><p>Scatter plot + histogram.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -516,7 +516,7 @@ Files that cannot be opened are ignored. A single filename may also be given.</p
 
 <dl class="py method">
 <dt id="pymatgen.io.abinit.abitimer.AbinitTimerParser.plot_efficiency">
-<code class="sig-name descname">plot_efficiency</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.7.3/pymatgen/util/plotting.py#L321-L396"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerParser.plot_efficiency" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">plot_efficiency</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span><span class="o">=</span><span class="default_value">'wall_time'</span></em>, <em class="sig-param"><span class="n">what</span><span class="o">=</span><span class="default_value">'good+bad'</span></em>, <em class="sig-param"><span class="n">nmax</span><span class="o">=</span><span class="default_value">5</span></em>, <em class="sig-param"><span class="n">ax</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.7.3/pymatgen/util/plotting.py#L321-L396"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerParser.plot_efficiency" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the parallel efficiency</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -598,7 +598,7 @@ Default: False</p></td>
 
 <dl class="py method">
 <dt id="pymatgen.io.abinit.abitimer.AbinitTimerParser.plot_pie">
-<code class="sig-name descname">plot_pie</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.7.3/pymatgen/util/plotting.py#L398-L423"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerParser.plot_pie" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">plot_pie</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span><span class="o">=</span><span class="default_value">'wall_time'</span></em>, <em class="sig-param"><span class="n">minfract</span><span class="o">=</span><span class="default_value">0.05</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.7.3/pymatgen/util/plotting.py#L398-L423"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerParser.plot_pie" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot pie charts of the different timers.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -656,7 +656,7 @@ Default: False</p></td>
 
 <dl class="py method">
 <dt id="pymatgen.io.abinit.abitimer.AbinitTimerParser.plot_stacked_hist">
-<code class="sig-name descname">plot_stacked_hist</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.7.3/pymatgen/util/plotting.py#L425-L485"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerParser.plot_stacked_hist" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">plot_stacked_hist</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span><span class="o">=</span><span class="default_value">'wall_time'</span></em>, <em class="sig-param"><span class="n">nmax</span><span class="o">=</span><span class="default_value">5</span></em>, <em class="sig-param"><span class="n">ax</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.7.3/pymatgen/util/plotting.py#L425-L485"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerParser.plot_stacked_hist" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot stacked histogram of the different timers.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
