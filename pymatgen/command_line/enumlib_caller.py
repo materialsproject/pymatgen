@@ -8,7 +8,7 @@ code for enumerating derivative structures.
 
 This module depends on a compiled enumlib with the executables enum.x and
 makestr.x available in the path. Please download the library at
-http://enum.sourceforge.net/ and follow the instructions in the README to
+https://github.com/msg-byu/enumlib and follow the instructions in the README to
 compile these two executables accordingly.
 
 If you use this module, please cite the following:
@@ -67,8 +67,8 @@ makestr_cmd = which('makestr.x') or which('makeStr.x') or which('makeStr.py')
 @requires(enum_cmd and makestr_cmd,
           "EnumlibAdaptor requires the executables 'enum.x' or 'multienum.x' "
           "and 'makestr.x' or 'makeStr.py' to be in the path. Please download the "
-          "library at http://enum.sourceforge.net/ and follow the instructions in "
-          "the README to compile these two executables accordingly.")
+          "library at https://github.com/msg-byu/enumlib and follow the instructions "
+          "in the README to compile these two executables accordingly.")
 class EnumlibAdaptor:
     """
     An adaptor for enumlib.
