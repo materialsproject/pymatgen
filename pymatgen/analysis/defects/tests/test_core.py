@@ -18,6 +18,31 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
 
 
 class DefectsCoreTest(PymatgenTest):
+
+    def test_supercell_lattice_mismatch(self):
+        struct = Structure.from_file(
+                os.path.join(self.TEST_FILES_DIR, "POSCAR.CdS_HSE"))
+
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmpdir:
+            struct.to("poscar", os.path.join(tmpdir, "POSCAR_copy"))
+            struct_copy = Structure.from_file(
+                    os.path.join(tmpdir, "POSCAR_copy"))
+        self.assertEqual(struct.lattice, struct_copy.lattice)
+        
+        # The default lattice match doesn't work for supercells routinely 
+        # created in defects modeling especially with pymatgen's rounding
+        # when writing structure objects to POSCAR files
+        struct.make_supercell([4, 4, 2])
+        struct_copy.make_supercell([4, 4, 2])
+        self.assertNotEqual(struct.lattice, struct_copy.lattice)
+
+        # Looser absolute tolerance for defect supercells
+        lattice_match = np.allclose(struct.lattice.matrix,
+                                    struct_copy.lattice.matrix,
+                                    atol=1e-5)
+        self.assertTrue(lattice_match)
+
     def test_vacancy(self):
         struc = PymatgenTest.get_structure("VO2")
         V_index = struc.indices_from_symbol("V")[0]
