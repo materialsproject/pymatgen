@@ -22,6 +22,10 @@ multilattices: Application to hcp alloys," Phys. Rev. B 80 014120 (July 2009)
 Gus L. W. Hart, Lance J. Nelson, and Rodney W. Forcade, "Generating
 derivative structures at a fixed concentration," Comp. Mat. Sci. 59
 101-107 (March 2012)
+
+Wiley S. Morgan, Gus L. W. Hart, Rodney W. Forcade, "Generating derivative
+superstructures for systems with high configurational freedom," Comp. Mat.
+Sci. 136 144-149 (May 2017)
 """
 
 import re
