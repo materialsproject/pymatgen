@@ -21,8 +21,8 @@ install:
   # - conda update -q conda
   # Useful for debugging any issues with conda
   - conda info -a
-  - conda create -q -n test-environment python=3.7 numpy scipy matplotlib sympy cython pandas==0.25.3 networkx pytest h5py git
-  - source activate test-environment
+  - conda create -q -n test-env python=3.7 numpy scipy matplotlib cython pandas==0.25.3 networkx pytest h5py git
+  - source activate test-env
   - conda update --quiet --yes numpy scipy matplotlib cython networkx pytest pip h5py
   - pip install --upgrade sympy
   - pip install --quiet --ignore-installed -r requirements.txt -r requirements-optional.txt
@@ -33,7 +33,7 @@ before_script:
 # command to run tests, e.g. python setup.py test
 script:
   - export PATH="$HOME/miniconda/bin:$PATH"
-  - source activate test-environment
+  - source activate test-env
   #- echo "pycodestyle->mypy->pytest->pydocstyle... Note that this fails on the first command with error."
   #- echo "It is highly recommended that you use the pre-commit hook provided in pymatgen (simply copy pre-commit to .git/hooks) to check before pushing your code."
   - travis_wait 28800 pytest $EXCLUDE_TESTS pymatgen
