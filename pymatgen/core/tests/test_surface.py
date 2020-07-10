@@ -250,6 +250,15 @@ class SlabTest(PymatgenTest):
         d = json.loads(s)
         self.assertEqual(slab, Slab.from_dict(d))
 
+        # test initialising with a list scale_factor
+        slab = Slab(self.zno55.lattice, self.zno55.species,
+                    self.zno55.frac_coords, self.zno55.miller_index,
+                    self.zno55.oriented_unit_cell, 0,
+                    self.zno55.scale_factor.tolist())
+        s = json.dumps(slab.as_dict())
+        d = json.loads(s)
+        self.assertEqual(slab, Slab.from_dict(d))
+
 
 class SlabGeneratorTest(PymatgenTest):
 
