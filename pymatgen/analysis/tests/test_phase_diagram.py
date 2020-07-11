@@ -225,6 +225,22 @@ class PhaseDiagramTest(unittest.TestCase):
                 self.pd.get_equilibrium_reaction_energy(entry), 0,
                 "Stable entries should have negative equilibrium reaction energy!")
 
+    def test_get_decomposition_energy(self):
+        for entry in self.pd.unstable_entries:
+            self.assertGreaterEqual(
+                self.pd.get_decomposition_energy(entry), 0,
+                "Stable entries should have positive decomposition energy!")
+
+        for entry in self.pd.stable_entries:
+            if entry.composition.is_element:
+                self.assertEqual(
+                    self.pd.get_decomposition_energy(entry), 0,
+                    "Stable elemental entries should have decomposition energy of zero!")
+            else:
+                self.assertLessEqual(
+                    self.pd.get_decomposition_energy(entry), 0,
+                    "Stable entries should have negative decomposition energy!")
+
     def test_get_decomposition(self):
         for entry in self.pd.stable_entries:
             self.assertEqual(len(self.pd.get_decomposition(entry.composition)), 1,

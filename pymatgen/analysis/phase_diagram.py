@@ -70,7 +70,7 @@ class PDEntry(Entry):
         Args:
             composition (Composition): Composition
             energy (float): Energy for composition.
-            name (str): Optional parameter to name the entry. Defaults 
+            name (str): Optional parameter to name the entry. Defaults
                 to the reduced chemical formula.
             attribute: Optional attribute of the entry. Must be MSONable.
         """
@@ -609,8 +609,8 @@ class PhaseDiagram(MSONable):
             equilibrium reaction energy <= 0.
         """
         if entry not in self.stable_entries:
-            # NOTE Comprhys: wouldn't rasing a warning and returning NaN be 
-            # a better solution than raising an Error? as this would interupt a
+            # NOTE Comprhys: could rasing a warning and returning NaN be
+            # a better solution here than raising an Error? an Error interupts a
             # whole program even if it could complete with a NaN.
             raise ValueError("Equilibrium reaction energy is available only "
                              "for stable entries.")
@@ -624,8 +624,8 @@ class PhaseDiagram(MSONable):
 
     def get_decomposition_energy(self, entry):
         """
-        NOTE a different name might be better to avoid confusion with 
-        the decomposition of unstable compounds. 
+        NOTE a different name might be better to avoid confusion with
+        the decomposition of unstable compounds.
 
         Provides the decomposition energy of an entry from the neighboring
         stable entries excluding the entry in question. For unstable entries
@@ -638,42 +638,49 @@ class PhaseDiagram(MSONable):
             Decomposition energy per atom of entry. Stable entries should have
             decomposition energies <= 0.
         """
+        # Handle unstable materials
+        if entry not in self.stable_entries:
+            return self.get_e_above_hull(entry)
+
+        # Handle stable materials
         if entry.is_element:
             return 0
-        elif entry not in self.stable_entries:
-            return self.get_e_above_hull(entry)
         else:
-            return self.get_decomp_and_energy(entry)[1]
+            return self.get_decomp_and_decomp_energy(entry)[1]
 
-    def get_decomp_and_energy(self, entry, space_limit=200):
+    def get_decomp_and_decomp_energy(self, entry, space_limit=200):
         """
         Args:
             entry (PDEntry): A PDEntry like object.
             space_limit (int): The maximum number of competing entries to consider.
 
         Returns:
-            tuple of (PDEntry, amt) for all entries in the competing reaction.
-                If decomposition analysis fails returns ((), np.nan).
-        """   
+            (decomp, energy), decomp is given as a dict of {PDEntry, amt} for all
+            entries in the decomp reaction. On failure returns ({}, NaN) if stable.
+        """
+        # For unstable materials use simplex approach
+        if entry not in self.stable_entries:
+            return self.get_decomp_and_e_above_hull(entry)
 
-        # Select a first pass at competing entries as being all the compositions.
-        # TODO reduce space futher to only those with negative formation enthalpies
-        competing_entries = [
-            c for c in self.all_entries if c != entry
-                if set(c.composition.elements).issubset(entry.composition.elements)
-        ]
+        # take entries with negative formation enthalpies as competing entries
+        competing_entries = [c for c in self.qhull_entries if c != entry
+                             if set(c.composition.elements).issubset(entry.composition.elements)]
 
-        # TODO potentially could avoid optimization in rare cases where the only competing
+        # TODO could potentially avoid optimization in rare cases where the only competing
         # entries are elements as then the solution is just the formation energy.
 
-        # NOTE SLSQP optimizer doesn't scale well for > 300 competing entries. As a result
-        # in phase diagrams where we have too many competing entries we can reduce the number
-        # by looking at the first and second convex hulls
+        # NOTE SLSQP optimizer doesn't scale well for > 300 competing entries. As a
+        # result in phase diagrams where we have too many competing entries we can
+        # reduce the number by looking at the first and second convex hulls. This
+        # requires computing the convex hull of a second (hopefully smallish) space
+        # and so is not done by default
         if len(competing_entries) > space_limit:
-            inner_hull = PhaseDiagram(
-                list(set(competing_entries).intersection(set(self.unstable_entries))) + \
-                    list(self.el_refs.values())
-            )
+            inner_hull = PhaseDiagram(list(set.intersection(
+                set(competing_entries),  # same chemical space
+                set(self.qhull_entries),  # negative E_f
+                set(self.unstable_entries),  # not already on hull
+            )) + list(self.el_refs.values()))  # terminal points
+
             competing_entries = list(self.stable_entries.union(inner_hull.stable_entries))
             competing_entries = [c for c in competing_entries if c != entry]
 
@@ -681,20 +688,20 @@ class PhaseDiagram(MSONable):
 
         if solution.success:
             decomp_amts = solution.x
-            decomp_products = list(zip(competing_entries, decomp_amts))
-            relevant_decomp_products = tuple(
-                [(comp, amt) for comp, amt in decomp_products
-                    if amt > PhaseDiagram.numerical_tol]
-            )
+            decomp_products = {c: amt for c, amt
+                               in zip(competing_entries, decomp_amts)
+                               if amt > PhaseDiagram.numerical_tol}
 
             decomp_enthalpy = 0
-            for c, amt in relevant_decomp_products:
+            for c, amt in decomp_products.items():
                 decomp_enthalpy += c.energy * amt
+            # return the decomposition energy per atom
             decomp_enthalpy = (entry.energy - decomp_enthalpy) / entry.composition.num_atoms
-            return relevant_decomp_products, decomp_enthalpy
-        else:
-            # Return empty tuple and NaN if no valid solution found.
-            return (), np.nan
+            return decomp_products, decomp_enthalpy
+
+        # Return empty dict and NaN if no valid solution found.
+        # raise ValueError("No valid decomp found for {}!".format(entry))
+        return {}, np.nan
 
     def _decomp_solution(self, entry, competing_entries):
         """
