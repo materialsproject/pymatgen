@@ -1018,8 +1018,8 @@ class PhaseDiagram(MSONable):
                     for v in s._coords:
                         elts = [e for e in self.elements if e != dep_elt]
                         res = {}
-                        for i in range(len(elts)):
-                            res[elts[i]] = v[i] + muref[i]
+                        for i, elt in enumerate(elts):
+                            res[elt] = v[i] + muref[i]
                         res[dep_elt] = (np.dot(v + muref, coeff) + ef) / target_comp[dep_elt]
                         already_in = False
                         for di in all_coords:
@@ -1081,8 +1081,8 @@ class PhaseDiagram(MSONable):
                             min_mus = v
         elts = [e for e in self.elements if e != open_elt]
         res = {}
-        for i in range(len(elts)):
-            res[elts[i]] = (min_mus[i] + muref[i], max_mus[i] + muref[i])
+        for i, elt in enumerate(elts):
+            res[elt] = (min_mus[i] + muref[i], max_mus[i] + muref[i])
         res[open_elt] = (min_open, max_open)
         return res
 
@@ -1543,8 +1543,7 @@ class PDPlotter:
         all_data = np.array(pd.all_entries_hulldata)
         unstable_entries = dict()
         stable = pd.stable_entries
-        for i in range(0, len(all_entries)):
-            entry = all_entries[i]
+        for i, entry in enumerate(all_entries):
             if entry not in stable:
                 if self._dim < 3:
                     x = [all_data[i][0], all_data[i][0]]
