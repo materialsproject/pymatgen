@@ -24,7 +24,6 @@ from typing import Union, List, Optional
 from bisect import bisect_left
 
 from scipy.spatial import Voronoi
-from monty.dev import deprecated
 from monty.dev import requires
 from monty.serialization import loadfn
 
