@@ -8,7 +8,6 @@ pseudopotentials used in Abinit, and a parser to instantiate pseudopotential obj
 
 import abc
 import collections
-import json
 import logging
 import os
 import sys
@@ -1468,7 +1467,6 @@ class PawXmlSetup(Pseudo, PawPseudo):
         Returns: `matplotlib` figure
         """
         ax, fig, plt = get_ax_fig_plt(ax)
-        title = kwargs.pop("title", "Projectors")
         ax.grid(True)
         ax.set_xlabel('r [Bohr]')
         ax.set_ylabel(r"$r\tilde p\, [Bohr]^{-\frac{1}{2}}$")

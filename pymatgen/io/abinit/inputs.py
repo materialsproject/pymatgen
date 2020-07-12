@@ -13,9 +13,9 @@ import numpy as np
 from enum import Enum
 from collections import OrderedDict, namedtuple
 from collections.abc import MutableMapping, Mapping
-from monty.collections import dict2namedtuple, AttrDict
+from monty.collections import AttrDict
 from monty.string import list_strings, is_string
-from monty.json import MontyDecoder, MSONable
+from monty.json import MSONable
 from pymatgen.core.structure import Structure
 from pymatgen.util.serialization import pmg_serialize
 from pymatgen.io.abinit.pseudos import PseudoTable, Pseudo

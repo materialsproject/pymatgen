@@ -325,3 +325,9 @@ def open_doc(ctx):
     """
     pth = os.path.abspath("docs/_build/html/index.html")
     webbrowser.open("file://" + pth)
+
+
+@task
+def lint(ctx):
+    for cmd in ["pycodestyle", "mypy", "flake8", "pydocstyle"]:
+        ctx.run("%s pymatgen" % cmd)
