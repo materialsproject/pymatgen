@@ -116,7 +116,7 @@ class Slab(Structure):
                 this Slab is created (by scaling in the c-direction).
             shift (float): The shift in the c-direction applied to get the
                 termination.
-            scale_factor (array): scale_factor Final computed scale factor
+            scale_factor (np.ndarray): scale_factor Final computed scale factor
                 that brings the parent cell to the surface cell.
             reorient_lattice (bool): reorients the lattice parameters such that
                 the c direction is the third vector of the lattice matrix
@@ -136,7 +136,7 @@ class Slab(Structure):
         self.miller_index = tuple(miller_index)
         self.shift = shift
         self.reconstruction = reconstruction
-        self.scale_factor = scale_factor
+        self.scale_factor = np.array(scale_factor)
         self.energy = energy
         self.reorient_lattice = reorient_lattice
         lattice = Lattice.from_parameters(lattice.a, lattice.b, lattice.c,

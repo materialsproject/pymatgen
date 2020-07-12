@@ -1041,31 +1041,6 @@ class VoronoiNN(NearNeighbors):
         return siw
 
 
-@deprecated(replacement=VoronoiNN,
-            message='Use VoronoiNN instead, and set "tol" to 0.5')
-class VoronoiNN_modified(VoronoiNN):
-    """
-    Modified VoronoiNN that only considers neighbors with more than 50% of the maximum weight
-    """
-
-    def __init__(self, targets=None, cutoff=10.0,
-                 allow_pathological=False, weight='solid_angle',
-                 extra_nn_info=True):
-        """
-        Args:
-            targets (Element or list of Elements): target element(s).
-            cutoff (float): cutoff radius in Angstrom to look for near-neighbor
-                atoms. Defaults to 10.0.
-            allow_pathological (bool): whether to allow infinite vertices in
-                determination of Voronoi coordination.
-            weight (string) - Statistic used to weigh neighbors (see the statistics
-                available in get_voronoi_polyhedra)
-            extra_nn_info (bool) - Add all polyhedron info to `get_nn_info`
-        """
-        super().__init__(0.5, targets, cutoff, allow_pathological, weight,
-                         extra_nn_info)
-
-
 class JmolNN(NearNeighbors):
     """
     Determine near-neighbor sites and coordination number using an emulation
