@@ -1,4 +1,4 @@
-name: Pymatgen testing
+name: Pymatgen main testing
 
 on: [push, pull_request]
 
@@ -32,4 +32,4 @@ jobs:
     - name: Test with pytest
       run: |
         pip install -e .
-        pytest pymatgen --color=yes
+        pytest pymatgen --ignore=pymatgen/analysis --color=yes
