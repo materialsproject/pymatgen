@@ -13,7 +13,7 @@ env:
 # command to install dependencies
 sudo: false
 install:
-  - pip install --quiet -r requirements.txt -r requirements-optional.txt
+  - pip install --quiet -r requirements.txt -r requirements-optional.txt -r requirements-dev.txt
   - >-
     echo "backend: Agg" > matplotlibrc
 before_script:
