@@ -13,6 +13,7 @@ env:
 # command to install dependencies
 sudo: false
 install:
+  - rm -rf $HOME/miniconda
   - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
   - bash miniconda.sh -b -p $HOME/miniconda
   - export PATH="$HOME/miniconda/bin:$PATH"
@@ -24,7 +25,6 @@ install:
   - conda create -q -n test-env python=3.7 numpy scipy matplotlib cython pandas==0.25.3 networkx pytest h5py git
   - source activate test-env
   - conda update --quiet --yes numpy scipy matplotlib cython networkx pytest pip h5py
-  - pip install --upgrade sympy
   - pip install --quiet --ignore-installed -r requirements.txt -r requirements-optional.txt
   - >-
     echo "backend: Agg" > matplotlibrc
