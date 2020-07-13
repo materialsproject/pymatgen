@@ -22,7 +22,7 @@ before_script:
 script:
   #- echo "pycodestyle->mypy->pytest->pydocstyle... Note that this fails on the first command with error."
   #- echo "It is highly recommended that you use the pre-commit hook provided in pymatgen (simply copy pre-commit to .git/hooks) to check before pushing your code."
-  - travis_wait 28800 pytest $EXCLUDE_TESTS pymatgen
+  - travis_wait 28800 pytest --failed-first --exitfirst $EXCLUDE_TESTS pymatgen
   #- flake8 --count --show-source --statistics pymatgen
   #- flake8 --count --exit-zero --max-complexity=10 --statistics pymatgen
   # Docstyle checks are enforced for files that have been modified since the v2020.1.28 tagged release.
