@@ -373,14 +373,15 @@ class StructureMatcher(MSONable):
                 supplying a comparison function is that it is not possible to
                 pickle a function, which makes it otherwise difficult to use
                 StructureMatcher with Python's multiprocessing.
-            supercell_size (str): Method to use for determining the size of a
-                supercell (if applicable). Possible values are num_sites,
-                num_atoms, volume, or an element present in both structures.
-            ignored_species (list): A list of ions to be ignored in matching. Useful
-                for matching structures that have similar frameworks except for
-                certain ions, e.g., Li-ion intercalation frameworks. This is more
-                useful than allow_subset because it allows better control over
-                what species are ignored in the matching.
+            supercell_size (str or list): Method to use for determining the
+                size of a supercell (if applicable). Possible values are
+                num_sites, num_atoms, volume, or an element or list of elements
+                present in both structures.
+            ignored_species (list): A list of ions to be ignored in matching.
+                Useful for matching structures that have similar frameworks
+                except for certain ions, e.g., Li-ion intercalation frameworks.
+                This is more useful than allow_subset because it allows better
+                control over what species are ignored in the matching.
         """
 
         self.ltol = ltol
@@ -407,11 +408,18 @@ class StructureMatcher(MSONable):
             fu = s2.composition.num_atoms / s1.composition.num_atoms
         elif self._supercell_size == 'volume':
             fu = s2.volume / s1.volume
+        elif not isinstance(self._supercell_size, str):
+            s1comp, s2comp = 0, 0
+            for el in self._supercell_size:
+                el = get_el_sp(el)
+                s1comp += s1.composition[el]
+                s2comp += s2.composition[el]
+            fu = s2comp / s1comp
         else:
-            try:
-                el = get_el_sp(self._supercell_size)
+            el = get_el_sp(self._supercell_size)
+            if (el in s2.composition) and (el in s1.composition):
                 fu = s2.composition[el] / s1.composition[el]
-            except Exception:
+            else:
                 raise ValueError('Invalid argument for supercell_size.')
 
         if fu < 2 / 3:
@@ -563,13 +571,16 @@ class StructureMatcher(MSONable):
             inds = inds[::fu]
         return np.array(mask, dtype=np.int_), inds, i
 
-    def fit(self, struct1, struct2):
+    def fit(self, struct1, struct2, symmetric=False):
         """
         Fit two structures.
 
         Args:
             struct1 (Structure): 1st structure
             struct2 (Structure): 2nd structure
+            symmetric (Bool): Defaults to False
+                If True, check the equality both ways.
+                This only impacts a small percentage of structures
 
         Returns:
             True or False.
@@ -580,14 +591,27 @@ class StructureMatcher(MSONable):
                 != self._comparator.get_hash(struct2.composition):
             return None
 
-        struct1, struct2, fu, s1_supercell = self._preprocess(struct1, struct2)
-        match = self._match(struct1, struct2, fu, s1_supercell,
-                            break_on_match=True)
-
-        if match is None:
-            return False
+        if not symmetric:
+            struct1, struct2, fu, s1_supercell = self._preprocess(struct1, struct2)
+            match = self._match(struct1, struct2, fu, s1_supercell,
+                                break_on_match=True)
+            if match is None:
+                return False
+            else:
+                return match[0] <= self.stol
         else:
-            return match[0] <= self.stol
+            struct1, struct2, fu, s1_supercell = self._preprocess(struct1, struct2)
+            match1 = self._match(struct1, struct2, fu, s1_supercell,
+                                 break_on_match=True)
+            struct1, struct2 = struct2, struct1
+            struct1, struct2, fu, s1_supercell = self._preprocess(struct1, struct2)
+            match2 = self._match(struct1, struct2, fu, s1_supercell,
+                                 break_on_match=True)
+
+            if match1 is None or match2 is None:
+                return False
+            else:
+                return max(match1[0], match2[0]) <= self.stol
 
     def get_rms_dist(self, struct1, struct2):
         """
@@ -743,7 +767,7 @@ class StructureMatcher(MSONable):
 
         Args:
             s_list ([Structure]): List of structures to be grouped
-            anonymous (bool): Wheher to use anonymous mode.
+            anonymous (bool): Whether to use anonymous mode.
 
         Returns:
             A list of lists of matched structures
@@ -801,7 +825,11 @@ class StructureMatcher(MSONable):
                 "ltol": self.ltol,
                 "angle_tol": self.angle_tol,
                 "primitive_cell": self._primitive_cell,
-                "scale": self._scale}
+                "scale": self._scale,
+                "attempt_supercell": self._supercell,
+                "allow_subset": self._subset,
+                "supercell_size": self._supercell_size,
+                "ignored_species": self._ignored_species}
 
     @classmethod
     def from_dict(cls, d):
@@ -812,7 +840,11 @@ class StructureMatcher(MSONable):
         return StructureMatcher(
             ltol=d["ltol"], stol=d["stol"], angle_tol=d["angle_tol"],
             primitive_cell=d["primitive_cell"], scale=d["scale"],
-            comparator=AbstractComparator.from_dict(d["comparator"]))
+            attempt_supercell=d["attempt_supercell"],
+            allow_subset=d["allow_subset"],
+            comparator=AbstractComparator.from_dict(d["comparator"]),
+            supercell_size=d["supercell_size"],
+            ignored_species=d["ignored_species"])
 
     def _anonymous_match(self, struct1, struct2, fu, s1_supercell=True,
                          use_rms=False, break_on_match=False, single_match=False):

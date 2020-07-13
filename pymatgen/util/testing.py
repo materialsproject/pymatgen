@@ -12,7 +12,7 @@ right away.
 
 import unittest
 import tempfile
-import numpy.testing.utils as nptu
+import numpy.testing as nptu
 from io import open
 from pathlib import Path
 import json
@@ -72,6 +72,36 @@ class PymatgenTest(unittest.TestCase):
         """
         return nptu.assert_almost_equal(actual, desired, decimal, err_msg,
                                         verbose)
+
+    @staticmethod
+    def assertDictsAlmostEqual(actual, desired, decimal=7, err_msg='',
+                               verbose=True):
+        """
+        Tests if two arrays are almost equal to a tolerance. The CamelCase
+        naming is so that it is consistent with standard unittest methods.
+        """
+
+        for k, v in actual.items():
+            if k not in desired:
+                return False
+            v2 = desired[k]
+            if isinstance(v, dict):
+                pass_test = PymatgenTest.assertDictArraysAlmostEqual(
+                    v, v2, decimal=decimal, err_msg=err_msg, verbose=verbose)
+                if not pass_test:
+                    return False
+            elif isinstance(v, (list, tuple)):
+                pass_test = nptu.assert_almost_equal(v, v2, decimal, err_msg,
+                                                     verbose)
+                if not pass_test:
+                    return False
+            elif isinstance(v, (int, float)):
+                pass_test = PymatgenTest.assertAlmostEqual(v, v2)
+                if not pass_test:
+                    return False
+            else:
+                assert v == v2
+        return True
 
     @staticmethod
     def assertArrayEqual(actual, desired, err_msg='', verbose=True):

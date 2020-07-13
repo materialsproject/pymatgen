@@ -1,18 +1,19 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.vasp.outputs &#8212; pymatgen 2019.11.11 documentation</title>
-    <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.io.vasp.outputs &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../../../_static/language_data.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
  
@@ -32,15 +33,15 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.11.11 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
+          <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.io.vasp.outputs</a></li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
-        <div class="bodywrapper">
           <div class="body" role="main">
             
   <h1>Source code for pymatgen.io.vasp.outputs</h1><div class="highlight"><pre>
@@ -60,34 +61,37 @@
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="k">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">import</span> <span class="nn">xml.etree.cElementTree</span> <span class="k">as</span> <span class="nn">ET</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">defaultdict</span>
-<span class="kn">from</span> <span class="nn">io</span> <span class="k">import</span> <span class="n">StringIO</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="n">StringIO</span>
 <span class="kn">import</span> <span class="nn">collections</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">List</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">monty.io</span> <span class="k">import</span> <span class="n">zopen</span><span class="p">,</span> <span class="n">reverse_readfile</span>
-<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
-<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">jsanitize</span>
-<span class="kn">from</span> <span class="nn">monty.re</span> <span class="k">import</span> <span class="n">regrep</span>
-<span class="kn">from</span> <span class="nn">monty.os.path</span> <span class="k">import</span> <span class="n">zpath</span>
-<span class="kn">from</span> <span class="nn">monty.dev</span> <span class="k">import</span> <span class="n">deprecated</span>
+<span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="kn">import</span> <span class="n">RegularGridInterpolator</span>
+<span class="kn">from</span> <span class="nn">monty.io</span> <span class="kn">import</span> <span class="n">zopen</span><span class="p">,</span> <span class="n">reverse_readfile</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">MSONable</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">jsanitize</span>
+<span class="kn">from</span> <span class="nn">monty.re</span> <span class="kn">import</span> <span class="n">regrep</span>
+<span class="kn">from</span> <span class="nn">monty.os.path</span> <span class="kn">import</span> <span class="n">zpath</span>
+<span class="kn">from</span> <span class="nn">monty.dev</span> <span class="kn">import</span> <span class="n">deprecated</span>
 
-<span class="kn">from</span> <span class="nn">pymatgen.core.composition</span> <span class="k">import</span> <span class="n">Composition</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.lattice</span> <span class="k">import</span> <span class="n">Lattice</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">Element</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.units</span> <span class="k">import</span> <span class="n">unitized</span>
-<span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.bandstructure</span> <span class="k">import</span> <span class="n">BandStructure</span><span class="p">,</span> \
+<span class="kn">from</span> <span class="nn">pymatgen.core.composition</span> <span class="kn">import</span> <span class="n">Composition</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.lattice</span> <span class="kn">import</span> <span class="n">Lattice</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="kn">import</span> <span class="n">Element</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">Structure</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.units</span> <span class="kn">import</span> <span class="n">unitized</span>
+<span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.bandstructure</span> <span class="kn">import</span> <span class="n">BandStructure</span><span class="p">,</span> \
     <span class="n">BandStructureSymmLine</span><span class="p">,</span> <span class="n">get_reconstructed_band_structure</span>
-<span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.core</span> <span class="k">import</span> <span class="n">Spin</span><span class="p">,</span> <span class="n">Orbital</span><span class="p">,</span> <span class="n">OrbitalType</span><span class="p">,</span> <span class="n">Magmom</span>
-<span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.dos</span> <span class="k">import</span> <span class="n">CompleteDos</span><span class="p">,</span> <span class="n">Dos</span>
-<span class="kn">from</span> <span class="nn">pymatgen.entries.computed_entries</span> <span class="k">import</span> \
+<span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.core</span> <span class="kn">import</span> <span class="n">Spin</span><span class="p">,</span> <span class="n">Orbital</span><span class="p">,</span> <span class="n">OrbitalType</span><span class="p">,</span> <span class="n">Magmom</span>
+<span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.dos</span> <span class="kn">import</span> <span class="n">CompleteDos</span><span class="p">,</span> <span class="n">Dos</span>
+<span class="kn">from</span> <span class="nn">pymatgen.entries.computed_entries</span> <span class="kn">import</span> \
     <span class="n">ComputedEntry</span><span class="p">,</span> <span class="n">ComputedStructureEntry</span>
-<span class="kn">from</span> <span class="nn">pymatgen.io.vasp.inputs</span> <span class="k">import</span> <span class="n">Incar</span><span class="p">,</span> <span class="n">Kpoints</span><span class="p">,</span> <span class="n">Poscar</span><span class="p">,</span> <span class="n">Potcar</span>
-<span class="kn">from</span> <span class="nn">pymatgen.util.io_utils</span> <span class="k">import</span> <span class="n">clean_lines</span><span class="p">,</span> <span class="n">micro_pyawk</span>
-<span class="kn">from</span> <span class="nn">pymatgen.util.num</span> <span class="k">import</span> <span class="n">make_symmetric_matrix_from_upper_tri</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.wannier90</span> <span class="kn">import</span> <span class="n">Unk</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.vasp.inputs</span> <span class="kn">import</span> <span class="n">Incar</span><span class="p">,</span> <span class="n">Kpoints</span><span class="p">,</span> <span class="n">Poscar</span><span class="p">,</span> <span class="n">Potcar</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.io_utils</span> <span class="kn">import</span> <span class="n">clean_lines</span><span class="p">,</span> <span class="n">micro_pyawk</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.num</span> <span class="kn">import</span> <span class="n">make_symmetric_matrix_from_upper_tri</span>
 
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, &quot;</span> <span class="o">+</span> \
@@ -325,7 +329,7 @@
 <span class="sd">    Author: Shyue Ping Ong</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">ionic_step_skip</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">ionic_step_skip</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">ionic_step_offset</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">parse_dos</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                  <span class="n">parse_eigen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">parse_projected_eigen</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">parse_potcar_file</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">occu_tol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">,</span>
@@ -700,7 +704,7 @@
 <span class="sd">        TODO: Fix for other functional types like PW91, other vdW types, etc.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">GGA_TYPES</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;RE&quot;</span><span class="p">:</span> <span class="s2">&quot;revPBE&quot;</span><span class="p">,</span> <span class="s2">&quot;PE&quot;</span><span class="p">:</span> <span class="s2">&quot;PBE&quot;</span><span class="p">,</span> <span class="s2">&quot;PS&quot;</span><span class="p">:</span> <span class="s2">&quot;PBESol&quot;</span><span class="p">,</span> <span class="s2">&quot;RP&quot;</span><span class="p">:</span> <span class="s2">&quot;RevPBE+PADE&quot;</span><span class="p">,</span> <span class="s2">&quot;AM&quot;</span><span class="p">:</span> <span class="s2">&quot;AM05&quot;</span><span class="p">,</span> <span class="s2">&quot;OR&quot;</span><span class="p">:</span> <span class="s2">&quot;optPBE&quot;</span><span class="p">,</span>
-                     <span class="s2">&quot;BO&quot;</span><span class="p">:</span> <span class="s2">&quot;optB88&quot;</span><span class="p">,</span> <span class="s2">&quot;MK&quot;</span><span class="p">:</span> <span class="s2">&quot;optB86b&quot;</span><span class="p">,</span> <span class="s2">&quot;--&quot;</span><span class="p">:</span> <span class="s2">&quot;None or LDA&quot;</span><span class="p">}</span>
+                     <span class="s2">&quot;BO&quot;</span><span class="p">:</span> <span class="s2">&quot;optB88&quot;</span><span class="p">,</span> <span class="s2">&quot;MK&quot;</span><span class="p">:</span> <span class="s2">&quot;optB86b&quot;</span><span class="p">,</span> <span class="s2">&quot;--&quot;</span><span class="p">:</span> <span class="s2">&quot;GGA&quot;</span><span class="p">}</span>
 
         <span class="n">METAGGA_TYPES</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;TPSS&quot;</span><span class="p">:</span> <span class="s2">&quot;TPSS&quot;</span><span class="p">,</span> <span class="s2">&quot;RTPSS&quot;</span><span class="p">:</span> <span class="s2">&quot;revTPSS&quot;</span><span class="p">,</span> <span class="s2">&quot;M06L&quot;</span><span class="p">:</span> <span class="s2">&quot;M06-L&quot;</span><span class="p">,</span> <span class="s2">&quot;MBJ&quot;</span><span class="p">:</span> <span class="s2">&quot;modified Becke-Johnson&quot;</span><span class="p">,</span>
                          <span class="s2">&quot;SCAN&quot;</span><span class="p">:</span> <span class="s2">&quot;SCAN&quot;</span><span class="p">,</span> <span class="s2">&quot;MS0&quot;</span><span class="p">:</span> <span class="s2">&quot;MadeSimple0&quot;</span><span class="p">,</span> <span class="s2">&quot;MS1&quot;</span><span class="p">:</span> <span class="s2">&quot;MadeSimple1&quot;</span><span class="p">,</span> <span class="s2">&quot;MS2&quot;</span><span class="p">:</span> <span class="s2">&quot;MadeSimple2&quot;</span><span class="p">}</span>
@@ -715,15 +719,13 @@
             <span class="n">rt</span> <span class="o">=</span> <span class="s2">&quot;B3LYP&quot;</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;LHFCALC&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
             <span class="n">rt</span> <span class="o">=</span> <span class="s2">&quot;PBEO or other Hybrid Functional&quot;</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;BPARAM&quot;</span><span class="p">,</span> <span class="mf">15.70</span><span class="p">)</span> <span class="o">==</span> <span class="mf">15.70</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;LUSE_VDW&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;LUSE_VDW&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">incar</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;METAGGA&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="ow">in</span> <span class="n">METAGGA_TYPES</span><span class="p">:</span>
-                <span class="n">rt</span> <span class="o">=</span> <span class="n">GGA_TYPES</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;GGA&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">upper</span><span class="p">()]</span> <span class="o">+</span> <span class="s2">&quot;+&quot;</span> <span class="o">+</span> \
-                     <span class="n">METAGGA_TYPES</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">incar</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;METAGGA&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">upper</span><span class="p">()]</span> <span class="o">+</span> <span class="s2">&quot;+rVV10&quot;</span>
+                <span class="n">rt</span> <span class="o">=</span> <span class="n">METAGGA_TYPES</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">incar</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;METAGGA&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">upper</span><span class="p">()]</span> <span class="o">+</span> <span class="s2">&quot;+rVV10&quot;</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">rt</span> <span class="o">=</span> <span class="n">GGA_TYPES</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;GGA&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">upper</span><span class="p">()]</span> <span class="o">+</span> <span class="s2">&quot;+rVV10&quot;</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">incar</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;METAGGA&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="ow">in</span> <span class="n">METAGGA_TYPES</span><span class="p">:</span>
-            <span class="n">rt</span> <span class="o">=</span> <span class="n">GGA_TYPES</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;GGA&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">upper</span><span class="p">()]</span> <span class="o">+</span> <span class="s2">&quot;+&quot;</span> <span class="o">+</span> \
-                 <span class="n">METAGGA_TYPES</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">incar</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;METAGGA&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">upper</span><span class="p">()]</span>
+            <span class="n">rt</span> <span class="o">=</span> <span class="n">METAGGA_TYPES</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">incar</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;METAGGA&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">upper</span><span class="p">()]</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_hubbard</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;LDAU&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
                 <span class="n">rt</span> <span class="o">+=</span> <span class="s2">&quot;+U&quot;</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">potcar_symbols</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;PAW&#39;</span><span class="p">:</span>
@@ -969,6 +971,25 @@
             <span class="n">potcar</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="k">return</span> <span class="n">potcar</span></div>
+
+<div class="viewcode-block" id="Vasprun.get_trajectory"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Vasprun.get_trajectory">[docs]</a>    <span class="k">def</span> <span class="nf">get_trajectory</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method returns a Trajectory object, which is an alternative</span>
+<span class="sd">        representation of self.structures into a single object. Forces are</span>
+<span class="sd">        added to the Trajectory as site properties.</span>
+
+<span class="sd">        Returns: a Trajectory</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># required due to circular imports</span>
+        <span class="c1"># TODO: fix pymatgen.core.trajectory so it does not load from io.vasp(!)</span>
+        <span class="kn">from</span> <span class="nn">pymatgen.core.trajectory</span> <span class="kn">import</span> <span class="n">Trajectory</span>
+
+        <span class="n">structs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ionic_steps</span><span class="p">:</span>
+            <span class="n">struct</span> <span class="o">=</span> <span class="n">step</span><span class="p">[</span><span class="s1">&#39;structure&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">struct</span><span class="o">.</span><span class="n">add_site_property</span><span class="p">(</span><span class="s1">&#39;forces&#39;</span><span class="p">,</span> <span class="n">step</span><span class="p">[</span><span class="s1">&#39;forces&#39;</span><span class="p">])</span>
+            <span class="n">structs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">struct</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Trajectory</span><span class="o">.</span><span class="n">from_structures</span><span class="p">(</span><span class="n">structs</span><span class="p">,</span> <span class="n">constant_lattice</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Vasprun.update_potcar_spec"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Vasprun.update_potcar_spec">[docs]</a>    <span class="k">def</span> <span class="nf">update_potcar_spec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1330,7 +1351,7 @@
 <span class="sd">    etc. are ignored.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">parse_projected_eigen</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">parse_projected_eigen</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">parse_potcar_file</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">occu_tol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
@@ -1552,7 +1573,7 @@
 <span class="sd">    Authors: Rickard Armiento, Shyue Ping Ong</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            filename (str): OUTCAR filename to parse.</span>
@@ -1693,6 +1714,30 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">total_mag</span> <span class="o">=</span> <span class="n">total_mag</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">final_energy</span> <span class="o">=</span> <span class="n">total_energy</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># Read &quot;total number of plane waves&quot;, NPLWV:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">read_pattern</span><span class="p">(</span>
+            <span class="p">{</span><span class="s2">&quot;nplwv&quot;</span><span class="p">:</span> <span class="sa">r</span><span class="s2">&quot;total plane-waves  NPLWV =\s+(\*</span><span class="si">{6}</span><span class="s2">|\d+)&quot;</span><span class="p">},</span>
+            <span class="n">terminate_on_match</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;nplwv&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[[</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;nplwv&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])]]</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;nplwv&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[[</span><span class="kc">None</span><span class="p">]]</span>
+
+        <span class="n">nplwvs_at_kpoints</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">n</span> <span class="k">for</span> <span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_table_pattern</span><span class="p">(</span>
+                <span class="sa">r</span><span class="s2">&quot;\n</span><span class="si">{3}</span><span class="s2">-</span><span class="si">{104}</span><span class="s2">\n</span><span class="si">{3}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="sa">r</span><span class="s2">&quot;.+plane waves:\s+(\*{6,}|\d+)&quot;</span><span class="p">,</span>
+                <span class="sa">r</span><span class="s2">&quot;maximum and minimum number of plane-waves&quot;</span>
+            <span class="p">)</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;nplwvs_at_kpoints&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">nplwvs_at_kpoints</span><span class="p">]</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">nplwv</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">nplwvs_at_kpoints</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;nplwvs_at_kpoints&quot;</span><span class="p">][</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">nplwv</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="k">pass</span>
 
         <span class="c1"># Read the drift:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">read_pattern</span><span class="p">({</span>
@@ -1900,6 +1945,23 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">electrostatic_potential</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">pots</span><span class="p">]</span></div>
 
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_parse_sci_notation</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Method to parse lines with values in scientific notation and potentially</span>
+<span class="sd">        without spaces in between the values. This assumes that the scientific</span>
+<span class="sd">        notation always lists two digits for the exponent, e.g. 3.535E-02</span>
+<span class="sd">        Args:</span>
+<span class="sd">            line: line to parse</span>
+
+<span class="sd">        Returns: an array of numbers if found, or empty array if not</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[\.\-\d]+E[\+\-]\d</span><span class="si">{2}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">m</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">[]</span>
+
 <div class="viewcode-block" id="Outcar.read_freq_dielectric"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Outcar.read_freq_dielectric">[docs]</a>    <span class="k">def</span> <span class="nf">read_freq_dielectric</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Parses the frequency dependent dielectric function (obtained with</span>
@@ -1932,16 +1994,25 @@
                 <span class="k">if</span> <span class="n">read_plasma</span> <span class="ow">and</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">row_pattern</span><span class="p">,</span> <span class="n">l</span><span class="p">):</span>
                     <span class="n">plasma_frequencies</span><span class="p">[</span><span class="n">read_plasma</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                         <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">l</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">()])</span>
+                <span class="k">elif</span> <span class="n">read_plasma</span> <span class="ow">and</span> <span class="n">Outcar</span><span class="o">.</span><span class="n">_parse_sci_notation</span><span class="p">(</span><span class="n">l</span><span class="p">):</span>
+                    <span class="n">plasma_frequencies</span><span class="p">[</span><span class="n">read_plasma</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="n">Outcar</span><span class="o">.</span><span class="n">_parse_sci_notation</span><span class="p">(</span><span class="n">l</span><span class="p">))</span>
                 <span class="k">elif</span> <span class="n">read_dielectric</span><span class="p">:</span>
+                    <span class="n">toks</span> <span class="o">=</span> <span class="kc">None</span>
                     <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">row_pattern</span><span class="p">,</span> <span class="n">l</span><span class="o">.</span><span class="n">strip</span><span class="p">()):</span>
                         <span class="n">toks</span> <span class="o">=</span> <span class="n">l</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+                    <span class="k">elif</span> <span class="n">Outcar</span><span class="o">.</span><span class="n">_parse_sci_notation</span><span class="p">(</span><span class="n">l</span><span class="o">.</span><span class="n">strip</span><span class="p">()):</span>
+                        <span class="n">toks</span> <span class="o">=</span> <span class="n">Outcar</span><span class="o">.</span><span class="n">_parse_sci_notation</span><span class="p">(</span><span class="n">l</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+                    <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\s*-+\s*&quot;</span><span class="p">,</span> <span class="n">l</span><span class="p">):</span>
+                        <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+
+                    <span class="k">if</span> <span class="n">toks</span><span class="p">:</span>
                         <span class="k">if</span> <span class="n">component</span> <span class="o">==</span> <span class="s2">&quot;IMAGINARY&quot;</span><span class="p">:</span>
                             <span class="n">energies</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">toks</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
                         <span class="n">xx</span><span class="p">,</span> <span class="n">yy</span><span class="p">,</span> <span class="n">zz</span><span class="p">,</span> <span class="n">xy</span><span class="p">,</span> <span class="n">yz</span><span class="p">,</span> <span class="n">xz</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">toks</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]</span>
                         <span class="n">matrix</span> <span class="o">=</span> <span class="p">[[</span><span class="n">xx</span><span class="p">,</span> <span class="n">xy</span><span class="p">,</span> <span class="n">xz</span><span class="p">],</span> <span class="p">[</span><span class="n">xy</span><span class="p">,</span> <span class="n">yy</span><span class="p">,</span> <span class="n">yz</span><span class="p">],</span> <span class="p">[</span><span class="n">xz</span><span class="p">,</span> <span class="n">yz</span><span class="p">,</span> <span class="n">zz</span><span class="p">]]</span>
                         <span class="n">data</span><span class="p">[</span><span class="n">component</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span>
-                    <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\s*-+\s*&quot;</span><span class="p">,</span> <span class="n">l</span><span class="p">):</span>
-                        <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+
                     <span class="k">if</span> <span class="n">count</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
                         <span class="n">component</span> <span class="o">=</span> <span class="s2">&quot;REAL&quot;</span>
                     <span class="k">elif</span> <span class="n">count</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
@@ -2148,7 +2219,7 @@
         <span class="c1"># therefore regex assumes f, but filter out None values if d</span>
 
         <span class="n">header_pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;spin component  1\n&quot;</span>
-        <span class="n">row_pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;[^\S\r\n]*(?:([\d.-]+)[^\S\r\n]*)&#39;</span> <span class="o">+</span> <span class="sa">r</span><span class="s1">&#39;(?:([\d.-]+)[^\S\r\n]*)?&#39;</span> <span class="o">*</span> <span class="mi">6</span> <span class="o">+</span> <span class="sa">r</span><span class="s1">&#39;.*?&#39;</span>
+        <span class="n">row_pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;[^\S\r\n]*(?:(-?[\d.]+))&#39;</span> <span class="o">+</span> <span class="sa">r</span><span class="s1">&#39;(?:[^\S\r\n]*(-?[\d.]+)[^\S\r\n]*)?&#39;</span> <span class="o">*</span> <span class="mi">6</span> <span class="o">+</span> <span class="sa">r</span><span class="s1">&#39;.*?&#39;</span>
         <span class="n">footer_pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;\nspin component  2&quot;</span>
         <span class="n">spin1_component</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_table_pattern</span><span class="p">(</span><span class="n">header_pattern</span><span class="p">,</span> <span class="n">row_pattern</span><span class="p">,</span>
                                                   <span class="n">footer_pattern</span><span class="p">,</span> <span class="n">postprocess</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
@@ -2160,7 +2231,7 @@
         <span class="c1"># and repeat for Spin.down</span>
 
         <span class="n">header_pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;spin component  2\n&quot;</span>
-        <span class="n">row_pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;[^\S\r\n]*(?:([\d.-]+)[^\S\r\n]*)&#39;</span> <span class="o">+</span> <span class="sa">r</span><span class="s1">&#39;(?:([\d.-]+)[^\S\r\n]*)?&#39;</span> <span class="o">*</span> <span class="mi">6</span> <span class="o">+</span> <span class="sa">r</span><span class="s1">&#39;.*?&#39;</span>
+        <span class="n">row_pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;[^\S\r\n]*(?:([\d.-]+))&#39;</span> <span class="o">+</span> <span class="sa">r</span><span class="s1">&#39;(?:[^\S\r\n]*(-?[\d.]+)[^\S\r\n]*)?&#39;</span> <span class="o">*</span> <span class="mi">6</span> <span class="o">+</span> <span class="sa">r</span><span class="s1">&#39;.*?&#39;</span>
         <span class="n">footer_pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;\n occupancies and eigenvectors&quot;</span>
         <span class="n">spin2_component</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_table_pattern</span><span class="p">(</span><span class="n">header_pattern</span><span class="p">,</span> <span class="n">row_pattern</span><span class="p">,</span>
                                                   <span class="n">footer_pattern</span><span class="p">,</span> <span class="n">postprocess</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
@@ -2907,7 +2978,7 @@
 <span class="sd">        Total number of grid points in volumetric data.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">distance_matrix</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data_aug</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">distance_matrix</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data_aug</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Typically, this constructor is not used directly and the static</span>
 <span class="sd">        from_file constructor is used. This constructor is designed to allow</span>
@@ -2932,6 +3003,11 @@
         <span class="c1"># lazy init the spin data since this is not always needed.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_spin_data</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_distance_matrix</span> <span class="o">=</span> <span class="p">{}</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">distance_matrix</span> <span class="k">else</span> <span class="n">distance_matrix</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xpoints</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ypoints</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zpoints</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interpolator</span> <span class="o">=</span> <span class="n">RegularGridInterpolator</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">xpoints</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ypoints</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">zpoints</span><span class="p">),</span> 
+                                                    <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;total&#39;</span><span class="p">],</span> <span class="n">bounds_error</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">spin_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -2962,10 +3038,10 @@
         <span class="n">lengths</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">abc</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">i</span> <span class="o">/</span> <span class="n">num_pts</span> <span class="o">*</span> <span class="n">lengths</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_pts</span><span class="p">)]</span></div>
 
-    <span class="k">def</span> <span class="nf">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">linear_add</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__sub__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__sub__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">linear_add</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">)</span>
 
 <div class="viewcode-block" id="VolumetricData.copy"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.VolumetricData.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -3035,16 +3111,17 @@
                 <span class="n">original_line</span> <span class="o">=</span> <span class="n">line</span>
                 <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
                 <span class="k">if</span> <span class="n">read_dataset</span><span class="p">:</span>
-                    <span class="n">toks</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
-                    <span class="k">for</span> <span class="n">tok</span> <span class="ow">in</span> <span class="n">toks</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">tok</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">():</span>
                         <span class="k">if</span> <span class="n">data_count</span> <span class="o">&lt;</span> <span class="n">ngrid_pts</span><span class="p">:</span>
                             <span class="c1"># This complicated procedure is necessary because</span>
                             <span class="c1"># vasp outputs x as the fastest index, followed by y</span>
                             <span class="c1"># then z.</span>
-                            <span class="n">x</span> <span class="o">=</span> <span class="n">data_count</span> <span class="o">%</span> <span class="n">dim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                            <span class="n">y</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">data_count</span> <span class="o">/</span> <span class="n">dim</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span> <span class="o">%</span> <span class="n">dim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-                            <span class="n">z</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">data_count</span> <span class="o">/</span> <span class="n">dim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">dim</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
-                            <span class="n">dataset</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">tok</span><span class="p">)</span>
+                            <span class="n">no_x</span> <span class="o">=</span> <span class="n">data_count</span> <span class="o">//</span> <span class="n">dim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                            <span class="n">dataset</span><span class="p">[</span>
+                                <span class="n">data_count</span> <span class="o">%</span> <span class="n">dim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                <span class="n">no_x</span> <span class="o">%</span> <span class="n">dim</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                                <span class="n">no_x</span> <span class="o">//</span> <span class="n">dim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                            <span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">tok</span><span class="p">)</span>
                             <span class="n">data_count</span> <span class="o">+=</span> <span class="mi">1</span>
                     <span class="k">if</span> <span class="n">data_count</span> <span class="o">&gt;=</span> <span class="n">ngrid_pts</span><span class="p">:</span>
                         <span class="n">read_dataset</span> <span class="o">=</span> <span class="kc">False</span>
@@ -3168,7 +3245,8 @@
                         <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
-                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">count</span> <span class="o">%</span> <span class="mi">5</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
                 <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_aug</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">data_type</span><span class="p">,</span> <span class="p">[])))</span>
 
             <span class="n">write_spin</span><span class="p">(</span><span class="s2">&quot;total&quot;</span><span class="p">)</span>
@@ -3178,6 +3256,45 @@
                 <span class="n">write_spin</span><span class="p">(</span><span class="s2">&quot;diff_z&quot;</span><span class="p">)</span>
             <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_spin_polarized</span><span class="p">:</span>
                 <span class="n">write_spin</span><span class="p">(</span><span class="s2">&quot;diff&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="VolumetricData.value_at"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.VolumetricData.value_at">[docs]</a>    <span class="k">def</span> <span class="nf">value_at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a data value from self.data at a given point (x, y, z) in terms </span>
+<span class="sd">        of fractional lattice parameters. Will be interpolated using a </span>
+<span class="sd">        RegularGridInterpolator on self.data if (x, y, z) is not in the original </span>
+<span class="sd">        set of data points.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            x (float): Fraction of lattice vector a.</span>
+<span class="sd">            y (float): Fraction of lattice vector b.</span>
+<span class="sd">            z (float): Fraction of lattice vector c.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Value from self.data (potentially interpolated) correspondisng to </span>
+<span class="sd">            the point (x, y, z).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">interpolator</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="VolumetricData.linear_slice"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.VolumetricData.linear_slice">[docs]</a>    <span class="k">def</span> <span class="nf">linear_slice</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a linear slice of the volumetric data with n data points from</span>
+<span class="sd">        point p1 to point p2, in the form of a list.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            p1 (list): 3-element list containing fractional coordinates of the first point.</span>
+<span class="sd">            p2 (list): 3-element list containing fractional coordinates of the second point.</span>
+<span class="sd">            n (int): Number of data points to collect, defaults to 100.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List of n data points (mostly interpolated) representing a linear slice of the </span>
+<span class="sd">            data from point p1 to point p2.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="nb">type</span><span class="p">(</span><span class="n">p1</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">p2</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">p1</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">p2</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span>
+        <span class="n">xpts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">p1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">p2</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">num</span><span class="o">=</span><span class="n">n</span><span class="p">)</span>
+        <span class="n">ypts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">p1</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">p2</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">num</span><span class="o">=</span><span class="n">n</span><span class="p">)</span>
+        <span class="n">zpts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">p1</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">p2</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">num</span><span class="o">=</span><span class="n">n</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">value_at</span><span class="p">(</span><span class="n">xpts</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">ypts</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">zpts</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)]</span></div>
 
 <div class="viewcode-block" id="VolumetricData.get_integrated_diff"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.VolumetricData.get_integrated_diff">[docs]</a>    <span class="k">def</span> <span class="nf">get_integrated_diff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ind</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">nbins</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -3296,7 +3413,7 @@
             <span class="n">f</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;structure_json&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">as_dict</span><span class="p">())</span></div>
 
 <div class="viewcode-block" id="VolumetricData.from_hdf5"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.VolumetricData.from_hdf5">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">from_hdf5</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">from_hdf5</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Reads VolumetricData from HDF5 file.</span>
 
@@ -3306,8 +3423,11 @@
         <span class="kn">import</span> <span class="nn">h5py</span>
         <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">f</span><span class="p">[</span><span class="s2">&quot;vdata&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+            <span class="n">data_aug</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="s1">&#39;vdata_aug&#39;</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">data_aug</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">f</span><span class="p">[</span><span class="s2">&quot;vdata_aug&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
             <span class="n">structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;structure_json&quot;</span><span class="p">]))</span>
-            <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">structure</span><span class="o">=</span><span class="n">structure</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span></div></div>
+            <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">data_aug</span><span class="o">=</span><span class="n">data_aug</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="Locpot"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Locpot">[docs]</a><span class="k">class</span> <span class="nc">Locpot</span><span class="p">(</span><span class="n">VolumetricData</span><span class="p">):</span>
@@ -3315,7 +3435,7 @@
 <span class="sd">    Simple object for reading a LOCPOT file.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">poscar</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">poscar</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            poscar (Poscar): Poscar object containing structure.</span>
@@ -3324,8 +3444,8 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">poscar</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">poscar</span><span class="o">.</span><span class="n">comment</span>
 
-<div class="viewcode-block" id="Locpot.from_file"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Locpot.from_file">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+<div class="viewcode-block" id="Locpot.from_file"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Locpot.from_file">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Reads a LOCPOT file.</span>
 
@@ -3333,7 +3453,7 @@
 <span class="sd">        :return: Locpot</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="p">(</span><span class="n">poscar</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">data_aug</span><span class="p">)</span> <span class="o">=</span> <span class="n">VolumetricData</span><span class="o">.</span><span class="n">parse_file</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">Locpot</span><span class="p">(</span><span class="n">poscar</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">poscar</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="Chgcar"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Chgcar">[docs]</a><span class="k">class</span> <span class="nc">Chgcar</span><span class="p">(</span><span class="n">VolumetricData</span><span class="p">):</span>
@@ -3341,15 +3461,24 @@
 <span class="sd">    Simple object for reading a CHGCAR file.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">poscar</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">data_aug</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">poscar</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">data_aug</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
-<span class="sd">            poscar (Poscar): Poscar object containing structure.</span>
+<span class="sd">            poscar (Poscar or Structure): Object containing structure.</span>
 <span class="sd">            data: Actual data.</span>
+<span class="sd">            data_aug: Augmentation charge data</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">poscar</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">data_aug</span><span class="o">=</span><span class="n">data_aug</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">poscar</span> <span class="o">=</span> <span class="n">poscar</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">poscar</span><span class="o">.</span><span class="n">comment</span>
+        <span class="c1"># allow for poscar or structure files to be passed</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">poscar</span><span class="p">,</span> <span class="n">Poscar</span><span class="p">):</span>
+            <span class="n">tmp_struct</span> <span class="o">=</span> <span class="n">poscar</span><span class="o">.</span><span class="n">structure</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">poscar</span> <span class="o">=</span> <span class="n">poscar</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">poscar</span><span class="o">.</span><span class="n">comment</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">poscar</span><span class="p">,</span> <span class="n">Structure</span><span class="p">):</span>
+            <span class="n">tmp_struct</span> <span class="o">=</span> <span class="n">poscar</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">poscar</span> <span class="o">=</span> <span class="n">Poscar</span><span class="p">(</span><span class="n">poscar</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">tmp_struct</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">data_aug</span><span class="o">=</span><span class="n">data_aug</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_distance_matrix</span> <span class="o">=</span> <span class="p">{}</span>
 
 <div class="viewcode-block" id="Chgcar.from_file"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Chgcar.from_file">[docs]</a>    <span class="nd">@staticmethod</span>
@@ -3384,13 +3513,21 @@
 <span class="sd">    This also contains information on the kinetic energy density.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">poscar</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">poscar</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
-<span class="sd">            poscar (Poscar): Poscar object containing structure.</span>
+<span class="sd">            poscar (Poscar or Structure): Object containing structure.</span>
 <span class="sd">            data: Actual data.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">poscar</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+        <span class="c1"># allow for poscar or structure files to be passed</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">poscar</span><span class="p">,</span> <span class="n">Poscar</span><span class="p">):</span>
+            <span class="n">tmp_struct</span> <span class="o">=</span> <span class="n">poscar</span><span class="o">.</span><span class="n">structure</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">poscar</span> <span class="o">=</span> <span class="n">poscar</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">poscar</span><span class="p">,</span> <span class="n">Structure</span><span class="p">):</span>
+            <span class="n">tmp_struct</span> <span class="o">=</span> <span class="n">poscar</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">poscar</span> <span class="o">=</span> <span class="n">Poscar</span><span class="p">(</span><span class="n">poscar</span><span class="p">)</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">tmp_struct</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
         <span class="c1"># TODO: modify VolumetricData so that the correct keys can be used.</span>
         <span class="c1"># for ELF, instead of &quot;total&quot; and &quot;diff&quot; keys we have</span>
         <span class="c1"># &quot;Spin.up&quot; and &quot;Spin.down&quot; keys</span>
@@ -3462,7 +3599,7 @@
 <span class="sd">        Number of ions</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            filename: Name of file containing PROCAR.</span>
@@ -3623,7 +3760,7 @@
 <span class="sd">            This is the typical output from VASP at the end of each ionic step.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            filename (str): Filename of file to parse</span>
@@ -3796,7 +3933,7 @@
 <span class="sd">    Authors: Ram Balachandran</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">ionicstep_start</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">ionicstep_start</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                  <span class="n">ionicstep_end</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">comment</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Init a Xdatcar.</span>
@@ -3999,7 +4136,7 @@
         <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;wt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_string</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">))</span></div>
 
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_string</span><span class="p">()</span></div>
 
 
@@ -4018,7 +4155,7 @@
 <span class="sd">    Authors: Patrick Huck</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            filename: Name of file containing DYNMAT</span>
@@ -4110,6 +4247,13 @@
     <span class="k">return</span> <span class="n">efermi</span></div>
 
 
+<span class="c1"># a note to future confused people (i.e. myself):</span>
+<span class="c1"># I use numpy.fromfile instead of scipy.io.FortranFile here because the records</span>
+<span class="c1"># are of fixed length, so the record length is only written once. In fortran,</span>
+<span class="c1"># this amounts to using open(..., form=&#39;unformatted&#39;, recl=recl_len). In</span>
+<span class="c1"># constrast when you write UNK files, the record length is written at the</span>
+<span class="c1"># beginning of each record. This allows you to use scipy.io.FortranFile. In</span>
+<span class="c1"># fortran, this amounts to using open(..., form=&#39;unformatted&#39;) [i.e. no recl=].</span>
 <div class="viewcode-block" id="Wavecar"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Wavecar">[docs]</a><span class="k">class</span> <span class="nc">Wavecar</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This is a class that contains the (pseudo-) wavefunctions from VASP.</span>
@@ -4131,6 +4275,11 @@
 <span class="sd">    .. attribute:: filename</span>
 
 <span class="sd">        String of the input file (usually WAVECAR)</span>
+
+<span class="sd">    .. attribute:: vasp_type</span>
+
+<span class="sd">        String that determines VASP type the WAVECAR was generated with (either</span>
+<span class="sd">        &#39;std&#39;, &#39;gam&#39;, or &#39;ncl&#39;)</span>
 
 <span class="sd">    .. attribute:: nk</span>
 
@@ -4188,6 +4337,8 @@
 <span class="sd">        to the kpoint and the second corresponds to the band (e.g.</span>
 <span class="sd">        self.coeffs[kp][b] corresponds to k-point kp and band b). For</span>
 <span class="sd">        spin-polarized calculations, the first index is for the spin.</span>
+<span class="sd">        If the calculation was non-collinear, then self.coeffs[kp][b] will have</span>
+<span class="sd">        two columns (one for each component of the spinor).</span>
 
 <span class="sd">    Acknowledgments:</span>
 <span class="sd">        This code is based upon the Fortran program, WaveTrans, written by</span>
@@ -4198,7 +4349,8 @@
 <span class="sd">    Author: Mark Turiansky</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;WAVECAR&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;WAVECAR&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">,</span>
+                 <span class="n">vasp_type</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Information is extracted from the given WAVECAR</span>
 
@@ -4207,8 +4359,14 @@
 <span class="sd">            verbose (bool): determines whether processing information is shown</span>
 <span class="sd">            precision (str): determines how fine the fft mesh is (normal or</span>
 <span class="sd">                             accurate), only the first letter matters</span>
+<span class="sd">            vasp_type (str): determines the VASP type that is used, allowed</span>
+<span class="sd">                             values are [&#39;std&#39;, &#39;gam&#39;, &#39;ncl&#39;]</span>
+<span class="sd">                             (only first letter is required)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">vasp_type</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">vasp_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="s1">&#39;n&#39;</span><span class="p">]):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;invalid vasp_type </span><span class="si">{</span><span class="n">vasp_type</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vasp_type</span> <span class="o">=</span> <span class="n">vasp_type</span>
 
         <span class="c1"># c = 0.26246582250210965422</span>
         <span class="c1"># 2m/hbar^2 in agreement with VASP</span>
@@ -4222,20 +4380,21 @@
             <span class="n">recl8</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">recl</span> <span class="o">/</span> <span class="mi">8</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">spin</span> <span class="o">=</span> <span class="n">spin</span>
 
-            <span class="c1"># check that ISPIN wasn&#39;t set to 2</span>
-            <span class="c1"># if spin == 2:</span>
-            <span class="c1">#     raise ValueError(&#39;spin polarization not currently supported&#39;)</span>
-
             <span class="c1"># check to make sure we have precision correct</span>
-            <span class="k">if</span> <span class="n">rtag</span> <span class="o">!=</span> <span class="mi">45200</span> <span class="ow">and</span> <span class="n">rtag</span> <span class="o">!=</span> <span class="mi">45210</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">rtag</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">45200</span><span class="p">,</span> <span class="mi">45210</span><span class="p">,</span> <span class="mi">53300</span><span class="p">,</span> <span class="mi">53310</span><span class="p">):</span>
+                <span class="c1"># note that rtag=45200 and 45210 may not work if file was actually</span>
+                <span class="c1"># generated by old version of VASP, since that would write eigenvalues</span>
+                <span class="c1"># and occupations in way that does not span FORTRAN records, but</span>
+                <span class="c1"># reader below appears to assume that record boundaries can be ignored</span>
+                <span class="c1"># (see OUTWAV vs. OUTWAV_4 in vasp fileio.F)</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;invalid rtag of </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rtag</span><span class="p">))</span>
 
-            <span class="c1"># padding</span>
+            <span class="c1"># padding to end of fortran REC=1</span>
             <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="p">(</span><span class="n">recl8</span> <span class="o">-</span> <span class="mi">3</span><span class="p">))</span>
 
             <span class="c1"># extract kpoint, bands, energy, and lattice information</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">nk</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nb</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">encut</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span>
-                                                       <span class="n">count</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">nk</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nb</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">encut</span> <span class="o">=</span> \
+                <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">efermi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
@@ -4267,11 +4426,10 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">ng</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nbmax</span> <span class="o">*</span> <span class="mi">3</span> <span class="k">if</span> <span class="n">precision</span><span class="o">.</span><span class="n">lower</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;n&#39;</span> <span class="k">else</span> \
                 <span class="bp">self</span><span class="o">.</span><span class="n">_nbmax</span> <span class="o">*</span> <span class="mi">4</span>
 
-            <span class="c1"># padding</span>
+            <span class="c1"># padding to end of fortran REC=2</span>
             <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="n">recl8</span> <span class="o">-</span> <span class="mi">13</span><span class="p">)</span>
 
             <span class="c1"># reading records</span>
-            <span class="c1"># np.set_printoptions(precision=7, suppress=True)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">Gpoints</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nk</span><span class="p">)]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">kpoints</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">if</span> <span class="n">spin</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
@@ -4282,9 +4440,11 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">coeffs</span> <span class="o">=</span> <span class="p">[[</span><span class="kc">None</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nb</span><span class="p">)]</span>
                                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nk</span><span class="p">)]</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">band_energy</span> <span class="o">=</span> <span class="p">[]</span>
+
             <span class="k">for</span> <span class="n">ispin</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">spin</span><span class="p">):</span>
                 <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
                     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;reading spin </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ispin</span><span class="p">))</span>
+
                 <span class="k">for</span> <span class="n">ink</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nk</span><span class="p">):</span>
                     <span class="c1"># information for this kpoint</span>
                     <span class="n">nplane</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
@@ -4308,34 +4468,67 @@
                         <span class="bp">self</span><span class="o">.</span><span class="n">band_energy</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">enocc</span><span class="p">)</span>
 
                     <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-                        <span class="nb">print</span><span class="p">(</span><span class="n">enocc</span><span class="p">[:,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]])</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;enocc =</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">enocc</span><span class="p">[:,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]])</span>
 
-                    <span class="c1"># padding</span>
-                    <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="p">(</span><span class="n">recl8</span> <span class="o">-</span> <span class="mi">4</span> <span class="o">-</span> <span class="mi">3</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">nb</span><span class="p">))</span>
+                    <span class="c1"># padding to end of record that contains nplane, kpoints, evals and occs</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="p">(</span><span class="n">recl8</span> <span class="o">-</span> <span class="mi">4</span> <span class="o">-</span> <span class="mi">3</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">nb</span><span class="p">)</span> <span class="o">%</span> <span class="n">recl8</span><span class="p">)</span>
 
-                    <span class="c1"># generate G integers</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">Gpoints</span><span class="p">[</span><span class="n">ink</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_G_points</span><span class="p">(</span><span class="n">kpoint</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Gpoints</span><span class="p">[</span><span class="n">ink</span><span class="p">])</span> <span class="o">!=</span> <span class="n">nplane</span><span class="p">:</span>
-                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;failed to generate the correct &#39;</span>
-                                         <span class="s1">&#39;number of G points&#39;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">vasp_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Gpoints</span><span class="p">[</span><span class="n">ink</span><span class="p">],</span> <span class="n">extra_gpoints</span><span class="p">,</span> <span class="n">extra_coeff_inds</span><span class="p">)</span> <span class="o">=</span> \
+                            <span class="bp">self</span><span class="o">.</span><span class="n">_generate_G_points</span><span class="p">(</span><span class="n">kpoint</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Gpoints</span><span class="p">[</span><span class="n">ink</span><span class="p">])</span> <span class="o">==</span> <span class="n">nplane</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">vasp_type</span> <span class="o">=</span> <span class="s1">&#39;gam&#39;</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Gpoints</span><span class="p">[</span><span class="n">ink</span><span class="p">],</span> <span class="n">extra_gpoints</span><span class="p">,</span> <span class="n">extra_coeff_inds</span><span class="p">)</span> <span class="o">=</span> \
+                                <span class="bp">self</span><span class="o">.</span><span class="n">_generate_G_points</span><span class="p">(</span><span class="n">kpoint</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">vasp_type</span> <span class="o">=</span> \
+                                <span class="s1">&#39;std&#39;</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Gpoints</span><span class="p">[</span><span class="n">ink</span><span class="p">])</span> <span class="o">==</span> <span class="n">nplane</span> <span class="k">else</span> <span class="s1">&#39;ncl&#39;</span>
+
+                        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">determined vasp_type =&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">vasp_type</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Gpoints</span><span class="p">[</span><span class="n">ink</span><span class="p">],</span> <span class="n">extra_gpoints</span><span class="p">,</span> <span class="n">extra_coeff_inds</span><span class="p">)</span> <span class="o">=</span> \
+                            <span class="bp">self</span><span class="o">.</span><span class="n">_generate_G_points</span><span class="p">(</span><span class="n">kpoint</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vasp_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;g&#39;</span><span class="p">))</span>
+
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Gpoints</span><span class="p">[</span><span class="n">ink</span><span class="p">])</span> <span class="o">!=</span> <span class="n">nplane</span> <span class="ow">and</span> <span class="mi">2</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Gpoints</span><span class="p">[</span><span class="n">ink</span><span class="p">])</span> <span class="o">!=</span> <span class="n">nplane</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Incorrect value of vasp_type given (</span><span class="si">{</span><span class="n">vasp_type</span><span class="si">}</span><span class="s1">).&#39;</span>
+                                         <span class="s1">&#39; Please open an issue if you are certain this WAVECAR&#39;</span>
+                                         <span class="s1">&#39; was generated with the given vasp_type.&#39;</span><span class="p">)</span>
+
+                    <span class="bp">self</span><span class="o">.</span><span class="n">Gpoints</span><span class="p">[</span><span class="n">ink</span><span class="p">]</span> <span class="o">=</span> \
+                        <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Gpoints</span><span class="p">[</span><span class="n">ink</span><span class="p">]</span> <span class="o">+</span> <span class="n">extra_gpoints</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
 
                     <span class="c1"># extract coefficients</span>
                     <span class="k">for</span> <span class="n">inb</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nb</span><span class="p">):</span>
-                        <span class="k">if</span> <span class="n">rtag</span> <span class="o">==</span> <span class="mi">45200</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">rtag</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">45200</span><span class="p">,</span> <span class="mi">53300</span><span class="p">):</span>
                             <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">complex64</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="n">nplane</span><span class="p">)</span>
                             <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="n">recl8</span> <span class="o">-</span> <span class="n">nplane</span><span class="p">)</span>
-                        <span class="k">elif</span> <span class="n">rtag</span> <span class="o">==</span> <span class="mi">45210</span><span class="p">:</span>
+                        <span class="k">elif</span> <span class="n">rtag</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">45210</span><span class="p">,</span> <span class="mi">53310</span><span class="p">):</span>
                             <span class="c1"># this should handle double precision coefficients</span>
                             <span class="c1"># but I don&#39;t have a WAVECAR to test it with</span>
                             <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">complex128</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="n">nplane</span><span class="p">)</span>
                             <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="n">recl8</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">nplane</span><span class="p">)</span>
 
-                        <span class="k">if</span> <span class="n">spin</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-                            <span class="bp">self</span><span class="o">.</span><span class="n">coeffs</span><span class="p">[</span><span class="n">ispin</span><span class="p">][</span><span class="n">ink</span><span class="p">][</span><span class="n">inb</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span>
-                        <span class="k">else</span><span class="p">:</span>
-                            <span class="bp">self</span><span class="o">.</span><span class="n">coeffs</span><span class="p">[</span><span class="n">ink</span><span class="p">][</span><span class="n">inb</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span>
+                        <span class="n">extra_coeffs</span> <span class="o">=</span> <span class="p">[]</span>
+                        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">extra_coeff_inds</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                            <span class="c1"># reconstruct extra coefficients missing from gamma-only executable WAVECAR</span>
+                            <span class="k">for</span> <span class="n">G_ind</span> <span class="ow">in</span> <span class="n">extra_coeff_inds</span><span class="p">:</span>
+                                <span class="c1"># no idea where this factor of sqrt(2) comes from, but empirically</span>
+                                <span class="c1"># it appears to be necessary</span>
+                                <span class="n">data</span><span class="p">[</span><span class="n">G_ind</span><span class="p">]</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+                                <span class="n">extra_coeffs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">G_ind</span><span class="p">]))</span>
 
-    <span class="k">def</span> <span class="nf">_generate_nbmax</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                        <span class="k">if</span> <span class="n">spin</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">coeffs</span><span class="p">[</span><span class="n">ispin</span><span class="p">][</span><span class="n">ink</span><span class="p">][</span><span class="n">inb</span><span class="p">]</span> <span class="o">=</span> \
+                                <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">+</span> <span class="n">extra_coeffs</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">complex64</span><span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">coeffs</span><span class="p">[</span><span class="n">ink</span><span class="p">][</span><span class="n">inb</span><span class="p">]</span> <span class="o">=</span> \
+                                <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">+</span> <span class="n">extra_coeffs</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">complex128</span><span class="p">)</span>
+
+                        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">vasp_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;n&#39;</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">coeffs</span><span class="p">[</span><span class="n">ink</span><span class="p">][</span><span class="n">inb</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">nplane</span><span class="o">//</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_generate_nbmax</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Helper function that determines maximum number of b vectors for</span>
 <span class="sd">        each direction.</span>
@@ -4349,7 +4542,8 @@
 
         <span class="c1"># calculate maximum integers in each direction for G</span>
         <span class="n">phi12</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arccos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:],</span> <span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:])</span> <span class="o">/</span> <span class="p">(</span><span class="n">bmag</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">bmag</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
-        <span class="n">sphi123</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="p">:],</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:],</span> <span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]))</span> <span class="o">/</span> <span class="p">(</span><span class="n">bmag</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:],</span> <span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:])))</span>
+        <span class="n">sphi123</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="p">:],</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:],</span> <span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]))</span> \
+            <span class="o">/</span> <span class="p">(</span><span class="n">bmag</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:],</span> <span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:])))</span>
         <span class="n">nbmaxA</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">encut</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_C</span><span class="p">)</span> <span class="o">/</span> <span class="n">bmag</span>
         <span class="n">nbmaxA</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">phi12</span><span class="p">))</span>
         <span class="n">nbmaxA</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">phi12</span><span class="p">))</span>
@@ -4357,7 +4551,8 @@
         <span class="n">nbmaxA</span> <span class="o">+=</span> <span class="mi">1</span>
 
         <span class="n">phi13</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arccos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:],</span> <span class="n">b</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="p">:])</span> <span class="o">/</span> <span class="p">(</span><span class="n">bmag</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">bmag</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
-        <span class="n">sphi123</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:],</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:],</span> <span class="n">b</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="p">:]))</span> <span class="o">/</span> <span class="p">(</span><span class="n">bmag</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:],</span> <span class="n">b</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="p">:])))</span>
+        <span class="n">sphi123</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:],</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:],</span> <span class="n">b</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="p">:]))</span> \
+            <span class="o">/</span> <span class="p">(</span><span class="n">bmag</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:],</span> <span class="n">b</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="p">:])))</span>
         <span class="n">nbmaxB</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">encut</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_C</span><span class="p">)</span> <span class="o">/</span> <span class="n">bmag</span>
         <span class="n">nbmaxB</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">phi13</span><span class="p">))</span>
         <span class="n">nbmaxB</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">sphi123</span><span class="p">)</span>
@@ -4365,7 +4560,8 @@
         <span class="n">nbmaxB</span> <span class="o">+=</span> <span class="mi">1</span>
 
         <span class="n">phi23</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arccos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:],</span> <span class="n">b</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="p">:])</span> <span class="o">/</span> <span class="p">(</span><span class="n">bmag</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">bmag</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
-        <span class="n">sphi123</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:],</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:],</span> <span class="n">b</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="p">:]))</span> <span class="o">/</span> <span class="p">(</span><span class="n">bmag</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:],</span> <span class="n">b</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="p">:])))</span>
+        <span class="n">sphi123</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:],</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:],</span> <span class="n">b</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="p">:]))</span> \
+            <span class="o">/</span> <span class="p">(</span><span class="n">bmag</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:],</span> <span class="n">b</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="p">:])))</span>
         <span class="n">nbmaxC</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">encut</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_C</span><span class="p">)</span> <span class="o">/</span> <span class="n">bmag</span>
         <span class="n">nbmaxC</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">sphi123</span><span class="p">)</span>
         <span class="n">nbmaxC</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">phi23</span><span class="p">))</span>
@@ -4374,7 +4570,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_nbmax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">([</span><span class="n">nbmaxA</span><span class="p">,</span> <span class="n">nbmaxB</span><span class="p">,</span> <span class="n">nbmaxC</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_generate_G_points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kpoint</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_generate_G_points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kpoint</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">gamma</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">List</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Helper function to generate G-points based on nbmax.</span>
 
@@ -4385,26 +4581,44 @@
 
 <span class="sd">        Args:</span>
 <span class="sd">            kpoint (np.array): the array containing the current k-point value</span>
+<span class="sd">            gamma (bool): determines if G points for gamma-point only executable</span>
+<span class="sd">                          should be generated</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            a list containing valid G-points</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">gamma</span><span class="p">:</span>
+            <span class="n">kmax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nbmax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">kmax</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nbmax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
+
         <span class="n">gpoints</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">extra_gpoints</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">extra_coeff_inds</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">G_ind</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nbmax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
             <span class="n">i3</span> <span class="o">=</span> <span class="n">i</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nbmax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nbmax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">else</span> <span class="n">i</span>
             <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nbmax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
                 <span class="n">j2</span> <span class="o">=</span> <span class="n">j</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nbmax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">j</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nbmax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">else</span> <span class="n">j</span>
-                <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nbmax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">kmax</span><span class="p">):</span>
                     <span class="n">k1</span> <span class="o">=</span> <span class="n">k</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nbmax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">k</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nbmax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">else</span> <span class="n">k</span>
+                    <span class="k">if</span> <span class="n">gamma</span> <span class="ow">and</span> <span class="p">((</span><span class="n">k1</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">j2</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">k1</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">j2</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">i3</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)):</span>
+                        <span class="k">continue</span>
                     <span class="n">G</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">k1</span><span class="p">,</span> <span class="n">j2</span><span class="p">,</span> <span class="n">i3</span><span class="p">])</span>
                     <span class="n">v</span> <span class="o">=</span> <span class="n">kpoint</span> <span class="o">+</span> <span class="n">G</span>
                     <span class="n">g</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="p">))</span>
                     <span class="n">E</span> <span class="o">=</span> <span class="n">g</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_C</span>
                     <span class="k">if</span> <span class="n">E</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">encut</span><span class="p">:</span>
                         <span class="n">gpoints</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">G</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">gpoints</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">gamma</span> <span class="ow">and</span> <span class="p">(</span><span class="n">k1</span><span class="p">,</span> <span class="n">j2</span><span class="p">,</span> <span class="n">i3</span><span class="p">)</span> <span class="o">!=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
+                            <span class="n">extra_gpoints</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="o">-</span><span class="n">G</span><span class="p">)</span>
+                            <span class="n">extra_coeff_inds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">G_ind</span><span class="p">)</span>
+                        <span class="n">G_ind</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">gpoints</span><span class="p">,</span> <span class="n">extra_gpoints</span><span class="p">,</span> <span class="n">extra_coeff_inds</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Wavecar.evaluate_wavefunc"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Wavecar.evaluate_wavefunc">[docs]</a>    <span class="k">def</span> <span class="nf">evaluate_wavefunc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kpoint</span><span class="p">,</span> <span class="n">band</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">spin</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<div class="viewcode-block" id="Wavecar.evaluate_wavefunc"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Wavecar.evaluate_wavefunc">[docs]</a>    <span class="k">def</span> <span class="nf">evaluate_wavefunc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kpoint</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">band</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">r</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+                          <span class="n">spin</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">spinor</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">complex64</span><span class="p">:</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Evaluates the wavefunction for a given position, r.</span>
 
@@ -4429,16 +4643,23 @@
 <span class="sd">            r (np.array): the position where the wavefunction will be evaluated</span>
 <span class="sd">            spin (int):  spin index for the desired wavefunction (only for</span>
 <span class="sd">                            ISPIN = 2, default = 0)</span>
+<span class="sd">            spinor (int): component of the spinor that is evaluated (only used</span>
+<span class="sd">                            if vasp_type == &#39;ncl&#39;)</span>
 <span class="sd">        Returns:</span>
 <span class="sd">            a complex value corresponding to the evaluation of the wavefunction</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Gpoints</span><span class="p">[</span><span class="n">kpoint</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">kpoints</span><span class="p">[</span><span class="n">kpoint</span><span class="p">]</span>
         <span class="n">u</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="p">),</span> <span class="n">r</span><span class="p">)</span>
-        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coeffs</span><span class="p">[</span><span class="n">spin</span><span class="p">][</span><span class="n">kpoint</span><span class="p">][</span><span class="n">band</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">spin</span> <span class="o">==</span> <span class="mi">2</span> <span class="k">else</span> \
-            <span class="bp">self</span><span class="o">.</span><span class="n">coeffs</span><span class="p">[</span><span class="n">kpoint</span><span class="p">][</span><span class="n">band</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">vasp_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;n&#39;</span><span class="p">:</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coeffs</span><span class="p">[</span><span class="n">kpoint</span><span class="p">][</span><span class="n">band</span><span class="p">][</span><span class="n">spinor</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">spin</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coeffs</span><span class="p">[</span><span class="n">spin</span><span class="p">][</span><span class="n">kpoint</span><span class="p">][</span><span class="n">band</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coeffs</span><span class="p">[</span><span class="n">kpoint</span><span class="p">][</span><span class="n">band</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">u</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">complex64</span><span class="p">)))</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vol</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Wavecar.fft_mesh"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Wavecar.fft_mesh">[docs]</a>    <span class="k">def</span> <span class="nf">fft_mesh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kpoint</span><span class="p">,</span> <span class="n">band</span><span class="p">,</span> <span class="n">spin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">shift</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="Wavecar.fft_mesh"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Wavecar.fft_mesh">[docs]</a>    <span class="k">def</span> <span class="nf">fft_mesh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kpoint</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">band</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">spin</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">spinor</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+                 <span class="n">shift</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Places the coefficients of a wavefunction onto an fft mesh.</span>
 
@@ -4457,24 +4678,32 @@
 <span class="sd">                            evaluated</span>
 <span class="sd">            spin (int):  the spin of the wavefunction for the desired</span>
 <span class="sd">                            wavefunction (only for ISPIN = 2, default = 0)</span>
+<span class="sd">            spinor (int): component of the spinor that is evaluated (only used</span>
+<span class="sd">                            if vasp_type == &#39;ncl&#39;)</span>
 <span class="sd">            shift (bool): determines if the zero frequency coefficient is</span>
 <span class="sd">                            placed at index (0, 0, 0) or centered</span>
 <span class="sd">        Returns:</span>
 <span class="sd">            a numpy ndarray representing the 3D mesh of coefficients</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">vasp_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;n&#39;</span><span class="p">:</span>
+            <span class="n">tcoeffs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coeffs</span><span class="p">[</span><span class="n">kpoint</span><span class="p">][</span><span class="n">band</span><span class="p">][</span><span class="n">spinor</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">spin</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">tcoeffs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coeffs</span><span class="p">[</span><span class="n">spin</span><span class="p">][</span><span class="n">kpoint</span><span class="p">][</span><span class="n">band</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">tcoeffs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coeffs</span><span class="p">[</span><span class="n">kpoint</span><span class="p">][</span><span class="n">band</span><span class="p">]</span>
+
         <span class="n">mesh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ng</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">complex</span><span class="p">)</span>
-        <span class="n">tcoeffs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coeffs</span><span class="p">[</span><span class="n">spin</span><span class="p">][</span><span class="n">kpoint</span><span class="p">][</span><span class="n">band</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">spin</span> <span class="o">==</span> <span class="mi">2</span> <span class="k">else</span> \
-            <span class="bp">self</span><span class="o">.</span><span class="n">coeffs</span><span class="p">[</span><span class="n">kpoint</span><span class="p">][</span><span class="n">band</span><span class="p">]</span>
         <span class="k">for</span> <span class="n">gp</span><span class="p">,</span> <span class="n">coeff</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Gpoints</span><span class="p">[</span><span class="n">kpoint</span><span class="p">],</span> <span class="n">tcoeffs</span><span class="p">):</span>
             <span class="n">t</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">gp</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ng</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">))</span>
             <span class="n">mesh</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">=</span> <span class="n">coeff</span>
+
         <span class="k">if</span> <span class="n">shift</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifftshift</span><span class="p">(</span><span class="n">mesh</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">mesh</span></div>
+        <span class="k">return</span> <span class="n">mesh</span></div>
 
-<div class="viewcode-block" id="Wavecar.get_parchg"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Wavecar.get_parchg">[docs]</a>    <span class="k">def</span> <span class="nf">get_parchg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">poscar</span><span class="p">,</span> <span class="n">kpoint</span><span class="p">,</span> <span class="n">band</span><span class="p">,</span> <span class="n">spin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">phase</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                   <span class="n">scale</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+<div class="viewcode-block" id="Wavecar.get_parchg"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Wavecar.get_parchg">[docs]</a>    <span class="k">def</span> <span class="nf">get_parchg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">poscar</span><span class="p">:</span> <span class="n">Poscar</span><span class="p">,</span> <span class="n">kpoint</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">band</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                   <span class="n">spin</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">spinor</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                   <span class="n">phase</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">scale</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Chgcar</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generates a Chgcar object, which is the charge density of the specified</span>
 <span class="sd">        wavefunction.</span>
@@ -4493,23 +4722,24 @@
 
 <span class="sd">        Args:</span>
 <span class="sd">            poscar (pymatgen.io.vasp.inputs.Poscar): Poscar object that has the</span>
-<span class="sd">                                structure associated with the WAVECAR file</span>
-<span class="sd">            kpoint (int):   the index of the kpoint for the wavefunction</span>
-<span class="sd">            band (int):     the index of the band for the wavefunction</span>
-<span class="sd">            spin (int):     optional argument to specify the spin. If the</span>
-<span class="sd">                                Wavecar has ISPIN = 2, spin is None generates a</span>
-<span class="sd">                                Chgcar with total spin and magnetization, and</span>
-<span class="sd">                                spin == {0, 1} specifies just the spin up or</span>
-<span class="sd">                                down component.</span>
-<span class="sd">            phase (bool):   flag to determine if the charge density is</span>
-<span class="sd">                                multiplied by the sign of the wavefunction.</span>
-<span class="sd">                                Only valid for real wavefunctions.</span>
-<span class="sd">            scale (int):    scaling for the FFT grid. The default value of 2 is</span>
-<span class="sd">                                at least as fine as the VASP default.</span>
+<span class="sd">                structure associated with the WAVECAR file</span>
+<span class="sd">            kpoint (int): the index of the kpoint for the wavefunction</span>
+<span class="sd">            band (int): the index of the band for the wavefunction</span>
+<span class="sd">            spin (int): optional argument to specify the spin. If the Wavecar</span>
+<span class="sd">                has ISPIN = 2, spin is None generates a Chgcar with total spin</span>
+<span class="sd">                and magnetization, and spin == {0, 1} specifies just the spin</span>
+<span class="sd">                up or down component.</span>
+<span class="sd">            spinor (int): optional argument to specify the spinor component</span>
+<span class="sd">                for noncollinear data wavefunctions (allowed values of None,</span>
+<span class="sd">                0, or 1)</span>
+<span class="sd">            phase (bool): flag to determine if the charge density is multiplied</span>
+<span class="sd">                by the sign of the wavefunction. Only valid for real</span>
+<span class="sd">                wavefunctions.</span>
+<span class="sd">            scale (int): scaling for the FFT grid. The default value of 2 is at</span>
+<span class="sd">                least as fine as the VASP default.</span>
 <span class="sd">        Returns:</span>
 <span class="sd">            a pymatgen.io.vasp.outputs.Chgcar object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="k">if</span> <span class="n">phase</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kpoints</span><span class="p">[</span><span class="n">kpoint</span><span class="p">]</span> <span class="o">==</span> <span class="mf">0.</span><span class="p">):</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;phase == True should only be used for the Gamma &#39;</span>
                           <span class="s1">&#39;kpoint! I hope you know what you</span><span class="se">\&#39;</span><span class="s1">re doing!&#39;</span><span class="p">)</span>
@@ -4535,14 +4765,62 @@
                 <span class="n">data</span><span class="p">[</span><span class="s1">&#39;total&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">denup</span> <span class="o">+</span> <span class="n">dendn</span>
                 <span class="n">data</span><span class="p">[</span><span class="s1">&#39;diff&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">denup</span> <span class="o">-</span> <span class="n">dendn</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">wfr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifftn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fft_mesh</span><span class="p">(</span><span class="n">kpoint</span><span class="p">,</span> <span class="n">band</span><span class="p">))</span> <span class="o">*</span> <span class="n">N</span>
-            <span class="n">den</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">wfr</span><span class="p">)</span> <span class="o">*</span> <span class="n">wfr</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">phase</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">spinor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">wfr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifftn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fft_mesh</span><span class="p">(</span><span class="n">kpoint</span><span class="p">,</span> <span class="n">band</span><span class="p">,</span> <span class="n">spinor</span><span class="o">=</span><span class="n">spinor</span><span class="p">))</span> <span class="o">*</span> <span class="n">N</span>
+                <span class="n">den</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">wfr</span><span class="p">)</span> <span class="o">*</span> <span class="n">wfr</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">wfr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifftn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fft_mesh</span><span class="p">(</span><span class="n">kpoint</span><span class="p">,</span> <span class="n">band</span><span class="p">,</span> <span class="n">spinor</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span> <span class="o">*</span> <span class="n">N</span>
+                <span class="n">wfr_t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifftn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fft_mesh</span><span class="p">(</span><span class="n">kpoint</span><span class="p">,</span> <span class="n">band</span><span class="p">,</span> <span class="n">spinor</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span> <span class="o">*</span> <span class="n">N</span>
+                <span class="n">den</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">wfr</span><span class="p">)</span> <span class="o">*</span> <span class="n">wfr</span><span class="p">)</span>
+                <span class="n">den</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">wfr_t</span><span class="p">)</span> <span class="o">*</span> <span class="n">wfr_t</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">phase</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vasp_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;n&#39;</span> <span class="ow">and</span> <span class="n">spinor</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
                 <span class="n">den</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">wfr</span><span class="p">))</span> <span class="o">*</span> <span class="n">den</span>
             <span class="n">data</span><span class="p">[</span><span class="s1">&#39;total&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">den</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">ng</span> <span class="o">=</span> <span class="n">temp_ng</span>
-        <span class="k">return</span> <span class="n">Chgcar</span><span class="p">(</span><span class="n">poscar</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="n">Chgcar</span><span class="p">(</span><span class="n">poscar</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Wavecar.write_unks"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Wavecar.write_unks">[docs]</a>    <span class="k">def</span> <span class="nf">write_unks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">directory</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write the UNK files to the given directory.</span>
+
+<span class="sd">        Writes the cell-periodic part of the bloch wavefunctions from the</span>
+<span class="sd">        WAVECAR file to each of the UNK files. There will be one UNK file for</span>
+<span class="sd">        each of the kpoints in the WAVECAR file.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            wannier90 expects the full kpoint grid instead of the symmetry-</span>
+<span class="sd">            reduced one that VASP stores the wavefunctions on. You should run</span>
+<span class="sd">            a nscf calculation with ISYM=0 to obtain the correct grid.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            directory (str): directory where the UNK files are written</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">out_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">out_dir</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">out_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">out_dir</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;invalid directory&#39;</span><span class="p">)</span>
+
+        <span class="n">N</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ng</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">ik</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nk</span><span class="p">):</span>
+            <span class="n">fname</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;UNK</span><span class="si">{</span><span class="n">ik</span><span class="o">+</span><span class="mi">1</span><span class="si">:</span><span class="s1">05d</span><span class="si">}</span><span class="s1">.&#39;</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">vasp_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;n&#39;</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">nb</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">ng</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">complex128</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">ib</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nb</span><span class="p">):</span>
+                    <span class="n">data</span><span class="p">[</span><span class="n">ib</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> \
+                        <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifftn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fft_mesh</span><span class="p">(</span><span class="n">ik</span><span class="p">,</span> <span class="n">ib</span><span class="p">,</span> <span class="n">spinor</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span> <span class="o">*</span> <span class="n">N</span>
+                    <span class="n">data</span><span class="p">[</span><span class="n">ib</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> \
+                        <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifftn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fft_mesh</span><span class="p">(</span><span class="n">ik</span><span class="p">,</span> <span class="n">ib</span><span class="p">,</span> <span class="n">spinor</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span> <span class="o">*</span> <span class="n">N</span>
+                <span class="n">Unk</span><span class="p">(</span><span class="n">ik</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">out_dir</span> <span class="o">/</span> <span class="p">(</span><span class="n">fname</span> <span class="o">+</span> <span class="s1">&#39;NC&#39;</span><span class="p">)))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">nb</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">ng</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">complex128</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">ispin</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spin</span><span class="p">):</span>
+                    <span class="k">for</span> <span class="n">ib</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nb</span><span class="p">):</span>
+                        <span class="n">data</span><span class="p">[</span><span class="n">ib</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> \
+                            <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifftn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fft_mesh</span><span class="p">(</span><span class="n">ik</span><span class="p">,</span> <span class="n">ib</span><span class="p">,</span> <span class="n">spin</span><span class="o">=</span><span class="n">ispin</span><span class="p">))</span> <span class="o">*</span> <span class="n">N</span>
+                    <span class="n">Unk</span><span class="p">(</span><span class="n">ik</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">out_dir</span> <span class="o">/</span> <span class="p">(</span><span class="n">fname</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">ispin</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)))</span></div></div>
 
 
 <div class="viewcode-block" id="Eigenval"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Eigenval">[docs]</a><span class="k">class</span> <span class="nc">Eigenval</span><span class="p">:</span>
@@ -4589,7 +4867,7 @@
 <span class="sd">        kpoint index is 0-based (unlike the 1-based indexing in VASP).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">occu_tol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">occu_tol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Reads input from filename to construct Eigenval object</span>
 
@@ -4698,7 +4976,7 @@
 <span class="sd">    Author: Miguel Dias Costa</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            filename: Name of file containing WAVEDERF.</span>
@@ -4766,7 +5044,7 @@
 <span class="sd">    Author: Kamal Choudhary, NIST</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">gamma_only</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">gamma_only</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            filename: Name of file containing WAVEDER.</span>
@@ -4862,22 +5140,8 @@
     <span class="k">pass</span></div>
 </pre></div>
 
+            <div class="clearer"></div>
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="../../../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
       </div>
       <div class="clearer"></div>
     </div>
@@ -4890,15 +5154,16 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.11.11 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
+          <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.io.vasp.outputs</a></li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

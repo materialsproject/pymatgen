@@ -35,14 +35,20 @@ class FloatWithUnitTest(PymatgenTest):
         b = a.to("Ha")
         self.assertAlmostEqual(b, 0.0404242579378)
         c = Energy(3.14, "J")
-        self.assertAlmostEqual(c.to("eV"), 1.959833865527343e+19)
+        self.assertAlmostEqual(c.to("eV"), 1.9598338493806797e+19)
         self.assertRaises(UnitError, Energy, 1, "m")
 
         d = Energy(1, "Ha")
-        self.assertAlmostEqual(a + d, 28.31138602063284)
-        self.assertAlmostEqual(a - d, -26.111386020632835)
+        self.assertAlmostEqual(a + d, 28.311386245987997)
+        self.assertAlmostEqual(a - d, -26.111386245987994)
         self.assertEqual(a + 1, 2.1)
         self.assertEqual(str(a / d), "1.1 eV Ha^-1")
+
+        e = Energy(1, 'kJ')
+        f = e.to('kCal')
+        self.assertAlmostEqual(f, 0.2390057361376673)
+        self.assertEqual(str(e + f), '2.0 kJ')
+        self.assertEqual(str(f + e), '0.4780114722753346 kCal')
 
     def test_time(self):
         a = Time(20, "h")
@@ -129,7 +135,7 @@ class FloatWithUnitTest(PymatgenTest):
         self.assertEqual(str(b.unit), "J^3")
         a = FloatWithUnit(1.0, "Ha bohr^-2")
         b = a.to("J m^-2")
-        self.assertAlmostEqual(b, 1556.893078472351)
+        self.assertAlmostEqual(b, 1556.8931028218924)
         self.assertEqual(str(b.unit), "J m^-2")
 
     def test_as_base_units(self):
@@ -156,12 +162,12 @@ class ArrayWithFloatWithUnitTest(PymatgenTest):
         b = a.to("Ha")
         self.assertAlmostEqual(float(b), 0.0404242579378)
         c = EnergyArray(3.14, "J")
-        self.assertAlmostEqual(float(c.to("eV")), 1.959833865527343e+19, 5)
+        self.assertAlmostEqual(float(c.to("eV")), 1.9598338493806797e+19, 5)
         # self.assertRaises(ValueError, Energy, 1, "m")
 
         d = EnergyArray(1, "Ha")
-        self.assertAlmostEqual(float(a + d), 28.31138602063284)
-        self.assertAlmostEqual(float(a - d), -26.111386020632835)
+        self.assertAlmostEqual(float(a + d), 28.311386245987997)
+        self.assertAlmostEqual(float(a - d), -26.111386245987994)
         self.assertEqual(float(a + 1), 2.1)
 
     def test_time(self):

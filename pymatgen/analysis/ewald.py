@@ -2,6 +2,9 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+This module provides classes for calculating the ewald sum of a structure.
+"""
 
 from math import pi, sqrt, log
 from datetime import datetime
@@ -12,10 +15,6 @@ import bisect
 import numpy as np
 from scipy.special import erfc, comb
 import scipy.constants as constants
-
-"""
-This module provides classes for calculating the ewald sum of a structure.
-"""
 
 __author__ = "Shyue Ping Ong, William Davidson Richard"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -31,7 +30,13 @@ class EwaldSummation:
     """
     Calculates the electrostatic energy of a periodic array of charges using
     the Ewald technique.
-    Ref: http://www.ee.duke.edu/~ayt/ewaldpaper/ewaldpaper.html
+
+
+    Ref:
+    Ewald summation techniques in perspective: a survey
+    Abdulnour Y. Toukmaji and John A. Board Jr.
+    DOI: 10.1016/0010-4655(96)00016-1
+    URL: http://www.ee.duke.edu/~ayt/ewaldpaper/ewaldpaper.html
 
     This matrix can be used to do fast calculations of ewald sums after species
     removal.
@@ -370,6 +375,9 @@ class EwaldSummation:
 
     @property
     def eta(self):
+        """
+        Returns: eta value used in Ewald summation.
+        """
         return self._eta
 
     def __str__(self):
@@ -405,21 +413,6 @@ class EwaldMinimizer:
     order disordered structure transformation.
 
     Author - Will Richards
-
-    Args:
-        matrix: A matrix of the ewald sum interaction energies. This is stored
-            in the class as a diagonally symmetric array and so
-            self._matrix will not be the same as the input matrix.
-        m_list: list of manipulations. each item is of the form
-            (multiplication fraction, number_of_indices, indices, species)
-            These are sorted such that the first manipulation contains the
-            most permutations. this is actually evaluated last in the
-            recursion since I'm using pop.
-        num_to_return: The minimizer will find the number_returned lowest
-            energy structures. This is likely to return a number of duplicate
-            structures so it may be necessary to overestimate and then
-            remove the duplicates later. (duplicate checking in this
-            process is extremely expensive)
     """
 
     ALGO_FAST = 0
@@ -434,6 +427,22 @@ class EwaldMinimizer:
     ALGO_TIME_LIMIT = 3
 
     def __init__(self, matrix, m_list, num_to_return=1, algo=ALGO_FAST):
+        """
+        Args:
+            matrix: A matrix of the ewald sum interaction energies. This is stored
+                in the class as a diagonally symmetric array and so
+                self._matrix will not be the same as the input matrix.
+            m_list: list of manipulations. each item is of the form
+                (multiplication fraction, number_of_indices, indices, species)
+                These are sorted such that the first manipulation contains the
+                most permutations. this is actually evaluated last in the
+                recursion since I'm using pop.
+            num_to_return: The minimizer will find the number_returned lowest
+                energy structures. This is likely to return a number of duplicate
+                structures so it may be necessary to overestimate and then
+                remove the duplicates later. (duplicate checking in this
+                process is extremely expensive)
+        """
         # Setup and checking of inputs
         self._matrix = copy(matrix)
         # Make the matrix diagonally symmetric (so matrix[i,:] == matrix[:,j])
@@ -624,14 +633,23 @@ class EwaldMinimizer:
 
     @property
     def best_m_list(self):
+        """
+        Returns: Best m_list found.
+        """
         return self._best_m_list
 
     @property
     def minimized_sum(self):
+        """
+        Returns: Minimized sum
+        """
         return self._minimized_sum
 
     @property
     def output_lists(self):
+        """
+        Returns: output lists.
+        """
         return self._output_lists
 
 

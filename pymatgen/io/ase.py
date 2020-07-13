@@ -1,8 +1,6 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-
-
 """
 This module provides conversion between the Atomic Simulation Environment
 Atoms object and pymatgen Structure objects.
@@ -16,7 +14,7 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Mar 8, 2012"
 
-from pymatgen.core.structure import Structure, Molecule
+from pymatgen.core.structure import Molecule, Structure
 
 try:
     from ase import Atoms
@@ -27,16 +25,16 @@ except ImportError:
 
 class AseAtomsAdaptor:
     """
-    Adaptor serves as a bridge between ASE Atoms and pymatgen structure.
+    Adaptor serves as a bridge between ASE Atoms and pymatgen objects.
     """
 
     @staticmethod
     def get_atoms(structure, **kwargs):
         """
-        Returns ASE Atoms object from pymatgen structure.
+        Returns ASE Atoms object from pymatgen structure or molecule.
 
         Args:
-            structure: pymatgen.core.structure.Structure
+            structure: pymatgen.core.structure.Structure or pymatgen.core.structure.Molecule
             **kwargs: other keyword args to pass into the ASE Atoms constructor
 
         Returns:
@@ -44,11 +42,19 @@ class AseAtomsAdaptor:
         """
         if not structure.is_ordered:
             raise ValueError("ASE Atoms only supports ordered structures")
+        if not ase_loaded:
+            raise ImportError("AseAtomsAdaptor requires ase package.\n"
+                              "Use `pip install ase` or `conda install ase -c conda-forge`")
         symbols = [str(site.specie.symbol) for site in structure]
         positions = [site.coords for site in structure]
-        cell = structure.lattice.matrix
-        return Atoms(symbols=symbols, positions=positions, pbc=True,
-                     cell=cell, **kwargs)
+        if hasattr(structure, "lattice"):
+            cell = structure.lattice.matrix
+            pbc = True
+        else:
+            cell = None
+            pbc = None
+        return Atoms(symbols=symbols, positions=positions, pbc=pbc, cell=cell,
+                     **kwargs)
 
     @staticmethod
     def get_structure(atoms, cls=None):
@@ -70,28 +76,6 @@ class AseAtomsAdaptor:
         return cls(lattice, symbols, positions,
                    coords_are_cartesian=True)
 
-
-class AseAtomsMoleculeAdaptor:
-    """
-    Adaptor serves as a bridge between ASE Atoms and pymatgen molecule.
-    """
-
-    @staticmethod
-    def get_atoms(molecule, **kwargs):
-        """
-        Returns ASE Atoms object from pymatgen molecule.
-
-        Args:
-            molecule: pymatgen.core.structure.Molecule
-            **kwargs: other keyword args to pass into the ASE Atoms constructor
-
-        Returns:
-            ASE Atoms object
-        """
-        symbols = [str(site.specie.symbol) for site in molecule]
-        positions = [site.coords for site in molecule]
-        return Atoms(symbols=symbols, positions=positions, **kwargs)
-
     @staticmethod
     def get_molecule(atoms, cls=None):
         """
@@ -99,7 +83,7 @@ class AseAtomsMoleculeAdaptor:
 
         Args:
             atoms: ASE Atoms object
-            cls: The Structure class to instantiate (defaults to pymatgen molecule)
+            cls: The Molecule class to instantiate (defaults to pymatgen molecule)
 
         Returns:
             Equivalent pymatgen.core.structure.Molecule
@@ -108,4 +92,4 @@ class AseAtomsMoleculeAdaptor:
         positions = atoms.get_positions()
 
         cls = Molecule if cls is None else cls
-        return cls(symbols, positions, coords_are_cartesian=True)
+        return cls(symbols, positions)

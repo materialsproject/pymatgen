@@ -116,7 +116,7 @@ class Slab(Structure):
                 this Slab is created (by scaling in the c-direction).
             shift (float): The shift in the c-direction applied to get the
                 termination.
-            scale_factor (array): scale_factor Final computed scale factor
+            scale_factor (np.ndarray): scale_factor Final computed scale factor
                 that brings the parent cell to the surface cell.
             reorient_lattice (bool): reorients the lattice parameters such that
                 the c direction is the third vector of the lattice matrix
@@ -136,7 +136,7 @@ class Slab(Structure):
         self.miller_index = tuple(miller_index)
         self.shift = shift
         self.reconstruction = reconstruction
-        self.scale_factor = scale_factor
+        self.scale_factor = np.array(scale_factor)
         self.energy = energy
         self.reorient_lattice = reorient_lattice
         lattice = Lattice.from_parameters(lattice.a, lattice.b, lattice.c,
@@ -444,7 +444,7 @@ class Slab(Structure):
         d["oriented_unit_cell"] = self.oriented_unit_cell.as_dict()
         d["miller_index"] = self.miller_index
         d["shift"] = self.shift
-        d["scale_factor"] = self.scale_factor
+        d["scale_factor"] = self.scale_factor.tolist()
         d["reconstruction"] = self.reconstruction
         d["energy"] = self.energy
         return d
@@ -798,7 +798,7 @@ class SlabGenerator:
         initial_structure.add_site_property("bulk_wyckoff",
                                             sg.get_symmetry_dataset()['wyckoffs'])
         initial_structure.add_site_property("bulk_equivalent",
-                                            sg.get_symmetry_dataset()['equivalent_atoms'])
+                                            sg.get_symmetry_dataset()['equivalent_atoms'].tolist())
         latt = initial_structure.lattice
         miller_index = _reduce_vector(miller_index)
         # Calculate the surface normal using the reciprocal lattice vector.
@@ -965,6 +965,8 @@ class SlabGenerator:
                                                               "alpha": slab_l.alpha,
                                                               "beta": slab_l.beta,
                                                               "gamma": slab_l.gamma})
+            # Check this is the correct oriented unit cell
+            ouc = self.oriented_unit_cell if slab_l.a != ouc.lattice.a or slab_l.b != ouc.lattice.b else ouc
 
         return Slab(slab.lattice, slab.species_and_occu,
                     slab.frac_coords, self.miller_index,

@@ -15,7 +15,7 @@ from subprocess import Popen, PIPE
 import numpy as np
 
 try:
-    import pybel as pb
+    from openbabel import pybel as pb
 except ImportError:
     pb = None
 
@@ -264,7 +264,7 @@ class PackmolRunner:
             for idx, mol in enumerate(self.mols):
                 filename = os.path.join(
                     input_dir, '{}.{}'.format(
-                        idx, self.control_params["filetype"])).encode("ascii")
+                        idx, self.control_params["filetype"]))
                 # pdb
                 if self.control_params["filetype"] == "pdb":
                     self.write_pdb(mol, filename, num=idx + 1)
@@ -441,10 +441,11 @@ class PackmolRunner:
 
 
 class LammpsRunner:
+    """
+    LAMMPS wrapper
+    """
     def __init__(self, input_filename="lammps.in", bin="lammps"):
         """
-        LAMMPS wrapper
-
         Args:
             input_filename (string): input file name
             bin (string): command to run, excluding the input file name

@@ -838,7 +838,7 @@ class IStructure(SiteCollection, MSONable):
     @classmethod
     def from_magnetic_spacegroup(
             cls,
-            msg: Union[str, 'MagneticSpaceGroup'],  # type: ignore
+            msg: Union[str, 'MagneticSpaceGroup'],  # type: ignore  # noqa: F821
             lattice: Union[List, np.ndarray, Lattice],
             species: Sequence[Union[str, Element, Specie, DummySpecie, Composition]],
             coords: Sequence[Sequence[float]],
@@ -1225,6 +1225,102 @@ class IStructure(SiteCollection, MSONable):
                                       include_image=include_image)
         return [d for d in nn if site != d[0]]
 
+    def _get_neighbor_list_py(self, r: float,
+                              sites: List[PeriodicSite] = None,
+                              numerical_tol: float = 1e-8,
+                              exclude_self: bool = True) -> Tuple[np.ndarray, ...]:
+        """
+        A python version of getting neighbor_list. The returned values are a tuple of
+        numpy arrays (center_indices, points_indices, offset_vectors, distances).
+        Atom `center_indices[i]` has neighbor atom `points_indices[i]` that is
+        translated by `offset_vectors[i]` lattice vectors, and the distance is
+        `distances[i]`.
+
+        Args:
+            r (float): Radius of sphere
+            sites (list of Sites or None): sites for getting all neighbors,
+                default is None, which means neighbors will be obtained for all
+                sites. This is useful in the situation where you are interested
+                only in one subspecies type, and makes it a lot faster.
+            numerical_tol (float): This is a numerical tolerance for distances.
+                Sites which are < numerical_tol are determined to be conincident
+                with the site. Sites which are r + numerical_tol away is deemed
+                to be within r from the site. The default of 1e-8 should be
+                ok in most instances.
+            exclude_self (bool): whether to exclude atom neighboring with itself within
+                numerical tolerance distance, default to True
+        Returns: (center_indices, points_indices, offset_vectors, distances)
+        """
+        neighbors = self.get_all_neighbors_py(r=r, include_index=True, include_image=True,
+                                              sites=sites, numerical_tol=1e-8)
+        center_indices = []
+        points_indices = []
+        offsets = []
+        distances = []
+        for i, nns in enumerate(neighbors):
+            if len(nns) > 0:
+                for n in nns:
+                    if exclude_self and (i == n.index) and (n.nn_distance <= numerical_tol):
+                        continue
+                    center_indices.append(i)
+                    points_indices.append(n.index)
+                    offsets.append(n.image)
+                    distances.append(n.nn_distance)
+        return tuple((np.array(center_indices), np.array(points_indices),
+                     np.array(offsets), np.array(distances)))
+
+    def get_neighbor_list(self, r: float,
+                          sites: List[PeriodicSite] = None,
+                          numerical_tol: float = 1e-8,
+                          exclude_self: bool = True) -> Tuple[np.ndarray, ...]:
+        """
+        Get neighbor lists using numpy array representations without constructing
+        Neighbor objects. If the cython extension is installed,  this method will
+        be orders of magnitude faster than `get_all_neighbors`.
+        The returned values are a tuple of numpy arrays
+        (center_indices, points_indices, offset_vectors, distances).
+        Atom `center_indices[i]` has neighbor atom `points_indices[i]` that is
+        translated by `offset_vectors[i]` lattice vectors, and the distance is
+        `distances[i]`.
+
+        Args:
+            r (float): Radius of sphere
+            sites (list of Sites or None): sites for getting all neighbors,
+                default is None, which means neighbors will be obtained for all
+                sites. This is useful in the situation where you are interested
+                only in one subspecies type, and makes it a lot faster.
+            numerical_tol (float): This is a numerical tolerance for distances.
+                Sites which are < numerical_tol are determined to be conincident
+                with the site. Sites which are r + numerical_tol away is deemed
+                to be within r from the site. The default of 1e-8 should be
+                ok in most instances.
+            exclude_self (bool): whether to exclude atom neighboring with itself within
+                numerical tolerance distance, default to True
+        Returns: (center_indices, points_indices, offset_vectors, distances)
+
+        """
+        try:
+            from pymatgen.optimization.neighbors import find_points_in_spheres  # type: ignore
+        except ImportError:
+            return self._get_neighbor_list_py(r, sites, exclude_self=exclude_self)
+        else:
+            if sites is None:
+                sites = self.sites
+            site_coords = np.array([site.coords for site in sites], dtype=float)
+            cart_coords = np.ascontiguousarray(np.array(self.cart_coords), dtype=float)
+            lattice_matrix = np.ascontiguousarray(np.array(self.lattice.matrix), dtype=float)
+            r = float(r)
+            center_indices, points_indices, images, distances = \
+                find_points_in_spheres(cart_coords, site_coords, r=r,
+                                       pbc=np.array([1, 1, 1], dtype=int),
+                                       lattice=lattice_matrix, tol=numerical_tol)
+            cond = np.array([True] * len(center_indices))
+            if exclude_self:
+                self_pair = (center_indices == points_indices) & (distances <= numerical_tol)
+                cond = ~self_pair
+            return tuple((center_indices[cond], points_indices[cond],
+                         images[cond], distances[cond]))
+
     def get_all_neighbors(self, r: float,
                           include_index: bool = False,
                           include_image: bool = False,
@@ -1269,53 +1365,41 @@ class IStructure(SiteCollection, MSONable):
             [PeriodicNeighbor] where PeriodicNeighbor is a namedtuple containing
             (site, distance, index, image).
         """
-        try:
-            from pymatgen.optimization.neighbors import find_points_in_spheres  # type: ignore
-        except ImportError:
-            return self.get_all_neighbors_py(r=r, include_index=include_index, include_image=include_image,
-                                             sites=sites, numerical_tol=numerical_tol)
-        else:
-            if sites is None:
-                sites = self.sites
-            site_coords = np.array([site.coords for site in sites], dtype=float)
-            cart_coords = np.ascontiguousarray(np.array(self.cart_coords), dtype=float)
-            lattice_matrix = np.ascontiguousarray(np.array(self.lattice.matrix), dtype=float)
-            r = float(r)
-            center_indices, points_indices, images, distances = \
-                find_points_in_spheres(cart_coords, site_coords, r=r,
-                                       pbc=np.array([1, 1, 1], dtype=int),
-                                       lattice=lattice_matrix, tol=numerical_tol)
-            if len(points_indices) < 1:
-                return [[]] * len(sites)
-            f_coords = self.frac_coords[points_indices] + images
-            neighbor_dict: Dict[int, List] = collections.defaultdict(list)
-            lattice = self.lattice
-            atol = Site.position_atol
-            all_sites = self.sites
-            for cindex, pindex, image, f_coord, d in zip(center_indices, points_indices, images, f_coords, distances):
-                psite = all_sites[pindex]
-                csite = sites[cindex]
-                if (d > numerical_tol or
-                        # This simply compares the psite and csite. The reason why manual comparison is done is
-                        # for speed. This does not check the lattice since they are always equal. Also, the or construct
-                        # returns True immediately once one of the conditions are satisfied.
-                        psite.species != csite.species or
-                        (not np.allclose(psite.coords, csite.coords, atol=atol)) or
-                        (not psite.properties == csite.properties)):
-                    neighbor_dict[cindex].append(PeriodicNeighbor(
-                        species=psite.species,
-                        coords=f_coord,
-                        lattice=lattice,
-                        properties=psite.properties,
-                        nn_distance=d,
-                        index=pindex,
-                        image=tuple(image)))
+        if sites is None:
+            sites = self.sites
+        center_indices, points_indices, images, distances = \
+            self.get_neighbor_list(r=r, sites=sites, numerical_tol=numerical_tol)
+        if len(points_indices) < 1:
+            return [[]] * len(sites)
+        f_coords = self.frac_coords[points_indices] + images
+        neighbor_dict: Dict[int, List] = collections.defaultdict(list)
+        lattice = self.lattice
+        atol = Site.position_atol
+        all_sites = self.sites
+        for cindex, pindex, image, f_coord, d in zip(center_indices, points_indices, images, f_coords, distances):
+            psite = all_sites[pindex]
+            csite = sites[cindex]
+            if (d > numerical_tol or
+                    # This simply compares the psite and csite. The reason why manual comparison is done is
+                    # for speed. This does not check the lattice since they are always equal. Also, the or construct
+                    # returns True immediately once one of the conditions are satisfied.
+                    psite.species != csite.species or
+                    (not np.allclose(psite.coords, csite.coords, atol=atol)) or
+                    (not psite.properties == csite.properties)):
+                neighbor_dict[cindex].append(PeriodicNeighbor(
+                    species=psite.species,
+                    coords=f_coord,
+                    lattice=lattice,
+                    properties=psite.properties,
+                    nn_distance=d,
+                    index=pindex,
+                    image=tuple(image)))
 
-            neighbors: List[List[PeriodicNeighbor]] = []
+        neighbors: List[List[PeriodicNeighbor]] = []
 
-            for i in range(len(sites)):
-                neighbors.append(neighbor_dict[i])
-            return neighbors
+        for i in range(len(sites)):
+            neighbors.append(neighbor_dict[i])
+        return neighbors
 
     def get_all_neighbors_py(self, r: float,
                              include_index: bool = False,
@@ -1997,6 +2081,28 @@ class IStructure(SiteCollection, MSONable):
             d["sites"].append(site_dict)
         return d
 
+    def as_dataframe(self):
+        """
+        Returns a Pandas dataframe of the sites. Structure level attributes are stored in DataFrame.attrs. Example:
+
+        Species    a    b             c    x             y             z  magmom
+        0    (Si)  0.0  0.0  0.000000e+00  0.0  0.000000e+00  0.000000e+00       5
+        1    (Si)  0.0  0.0  1.000000e-07  0.0 -2.217138e-07  3.135509e-07      -5
+        """
+        data = []
+        site_properties = self.site_properties
+        prop_keys = list(site_properties.keys())
+        for site in self:
+            row = [site.species] + list(site.frac_coords) + list(site.coords)
+            for k in prop_keys:
+                row.append(site.properties.get(k))
+            data.append(row)
+        import pandas as pd
+        df = pd.DataFrame(data, columns=["Species", "a", "b", "c", "x", "y", "z"] + prop_keys)
+        df.attrs["Reduced Formula"] = self.composition.reduced_formula
+        df.attrs["Lattice"] = self.lattice
+        return df
+
     @classmethod
     def from_dict(cls, d, fmt=None):
         """
@@ -2526,7 +2632,7 @@ class IMolecule(SiteCollection, MSONable):
         Find all sites within a sphere from a point.
 
         Args:
-            pt (3x1 array): Cartesian coordinates of center of sphere.
+            pt (3x1 array): Cartesian coordinates of center of sphere
             r (float): Radius of sphere.
 
         Returns:
@@ -2577,7 +2683,7 @@ class IMolecule(SiteCollection, MSONable):
 
     def get_boxed_structure(self, a, b, c, images=(1, 1, 1),
                             random_rotation=False, min_dist=1, cls=None,
-                            offset=None, no_cross=False):
+                            offset=None, no_cross=False, reorder=True):
         """
         Creates a Structure from a Molecule by putting the Molecule in the
         center of a orthorhombic box. Useful for creating Structure for
@@ -2602,6 +2708,8 @@ class IMolecule(SiteCollection, MSONable):
             offset: Translation to offset molecule from center of mass coords
             no_cross: Whether to forbid molecule coords from extending beyond
                 boundary of box.
+            reorder: Whether to reorder the sites to be in electronegativity
+                order.
 
         Returns:
             Structure containing molecule in a box.
@@ -2662,9 +2770,14 @@ class IMolecule(SiteCollection, MSONable):
         if cls is None:
             cls = Structure
 
-        return cls(lattice, self.species * nimages, coords,
-                   coords_are_cartesian=True,
-                   site_properties=sprops).get_sorted_structure()
+        if reorder:
+            return cls(lattice, self.species * nimages, coords,
+                       coords_are_cartesian=True,
+                       site_properties=sprops).get_sorted_structure()
+        else:
+            return cls(lattice, self.species * nimages, coords,
+                       coords_are_cartesian=True,
+                       site_properties=sprops)
 
     def get_centered_molecule(self):
         """

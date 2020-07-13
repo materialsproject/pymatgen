@@ -1,18 +1,19 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.electronic_structure.boltztrap &#8212; pymatgen 2019.11.11 documentation</title>
-    <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.electronic_structure.boltztrap &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../../_static/language_data.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
  
@@ -32,15 +33,15 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.11.11 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.electronic_structure.boltztrap</a></li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
-        <div class="bodywrapper">
           <div class="body" role="main">
             
   <h1>Source code for pymatgen.electronic_structure.boltztrap</h1><div class="highlight"><pre>
@@ -73,21 +74,21 @@
 <span class="kn">import</span> <span class="nn">time</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">monty.dev</span> <span class="k">import</span> <span class="n">requires</span>
-<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">jsanitize</span><span class="p">,</span> <span class="n">MSONable</span>
-<span class="kn">from</span> <span class="nn">monty.os</span> <span class="k">import</span> <span class="n">cd</span>
-<span class="kn">from</span> <span class="nn">monty.os.path</span> <span class="k">import</span> <span class="n">which</span>
-<span class="kn">from</span> <span class="nn">scipy</span> <span class="k">import</span> <span class="n">constants</span>
-<span class="kn">from</span> <span class="nn">scipy.spatial</span> <span class="k">import</span> <span class="n">distance</span>
+<span class="kn">from</span> <span class="nn">monty.dev</span> <span class="kn">import</span> <span class="n">requires</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">jsanitize</span><span class="p">,</span> <span class="n">MSONable</span>
+<span class="kn">from</span> <span class="nn">monty.os</span> <span class="kn">import</span> <span class="n">cd</span>
+<span class="kn">from</span> <span class="nn">monty.os.path</span> <span class="kn">import</span> <span class="n">which</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">constants</span>
+<span class="kn">from</span> <span class="nn">scipy.spatial</span> <span class="kn">import</span> <span class="n">distance</span>
 
-<span class="kn">from</span> <span class="nn">pymatgen.core.lattice</span> <span class="k">import</span> <span class="n">Lattice</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.units</span> <span class="k">import</span> <span class="n">Energy</span><span class="p">,</span> <span class="n">Length</span>
-<span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.bandstructure</span> <span class="k">import</span> \
+<span class="kn">from</span> <span class="nn">pymatgen.core.lattice</span> <span class="kn">import</span> <span class="n">Lattice</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.units</span> <span class="kn">import</span> <span class="n">Energy</span><span class="p">,</span> <span class="n">Length</span>
+<span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.bandstructure</span> <span class="kn">import</span> \
     <span class="n">BandStructureSymmLine</span><span class="p">,</span> <span class="n">Kpoint</span>
-<span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.core</span> <span class="k">import</span> <span class="n">Orbital</span>
-<span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.dos</span> <span class="k">import</span> <span class="n">Dos</span><span class="p">,</span> <span class="n">Spin</span><span class="p">,</span> <span class="n">CompleteDos</span>
-<span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="k">import</span> <span class="n">SpacegroupAnalyzer</span>
-<span class="kn">from</span> <span class="nn">pymatgen.symmetry.bandstructure</span> <span class="k">import</span> <span class="n">HighSymmKpath</span>
+<span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.core</span> <span class="kn">import</span> <span class="n">Orbital</span>
+<span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.dos</span> <span class="kn">import</span> <span class="n">Dos</span><span class="p">,</span> <span class="n">Spin</span><span class="p">,</span> <span class="n">CompleteDos</span>
+<span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="kn">import</span> <span class="n">SpacegroupAnalyzer</span>
+<span class="kn">from</span> <span class="nn">pymatgen.symmetry.bandstructure</span> <span class="kn">import</span> <span class="n">HighSymmKpath</span>
 
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Geoffroy Hautier, Zachary Gibbs, Francesco Ricci, Anubhav Jain&quot;</span>
@@ -110,7 +111,7 @@
               <span class="s2">&quot;www.icams.de/content/research/software-development/boltztrap/ &quot;</span>
               <span class="s2">&quot;and follow the instructions in the README to compile &quot;</span>
               <span class="s2">&quot;Bolztrap accordingly. Then add x_trans to your path&quot;</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bs</span><span class="p">,</span> <span class="n">nelec</span><span class="p">,</span> <span class="n">dos_type</span><span class="o">=</span><span class="s2">&quot;HISTO&quot;</span><span class="p">,</span> <span class="n">energy_grid</span><span class="o">=</span><span class="mf">0.005</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bs</span><span class="p">,</span> <span class="n">nelec</span><span class="p">,</span> <span class="n">dos_type</span><span class="o">=</span><span class="s2">&quot;HISTO&quot;</span><span class="p">,</span> <span class="n">energy_grid</span><span class="o">=</span><span class="mf">0.005</span><span class="p">,</span>
                  <span class="n">lpfac</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">run_type</span><span class="o">=</span><span class="s2">&quot;BOLTZ&quot;</span><span class="p">,</span> <span class="n">band_nb</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tauref</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">tauexp</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
                  <span class="n">tauen</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">soc</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">doping</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">energy_span_around_fermi</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span>
                  <span class="n">scissor</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">kpt_line</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">spin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cond_band</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
@@ -817,7 +818,7 @@
 <span class="sd">    Class used to store all the data from a boltztrap run</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gap</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mu_steps</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cond</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">seebeck</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gap</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mu_steps</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cond</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">seebeck</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">kappa</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hall</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">doping</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">mu_doping</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">seebeck_doping</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cond_doping</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">kappa_doping</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -2388,7 +2389,7 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Seebeck analytic formula in the single parabolic model</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="kn">from</span> <span class="nn">fdint</span> <span class="k">import</span> <span class="n">fdk</span>
+    <span class="kn">from</span> <span class="nn">fdint</span> <span class="kn">import</span> <span class="n">fdk</span>
 
     <span class="k">return</span> <span class="n">constants</span><span class="o">.</span><span class="n">k</span> <span class="o">/</span> <span class="n">constants</span><span class="o">.</span><span class="n">e</span> <span class="o">*</span> <span class="p">((</span><span class="mf">2.</span> <span class="o">+</span> <span class="n">Lambda</span><span class="p">)</span> <span class="o">*</span> <span class="n">fdk</span><span class="p">(</span><span class="mf">1.</span> <span class="o">+</span> <span class="n">Lambda</span><span class="p">,</span> <span class="n">eta</span><span class="p">)</span> <span class="o">/</span>
                                         <span class="p">((</span><span class="mf">1.</span> <span class="o">+</span> <span class="n">Lambda</span><span class="p">)</span> <span class="o">*</span> <span class="n">fdk</span><span class="p">(</span><span class="n">Lambda</span><span class="p">,</span> <span class="n">eta</span><span class="p">))</span> <span class="o">-</span> <span class="n">eta</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1e+6</span></div>
@@ -2400,7 +2401,7 @@
 <span class="sd">        Returns: eta where the two seebeck coefficients are equal</span>
 <span class="sd">        (reduced chemical potential)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="k">import</span> <span class="n">fsolve</span>
+    <span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">fsolve</span>
     <span class="n">out</span> <span class="o">=</span> <span class="n">fsolve</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="n">seebeck_spb</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Lambda</span><span class="p">)</span> <span class="o">-</span> <span class="nb">abs</span><span class="p">(</span><span class="n">seeb</span><span class="p">))</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="n">full_output</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">out</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span></div>
 
@@ -2411,7 +2412,7 @@
 <span class="sd">    eta in kB*T units, n in cm-3, T in K, returns mass in m0 units</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="kn">from</span> <span class="nn">fdint</span> <span class="k">import</span> <span class="n">fdk</span>
+        <span class="kn">from</span> <span class="nn">fdint</span> <span class="kn">import</span> <span class="n">fdk</span>
     <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">BoltztrapError</span><span class="p">(</span><span class="s2">&quot;fdint module not found. Please, install it.</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span>
                              <span class="s2">&quot;It is needed to calculate Fermi integral quickly.&quot;</span><span class="p">)</span>
@@ -2431,22 +2432,8 @@
     <span class="k">return</span> <span class="n">mass</span></div>
 </pre></div>
 
+            <div class="clearer"></div>
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
       </div>
       <div class="clearer"></div>
     </div>
@@ -2459,15 +2446,16 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.11.11 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.electronic_structure.boltztrap</a></li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

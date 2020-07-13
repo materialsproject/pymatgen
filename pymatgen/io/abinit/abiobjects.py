@@ -19,7 +19,6 @@ from pymatgen.core.units import ArrayWithUnit
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.util.serialization import pmg_serialize
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from monty.json import MontyEncoder, MontyDecoder
 
 
@@ -177,7 +176,6 @@ to build an appropriate supercell from partial occupancies or alternatively use 
     natom = structure.num_sites
 
     znucl_type = [specie.number for specie in types_of_specie]
-    znucl_atoms = structure.atomic_numbers
 
     typat = np.zeros(natom, np.int)
     for atm_idx, site in enumerate(structure):
@@ -732,12 +730,7 @@ class KSampling(AbivarAble, MSONable):
         Returns:
             :class:`KSampling` object.
         """
-        sg = SpacegroupAnalyzer(structure)
-        # sg.get_crystal_system()
-        # sg.get_point_group_symbol()
         # TODO
-        nshiftk = 1
-        # shiftk = 3*(0.5,) # this is the default
         shiftk = 3 * (0.5,)
 
         # if lattice.ishexagonal:
@@ -816,25 +809,6 @@ class KSampling(AbivarAble, MSONable):
         num_div = [int(round(1.0 / lengths[i] * mult)) for i in range(3)]
         # ensure that num_div[i] > 0
         num_div = [i if i > 0 else 1 for i in num_div]
-
-        angles = lattice.angles
-        hex_angle_tol = 5  # in degrees
-        hex_length_tol = 0.01  # in angstroms
-
-        right_angles = [i for i in range(3) if abs(angles[i] - 90) < hex_angle_tol]
-
-        hex_angles = [i for i in range(3)
-                      if abs(angles[i] - 60) < hex_angle_tol or
-                      abs(angles[i] - 120) < hex_angle_tol]
-
-        is_hexagonal = (len(right_angles) == 2 and len(hex_angles) == 1
-                        and abs(lengths[right_angles[0]] -
-                                lengths[right_angles[1]]) < hex_length_tol)
-
-        # style = KSamplingModes.gamma
-        # if not is_hexagonal:
-        #    num_div = [i + i % 2 for i in num_div]
-        #    style = KSamplingModes.monkhorst
 
         comment = "pymatge.io.abinit generated KPOINTS with grid density = " + "{} / atom".format(kppa)
 
@@ -1372,7 +1346,7 @@ class ExcHamiltonian(AbivarAble):
 
     def __init__(self, bs_loband, nband, mbpt_sciss, coulomb_mode, ecuteps, spin_mode="polarized", mdf_epsinf=None,
                  exc_type="TDA", algo="haydock", with_lf=True, bs_freq_mesh=None, zcut=None, **kwargs):
-        """
+        r"""
         Args:
             bs_loband: Lowest band index (Fortran convention) used in the e-h  basis set.
                 Can be scalar or array of shape (nsppol,). Must be >= 1 and <= nband

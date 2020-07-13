@@ -79,6 +79,12 @@ class StructureMatcherTest(PymatgenTest):
         self.assertEqual(sm._get_supercell_size(s2, s1),
                          (2, True))
 
+        sm = StructureMatcher(supercell_size=['Ag', 'Cu'])
+        self.assertEqual(sm._get_supercell_size(s1, s2),
+                         (1, True))
+        self.assertEqual(sm._get_supercell_size(s2, s1),
+                         (1, True))
+
         sm = StructureMatcher(supercell_size='wfieoh')
         self.assertRaises(ValueError, sm._get_supercell_size, s1, s2)
 
@@ -272,6 +278,19 @@ class StructureMatcherTest(PymatgenTest):
         self.assertEqual(sm.fit_anonymous(s1, s2), True)
 
         self.assertAlmostEqual(sm.get_rms_anonymous(s1, s2)[0], 0)
+
+        # test symmetric
+        sm_coarse = sm = StructureMatcher(comparator=ElementComparator(),
+                                          ltol=0.6,
+                                          stol=0.6,
+                                          angle_tol=6,)
+
+        s1 = Structure.from_file(test_dir+"/fit_symm_s1.vasp")
+        s2 = Structure.from_file(test_dir+"/fit_symm_s2.vasp")
+        self.assertEqual(sm_coarse.fit(s1, s2), True)
+        self.assertEqual(sm_coarse.fit(s2, s1), False)
+        self.assertEqual(sm_coarse.fit(s1, s2, symmetric=True), False)
+        self.assertEqual(sm_coarse.fit(s2, s1, symmetric=True), False)
 
     def test_oxi(self):
         """Test oxidation state removal matching"""

@@ -1,18 +1,19 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.gb.grain &#8212; pymatgen 2019.11.11 documentation</title>
-    <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.analysis.gb.grain &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../../../_static/language_data.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
  
@@ -32,15 +33,15 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.11.11 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
+          <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.gb.grain</a></li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
-        <div class="bodywrapper">
           <div class="body" role="main">
             
   <h1>Source code for pymatgen.analysis.gb.grain</h1><div class="highlight"><pre>
@@ -48,14 +49,18 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Module containing classes to generate grain boundaries.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">fractions</span> <span class="k">import</span> <span class="n">Fraction</span>
-<span class="kn">from</span> <span class="nn">math</span> <span class="k">import</span> <span class="n">gcd</span><span class="p">,</span> <span class="n">floor</span><span class="p">,</span> <span class="n">cos</span>
-<span class="kn">from</span> <span class="nn">functools</span> <span class="k">import</span> <span class="n">reduce</span>
-<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="k">import</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">Lattice</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.sites</span> <span class="k">import</span> <span class="n">PeriodicSite</span>
-<span class="kn">from</span> <span class="nn">monty.fractions</span> <span class="k">import</span> <span class="n">lcm</span>
-<span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="k">import</span> <span class="n">SpacegroupAnalyzer</span>
+<span class="kn">from</span> <span class="nn">fractions</span> <span class="kn">import</span> <span class="n">Fraction</span>
+<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">gcd</span><span class="p">,</span> <span class="n">floor</span><span class="p">,</span> <span class="n">cos</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">reduce</span>
+<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">Lattice</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.sites</span> <span class="kn">import</span> <span class="n">PeriodicSite</span>
+<span class="kn">from</span> <span class="nn">monty.fractions</span> <span class="kn">import</span> <span class="n">lcm</span>
+<span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="kn">import</span> <span class="n">SpacegroupAnalyzer</span>
 <span class="kn">import</span> <span class="nn">itertools</span>
 
 <span class="kn">import</span> <span class="nn">logging</span>
@@ -89,7 +94,7 @@
 <span class="sd">     (though not necessary perpendicular to the surface.)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">rotation_axis</span><span class="p">,</span> <span class="n">rotation_angle</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">rotation_axis</span><span class="p">,</span> <span class="n">rotation_angle</span><span class="p">,</span>
                  <span class="n">gb_plane</span><span class="p">,</span> <span class="n">join_plane</span><span class="p">,</span> <span class="n">init_cell</span><span class="p">,</span> <span class="n">vacuum_thickness</span><span class="p">,</span> <span class="n">ab_shift</span><span class="p">,</span>
                  <span class="n">site_properties</span><span class="p">,</span> <span class="n">oriented_unit_cell</span><span class="p">,</span> <span class="n">validate_proximity</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -243,7 +248,7 @@
                 <span class="n">coincident_sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sites</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">coincident_sites</span>
 
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">comp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">composition</span>
         <span class="n">outs</span> <span class="o">=</span> <span class="p">[</span>
             <span class="s2">&quot;Gb Summary (</span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="n">comp</span><span class="o">.</span><span class="n">formula</span><span class="p">,</span>
@@ -257,6 +262,7 @@
 
         <span class="k">def</span> <span class="nf">to_s</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">rjust</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
             <span class="k">return</span> <span class="p">(</span><span class="s2">&quot;</span><span class="si">%0.6f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">rjust</span><span class="p">(</span><span class="n">rjust</span><span class="p">)</span>
+
         <span class="n">outs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;abc   : &quot;</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">to_s</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">abc</span><span class="p">]))</span>
         <span class="n">outs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;angles: &quot;</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">to_s</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">angles</span><span class="p">]))</span>
         <span class="n">outs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Sites (</span><span class="si">{i}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)))</span>
@@ -265,6 +271,10 @@
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outs</span><span class="p">)</span>
 
 <div class="viewcode-block" id="GrainBoundary.as_dict"><a class="viewcode-back" href="../../../../pymatgen.analysis.gb.grain.html#pymatgen.analysis.gb.grain.GrainBoundary.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Dictionary representation of GrainBoundary object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">d</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
         <span class="n">d</span><span class="p">[</span><span class="s2">&quot;@module&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span>
         <span class="n">d</span><span class="p">[</span><span class="s2">&quot;@class&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
@@ -280,6 +290,15 @@
 
 <div class="viewcode-block" id="GrainBoundary.from_dict"><a class="viewcode-back" href="../../../../pymatgen.analysis.gb.grain.html#pymatgen.analysis.gb.grain.GrainBoundary.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates a GrainBoundary object from a dictionary created by as_dict().</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            d: dict</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            GrainBoundary object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">lattice</span> <span class="o">=</span> <span class="n">Lattice</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;lattice&quot;</span><span class="p">])</span>
         <span class="n">sites</span> <span class="o">=</span> <span class="p">[</span><span class="n">PeriodicSite</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">sd</span><span class="p">,</span> <span class="n">lattice</span><span class="p">)</span> <span class="k">for</span> <span class="n">sd</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;sites&quot;</span><span class="p">]]</span>
         <span class="n">s</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">sites</span><span class="p">)</span>
@@ -317,7 +336,7 @@
 <span class="sd">    Users can use structure matcher in pymatgen to get rid of the redundant structures.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initial_structure</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">angle_tolerance</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initial_structure</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">angle_tolerance</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
 
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        initial_structure (Structure): Initial input structure. It can</span>
@@ -704,6 +723,8 @@
             <span class="n">all_sites</span> <span class="o">=</span> <span class="n">sites_away_gb</span> <span class="o">+</span> <span class="n">s_near_gb</span><span class="o">.</span><span class="n">sites</span>
             <span class="n">gb_with_vac</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">all_sites</span><span class="p">)</span>
 
+        <span class="c1"># move coordinates into the periodic cell.</span>
+        <span class="n">gb_with_vac</span> <span class="o">=</span> <span class="n">fix_pbc</span><span class="p">(</span><span class="n">gb_with_vac</span><span class="p">,</span> <span class="n">whole_lat</span><span class="o">.</span><span class="n">matrix</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">GrainBoundary</span><span class="p">(</span><span class="n">whole_lat</span><span class="p">,</span> <span class="n">gb_with_vac</span><span class="o">.</span><span class="n">species</span><span class="p">,</span> <span class="n">gb_with_vac</span><span class="o">.</span><span class="n">cart_coords</span><span class="p">,</span> <span class="n">rotation_axis</span><span class="p">,</span>
                              <span class="n">rotation_angle</span><span class="p">,</span> <span class="n">plane</span><span class="p">,</span> <span class="n">join_plane</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_structure</span><span class="p">,</span>
                              <span class="n">vacuum_thickness</span><span class="p">,</span> <span class="n">ab_shift</span><span class="p">,</span> <span class="n">site_properties</span><span class="o">=</span><span class="n">gb_with_vac</span><span class="o">.</span><span class="n">site_properties</span><span class="p">,</span>
@@ -717,7 +738,7 @@
 <span class="sd">            max_denominator (int): the maximum denominator for</span>
 <span class="sd">                the computed ratio, default to be 5.</span>
 <span class="sd">            index_none (int): specify the irrational axis.</span>
-<span class="sd">                0-a, 1-b, 2-c. Only may be needed for orthorombic system.</span>
+<span class="sd">                0-a, 1-b, 2-c. Only may be needed for orthorhombic system.</span>
 <span class="sd">        Returns:</span>
 <span class="sd">               axial ratio needed for GB generator (list of integers).</span>
 
@@ -763,7 +784,8 @@
                     <span class="n">ratio</span><span class="p">[</span><span class="n">index</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="n">frac</span><span class="o">.</span><span class="n">numerator</span>
                     <span class="n">ratio</span><span class="p">[</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">frac</span><span class="o">.</span><span class="n">denominator</span>
         <span class="k">elif</span> <span class="n">lat_type</span> <span class="o">==</span> <span class="s1">&#39;c&#39;</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Cubic system does not need axial ratio.&#39;</span><span class="p">)</span>
+            <span class="c1"># Cubic system does not need axial ratio.</span>
+            <span class="k">return</span> <span class="kc">None</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Lattice type not implemented.&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">ratio</span></div>
@@ -2379,22 +2401,8 @@
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">all_vectors</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
 </pre></div>
 
+            <div class="clearer"></div>
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="../../../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
       </div>
       <div class="clearer"></div>
     </div>
@@ -2407,15 +2415,16 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.11.11 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
+          <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.gb.grain</a></li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

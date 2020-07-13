@@ -15,8 +15,8 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         "test_files", "functional_groups")
 
 try:
-    import openbabel as ob
-    import pybel as pb
+    from openbabel import openbabel as ob
+    from openbabel import pybel as pb
     import networkx as nx
 except ImportError:
     pb = None
@@ -41,9 +41,7 @@ class FunctionalGroupExtractorTest(unittest.TestCase):
         self.file = os.path.join(test_dir, "func_group_test.mol")
         self.mol = Molecule.from_file(self.file)
         self.strat = OpenBabelNN()
-        self.mg = MoleculeGraph.with_local_env_strategy(self.mol, self.strat,
-                                                        reorder=False,
-                                                        extend_structure=False)
+        self.mg = MoleculeGraph.with_local_env_strategy(self.mol, self.strat)
         self.extractor = FunctionalGroupExtractor(self.mg)
 
     def tearDown(self):

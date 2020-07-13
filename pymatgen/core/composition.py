@@ -558,7 +558,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
 
         def get_sym_dict(f, factor):
             sym_dict = collections.defaultdict(float)
-            for m in re.finditer(r"([A-Z][a-z]*)\s*([-*\.\d]*)", f):
+            for m in re.finditer(r"([A-Z][a-z]*)\s*([-*\.e\d]*)", f):
                 el = m.group(1)
                 amt = 1
                 if m.group(2).strip() != "":
@@ -569,7 +569,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
                 raise CompositionError("{} is an invalid formula!".format(f))
             return sym_dict
 
-        m = re.search(r"\(([^\(\)]+)\)\s*([\.\d]*)", formula)
+        m = re.search(r"\(([^\(\)]+)\)\s*([\.e\d]*)", formula)
         if m:
             factor = 1
             if m.group(2) != "":
@@ -668,8 +668,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
             Dict with element symbol and reduced amount e.g.,
             {"Fe": 2.0, "O":3.0}
         """
-        c = Composition(self.reduced_formula)
-        return c.as_dict()
+        return self.get_reduced_composition_and_factor()[0]
 
     @property
     def to_data_dict(self):
@@ -679,11 +678,13 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
             including reduced_cell_composition, unit_cell_composition,
             reduced_cell_formula, elements and nelements.
         """
-        return {"reduced_cell_composition": self.to_reduced_dict,
-                "unit_cell_composition": self.as_dict(),
-                "reduced_cell_formula": self.reduced_formula,
-                "elements": list(self.as_dict().keys()),
-                "nelements": len(self.as_dict().keys())}
+        return {
+            "reduced_cell_composition": self.get_reduced_composition_and_factor()[0],
+            "unit_cell_composition": self.as_dict(),
+            "reduced_cell_formula": self.reduced_formula,
+            "elements": list(self.as_dict().keys()),
+            "nelements": len(self.as_dict().keys())
+        }
 
     def oxi_state_guesses(self, oxi_states_override=None, target_charge=0,
                           all_oxi_states=False, max_sites=None):
@@ -967,7 +968,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
         all_matches = list(set(all_matches))
         # sort matches by rank descending
         all_matches = sorted(all_matches,
-                             key=lambda match: match[1], reverse=True)
+                             key=lambda match: (match[1], match[0]), reverse=True)
         all_matches = [m[0] for m in all_matches]
         return all_matches
 

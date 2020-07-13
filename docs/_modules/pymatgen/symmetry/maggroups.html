@@ -1,18 +1,19 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.symmetry.maggroups &#8212; pymatgen 2019.11.11 documentation</title>
-    <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.symmetry.maggroups &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../../_static/language_data.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
  
@@ -32,15 +33,15 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.11.11 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.symmetry.maggroups</a></li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
-        <div class="bodywrapper">
           <div class="body" role="main">
             
   <h1>Source code for pymatgen.symmetry.maggroups</h1><div class="highlight"><pre>
@@ -53,19 +54,20 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">fractions</span> <span class="k">import</span> <span class="n">Fraction</span>
+<span class="kn">from</span> <span class="nn">fractions</span> <span class="kn">import</span> <span class="n">Fraction</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">monty.design_patterns</span> <span class="k">import</span> <span class="n">cached_class</span>
+<span class="kn">from</span> <span class="nn">monty.design_patterns</span> <span class="kn">import</span> <span class="n">cached_class</span>
 
 <span class="kn">import</span> <span class="nn">textwrap</span>
 
-<span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.core</span> <span class="k">import</span> <span class="n">Magmom</span>
-<span class="kn">from</span> <span class="nn">pymatgen.symmetry.groups</span> <span class="k">import</span> <span class="n">SymmetryGroup</span><span class="p">,</span> <span class="n">in_array_list</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.operations</span> <span class="k">import</span> <span class="n">MagSymmOp</span>
-<span class="kn">from</span> <span class="nn">pymatgen.util.string</span> <span class="k">import</span> <span class="n">transformation_to_string</span>
+<span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.core</span> <span class="kn">import</span> <span class="n">Magmom</span>
+<span class="kn">from</span> <span class="nn">pymatgen.symmetry.groups</span> <span class="kn">import</span> <span class="n">SymmetryGroup</span><span class="p">,</span> <span class="n">in_array_list</span>
+<span class="kn">from</span> <span class="nn">pymatgen.symmetry.settings</span> <span class="kn">import</span> <span class="n">JonesFaithfulTransformation</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.operations</span> <span class="kn">import</span> <span class="n">MagSymmOp</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.string</span> <span class="kn">import</span> <span class="n">transformation_to_string</span>
 
 <span class="kn">import</span> <span class="nn">sqlite3</span>
-<span class="kn">from</span> <span class="nn">array</span> <span class="k">import</span> <span class="n">array</span>
+<span class="kn">from</span> <span class="nn">array</span> <span class="kn">import</span> <span class="n">array</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Matthew Horton, Shyue Ping Ong&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2017, The Materials Project&quot;</span>
@@ -83,7 +85,7 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Representation of a magnetic space group.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">setting_transformation</span><span class="o">=</span><span class="s2">&quot;a,b,c;0,0,0&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initializes a MagneticSpaceGroup from its Belov, Neronova and</span>
 <span class="sd">        Smirnova (BNS) number supplied as a list or its label supplied</span>
@@ -166,6 +168,15 @@
             <span class="c1"># OG3 index is a &#39;master&#39; index, going from 1 to 1651</span>
             <span class="n">c</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s1">&#39;SELECT * FROM space_groups WHERE OG3=?;&#39;</span><span class="p">,</span> <span class="p">(</span><span class="nb">id</span><span class="p">,))</span>
         <span class="n">raw_data</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">fetchone</span><span class="p">())</span>
+
+        <span class="c1"># Jones Faithful transformation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">jf</span> <span class="o">=</span> <span class="n">JonesFaithfulTransformation</span><span class="o">.</span><span class="n">from_transformation_string</span><span class="p">(</span><span class="s2">&quot;a,b,c;0,0,0&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">setting_transformation</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">setting_transformation</span> <span class="o">!=</span> <span class="s2">&quot;a,b,c;0,0,0&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">jf</span> <span class="o">=</span> <span class="n">JonesFaithfulTransformation</span><span class="o">.</span><span class="n">from_transformation_string</span><span class="p">(</span><span class="n">setting_transformation</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">setting_transformation</span><span class="p">,</span> <span class="n">JonesFaithfulTransformation</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">setting_transformation</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">jf</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">jf</span> <span class="o">=</span> <span class="n">setting_transformation</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;magtype&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">raw_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># int from 1 to 4</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;bns_number&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">raw_data</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">raw_data</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
@@ -324,7 +335,7 @@
 
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">bns_label</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">_data</span>
 
     <span class="nd">@property</span>
@@ -379,6 +390,9 @@
                     <span class="n">centered_ops</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_op</span><span class="p">)</span>
 
         <span class="n">ops</span> <span class="o">=</span> <span class="n">ops</span> <span class="o">+</span> <span class="n">centered_ops</span>
+
+        <span class="c1"># apply jones faithful transformation</span>
+        <span class="n">ops</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">jf</span><span class="o">.</span><span class="n">transform_symmop</span><span class="p">(</span><span class="n">op</span><span class="p">)</span> <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">ops</span><span class="p">]</span>
 
         <span class="k">return</span> <span class="n">ops</span>
 
@@ -459,8 +473,15 @@
         <span class="c1"># all stored data including OG setting</span>
 
         <span class="n">desc</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># dictionary to hold description strings</span>
+        <span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
 
         <span class="c1"># parse data into strings</span>
+
+        <span class="c1"># indicate if non-standard setting specified</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">jf</span> <span class="o">!=</span> <span class="n">JonesFaithfulTransformation</span><span class="o">.</span><span class="n">from_transformation_string</span><span class="p">(</span><span class="s2">&quot;a,b,c;0,0,0&quot;</span><span class="p">):</span>
+            <span class="n">description</span> <span class="o">+=</span> <span class="s2">&quot;Non-standard setting: .....</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="n">description</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">jf</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">()</span>
+            <span class="n">description</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">Standard setting information: </span><span class="se">\n</span><span class="s2">&quot;</span>
 
         <span class="n">desc</span><span class="p">[</span><span class="s1">&#39;magtype&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;magtype&#39;</span><span class="p">]</span>
         <span class="n">desc</span><span class="p">[</span><span class="s1">&#39;bns_number&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s2">&quot;bns_number&quot;</span><span class="p">]))</span>
@@ -490,11 +511,11 @@
                                               <span class="n">subsequent_indent</span><span class="o">=</span><span class="s2">&quot; &quot;</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">bns_operators_prefix</span><span class="p">),</span>
                                               <span class="n">break_long_words</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">break_on_hyphens</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-        <span class="n">description</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;BNS: </span><span class="si">{d[bns_number]}</span><span class="s2"> </span><span class="si">{d[bns_label]}{d[og_id]}</span><span class="se">\n</span><span class="s2">&quot;</span>
-                       <span class="s2">&quot;</span><span class="si">{d[og_bns_transformation]}</span><span class="s2">&quot;</span>
-                       <span class="s2">&quot;</span><span class="si">{d[bns_operators]}</span><span class="se">\n</span><span class="s2">&quot;</span>
-                       <span class="s2">&quot;</span><span class="si">{bns_wyckoff_prefix}{d[bns_lattice]}</span><span class="se">\n</span><span class="s2">&quot;</span>
-                       <span class="s2">&quot;</span><span class="si">{d[bns_wyckoff]}</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">d</span><span class="o">=</span><span class="n">desc</span><span class="p">,</span> <span class="n">bns_wyckoff_prefix</span><span class="o">=</span><span class="n">bns_wyckoff_prefix</span><span class="p">)</span>
+        <span class="n">description</span> <span class="o">+=</span> <span class="p">(</span><span class="s2">&quot;BNS: </span><span class="si">{d[bns_number]}</span><span class="s2"> </span><span class="si">{d[bns_label]}{d[og_id]}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                        <span class="s2">&quot;</span><span class="si">{d[og_bns_transformation]}</span><span class="s2">&quot;</span>
+                        <span class="s2">&quot;</span><span class="si">{d[bns_operators]}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                        <span class="s2">&quot;</span><span class="si">{bns_wyckoff_prefix}{d[bns_lattice]}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                        <span class="s2">&quot;</span><span class="si">{d[bns_wyckoff]}</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">d</span><span class="o">=</span><span class="n">desc</span><span class="p">,</span> <span class="n">bns_wyckoff_prefix</span><span class="o">=</span><span class="n">bns_wyckoff_prefix</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">desc</span><span class="p">[</span><span class="s1">&#39;magtype&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">4</span> <span class="ow">and</span> <span class="n">include_og</span><span class="p">:</span>
 
@@ -526,7 +547,7 @@
 
         <span class="k">return</span> <span class="n">description</span>
 
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        String representation of the space group, specifying the setting</span>
 <span class="sd">        of the space group, its magnetic symmetry operators and Wyckoff</span>
@@ -557,22 +578,8 @@
     <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 </pre></div>
 
+            <div class="clearer"></div>
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
       </div>
       <div class="clearer"></div>
     </div>
@@ -585,15 +592,16 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.11.11 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.symmetry.maggroups</a></li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

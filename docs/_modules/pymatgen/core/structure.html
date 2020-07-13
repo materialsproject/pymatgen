@@ -1,18 +1,19 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.core.structure &#8212; pymatgen 2019.11.11 documentation</title>
-    <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.core.structure &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../../_static/language_data.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
  
@@ -32,15 +33,15 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.11.11 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.core.structure</a></li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
-        <div class="bodywrapper">
           <div class="body" role="main">
             
   <h1>Source code for pymatgen.core.structure</h1><div class="highlight"><pre>
@@ -58,28 +59,30 @@
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">collections</span>
 <span class="kn">import</span> <span class="nn">itertools</span>
-<span class="kn">from</span> <span class="nn">abc</span> <span class="k">import</span> <span class="n">ABCMeta</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABCMeta</span><span class="p">,</span> <span class="n">abstractmethod</span>
 <span class="kn">import</span> <span class="nn">random</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
-<span class="kn">from</span> <span class="nn">fnmatch</span> <span class="k">import</span> <span class="n">fnmatch</span>
+<span class="kn">from</span> <span class="nn">fnmatch</span> <span class="kn">import</span> <span class="n">fnmatch</span>
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">functools</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Set</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Iterable</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Set</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Iterable</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
-<span class="kn">from</span> <span class="nn">monty.dev</span> <span class="k">import</span> <span class="n">deprecated</span>
-<span class="kn">from</span> <span class="nn">monty.io</span> <span class="k">import</span> <span class="n">zopen</span>
-<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
+<span class="kn">from</span> <span class="nn">tabulate</span> <span class="kn">import</span> <span class="n">tabulate</span>
 
-<span class="kn">from</span> <span class="nn">pymatgen.core.operations</span> <span class="k">import</span> <span class="n">SymmOp</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.lattice</span> <span class="k">import</span> <span class="n">Lattice</span><span class="p">,</span> <span class="n">get_points_in_spheres</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">Element</span><span class="p">,</span> <span class="n">Specie</span><span class="p">,</span> <span class="n">get_el_sp</span><span class="p">,</span> <span class="n">DummySpecie</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.sites</span> <span class="k">import</span> <span class="n">Site</span><span class="p">,</span> <span class="n">PeriodicSite</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.bonds</span> <span class="k">import</span> <span class="n">CovalentBond</span><span class="p">,</span> <span class="n">get_bond_length</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.composition</span> <span class="k">import</span> <span class="n">Composition</span>
-<span class="kn">from</span> <span class="nn">pymatgen.util.coord</span> <span class="k">import</span> <span class="n">get_angle</span><span class="p">,</span> <span class="n">all_distances</span><span class="p">,</span> \
+<span class="kn">from</span> <span class="nn">monty.dev</span> <span class="kn">import</span> <span class="n">deprecated</span>
+<span class="kn">from</span> <span class="nn">monty.io</span> <span class="kn">import</span> <span class="n">zopen</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">MSONable</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.core.operations</span> <span class="kn">import</span> <span class="n">SymmOp</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.lattice</span> <span class="kn">import</span> <span class="n">Lattice</span><span class="p">,</span> <span class="n">get_points_in_spheres</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="kn">import</span> <span class="n">Element</span><span class="p">,</span> <span class="n">Specie</span><span class="p">,</span> <span class="n">get_el_sp</span><span class="p">,</span> <span class="n">DummySpecie</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.sites</span> <span class="kn">import</span> <span class="n">Site</span><span class="p">,</span> <span class="n">PeriodicSite</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.bonds</span> <span class="kn">import</span> <span class="n">CovalentBond</span><span class="p">,</span> <span class="n">get_bond_length</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.composition</span> <span class="kn">import</span> <span class="n">Composition</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.coord</span> <span class="kn">import</span> <span class="n">get_angle</span><span class="p">,</span> <span class="n">all_distances</span><span class="p">,</span> \
     <span class="n">lattice_points_in_supercell</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.units</span> <span class="k">import</span> <span class="n">Mass</span><span class="p">,</span> <span class="n">Length</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.units</span> <span class="kn">import</span> <span class="n">Mass</span><span class="p">,</span> <span class="n">Length</span>
 
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
@@ -104,7 +107,7 @@
 <span class="sd">    Neighbor.distance, etc.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                  <span class="n">species</span><span class="p">:</span> <span class="n">Composition</span><span class="p">,</span>
                  <span class="n">coords</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
                  <span class="n">properties</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -123,13 +126,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">nn_distance</span> <span class="o">=</span> <span class="n">nn_distance</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">index</span>
 
-    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Make neighbor Tuple-like to retain backwards compatibility.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="mi">3</span>
 
-    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>  <span class="c1"># type: ignore</span>
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>  <span class="c1"># type: ignore</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Make neighbor Tuple-like to retain backwards compatibility.</span>
 
@@ -151,7 +154,7 @@
 <span class="sd">    PeriodicNeighbor.distance, etc.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                  <span class="n">species</span><span class="p">:</span> <span class="n">Composition</span><span class="p">,</span>
                  <span class="n">coords</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
                  <span class="n">lattice</span><span class="p">:</span> <span class="n">Lattice</span><span class="p">,</span>
@@ -183,13 +186,13 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lattice</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_frac_coords</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Make neighbor Tuple-like to retain backwards compatibility.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="mi">4</span>
 
-    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>  <span class="c1"># type: ignore</span>
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>  <span class="c1"># type: ignore</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Make neighbor Tuple-like to retain backwards compatibility.</span>
 
@@ -318,19 +321,19 @@
             <span class="n">props</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">site</span><span class="o">.</span><span class="n">properties</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">props</span>
 
-    <span class="k">def</span> <span class="nf">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">site</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">site</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">site</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sites</span>
 
-    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sites</span><span class="o">.</span><span class="fm">__iter__</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ind</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ind</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sites</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sites</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># for now, just use the composition hash code.</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="fm">__hash__</span><span class="p">()</span>
 
@@ -671,7 +674,7 @@
 <span class="sd">    structure is equivalent to going through the sites in sequence.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                  <span class="n">lattice</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">Lattice</span><span class="p">],</span>
                  <span class="n">species</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Element</span><span class="p">,</span> <span class="n">Specie</span><span class="p">,</span> <span class="n">DummySpecie</span><span class="p">,</span> <span class="n">Composition</span><span class="p">]],</span>
                  <span class="n">coords</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span>
@@ -837,7 +840,7 @@
 <span class="sd">            tol (float): A fractional tolerance to deal with numerical</span>
 <span class="sd">               precision issues in determining if orbits are the same.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span> <span class="nn">pymatgen.symmetry.groups</span> <span class="k">import</span> <span class="n">SpaceGroup</span>
+        <span class="kn">from</span> <span class="nn">pymatgen.symmetry.groups</span> <span class="kn">import</span> <span class="n">SpaceGroup</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">i</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">sg</span><span class="p">)</span>
             <span class="n">sgp</span> <span class="o">=</span> <span class="n">SpaceGroup</span><span class="o">.</span><span class="n">from_int_number</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
@@ -882,7 +885,7 @@
 <div class="viewcode-block" id="IStructure.from_magnetic_spacegroup"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IStructure.from_magnetic_spacegroup">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_magnetic_spacegroup</span><span class="p">(</span>
             <span class="bp">cls</span><span class="p">,</span>
-            <span class="n">msg</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="s1">&#39;MagneticSpaceGroup&#39;</span><span class="p">],</span>  <span class="c1"># type: ignore</span>
+            <span class="n">msg</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="s1">&#39;MagneticSpaceGroup&#39;</span><span class="p">],</span>  <span class="c1"># type: ignore  # noqa: F821</span>
             <span class="n">lattice</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">Lattice</span><span class="p">],</span>
             <span class="n">species</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Element</span><span class="p">,</span> <span class="n">Specie</span><span class="p">,</span> <span class="n">DummySpecie</span><span class="p">,</span> <span class="n">Composition</span><span class="p">]],</span>
             <span class="n">coords</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span>
@@ -933,8 +936,8 @@
 <span class="sd">            tol (float): A fractional tolerance to deal with numerical</span>
 <span class="sd">                precision issues in determining if orbits are the same.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.core</span> <span class="k">import</span> <span class="n">Magmom</span>
-        <span class="kn">from</span> <span class="nn">pymatgen.symmetry.maggroups</span> <span class="k">import</span> <span class="n">MagneticSpaceGroup</span>
+        <span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.core</span> <span class="kn">import</span> <span class="n">Magmom</span>
+        <span class="kn">from</span> <span class="nn">pymatgen.symmetry.maggroups</span> <span class="kn">import</span> <span class="n">MagneticSpaceGroup</span>
 
         <span class="k">if</span> <span class="s1">&#39;magmom&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">site_properties</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Magnetic moments have to be defined.&#39;</span><span class="p">)</span>
@@ -1041,7 +1044,7 @@
 <span class="sd">            spacegroup_symbol, international_number</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Import within method needed to avoid cyclic dependency.</span>
-        <span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="k">import</span> <span class="n">SpacegroupAnalyzer</span>
+        <span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="kn">import</span> <span class="n">SpacegroupAnalyzer</span>
         <span class="n">a</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="n">symprec</span><span class="p">,</span>
                                <span class="n">angle_tolerance</span><span class="o">=</span><span class="n">angle_tolerance</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">a</span><span class="o">.</span><span class="n">get_space_group_symbol</span><span class="p">(),</span> <span class="n">a</span><span class="o">.</span><span class="n">get_space_group_number</span><span class="p">()</span></div>
@@ -1060,13 +1063,13 @@
 <span class="sd">            (bool) True is the structures are similar under some affine</span>
 <span class="sd">            transformation.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span> <span class="nn">pymatgen.analysis.structure_matcher</span> <span class="k">import</span> <span class="n">StructureMatcher</span>
+        <span class="kn">from</span> <span class="nn">pymatgen.analysis.structure_matcher</span> <span class="kn">import</span> <span class="n">StructureMatcher</span>
         <span class="n">m</span> <span class="o">=</span> <span class="n">StructureMatcher</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">anonymous</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">m</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">m</span><span class="o">.</span><span class="n">fit_anonymous</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">other</span> <span class="ow">is</span> <span class="bp">self</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">True</span>
         <span class="k">if</span> <span class="n">other</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -1080,14 +1083,14 @@
                 <span class="k">return</span> <span class="kc">False</span>
         <span class="k">return</span> <span class="kc">True</span>
 
-    <span class="k">def</span> <span class="nf">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># For now, just use the composition hash code.</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="fm">__hash__</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">__mul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scaling_matrix</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__mul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scaling_matrix</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Makes a supercell. Allowing to have sites outside the unit cell</span>
 
@@ -1134,7 +1137,7 @@
         <span class="n">new_charge</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_charge</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">scale_matrix</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_charge</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">new_sites</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="n">new_charge</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__rmul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scaling_matrix</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__rmul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scaling_matrix</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Similar to __mul__ to preserve commutativeness.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1269,6 +1272,102 @@
                                       <span class="n">include_image</span><span class="o">=</span><span class="n">include_image</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">d</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">nn</span> <span class="k">if</span> <span class="n">site</span> <span class="o">!=</span> <span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
 
+    <span class="k">def</span> <span class="nf">_get_neighbor_list_py</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+                              <span class="n">sites</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">PeriodicSite</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                              <span class="n">numerical_tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-8</span><span class="p">,</span>
+                              <span class="n">exclude_self</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        A python version of getting neighbor_list. The returned values are a tuple of</span>
+<span class="sd">        numpy arrays (center_indices, points_indices, offset_vectors, distances).</span>
+<span class="sd">        Atom `center_indices[i]` has neighbor atom `points_indices[i]` that is</span>
+<span class="sd">        translated by `offset_vectors[i]` lattice vectors, and the distance is</span>
+<span class="sd">        `distances[i]`.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            r (float): Radius of sphere</span>
+<span class="sd">            sites (list of Sites or None): sites for getting all neighbors,</span>
+<span class="sd">                default is None, which means neighbors will be obtained for all</span>
+<span class="sd">                sites. This is useful in the situation where you are interested</span>
+<span class="sd">                only in one subspecies type, and makes it a lot faster.</span>
+<span class="sd">            numerical_tol (float): This is a numerical tolerance for distances.</span>
+<span class="sd">                Sites which are &lt; numerical_tol are determined to be conincident</span>
+<span class="sd">                with the site. Sites which are r + numerical_tol away is deemed</span>
+<span class="sd">                to be within r from the site. The default of 1e-8 should be</span>
+<span class="sd">                ok in most instances.</span>
+<span class="sd">            exclude_self (bool): whether to exclude atom neighboring with itself within</span>
+<span class="sd">                numerical tolerance distance, default to True</span>
+<span class="sd">        Returns: (center_indices, points_indices, offset_vectors, distances)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">neighbors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_all_neighbors_py</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="n">r</span><span class="p">,</span> <span class="n">include_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">include_image</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                              <span class="n">sites</span><span class="o">=</span><span class="n">sites</span><span class="p">,</span> <span class="n">numerical_tol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">)</span>
+        <span class="n">center_indices</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">points_indices</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">offsets</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">distances</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">nns</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">neighbors</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">nns</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">nns</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">exclude_self</span> <span class="ow">and</span> <span class="p">(</span><span class="n">i</span> <span class="o">==</span> <span class="n">n</span><span class="o">.</span><span class="n">index</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">nn_distance</span> <span class="o">&lt;=</span> <span class="n">numerical_tol</span><span class="p">):</span>
+                        <span class="k">continue</span>
+                    <span class="n">center_indices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                    <span class="n">points_indices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+                    <span class="n">offsets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">image</span><span class="p">)</span>
+                    <span class="n">distances</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">nn_distance</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">center_indices</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">points_indices</span><span class="p">),</span>
+                     <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">offsets</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">distances</span><span class="p">)))</span>
+
+<div class="viewcode-block" id="IStructure.get_neighbor_list"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IStructure.get_neighbor_list">[docs]</a>    <span class="k">def</span> <span class="nf">get_neighbor_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+                          <span class="n">sites</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">PeriodicSite</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                          <span class="n">numerical_tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-8</span><span class="p">,</span>
+                          <span class="n">exclude_self</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get neighbor lists using numpy array representations without constructing</span>
+<span class="sd">        Neighbor objects. If the cython extension is installed,  this method will</span>
+<span class="sd">        be orders of magnitude faster than `get_all_neighbors`.</span>
+<span class="sd">        The returned values are a tuple of numpy arrays</span>
+<span class="sd">        (center_indices, points_indices, offset_vectors, distances).</span>
+<span class="sd">        Atom `center_indices[i]` has neighbor atom `points_indices[i]` that is</span>
+<span class="sd">        translated by `offset_vectors[i]` lattice vectors, and the distance is</span>
+<span class="sd">        `distances[i]`.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            r (float): Radius of sphere</span>
+<span class="sd">            sites (list of Sites or None): sites for getting all neighbors,</span>
+<span class="sd">                default is None, which means neighbors will be obtained for all</span>
+<span class="sd">                sites. This is useful in the situation where you are interested</span>
+<span class="sd">                only in one subspecies type, and makes it a lot faster.</span>
+<span class="sd">            numerical_tol (float): This is a numerical tolerance for distances.</span>
+<span class="sd">                Sites which are &lt; numerical_tol are determined to be conincident</span>
+<span class="sd">                with the site. Sites which are r + numerical_tol away is deemed</span>
+<span class="sd">                to be within r from the site. The default of 1e-8 should be</span>
+<span class="sd">                ok in most instances.</span>
+<span class="sd">            exclude_self (bool): whether to exclude atom neighboring with itself within</span>
+<span class="sd">                numerical tolerance distance, default to True</span>
+<span class="sd">        Returns: (center_indices, points_indices, offset_vectors, distances)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">pymatgen.optimization.neighbors</span> <span class="kn">import</span> <span class="n">find_points_in_spheres</span>  <span class="c1"># type: ignore</span>
+        <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_neighbor_list_py</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">sites</span><span class="p">,</span> <span class="n">exclude_self</span><span class="o">=</span><span class="n">exclude_self</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">sites</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">sites</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sites</span>
+            <span class="n">site_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">site</span><span class="o">.</span><span class="n">coords</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">sites</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+            <span class="n">cart_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ascontiguousarray</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cart_coords</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+            <span class="n">lattice_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ascontiguousarray</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+            <span class="n">center_indices</span><span class="p">,</span> <span class="n">points_indices</span><span class="p">,</span> <span class="n">images</span><span class="p">,</span> <span class="n">distances</span> <span class="o">=</span> \
+                <span class="n">find_points_in_spheres</span><span class="p">(</span><span class="n">cart_coords</span><span class="p">,</span> <span class="n">site_coords</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="n">r</span><span class="p">,</span>
+                                       <span class="n">pbc</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">),</span>
+                                       <span class="n">lattice</span><span class="o">=</span><span class="n">lattice_matrix</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="n">numerical_tol</span><span class="p">)</span>
+            <span class="n">cond</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="kc">True</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">center_indices</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">exclude_self</span><span class="p">:</span>
+                <span class="n">self_pair</span> <span class="o">=</span> <span class="p">(</span><span class="n">center_indices</span> <span class="o">==</span> <span class="n">points_indices</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">distances</span> <span class="o">&lt;=</span> <span class="n">numerical_tol</span><span class="p">)</span>
+                <span class="n">cond</span> <span class="o">=</span> <span class="o">~</span><span class="n">self_pair</span>
+            <span class="k">return</span> <span class="nb">tuple</span><span class="p">((</span><span class="n">center_indices</span><span class="p">[</span><span class="n">cond</span><span class="p">],</span> <span class="n">points_indices</span><span class="p">[</span><span class="n">cond</span><span class="p">],</span>
+                         <span class="n">images</span><span class="p">[</span><span class="n">cond</span><span class="p">],</span> <span class="n">distances</span><span class="p">[</span><span class="n">cond</span><span class="p">]))</span></div>
+
 <div class="viewcode-block" id="IStructure.get_all_neighbors"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IStructure.get_all_neighbors">[docs]</a>    <span class="k">def</span> <span class="nf">get_all_neighbors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
                           <span class="n">include_index</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
                           <span class="n">include_image</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -1313,53 +1412,41 @@
 <span class="sd">            [PeriodicNeighbor] where PeriodicNeighbor is a namedtuple containing</span>
 <span class="sd">            (site, distance, index, image).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="kn">from</span> <span class="nn">pymatgen.optimization.neighbors</span> <span class="k">import</span> <span class="n">find_points_in_spheres</span>  <span class="c1"># type: ignore</span>
-        <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_all_neighbors_py</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="n">r</span><span class="p">,</span> <span class="n">include_index</span><span class="o">=</span><span class="n">include_index</span><span class="p">,</span> <span class="n">include_image</span><span class="o">=</span><span class="n">include_image</span><span class="p">,</span>
-                                             <span class="n">sites</span><span class="o">=</span><span class="n">sites</span><span class="p">,</span> <span class="n">numerical_tol</span><span class="o">=</span><span class="n">numerical_tol</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">sites</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">sites</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sites</span>
-            <span class="n">site_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">site</span><span class="o">.</span><span class="n">coords</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">sites</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
-            <span class="n">cart_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ascontiguousarray</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cart_coords</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
-            <span class="n">lattice_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ascontiguousarray</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
-            <span class="n">r</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
-            <span class="n">center_indices</span><span class="p">,</span> <span class="n">points_indices</span><span class="p">,</span> <span class="n">images</span><span class="p">,</span> <span class="n">distances</span> <span class="o">=</span> \
-                <span class="n">find_points_in_spheres</span><span class="p">(</span><span class="n">cart_coords</span><span class="p">,</span> <span class="n">site_coords</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="n">r</span><span class="p">,</span>
-                                       <span class="n">pbc</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">),</span>
-                                       <span class="n">lattice</span><span class="o">=</span><span class="n">lattice_matrix</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="n">numerical_tol</span><span class="p">)</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">points_indices</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="k">return</span> <span class="p">[[]]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">sites</span><span class="p">)</span>
-            <span class="n">f_coords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="n">points_indices</span><span class="p">]</span> <span class="o">+</span> <span class="n">images</span>
-            <span class="n">neighbor_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">]</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
-            <span class="n">lattice</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span>
-            <span class="n">atol</span> <span class="o">=</span> <span class="n">Site</span><span class="o">.</span><span class="n">position_atol</span>
-            <span class="n">all_sites</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sites</span>
-            <span class="k">for</span> <span class="n">cindex</span><span class="p">,</span> <span class="n">pindex</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">f_coord</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">center_indices</span><span class="p">,</span> <span class="n">points_indices</span><span class="p">,</span> <span class="n">images</span><span class="p">,</span> <span class="n">f_coords</span><span class="p">,</span> <span class="n">distances</span><span class="p">):</span>
-                <span class="n">psite</span> <span class="o">=</span> <span class="n">all_sites</span><span class="p">[</span><span class="n">pindex</span><span class="p">]</span>
-                <span class="n">csite</span> <span class="o">=</span> <span class="n">sites</span><span class="p">[</span><span class="n">cindex</span><span class="p">]</span>
-                <span class="k">if</span> <span class="p">(</span><span class="n">d</span> <span class="o">&gt;</span> <span class="n">numerical_tol</span> <span class="ow">or</span>
-                        <span class="c1"># This simply compares the psite and csite. The reason why manual comparison is done is</span>
-                        <span class="c1"># for speed. This does not check the lattice since they are always equal. Also, the or construct</span>
-                        <span class="c1"># returns True immediately once one of the conditions are satisfied.</span>
-                        <span class="n">psite</span><span class="o">.</span><span class="n">species</span> <span class="o">!=</span> <span class="n">csite</span><span class="o">.</span><span class="n">species</span> <span class="ow">or</span>
-                        <span class="p">(</span><span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">psite</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="n">csite</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span><span class="p">))</span> <span class="ow">or</span>
-                        <span class="p">(</span><span class="ow">not</span> <span class="n">psite</span><span class="o">.</span><span class="n">properties</span> <span class="o">==</span> <span class="n">csite</span><span class="o">.</span><span class="n">properties</span><span class="p">)):</span>
-                    <span class="n">neighbor_dict</span><span class="p">[</span><span class="n">cindex</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">PeriodicNeighbor</span><span class="p">(</span>
-                        <span class="n">species</span><span class="o">=</span><span class="n">psite</span><span class="o">.</span><span class="n">species</span><span class="p">,</span>
-                        <span class="n">coords</span><span class="o">=</span><span class="n">f_coord</span><span class="p">,</span>
-                        <span class="n">lattice</span><span class="o">=</span><span class="n">lattice</span><span class="p">,</span>
-                        <span class="n">properties</span><span class="o">=</span><span class="n">psite</span><span class="o">.</span><span class="n">properties</span><span class="p">,</span>
-                        <span class="n">nn_distance</span><span class="o">=</span><span class="n">d</span><span class="p">,</span>
-                        <span class="n">index</span><span class="o">=</span><span class="n">pindex</span><span class="p">,</span>
-                        <span class="n">image</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">image</span><span class="p">)))</span>
+        <span class="k">if</span> <span class="n">sites</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">sites</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sites</span>
+        <span class="n">center_indices</span><span class="p">,</span> <span class="n">points_indices</span><span class="p">,</span> <span class="n">images</span><span class="p">,</span> <span class="n">distances</span> <span class="o">=</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_neighbor_list</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="n">r</span><span class="p">,</span> <span class="n">sites</span><span class="o">=</span><span class="n">sites</span><span class="p">,</span> <span class="n">numerical_tol</span><span class="o">=</span><span class="n">numerical_tol</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">points_indices</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[[]]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">sites</span><span class="p">)</span>
+        <span class="n">f_coords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="n">points_indices</span><span class="p">]</span> <span class="o">+</span> <span class="n">images</span>
+        <span class="n">neighbor_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">]</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+        <span class="n">lattice</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span>
+        <span class="n">atol</span> <span class="o">=</span> <span class="n">Site</span><span class="o">.</span><span class="n">position_atol</span>
+        <span class="n">all_sites</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sites</span>
+        <span class="k">for</span> <span class="n">cindex</span><span class="p">,</span> <span class="n">pindex</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">f_coord</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">center_indices</span><span class="p">,</span> <span class="n">points_indices</span><span class="p">,</span> <span class="n">images</span><span class="p">,</span> <span class="n">f_coords</span><span class="p">,</span> <span class="n">distances</span><span class="p">):</span>
+            <span class="n">psite</span> <span class="o">=</span> <span class="n">all_sites</span><span class="p">[</span><span class="n">pindex</span><span class="p">]</span>
+            <span class="n">csite</span> <span class="o">=</span> <span class="n">sites</span><span class="p">[</span><span class="n">cindex</span><span class="p">]</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">d</span> <span class="o">&gt;</span> <span class="n">numerical_tol</span> <span class="ow">or</span>
+                    <span class="c1"># This simply compares the psite and csite. The reason why manual comparison is done is</span>
+                    <span class="c1"># for speed. This does not check the lattice since they are always equal. Also, the or construct</span>
+                    <span class="c1"># returns True immediately once one of the conditions are satisfied.</span>
+                    <span class="n">psite</span><span class="o">.</span><span class="n">species</span> <span class="o">!=</span> <span class="n">csite</span><span class="o">.</span><span class="n">species</span> <span class="ow">or</span>
+                    <span class="p">(</span><span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">psite</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="n">csite</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span><span class="p">))</span> <span class="ow">or</span>
+                    <span class="p">(</span><span class="ow">not</span> <span class="n">psite</span><span class="o">.</span><span class="n">properties</span> <span class="o">==</span> <span class="n">csite</span><span class="o">.</span><span class="n">properties</span><span class="p">)):</span>
+                <span class="n">neighbor_dict</span><span class="p">[</span><span class="n">cindex</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">PeriodicNeighbor</span><span class="p">(</span>
+                    <span class="n">species</span><span class="o">=</span><span class="n">psite</span><span class="o">.</span><span class="n">species</span><span class="p">,</span>
+                    <span class="n">coords</span><span class="o">=</span><span class="n">f_coord</span><span class="p">,</span>
+                    <span class="n">lattice</span><span class="o">=</span><span class="n">lattice</span><span class="p">,</span>
+                    <span class="n">properties</span><span class="o">=</span><span class="n">psite</span><span class="o">.</span><span class="n">properties</span><span class="p">,</span>
+                    <span class="n">nn_distance</span><span class="o">=</span><span class="n">d</span><span class="p">,</span>
+                    <span class="n">index</span><span class="o">=</span><span class="n">pindex</span><span class="p">,</span>
+                    <span class="n">image</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">image</span><span class="p">)))</span>
 
-            <span class="n">neighbors</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">PeriodicNeighbor</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">neighbors</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">PeriodicNeighbor</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
 
-            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sites</span><span class="p">)):</span>
-                <span class="n">neighbors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">neighbor_dict</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
-            <span class="k">return</span> <span class="n">neighbors</span></div>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sites</span><span class="p">)):</span>
+            <span class="n">neighbors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">neighbor_dict</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">neighbors</span></div>
 
 <div class="viewcode-block" id="IStructure.get_all_neighbors_py"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IStructure.get_all_neighbors_py">[docs]</a>    <span class="k">def</span> <span class="nf">get_all_neighbors_py</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
                              <span class="n">include_index</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -1717,7 +1804,7 @@
 
         <span class="k">if</span> <span class="n">interpolate_lattices</span><span class="p">:</span>
             <span class="c1"># interpolate lattice matrices using polar decomposition</span>
-            <span class="kn">from</span> <span class="nn">scipy.linalg</span> <span class="k">import</span> <span class="n">polar</span>
+            <span class="kn">from</span> <span class="nn">scipy.linalg</span> <span class="kn">import</span> <span class="n">polar</span>
             <span class="c1"># u is unitary (rotation), p is stretch</span>
             <span class="n">u</span><span class="p">,</span> <span class="n">p</span> <span class="o">=</span> <span class="n">polar</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">end_structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="o">.</span><span class="n">T</span><span class="p">,</span>
                                 <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="o">.</span><span class="n">T</span><span class="p">)))</span>
@@ -1960,7 +2047,7 @@
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span></div>
 
-    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">outs</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Structure Summary&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="p">)]</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_charge</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_charge</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
@@ -1971,7 +2058,7 @@
             <span class="n">outs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">s</span><span class="p">))</span>
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outs</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">outs</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Full Formula (</span><span class="si">{s}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">s</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">formula</span><span class="p">),</span>
                 <span class="s2">&quot;Reduced Formula: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_formula</span><span class="p">)]</span>
 
@@ -1996,7 +2083,6 @@
             <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
                 <span class="n">row</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">props</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">i</span><span class="p">])</span>
             <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
-        <span class="kn">from</span> <span class="nn">tabulate</span> <span class="k">import</span> <span class="n">tabulate</span>
         <span class="n">outs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tabulate</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;#&quot;</span><span class="p">,</span> <span class="s2">&quot;SP&quot;</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">keys</span><span class="p">,</span>
                              <span class="p">))</span>
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outs</span><span class="p">)</span>
@@ -2023,7 +2109,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">fmt</span> <span class="o">==</span> <span class="s2">&quot;abivars&quot;</span><span class="p">:</span>
             <span class="sd">&quot;&quot;&quot;Returns a dictionary with the ABINIT variables.&quot;&quot;&quot;</span>
-            <span class="kn">from</span> <span class="nn">pymatgen.io.abinit.abiobjects</span> <span class="k">import</span> <span class="n">structure_to_abivars</span>
+            <span class="kn">from</span> <span class="nn">pymatgen.io.abinit.abiobjects</span> <span class="kn">import</span> <span class="n">structure_to_abivars</span>
             <span class="k">return</span> <span class="n">structure_to_abivars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="n">latt_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lattice</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(</span><span class="n">verbosity</span><span class="o">=</span><span class="n">verbosity</span><span class="p">)</span>
@@ -2042,6 +2128,28 @@
             <span class="n">d</span><span class="p">[</span><span class="s2">&quot;sites&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">site_dict</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">d</span></div>
 
+<div class="viewcode-block" id="IStructure.as_dataframe"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IStructure.as_dataframe">[docs]</a>    <span class="k">def</span> <span class="nf">as_dataframe</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a Pandas dataframe of the sites. Structure level attributes are stored in DataFrame.attrs. Example:</span>
+
+<span class="sd">        Species    a    b             c    x             y             z  magmom</span>
+<span class="sd">        0    (Si)  0.0  0.0  0.000000e+00  0.0  0.000000e+00  0.000000e+00       5</span>
+<span class="sd">        1    (Si)  0.0  0.0  1.000000e-07  0.0 -2.217138e-07  3.135509e-07      -5</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">site_properties</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">site_properties</span>
+        <span class="n">prop_keys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">site_properties</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="n">row</span> <span class="o">=</span> <span class="p">[</span><span class="n">site</span><span class="o">.</span><span class="n">species</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">)</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">prop_keys</span><span class="p">:</span>
+                <span class="n">row</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">properties</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">))</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+        <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Species&quot;</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">prop_keys</span><span class="p">)</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;Reduced Formula&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_formula</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;Lattice&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span>
+        <span class="k">return</span> <span class="n">df</span></div>
+
 <div class="viewcode-block" id="IStructure.from_dict"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IStructure.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -2055,7 +2163,7 @@
 <span class="sd">            Structure object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">fmt</span> <span class="o">==</span> <span class="s2">&quot;abivars&quot;</span><span class="p">:</span>
-            <span class="kn">from</span> <span class="nn">pymatgen.io.abinit.abiobjects</span> <span class="k">import</span> <span class="n">structure_from_abivars</span>
+            <span class="kn">from</span> <span class="nn">pymatgen.io.abinit.abiobjects</span> <span class="kn">import</span> <span class="n">structure_from_abivars</span>
             <span class="k">return</span> <span class="n">structure_from_abivars</span><span class="p">(</span><span class="bp">cls</span><span class="o">=</span><span class="bp">cls</span><span class="p">,</span> <span class="o">**</span><span class="n">d</span><span class="p">)</span>
 
         <span class="n">lattice</span> <span class="o">=</span> <span class="n">Lattice</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;lattice&quot;</span><span class="p">])</span>
@@ -2087,16 +2195,16 @@
         <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">fmt</span> <span class="o">==</span> <span class="s2">&quot;cif&quot;</span> <span class="ow">or</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">fname</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="s2">&quot;*.cif*&quot;</span><span class="p">):</span>
-            <span class="kn">from</span> <span class="nn">pymatgen.io.cif</span> <span class="k">import</span> <span class="n">CifWriter</span>
+            <span class="kn">from</span> <span class="nn">pymatgen.io.cif</span> <span class="kn">import</span> <span class="n">CifWriter</span>
             <span class="n">writer</span> <span class="o">=</span> <span class="n">CifWriter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">fmt</span> <span class="o">==</span> <span class="s2">&quot;mcif&quot;</span> <span class="ow">or</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">fname</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="s2">&quot;*.mcif*&quot;</span><span class="p">):</span>
-            <span class="kn">from</span> <span class="nn">pymatgen.io.cif</span> <span class="k">import</span> <span class="n">CifWriter</span>
+            <span class="kn">from</span> <span class="nn">pymatgen.io.cif</span> <span class="kn">import</span> <span class="n">CifWriter</span>
             <span class="n">writer</span> <span class="o">=</span> <span class="n">CifWriter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">write_magmoms</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">fmt</span> <span class="o">==</span> <span class="s2">&quot;poscar&quot;</span> <span class="ow">or</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s2">&quot;*POSCAR*&quot;</span><span class="p">):</span>
-            <span class="kn">from</span> <span class="nn">pymatgen.io.vasp</span> <span class="k">import</span> <span class="n">Poscar</span>
+            <span class="kn">from</span> <span class="nn">pymatgen.io.vasp</span> <span class="kn">import</span> <span class="n">Poscar</span>
             <span class="n">writer</span> <span class="o">=</span> <span class="n">Poscar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">fmt</span> <span class="o">==</span> <span class="s2">&quot;cssr&quot;</span> <span class="ow">or</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">fname</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="s2">&quot;*.cssr*&quot;</span><span class="p">):</span>
-            <span class="kn">from</span> <span class="nn">pymatgen.io.cssr</span> <span class="k">import</span> <span class="n">Cssr</span>
+            <span class="kn">from</span> <span class="nn">pymatgen.io.cssr</span> <span class="kn">import</span> <span class="n">Cssr</span>
             <span class="n">writer</span> <span class="o">=</span> <span class="n">Cssr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">fmt</span> <span class="o">==</span> <span class="s2">&quot;json&quot;</span> <span class="ow">or</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">fname</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="s2">&quot;*.json&quot;</span><span class="p">):</span>
             <span class="n">s</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">as_dict</span><span class="p">())</span>
@@ -2105,7 +2213,7 @@
                     <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">s</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">s</span>
         <span class="k">elif</span> <span class="n">fmt</span> <span class="o">==</span> <span class="s2">&quot;xsf&quot;</span> <span class="ow">or</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">fname</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="s2">&quot;*.xsf*&quot;</span><span class="p">):</span>
-            <span class="kn">from</span> <span class="nn">pymatgen.io.xcrysden</span> <span class="k">import</span> <span class="n">XSF</span>
+            <span class="kn">from</span> <span class="nn">pymatgen.io.xcrysden</span> <span class="kn">import</span> <span class="n">XSF</span>
             <span class="n">s</span> <span class="o">=</span> <span class="n">XSF</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">to_string</span><span class="p">()</span>
             <span class="k">if</span> <span class="n">filename</span><span class="p">:</span>
                 <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s2">&quot;wt&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf8&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
@@ -2114,14 +2222,14 @@
         <span class="k">elif</span> <span class="n">fmt</span> <span class="o">==</span> <span class="s1">&#39;mcsqs&#39;</span> <span class="ow">or</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s2">&quot;*rndstr.in*&quot;</span><span class="p">)</span> \
                 <span class="ow">or</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s2">&quot;*lat.in*&quot;</span><span class="p">)</span> \
                 <span class="ow">or</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s2">&quot;*bestsqs*&quot;</span><span class="p">):</span>
-            <span class="kn">from</span> <span class="nn">pymatgen.io.atat</span> <span class="k">import</span> <span class="n">Mcsqs</span>
+            <span class="kn">from</span> <span class="nn">pymatgen.io.atat</span> <span class="kn">import</span> <span class="n">Mcsqs</span>
             <span class="n">s</span> <span class="o">=</span> <span class="n">Mcsqs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">to_string</span><span class="p">()</span>
             <span class="k">if</span> <span class="n">filename</span><span class="p">:</span>
                 <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s2">&quot;wt&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;ascii&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                     <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">s</span>
         <span class="k">elif</span> <span class="n">fmt</span> <span class="o">==</span> <span class="s1">&#39;prismatic&#39;</span> <span class="ow">or</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s2">&quot;*prismatic*&quot;</span><span class="p">):</span>
-            <span class="kn">from</span> <span class="nn">pymatgen.io.prismatic</span> <span class="k">import</span> <span class="n">Prismatic</span>
+            <span class="kn">from</span> <span class="nn">pymatgen.io.prismatic</span> <span class="kn">import</span> <span class="n">Prismatic</span>
             <span class="n">s</span> <span class="o">=</span> <span class="n">Prismatic</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">to_string</span><span class="p">()</span>
             <span class="k">return</span> <span class="n">s</span>
         <span class="k">elif</span> <span class="n">fmt</span> <span class="o">==</span> <span class="s2">&quot;yaml&quot;</span> <span class="ow">or</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s2">&quot;*.yaml*&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s2">&quot;*.yml*&quot;</span><span class="p">):</span>
@@ -2159,11 +2267,11 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            IStructure / Structure</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span> <span class="nn">pymatgen.io.cif</span> <span class="k">import</span> <span class="n">CifParser</span>
-        <span class="kn">from</span> <span class="nn">pymatgen.io.vasp</span> <span class="k">import</span> <span class="n">Poscar</span>
-        <span class="kn">from</span> <span class="nn">pymatgen.io.cssr</span> <span class="k">import</span> <span class="n">Cssr</span>
-        <span class="kn">from</span> <span class="nn">pymatgen.io.xcrysden</span> <span class="k">import</span> <span class="n">XSF</span>
-        <span class="kn">from</span> <span class="nn">pymatgen.io.atat</span> <span class="k">import</span> <span class="n">Mcsqs</span>
+        <span class="kn">from</span> <span class="nn">pymatgen.io.cif</span> <span class="kn">import</span> <span class="n">CifParser</span>
+        <span class="kn">from</span> <span class="nn">pymatgen.io.vasp</span> <span class="kn">import</span> <span class="n">Poscar</span>
+        <span class="kn">from</span> <span class="nn">pymatgen.io.cssr</span> <span class="kn">import</span> <span class="n">Cssr</span>
+        <span class="kn">from</span> <span class="nn">pymatgen.io.xcrysden</span> <span class="kn">import</span> <span class="n">XSF</span>
+        <span class="kn">from</span> <span class="nn">pymatgen.io.atat</span> <span class="kn">import</span> <span class="n">Mcsqs</span>
         <span class="n">fmt</span> <span class="o">=</span> <span class="n">fmt</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">fmt</span> <span class="o">==</span> <span class="s2">&quot;cif&quot;</span><span class="p">:</span>
             <span class="n">parser</span> <span class="o">=</span> <span class="n">CifParser</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">input_string</span><span class="p">)</span>
@@ -2217,15 +2325,15 @@
         <span class="n">filename</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">filename</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.nc&quot;</span><span class="p">):</span>
             <span class="c1"># Read Structure from a netcdf file.</span>
-            <span class="kn">from</span> <span class="nn">pymatgen.io.abinit.netcdf</span> <span class="k">import</span> <span class="n">structure_from_ncdata</span>
+            <span class="kn">from</span> <span class="nn">pymatgen.io.abinit.netcdf</span> <span class="kn">import</span> <span class="n">structure_from_ncdata</span>
             <span class="n">s</span> <span class="o">=</span> <span class="n">structure_from_ncdata</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="bp">cls</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">sort</span><span class="p">:</span>
                 <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">get_sorted_structure</span><span class="p">()</span>
             <span class="k">return</span> <span class="n">s</span>
 
-        <span class="kn">from</span> <span class="nn">pymatgen.io.lmto</span> <span class="k">import</span> <span class="n">LMTOCtrl</span>
-        <span class="kn">from</span> <span class="nn">pymatgen.io.vasp</span> <span class="k">import</span> <span class="n">Vasprun</span><span class="p">,</span> <span class="n">Chgcar</span>
-        <span class="kn">from</span> <span class="nn">pymatgen.io.exciting</span> <span class="k">import</span> <span class="n">ExcitingInput</span>
+        <span class="kn">from</span> <span class="nn">pymatgen.io.lmto</span> <span class="kn">import</span> <span class="n">LMTOCtrl</span>
+        <span class="kn">from</span> <span class="nn">pymatgen.io.vasp</span> <span class="kn">import</span> <span class="n">Vasprun</span><span class="p">,</span> <span class="n">Chgcar</span>
+        <span class="kn">from</span> <span class="nn">pymatgen.io.exciting</span> <span class="kn">import</span> <span class="n">ExcitingInput</span>
         <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
         <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;rt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">contents</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
@@ -2291,7 +2399,7 @@
 <span class="sd">    equivalent to going through the sites in sequence.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                  <span class="n">species</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Element</span><span class="p">,</span> <span class="n">Specie</span><span class="p">,</span> <span class="n">DummySpecie</span><span class="p">,</span> <span class="n">Composition</span><span class="p">]],</span>
                  <span class="n">coords</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span>
                  <span class="n">charge</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
@@ -2481,7 +2589,7 @@
                 <span class="n">bonds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">CovalentBond</span><span class="p">(</span><span class="n">site1</span><span class="p">,</span> <span class="n">site2</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">bonds</span></div>
 
-    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">other</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
@@ -2495,20 +2603,20 @@
                 <span class="k">return</span> <span class="kc">False</span>
         <span class="k">return</span> <span class="kc">True</span>
 
-    <span class="k">def</span> <span class="nf">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># For now, just use the composition hash code.</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="fm">__hash__</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">outs</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Molecule Summary&quot;</span><span class="p">]</span>
         <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
             <span class="n">outs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">())</span>
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outs</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">outs</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Full Formula (</span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">formula</span><span class="p">,</span>
                 <span class="s2">&quot;Reduced Formula: &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_formula</span><span class="p">,</span>
                 <span class="s2">&quot;Charge = </span><span class="si">%s</span><span class="s2">, Spin Mult = </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
@@ -2571,7 +2679,7 @@
 <span class="sd">        Find all sites within a sphere from a point.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            pt (3x1 array): Cartesian coordinates of center of sphere.</span>
+<span class="sd">            pt (3x1 array): Cartesian coordinates of center of sphere</span>
 <span class="sd">            r (float): Radius of sphere.</span>
 
 <span class="sd">        Returns:</span>
@@ -2622,7 +2730,7 @@
 
 <div class="viewcode-block" id="IMolecule.get_boxed_structure"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IMolecule.get_boxed_structure">[docs]</a>    <span class="k">def</span> <span class="nf">get_boxed_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">images</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
                             <span class="n">random_rotation</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">min_dist</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                            <span class="n">offset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">no_cross</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+                            <span class="n">offset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">no_cross</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">reorder</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Creates a Structure from a Molecule by putting the Molecule in the</span>
 <span class="sd">        center of a orthorhombic box. Useful for creating Structure for</span>
@@ -2647,6 +2755,8 @@
 <span class="sd">            offset: Translation to offset molecule from center of mass coords</span>
 <span class="sd">            no_cross: Whether to forbid molecule coords from extending beyond</span>
 <span class="sd">                boundary of box.</span>
+<span class="sd">            reorder: Whether to reorder the sites to be in electronegativity</span>
+<span class="sd">                order.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Structure containing molecule in a box.</span>
@@ -2707,9 +2817,14 @@
         <span class="k">if</span> <span class="bp">cls</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">cls</span> <span class="o">=</span> <span class="n">Structure</span>
 
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">species</span> <span class="o">*</span> <span class="n">nimages</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span>
-                   <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                   <span class="n">site_properties</span><span class="o">=</span><span class="n">sprops</span><span class="p">)</span><span class="o">.</span><span class="n">get_sorted_structure</span><span class="p">()</span></div>
+        <span class="k">if</span> <span class="n">reorder</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">species</span> <span class="o">*</span> <span class="n">nimages</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span>
+                       <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                       <span class="n">site_properties</span><span class="o">=</span><span class="n">sprops</span><span class="p">)</span><span class="o">.</span><span class="n">get_sorted_structure</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">species</span> <span class="o">*</span> <span class="n">nimages</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span>
+                       <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                       <span class="n">site_properties</span><span class="o">=</span><span class="n">sprops</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="IMolecule.get_centered_molecule"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IMolecule.get_centered_molecule">[docs]</a>    <span class="k">def</span> <span class="nf">get_centered_molecule</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -2742,9 +2857,9 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            (str) if filename is None. None otherwise.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span> <span class="nn">pymatgen.io.xyz</span> <span class="k">import</span> <span class="n">XYZ</span>
-        <span class="kn">from</span> <span class="nn">pymatgen.io.gaussian</span> <span class="k">import</span> <span class="n">GaussianInput</span>
-        <span class="kn">from</span> <span class="nn">pymatgen.io.babel</span> <span class="k">import</span> <span class="n">BabelMolAdaptor</span>
+        <span class="kn">from</span> <span class="nn">pymatgen.io.xyz</span> <span class="kn">import</span> <span class="n">XYZ</span>
+        <span class="kn">from</span> <span class="nn">pymatgen.io.gaussian</span> <span class="kn">import</span> <span class="n">GaussianInput</span>
+        <span class="kn">from</span> <span class="nn">pymatgen.io.babel</span> <span class="kn">import</span> <span class="n">BabelMolAdaptor</span>
 
         <span class="n">fmt</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="k">if</span> <span class="n">fmt</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">fmt</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
         <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">filename</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
@@ -2797,8 +2912,8 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            IMolecule or Molecule.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span> <span class="nn">pymatgen.io.xyz</span> <span class="k">import</span> <span class="n">XYZ</span>
-        <span class="kn">from</span> <span class="nn">pymatgen.io.gaussian</span> <span class="k">import</span> <span class="n">GaussianInput</span>
+        <span class="kn">from</span> <span class="nn">pymatgen.io.xyz</span> <span class="kn">import</span> <span class="n">XYZ</span>
+        <span class="kn">from</span> <span class="nn">pymatgen.io.gaussian</span> <span class="kn">import</span> <span class="n">GaussianInput</span>
         <span class="k">if</span> <span class="n">fmt</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;xyz&quot;</span><span class="p">:</span>
             <span class="n">m</span> <span class="o">=</span> <span class="n">XYZ</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">input_string</span><span class="p">)</span><span class="o">.</span><span class="n">molecule</span>
         <span class="k">elif</span> <span class="n">fmt</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;gjf&quot;</span><span class="p">,</span> <span class="s2">&quot;g03&quot;</span><span class="p">,</span> <span class="s2">&quot;g09&quot;</span><span class="p">,</span> <span class="s2">&quot;com&quot;</span><span class="p">,</span> <span class="s2">&quot;inp&quot;</span><span class="p">]:</span>
@@ -2811,7 +2926,7 @@
             <span class="n">d</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">input_string</span><span class="p">)</span>
             <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="kn">from</span> <span class="nn">pymatgen.io.babel</span> <span class="k">import</span> <span class="n">BabelMolAdaptor</span>
+            <span class="kn">from</span> <span class="nn">pymatgen.io.babel</span> <span class="kn">import</span> <span class="n">BabelMolAdaptor</span>
             <span class="n">m</span> <span class="o">=</span> <span class="n">BabelMolAdaptor</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">input_string</span><span class="p">,</span>
                                             <span class="n">file_format</span><span class="o">=</span><span class="n">fmt</span><span class="p">)</span><span class="o">.</span><span class="n">pymatgen_mol</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">m</span><span class="p">)</span></div>
@@ -2832,7 +2947,7 @@
 <span class="sd">            Molecule</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">filename</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
-        <span class="kn">from</span> <span class="nn">pymatgen.io.gaussian</span> <span class="k">import</span> <span class="n">GaussianOutput</span>
+        <span class="kn">from</span> <span class="nn">pymatgen.io.gaussian</span> <span class="kn">import</span> <span class="n">GaussianOutput</span>
         <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">contents</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
         <span class="n">fname</span> <span class="o">=</span> <span class="n">filename</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
@@ -2848,7 +2963,7 @@
             <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="n">contents</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;json&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s2">&quot;*.yaml*&quot;</span><span class="p">):</span>
             <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="n">contents</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;yaml&quot;</span><span class="p">)</span>
-        <span class="kn">from</span> <span class="nn">pymatgen.io.babel</span> <span class="k">import</span> <span class="n">BabelMolAdaptor</span>
+        <span class="kn">from</span> <span class="nn">pymatgen.io.babel</span> <span class="kn">import</span> <span class="n">BabelMolAdaptor</span>
         <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\.(pdb|mol|mdl|sdf|sd|ml2|sy2|mol2|cml|mrv)&quot;</span><span class="p">,</span>
                       <span class="n">filename</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
         <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
@@ -2865,7 +2980,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="fm">__hash__</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># type: ignore</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                  <span class="n">lattice</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">Lattice</span><span class="p">],</span>
                  <span class="n">species</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Element</span><span class="p">,</span> <span class="n">Specie</span><span class="p">,</span> <span class="n">DummySpecie</span><span class="p">,</span> <span class="n">Composition</span><span class="p">]],</span>
                  <span class="n">coords</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span>
@@ -2916,7 +3031,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_sites</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sites</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
 
-    <span class="k">def</span> <span class="nf">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">site</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">site</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Modify a site in the structure.</span>
 
@@ -2986,7 +3101,7 @@
                     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">site</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">_sites</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">properties</span> <span class="o">=</span> <span class="n">site</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">__delitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__delitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Deletes a site from the Structure.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -3343,9 +3458,9 @@
 <span class="sd">                cell</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="kn">from</span> <span class="nn">numpy.linalg</span> <span class="k">import</span> <span class="n">norm</span>
-        <span class="kn">from</span> <span class="nn">numpy</span> <span class="k">import</span> <span class="n">cross</span><span class="p">,</span> <span class="n">eye</span>
-        <span class="kn">from</span> <span class="nn">scipy.linalg</span> <span class="k">import</span> <span class="n">expm</span>
+        <span class="kn">from</span> <span class="nn">numpy.linalg</span> <span class="kn">import</span> <span class="n">norm</span>
+        <span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">cross</span><span class="p">,</span> <span class="n">eye</span>
+        <span class="kn">from</span> <span class="nn">scipy.linalg</span> <span class="kn">import</span> <span class="n">expm</span>
 
         <span class="k">if</span> <span class="n">indices</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">indices</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
@@ -3450,8 +3565,8 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">mode</span> <span class="o">=</span> <span class="n">mode</span><span class="o">.</span><span class="n">lower</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="kn">from</span> <span class="nn">scipy.spatial.distance</span> <span class="k">import</span> <span class="n">squareform</span>
-        <span class="kn">from</span> <span class="nn">scipy.cluster.hierarchy</span> <span class="k">import</span> <span class="n">fcluster</span><span class="p">,</span> <span class="n">linkage</span>
+        <span class="kn">from</span> <span class="nn">scipy.spatial.distance</span> <span class="kn">import</span> <span class="n">squareform</span>
+        <span class="kn">from</span> <span class="nn">scipy.cluster.hierarchy</span> <span class="kn">import</span> <span class="n">fcluster</span><span class="p">,</span> <span class="n">linkage</span>
 
         <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">distance_matrix</span>
         <span class="n">np</span><span class="o">.</span><span class="n">fill_diagonal</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
@@ -3500,7 +3615,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="fm">__hash__</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># type: ignore</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                  <span class="n">species</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Element</span><span class="p">,</span> <span class="n">Specie</span><span class="p">,</span> <span class="n">DummySpecie</span><span class="p">,</span> <span class="n">Composition</span><span class="p">]],</span>
                  <span class="n">coords</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span>
                  <span class="n">charge</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
@@ -3534,7 +3649,7 @@
                          <span class="n">site_properties</span><span class="o">=</span><span class="n">site_properties</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_sites</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sites</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
 
-    <span class="k">def</span> <span class="nf">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">site</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">site</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Modify a site in the molecule.</span>
 
@@ -3574,7 +3689,7 @@
                     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">site</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">_sites</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">properties</span> <span class="o">=</span> <span class="n">site</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">__delitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__delitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Deletes a site from the Structure.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -3710,9 +3825,9 @@
 <span class="sd">            anchor (3x1 array): Point of rotation.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="kn">from</span> <span class="nn">numpy.linalg</span> <span class="k">import</span> <span class="n">norm</span>
-        <span class="kn">from</span> <span class="nn">numpy</span> <span class="k">import</span> <span class="n">cross</span><span class="p">,</span> <span class="n">eye</span>
-        <span class="kn">from</span> <span class="nn">scipy.linalg</span> <span class="k">import</span> <span class="n">expm</span>
+        <span class="kn">from</span> <span class="nn">numpy.linalg</span> <span class="kn">import</span> <span class="n">norm</span>
+        <span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">cross</span><span class="p">,</span> <span class="n">eye</span>
+        <span class="kn">from</span> <span class="nn">scipy.linalg</span> <span class="kn">import</span> <span class="n">expm</span>
 
         <span class="k">if</span> <span class="n">indices</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">indices</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
@@ -3888,22 +4003,8 @@
                         <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
 </pre></div>
 
+            <div class="clearer"></div>
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
       </div>
       <div class="clearer"></div>
     </div>
@@ -3916,15 +4017,16 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2019.11.11 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.core.structure</a></li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -23,13 +23,12 @@ jobs:
             echo "mypy checks..."
             mypy pymatgen
             echo "--- Done ---"
-            # Docstyle checks are enforced for files that have been modified since the v2019.10.16 tagged release.
-            export MODIFIED_FILES=`git diff --diff-filter=ACMRTUXB --name-only HEAD v2019.10.16 | grep -E 'pymatgen.*\.(py)$' | sed '/test_/d' | tr '\n' ' '`
-            echo "pydocstyle checks for $MODIFIED_FILES..."
-            pydocstyle --count pymatgen/core $MODIFIED_FILES
-            echo "--- Done ---"
+            # Docstyle checks are enforced for files that have been modified since the v2020.1.28 tagged release.
             echo "pylint checks..."
             pylint --exit-zero pymatgen
+            echo "--- Done ---"
+            echo "pydocstyle checks for $MODIFIED_FILES..."
+            pydocstyle --count pymatgen
             echo "--- Done ---"
   py3test:
     working_directory: ~/pymatgen
@@ -42,27 +41,27 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - pmg-v3-deps-{{ checksum "requirements.txt" }}-{{ checksum "requirements-optional.txt" }}
+            - pmg-v3-deps-{{ checksum "requirements.txt" }}-{{ checksum "requirements-optional.txt" }}-{{ checksum "requirements-dev.txt" }}-{{ checksum "setup.py" }}-{{ checksum ".circleci/config.yml"}}
       - run:
           command: |
             export PATH=$HOME/miniconda3/bin:$PATH
             conda config --set always_yes yes --set changeps1 no
             conda config --system --add channels conda-forge
-            conda config --system --add channels openbabel
             if [ -e $HOME/miniconda3/envs/test-environment ]; then
               echo "Conda env already present from the cache."
             else
-              conda create -q -n test-environment python=3.7 numpy scipy matplotlib sympy cython pandas networkx pytest pip cmake h5py openbabel python-igraph
+              conda create -q -n test-environment python=3.7 numpy scipy matplotlib cython pandas networkx pytest pip cmake h5py openbabel python-igraph
             fi
             source activate test-environment
-            conda update --quiet numpy scipy matplotlib sympy cython pandas networkx pytest pip cmake h5py openbabel python-igraph
+            conda update --quiet numpy scipy matplotlib cython pandas networkx pytest pip cmake h5py openbabel python-igraph
             # conda install --quiet -c clinicalgraphics vtk
-            pip install --quiet --ignore-installed -r requirements.txt -r requirements-optional.txt
+            pip install --quiet --ignore-installed -r requirements.txt -r requirements-optional.txt -r requirements-dev.txt
+            # pip install sympy --upgrade
             export CFLAGS=$CFLAGS" -std=gnu++11"
             pip install --quiet BoltzTraP2
             export CFLAGS=${CFLAGS%% -std=gnu++11}
       - save_cache:
-          key: pmg-v3-deps-{{ checksum "requirements.txt" }}-{{ checksum "requirements-optional.txt" }}
+          key: pmg-v3-deps-{{ checksum "requirements.txt" }}-{{ checksum "requirements-optional.txt" }}-{{ checksum "requirements-dev.txt" }}-{{ checksum "setup.py" }}-{{ checksum ".circleci/config.yml"}}
           paths:
             - /root/miniconda3/envs/test-environment
       - run:
@@ -80,7 +79,7 @@ jobs:
             rm vasp_data.gz
             rm pmg.cif
             rm POSCAR.pmg
-            if [ "$CI_PULL_REQUEST" == "" ]; then coveralls; fi
+            # if [ "$CI_PULL_REQUEST" == "" ]; then coveralls; fi
           no_output_timeout: 3600
       - store_artifacts:
           path: coverage_reports/
@@ -95,4 +94,4 @@ workflows:
   build_and_test:
     jobs:
       - py3test
-      - pmglint
+#      - pmglint

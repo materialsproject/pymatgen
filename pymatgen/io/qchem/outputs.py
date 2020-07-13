@@ -2,12 +2,19 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+"""
+Parsers for Qchem output files.
+"""
+
 import re
 import logging
 import os
-import numpy as np
+import warnings
+from typing import List
 import math
 import copy
+
+import numpy as np
 
 from monty.io import zopen
 from monty.json import jsanitize
@@ -20,7 +27,7 @@ from pymatgen.analysis.fragmenter import metal_edge_extender
 import networkx as nx
 
 try:
-    import openbabel as ob
+    from openbabel import openbabel as ob
 
     have_babel = True
 except ImportError:
@@ -317,12 +324,12 @@ class QCOutput(MSONable):
     @staticmethod
     def multiple_outputs_from_file(cls, filename, keep_sub_files=True):
         """
-            Parses a QChem output file with multiple calculations
-            1.) Seperates the output into sub-files
-                e.g. qcout -> qcout.0, qcout.1, qcout.2 ... qcout.N
-                a.) Find delimeter for multiple calcualtions
-                b.) Make seperate output sub-files
-            2.) Creates seperate QCCalcs for each one from the sub-files
+        Parses a QChem output file with multiple calculations
+        1.) Seperates the output into sub-files
+            e.g. qcout -> qcout.0, qcout.1, qcout.2 ... qcout.N
+            a.) Find delimeter for multiple calcualtions
+            b.) Make seperate output sub-files
+        2.) Creates seperate QCCalcs for each one from the sub-files
         """
         to_return = []
         with zopen(filename, 'rt') as f:
@@ -1169,6 +1176,10 @@ class QCOutput(MSONable):
             self.data["errors"] += ["unknown_error"]
 
     def as_dict(self):
+        """
+        Returns:
+            MSONAble dict.
+        """
         d = {}
         d["data"] = self.data
         d["text"] = self.text
@@ -1176,48 +1187,65 @@ class QCOutput(MSONable):
         return jsanitize(d, strict=True)
 
 
-def check_for_structure_changes(mol1, mol2):
-    # special_elements = ["Li", "Na", "Mg", "Ca", "Zn"]
-    # mol_list = [copy.deepcopy(mol1), copy.deepcopy(mol2)]
+def check_for_structure_changes(mol1: Molecule, mol2: Molecule) -> str:
+    """
+    Compares connectivity of two molecules (using MoleculeGraph w/ OpenBabelNN).
+    This function will work with two molecules with different atom orderings,
+        but for proper treatment, atoms should be listed in the same order.
+    Possible outputs include:
+    - no_change: the bonding in the two molecules is identical
+    - unconnected_fragments: the MoleculeGraph of mol1 is connected, but the
+      MoleculeGraph is mol2 is not connected
+    - fewer_bonds: the MoleculeGraph of mol1 has more bonds (edges) than the
+      MoleculeGraph of mol2
+    - more_bonds: the MoleculeGraph of mol2 has more bonds (edges) than the
+      MoleculeGraph of mol1
+    - bond_change: this case catches any other non-identical MoleculeGraphs
+    Args:
+        mol1: Pymatgen Molecule object to be compared.
+        mol2: Pymatgen Molecule object to be compared.
+    Returns:
+        One of ["unconnected_fragments", "fewer_bonds", "more_bonds",
+        "bond_change", "no_change"]
+    """
+    special_elements = ["Li", "Na", "Mg", "Ca", "Zn"]
+    mol_list = [copy.deepcopy(mol1), copy.deepcopy(mol2)]
 
     if mol1.composition != mol2.composition:
         raise RuntimeError("Molecules have different compositions! Exiting...")
 
-    # for ii, site in enumerate(mol1):
-    #     if site.specie.symbol != mol2[ii].specie.symbol:
-    #         print(
-    #             "WARNING: Comparing molecules with different atom ordering! Turning off special treatment for "
-    #             "coordinating metals.")
-    #         special_elements = []
+    for ii, site in enumerate(mol1):
+        if site.specie.symbol != mol2[ii].specie.symbol:
+            warnings.warn(
+                "Comparing molecules with different atom ordering! "
+                "Turning off special treatment for coordinating metals."
+            )
+            special_elements = []
 
-    # special_sites = [[], []]
-    # for ii, mol in enumerate(mol_list):
-    #     for jj, site in enumerate(mol):
-    #         if site.specie.symbol in special_elements:
-    #             distances = [[kk, site.distance(other_site)] for kk, other_site in enumerate(mol)]
-    #             special_sites[ii].append([jj, site, distances])
-    #     for jj, site in enumerate(mol):
-    #         if site.specie.symbol in special_elements:
-    #             mol.__delitem__(jj)
+    special_sites: List[List] = [[], []]
+    for ii, mol in enumerate(mol_list):
+        for jj, site in enumerate(mol):
+            if site.specie.symbol in special_elements:
+                distances = [[kk, site.distance(other_site)]
+                             for kk, other_site in enumerate(mol)]
+                special_sites[ii].append([jj, site, distances])
+        for jj, site in enumerate(mol):
+            if site.specie.symbol in special_elements:
+                mol.__delitem__(jj)
 
     # Can add logic to check the distances in the future if desired
 
-    initial_mol_graph = MoleculeGraph.with_local_env_strategy(mol1,
-                                                              OpenBabelNN(),
-                                                              reorder=False,
-                                                              extend_structure=False)
-    initial_mol_graph = metal_edge_extender(initial_mol_graph)
+    initial_mol_graph = MoleculeGraph.with_local_env_strategy(mol_list[0],
+                                                              OpenBabelNN())
     initial_graph = initial_mol_graph.graph
-    last_mol_graph = MoleculeGraph.with_local_env_strategy(mol2,
-                                                           OpenBabelNN(),
-                                                           reorder=False,
-                                                           extend_structure=False)
-    last_mol_graph = metal_edge_extender(last_mol_graph)
+    last_mol_graph = MoleculeGraph.with_local_env_strategy(mol_list[1],
+                                                           OpenBabelNN())
     last_graph = last_mol_graph.graph
     if initial_mol_graph.isomorphic_to(last_mol_graph):
         return "no_change"
     else:
-        if nx.is_connected(initial_graph.to_undirected()) and not nx.is_connected(last_graph.to_undirected()):
+        if (nx.is_connected(initial_graph.to_undirected()) and
+                not nx.is_connected(last_graph.to_undirected())):
             return "unconnected_fragments"
         elif last_graph.number_of_edges() < initial_graph.number_of_edges():
             return "fewer_bonds"

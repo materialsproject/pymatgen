@@ -1,18 +1,19 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.defects.defect_compatibility &#8212; pymatgen 2019.11.11 documentation</title>
-    <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.analysis.defects.defect_compatibility &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../../../_static/language_data.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
  
@@ -32,15 +33,15 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.11.11 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
+          <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.defects.defect_compatibility</a></li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
-        <div class="bodywrapper">
           <div class="body" role="main">
             
   <h1>Source code for pymatgen.analysis.defects.defect_compatibility</h1><div class="highlight"><pre>
@@ -48,17 +49,19 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core</span> <span class="k">import</span> <span class="n">Structure</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.defects.corrections</span> <span class="k">import</span> <span class="n">FreysoldtCorrection</span><span class="p">,</span> \
-    <span class="n">KumagaiCorrection</span><span class="p">,</span> <span class="n">BandFillingCorrection</span><span class="p">,</span> <span class="n">BandEdgeShiftingCorrection</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.defects.core</span> <span class="k">import</span> <span class="n">Vacancy</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">This module implements DefectCompatibility analysis for consideration of</span>
 <span class="sd">defects</span>
 <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">MSONable</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core</span> <span class="kn">import</span> <span class="n">Structure</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.defects.corrections</span> <span class="kn">import</span> <span class="n">FreysoldtCorrection</span><span class="p">,</span> \
+    <span class="n">KumagaiCorrection</span><span class="p">,</span> <span class="n">BandFillingCorrection</span><span class="p">,</span> <span class="n">BandEdgeShiftingCorrection</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.defects.core</span> <span class="kn">import</span> <span class="n">Vacancy</span>
+
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Danny Broberg, Shyam Dwaraknath&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2018, The Materials Project&quot;</span>
@@ -88,7 +91,7 @@
 <span class="sd">                                              &quot;sampling_radius&quot;, &quot;defect_frac_sc_coords&quot;]</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                  <span class="n">plnr_avg_var_tol</span><span class="o">=</span><span class="mf">0.0001</span><span class="p">,</span>
                  <span class="n">plnr_avg_minmax_tol</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
                  <span class="n">atomic_site_var_tol</span><span class="o">=</span><span class="mf">0.005</span><span class="p">,</span>
@@ -233,7 +236,15 @@
         <span class="k">return</span> <span class="n">defect_entry</span></div>
 
 <div class="viewcode-block" id="DefectCompatibility.perform_all_corrections"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.defect_compatibility.html#pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.perform_all_corrections">[docs]</a>    <span class="k">def</span> <span class="nf">perform_all_corrections</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">defect_entry</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Perform all corrections for a defect.</span>
 
+<span class="sd">        Args:</span>
+<span class="sd">            defect_entry (DefectEntry): Defect to correct.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Corrected DefectEntry</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># consider running freysoldt correction</span>
         <span class="n">required_frey_params</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;dielectric&quot;</span><span class="p">,</span> <span class="s2">&quot;axis_grid&quot;</span><span class="p">,</span> <span class="s2">&quot;bulk_planar_averages&quot;</span><span class="p">,</span> <span class="s2">&quot;defect_planar_averages&quot;</span><span class="p">,</span>
                                 <span class="s2">&quot;initial_defect_structure&quot;</span><span class="p">,</span> <span class="s2">&quot;defect_frac_sc_coords&quot;</span><span class="p">]</span>
@@ -304,6 +315,15 @@
         <span class="k">return</span> <span class="n">defect_entry</span></div>
 
 <div class="viewcode-block" id="DefectCompatibility.perform_freysoldt"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.defect_compatibility.html#pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.perform_freysoldt">[docs]</a>    <span class="k">def</span> <span class="nf">perform_freysoldt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">defect_entry</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Perform Freysoldt correction.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            defect_entry (DefectEntry): Defect to correct.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Corrected DefectEntry</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">FC</span> <span class="o">=</span> <span class="n">FreysoldtCorrection</span><span class="p">(</span><span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;dielectric&#39;</span><span class="p">])</span>
         <span class="n">freycorr</span> <span class="o">=</span> <span class="n">FC</span><span class="o">.</span><span class="n">get_correction</span><span class="p">(</span><span class="n">defect_entry</span><span class="p">)</span>
 
@@ -315,6 +335,15 @@
         <span class="k">return</span> <span class="n">defect_entry</span></div>
 
 <div class="viewcode-block" id="DefectCompatibility.perform_kumagai"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.defect_compatibility.html#pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.perform_kumagai">[docs]</a>    <span class="k">def</span> <span class="nf">perform_kumagai</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">defect_entry</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Perform Kumagai correction.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            defect_entry (DefectEntry): Defect to correct.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Corrected DefectEntry</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">gamma</span> <span class="o">=</span> <span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;gamma&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;gamma&#39;</span> <span class="ow">in</span> <span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="n">sampling_radius</span> <span class="o">=</span> <span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span>
             <span class="s1">&#39;sampling_radius&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;sampling_radius&#39;</span> <span class="ow">in</span> <span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">else</span> <span class="kc">None</span>
@@ -331,6 +360,15 @@
         <span class="k">return</span> <span class="n">defect_entry</span></div>
 
 <div class="viewcode-block" id="DefectCompatibility.perform_bandfilling"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.defect_compatibility.html#pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.perform_bandfilling">[docs]</a>    <span class="k">def</span> <span class="nf">perform_bandfilling</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">defect_entry</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Perform bandfilling correction.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            defect_entry (DefectEntry): Defect to correct.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Corrected DefectEntry</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">BFC</span> <span class="o">=</span> <span class="n">BandFillingCorrection</span><span class="p">()</span>
         <span class="n">bfc_dict</span> <span class="o">=</span> <span class="n">BFC</span><span class="o">.</span><span class="n">get_correction</span><span class="p">(</span><span class="n">defect_entry</span><span class="p">)</span>
 
@@ -343,6 +381,15 @@
         <span class="k">return</span> <span class="n">defect_entry</span></div>
 
 <div class="viewcode-block" id="DefectCompatibility.perform_band_edge_shifting"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.defect_compatibility.html#pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.perform_band_edge_shifting">[docs]</a>    <span class="k">def</span> <span class="nf">perform_band_edge_shifting</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">defect_entry</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Perform band edge shifting correction.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            defect_entry (DefectEntry): Defect to correct.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Corrected DefectEntry</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">BEC</span> <span class="o">=</span> <span class="n">BandEdgeShiftingCorrection</span><span class="p">()</span>
         <span class="n">bec_dict</span> <span class="o">=</span> <span class="n">BEC</span><span class="o">.</span><span class="n">get_correction</span><span class="p">(</span><span class="n">defect_entry</span><span class="p">)</span>
 
@@ -402,6 +449,15 @@
         <span class="k">return</span> <span class="n">defect_entry</span></div>
 
 <div class="viewcode-block" id="DefectCompatibility.check_freysoldt_delocalized"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.defect_compatibility.html#pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.check_freysoldt_delocalized">[docs]</a>    <span class="k">def</span> <span class="nf">check_freysoldt_delocalized</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">defect_entry</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check for Freysoldt delocalization.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            defect_entry (DefectEntry): Defect to correct.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Corrected DefectEntry</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">plnr_avg_analyze_meta</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">plnr_avg_allows_compatible</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
@@ -434,6 +490,15 @@
         <span class="k">return</span> <span class="n">defect_entry</span></div>
 
 <div class="viewcode-block" id="DefectCompatibility.check_kumagai_delocalized"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.defect_compatibility.html#pymatgen.analysis.defects.defect_compatibility.DefectCompatibility.check_kumagai_delocalized">[docs]</a>    <span class="k">def</span> <span class="nf">check_kumagai_delocalized</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">defect_entry</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check for Kumagai delocalization.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            defect_entry (DefectEntry): Defect to correct.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Corrected DefectEntry</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">atomic_site_analyze_meta</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">kumagaistats</span> <span class="o">=</span> <span class="n">defect_entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;kumagai_meta&#39;</span><span class="p">][</span><span class="s1">&#39;pot_corr_uncertainty_md&#39;</span><span class="p">][</span><span class="s1">&#39;stats&#39;</span><span class="p">]</span>
 
@@ -554,22 +619,8 @@
         <span class="k">return</span> <span class="n">defect_entry</span></div></div>
 </pre></div>
 
+            <div class="clearer"></div>
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="../../../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
       </div>
       <div class="clearer"></div>
     </div>
@@ -582,15 +633,16 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2019.11.11 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
+          <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.defects.defect_compatibility</a></li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

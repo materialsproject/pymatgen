@@ -2,7 +2,9 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from __future__ import division
+"""
+This module provides class to generate and analyze interfacial reactions.
+"""
 
 import warnings
 import numpy as np
@@ -11,10 +13,6 @@ import matplotlib.pylab as plt
 from pymatgen import Composition
 from pymatgen.analysis.phase_diagram import GrandPotentialPhaseDiagram
 from pymatgen.analysis.reaction_calculator import Reaction
-
-"""
-This module provides class to generate and analyze interfacial reactions.
-"""
 
 __author__ = "Yihan Xiao"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -28,33 +26,34 @@ __date__ = "Aug 15 2017"
 class InterfacialReactivity:
     """
     An object encompassing all relevant data for interface reactions.
-
-    Args:
-        c1 (Composition): Composition object for reactant 1.
-        c2 (Composition): Composition object for reactant 2.
-        pd (PhaseDiagram): PhaseDiagram object or GrandPotentialPhaseDiagram
-            object built from all elements in composition c1 and c2.
-        norm (bool): Whether or not the total number of atoms in composition
-            of reactant will be normalized to 1.
-        include_no_mixing_energy (bool): No_mixing_energy for a reactant is the
-            opposite number of its energy above grand potential convex hull. In
-            cases where reactions involve elements reservoir, this param
-            determines whether no_mixing_energy of reactants will be included
-            in the final reaction energy calculation. By definition, if pd is
-            not a GrandPotentialPhaseDiagram object, this param is False.
-        pd_non_grand (PhaseDiagram): PhaseDiagram object but not
-            GrandPotentialPhaseDiagram object built from elements in c1 and c2.
-        use_hull_energy (bool): Whether or not use the convex hull energy for
-            a given composition for reaction energy calculation. If false,
-            the energy of ground state structure will be used instead.
-            Note that in case when ground state can not be found for a
-            composition, convex hull energy will be used associated with a
-            warning message.
     """
     EV_TO_KJ_PER_MOL = 96.4853
 
     def __init__(self, c1, c2, pd, norm=True, include_no_mixing_energy=False,
                  pd_non_grand=None, use_hull_energy=False):
+        """
+        Args:
+            c1 (Composition): Composition object for reactant 1.
+            c2 (Composition): Composition object for reactant 2.
+            pd (PhaseDiagram): PhaseDiagram object or GrandPotentialPhaseDiagram
+                object built from all elements in composition c1 and c2.
+            norm (bool): Whether or not the total number of atoms in composition
+                of reactant will be normalized to 1.
+            include_no_mixing_energy (bool): No_mixing_energy for a reactant is the
+                opposite number of its energy above grand potential convex hull. In
+                cases where reactions involve elements reservoir, this param
+                determines whether no_mixing_energy of reactants will be included
+                in the final reaction energy calculation. By definition, if pd is
+                not a GrandPotentialPhaseDiagram object, this param is False.
+            pd_non_grand (PhaseDiagram): PhaseDiagram object but not
+                GrandPotentialPhaseDiagram object built from elements in c1 and c2.
+            use_hull_energy (bool): Whether or not use the convex hull energy for
+                a given composition for reaction energy calculation. If false,
+                the energy of ground state structure will be used instead.
+                Note that in case when ground state can not be found for a
+                composition, convex hull energy will be used associated with a
+                warning message.
+        """
         self.grand = isinstance(pd, GrandPotentialPhaseDiagram)
 
         # if include_no_mixing_energy is True, pd should be a

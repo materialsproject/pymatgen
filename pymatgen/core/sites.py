@@ -10,7 +10,9 @@ import collections
 import numpy as np
 from typing import Union, Dict, Tuple, List
 
+import json
 from monty.json import MSONable
+from monty.json import MontyDecoder, MontyEncoder
 from monty.dev import deprecated
 
 from pymatgen.core.lattice import Lattice
@@ -287,6 +289,9 @@ class Site(collections.abc.Hashable, MSONable):
                 sp = Element(sp_occu["element"])
             atoms_n_occu[sp] = sp_occu["occu"]
         props = d.get("properties", None)
+        if props is not None:
+            for key in props.keys():
+                props[key] = json.loads(json.dumps(props[key], cls=MontyEncoder), cls=MontyDecoder)
         return cls(atoms_n_occu, d["xyz"], properties=props)
 
 
@@ -322,15 +327,6 @@ class PeriodicSite(Site, MSONable):
             <= a < 1. Defaults to False.
         :param coords_are_cartesian: Set to True if you are providing
             cartesian coordinates. Defaults to False.
-        :param species: Species on the site. Can be:
-            i.  A Composition-type object (preferred)
-            ii. An  element / specie specified either as a string
-                symbols, e.g. "Li", "Fe2+", "P" or atomic numbers,
-                e.g., 3, 56, or actual Element or Specie objects.
-            iii.Dict of elements/species and occupancies, e.g.,
-                {"Fe" : 0.5, "Mn":0.5}. This allows the setup of
-                disordered structures.
-        :param coords: Cartesian coordinates of site.
         :param properties: Properties associated with the site as a dict, e.g.
             {"magmom": 5}. Defaults to None.
         :param skip_checks: Whether to ignore all the usual checks and just
@@ -628,6 +624,7 @@ class PeriodicSite(Site, MSONable):
             d["label"] = self.species_string
 
         d["properties"] = self.properties
+
         return d
 
     @classmethod
@@ -655,5 +652,8 @@ class PeriodicSite(Site, MSONable):
                 sp = Element(sp_occu["element"])
             species[sp] = sp_occu["occu"]
         props = d.get("properties", None)
+        if props is not None:
+            for key in props.keys():
+                props[key] = json.loads(json.dumps(props[key], cls=MontyEncoder), cls=MontyDecoder)
         lattice = lattice if lattice else Lattice.from_dict(d["lattice"])
         return cls(species, d["abc"], lattice, properties=props)
