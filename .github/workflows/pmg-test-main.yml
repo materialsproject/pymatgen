@@ -1,4 +1,4 @@
-name: Pymatgen main testing
+name: Testing - main
 
 on: [push, pull_request]
 

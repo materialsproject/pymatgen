@@ -1,4 +1,4 @@
-name: Pymatgen analysis testing
+name: Testing - analysis
 
 on: [push, pull_request]
 

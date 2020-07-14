@@ -1,4 +1,4 @@
-name: Pymatgen linting
+name: Linting
 
 on: [push, pull_request]
 
