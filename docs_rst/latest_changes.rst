@@ -1,10 +1,8 @@
 Change log
 ==========
 
-v2020.7.10
+v2020.7.14
 ----------
-* Bug fix: serialization of slabs (@utf)
-* Bug fix: enumlib url (@wsyxbcl)
-* Bug fix: change in tolerance for Lattice comparison (@mbjumar)
-* Bug fix: k-path division by zero (@mfherbst)
-* New: support for openbabel 3.0 (@orioncohen)
+* EwaldSummation is now MSONAble (@lbluque).
+* Fix for QChem freq parsing (@samblau)
+* Much improved linting and workflows.
