@@ -117,7 +117,6 @@ single_job_out_names = {"unable_to_determine_lambda_in_geom_opt.qcout",
                         "qchem_energies/hf-rimp2.qcout",
                         "qchem_energies/hf_b3lyp.qcout",
                         "qchem_energies/hf_ccsd(t).qcout",
-                        "qchem_energies/hf_cosmo.qcout",
                         "qchem_energies/hf_hf.qcout",
                         "qchem_energies/hf_lxygjos.qcout",
                         "qchem_energies/hf_mosmp2.qcout",
@@ -190,6 +189,7 @@ class TestQCOutput(PymatgenTest):
 
     def _test_property(self, key, single_outs, multi_outs):
         for name, outdata in single_outs.items():
+            print(name)
             try:
                 self.assertEqual(outdata.get(key), single_job_dict[name].get(key))
             except ValueError:
@@ -252,4 +252,6 @@ class TestQCOutput(PymatgenTest):
 
 
 if __name__ == "__main__":
+    TestQCOutput.generate_multi_job_dict()
+    TestQCOutput.generate_single_job_dict()
     unittest.main()

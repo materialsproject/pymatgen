@@ -31,7 +31,7 @@ class QCInput(MSONable):
     separate error handling software.
     """
 
-    def __init__(self, molecule, rem, opt=None, pcm=None, solvent=None, smx=None):
+    def __init__(self, molecule, rem, opt=None, pcm=None, solvent=None, smx=None, plots=None):
         """
         Args:
             molecule (pymatgen Molecule object or "read"):
