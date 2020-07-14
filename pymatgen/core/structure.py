@@ -1267,7 +1267,7 @@ class IStructure(SiteCollection, MSONable):
                     offsets.append(n.image)
                     distances.append(n.nn_distance)
         return tuple((np.array(center_indices), np.array(points_indices),
-                     np.array(offsets), np.array(distances)))
+                      np.array(offsets), np.array(distances)))
 
     def get_neighbor_list(self, r: float,
                           sites: List[PeriodicSite] = None,
@@ -1319,7 +1319,7 @@ class IStructure(SiteCollection, MSONable):
                 self_pair = (center_indices == points_indices) & (distances <= numerical_tol)
                 cond = ~self_pair
             return tuple((center_indices[cond], points_indices[cond],
-                         images[cond], distances[cond]))
+                          images[cond], distances[cond]))
 
     def get_all_neighbors(self, r: float,
                           include_index: bool = False,
@@ -2386,11 +2386,11 @@ class IMolecule(SiteCollection, MSONable):
                                   "coordinates."))
 
         sites = []
-        for i in range(len(species)):
+        for i, sp in enumerate(species):
             prop = None
             if site_properties:
                 prop = {k: v[i] for k, v in site_properties.items()}
-            sites.append(Site(species[i], coords[i], properties=prop))
+            sites.append(Site(sp, coords[i], properties=prop))
 
         self._sites = tuple(sites)
         if validate_proximity and not self.is_valid():
@@ -2774,10 +2774,10 @@ class IMolecule(SiteCollection, MSONable):
             return cls(lattice, self.species * nimages, coords,
                        coords_are_cartesian=True,
                        site_properties=sprops).get_sorted_structure()
-        else:
-            return cls(lattice, self.species * nimages, coords,
-                       coords_are_cartesian=True,
-                       site_properties=sprops)
+
+        return cls(lattice, self.species * nimages, coords,
+                   coords_are_cartesian=True,
+                   site_properties=sprops)
 
     def get_centered_molecule(self):
         """
