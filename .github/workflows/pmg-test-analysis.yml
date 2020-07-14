@@ -1,4 +1,4 @@
-name: Pymatgen analysis testing
+name: Pymatgen analysis defects testing
 
 on: [push, pull_request]
 
@@ -22,14 +22,12 @@ jobs:
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        pip install -r requirements-optional.txt
-        pip install -r requirements-dev.txt
+        pip install -r requirements.txt -r requirements-optional.txt -r requirements-dev.txt
+        pip install -e .
     - name: Install binary dependencies (Linux)
       if: matrix.os == 'ubuntu-latest'
       run: |
         export PATH=$PATH:`pwd`/cmd_line/bader/Linux_64bit:`pwd`/cmd_line/aconvasp/Linux_64bit:`pwd`/cmd_line/boltztrap/Linux_64bit
     - name: Test with pytest
       run: |
-        pip install -e .
-        pytest pymatgen/analysis --color=yes
+        pytest pymatgen/analysis/defects --color=yes

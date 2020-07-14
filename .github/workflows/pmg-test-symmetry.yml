@@ -1,4 +1,4 @@
-name: Pymatgen main testing
+name: Pymatgen symmetry testing
 
 on: [push, pull_request]
 
@@ -30,4 +30,4 @@ jobs:
         export PATH=$PATH:`pwd`/cmd_line/bader/Linux_64bit:`pwd`/cmd_line/aconvasp/Linux_64bit:`pwd`/cmd_line/boltztrap/Linux_64bit
     - name: Test with pytest
       run: |
-        pytest pymatgen --ignore=pymatgen/analysis --ignore=pymatgen/symmetry --color=yes
+        pytest pymatgen/symmetry --color=yes
