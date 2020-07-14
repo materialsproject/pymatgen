@@ -705,6 +705,13 @@ class PhaseDiagram(MSONable):
 
     def _decomp_solution(self, entry, competing_entries):
         """
+
+        The algorithm is based on the work in the following paper:
+
+        1. Bartel, C., Trewartha, A., Wang, Q., Dunn, A., Jain, A., Ceder, G.,
+            A critical examination of compound stability predictions from
+            machine-learned formation energies, npj Computational Materials 6, 97 (2020)
+
         Args:
             entry (PDEntry) - the entry to analyze
             competing_entries - the entries in the same chemical space
