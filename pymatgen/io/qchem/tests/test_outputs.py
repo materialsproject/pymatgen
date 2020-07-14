@@ -216,7 +216,7 @@ class TestQCOutput(PymatgenTest):
             print('Testing ', key)
             self._test_property(key, single_outs, multi_outs)
 
-    @unittest.skipIf((not (have_babel)) or (not which("babel")),
+    @unittest.skipIf((not (have_babel)),
                      "OpenBabel not installed.")
     def test_structural_change(self):
         
