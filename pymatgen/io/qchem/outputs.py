@@ -863,6 +863,14 @@ class QCOutput(MSONable):
         """
         Parses frequencies, enthalpy, entropy, and mode vectors.
         """
+        raman = False
+        if read_pattern(
+                self.text, {
+                    "key": r"doraman\s*(?:=)*\s*true"
+                },
+                terminate_on_match=True).get('key') == [[]]:
+            raman = True
+
         temp_dict = read_pattern(
             self.text, {
                 "frequencies":
@@ -875,6 +883,12 @@ class QCOutput(MSONable):
                     r"\s*IR Intens:\s*(\-?[\d\.\*]+)(?:\s+(\-?[\d\.\*]+)(?:\s+(\-?[\d\.\*]+))*)*",
                 "IR_active":
                     r"\s*IR Active:\s+([YESNO]+)(?:\s+([YESNO]+)(?:\s+([YESNO]+))*)*",
+                "raman_intens":
+                    r"\s*Raman Intens:\s*(\-?[\d\.\*]+)(?:\s+(\-?[\d\.\*]+)(?:\s+(\-?[\d\.\*]+))*)*",
+                "depolar":
+                    r"\s*Depolar:\s*(\-?[\d\.\*]+)(?:\s+(\-?[\d\.\*]+)(?:\s+(\-?[\d\.\*]+))*)*",
+                "raman_active":
+                    r"\s*Raman Active:\s+([YESNO]+)(?:\s+([YESNO]+)(?:\s+([YESNO]+))*)*",
                 "ZPE":
                     r"\s*Zero point vibrational energy:\s+([\d\-\.]+)\s+kcal/mol",
                 "trans_enthalpy":
@@ -910,17 +924,20 @@ class QCOutput(MSONable):
             self.data['frequencies'] = None
             self.data['IR_intens'] = None
             self.data['IR_active'] = None
+            self.data['raman_intens'] = None
+            self.data['raman_active'] = None
+            self.data['depolar'] = None
             self.data['trans_dip'] = None
         else:
             temp_freqs = [
                 value for entry in temp_dict.get('frequencies')
                 for value in entry
             ]
-            temp_intens = [
+            temp_IR_intens = [
                 value for entry in temp_dict.get('IR_intens')
                 for value in entry
             ]
-            active = [
+            IR_active = [
                 value for entry in temp_dict.get('IR_active')
                 for value in entry
             ]
@@ -928,7 +945,42 @@ class QCOutput(MSONable):
                 value for entry in temp_dict.get('trans_dip')
                 for value in entry
             ]
-            self.data['IR_active'] = active
+            self.data['IR_active'] = IR_active
+
+            if raman:
+                raman_active = [
+                    value for entry in temp_dict.get('raman_active')
+                    for value in entry
+                ]
+                temp_raman_intens = [
+                    value for entry in temp_dict.get('raman_intens')
+                    for value in entry
+                ]
+                temp_depolar = [
+                    value for entry in temp_dict.get('depolar')
+                    for value in entry
+                ]
+                self.data['raman_active'] = raman_active
+                raman_intens = np.zeros(len(temp_raman_intens) - temp_raman_intens.count('None'))
+                for ii, entry in enumerate(temp_raman_intens):
+                    if entry != 'None':
+                        if "*" in entry:
+                            raman_intens[ii] = float("inf")
+                        else:
+                            raman_intens[ii] = float(entry)
+                self.data['raman_intens'] = raman_intens
+                depolar = np.zeros(len(temp_depolar) - temp_depolar.count('None'))
+                for ii, entry in enumerate(temp_depolar):
+                    if entry != 'None':
+                        if "*" in entry:
+                            depolar[ii] = float("inf")
+                        else:
+                            depolar[ii] = float(entry)
+                self.data['depolar'] = depolar
+            else:
+                self.data['raman_intens'] = None
+                self.data['raman_active'] = None
+                self.data['depolar'] = None
 
             trans_dip = np.zeros(shape=(int((len(temp_trans_dip) - temp_trans_dip.count('None')) / 3), 3))
             for ii, entry in enumerate(temp_trans_dip):
@@ -965,16 +1017,19 @@ class QCOutput(MSONable):
                         freqs[ii] = float(entry)
             self.data['frequencies'] = freqs
 
-            intens = np.zeros(len(temp_intens) - temp_intens.count('None'))
-            for ii, entry in enumerate(temp_intens):
+            IR_intens = np.zeros(len(temp_IR_intens) - temp_IR_intens.count('None'))
+            for ii, entry in enumerate(temp_IR_intens):
                 if entry != 'None':
                     if "*" in entry:
-                        intens[ii] = float("inf")
+                        IR_intens[ii] = float("inf")
                     else:
-                        intens[ii] = float(entry)
-            self.data['IR_intens'] = intens
+                        IR_intens[ii] = float(entry)
+            self.data['IR_intens'] = IR_intens
 
-            header_pattern = r"\s*Raman Active:\s+[YESNO]+\s+(?:[YESNO]+\s+)*X\s+Y\s+Z\s+(?:X\s+Y\s+Z\s+)*"
+            if not raman:
+                header_pattern = r"\s*Raman Active:\s+[YESNO]+\s+(?:[YESNO]+\s+)*X\s+Y\s+Z\s+(?:X\s+Y\s+Z\s+)*"
+            else:
+                header_pattern = r"\s*Depolar:\s*\-?[\d\.\*]+\s+(?:\-?[\d\.\*]+\s+)*X\s+Y\s+Z\s+(?:X\s+Y\s+Z\s+)*"
             table_pattern = r"\s*[a-zA-Z][a-zA-Z\s]\s*([\d\-\.]+)\s*([\d\-\.]+)\s*([\d\-\.]+)\s*(?:([\d\-\.]+)\s*" \
                             r"([\d\-\.]+)\s*([\d\-\.]+)\s*(?:([\d\-\.]+)\s*([\d\-\.]+)\s*([\d\-\.]+))*)*"
             footer_pattern = r"TransDip\s+\-?[\d\.\*]+\s*\-?[\d\.\*]+\s*\-?[\d\.\*]+\s*(?:\-?[\d\.\*]+\s*\-?" \
