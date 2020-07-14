@@ -1,8 +1,10 @@
 import string
-import warnings
 import collections
 import numpy as np
 
+"""
+TODO: MODULE DOC.
+"""
 
 __all__ = [
     'InputVariable',

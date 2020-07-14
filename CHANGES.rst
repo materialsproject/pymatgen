@@ -1,6 +1,30 @@
 Change log
 ==========
 
+v2020.7.14
+----------
+* EwaldSummation is now MSONAble (@lbluque).
+* Fix for QChem freq parsing (@samblau)
+* Much improved linting and workflows.
+
+v2020.7.10
+----------
+* Bug fix: serialization of slabs (@utf)
+* Bug fix: enumlib url (@wsyxbcl)
+* Bug fix: change in tolerance for Lattice comparison (@mbjumar)
+* Bug fix: k-path division by zero (@mfherbst)
+* New: support for openbabel 3.0 (@orioncohen)
+
+v2020.7.3
+---------
+* Make Slabs properly serializable in as_dict. Fixes #1892.
+* Fixes for Critic2Caller (@yuuukuma)
+* Add cost data for He, H, Ar, Ne, Kr, Tc (@computron)
+* Parse scientific notation in OUTCAR (possibly without spaces in between)
+* Spin support for boltztrap2 (@fraricci)
+* New static method to generate basis functions Lobster (@JaGeo)
+* SLME and spillage analysis (@knc6)
+
 v2020.6.8
 ---------
 * New: Support for parsing WAVECARS with spin-orbit coupling (@mturiansky, #1861)

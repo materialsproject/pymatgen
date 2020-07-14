@@ -1,4 +1,4 @@
-name: Pymatgen linting
+name: Linting
 
 on: [push, pull_request]
 
@@ -11,9 +11,11 @@ jobs:
         python-version: [3.7]
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v1
+      uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
@@ -34,14 +36,14 @@ jobs:
         flake8 --count --show-source --statistics pymatgen
         # exit-zero treats all errors as warnings.
         flake8 --count --exit-zero --max-complexity=20 --statistics pymatgen
-    - name: Lint with pylint
-      run: |
-        pip install --upgrade "pylint!=2.5" 
-        export MODIFIED_FILES=`git diff --diff-filter=ACMRTUXB --name-only HEAD v2019.9.16 | grep -E 'pymatgen.*\.(py)$' | sed '/test_/d' | tr '\n' ' '`
-        echo "Linting $MODIFIED_FILES"
-        # stop the build if there are Python syntax errors or undefined names
-        pylint --exit-zero pymatgen/core/periodic_table.py $MODIFIED_FILES
-    - name: Lint with pydoctstyle
+    - name: Lint with pydocstyle
       run: |
         pip install pydocstyle --upgrade
         pydocstyle --count pymatgen
+    - name: Lint with pylint
+      run: |
+        pip install --upgrade pylint
+        export MODIFIED_FILES=`git diff --diff-filter=ACMRTUXB --name-only HEAD v2020.7.14 | grep -E 'pymatgen.*\.(py)$' | sed '/test_/d' | tr '\n' ' '`
+        echo "Linting $MODIFIED_FILES"
+        # stop the build if there are Python syntax errors or undefined names
+        pylint pymatgen/core/periodic_table.py `echo $MODIFIED_FILES`

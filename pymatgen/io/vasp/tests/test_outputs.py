@@ -1519,14 +1519,6 @@ class WavecarTest(PymatgenTest):
         self.assertEqual(np.prod(c.data['total'].shape), np.prod(w.ng * 2))
         self.assertFalse(np.all(c.data['total'] > 0.))
 
-        w.kpoints.append([0.2, 0.2, 0.2])
-        with warnings.catch_warnings(record=True) as wrns:
-            try:
-                c = w.get_parchg(poscar, 1, 0, spin=0, phase=True)
-            except IndexError:
-                pass
-            self.assertEqual(len(wrns), 1)
-
         w = Wavecar(self.TEST_FILES_DIR / 'WAVECAR.N2.spin')
         c = w.get_parchg(poscar, 0, 0, phase=False, scale=1)
         self.assertTrue('total' in c.data)

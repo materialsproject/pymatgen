@@ -380,8 +380,8 @@ class Lattice(MSONable):
             Lattice.from_dict(fmt="abivars", acell=3*[10], rprim=np.eye(3))
         """
         if fmt == "abivars":
+            # pylint: disable=C0415
             from pymatgen.io.abinit.abiobjects import lattice_from_abivars
-
             kwargs.update(d)
             return lattice_from_abivars(cls=cls, **kwargs)
 
@@ -716,6 +716,7 @@ class Lattice(MSONable):
         """
         # Transpose the lattice matrix first so that basis vectors are columns.
         # Makes life easier.
+        # pylint: disable=E1136,E1137
         a = self._matrix.copy().T
 
         b = np.zeros((3, 3))  # Vectors after the Gram-Schmidt process
@@ -977,6 +978,7 @@ class Lattice(MSONable):
         list_k_points = []
         for i, j, k in itertools.product([-1, 0, 1], [-1, 0, 1], [-1, 0, 1]):
             list_k_points.append(i * vec1 + j * vec2 + k * vec3)
+        # pylint: disable=C0415
         from scipy.spatial import Voronoi
 
         tess = Voronoi(list_k_points)
@@ -1095,6 +1097,7 @@ class Lattice(MSONable):
                 fcoords, dists, inds, image
         """
         try:
+            # pylint: disable=C0415
             from pymatgen.optimization.neighbors import find_points_in_spheres  # type: ignore
         except ImportError:
             return self.get_points_in_sphere_py(frac_points=frac_points, center=center, r=r, zip_results=zip_results)
@@ -1422,6 +1425,7 @@ class Lattice(MSONable):
         recp_lattice = recp_lattice.scale(1)
         # need a localized import of structure to build a
         # pseudo empty lattice for SpacegroupAnalyzer
+        # pylint: disable=C0415
         from pymatgen import Structure
         from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
         recp = Structure(recp_lattice, ["H"], [[0, 0, 0]])
