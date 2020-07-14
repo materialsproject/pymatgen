@@ -2377,11 +2377,11 @@ class IMolecule(SiteCollection, MSONable):
                                   "coordinates."))
 
         sites = []
-        for i, sp in enumerate(species):
+        for i, _ in enumerate(species):
             prop = None
             if site_properties:
                 prop = {k: v[i] for k, v in site_properties.items()}
-            sites.append(Site(sp, coords[i], properties=prop))
+            sites.append(Site(species[i], coords[i], properties=prop))
 
         self._sites = tuple(sites)
         if validate_proximity and not self.is_valid():
