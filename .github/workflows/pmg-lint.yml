@@ -46,4 +46,4 @@ jobs:
         export MODIFIED_FILES=`git diff --diff-filter=ACMRTUXB --name-only HEAD v2020.7.14 | grep -E 'pymatgen.*\.(py)$' | sed '/test_/d' | tr '\n' ' '`
         echo "Linting $MODIFIED_FILES"
         # stop the build if there are Python syntax errors or undefined names
-        pylint pymatgen/core/periodic_table.py `echo $MODIFIED_FILES`
+        pylint `echo $MODIFIED_FILES`
