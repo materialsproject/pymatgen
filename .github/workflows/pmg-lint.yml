@@ -41,7 +41,7 @@ jobs:
     - name: Lint with pylint
       run: |
         pip install --upgrade pylint
-        export MODIFIED_FILES=`git diff --diff-filter=ACMRTUXB --name-only HEAD v2020.7.14 | grep -E 'pymatgen.*\.(py)$' | sed '/test_/d' | tr '\n' ' '`
+        export MODIFIED_FILES=`git diff --diff-filter=ACMRTUXB --name-only HEAD f4959c1a2b6bc1bd744f41888b97383def8d1993 | grep -E 'pymatgen.*\.(py)$' | sed '/test_/d' | tr '\n' ' '`
         echo "Linting $MODIFIED_FILES"
         # stop the build if there are Python syntax errors or undefined names
         pylint pymatgen/core/periodic_table.py `echo $MODIFIED_FILES`
