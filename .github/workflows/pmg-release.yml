@@ -9,7 +9,7 @@ jobs:
     strategy:
       max-parallel: 6
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [macos-latest]
         python-version: [3.6, 3.7, 3.8]
     runs-on: ${{ matrix.os }}
     steps:
@@ -31,4 +31,5 @@ jobs:
         TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
       run: |
         python setup.py sdist bdist_wheel
-        twine upload dist/*
+        twine upload dist/*.whl
+        twine upload dist/*.tar.gz
