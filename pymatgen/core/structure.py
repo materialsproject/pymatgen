@@ -38,15 +38,6 @@ from pymatgen.util.coord import get_angle, all_distances, \
 from pymatgen.core.units import Mass, Length
 
 
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "2.0"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__status__ = "Production"
-__date__ = "Sep 23, 2011"
-
-
 class Neighbor(Site):
     """
     Simple Site subclass to contain a neighboring atom that skips all the
