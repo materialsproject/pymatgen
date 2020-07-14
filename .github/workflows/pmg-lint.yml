@@ -37,11 +37,11 @@ jobs:
     - name: Lint with pylint
       run: |
         pip install --upgrade "pylint!=2.5" 
-        export MODIFIED_FILES=`git diff --diff-filter=ACMRTUXB --name-only HEAD v2019.9.16 | grep -E 'pymatgen.*\.(py)$' | sed '/test_/d' | tr '\n' ' '`
+        export MODIFIED_FILES=`git diff --diff-filter=ACMRTUXB --name-only HEAD v2020.7.10 | grep -E 'pymatgen.*\.(py)$' | sed '/test_/d' | tr '\n' ' '`
         echo "Linting $MODIFIED_FILES"
         # stop the build if there are Python syntax errors or undefined names
-        pylint --exit-zero pymatgen/core/periodic_table.py $MODIFIED_FILES
-    - name: Lint with pydoctstyle
+        pylint --exit-zero pymatgen/core/periodic_table.py `echo $MODIFIED_FILES`
+    - name: Lint with pydocstyle
       run: |
         pip install pydocstyle --upgrade
         pydocstyle --count pymatgen
