@@ -386,7 +386,8 @@ class VasprunLoader:
                 self.vbm = self.fermi
                 self.cbm = self.fermi
 
-    def from_file(self, vasprun_file):
+    @classmethod
+    def from_file(cls, vasprun_file):
         """Get a vasprun.xml file and return a VasprunLoader"""
         vrun_obj = Vasprun(vasprun_file, parse_projected_eigen=True)
         return VasprunLoader(vrun_obj)
@@ -907,24 +908,25 @@ class BztTransportProperties:
         }
         self.contain_props_doping = True
 
-    def find_mu_doping(self, epsilon, dos, N0, T, dosweight=2.):
-        """
-        Find the mu.
+    
+    # def find_mu_doping(self, epsilon, dos, N0, T, dosweight=2.):
+    #     """
+    #     Find the mu.
 
-        :param epsilon:
-        :param dos:
-        :param N0:
-        :param T:
-        :param dosweight:
-        :return:
-        """
-        delta = np.empty_like(epsilon)
-        for i, e in enumerate(epsilon):
-            delta[i] = BL.calc_N(epsilon, dos, e, T, dosweight) + N0
-        delta = np.abs(delta)
-        # Find the position optimizing this distance
-        pos = np.abs(delta).argmin()
-        return epsilon[pos]
+    #     :param epsilon:
+    #     :param dos:
+    #     :param N0:
+    #     :param T:
+    #     :param dosweight:
+    #     :return:
+    #     """
+    #     delta = np.empty_like(epsilon)
+    #     for i, e in enumerate(epsilon):
+    #         delta[i] = BL.calc_N(epsilon, dos, e, T, dosweight) + N0
+    #     delta = np.abs(delta)
+    #     # Find the position optimizing this distance
+    #     pos = np.abs(delta).argmin()
+    #     return epsilon[pos]
 
     def save(self, fname='bztTranspProps.json.gz'):
         """Save the tranport properties to fname file."""
