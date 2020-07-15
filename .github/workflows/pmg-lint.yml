@@ -23,27 +23,25 @@ jobs:
         python -m pip install --upgrade pip
     - name: Lint with pycodestyle
       run: |
-        pip install pycodestyle --upgrade
+        pip install pycodestyle --upgrade --quiet
         pycodestyle pymatgen
     - name: Lint with mypy
       run: |
-        pip install mypy --upgrade
+        pip install mypy --upgrade --quiet
         mypy pymatgen
     - name: Lint with flake8
       run: |
-        pip install flake8 --upgrade
+        pip install flake8 --upgrade --quiet
         # stop the build if there are Python syntax errors or undefined names
         flake8 --count --show-source --statistics pymatgen
         # exit-zero treats all errors as warnings.
         flake8 --count --exit-zero --max-complexity=20 --statistics pymatgen
     - name: Lint with pydocstyle
       run: |
-        pip install pydocstyle --upgrade
+        pip install pydocstyle --upgrade --quiet
         pydocstyle --count pymatgen
     - name: Lint with pylint
       run: |
-        pip install --upgrade pylint
-        export MODIFIED_FILES=`git diff --diff-filter=ACMRTUXB --name-only HEAD v2020.7.14 | grep -E 'pymatgen.*\.(py)$' | sed '/test_/d' | tr '\n' ' '`
-        echo "Linting $MODIFIED_FILES"
+        pip install pylint --upgrade --quiet
         # stop the build if there are Python syntax errors or undefined names
-        pylint `echo $MODIFIED_FILES`
+        source pylint_mod.sh
