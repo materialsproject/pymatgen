@@ -26,10 +26,10 @@ TODO:
 - read first derivative of the eigenvalues from vasprun.xml (mommat)
 - handle magnetic moments (magmom)
 """
-from tqdm import tqdm
-import numpy as np
 import warnings
+import numpy as np
 import matplotlib.pyplot as plt
+from tqdm import tqdm
 from monty.serialization import dumpfn, loadfn
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 from pymatgen.electronic_structure.bandstructure import \
@@ -127,7 +127,7 @@ class VasprunBSLoader:
         else:
             self.vbm_idx = None
             self.cbm_idx = None
-            self.vbm = self.felrmi
+            self.vbm = self.fermi
             self.cbm = self.fermi
 
         if nelect:
