@@ -48,6 +48,7 @@ def _magic_parser(stream, magic):
         line = line.strip()
 
         if line.startswith(magic):
+            #print("Found magic token in line:", line)
             keys = line.split()
             fields = OrderedDict((k, []) for k in keys)
 
@@ -57,10 +58,11 @@ def _magic_parser(stream, magic):
             if in_doc == 1:
                 continue
 
-            # End of the section.
-            if not line:
+            # End of the section or empty SCF cycle
+            if not line or line.startswith("prteigrs"):
                 break
 
+            #print("Try to parse line:", line)
             tokens = list(map(float, line.split()[1:]))
             assert len(tokens) == len(keys)
             for l, v in zip(fields.values(), tokens):

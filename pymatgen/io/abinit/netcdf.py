@@ -178,7 +178,7 @@ class NetcdfReader:
             cmode: if cmode=="c", a complex ndarrays is constructed and returned
                 (netcdf does not provide native support from complex datatype).
             default: returns default if varname is not present.
-                self.Error is raised if default is default is NO_DEFAULT
+                self.Error is raised if default is set to NO_DEFAULT
 
         Returns:
             numpy array if varname represents an array, scalar otherwise.
