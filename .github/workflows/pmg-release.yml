@@ -25,18 +25,11 @@ jobs:
         pip install -r requirements.txt
         pip install -r requirements-optional.txt
         pip install -r requirements-dev.txt
-    - name: Build and publish wheel
+    - name: Build and publish
       env:
         TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
         TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
       run: |
         python setup.py sdist bdist_wheel
         twine upload dist/*.whl
-    - name: Publish tar.gz
-      if: matrix.python_version == '3.8'
-      env:
-        TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
-        TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
-      run: |
-        python setup.py sdist bdist_wheel
-        twine upload dist/*.tar.gz
+        twine upload --skip-existing dist/*.tar.gz
