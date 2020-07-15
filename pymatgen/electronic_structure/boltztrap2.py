@@ -908,7 +908,6 @@ class BztTransportProperties:
         }
         self.contain_props_doping = True
 
-    
     # def find_mu_doping(self, epsilon, dos, N0, T, dosweight=2.):
     #     """
     #     Find the mu.
