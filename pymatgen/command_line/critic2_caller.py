@@ -78,14 +78,14 @@ class Critic2Caller:
         "Please follow the instructions at https://github.com/aoterodelaroza/critic2.",
     )
     def __init__(
-        self,
-        structure,
-        chgcar=None,
-        chgcar_ref=None,
-        user_input_settings=None,
-        write_cml=False,
-        write_json=True,
-        zpsp=None,
+            self,
+            structure,
+            chgcar=None,
+            chgcar_ref=None,
+            user_input_settings=None,
+            write_cml=False,
+            write_json=True,
+            zpsp=None,
     ):
         """
         Run Critic2 in automatic mode on a supplied structure, charge
@@ -300,7 +300,6 @@ class Critic2Caller:
                 zpsp = {p.element: p.zval for p in potcar}
 
         if not zpsp:
-
             # try and get reference "all-electron-like" charge density if zpsp not present
             aeccar0_path = _get_filepath(
                 "AECCAR0",
@@ -337,16 +336,16 @@ class CriticalPoint(MSONable):
     """
 
     def __init__(
-        self,
-        index,
-        type,
-        frac_coords,
-        point_group,
-        multiplicity,
-        field,
-        field_gradient,
-        coords=None,
-        field_hessian=None,
+            self,
+            index,
+            type,
+            frac_coords,
+            point_group,
+            multiplicity,
+            field,
+            field_gradient,
+            coords=None,
+            field_hessian=None,
     ):
         """
         Class to characterise a critical point from a topological
@@ -412,7 +411,7 @@ class Critic2Analysis(MSONable):
     """
 
     def __init__(
-        self, structure, stdout=None, stderr=None, cpreport=None, yt=None, zpsp=None
+            self, structure, stdout=None, stderr=None, cpreport=None, yt=None, zpsp=None
     ):
         """
         This class is used to store results from the Critic2Caller.
@@ -571,7 +570,7 @@ class Critic2Analysis(MSONable):
                         self.nodes[from_idx]["unique_idx"]
                     ].type
                     skip_bond = (from_type != CriticalPointType.nucleus) or (
-                        to_type != CriticalPointType.nucleus
+                            to_type != CriticalPointType.nucleus
                     )
 
                 if not skip_bond:
@@ -697,8 +696,8 @@ class Critic2Analysis(MSONable):
         node_mapping = {}
         for idx, node in self.nodes.items():
             if (
-                self.critical_points[node["unique_idx"]].type
-                == CriticalPointType.nucleus
+                    self.critical_points[node["unique_idx"]].type
+                    == CriticalPointType.nucleus
             ):
                 node_mapping[idx] = kd.query(node["frac_coords"])[1]
 
@@ -749,7 +748,7 @@ class Critic2Analysis(MSONable):
 
         for idx, site in enumerate(yt["structure"]["cell_atoms"]):
             if not np.allclose(
-                structure[idx].frac_coords, site["fractional_coordinates"]
+                    structure[idx].frac_coords, site["fractional_coordinates"]
             ):
                 raise IndexError(
                     "Site in structure doesn't seem to match site in YT integration:\n{}\n{}".format(

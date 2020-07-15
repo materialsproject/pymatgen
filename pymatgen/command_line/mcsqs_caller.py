@@ -33,17 +33,17 @@ class Sqs(NamedTuple):
     "see https://www.brown.edu/Departments/Engineering/Labs/avdw/atat/",
 )
 def run_mcsqs(
-    structure: Structure,
-    clusters: Dict[int, float],
-    scaling: Union[int, List[int]],
-    search_time: float = 60,
-    directory: Optional[str] = None,
-    instances: Optional[int] = None,
-    temperature: Union[int, float] = 1,
-    wr: float = 1,
-    wn: float = 1,
-    wd: float = 0.5,
-    tol: float = 1e-3,
+        structure: Structure,
+        clusters: Dict[int, float],
+        scaling: Union[int, List[int]],
+        search_time: float = 60,
+        directory: Optional[str] = None,
+        instances: Optional[int] = None,
+        temperature: Union[int, float] = 1,
+        wr: float = 1,
+        wn: float = 1,
+        wd: float = 0.5,
+        tol: float = 1e-3,
 ) -> Sqs:
     """
     Helper function for calling mcsqs with different arguments
