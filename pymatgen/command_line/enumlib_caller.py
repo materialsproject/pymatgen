@@ -34,32 +34,22 @@ import subprocess
 import itertools
 import logging
 import glob
+from threading import Timer
+import fractions
 
 import numpy as np
 from monty.fractions import lcm
-import fractions
+from monty.os.path import which
+from monty.dev import requires
+from monty.tempfile import ScratchDir
 
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.core.periodic_table import DummySpecie
-from monty.os.path import which
-from monty.dev import requires
-from monty.tempfile import ScratchDir
-from threading import Timer
-
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Jul 16, 2012"
-
 
 logger = logging.getLogger(__name__)
-
 
 # Favor the use of the newer "enum.x" by Gus Hart instead of the older
 # "multienum.x"
@@ -159,10 +149,12 @@ class EnumlibAdaptor:
         # Using symmetry finder, get the symmetrically distinct sites.
         fitter = SpacegroupAnalyzer(self.structure, self.symm_prec)
         symmetrized_structure = fitter.get_symmetrized_structure()
-        logger.debug("Spacegroup {} ({}) with {} distinct sites".format(
-            fitter.get_space_group_symbol(),
-            fitter.get_space_group_number(),
-            len(symmetrized_structure.equivalent_sites))
+        logger.debug(
+            "Spacegroup {} ({}) with {} distinct sites".format(
+                fitter.get_space_group_symbol(),
+                fitter.get_space_group_number(),
+                len(symmetrized_structure.equivalent_sites)
+            )
         )
 
         """
@@ -188,7 +180,7 @@ class EnumlibAdaptor:
                 ordered_sites.append(sites)
             else:
                 sp_label = []
-                species = {k: v for k, v in sites[0].species.items()}
+                species = dict(sites[0].species.items())
                 if sum(species.values()) < 1 - EnumlibAdaptor.amount_tol:
                     # Let us first make add a dummy element for every single
                     # site whose total occupancies don't sum to 1.
@@ -263,8 +255,8 @@ class EnumlibAdaptor:
         output.append("full")
 
         ndisordered = sum([len(s) for s in disordered_sites])
-        base = int(ndisordered*lcm(*[f.limit_denominator(ndisordered * self.max_cell_size).denominator
-                                     for f in map(fractions.Fraction, index_amounts)]))
+        base = int(ndisordered * lcm(*[f.limit_denominator(ndisordered * self.max_cell_size).denominator
+                                       for f in map(fractions.Fraction, index_amounts)]))
 
         # This multiplicative factor of 10 is to prevent having too small bases
         # which can lead to rounding issues in the next step.
@@ -302,7 +294,7 @@ class EnumlibAdaptor:
         if self.timeout:
 
             timed_out = False
-            timer = Timer(self.timeout*60, lambda p: p.kill(), [p])
+            timer = Timer(self.timeout * 60, lambda p: p.kill(), [p])
 
             try:
                 timer.start()

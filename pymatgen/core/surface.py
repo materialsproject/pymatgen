@@ -236,8 +236,7 @@ class Slab(Structure):
                 continue
             combinations = []
             for g in grouped:
-                combinations.append(
-                    [c for c in itertools.combinations(g, int(len(g) / 2))])
+                combinations.append(list(itertools.combinations(g, int(len(g) / 2))))
 
             for selection in itertools.product(*combinations):
                 species = [site.species for site in fixed]
@@ -611,11 +610,11 @@ class Slab(Structure):
             sg = SpacegroupAnalyzer(slab)
             if sg.is_laue():
                 break
-            else:
-                # If not symmetric, remove the two added
-                # sites and try another symmetry operator
-                slab.remove_sites([len(slab) - 1])
-                slab.remove_sites([len(slab) - 1])
+
+            # If not symmetric, remove the two added
+            # sites and try another symmetry operator
+            slab.remove_sites([len(slab) - 1])
+            slab.remove_sites([len(slab) - 1])
 
         return site2
 
@@ -791,7 +790,7 @@ class SlabGenerator:
                 the c direction is the third vector of the lattice matrix
 
         """
-
+        # pylint: disable=E1130
         # Add Wyckoff symbols of the bulk, will help with
         # identfying types of sites in the slab system
         sg = SpacegroupAnalyzer(initial_structure)
@@ -838,6 +837,7 @@ class SlabGenerator:
         if max_normal_search is None:
             slab_scale_factor.append(eye[c_index])
         else:
+
             index_range = sorted(
                 reversed(range(-max_normal_search, max_normal_search + 1)),
                 key=lambda x: abs(x))
@@ -1538,9 +1538,7 @@ def get_d(slab):
     """
     sorted_sites = sorted(slab, key=lambda site: site.frac_coords[2])
     for i, site in enumerate(sorted_sites):
-        if "%.6f" % (site.frac_coords[2]) == "%.6f" % (sorted_sites[i + 1].frac_coords[2]):
-            continue
-        else:
+        if not "%.6f" % (site.frac_coords[2]) == "%.6f" % (sorted_sites[i + 1].frac_coords[2]):
             d = abs(site.frac_coords[2] - sorted_sites[i + 1].frac_coords[2])
             break
     return slab.lattice.get_cartesian_coords([0, 0, d])[2]

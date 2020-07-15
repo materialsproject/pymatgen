@@ -304,14 +304,14 @@ def release(ctx, notest=False, nodoc=False):
     set_ver(ctx)
     if not notest:
         ctx.run("pytest pymatgen")
-    publish(ctx)
+    # publish(ctx)
     if not nodoc:
         # update_doc(ctx)
         make_doc(ctx)
         ctx.run("git add .")
         ctx.run("git commit -a -m \"Update docs\"")
         ctx.run("git push")
-    merge_stable(ctx)
+    # merge_stable(ctx)
     release_github(ctx)
     post_discourse(ctx)
 
@@ -325,3 +325,9 @@ def open_doc(ctx):
     """
     pth = os.path.abspath("docs/_build/html/index.html")
     webbrowser.open("file://" + pth)
+
+
+@task
+def lint(ctx):
+    for cmd in ["pycodestyle", "mypy", "flake8", "pydocstyle"]:
+        ctx.run("%s pymatgen" % cmd)

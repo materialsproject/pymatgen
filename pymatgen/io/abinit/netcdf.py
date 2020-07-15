@@ -449,7 +449,7 @@ _HDR_VARIABLES = (
     _H("md5_pseudos", "md5pseudos(npsp), md5 checksums associated to pseudos (read from file)"),
     # _H(type(pawrhoij_type), allocatable :: pawrhoij(:) ! EVOLVING variable, only for paw
 )
-_HDR_VARIABLES = OrderedDict([(h.name, h) for h in _HDR_VARIABLES])
+_HDR_VARIABLES = OrderedDict([(h.name, h) for h in _HDR_VARIABLES])  # type: ignore
 
 
 class AbinitHeader(AttrDict):

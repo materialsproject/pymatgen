@@ -295,7 +295,7 @@ class Element(Enum):
 
             Mendeleev number from definition given by Pettifor, D. G. (1984).
             A chemical scale for crystal-structure maps. Solid State Communications,
-            51 (1), 31-34 
+            51 (1), 31-34
 
         .. attribute:: electrical_resistivity
 
@@ -692,7 +692,7 @@ class Element(Enum):
               for comb in e_config_combs]
         TS = [sum([ml_ms[comb[e]][1] for e in range(v_e)])
               for comb in e_config_combs]
-        comb_counter = Counter([r for r in zip(TL, TS)])
+        comb_counter = Counter(zip(TL, TS))
 
         term_symbols = []
         while sum(comb_counter.values()) > 0:
@@ -1093,7 +1093,7 @@ class Specie(MSONable):
         self._el = Element(symbol)
         self._oxi_state = oxidation_state
         self._properties = properties if properties else {}
-        for k in self._properties.keys():
+        for k, _ in self._properties.items():
             if k not in Specie.supported_properties:
                 raise ValueError("{} is not a supported property".format(k))
 
@@ -1408,7 +1408,7 @@ class DummySpecie(Specie):
         self._symbol = symbol
         self._oxi_state = oxidation_state
         self._properties = properties if properties else {}
-        for k in self._properties.keys():
+        for k, _ in self._properties.items():
             if k not in Specie.supported_properties:
                 raise ValueError("{} is not a supported property".format(k))
 

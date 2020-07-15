@@ -179,14 +179,14 @@ class ConversionElectrode(AbstractElectrode):
         """
         for pair1 in conversion_electrode:
             rxn1 = pair1.rxn
-            all_formulas1 = set([rxn1.all_comp[i].reduced_formula
-                                 for i in range(len(rxn1.all_comp))
-                                 if abs(rxn1.coeffs[i]) > 1e-5])
+            all_formulas1 = {rxn1.all_comp[i].reduced_formula
+                             for i in range(len(rxn1.all_comp))
+                             if abs(rxn1.coeffs[i]) > 1e-5}
             for pair2 in self:
                 rxn2 = pair2.rxn
-                all_formulas2 = set([rxn2.all_comp[i].reduced_formula
-                                     for i in range(len(rxn2.all_comp))
-                                     if abs(rxn2.coeffs[i]) > 1e-5])
+                all_formulas2 = {rxn2.all_comp[i].reduced_formula
+                                 for i in range(len(rxn2.all_comp))
+                                 if abs(rxn2.coeffs[i]) > 1e-5}
                 if all_formulas1 == all_formulas2:
                     break
             else:
@@ -202,14 +202,14 @@ class ConversionElectrode(AbstractElectrode):
 
         for pair1 in conversion_electrode:
             rxn1 = pair1.rxn
-            all_formulas1 = set([rxn1.all_comp[i].reduced_formula
-                                 for i in range(len(rxn1.all_comp))
-                                 if abs(rxn1.coeffs[i]) > 1e-5])
+            all_formulas1 = {rxn1.all_comp[i].reduced_formula
+                             for i in range(len(rxn1.all_comp))
+                             if abs(rxn1.coeffs[i]) > 1e-5}
             for pair2 in self:
                 rxn2 = pair2.rxn
-                all_formulas2 = set([rxn2.all_comp[i].reduced_formula
-                                     for i in range(len(rxn2.all_comp))
-                                     if abs(rxn2.coeffs[i]) > 1e-5])
+                all_formulas2 = {rxn2.all_comp[i].reduced_formula
+                                 for i in range(len(rxn2.all_comp))
+                                 if abs(rxn2.coeffs[i]) > 1e-5}
                 if all_formulas1 == all_formulas2:
                     break
             else:
@@ -223,14 +223,16 @@ class ConversionElectrode(AbstractElectrode):
         return self.__repr__()
 
     def __repr__(self):
-        output = ["Conversion electrode with formula {} and nsteps {}".format(
-                      self._composition.reduced_formula, self.num_steps),
-                  "Avg voltage {} V, min voltage {} V, max voltage {} V".format(
-                      self.get_average_voltage(), self.min_voltage, self.max_voltage),
-                  "Capacity (grav.) {} mAh/g, capacity (vol.) {} Ah/l".format(
-                      self.get_capacity_grav(), self.get_capacity_vol()),
-                  "Specific energy {} Wh/kg, energy density {} Wh/l".format(
-                      self.get_specific_energy(), self.get_energy_density())]
+        output = [
+            "Conversion electrode with formula {} and nsteps {}".format(self._composition.reduced_formula,
+                                                                        self.num_steps),
+            "Avg voltage {} V, min voltage {} V, max voltage {} V".format(self.get_average_voltage(),
+                                                                          self.min_voltage, self.max_voltage),
+            "Capacity (grav.) {} mAh/g, capacity (vol.) {} Ah/l".format(self.get_capacity_grav(),
+                                                                        self.get_capacity_vol()),
+            "Specific energy {} Wh/kg, energy density {} Wh/l".format(self.get_specific_energy(),
+                                                                      self.get_energy_density())
+        ]
         return "\n".join(output)
 
     @classmethod
@@ -522,16 +524,14 @@ class ConversionVoltagePair(AbstractVoltagePair):
         return self._working_ion_entry
 
     def __repr__(self):
-        output = ["Conversion voltage pair with working ion {}".format(
-                      self._working_ion_entry.composition.reduced_formula),
-                  "Reaction : {}".format(self._rxn),
-                  "V = {}, mAh = {}".format(self.voltage, self.mAh),
-                  "frac_charge = {}, frac_discharge = {}".format(
-                      self.frac_charge, self.frac_discharge),
-                  "mass_charge = {}, mass_discharge = {}".format(
-                      self.mass_charge, self.mass_discharge),
-                  "vol_charge = {}, vol_discharge = {}".format(
-                      self.vol_charge, self.vol_discharge)]
+        output = [
+            "Conversion voltage pair with working ion {}".format(self._working_ion_entry.composition.reduced_formula),
+            "Reaction : {}".format(self._rxn),
+            "V = {}, mAh = {}".format(self.voltage, self.mAh),
+            "frac_charge = {}, frac_discharge = {}".format(self.frac_charge, self.frac_discharge),
+            "mass_charge = {}, mass_discharge = {}".format(self.mass_charge, self.mass_discharge),
+            "vol_charge = {}, vol_discharge = {}".format(self.vol_charge, self.vol_discharge)
+        ]
         return "\n".join(output)
 
     def __str__(self):
