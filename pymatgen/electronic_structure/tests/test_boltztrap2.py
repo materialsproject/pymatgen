@@ -158,7 +158,6 @@ class BztInterpolatorTest(unittest.TestCase):
         self.assertIsNotNone(self.bztInterp)
         self.bztInterp = BztInterpolator(self.loader,
                                          lpfac=2,
-                                         save_coeffs=True,
                                          fname=bztinterp_fn)
         self.assertIsNotNone(self.bztInterp)
         self.bztInterp = BztInterpolator(self.loader,
@@ -173,7 +172,6 @@ class BztInterpolatorTest(unittest.TestCase):
         self.assertIsNotNone(self.bztInterp_sp)
         self.bztInterp_sp = BztInterpolator(self.loader_sp,
                                             lpfac=2,
-                                            save_coeffs=True,
                                             fname=bztinterp_fn)
         self.assertIsNotNone(self.bztInterp_sp)
         self.bztInterp_sp = BztInterpolator(self.loader_sp,
