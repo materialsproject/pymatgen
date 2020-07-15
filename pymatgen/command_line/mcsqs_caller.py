@@ -5,13 +5,13 @@ https://www.brown.edu/Departments/Engineering/Labs/avdw/atat/
 
 import os
 import warnings
+import tempfile
 from subprocess import Popen, TimeoutExpired
 from typing import Dict, Union, List, NamedTuple, Optional
 from pathlib import Path
 
 from monty.dev import requires
 from monty.os.path import which
-import tempfile
 
 from pymatgen import Structure
 
@@ -170,9 +170,8 @@ def run_mcsqs(
             sqs = _parse_sqs_path(".")
             return sqs
 
-        else:
-            os.chdir(original_directory)
-            raise TimeoutError("Cluster expansion took too long.")
+        os.chdir(original_directory)
+        raise TimeoutError("Cluster expansion took too long.")
 
 
 def _parse_sqs_path(path) -> Sqs:
