@@ -264,15 +264,20 @@ class AnionCorrection(Correction):
 
         correction = ufloat(0.0, 0.0)
 
-        # set error to 0 because old MPCompatibility doesn't have errors
-
         # Check for sulfide corrections
         if Element("S") in comp:
             sf_type = "sulfide"
+
             if entry.data.get("sulfide_type"):
                 sf_type = entry.data["sulfide_type"]
             elif hasattr(entry, "structure"):
+                warnings.warn(sf_type)
                 sf_type = sulfide_type(entry.structure)
+
+            # use the same correction for polysulfides and sulfides
+            if sf_type == "polysulfide":
+                sf_type = "sulfide"
+
             if sf_type in self.sulfide_correction:
                 correction += self.sulfide_correction[sf_type] * comp["S"]
 
@@ -367,6 +372,11 @@ class CompositionCorrection(Correction):
                 sf_type = entry.data["sulfide_type"]
             elif hasattr(entry, "structure"):
                 sf_type = sulfide_type(entry.structure)
+
+            # use the same correction for polysulfides and sulfides
+            if sf_type == "polysulfide":
+                sf_type = "sulfide"
+
             if sf_type in self.comp_correction:
                 correction += (
                     ufloat(self.comp_correction[sf_type], self.comp_errors[sf_type])
@@ -1036,9 +1046,6 @@ class MITCompatibility(CorrectionsList):
     this compatibility scheme on runs with different parameters is not valid.
     """
 
-    @deprecated(
-        message=("MITCompatibility will be updated with new correction classes in 2020")
-    )
     def __init__(
         self, compat_type="Advanced", correct_peroxide=True, check_potcar_hash=False
     ):
@@ -1077,11 +1084,6 @@ class MITAqueousCompatibility(CorrectionsList):
     this compatibility scheme on runs with different parameters is not valid.
     """
 
-    @deprecated(
-        message=(
-            "MITAqueousCompatibility will be updated with new correction classes in 2020"
-        )
-    )
     def __init__(
         self, compat_type="Advanced", correct_peroxide=True, check_potcar_hash=False
     ):

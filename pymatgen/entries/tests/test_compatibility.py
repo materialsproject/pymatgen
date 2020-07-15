@@ -1441,11 +1441,6 @@ class MITCompatibilityTest(unittest.TestCase):
         temp_compat = decoder.process_decoded(compat_dict)
         self.assertIsInstance(temp_compat, MITCompatibility)
 
-    def test_deprecation_warning(self):
-        # test that initializing compatibility causes deprecation warning
-        with self.assertWarns(DeprecationWarning):
-            MITCompatibility(check_potcar_hash=True)
-
 
 class OxideTypeCorrectionTest(unittest.TestCase):
     def setUp(self):
@@ -1630,8 +1625,6 @@ class SulfideTypeCorrection2020Test(unittest.TestCase):
     def test_struct_no_struct(self):
         # Processing an Entry should produce the same correction whether or not
         # that entry has a Structure attached to it.
-        # This test will FAIL in previous version of pymatgen in which
-        # 'polysulfide' was a valid output from structure_analyzer.sulfide_type()
 
         # Na2S2, entry mp-2400, with and without structure
         from collections import defaultdict
@@ -2176,11 +2169,6 @@ class MITAqueousCompatibilityTest(unittest.TestCase):
             },
         )
         self.assertIsNone(self.compat.process_entry(entry))
-
-    def test_deprecation_warning(self):
-        # test that initializing compatibility causes deprecation warning
-        with self.assertWarns(DeprecationWarning):
-            MITAqueousCompatibility(check_potcar_hash=True)
 
 
 class CorrectionErrors2020CompatibilityTest(unittest.TestCase):
