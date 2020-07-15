@@ -447,8 +447,8 @@ class BztInterpolator:
                  lpfac=10,
                  energy_range=1.5,
                  curvature=True,
-                 save_coeffs=False,
-                 load_bztinterp=False,
+                 save_bztInterp=False,
+                 load_bztInterp=False,
                  save_bands=False,
                  fname='bztInterp.json.gz'):
         """
@@ -465,9 +465,9 @@ class BztInterpolator:
                 and taken into account to calculate the transport properties.
             curvature: boolean value to enable/disable the calculation of second
                 derivative related trasport properties (Hall coefficient).
-            save_coeffs: Default False. If True coefficients and equivalences are
+            save_bztInterp: Default False. If True coefficients and equivalences are
                 saved in fname file.
-            load_bztinterp: Default False. If True the coefficients and equivalences
+            load_bztInterp: Default False. If True the coefficients and equivalences
                 are loaded from fname file, not calculated. It can be faster than
                 re-calculate them in some cases.
             save_bands: Default False. If True interpolated bands are also stored.
@@ -486,7 +486,7 @@ class BztInterpolator:
             emin=(middle_gap_en - energy_range) * units.eV,
             emax=(middle_gap_en + energy_range) * units.eV)
 
-        if load_bztinterp:
+        if load_bztInterp:
             bands_loaded = self.load(fname)
         else:
             self.equivalences = sphere.get_equivalences(
@@ -500,7 +500,7 @@ class BztInterpolator:
                 self.data.lattvec,
                 curvature=curvature)
 
-        if save_coeffs:
+        if save_bztInterp:
             self.save(fname, save_bands)
 
     def load(self, fname='bztInterp.json.gz'):
@@ -1101,7 +1101,7 @@ class BztPlotter:
         if temps is None:
             temps = self.bzt_transP.temp_r.tolist()
 
-        if self.bzt_transP.doping:
+        if isinstance(self.bzt_transP.doping, np.ndarray):
             doping_all = self.bzt_transP.doping.tolist()
             if doping is None:
                 doping = doping_all
