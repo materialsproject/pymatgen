@@ -7,22 +7,16 @@
 A convenience script engine to read Gaussian output in a directory tree.
 """
 
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "1.0"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyue@mit.edu"
-__date__ = "Jul 9, 2012"
 
 import argparse
 import os
 import logging
 import re
-
-from pymatgen.apps.borg.hive import GaussianToComputedEntryDrone
-from pymatgen.apps.borg.queen import BorgQueen
 import multiprocessing
 from tabulate import tabulate
+from pymatgen.apps.borg.hive import GaussianToComputedEntryDrone
+from pymatgen.apps.borg.queen import BorgQueen
+
 
 save_file = "gau_data.gz"
 
@@ -82,14 +76,11 @@ def main():
                         nargs='*', help='directory to process')
     parser.add_argument('-v', '--verbose', dest="verbose",
                         action='store_const', const=True,
-                        help='verbose mode. Provides detailed output ' +
-                             'on progress.')
+                        help='Verbose mode. Provides detailed output on progress.')
     parser.add_argument('-f', '--force', dest="reanalyze",
                         action='store_const',
                         const=True,
-                        help='force reanalysis. Typically, gaussian_analyzer' +
-                             ' will just reuse a gaussian_analyzer_data.gz if ' +
-                             'present. This forces the analyzer to reanalyze.')
+                        help='Force reanalysis, instead of reusing gaussian_analyzer_data.gz.')
 
     args = parser.parse_args()
     for d in args.directories:

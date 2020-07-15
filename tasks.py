@@ -106,17 +106,18 @@ def make_dash(ctx):
     with open(plist, "wt") as f:
         f.write("\n".join(xml))
     ctx.run('tar --exclude=".DS_Store" -cvzf pymatgen.tgz pymatgen.docset')
-    xml = []
-    with open("docs/pymatgen.xml") as f:
-        for l in f:
-            l = l.strip()
-            if l.startswith("<version>"):
-                xml.append("<version>%s</version>" % NEW_VER)
-            else:
-                xml.append(l)
-    with open("docs/pymatgen.xml", "wt") as f:
-        f.write("\n".join(xml))
+    # xml = []
+    # with open("docs/pymatgen.xml") as f:
+    #     for l in f:
+    #         l = l.strip()
+    #         if l.startswith("<version>"):
+    #             xml.append("<version>%s</version>" % NEW_VER)
+    #         else:
+    #             xml.append(l)
+    # with open("docs/pymatgen.xml", "wt") as f:
+    #     f.write("\n".join(xml))
     ctx.run('rm -r pymatgen.docset')
+    ctx.run("cp docs_rst/conf-normal.py docs_rst/conf.py")
 
 
 @task
@@ -303,14 +304,14 @@ def release(ctx, notest=False, nodoc=False):
     set_ver(ctx)
     if not notest:
         ctx.run("pytest pymatgen")
-    publish(ctx)
+    # publish(ctx)
     if not nodoc:
         # update_doc(ctx)
         make_doc(ctx)
         ctx.run("git add .")
         ctx.run("git commit -a -m \"Update docs\"")
         ctx.run("git push")
-    merge_stable(ctx)
+    # merge_stable(ctx)
     release_github(ctx)
     post_discourse(ctx)
 
@@ -324,3 +325,9 @@ def open_doc(ctx):
     """
     pth = os.path.abspath("docs/_build/html/index.html")
     webbrowser.open("file://" + pth)
+
+
+@task
+def lint(ctx):
+    for cmd in ["pycodestyle", "mypy", "flake8", "pydocstyle"]:
+        ctx.run("%s pymatgen" % cmd)

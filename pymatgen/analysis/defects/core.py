@@ -54,8 +54,12 @@ class Defect(MSONable, metaclass=ABCMeta):
         self._structure = structure
         self._charge = int(charge)
         self._defect_site = defect_site
-        if structure.lattice != defect_site.lattice:
-            raise ValueError("defect_site lattice must be same as structure lattice.")
+        lattice_match = np.allclose(structure.lattice.matrix,
+                                    defect_site.lattice.matrix,
+                                    atol=1e-5)
+        if not lattice_match:
+            raise ValueError("defect_site lattice must be same as structure "
+                             "lattice.")
         self._multiplicity = multiplicity if multiplicity else self.get_multiplicity()
 
     @property

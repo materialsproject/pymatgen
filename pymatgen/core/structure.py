@@ -38,15 +38,6 @@ from pymatgen.util.coord import get_angle, all_distances, \
 from pymatgen.core.units import Mass, Length
 
 
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "2.0"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__status__ = "Production"
-__date__ = "Sep 23, 2011"
-
-
 class Neighbor(Site):
     """
     Simple Site subclass to contain a neighboring atom that skips all the
@@ -1267,7 +1258,7 @@ class IStructure(SiteCollection, MSONable):
                     offsets.append(n.image)
                     distances.append(n.nn_distance)
         return tuple((np.array(center_indices), np.array(points_indices),
-                     np.array(offsets), np.array(distances)))
+                      np.array(offsets), np.array(distances)))
 
     def get_neighbor_list(self, r: float,
                           sites: List[PeriodicSite] = None,
@@ -1319,7 +1310,7 @@ class IStructure(SiteCollection, MSONable):
                 self_pair = (center_indices == points_indices) & (distances <= numerical_tol)
                 cond = ~self_pair
             return tuple((center_indices[cond], points_indices[cond],
-                         images[cond], distances[cond]))
+                          images[cond], distances[cond]))
 
     def get_all_neighbors(self, r: float,
                           include_index: bool = False,
@@ -2386,7 +2377,7 @@ class IMolecule(SiteCollection, MSONable):
                                   "coordinates."))
 
         sites = []
-        for i in range(len(species)):
+        for i, _ in enumerate(species):
             prop = None
             if site_properties:
                 prop = {k: v[i] for k, v in site_properties.items()}
@@ -2774,10 +2765,10 @@ class IMolecule(SiteCollection, MSONable):
             return cls(lattice, self.species * nimages, coords,
                        coords_are_cartesian=True,
                        site_properties=sprops).get_sorted_structure()
-        else:
-            return cls(lattice, self.species * nimages, coords,
-                       coords_are_cartesian=True,
-                       site_properties=sprops)
+
+        return cls(lattice, self.species * nimages, coords,
+                   coords_are_cartesian=True,
+                   site_properties=sprops)
 
     def get_centered_molecule(self):
         """

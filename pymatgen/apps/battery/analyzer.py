@@ -26,7 +26,7 @@ EV_PER_ATOM_TO_J_PER_MOL = const.e * const.N_A
 ELECTRON_TO_AMPERE_HOURS = EV_PER_ATOM_TO_J_PER_MOL / 3600
 
 
-class BatteryAnalyzer():
+class BatteryAnalyzer:
     """
     A suite of methods for starting with an oxidized structure and determining its potential as a battery
     """
@@ -166,7 +166,7 @@ class BatteryAnalyzer():
 
         # convert from num A in structure to num A removed
         num_cation = self.comp[Specie(self.cation.symbol, self.cation_charge)]
-        return set([num_cation - a for a in numa])
+        return {num_cation - a for a in numa}
 
     def _get_int_removals_helper(self, spec_amts_oxi, oxid_el, oxid_els, numa):
         """
@@ -206,11 +206,10 @@ class BatteryAnalyzer():
         # recursively try the other oxidation states
         if a == 0:
             return numa
-        else:
-            for oxid_el in oxid_els:
-                numa = numa.union(
-                    self._get_int_removals_helper(spec_amts_oxi.copy(), oxid_el, oxid_els, numa))
-            return numa
+        for ox in oxid_els:
+            numa = numa.union(
+                self._get_int_removals_helper(spec_amts_oxi.copy(), ox, oxid_els, numa))
+        return numa
 
 
 def is_redox_active_intercalation(element):

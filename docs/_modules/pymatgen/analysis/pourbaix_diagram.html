@@ -1,19 +1,19 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.pourbaix_diagram &#8212; pymatgen 2020.3.2 documentation</title>
-    <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.analysis.pourbaix_diagram &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../../_static/language_data.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
  
@@ -33,15 +33,15 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.pourbaix_diagram</a></li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
-        <div class="bodywrapper">
           <div class="body" role="main">
             
   <h1>Source code for pymatgen.analysis.pourbaix_diagram</h1><div class="highlight"><pre>
@@ -65,29 +65,30 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">itertools</span>
 <span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">from</span> <span class="nn">copy</span> <span class="k">import</span> <span class="n">deepcopy</span>
-<span class="kn">from</span> <span class="nn">functools</span> <span class="k">import</span> <span class="n">cmp_to_key</span><span class="p">,</span> <span class="n">partial</span><span class="p">,</span> <span class="n">lru_cache</span>
-<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span><span class="p">,</span> <span class="n">MontyDecoder</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">cmp_to_key</span><span class="p">,</span> <span class="n">partial</span><span class="p">,</span> <span class="n">lru_cache</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">MSONable</span><span class="p">,</span> <span class="n">MontyDecoder</span>
 
-<span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="k">import</span> <span class="n">Pool</span>
+<span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">Pool</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 
-<span class="kn">from</span> <span class="nn">scipy.spatial</span> <span class="k">import</span> <span class="n">ConvexHull</span><span class="p">,</span> <span class="n">HalfspaceIntersection</span>
+<span class="kn">from</span> <span class="nn">scipy.spatial</span> <span class="kn">import</span> <span class="n">ConvexHull</span><span class="p">,</span> <span class="n">HalfspaceIntersection</span>
 
 <span class="k">try</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">scipy.special</span> <span class="k">import</span> <span class="n">comb</span>
+    <span class="kn">from</span> <span class="nn">scipy.special</span> <span class="kn">import</span> <span class="n">comb</span>
 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">scipy.misc</span> <span class="k">import</span> <span class="n">comb</span>
-<span class="kn">from</span> <span class="nn">pymatgen.util.coord</span> <span class="k">import</span> <span class="n">Simplex</span>
-<span class="kn">from</span> <span class="nn">pymatgen.util.string</span> <span class="k">import</span> <span class="n">latexify</span>
-<span class="kn">from</span> <span class="nn">pymatgen.util.plotting</span> <span class="k">import</span> <span class="n">pretty_plot</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">Element</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.composition</span> <span class="k">import</span> <span class="n">Composition</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.ion</span> <span class="k">import</span> <span class="n">Ion</span>
-<span class="kn">from</span> <span class="nn">pymatgen.entries.computed_entries</span> <span class="k">import</span> <span class="n">ComputedEntry</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.reaction_calculator</span> <span class="k">import</span> <span class="n">Reaction</span><span class="p">,</span> <span class="n">ReactionError</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.phase_diagram</span> <span class="k">import</span> <span class="n">PhaseDiagram</span><span class="p">,</span> <span class="n">PDEntry</span>
-<span class="kn">from</span> <span class="nn">tqdm</span> <span class="k">import</span> <span class="n">tqdm</span>
+    <span class="kn">from</span> <span class="nn">scipy.misc</span> <span class="kn">import</span> <span class="n">comb</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.coord</span> <span class="kn">import</span> <span class="n">Simplex</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.string</span> <span class="kn">import</span> <span class="n">latexify</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.plotting</span> <span class="kn">import</span> <span class="n">pretty_plot</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="kn">import</span> <span class="n">Element</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.composition</span> <span class="kn">import</span> <span class="n">Composition</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.ion</span> <span class="kn">import</span> <span class="n">Ion</span>
+<span class="kn">from</span> <span class="nn">pymatgen.entries.computed_entries</span> <span class="kn">import</span> <span class="n">ComputedEntry</span>
+<span class="kn">from</span> <span class="nn">pymatgen.entries.compatibility</span> <span class="kn">import</span> <span class="n">MU_H2O</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.reaction_calculator</span> <span class="kn">import</span> <span class="n">Reaction</span><span class="p">,</span> <span class="n">ReactionError</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.phase_diagram</span> <span class="kn">import</span> <span class="n">PhaseDiagram</span><span class="p">,</span> <span class="n">PDEntry</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Sai Jayaraman&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2012, The Materials Project&quot;</span>
@@ -100,7 +101,6 @@
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
-<span class="n">MU_H2O</span> <span class="o">=</span> <span class="o">-</span><span class="mf">2.4583</span>
 <span class="n">PREFAC</span> <span class="o">=</span> <span class="mf">0.0591</span>
 
 
@@ -119,13 +119,16 @@
 <span class="sd">    should be formation energies with respect to hydrogen and</span>
 <span class="sd">    oxygen gas in order for the pourbaix diagram formalism to</span>
 <span class="sd">    work. This may be changed to be more flexible in the future.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        entry (ComputedEntry/ComputedStructureEntry/PDEntry/IonEntry): An</span>
-<span class="sd">            entry object</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">,</span> <span class="n">entry_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">concentration</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">,</span> <span class="n">entry_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">concentration</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            entry (ComputedEntry/ComputedStructureEntry/PDEntry/IonEntry): An</span>
+<span class="sd">                entry object</span>
+<span class="sd">            entry_id ():</span>
+<span class="sd">            concentration ():</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">entry</span> <span class="o">=</span> <span class="n">entry</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="n">IonEntry</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">concentration</span> <span class="o">=</span> <span class="n">concentration</span>
@@ -145,19 +148,30 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">npH</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="mf">0.</span><span class="p">)</span> \
-               <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="mf">0.</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="mf">0.</span><span class="p">)</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="mf">0.</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">nH2O</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: Number of H2O.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="mf">0.</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">nPhi</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: Number of H2O.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">npH</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">charge</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: Name for entry</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase_type</span> <span class="o">==</span> <span class="s2">&quot;Solid&quot;</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_formula</span> <span class="o">+</span> <span class="s2">&quot;(s)&quot;</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase_type</span> <span class="o">==</span> <span class="s2">&quot;Ion&quot;</span><span class="p">:</span>
@@ -295,11 +309,11 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">num_atoms</span>
 
-    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;Pourbaix Entry : </span><span class="si">{}</span><span class="s2"> with energy = </span><span class="si">{:.4f}</span><span class="s2">, npH = </span><span class="si">{}</span><span class="s2">, nPhi = </span><span class="si">{}</span><span class="s2">, nH2O = </span><span class="si">{}</span><span class="s2">, entry_id = </span><span class="si">{}</span><span class="s2"> &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">entry</span><span class="o">.</span><span class="n">composition</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">npH</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nPhi</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nH2O</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry_id</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">()</span></div>
 
 
@@ -309,7 +323,7 @@
 <span class="sd">    diagrams.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry_list</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry_list</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initializes a MultiEntry.</span>
 
@@ -324,7 +338,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">entry_list</span> <span class="o">=</span> <span class="n">entry_list</span>
 
     <span class="nd">@lru_cache</span><span class="p">()</span>
-    <span class="k">def</span> <span class="nf">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Because most of the attributes here are just weighted</span>
 <span class="sd">        averages of the entry_list, we save some space by</span>
@@ -353,14 +367,17 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="s2">&quot; + &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">e</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry_list</span><span class="p">])</span>
 
-    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;Multiple Pourbaix Entry: energy = </span><span class="si">{:.4f}</span><span class="s2">, npH = </span><span class="si">{}</span><span class="s2">, nPhi = </span><span class="si">{}</span><span class="s2">, nH2O = </span><span class="si">{}</span><span class="s2">, entry_id = </span><span class="si">{}</span><span class="s2">, species: </span><span class="si">{}</span><span class="s2">&quot;</span> \
             <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">energy</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">npH</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nPhi</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nH2O</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">()</span>
 
 <div class="viewcode-block" id="MultiEntry.as_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.pourbaix_diagram.html#pymatgen.analysis.pourbaix_diagram.MultiEntry.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: MSONable dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
                 <span class="s2">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
                 <span class="s2">&quot;entry_list&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry_list</span><span class="p">],</span>
@@ -368,6 +385,13 @@
 
 <div class="viewcode-block" id="MultiEntry.from_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.pourbaix_diagram.html#pymatgen.analysis.pourbaix_diagram.MultiEntry.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            d (): Dict representation</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            MultiEntry</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">entry_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">PourbaixEntry</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;entry_list&quot;</span><span class="p">)]</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">entry_list</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;weights&quot;</span><span class="p">))</span></div></div>
 
@@ -379,12 +403,6 @@
 <span class="sd">    Object similar to PDEntry, but contains an Ion object instead of a</span>
 <span class="sd">    Composition object.</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">        ion: Ion object</span>
-<span class="sd">        energy: Energy for composition.</span>
-<span class="sd">        name: Optional parameter to name the entry. Defaults to the</span>
-<span class="sd">            chemical formula.</span>
-
 <span class="sd">    .. attribute:: name</span>
 
 <span class="sd">        A name for the entry. This is the string shown in the phase diagrams.</span>
@@ -392,7 +410,14 @@
 <span class="sd">        set to some other string for display purposes.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ion</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">attribute</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ion</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">attribute</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            ion: Ion object</span>
+<span class="sd">            energy: Energy for composition.</span>
+<span class="sd">            name: Optional parameter to name the entry. Defaults to the</span>
+<span class="sd">                chemical formula.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ion</span> <span class="o">=</span> <span class="n">ion</span>
         <span class="c1"># Auto-assign name</span>
         <span class="n">name</span> <span class="o">=</span> <span class="n">name</span> <span class="k">if</span> <span class="n">name</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">ion</span><span class="o">.</span><span class="n">reduced_formula</span>
@@ -416,11 +441,11 @@
              <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">}</span>
         <span class="k">return</span> <span class="n">d</span></div>
 
-    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;IonEntry : </span><span class="si">{}</span><span class="s2"> with energy = </span><span class="si">{:.4f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">composition</span><span class="p">,</span>
                                                            <span class="bp">self</span><span class="o">.</span><span class="n">energy</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">()</span></div>
 
 
@@ -460,25 +485,26 @@
 <div class="viewcode-block" id="PourbaixDiagram"><a class="viewcode-back" href="../../../pymatgen.analysis.pourbaix_diagram.html#pymatgen.analysis.pourbaix_diagram.PourbaixDiagram">[docs]</a><span class="k">class</span> <span class="nc">PourbaixDiagram</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Class to create a Pourbaix diagram from entries</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        entries ([PourbaixEntry] or [MultiEntry]): Entries list</span>
-<span class="sd">            containing Solids and Ions or a list of MultiEntries</span>
-<span class="sd">        comp_dict ({str: float}): Dictionary of compositions,</span>
-<span class="sd">            defaults to equal parts of each elements</span>
-<span class="sd">        conc_dict ({str: float}): Dictionary of ion concentrations,</span>
-<span class="sd">            defaults to 1e-6 for each element</span>
-<span class="sd">        filter_solids (bool): applying this filter to a pourbaix</span>
-<span class="sd">            diagram ensures all included phases are filtered by</span>
-<span class="sd">            stability on the compositional phase diagram.  This</span>
-<span class="sd">            breaks some of the functionality of the analysis,</span>
-<span class="sd">            though, so use with caution.</span>
-<span class="sd">        nproc (int): number of processes to generate multientries with</span>
-<span class="sd">            in parallel.  Defaults to None (serial processing)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entries</span><span class="p">,</span> <span class="n">comp_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">conc_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entries</span><span class="p">,</span> <span class="n">comp_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">conc_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">filter_solids</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">nproc</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            entries ([PourbaixEntry] or [MultiEntry]): Entries list</span>
+<span class="sd">                containing Solids and Ions or a list of MultiEntries</span>
+<span class="sd">            comp_dict ({str: float}): Dictionary of compositions,</span>
+<span class="sd">                defaults to equal parts of each elements</span>
+<span class="sd">            conc_dict ({str: float}): Dictionary of ion concentrations,</span>
+<span class="sd">                defaults to 1e-6 for each element</span>
+<span class="sd">            filter_solids (bool): applying this filter to a pourbaix</span>
+<span class="sd">                diagram ensures all included phases are filtered by</span>
+<span class="sd">                stability on the compositional phase diagram.  This</span>
+<span class="sd">                breaks some of the functionality of the analysis,</span>
+<span class="sd">                though, so use with caution.</span>
+<span class="sd">            nproc (int): number of processes to generate multientries with</span>
+<span class="sd">                in parallel.  Defaults to None (serial processing)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">entries</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">entries</span><span class="p">)</span>
 
         <span class="c1"># Get non-OH elements</span>
@@ -556,7 +582,6 @@
 
     <span class="k">def</span> <span class="nf">_convert_entries_to_points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pourbaix_entries</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-
 <span class="sd">        Args:</span>
 <span class="sd">            pourbaix_entries ([PourbaixEntry]): list of pourbaix entries</span>
 <span class="sd">                to process into vectors in nph-nphi-composition space</span>
@@ -769,11 +794,13 @@
             <span class="c1"># their charge state.</span>
             <span class="n">entry_comps</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">composition</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">entry_list</span><span class="p">]</span>
             <span class="n">rxn</span> <span class="o">=</span> <span class="n">Reaction</span><span class="p">(</span><span class="n">entry_comps</span> <span class="o">+</span> <span class="n">dummy_oh</span><span class="p">,</span> <span class="p">[</span><span class="n">prod_comp</span><span class="p">])</span>
-            <span class="n">coeffs</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">rxn</span><span class="o">.</span><span class="n">get_coeff</span><span class="p">(</span><span class="n">comp</span><span class="p">)</span> <span class="k">for</span> <span class="n">comp</span> <span class="ow">in</span> <span class="n">entry_comps</span><span class="p">])</span>
+            <span class="n">react_coeffs</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="n">rxn</span><span class="o">.</span><span class="n">get_coeff</span><span class="p">(</span><span class="n">comp</span><span class="p">)</span> <span class="k">for</span> <span class="n">comp</span> <span class="ow">in</span> <span class="n">entry_comps</span><span class="p">]</span>
+            <span class="n">all_coeffs</span> <span class="o">=</span> <span class="n">react_coeffs</span> <span class="o">+</span> <span class="p">[</span><span class="n">rxn</span><span class="o">.</span><span class="n">get_coeff</span><span class="p">(</span><span class="n">prod_comp</span><span class="p">)]</span>
 
-            <span class="c1"># Return None if reaction coeff threshold is not met</span>
-            <span class="k">if</span> <span class="p">(</span><span class="n">coeffs</span> <span class="o">&gt;</span> <span class="n">coeff_threshold</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
-                <span class="k">return</span> <span class="n">MultiEntry</span><span class="p">(</span><span class="n">entry_list</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">coeffs</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+            <span class="c1"># Check if reaction coeff threshold met for pourbaix compounds</span>
+            <span class="c1"># All reactant/product coefficients must be positive nonzero</span>
+            <span class="k">if</span> <span class="nb">all</span><span class="p">([</span><span class="n">coeff</span> <span class="o">&gt;</span> <span class="n">coeff_threshold</span> <span class="k">for</span> <span class="n">coeff</span> <span class="ow">in</span> <span class="n">all_coeffs</span><span class="p">]):</span>
+                <span class="k">return</span> <span class="n">MultiEntry</span><span class="p">(</span><span class="n">entry_list</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">react_coeffs</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">return</span> <span class="kc">None</span>
         <span class="k">except</span> <span class="n">ReactionError</span><span class="p">:</span>
@@ -974,6 +1001,13 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unprocessed_entries</span>
 
 <div class="viewcode-block" id="PourbaixDiagram.as_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.pourbaix_diagram.html#pymatgen.analysis.pourbaix_diagram.PourbaixDiagram.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">include_unprocessed_entries</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            include_unprocessed_entries (): Whether to include unprocessed entries.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            MSONable dict.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">include_unprocessed_entries</span><span class="p">:</span>
             <span class="n">entries</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unprocessed_entries</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
@@ -987,6 +1021,13 @@
 
 <div class="viewcode-block" id="PourbaixDiagram.from_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.pourbaix_diagram.html#pymatgen.analysis.pourbaix_diagram.PourbaixDiagram.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            d (): Dict representation.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            PourbaixDiagram</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">decoded_entries</span> <span class="o">=</span> <span class="n">MontyDecoder</span><span class="p">()</span><span class="o">.</span><span class="n">process_decoded</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;entries&#39;</span><span class="p">])</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">decoded_entries</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;comp_dict&#39;</span><span class="p">),</span>
                    <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;conc_dict&#39;</span><span class="p">))</span></div></div>
@@ -995,12 +1036,13 @@
 <div class="viewcode-block" id="PourbaixPlotter"><a class="viewcode-back" href="../../../pymatgen.analysis.pourbaix_diagram.html#pymatgen.analysis.pourbaix_diagram.PourbaixPlotter">[docs]</a><span class="k">class</span> <span class="nc">PourbaixPlotter</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A plotter class for phase diagrams.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        pourbaix_diagram (PourbaixDiagram): A PourbaixDiagram object.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pourbaix_diagram</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pourbaix_diagram</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            pourbaix_diagram (PourbaixDiagram): A PourbaixDiagram object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_pbx</span> <span class="o">=</span> <span class="n">pourbaix_diagram</span>
 
 <div class="viewcode-block" id="PourbaixPlotter.show"><a class="viewcode-back" href="../../../pymatgen.analysis.pourbaix_diagram.html#pymatgen.analysis.pourbaix_diagram.PourbaixPlotter.show">[docs]</a>    <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -1073,6 +1115,20 @@
 <div class="viewcode-block" id="PourbaixPlotter.plot_entry_stability"><a class="viewcode-back" href="../../../pymatgen.analysis.pourbaix_diagram.html#pymatgen.analysis.pourbaix_diagram.PourbaixPlotter.plot_entry_stability">[docs]</a>    <span class="k">def</span> <span class="nf">plot_entry_stability</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">,</span> <span class="n">pH_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pH_resolution</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
                              <span class="n">V_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">V_resolution</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">e_hull_max</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                              <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;RdYlBu_r&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            entry ():</span>
+<span class="sd">            pH_range ():</span>
+<span class="sd">            pH_resolution ():</span>
+<span class="sd">            V_range ():</span>
+<span class="sd">            V_resolution ():</span>
+<span class="sd">            e_hull_max ():</span>
+<span class="sd">            cmap ():</span>
+<span class="sd">            **kwargs ():</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">pH_range</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">pH_range</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">16</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">V_range</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -1124,25 +1180,20 @@
 
 
 <div class="viewcode-block" id="latexify_ion"><a class="viewcode-back" href="../../../pymatgen.analysis.pourbaix_diagram.html#pymatgen.analysis.pourbaix_diagram.latexify_ion">[docs]</a><span class="k">def</span> <span class="nf">latexify_ion</span><span class="p">(</span><span class="n">formula</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert a formula to latex format.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        formula (str): Formula</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Latex string.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;()\[([^)]*)\]&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;\1$^{\2}$&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="p">)</span></div>
 </pre></div>
 
+            <div class="clearer"></div>
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
       </div>
       <div class="clearer"></div>
     </div>
@@ -1155,15 +1206,16 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.pourbaix_diagram</a></li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking
