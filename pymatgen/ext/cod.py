@@ -51,7 +51,7 @@ class COD:
         """
         Blank __init__. No args required.
         """
-        self.url = "http://www.crystallography.net"
+        self.url = "www.crystallography.net"
 
     def query(self, sql: str) -> str:
         """
@@ -103,7 +103,7 @@ class COD:
         Returns:
             A Structure.
         """
-        r = requests.get("%s/cod/%s.cif" % (self.url, cod_id))
+        r = requests.get("http://%s/cod/%s.cif" % (self.url, cod_id))
         return Structure.from_str(r.text, fmt="cif", **kwargs)
 
     @requires(which("mysql"), "mysql must be installed to use this query.")
