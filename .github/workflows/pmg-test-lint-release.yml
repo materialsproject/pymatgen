@@ -1,4 +1,4 @@
-name: Test, Lint, Release
+name: Lint, Test, Release
 
 on: [push, pull_request]
 
@@ -15,6 +15,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+      with:
+        # Note that this is a must because pylint is done based on a previous tag.
+        fetch-depth: 0
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
@@ -29,27 +32,27 @@ jobs:
     - name: Install binary dependencies (Linux)
       run: |
         export PATH=$PATH:`pwd`/cmd_line/bader/Darwin_64bit:`pwd`/cmd_line/aconvasp/Darwin_64bit:`pwd`/cmd_line/boltztrap/Darwin_64bit
-    - name: Test with pytest
-      run: |
-        pytest pymatgen --color=yes
-    - name: Lint with pycodestyle
+    - name: pycodestyle
       run: |
         pycodestyle pymatgen
     - name: Lint with mypy
       run: |
         mypy pymatgen
-    - name: Lint with flake8
+    - name: flake8
       run: |
         flake8 --count --show-source --statistics pymatgen
         # exit-zero treats all errors as warnings.
         flake8 --count --exit-zero --max-complexity=20 --statistics pymatgen
-    - name: Lint with pydocstyle
+    - name: pydocstyle
       run: |
         pydocstyle --count pymatgen
     - name: Lint with pylint
       run: |
         source pylint_mod.sh
-#    - name: Publish
+    - name: pytest
+      run: |
+        pytest pymatgen --color=yes
+#    - name: release
 #      env:
 #        TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
 #        TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
