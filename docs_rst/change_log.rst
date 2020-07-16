@@ -1,6 +1,10 @@
 Change log
 ==========
 
+v2020.7.16
+----------
+* Bug fix for boltztrap2 spin support. (@fraricci)
+
 v2020.7.14
 ----------
 * EwaldSummation is now MSONAble (@lbluque).

@@ -1,8 +1,6 @@
 Change log
 ==========
 
-v2020.7.14
+v2020.7.16
 ----------
-* EwaldSummation is now MSONAble (@lbluque).
-* Fix for QChem freq parsing (@samblau)
-* Much improved linting and workflows.
+* Bug fix for boltztrap2 spin support. (@fraricci)
