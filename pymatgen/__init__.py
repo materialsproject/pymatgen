@@ -106,3 +106,4 @@ def loadfn(fname):
         from monty.serialization import loadfn
         return loadfn(fname)
     raise ValueError("Unable to determine how to process %s." % fname)
+
