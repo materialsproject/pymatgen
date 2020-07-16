@@ -1,4 +1,4 @@
-name: Testing - main
+name: Test, Lint, Release
 
 on: [push, pull_request]
 
@@ -27,7 +27,6 @@ jobs:
         pip install -r requirements-dev.txt
         pip install -e .
     - name: Install binary dependencies (Linux)
-      if: matrix.os == 'ubuntu-latest'
       run: |
         export PATH=$PATH:`pwd`/cmd_line/bader/Darwin_64bit:`pwd`/cmd_line/aconvasp/Darwin_64bit:`pwd`/cmd_line/boltztrap/Darwin_64bit
     - name: Test with pytest
