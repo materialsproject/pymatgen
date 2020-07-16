@@ -39,6 +39,7 @@ jobs:
       if: matrix.os == 'ubuntu-latest'
       run: |
         for EXEPATH in `pwd`/cmd_line/*/Linux_64bit; do export PATH=$PATH:$EXEPATH; done
+        export GULP_LIB=`pwd`/cmd_line/gulp/Libraries
     - name: Set Mac Paths
       if: matrix.os == 'macos-latest'
       run: |
@@ -47,5 +48,4 @@ jobs:
       env:
         MPLBACKEND: "Agg"
       run: |
-        export GULP_LIB=`pwd`/cmd_line/gulp/Libraries
         pytest pymatgen --ignore=pymatgen/analysis --color=yes
