@@ -288,7 +288,7 @@ def update_changelog(ctx):
 
 
 @task
-def release(ctx, notest=False, nodoc=False):
+def release(ctx, nodoc=False):
     """
     Run full sequence for releasing pymatgen.
 
@@ -298,16 +298,12 @@ def release(ctx, notest=False, nodoc=False):
     """
     ctx.run("rm -r dist build pymatgen.egg-info", warn=True)
     set_ver(ctx)
-    if not notest:
-        ctx.run("pytest pymatgen")
-    # publish(ctx)
     if not nodoc:
-        # update_doc(ctx)
         make_doc(ctx)
         ctx.run("git add .")
         ctx.run("git commit -a -m \"Update docs\"")
         ctx.run("git push")
-    # merge_stable(ctx)
+    merge_stable(ctx)
     release_github(ctx)
     post_discourse(ctx)
 
