@@ -38,11 +38,14 @@ jobs:
     - name: Set Linux Paths
       if: matrix.os == 'ubuntu-latest'
       run: |
-        export PATH=$PATH:`pwd`/cmd_line/bader/Linux_64bit:`pwd`/cmd_line/enum/Linux_64bit:`pwd`/cmd_line/aconvasp/Linux_64bit:`pwd`/cmd_line/boltztrap/Linux_64bit
+        for EXEPATH in `pwd`/cmd_line/*/Linux_64bit; do export PATH=$PATH:$EXEPATH; done
     - name: Set Mac Paths
       if: matrix.os == 'macos-latest'
       run: |
-        export PATH=$PATH:`pwd`/cmd_line/bader/Darwin_64bit:`pwd`/cmd_line/aconvasp/Darwin_64bit:`pwd`/cmd_line/boltztrap/Darwin_64bit
+        for EXEPATH in `pwd`/cmd_line/*/Darwin_64bit; do export PATH=$PATH:$EXEPATH; done
     - name: pytest
+      env:
+        MPLBACKEND: "Agg"
       run: |
+        export GULP_LIB=`pwd`/cmd_line/gulp/Libraries
         pytest pymatgen --ignore=pymatgen/analysis --color=yes

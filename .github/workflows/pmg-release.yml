@@ -33,7 +33,7 @@ jobs:
         pip install -e .
     - name: Set mac binary paths
       run: |
-        export PATH=$PATH:`pwd`/cmd_line/bader/Darwin_64bit:`pwd`/cmd_line/aconvasp/Darwin_64bit:`pwd`/cmd_line/boltztrap/Darwin_64bit
+        for EXEPATH in `pwd`/cmd_line/*/Darwin_64bit; do export PATH=$PATH:$EXEPATH; done
     - name: pycodestyle
       run: |
         pycodestyle pymatgen
