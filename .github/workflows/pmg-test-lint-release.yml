@@ -6,7 +6,7 @@ jobs:
   build:
 
     strategy:
-      max-parallel: 6
+      max-parallel: 3
       matrix:
         os: [macos-latest]
         python-version: [3.6, 3.7, 3.8]
