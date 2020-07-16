@@ -45,5 +45,4 @@ jobs:
         export PATH=$PATH:`pwd`/cmd_line/bader/Darwin_64bit:`pwd`/cmd_line/aconvasp/Darwin_64bit:`pwd`/cmd_line/boltztrap/Darwin_64bit
     - name: pytest
       run: |
-        export PATH=$PATH:`pwd`/cmd_line/bader/Linux_64bit:`pwd`/cmd_line/enum/Linux_64bit:`pwd`/cmd_line/aconvasp/Linux_64bit:`pwd`/cmd_line/boltztrap/Linux_64bit
         pytest pymatgen/analysis --color=yes
