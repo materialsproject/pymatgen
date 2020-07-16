@@ -537,7 +537,7 @@ class BandStructure:
         all_kpts = self.get_sym_eq_kpoints(kpoint, cartesian, tol=tol)
         if all_kpts is not None:
             return len(all_kpts)
-        raise ValueError("Invalid kpoint")
+        return None
 
     def as_dict(self):
         """
