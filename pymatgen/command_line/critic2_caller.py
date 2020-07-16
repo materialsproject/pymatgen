@@ -40,31 +40,27 @@ V. Luaña, Comput. Phys. Commun. 180, 157–166 (2009)
 import os
 import subprocess
 import warnings
-import numpy as np
-import glob
+from enum import Enum
+import logging
 
+import numpy as np
 from scipy.spatial import KDTree
-from pymatgen.io.vasp.outputs import Chgcar, VolumetricData
-from pymatgen.io.vasp.inputs import Potcar
-from pymatgen.analysis.graphs import StructureGraph
-from pymatgen.core.periodic_table import DummySpecie
+
 from monty.os.path import which
 from monty.dev import requires
 from monty.json import MSONable
 from monty.serialization import loadfn
 from monty.tempfile import ScratchDir
-from enum import Enum
 
-import logging
+from pymatgen.io.vasp.outputs import Chgcar, VolumetricData
+from pymatgen.io.vasp.inputs import Potcar
+from pymatgen.analysis.graphs import StructureGraph
+from pymatgen.core.periodic_table import DummySpecie
+from pymatgen.command_line.bader_caller import get_filepath
+
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-__author__ = "Matthew Horton"
-__maintainer__ = "Matthew Horton"
-__email__ = "mkhorton@lbl.gov"
-__status__ = "Production"
-__date__ = "July 2017"
 
 
 class Critic2Caller:
@@ -78,14 +74,14 @@ class Critic2Caller:
         "Please follow the instructions at https://github.com/aoterodelaroza/critic2.",
     )
     def __init__(
-        self,
-        structure,
-        chgcar=None,
-        chgcar_ref=None,
-        user_input_settings=None,
-        write_cml=False,
-        write_json=True,
-        zpsp=None,
+            self,
+            structure,
+            chgcar=None,
+            chgcar_ref=None,
+            user_input_settings=None,
+            write_cml=False,
+            write_json=True,
+            zpsp=None,
     ):
         """
         Run Critic2 in automatic mode on a supplied structure, charge
@@ -267,32 +263,16 @@ class Critic2Caller:
         :return:
         """
 
-        def _get_filepath(filename, warning, path=path, suffix=suffix):
-            paths = glob.glob(os.path.join(path, filename + suffix + "*"))
-            if not paths:
-                warnings.warn(warning)
-                return None
-            if len(paths) > 1:
-                # using reverse=True because, if multiple files are present,
-                # they likely have suffixes 'static', 'relax', 'relax2', etc.
-                # and this would give 'static' over 'relax2' over 'relax'
-                # however, better to use 'suffix' kwarg to avoid this!
-                paths.sort(reverse=True)
-                warnings.warn(
-                    "Multiple files detected, using {}".format(os.path.basename(path))
-                )
-            path = paths[0]
-            return path
-
-        chgcar_path = _get_filepath("CHGCAR", "Could not find CHGCAR!")
+        chgcar_path = get_filepath("CHGCAR", "Could not find CHGCAR!", path, suffix)
         chgcar = Chgcar.from_file(chgcar_path)
         chgcar_ref = None
 
         if not zpsp:
 
-            potcar_path = _get_filepath(
+            potcar_path = get_filepath(
                 "POTCAR",
                 "Could not find POTCAR, will not be able to calculate charge transfer.",
+                path, suffix
             )
 
             if potcar_path:
@@ -300,17 +280,17 @@ class Critic2Caller:
                 zpsp = {p.element: p.zval for p in potcar}
 
         if not zpsp:
-
             # try and get reference "all-electron-like" charge density if zpsp not present
-            aeccar0_path = _get_filepath(
+            aeccar0_path = get_filepath(
                 "AECCAR0",
                 "Could not find AECCAR0, interpret Bader results with caution.",
+                path, suffix
             )
             aeccar0 = Chgcar.from_file(aeccar0_path) if aeccar0_path else None
 
-            aeccar2_path = _get_filepath(
+            aeccar2_path = get_filepath(
                 "AECCAR2",
-                "Could not find AECCAR2, interpret Bader results with caution.",
+                "Could not find AECCAR2, interpret Bader results with caution.", path, suffix
             )
             aeccar2 = Chgcar.from_file(aeccar2_path) if aeccar2_path else None
 
@@ -337,16 +317,16 @@ class CriticalPoint(MSONable):
     """
 
     def __init__(
-        self,
-        index,
-        type,
-        frac_coords,
-        point_group,
-        multiplicity,
-        field,
-        field_gradient,
-        coords=None,
-        field_hessian=None,
+            self,
+            index,
+            type,
+            frac_coords,
+            point_group,
+            multiplicity,
+            field,
+            field_gradient,
+            coords=None,
+            field_hessian=None,
     ):
         """
         Class to characterise a critical point from a topological
@@ -412,7 +392,7 @@ class Critic2Analysis(MSONable):
     """
 
     def __init__(
-        self, structure, stdout=None, stderr=None, cpreport=None, yt=None, zpsp=None
+            self, structure, stdout=None, stderr=None, cpreport=None, yt=None, zpsp=None
     ):
         """
         This class is used to store results from the Critic2Caller.
@@ -570,9 +550,7 @@ class Critic2Analysis(MSONable):
                     to_type = self.critical_points[
                         self.nodes[from_idx]["unique_idx"]
                     ].type
-                    skip_bond = (from_type != CriticalPointType.nucleus) or (
-                        to_type != CriticalPointType.nucleus
-                    )
+                    skip_bond = (from_type != CriticalPointType.nucleus) or (to_type != CriticalPointType.nucleus)
 
                 if not skip_bond:
                     from_lvec = edge["from_lvec"]
@@ -626,6 +604,7 @@ class Critic2Analysis(MSONable):
         Returns: A dict containing "volume" and "charge" keys,
         or None if YT integration not performed
         """
+        # pylint: disable=E1101
         if not self._node_values:
             return None
         return self._node_values[n]
@@ -634,15 +613,15 @@ class Critic2Analysis(MSONable):
         def get_type(signature: int, is_nucleus: bool):
             if signature == 3:
                 return "cage"
-            elif signature == 1:
+            if signature == 1:
                 return "ring"
-            elif signature == -1:
+            if signature == -1:
                 return "bond"
-            elif signature == -3:
+            if signature == -3:
                 if is_nucleus:
                     return "nucleus"
-                else:
-                    return "nnattr"
+                return "nnattr"
+            return None
 
         bohr_to_angstrom = 0.529177
 
@@ -697,8 +676,8 @@ class Critic2Analysis(MSONable):
         node_mapping = {}
         for idx, node in self.nodes.items():
             if (
-                self.critical_points[node["unique_idx"]].type
-                == CriticalPointType.nucleus
+                    self.critical_points[node["unique_idx"]].type
+                    == CriticalPointType.nucleus
             ):
                 node_mapping[idx] = kd.query(node["frac_coords"])[1]
 
@@ -749,7 +728,7 @@ class Critic2Analysis(MSONable):
 
         for idx, site in enumerate(yt["structure"]["cell_atoms"]):
             if not np.allclose(
-                structure[idx].frac_coords, site["fractional_coordinates"]
+                    structure[idx].frac_coords, site["fractional_coordinates"]
             ):
                 raise IndexError(
                     "Site in structure doesn't seem to match site in YT integration:\n{}\n{}".format(
@@ -825,7 +804,7 @@ class Critic2Analysis(MSONable):
         # need to re-evaluate assumptions in this parser!
 
         for i, line in enumerate(stdout):
-            if i >= start_i and i <= end_i:
+            if start_i <= i <= end_i:
                 l = line.replace("(", "").replace(")", "").split()
 
                 unique_idx = int(l[0]) - 1
@@ -876,7 +855,7 @@ class Critic2Analysis(MSONable):
         # need to re-evaluate assumptions in this parser!
 
         for i, line in enumerate(stdout):
-            if i >= start_i and i <= end_i:
+            if start_i <= i <= end_i:
 
                 l = line.replace("(", "").replace(")", "").split()
 

@@ -7,10 +7,11 @@ This module creates an interface to the JHU kpoints servlet,
 see http://muellergroup.jhu.edu/K-Points.html.
 """
 
-import requests
 import tempfile
 import shutil
 import os
+
+import requests
 
 from pymatgen.io.vasp.inputs import Kpoints
 

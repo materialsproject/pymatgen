@@ -18,6 +18,8 @@ __status__ = "Beta"
 
 import itertools
 
+from scipy.constants import N_A
+
 from pymatgen.core.composition import Composition
 from pymatgen.core.units import Charge, Time
 from pymatgen.analysis.phase_diagram import PhaseDiagram
@@ -25,8 +27,6 @@ from pymatgen.analysis.phase_diagram import PDEntry
 from pymatgen.apps.battery.battery_abc import AbstractElectrode, \
     AbstractVoltagePair
 from pymatgen.core.periodic_table import Element
-
-from scipy.constants import N_A
 
 
 class InsertionElectrode(AbstractElectrode):
@@ -153,8 +153,7 @@ class InsertionElectrode(AbstractElectrode):
         all_entries = list(self.get_stable_entries())
         all_entries.extend(self.get_unstable_entries())
         # sort all entries by amount of working ion ASC
-        all_entries = sorted([e for e in all_entries],
-                             key=lambda e: e.composition.get_atomic_fraction(self.working_ion))
+        all_entries = sorted(all_entries, key=lambda e: e.composition.get_atomic_fraction(self.working_ion))
         return all_entries if charge_to_discharge else all_entries.reverse()
 
     @property
@@ -513,7 +512,7 @@ class InsertionVoltagePair(AbstractVoltagePair):
         """
         Returns: working ion
         """
-        return self._working_ion
+        return self._working_ion_entry.composition.elements[0]
 
     @property
     def frac_charge(self):
@@ -579,15 +578,13 @@ class InsertionVoltagePair(AbstractVoltagePair):
         return self._working_ion_entry
 
     def __repr__(self):
-        output = ["Insertion voltage pair with working ion {}".format(
-                      self._working_ion_entry.composition.reduced_formula),
-                  "V = {}, mAh = {}".format(self.voltage, self.mAh),
-                  "mass_charge = {}, mass_discharge = {}".format(
-                      self.mass_charge, self.mass_discharge),
-                  "vol_charge = {}, vol_discharge = {}".format(
-                      self.vol_charge, self.vol_discharge),
-                  "frac_charge = {}, frac_discharge = {}".format(
-                      self.frac_charge, self.frac_discharge)]
+        output = [
+            "Insertion voltage pair with working ion {}".format(self._working_ion_entry.composition.reduced_formula),
+            "V = {}, mAh = {}".format(self.voltage, self.mAh),
+            "mass_charge = {}, mass_discharge = {}".format(self.mass_charge, self.mass_discharge),
+            "vol_charge = {}, vol_discharge = {}".format(self.vol_charge, self.vol_discharge),
+            "frac_charge = {}, frac_discharge = {}".format(self.frac_charge, self.frac_discharge)
+        ]
         return "\n".join(output)
 
     def __str__(self):

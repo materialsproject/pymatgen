@@ -26,10 +26,10 @@ TODO:
 - read first derivative of the eigenvalues from vasprun.xml (mommat)
 - handle magnetic moments (magmom)
 """
-from tqdm import tqdm
-import numpy as np
 import warnings
+import numpy as np
 import matplotlib.pyplot as plt
+from tqdm import tqdm
 from monty.serialization import dumpfn, loadfn
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 from pymatgen.electronic_structure.bandstructure import \
@@ -127,7 +127,7 @@ class VasprunBSLoader:
         else:
             self.vbm_idx = None
             self.cbm_idx = None
-            self.vbm = self.felrmi
+            self.vbm = self.fermi
             self.cbm = self.fermi
 
         if nelect:
@@ -386,7 +386,8 @@ class VasprunLoader:
                 self.vbm = self.fermi
                 self.cbm = self.fermi
 
-    def from_file(self, vasprun_file):
+    @classmethod
+    def from_file(cls, vasprun_file):
         """Get a vasprun.xml file and return a VasprunLoader"""
         vrun_obj = Vasprun(vasprun_file, parse_projected_eigen=True)
         return VasprunLoader(vrun_obj)
@@ -447,8 +448,8 @@ class BztInterpolator:
                  lpfac=10,
                  energy_range=1.5,
                  curvature=True,
-                 save_coeffs=False,
-                 load_bztinterp=False,
+                 save_bztInterp=False,
+                 load_bztInterp=False,
                  save_bands=False,
                  fname='bztInterp.json.gz'):
         """
@@ -465,9 +466,9 @@ class BztInterpolator:
                 and taken into account to calculate the transport properties.
             curvature: boolean value to enable/disable the calculation of second
                 derivative related trasport properties (Hall coefficient).
-            save_coeffs: Default False. If True coefficients and equivalences are
+            save_bztInterp: Default False. If True coefficients and equivalences are
                 saved in fname file.
-            load_bztinterp: Default False. If True the coefficients and equivalences
+            load_bztInterp: Default False. If True the coefficients and equivalences
                 are loaded from fname file, not calculated. It can be faster than
                 re-calculate them in some cases.
             save_bands: Default False. If True interpolated bands are also stored.
@@ -486,7 +487,7 @@ class BztInterpolator:
             emin=(middle_gap_en - energy_range) * units.eV,
             emax=(middle_gap_en + energy_range) * units.eV)
 
-        if load_bztinterp:
+        if load_bztInterp:
             bands_loaded = self.load(fname)
         else:
             self.equivalences = sphere.get_equivalences(
@@ -500,7 +501,7 @@ class BztInterpolator:
                 self.data.lattvec,
                 curvature=curvature)
 
-        if save_coeffs:
+        if save_bztInterp:
             self.save(fname, save_bands)
 
     def load(self, fname='bztInterp.json.gz'):
@@ -907,24 +908,24 @@ class BztTransportProperties:
         }
         self.contain_props_doping = True
 
-    def find_mu_doping(self, epsilon, dos, N0, T, dosweight=2.):
-        """
-        Find the mu.
+    # def find_mu_doping(self, epsilon, dos, N0, T, dosweight=2.):
+    #     """
+    #     Find the mu.
 
-        :param epsilon:
-        :param dos:
-        :param N0:
-        :param T:
-        :param dosweight:
-        :return:
-        """
-        delta = np.empty_like(epsilon)
-        for i, e in enumerate(epsilon):
-            delta[i] = BL.calc_N(epsilon, dos, e, T, dosweight) + N0
-        delta = np.abs(delta)
-        # Find the position optimizing this distance
-        pos = np.abs(delta).argmin()
-        return epsilon[pos]
+    #     :param epsilon:
+    #     :param dos:
+    #     :param N0:
+    #     :param T:
+    #     :param dosweight:
+    #     :return:
+    #     """
+    #     delta = np.empty_like(epsilon)
+    #     for i, e in enumerate(epsilon):
+    #         delta[i] = BL.calc_N(epsilon, dos, e, T, dosweight) + N0
+    #     delta = np.abs(delta)
+    #     # Find the position optimizing this distance
+    #     pos = np.abs(delta).argmin()
+    #     return epsilon[pos]
 
     def save(self, fname='bztTranspProps.json.gz'):
         """Save the tranport properties to fname file."""
@@ -1101,7 +1102,7 @@ class BztPlotter:
         if temps is None:
             temps = self.bzt_transP.temp_r.tolist()
 
-        if self.bzt_transP.doping:
+        if isinstance(self.bzt_transP.doping, np.ndarray):
             doping_all = self.bzt_transP.doping.tolist()
             if doping is None:
                 doping = doping_all
