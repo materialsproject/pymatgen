@@ -36,13 +36,13 @@ jobs:
         pip install -r requirements-dev.txt
         pip install -e .
     - name: Set Linux Paths
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          export PATH=$PATH:`pwd`/cmd_line/bader/Linux_64bit:`pwd`/cmd_line/enum/Linux_64bit:`pwd`/cmd_line/aconvasp/Linux_64bit:`pwd`/cmd_line/boltztrap/Linux_64bit
-          - name: Set Mac Paths
-            if: matrix.os == 'macos-latest'
-            run: |
-              export PATH=$PATH:`pwd`/cmd_line/bader/Darwin_64bit:`pwd`/cmd_line/aconvasp/Darwin_64bit:`pwd`/cmd_line/boltztrap/Darwin_64bit
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        export PATH=$PATH:`pwd`/cmd_line/bader/Linux_64bit:`pwd`/cmd_line/enum/Linux_64bit:`pwd`/cmd_line/aconvasp/Linux_64bit:`pwd`/cmd_line/boltztrap/Linux_64bit
+    - name: Set Mac Paths
+      if: matrix.os == 'macos-latest'
+      run: |
+        export PATH=$PATH:`pwd`/cmd_line/bader/Darwin_64bit:`pwd`/cmd_line/aconvasp/Darwin_64bit:`pwd`/cmd_line/boltztrap/Darwin_64bit
     - name: pytest
       run: |
         export PATH=$PATH:`pwd`/cmd_line/bader/Linux_64bit:`pwd`/cmd_line/enum/Linux_64bit:`pwd`/cmd_line/aconvasp/Linux_64bit:`pwd`/cmd_line/boltztrap/Linux_64bit
