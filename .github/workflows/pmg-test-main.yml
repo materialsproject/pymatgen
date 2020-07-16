@@ -8,8 +8,17 @@ jobs:
     strategy:
       max-parallel: 6
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest]
         python-version: [3.6, 3.7, 3.8]
+        exclude:
+          - os: macos-latest
+            python-version: 3.6
+          - os: macos-latest
+            python-version: 3.7
+          - os: windows-latest
+            python-version: 3.6
+          - os: windows-latest
+            python-version: 3.7
 
     runs-on: ${{ matrix.os }}
 
@@ -19,14 +28,21 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Install Python dependencies
+    - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install -r requirements-optional.txt
         pip install -r requirements-dev.txt
         pip install -e .
-    - name: Test with pytest
+    - name: Set Linux Paths
+      if: matrix.os == 'ubuntu-latest'
       run: |
         export PATH=$PATH:`pwd`/cmd_line/bader/Linux_64bit:`pwd`/cmd_line/enum/Linux_64bit:`pwd`/cmd_line/aconvasp/Linux_64bit:`pwd`/cmd_line/boltztrap/Linux_64bit
+    - name: Set Mac Paths
+      if: matrix.os == 'macos-latest'
+      run: |
+        export PATH=$PATH:`pwd`/cmd_line/bader/Darwin_64bit:`pwd`/cmd_line/aconvasp/Darwin_64bit:`pwd`/cmd_line/boltztrap/Darwin_64bit
+    - name: pytest
+      run: |
         pytest pymatgen --ignore=pymatgen/analysis --color=yes
