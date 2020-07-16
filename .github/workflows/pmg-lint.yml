@@ -42,5 +42,4 @@ jobs:
     - name: Lint with pylint
       run: |
         pip install pylint --upgrade --quiet
-        # stop the build if there are Python syntax errors or undefined names
         source pylint_mod.sh
