@@ -7,18 +7,20 @@ This module defines classes to represent all xas and stitching methods
 """
 import math
 from typing import List
+import warnings
 from scipy.interpolate import interp1d
 import numpy as np
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.spectrum import Spectrum
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
+
 __author__ = "Chen Zheng, Yiming Chen"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "3.0"
 __maintainer__ = "Yiming Chen"
 __email__ = "chz022@ucsd.edu, yic111@ucsd.edu"
-__date__ = "April 25, 2020"
+__date__ = "July 17, 2020"
 
 
 class XAS(Spectrum):
@@ -34,7 +36,7 @@ class XAS(Spectrum):
         spectrum_type (str): 'XANES' or 'EXAFS'
         absorbing_index (None or int): If None, the spectrum is assumed to be a
          site-weighted spectrum, which is comparable to experimental one.
-         Otherwise, it indicates the absorbing_index for a site-wise spectrum.
+         Otherwise, it indicates that the absorbing_index for a site-wise spectrum.
 
 
     .. attribute: x
@@ -80,6 +82,10 @@ class XAS(Spectrum):
         self.k = [np.sqrt((i-self.e0) / 3.8537) if i > self.e0 else
                   -np.sqrt((self.e0-i) / 3.8537) for i in self.x]
         self.absorbing_index = absorbing_index
+        # check for empty spectra and negative intensities
+        if sum(1 for i in self.y if i <= 0) / len(self.y) > 0.05:
+            raise ValueError("Please double check the intensities. "
+                             "Most of them are non-positive values. ")
 
     def __str__(self):
         return "%s %s Edge %s for %s: %s" % (
@@ -176,6 +182,7 @@ class XAS(Spectrum):
             mu_final = f_final(wavenumber_final)
             energy_final = [3.8537 * i ** 2 + xanes.e0 if i > 0 else
                             -3.8537 * i ** 2 + xanes.e0 for i in wavenumber_final]
+
             return XAS(energy_final, mu_final, self.structure,
                        self.absorbing_element, xanes.edge, "XAFS")
 
@@ -196,14 +203,21 @@ class XAS(Spectrum):
                     .format(l2_xanes.absorbing_element))
 
             l2_f = interp1d(
-                l2_xanes.x, l2_xanes.y, bounds_error=False, fill_value=0)
-            # will add value of l3.y[-1] to avoid sudden change in absorption coeff.
+                l2_xanes.x, l2_xanes.y, bounds_error=False,
+                fill_value="extrapolate", kind="cubic")
             l3_f = interp1d(
-                l3_xanes.x, l3_xanes.y, bounds_error=False,
-                fill_value=l3_xanes.y[-1])
-            energy = np.linspace(min(l3_xanes.x), max(l2_xanes.x),
-                                 num=num_samples)
-            mu = [i + j for i, j in zip(l2_f(energy), l3_f(energy))]
+                l3_xanes.x, l3_xanes.y, bounds_error=True,
+                fill_value=0, kind="cubic")
+            energy = list(np.linspace(min(l3_xanes.x), max(l3_xanes.x),
+                                      num=num_samples))
+            mu = [i + j for i, j in zip([0 if i < 0 else i for i in l2_f(energy)],
+                                        l3_f(energy))]
+            # check for jumps at the onset of L2-edge XANES
+            idx = energy.index(min(energy, key=lambda x: (abs(x - l2_xanes.x[0]))))
+            if abs(mu[idx] - mu[idx-1])/(mu[idx-1]) > 0.1:
+                warnings.warn("There might exist a jump at the L2 and "
+                              "L3-edge junction.", UserWarning)
+
             return XAS(energy, mu, self.structure, self.absorbing_element,
                        "L23", "XANES")
 
