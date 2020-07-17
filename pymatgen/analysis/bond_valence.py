@@ -7,23 +7,18 @@ This module implements classes to perform bond valence analyses.
 """
 
 import collections
-import numpy as np
 import operator
 import os
 import functools
 from math import exp, sqrt
+
+import numpy as np
+
 from monty.serialization import loadfn
 
 from pymatgen.core.periodic_table import Element, Specie
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.core.periodic_table import get_el_sp
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Oct 26, 2012"
 
 
 # Let's initialize some module level properties.
@@ -328,7 +323,7 @@ class BVAnalyzer:
                 # recurses to find permutations of valences based on whether a
                 # charge balanced assignment can still be found
                 if self._n > self.max_permutations:
-                    return
+                    return None
 
                 i = len(assigned)
                 highest = vmax.copy()
@@ -343,16 +338,16 @@ class BVAnalyzer:
 
                 if highest < 0 or lowest > 0:
                     self._n += 1
-                    return
+                    return None
 
                 if i == len(valences):
                     evaluate_assignment(assigned)
                     self._n += 1
-                    return
-                else:
-                    for v in valences[i]:
-                        new_assigned = list(assigned)
-                        _recurse(new_assigned + [v])
+                    return None
+                for v in valences[i]:
+                    new_assigned = list(assigned)
+                    _recurse(new_assigned + [v])
+                return None
         else:
             nsites = np.array([len(i) for i in equi_sites])
             tmp = []
@@ -403,7 +398,7 @@ class BVAnalyzer:
                 # recurses to find permutations of valences based on whether a
                 # charge balanced assignment can still be found
                 if self._n > self.max_permutations:
-                    return
+                    return None
 
                 i = len(assigned)
                 highest = vmax.copy()
@@ -421,16 +416,18 @@ class BVAnalyzer:
                 if (highest < -self.charge_neutrality_tolerance or
                         lowest > self.charge_neutrality_tolerance):
                     self._n += 1
-                    return
+                    return None
 
                 if i == len(new_valences):
                     evaluate_assignment(assigned)
                     self._n += 1
-                    return
-                else:
-                    for v in new_valences[i]:
-                        new_assigned = list(assigned)
-                        _recurse(new_assigned + [v])
+                    return None
+
+                for v in new_valences[i]:
+                    new_assigned = list(assigned)
+                    _recurse(new_assigned + [v])
+
+                return None
 
         _recurse()
 
@@ -442,21 +439,19 @@ class BVAnalyzer:
                         assigned[site] = val
 
                 return [int(assigned[site]) for site in structure]
-            else:
-                assigned = {}
-                new_best_vset = []
-                for ii in range(len(equi_sites)):
-                    new_best_vset.append(list())
-                for ival, val in enumerate(self._best_vset):
-                    new_best_vset[attrib[ival]].append(val)
-                for val, sites in zip(new_best_vset, equi_sites):
-                    for site in sites:
-                        assigned[site] = val
+            assigned = {}
+            new_best_vset = []
+            for ii in range(len(equi_sites)):
+                new_best_vset.append(list())
+            for ival, val in enumerate(self._best_vset):
+                new_best_vset[attrib[ival]].append(val)
+            for val, sites in zip(new_best_vset, equi_sites):
+                for site in sites:
+                    assigned[site] = val
 
-                return [[int(frac_site) for frac_site in assigned[site]]
-                        for site in structure]
-        else:
-            raise ValueError("Valences cannot be assigned!")
+            return [[int(frac_site) for frac_site in assigned[site]]
+                    for site in structure]
+        raise ValueError("Valences cannot be assigned!")
 
     def get_oxi_state_decorated_structure(self, structure):
         """
