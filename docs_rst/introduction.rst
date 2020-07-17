@@ -7,9 +7,9 @@
 Introduction
 ============
 
-.. image:: https://circleci.com/gh/materialsproject/pymatgen.svg?style=shield&circle-token=:circle-token
+.. image:: https://github.com/materialsproject/pymatgen/workflows/Testing%20-%20main/badge.svg
 
-.. image:: https://ci.appveyor.com/api/projects/status/akdyke5jxg6gps45?svg=true
+.. image:: https://github.com/materialsproject/pymatgen/workflows/Testing%20-%20analysis/badge.svg
 
 .. image:: https://anaconda.org/conda-forge/pymatgen/badges/downloads.svg
 
