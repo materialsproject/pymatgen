@@ -272,9 +272,8 @@ def site_weighted_spectrum(xas_list: List['XAS'], num_samples: int = 500) -> 'XA
     weighted_spectrum = np.zeros(num_samples)
     sum_multiplicities = sum(multiplicities)
 
-    for i in range(len(multiplicities)):
-        weighted_spectrum += (multiplicities[i] * fs[i](x_axis)) \
-                             / sum_multiplicities
+    for i, j in enumerate(multiplicities):
+        weighted_spectrum += (j * fs[i](x_axis)) / sum_multiplicities
 
     return XAS(x_axis, weighted_spectrum, ss, xas.absorbing_element, xas.edge,
                xas.spectrum_type)
