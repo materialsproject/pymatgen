@@ -1,6 +1,7 @@
 Change log
 ==========
 
-v2020.7.16
+v2020.7.18
 ----------
-* Bug fix for boltztrap2 spin support. (@fraricci)
+* Add validation and extrapolation for stitching XAS (@yimingcheng)
+* Better error handling and possibly verbose warning to get_structure_by_material_id
