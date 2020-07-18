@@ -1,8 +1,7 @@
 Change log
 ==========
 
-v2020.7.14
+v2020.7.18
 ----------
-* EwaldSummation is now MSONAble (@lbluque).
-* Fix for QChem freq parsing (@samblau)
-* Much improved linting and workflows.
+* Add validation and extrapolation for stitching XAS (@yimingcheng)
+* Better error handling and possibly verbose warning to get_structure_by_material_id

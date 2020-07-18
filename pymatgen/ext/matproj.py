@@ -537,6 +537,22 @@ class MPRester:
         """
         prop = "final_structure" if final else "initial_structure"
         data = self.get_data(material_id, prop=prop)
+        if not data:
+            try:
+                new_material_id = self.get_materials_id_from_task_id(material_id)
+                if new_material_id:
+                    warnings.warn("The calculation task {} is mapped to canonical mp-id {}, "
+                                  "so structure for {} returned. "
+                                  "This is not an error, see documentation. "
+                                  "If original task data for {} is required, "
+                                  "use get_task_data(). To find the canonical mp-id from a task id "
+                                  "use get_materials_id_from_task_id()."
+                                  .format(material_id, new_material_id, new_material_id, material_id))
+                return self.get_structure_by_material_id(new_material_id)
+            except MPRestError:
+                raise MPRestError("material_id {} unknown, if this seems like "
+                                  "an error please let us know at "
+                                  "matsci.org/materials-project".format(material_id))
         if conventional_unit_cell:
             data[0][prop] = SpacegroupAnalyzer(data[0][prop]). \
                 get_conventional_standard_structure()

@@ -114,7 +114,6 @@ class TransformedStructureTest(PymatgenTest):
         d = self.trans.as_dict()
         self.assertIn('last_modified', d)
         self.assertIn('history', d)
-        self.assertIn('version', d)
         self.assertIn('author', d['other_parameters'])
         self.assertEqual(Structure.from_dict(d).formula, 'Na4 Fe4 P4 O16')
 

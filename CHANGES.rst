@@ -1,6 +1,15 @@
 Change log
 ==========
 
+v2020.7.18
+----------
+* Add validation and extrapolation for stitching XAS (@yimingcheng)
+* Better error handling and possibly verbose warning to get_structure_by_material_id
+
+v2020.7.16
+----------
+* Bug fix for boltztrap2 spin support. (@fraricci)
+
 v2020.7.14
 ----------
 * EwaldSummation is now MSONAble (@lbluque).
