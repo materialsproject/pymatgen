@@ -11,18 +11,12 @@ import collections
 import itertools
 import math
 import logging
-<<<<<<< HEAD
-
-=======
->>>>>>> upstream/master
 from functools import lru_cache
 from monty.json import MSONable, MontyDecoder
 
 import numpy as np
 from scipy.spatial import ConvexHull
 from scipy.optimize import minimize
-
-from monty.json import MSONable, MontyDecoder
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element, DummySpecie, get_el_sp
@@ -525,7 +519,7 @@ class PhaseDiagram(MSONable):
             comp: A composition
 
         Returns:
-            Decomposition as a dict of {Entry: amount}
+            Decomposition as a dict of {Entry: amount of fractional composition}
         """
         facet, simplex = self._get_facet_and_simplex(comp)
         decomp_amts = simplex.bary_coords(self.pd_coords(comp))
@@ -561,7 +555,7 @@ class PhaseDiagram(MSONable):
         Returns:
             (decomp, energy above convex hull)  Stable entries should have
             energy above hull of 0. The decomposition is provided as a dict of
-            {Entry: amount}.
+            {Entry: amount of fractional composition}.
         """
         if entry in self.stable_entries:
             return {entry: 1}, 0
@@ -614,8 +608,6 @@ class PhaseDiagram(MSONable):
             return 0
         entries = [e for e in self.stable_entries if e != entry]
         modpd = PhaseDiagram(entries, self.elements)
-        # NOTE Comprhys: I have found examples where this doesn't give a
-        # decomposition that maintains the correct stoichiometry.
         return modpd.get_decomp_and_e_above_hull(entry, allow_negative=True)[1]
 
     def get_decomposition_energy(self, entry):
@@ -638,11 +630,12 @@ class PhaseDiagram(MSONable):
         if entry not in self.stable_entries:
             return self.get_e_above_hull(entry)
 
-        # Handle stable materials
+        # Handle stable elemental materials
         if entry.is_element:
             return 0
-        else:
-            return self.get_decomp_and_decomp_energy(entry)[1]
+
+        # Handle stable compounds
+        return self.get_decomp_and_decomp_energy(entry)[1]
 
     def get_decomp_and_decomp_energy(self, entry, space_limit=200):
         """
@@ -680,7 +673,7 @@ class PhaseDiagram(MSONable):
             competing_entries = list(self.stable_entries.union(inner_hull.stable_entries))
             competing_entries = [c for c in competing_entries if c != entry]
 
-        solution = self._decomp_solution(entry, competing_entries)
+        solution = _slsqp_decomp_solution(entry, competing_entries)
 
         if solution.success:
             decomp_amts = solution.x
@@ -698,68 +691,6 @@ class PhaseDiagram(MSONable):
         # Return empty dict and NaN if no valid solution found.
         # raise ValueError("No valid decomp found for {}!".format(entry))
         return {}, np.nan
-
-    def _decomp_solution(self, entry, competing_entries):
-        """
-
-        The algorithm is based on the work in the following paper:
-
-        1. Bartel, C., Trewartha, A., Wang, Q., Dunn, A., Jain, A., Ceder, G.,
-            A critical examination of compound stability predictions from
-            machine-learned formation energies, npj Computational Materials 6, 97 (2020)
-
-        Args:
-            entry (PDEntry) - the entry to analyze
-            competing_entries - the entries in the same chemical space
-
-        Returns:
-            scipy.optimize.minimize result
-                for finding the linear combination of competing entrys that
-                minimizes the competing formation energy
-        """
-        # elemental amount present in given entry
-        amts = entry.composition.get_el_amt_dict()
-        chemical_space = tuple(amts.keys())
-        b = np.array([amts[el] for el in chemical_space])
-
-        # elemental amounts present in competing entries
-        A_transpose = np.zeros((len(chemical_space), len(competing_entries)))
-        for j, comp_entry in enumerate(competing_entries):
-            amts = comp_entry.composition.get_el_amt_dict()
-            for i, el in enumerate(chemical_space):
-                A_transpose[i, j] = amts[el]
-
-        # energies of competing entries
-        Es = np.array([comp_entry.energy for comp_entry in competing_entries])
-
-        molar_constraint = {
-            "type": "eq",
-            "fun": lambda x: np.dot(A_transpose, x)-b,
-            "jac": lambda x: A_transpose
-        }
-
-        options = {
-            "maxiter": 1000,
-            "disp": False
-        }
-
-        max_bound = entry.composition.num_atoms
-        bounds = [(0, max_bound)] * len(competing_entries)
-        x0 = [1/len(competing_entries)] * len(competing_entries)
-
-        for tol in [1e-4, 1e-3, 5e-3, 1e-2]:
-            solution = minimize(fun=lambda x: np.dot(x, Es),
-                                x0=x0,
-                                method="SLSQP",
-                                jac=lambda x: Es,
-                                bounds=bounds,
-                                constraints=[molar_constraint],
-                                tol=tol,
-                                options=options)
-            if solution.success:
-                return solution
-
-        return solution
 
     def get_composition_chempots(self, comp):
         """
@@ -1461,6 +1392,68 @@ def get_facets(qhull_data, joggle=False):
     if joggle:
         return ConvexHull(qhull_data, qhull_options="QJ i").simplices
     return ConvexHull(qhull_data, qhull_options="Qt i").simplices
+
+
+def _slsqp_decomp_solution(entry, competing_entries):
+    """
+    The algorithm is based on the work in the following paper:
+
+    1. Bartel, C., Trewartha, A., Wang, Q., Dunn, A., Jain, A., Ceder, G.,
+        A critical examination of compound stability predictions from
+        machine-learned formation energies, npj Computational Materials 6, 97 (2020)
+
+    Args:
+        entry (PDEntry) - the entry to analyze
+        competing_entries - the entries in the same chemical space
+
+    Returns:
+        scipy.optimize.minimize result
+            for finding the linear combination of competing entrys that
+            minimizes the competing formation energy
+    """
+    # elemental amount present in given entry
+    amts = entry.composition.get_el_amt_dict()
+    chemical_space = tuple(amts.keys())
+    b = np.array([amts[el] for el in chemical_space])
+
+    # elemental amounts present in competing entries
+    A_transpose = np.zeros((len(chemical_space), len(competing_entries)))
+    for j, comp_entry in enumerate(competing_entries):
+        amts = comp_entry.composition.get_el_amt_dict()
+        for i, el in enumerate(chemical_space):
+            A_transpose[i, j] = amts[el]
+
+    # energies of competing entries
+    Es = np.array([comp_entry.energy for comp_entry in competing_entries])
+
+    molar_constraint = {
+        "type": "eq",
+        "fun": lambda x: np.dot(A_transpose, x)-b,
+        "jac": lambda x: A_transpose
+    }
+
+    options = {
+        "maxiter": 1000,
+        "disp": False
+    }
+
+    max_bound = entry.composition.num_atoms
+    bounds = [(0, max_bound)] * len(competing_entries)
+    x0 = [1/len(competing_entries)] * len(competing_entries)
+
+    for tol in [1e-4, 1e-3, 5e-3, 1e-2]:
+        solution = minimize(fun=lambda x: np.dot(x, Es),
+                            x0=x0,
+                            method="SLSQP",
+                            jac=lambda x: Es,
+                            bounds=bounds,
+                            constraints=[molar_constraint],
+                            tol=tol,
+                            options=options)
+        if solution.success:
+            return solution
+
+    return solution
 
 
 class PDPlotter:
