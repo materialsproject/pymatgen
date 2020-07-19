@@ -7,7 +7,7 @@ import unittest
 import os
 
 from pymatgen.io.vasp.inputs import Poscar
-import pymatgen.io.jarvisio as jio
+import pymatgen.io.jarvis as jio
 
 test_dir = os.path.join(
     os.path.dirname(__file__), "..", "..", "..", "test_files"

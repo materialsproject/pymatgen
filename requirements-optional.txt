@@ -10,4 +10,4 @@ BoltzTraP2==20.2.1
 f90nml==1.1.2
 hiphive==0.6
 seekpath==1.9.4
-jarvis-tools
+jarvis-tools==2020.7.14
