@@ -8,7 +8,7 @@ jobs:
     strategy:
       max-parallel: 4
       matrix:
-        python-version: [3.7]
+        python-version: [3.8]
 
     steps:
     - uses: actions/checkout@v2
@@ -21,25 +21,25 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-    - name: Lint with pycodestyle
+    - name: pycodestyle
       run: |
         pip install pycodestyle --upgrade --quiet
         pycodestyle pymatgen
-    - name: Lint with mypy
+    - name: mypy
       run: |
         pip install mypy --upgrade --quiet
         mypy pymatgen
-    - name: Lint with flake8
+    - name: flake8
       run: |
         pip install flake8 --upgrade --quiet
         flake8 --count --show-source --statistics pymatgen
         # exit-zero treats all errors as warnings.
         flake8 --count --exit-zero --max-complexity=20 --statistics pymatgen
-    - name: Lint with pydocstyle
+    - name: pydocstyle
       run: |
         pip install pydocstyle --upgrade --quiet
         pydocstyle --count pymatgen
-    - name: Lint with pylint
+    - name: pylint
       run: |
         pip install pylint --upgrade --quiet
         source pylint_mod.sh
