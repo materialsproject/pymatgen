@@ -201,9 +201,9 @@ class VampireCaller:
                         mat_id_dict[site] = nmats
                     if m < 0 and m0 < 0:
                         mat_id_dict[site] = nmats
-                    if m > 0 and m0 < 0:
+                    if m > 0 > m0:
                         mat_id_dict[site] = nmats + 1
-                    if m < 0 and m0 > 0:
+                    if m < 0 < m0:
                         mat_id_dict[site] = nmats + 1
 
             # Increment index if two sublattices

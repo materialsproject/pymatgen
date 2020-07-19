@@ -22,6 +22,7 @@ import collections
 from typing import Optional, Tuple, List
 
 import numpy as np
+from scipy.interpolate import RegularGridInterpolator
 from monty.io import zopen, reverse_readfile
 from monty.json import MSONable
 from monty.json import jsanitize
@@ -1950,15 +1951,21 @@ class Outcar:
                     plasma_frequencies[read_plasma].append(
                         Outcar._parse_sci_notation(l))
                 elif read_dielectric:
+                    toks = None
                     if re.match(row_pattern, l.strip()):
                         toks = l.strip().split()
+                    elif Outcar._parse_sci_notation(l.strip()):
+                        toks = Outcar._parse_sci_notation(l.strip())
+                    elif re.match(r"\s*-+\s*", l):
+                        count += 1
+
+                    if toks:
                         if component == "IMAGINARY":
                             energies.append(float(toks[0]))
                         xx, yy, zz, xy, yz, xz = [float(t) for t in toks[1:]]
                         matrix = [[xx, xy, xz], [xy, yy, yz], [xz, yz, zz]]
                         data[component].append(matrix)
-                    elif re.match(r"\s*-+\s*", l):
-                        count += 1
+
                     if count == 2:
                         component = "REAL"
                     elif count == 3:
@@ -2165,7 +2172,7 @@ class Outcar:
         # therefore regex assumes f, but filter out None values if d
 
         header_pattern = r"spin component  1\n"
-        row_pattern = r'[^\S\r\n]*(?:([\d.-]+))' + r'(?:[^\S\r\n]*(-?[\d.]+)[^\S\r\n]*)?' * 6 + r'.*?'
+        row_pattern = r'[^\S\r\n]*(?:(-?[\d.]+))' + r'(?:[^\S\r\n]*(-?[\d.]+)[^\S\r\n]*)?' * 6 + r'.*?'
         footer_pattern = r"\nspin component  2"
         spin1_component = self.read_table_pattern(header_pattern, row_pattern,
                                                   footer_pattern, postprocess=lambda x: float(x) if x else None,
@@ -2949,6 +2956,11 @@ class VolumetricData(MSONable):
         # lazy init the spin data since this is not always needed.
         self._spin_data = {}
         self._distance_matrix = {} if not distance_matrix else distance_matrix
+        self.xpoints = np.linspace(0.0, 1.0, num=self.dim[0])
+        self.ypoints = np.linspace(0.0, 1.0, num=self.dim[1])
+        self.zpoints = np.linspace(0.0, 1.0, num=self.dim[2])
+        self.interpolator = RegularGridInterpolator((self.xpoints, self.ypoints, self.zpoints), 
+                                                    self.data['total'], bounds_error=True)
 
     @property
     def spin_data(self):
@@ -3197,6 +3209,45 @@ class VolumetricData(MSONable):
                 write_spin("diff_z")
             elif self.is_spin_polarized:
                 write_spin("diff")
+
+    def value_at(self, x, y, z):
+        """
+        Get a data value from self.data at a given point (x, y, z) in terms 
+        of fractional lattice parameters. Will be interpolated using a 
+        RegularGridInterpolator on self.data if (x, y, z) is not in the original 
+        set of data points.
+
+        Args:
+            x (float): Fraction of lattice vector a.
+            y (float): Fraction of lattice vector b.
+            z (float): Fraction of lattice vector c.
+
+        Returns:
+            Value from self.data (potentially interpolated) correspondisng to 
+            the point (x, y, z).
+        """
+        return self.interpolator([x, y, z])[0]
+
+    def linear_slice(self, p1, p2, n=100):
+        """
+        Get a linear slice of the volumetric data with n data points from
+        point p1 to point p2, in the form of a list.
+
+        Args:
+            p1 (list): 3-element list containing fractional coordinates of the first point.
+            p2 (list): 3-element list containing fractional coordinates of the second point.
+            n (int): Number of data points to collect, defaults to 100.
+
+        Returns:
+            List of n data points (mostly interpolated) representing a linear slice of the 
+            data from point p1 to point p2.
+        """
+        assert type(p1) in [list, np.ndarray] and type(p2) in [list, np.ndarray]
+        assert len(p1) == 3 and len(p2) == 3
+        xpts = np.linspace(p1[0], p2[0], num=n)
+        ypts = np.linspace(p1[1], p2[1], num=n)
+        zpts = np.linspace(p1[2], p2[2], num=n)
+        return [self.value_at(xpts[i], ypts[i], zpts[i]) for i in range(n)]
 
     def get_integrated_diff(self, ind, radius, nbins=1):
         """

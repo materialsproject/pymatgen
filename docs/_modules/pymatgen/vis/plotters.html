@@ -1,19 +1,19 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.vis.plotters &#8212; pymatgen 2020.3.2 documentation</title>
-    <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.vis.plotters &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../../_static/language_data.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
  
@@ -33,15 +33,15 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.vis.plotters</a></li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
-        <div class="bodywrapper">
           <div class="body" role="main">
             
   <h1>Source code for pymatgen.vis.plotters</h1><div class="highlight"><pre>
@@ -49,20 +49,13 @@
 <span class="c1"># Copyright (c) Pymatgen Development Team.</span>
 <span class="c1"># Distributed under the terms of the MIT License.</span>
 
-<span class="kn">import</span> <span class="nn">collections</span>
-<span class="kn">import</span> <span class="nn">importlib</span>
-<span class="kn">from</span> <span class="nn">pymatgen.util.plotting</span> <span class="k">import</span> <span class="n">pretty_plot</span>
-
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">This module defines generic plotters.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
-<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2011, The Materials Project&quot;</span>
-<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;1.0&quot;</span>
-<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
-<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;shyuep@gmail.com&quot;</span>
-<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;May 10 2018&quot;</span>
+<span class="kn">import</span> <span class="nn">collections</span>
+<span class="kn">import</span> <span class="nn">importlib</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.plotting</span> <span class="kn">import</span> <span class="n">pretty_plot</span>
 
 
 <div class="viewcode-block" id="SpectrumPlotter"><a class="viewcode-back" href="../../../pymatgen.vis.plotters.html#pymatgen.vis.plotters.SpectrumPlotter">[docs]</a><span class="k">class</span> <span class="nc">SpectrumPlotter</span><span class="p">:</span>
@@ -81,24 +74,25 @@
 <span class="sd">        # Alternatively, you can add a dict of DOSs. This is the typical</span>
 <span class="sd">        # form returned by CompleteDos.get_spd/element/others_dos().</span>
 <span class="sd">        plotter.add_spectra({&quot;dos1&quot;: dos1, &quot;dos2&quot;: dos2})</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        xshift (float): A shift that is applied to the x values. This is</span>
-<span class="sd">            commonly used to shift to an arbitrary zero. E.g., zeroing at the</span>
-<span class="sd">            Fermi energy in DOS, or at the absorption edge in XAS spectra. The</span>
-<span class="sd">            same xshift is applied to all spectra.</span>
-<span class="sd">        yshift (float): A shift that is applied to the y values. This is</span>
-<span class="sd">            commonly used to displace spectra for easier visualization.</span>
-<span class="sd">            Successive spectra are applied successive shifts.</span>
-<span class="sd">        stack (bool): Whether to stack plots rather than simply plot them.</span>
-<span class="sd">            For example, DOS plot can usually be stacked to look at the</span>
-<span class="sd">            contribution of each orbital.</span>
-<span class="sd">        color_cycle (str): Default color cycle to use. Note that this can be</span>
-<span class="sd">            overridden</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xshift</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">yshift</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">stack</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xshift</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">yshift</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">stack</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">color_cycle</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;qualitative&quot;</span><span class="p">,</span> <span class="s2">&quot;Set1_9&quot;</span><span class="p">)):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            xshift (float): A shift that is applied to the x values. This is</span>
+<span class="sd">                commonly used to shift to an arbitrary zero. E.g., zeroing at the</span>
+<span class="sd">                Fermi energy in DOS, or at the absorption edge in XAS spectra. The</span>
+<span class="sd">                same xshift is applied to all spectra.</span>
+<span class="sd">            yshift (float): A shift that is applied to the y values. This is</span>
+<span class="sd">                commonly used to displace spectra for easier visualization.</span>
+<span class="sd">                Successive spectra are applied successive shifts.</span>
+<span class="sd">            stack (bool): Whether to stack plots rather than simply plot them.</span>
+<span class="sd">                For example, DOS plot can usually be stacked to look at the</span>
+<span class="sd">                contribution of each orbital.</span>
+<span class="sd">            color_cycle (str): Default color cycle to use. Note that this can be</span>
+<span class="sd">                overridden</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">xshift</span> <span class="o">=</span> <span class="n">xshift</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">yshift</span> <span class="o">=</span> <span class="n">yshift</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">stack</span> <span class="o">=</span> <span class="n">stack</span>
@@ -198,22 +192,8 @@
         <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div></div>
 </pre></div>
 
+            <div class="clearer"></div>
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
       </div>
       <div class="clearer"></div>
     </div>
@@ -226,15 +206,16 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.vis.plotters</a></li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

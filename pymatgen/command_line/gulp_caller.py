@@ -81,7 +81,8 @@ class GulpIO:
     To generate GULP input and process output
     """
 
-    def keyword_line(self, *args):
+    @staticmethod
+    def keyword_line(*args):
         r"""
         Checks if the input args are proper gulp keywords and
         generates the 1st line of gulp input. Full keywords are expected.
@@ -95,7 +96,8 @@ class GulpIO:
         gin += "\n"
         return gin
 
-    def structure_lines(self, structure, cell_flg=True, frac_flg=True,
+    @staticmethod
+    def structure_lines(structure, cell_flg=True, frac_flg=True,
                         anion_shell_flg=True, cation_shell_flg=False,
                         symm_flg=True):
         """
@@ -154,7 +156,8 @@ class GulpIO:
             gin += str(SpacegroupAnalyzer(structure).get_space_group_number()) + "\n"
         return gin
 
-    def specie_potential_lines(self, structure, potential, **kwargs):
+    @staticmethod
+    def specie_potential_lines(structure, potential, **kwargs):
         r"""
         Generates GULP input specie and potential string for pymatgen
         structure.
@@ -180,7 +183,8 @@ class GulpIO:
         raise NotImplementedError("gulp_specie_potential not yet implemented."
                                   "\nUse library_line instead")
 
-    def library_line(self, file_name):
+    @staticmethod
+    def library_line(file_name):
         """
         Specifies GULP library file to read species and potential parameters.
         If using library don't specify species and potential
@@ -212,8 +216,7 @@ class GulpIO:
                     gin = 'library ' + file_name
         if gin:
             return gin + "\n"
-        else:
-            raise GulpError('GULP Library not found')
+        raise GulpError('GULP Library not found')
 
     def buckingham_input(self, structure, keywords, library=None,
                          uc=True, valence_dict=None):
@@ -236,7 +239,8 @@ class GulpIO:
             gin += self.library_line(library)
         return gin
 
-    def buckingham_potential(self, structure, val_dict=None):
+    @staticmethod
+    def buckingham_potential(structure, val_dict=None):
         """
         Generate species, buckingham, and spring options for an oxide structure
         using the parameters in default libraries.
@@ -328,7 +332,8 @@ class GulpIO:
         gin += self.tersoff_potential(structure)
         return gin
 
-    def tersoff_potential(self, structure):
+    @staticmethod
+    def tersoff_potential(structure):
         """
         Generate the species, tersoff potential lines for an oxide structure
 
@@ -361,7 +366,8 @@ class GulpIO:
         gin += qerfstring
         return gin
 
-    def get_energy(self, gout):
+    @staticmethod
+    def get_energy(gout):
         """
         Args:
             gout ():
@@ -377,10 +383,10 @@ class GulpIO:
                 energy = line.split()
         if energy:
             return float(energy[4])
-        else:
-            raise GulpError("Energy not found in Gulp output")
+        raise GulpError("Energy not found in Gulp output")
 
-    def get_relaxed_structure(self, gout):
+    @staticmethod
+    def get_relaxed_structure(gout):
         """
         Args:
             gout ():
@@ -410,7 +416,7 @@ class GulpIO:
                 gamma = float(line.split()[11])
                 i += 3
                 break
-            elif "Cell parameters" in line:
+            if "Cell parameters" in line:
                 i += 2
                 line = output_lines[i]
                 a = float(line.split()[2])
@@ -423,8 +429,7 @@ class GulpIO:
                 gamma = float(line.split()[5])
                 i += 3
                 break
-            else:
-                i += 1
+            i += 1
 
         while i < no_lines:
             line = output_lines[i]
@@ -446,8 +451,7 @@ class GulpIO:
                         cell_param_lines.append(line)
 
                 break
-            else:
-                i += 1
+            i += 1
 
         # Process the structure lines
         if structure_lines:
