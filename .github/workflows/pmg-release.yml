@@ -34,7 +34,7 @@ jobs:
     - name: pycodestyle
       run: |
         pycodestyle pymatgen
-    - name: Lint with mypy
+    - name: mypy
       run: |
         mypy pymatgen
     - name: flake8
