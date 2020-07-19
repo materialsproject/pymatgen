@@ -55,6 +55,8 @@ jobs:
       env:
         TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
         TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
+        PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
+        MPLBACKEND: "Agg"
       run: |
         pip install setuptools wheel twine
         python setup.py sdist bdist_wheel
