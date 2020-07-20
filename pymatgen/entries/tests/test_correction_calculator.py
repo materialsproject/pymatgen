@@ -6,6 +6,7 @@ from pymatgen.entries.corrections_calc import CorrectionCalculator
 
 class CorrectionCalculatorTest(unittest.TestCase):
     def setUp(self):
+        
         self.normal_corrections = {
             "oxide": (-0.738, 0.0017),
             "peroxide": (-0.466, 0.0186),
@@ -57,28 +58,28 @@ class CorrectionCalculatorTest(unittest.TestCase):
         }
 
         self.no_uncertainties_corrections = {
-            "oxide": (-0.744, 0.0193),
-            "peroxide": (-0.466, 0.0478),
-            "superoxide": (-0.155, 0.0529),
-            "sulfide": (-0.638, 0.0375),
-            "F": (-0.436, 0.02),
-            "Cl": (-0.517, 0.0258),
-            "Br": (-0.436, 0.0285),
-            "I": (-0.315, 0.0338),
-            "N": (-0.357, 0.0599),
-            "Se": (-0.361, 0.053),
-            "Si": (-0.439, 0.1017),
-            "Sb": (-0.286, 0.0753),
-            "Te": (-0.438, 0.063),
-            "V": (-1.66, 0.0759),
-            "Cr": (-1.85, 0.0679),
-            "Mn": (-1.589, 0.0689),
-            "Fe": (-2.165, 0.0606),
-            "Co": (-1.563, 0.0771),
-            "Ni": (-2.516, 0.0961),
-            "W": (-4.574, 0.1199),
-            "Mo": (-3.05, 0.1085),
-            "H": (-0.151, 0.0323),
+            'oxide': (-0.744, 0.0194),
+            'peroxide': (-0.466, 0.0481),
+            'superoxide': (-0.155, 0.0534),
+            'sulfide': (-0.638, 0.0378),
+            'F': (-0.436, 0.0202),
+            'Cl': (-0.517, 0.026),
+            'Br': (-0.436, 0.0287),
+            'I': (-0.29, 0.032),
+            'N': (-0.357, 0.0604),
+            'Se': (-0.361, 0.0534),
+            'Si': (-0.439, 0.1025),
+            'Sb': (-0.286, 0.0759),
+            'Te': (-0.457, 0.0513),
+            'V': (-1.66, 0.0765),
+            'Cr': (-1.85, 0.0684),
+            'Mn': (-1.589, 0.0695),
+            'Fe': (-2.165, 0.061),
+            'Co': (-1.563, 0.0777),
+            'Ni': (-2.516, 0.0969),
+            'W': (-4.574, 0.1209),
+            'Mo': (-3.05, 0.1094),
+            'H': (-0.137, 0.0307)
         }
 
         self.test_dir = os.path.join(
@@ -101,8 +102,8 @@ class CorrectionCalculatorTest(unittest.TestCase):
         exp_path = os.path.join(self.test_dir, "exp_compounds_norm.gz")
         calc_path = os.path.join(self.test_dir, "calc_compounds_norm.gz")
 
-        calculator = CorrectionCalculator(exp_path, calc_path)
-        corrs = calculator.compute_corrections()
+        calculator = CorrectionCalculator()
+        corrs = calculator.compute_from_files(exp_path, calc_path)
 
         self.assertDictEqual(corrs, self.normal_corrections)
 
@@ -114,10 +115,8 @@ class CorrectionCalculatorTest(unittest.TestCase):
         exp_path = os.path.join(self.test_dir, "exp_compounds_norm.gz")
         calc_path = os.path.join(self.test_dir, "calc_compounds_norm.gz")
 
-        calculator = CorrectionCalculator(exp_path, calc_path)
-        corrs = calculator.compute_corrections(
-            allow_polyanions=True, allow_large_errors=True, allow_unstable=True
-        )
+        calculator = CorrectionCalculator(max_error = 1, allow_polyanions=True, allow_unstable=True)
+        corrs = calculator.compute_from_files(exp_path, calc_path)
 
         self.assertDictEqual(corrs, self.warnings_allowed_corrections)
 
@@ -129,8 +128,8 @@ class CorrectionCalculatorTest(unittest.TestCase):
         exp_path = os.path.join(self.test_dir, "exp_no_error_compounds.gz")
         calc_path = os.path.join(self.test_dir, "calc_compounds_norm.gz")
 
-        calculator = CorrectionCalculator(exp_path, calc_path)
-        corrs = calculator.compute_corrections()
+        calculator = CorrectionCalculator()
+        corrs = calculator.compute_from_files(exp_path, calc_path)
 
         self.assertDictEqual(corrs, self.no_uncertainties_corrections)
 
@@ -142,8 +141,9 @@ class CorrectionCalculatorTest(unittest.TestCase):
         exp_path = os.path.join(self.test_dir, "exp_compounds_norm.gz")
         calc_path = os.path.join(self.test_dir, "calc_missing_compounds.gz")
 
-        calculator = CorrectionCalculator(exp_path, calc_path)
-        self.assertRaises(ValueError, calculator.compute_corrections)
+        calculator = CorrectionCalculator()
+        with self.assertRaises(ValueError):
+            calculator.compute_from_files(exp_path, calc_path)
 
 
 if __name__ == "__main__":

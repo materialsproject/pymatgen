@@ -67,24 +67,22 @@ class CorrectionCalculator:
         "H",
     ]  # species that we're fitting corrections for
 
-    def __init__(self, exp_gz: str, comp_gz: str) -> None:
+    def __init__(self, max_error: float = 0.1, allow_unstable: bool = False, allow_polyanions: bool = False) -> None:
 
         """
         Initializes a CorrectionCalculator.
 
         Args:
-            exp_gz: name of gzip file that contains experimental data
-                    data in gzip file should be a list of dictionary objects with the following keys/values:
-                    {"formula": chemical formula, "exp energy": formation energy in eV/formula unit,
-                    "uncertainty": uncertainty in formation energy, "warnings": {"polyanion": str describing
-                    polyanions in compound or None, "large_uncertainty": str describing if compound has a large
-                    uncertainty value or None, "unstable": str describing if compound has high e above hull or None}}
-            comp_gz: name of gzip file that contains computed entries
-                    data in gzip file should be a dictionary of {chemical formula: ComputedEntry}
+            max_error: maximum tolerable relative uncertainty in experimental energy
+            allow_unstable: whether unstable entries are to be included in the fit
+            allow_polyanions: whether entries with problematic are to be included in the fit
+
         """
 
-        self.exp_compounds = loadfn(exp_gz)  # experimental data
-        self.calc_compounds = loadfn(comp_gz)  # computed entries
+        self.max_error = max_error
+        self.allow_unstable = allow_unstable
+        self.allow_polyanions = allow_polyanions
+
         self.corrections: List[float] = []
         self.corrections_std_error: List[float] = []
         self.corrections_dict: Dict[
@@ -97,27 +95,44 @@ class CorrectionCalculator:
         self.superoxides: List[str] = []
         self.sulfides: List[str] = []
 
+    def compute_from_files(self, exp_gz: str, comp_gz: str):
+
+        """
+        Args:
+            exp_gz: name of gzip file that contains experimental data
+                    data in gzip file should be a list of dictionary objects with the following keys/values:
+                    {"formula": chemical formula, "exp energy": formation energy in eV/formula unit,
+                    "uncertainty": uncertainty in formation energy}
+            comp_gz: name of gzip file that contains computed entries
+                    data in gzip file should be a dictionary of {chemical formula: ComputedEntry}
+        """
+
+        exp_entries = loadfn(exp_gz)
+        calc_entries = loadfn(comp_gz)
+
+        return self.compute_corrections(exp_entries, calc_entries)
+
     def compute_corrections(
         self,
-        allow_polyanions: bool = False,
-        allow_large_errors: bool = False,
-        allow_unstable: bool = False,
+        exp_entries: list,
+        calc_entries: dict
     ) -> dict:
 
         """
         Computes the corrections and fills in correction, corrections_std_error, and corrections_dict.
 
         Args:
-            allow_polyanions: optional variable, boolean controlling whether compounds with problematic polyanions
-                will be included in the fit
-            allow_large_errors: optional variable, boolean controlling whether compounds with large experimental
-                uncertainties will be included in the fit
-            allow_unstable: optional variable, boolean controlling whether unstable compounds with large e_above_hull
-                will be included in the fit
+            exp_entries: list of dictionary objects with the following keys/values:
+                    {"formula": chemical formula, "exp energy": formation energy in eV/formula unit,
+                    "uncertainty": uncertainty in formation energy}
+            calc_entries: dictionary of computed entries, of the form {chemical formula: ComputedEntry}
 
         Raises:
             ValueError: calc_compounds is missing an entry
         """
+
+        self.exp_compounds = exp_entries
+        self.calc_compounds = calc_entries
 
         self.names: List[str] = []
         self.diffs: List[float] = []
@@ -133,20 +148,37 @@ class CorrectionCalculator:
             # to get consistent element ordering in formula
             name = Composition(cmpd_info["formula"]).reduced_formula
 
-            warnings = cmpd_info["warnings"]
+            allow = True
 
-            if allow_polyanions:
-                warnings.pop("polyanion", None)
-            if allow_large_errors:
-                warnings.pop("large_uncertainty", None)
-            if allow_unstable:
-                warnings.pop("unstable", None)
+            compound = self.calc_compounds.get(name, None)
+            if not compound:
+                w.warn("Compound {} is not found in provided computed entries and is excluded from the fit".format(name))
+                continue
 
-            if name in self.calc_compounds and not warnings:
+            relative_uncertainty = abs(cmpd_info['uncertainty']/cmpd_info['exp energy'])
+            if relative_uncertainty > self.max_error:
+                allow = False
+                w.warn("Compound {} is excluded from the fit due to high experimental uncertainty ({}%)".format(name, relative_uncertainty))
+
+            if not self.allow_polyanions:
+                for anion in ['SO4', 'CO3', 'NO3', 'OCl3', 'SiO4', 'SeO3', 'TiO3', 'TiO4']:
+                    if anion in name or anion in cmpd_info['formula']:
+                        allow = False
+                        w.warn("Compound {} contains the polyanion {} and is excluded from the fit".format(name, anion))
+                        break
+
+            if not self.allow_unstable:
+                try:
+                    eah = compound.data['e_above_hull']
+                except KeyError:
+                    raise ValueError("Missing e above hull data")
+                if eah > 0.1: # unstable if e_above_hull is greater than 100 meV/atom
+                    allow = False
+                    w.warn("Compound {} is unstable and excluded from the fit (e_above_hull = {})".format(name, eah))
+
+            if allow:
                 comp = Composition(name)
                 elems = list(comp.as_dict())
-
-                compound = self.calc_compounds[name]
 
                 reactants = []
                 for elem in elems:
