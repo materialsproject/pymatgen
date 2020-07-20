@@ -67,7 +67,12 @@ class CorrectionCalculator:
         "H",
     ]  # species that we're fitting corrections for
 
-    def __init__(self, max_error: float = 0.1, allow_unstable: bool = False, allow_polyanions: bool = False) -> None:
+    def __init__(
+        self,
+        max_error: float = 0.1,
+        allow_unstable: bool = False,
+        allow_polyanions: bool = False,
+    ) -> None:
 
         """
         Initializes a CorrectionCalculator.
@@ -112,11 +117,7 @@ class CorrectionCalculator:
 
         return self.compute_corrections(exp_entries, calc_entries)
 
-    def compute_corrections(
-        self,
-        exp_entries: list,
-        calc_entries: dict
-    ) -> dict:
+    def compute_corrections(self, exp_entries: list, calc_entries: dict) -> dict:
 
         """
         Computes the corrections and fills in correction, corrections_std_error, and corrections_dict.
@@ -152,29 +153,56 @@ class CorrectionCalculator:
 
             compound = self.calc_compounds.get(name, None)
             if not compound:
-                w.warn("Compound {} is not found in provided computed entries and is excluded from the fit".format(name))
+                w.warn(
+                    "Compound {} is not found in provided computed entries and is excluded from the fit".format(
+                        name
+                    )
+                )
                 continue
 
-            relative_uncertainty = abs(cmpd_info['uncertainty']/cmpd_info['exp energy'])
+            relative_uncertainty = abs(
+                cmpd_info["uncertainty"] / cmpd_info["exp energy"]
+            )
             if relative_uncertainty > self.max_error:
                 allow = False
-                w.warn("Compound {} is excluded from the fit due to high experimental uncertainty ({}%)".format(name, relative_uncertainty))
+                w.warn(
+                    "Compound {} is excluded from the fit due to high experimental uncertainty ({}%)".format(
+                        name, relative_uncertainty
+                    )
+                )
 
             if not self.allow_polyanions:
-                for anion in ['SO4', 'CO3', 'NO3', 'OCl3', 'SiO4', 'SeO3', 'TiO3', 'TiO4']:
-                    if anion in name or anion in cmpd_info['formula']:
+                for anion in [
+                    "SO4",
+                    "CO3",
+                    "NO3",
+                    "OCl3",
+                    "SiO4",
+                    "SeO3",
+                    "TiO3",
+                    "TiO4",
+                ]:
+                    if anion in name or anion in cmpd_info["formula"]:
                         allow = False
-                        w.warn("Compound {} contains the polyanion {} and is excluded from the fit".format(name, anion))
+                        w.warn(
+                            "Compound {} contains the polyanion {} and is excluded from the fit".format(
+                                name, anion
+                            )
+                        )
                         break
 
             if not self.allow_unstable:
                 try:
-                    eah = compound.data['e_above_hull']
+                    eah = compound.data["e_above_hull"]
                 except KeyError:
                     raise ValueError("Missing e above hull data")
-                if eah > 0.1: # unstable if e_above_hull is greater than 100 meV/atom
+                if eah > 0.1:  # unstable if e_above_hull is greater than 100 meV/atom
                     allow = False
-                    w.warn("Compound {} is unstable and excluded from the fit (e_above_hull = {})".format(name, eah))
+                    w.warn(
+                        "Compound {} is unstable and excluded from the fit (e_above_hull = {})".format(
+                            name, eah
+                        )
+                    )
 
             if allow:
                 comp = Composition(name)
