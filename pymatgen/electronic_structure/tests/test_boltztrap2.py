@@ -158,11 +158,11 @@ class BztInterpolatorTest(unittest.TestCase):
         self.assertIsNotNone(self.bztInterp)
         self.bztInterp = BztInterpolator(self.loader,
                                          lpfac=2,
-                                         save_coeffs=True,
+                                         save_bztInterp=True,
                                          fname=bztinterp_fn)
         self.assertIsNotNone(self.bztInterp)
         self.bztInterp = BztInterpolator(self.loader,
-                                         load_bztinterp=True,
+                                         load_bztInterp=True,
                                          fname=bztinterp_fn)
         self.assertIsNotNone(self.bztInterp)
 
@@ -173,12 +173,12 @@ class BztInterpolatorTest(unittest.TestCase):
         self.assertIsNotNone(self.bztInterp_sp)
         self.bztInterp_sp = BztInterpolator(self.loader_sp,
                                             lpfac=2,
-                                            save_coeffs=True,
+                                            save_bztInterp=True,
                                             fname=bztinterp_fn)
         self.assertIsNotNone(self.bztInterp_sp)
         self.bztInterp_sp = BztInterpolator(self.loader_sp,
                                             lpfac=2,
-                                            load_bztinterp=True,
+                                            load_bztInterp=True,
                                             fname=bztinterp_fn)
         self.assertIsNotNone(self.bztInterp_sp)
 
@@ -260,15 +260,13 @@ class BztTransportPropertiesTest(unittest.TestCase):
         loader = VasprunBSLoader(vrun)
         bztInterp = BztInterpolator(loader, lpfac=2)
         self.bztTransp = BztTransportProperties(bztInterp,
-                                                temp_r=np.arange(
-                                                    300, 600, 100))
+                                                temp_r=np.arange(300, 600, 100))
         self.assertIsNotNone(self.bztTransp)
         warnings.simplefilter("ignore")
 
         self.bztTransp = BztTransportProperties(bztInterp,
                                                 doping=10.**np.arange(20, 22),
-                                                temp_r=np.arange(
-                                                    300, 600, 100))
+                                                temp_r=np.arange(300, 600, 100))
         self.assertIsNotNone(self.bztTransp)
         self.assertEqual(self.bztTransp.contain_props_doping, True)
 

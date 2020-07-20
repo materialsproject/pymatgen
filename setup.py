@@ -19,6 +19,7 @@ class build_ext(_build_ext):
         # Prevent numpy from thinking it is still in its setup process:
         import builtins
         if hasattr(builtins, '__NUMPY_SETUP__'):
+            # pylint: disable=E1101
             del builtins.__NUMPY_SETUP__
         import importlib
         import numpy
@@ -101,12 +102,12 @@ who require Python 2.7 should install pymatgen v2018.x.
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="2020.6.8",
+    version="2020.7.18",
     cmdclass={'build_ext': build_ext},
     setup_requires=['numpy>=1.14.3', 'setuptools>=18.0'],
     python_requires='>=3.6',
     install_requires=["numpy>=1.14.3", "requests", "ruamel.yaml>=0.15.6",
-                      "monty>=3.0.2", "scipy>=1.0.1",
+                      "monty>=3.0.2", "scipy>=1.5.0",
                       "tabulate", "spglib>=1.9.9.44", "networkx>=2.2",
                       "matplotlib>=1.5", "palettable>=3.1.1", "sympy", "pandas",
                       "plotly>=4.5.0"],
@@ -168,25 +169,27 @@ setup(
         "Topic :: Scientific/Engineering :: Chemistry",
         "Topic :: Software Development :: Libraries :: Python Modules"
     ],
-    ext_modules=[Extension("pymatgen.optimization.linear_assignment",
-                           ["pymatgen/optimization/linear_assignment.c"],
-                           extra_link_args=extra_link_args),
-                 Extension("pymatgen.util.coord_cython",
-                           ["pymatgen/util/coord_cython.c"],
-                           extra_link_args=extra_link_args),
-                 Extension("pymatgen.optimization.neighbors",
-                           ["pymatgen/optimization/neighbors.cpp"],
-                           extra_compile_args=cpp_extra_compile_args,
-                           extra_link_args=cpp_extra_link_args,
-                           language='c++')],
+    ext_modules=[
+        Extension("pymatgen.optimization.linear_assignment",
+                  ["pymatgen/optimization/linear_assignment.c"],
+                  extra_link_args=extra_link_args),
+        Extension("pymatgen.util.coord_cython",
+                  ["pymatgen/util/coord_cython.c"],
+                  extra_link_args=extra_link_args),
+        Extension("pymatgen.optimization.neighbors",
+                  ["pymatgen/optimization/neighbors.cpp"],
+                  extra_compile_args=cpp_extra_compile_args,
+                  extra_link_args=cpp_extra_link_args,
+                  language='c++')
+    ],
     entry_points={
-          'console_scripts': [
-              'pmg = pymatgen.cli.pmg:main',
-              'feff_input_generation = pymatgen.cli.feff_input_generation:main',
-              'feff_plot_cross_section = pymatgen.cli.feff_plot_cross_section:main',
-              'feff_plot_dos = pymatgen.cli.feff_plot_dos:main',
-              'gaussian_analyzer = pymatgen.cli.gaussian_analyzer:main',
-              'get_environment = pymatgen.cli.get_environment:main',
-          ]
+        'console_scripts': [
+            'pmg = pymatgen.cli.pmg:main',
+            'feff_input_generation = pymatgen.cli.feff_input_generation:main',
+            'feff_plot_cross_section = pymatgen.cli.feff_plot_cross_section:main',
+            'feff_plot_dos = pymatgen.cli.feff_plot_dos:main',
+            'gaussian_analyzer = pymatgen.cli.gaussian_analyzer:main',
+            'get_environment = pymatgen.cli.get_environment:main',
+        ]
     }
 )

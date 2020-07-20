@@ -8,6 +8,7 @@ from pymatgen.core import Element
 from monty.json import MontyDecoder
 import numpy as np
 import unittest
+import warnings
 import json
 import os
 
@@ -68,6 +69,11 @@ class XASTest(PymatgenTest):
     def test_str(self):
         self.assertIsNotNone(str(self.k_xanes))
 
+    def test_validate(self):
+        y_zeros = np.zeros(len(self.k_xanes.x))
+        self.assertRaises(ValueError, XAS, self.k_xanes.x, y_zeros,
+                          self.k_xanes.structure, self.k_xanes.absorbing_element)
+
     def test_stitch_xafs(self):
         self.assertRaises(ValueError, XAS.stitch, self.k_xanes, self.k_exafs,
                           mode="invalid")
@@ -90,11 +96,19 @@ class XASTest(PymatgenTest):
                           self.k_xanes, self.k_exafs, mode="XAFS")
 
     def test_stitch_l23(self):
+        self.l2_xanes.y[0] = 0.1
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            XAS.stitch(self.l2_xanes, self.l3_xanes, 100, mode="L23")
+            self.assertEqual(len(w), 1)
+            self.assertIs(w[-1].category, UserWarning)
+            self.assertIn("jump", str(w[-1].message))
+        self.l2_xanes = XAS.from_dict(l2_xanes_dict)
         l23 = XAS.stitch(self.l2_xanes, self.l3_xanes, 100, mode="L23")
         self.assertIsInstance(l23, XAS)
         self.assertEqual("L23", l23.edge)
         self.assertAlmostEqual(min(l23.x), min(self.l3_xanes.x), 3)
-        self.assertAlmostEqual(max(l23.x), max(self.l2_xanes.x), 3)
+        self.assertAlmostEqual(max(l23.x), max(self.l3_xanes.x), 3)
         self.assertTrue(np.greater_equal(l23.y, self.l2_xanes.y).all())
         self.assertEqual(len(l23.x), 100)
         self.l2_xanes.spectrum_type = "EXAFS"

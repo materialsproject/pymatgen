@@ -6,23 +6,19 @@
 This module defines classes to represent the density of states, etc.
 """
 
-import numpy as np
 import warnings
 import functools
+
+import numpy as np
+from scipy.constants.codata import value as _cd
+
 from monty.json import MSONable
+
 from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.core.structure import Structure
 from pymatgen.core.spectrum import Spectrum
 from pymatgen.util.coord import get_linear_interpolated_value
-from scipy.constants.codata import value as _cd
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "2.0"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Mar 20, 2012"
 
 
 class DOS(Spectrum):
@@ -86,17 +82,16 @@ class DOS(Spectrum):
         cbm_start = min(above_fermi)
         if vbm_start == cbm_start:
             return 0.0, self.efermi, self.efermi
-        else:
-            # Interpolate between adjacent values
-            terminal_dens = tdos[vbm_start:vbm_start + 2][::-1]
-            terminal_energies = energies[vbm_start:vbm_start + 2][::-1]
-            start = get_linear_interpolated_value(terminal_dens,
-                                                  terminal_energies, tol)
-            terminal_dens = tdos[cbm_start - 1:cbm_start + 1]
-            terminal_energies = energies[cbm_start - 1:cbm_start + 1]
-            end = get_linear_interpolated_value(terminal_dens,
-                                                terminal_energies, tol)
-            return end - start, end, start
+        # Interpolate between adjacent values
+        terminal_dens = tdos[vbm_start:vbm_start + 2][::-1]
+        terminal_energies = energies[vbm_start:vbm_start + 2][::-1]
+        start = get_linear_interpolated_value(terminal_dens,
+                                              terminal_energies, tol)
+        terminal_dens = tdos[cbm_start - 1:cbm_start + 1]
+        terminal_energies = energies[cbm_start - 1:cbm_start + 1]
+        end = get_linear_interpolated_value(terminal_dens,
+                                            terminal_energies, tol)
+        return end - start, end, start
 
     def get_cbm_vbm(self, tol=0.001, abs_tol=False, spin=None):
         """
@@ -310,17 +305,17 @@ class Dos(MSONable):
         cbm_start = min(above_fermi)
         if vbm_start == cbm_start:
             return 0.0, self.efermi, self.efermi
-        else:
-            # Interpolate between adjacent values
-            terminal_dens = tdos[vbm_start:vbm_start + 2][::-1]
-            terminal_energies = energies[vbm_start:vbm_start + 2][::-1]
-            start = get_linear_interpolated_value(terminal_dens,
-                                                  terminal_energies, tol)
-            terminal_dens = tdos[cbm_start - 1:cbm_start + 1]
-            terminal_energies = energies[cbm_start - 1:cbm_start + 1]
-            end = get_linear_interpolated_value(terminal_dens,
-                                                terminal_energies, tol)
-            return end - start, end, start
+
+        # Interpolate between adjacent values
+        terminal_dens = tdos[vbm_start:vbm_start + 2][::-1]
+        terminal_energies = energies[vbm_start:vbm_start + 2][::-1]
+        start = get_linear_interpolated_value(terminal_dens,
+                                              terminal_energies, tol)
+        terminal_dens = tdos[cbm_start - 1:cbm_start + 1]
+        terminal_energies = energies[cbm_start - 1:cbm_start + 1]
+        end = get_linear_interpolated_value(terminal_dens,
+                                            terminal_energies, tol)
+        return end - start, end, start
 
     def get_cbm_vbm(self, tol=0.001, abs_tol=False, spin=None):
         """
@@ -555,18 +550,17 @@ class FermiDos(Dos, MSONable):
                 return f2 + slope * (np.sign(concentration) *
                                      np.log(abs(1 + concentration)) - c2)
 
-            else:
-                f_ref = self.get_fermi_interextrapolated(
-                    np.sign(concentration) * c_ref, temperature, warn=False,
-                    **kwargs)
-                f_new = self.get_fermi_interextrapolated(
-                    concentration / 10., temperature, warn=False, **kwargs)
-                clog = np.sign(concentration) * np.log(abs(concentration))
-                c_newlog = np.sign(concentration) * np.log(
-                    abs(self.get_doping(f_new, temperature)))
-                slope = (f_new - f_ref) / (c_newlog - np.sign(concentration)
-                                           * 10.)
-                return f_new + slope * (clog - c_newlog)
+            f_ref = self.get_fermi_interextrapolated(
+                np.sign(concentration) * c_ref, temperature, warn=False,
+                **kwargs)
+            f_new = self.get_fermi_interextrapolated(
+                concentration / 10., temperature, warn=False, **kwargs)
+            clog = np.sign(concentration) * np.log(abs(concentration))
+            c_newlog = np.sign(concentration) * np.log(
+                abs(self.get_doping(f_new, temperature)))
+            slope = (f_new - f_ref) / (c_newlog - np.sign(concentration)
+                                       * 10.)
+            return f_new + slope * (clog - c_newlog)
 
     def get_fermi(self, concentration: float, temperature: float,
                   rtol: float = 0.01, nstep: int = 50, step: float = 0.1,
@@ -885,8 +879,7 @@ class LobsterCompleteDos(CompleteDos):
                                "f_xyz",
                                "f_yz^2", "f_z^3", "f_xz^2", "f_z(x^2-y^2)", "f_x(x^2-3y^2)"]:
             raise ValueError('orbital is not correct')
-        else:
-            return Dos(self.efermi, self.energies, self.pdos[site][orbital])
+        return Dos(self.efermi, self.energies, self.pdos[site][orbital])
 
     def get_site_t2g_eg_resolved_dos(self, site):
         """

@@ -150,6 +150,14 @@ class MPResterTest(PymatgenTest):
         s1 = self.rester.get_structure_by_material_id("mp-1")
         self.assertEqual(s1.formula, "Cs1")
 
+        # requesting via task-id instead of mp-id
+        self.assertWarns(Warning, self.rester.get_structure_by_material_id,
+                         "mp-698856")
+
+        # requesting unknown mp-id
+        self.assertRaises(MPRestError, self.rester.get_structure_by_material_id,
+                          "mp-does-not-exist")
+
     def test_get_entry_by_material_id(self):
         e = self.rester.get_entry_by_material_id("mp-19017")
         self.assertIsInstance(e, ComputedEntry)

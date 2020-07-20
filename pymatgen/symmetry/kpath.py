@@ -109,6 +109,8 @@ class KPathBase(metaclass=abc.ABCMeta):
                     self._rec_lattice.get_cartesian_coords(start) - self._rec_lattice.get_cartesian_coords(end)
                 )
                 nb = int(ceil(distance * line_density))
+                if nb == 0:
+                    continue
                 sym_point_labels.extend([b[i - 1]] + [""] * (nb - 1) + [b[i]])
                 list_k_points.extend(
                     [
