@@ -17,6 +17,10 @@ from pymatgen.core.structure import IStructure, Structure, IMolecule, \
     StructureError, Molecule
 from pymatgen.core.lattice import Lattice
 from pymatgen.electronic_structure.core import Magmom
+from monty.os.path import which
+
+enum_cmd = which('enum.x') or which('multienum.x')
+mcsqs_cmd = which("mcsqs")
 
 
 class IStructureTest(PymatgenTest):
@@ -39,6 +43,22 @@ class IStructureTest(PymatgenTest):
         self.propertied_structure = IStructure(
             self.lattice, ["Si"] * 2, coords,
             site_properties={'magmom': [5, -5]})
+
+    @unittest.skipIf(not (mcsqs_cmd and enum_cmd), "enumlib or mcsqs executable not present")
+    def test_get_orderings(self):
+        ordered = Structure.from_spacegroup("Im-3m", Lattice.cubic(3), ["Fe"], [[0, 0, 0]])
+        self.assertEqual(ordered.get_orderings()[0], ordered)
+        disordered = Structure.from_spacegroup("Im-3m", Lattice.cubic(3), [Composition("Fe0.5Mn0.5")], [[0, 0, 0]])
+        orderings = disordered.get_orderings()
+        self.assertEqual(len(orderings), 1)
+        super_cell = disordered * 2
+        orderings = super_cell.get_orderings()
+        self.assertEqual(len(orderings), 59)
+        sqs = disordered.get_orderings(mode="sqs", scaling=[2, 2, 2])
+        self.assertEqual(sqs[0].formula, "Mn8 Fe8")
+
+        sqs = super_cell.get_orderings(mode="sqs")
+        self.assertEqual(sqs[0].formula, "Mn8 Fe8")
 
     def test_as_dataframe(self):
         df = self.propertied_structure.as_dataframe()

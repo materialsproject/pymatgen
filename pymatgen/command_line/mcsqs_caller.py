@@ -35,7 +35,7 @@ class Sqs(NamedTuple):
 def run_mcsqs(
         structure: Structure,
         clusters: Dict[int, float],
-        scaling: Union[int, List[int]],
+        scaling: Union[int, List[int]] = 1,
         search_time: float = 60,
         directory: Optional[str] = None,
         instances: Optional[int] = None,
@@ -56,7 +56,7 @@ def run_mcsqs(
                    scaling=4 would lead to a 32 atom supercell
                 b. A sequence of three scaling factors, e.g., [2, 1, 1], which
                    specifies that the supercell should have dimensions 2a x b x c
-    Keyword Args:
+            Defaults to 1.
         search_time (float): Time spent looking for the ideal SQS in minutes (default: 60)
         directory (str): Directory to run mcsqs calculation and store files (default: None
             runs calculations in a temp directory)
