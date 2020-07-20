@@ -295,7 +295,9 @@ class CorrectionCalculator:
         """
 
         if len(self.corrections) == 0:
-            self.compute_corrections()
+            raise RuntimeError(
+                "Please call compute_corrections or compute_from_files to calculate corrections first"
+            )
 
         abs_errors = [
             abs(i) for i in (self.diffs - np.dot(self.coeff_mat, self.corrections))
@@ -347,7 +349,9 @@ class CorrectionCalculator:
             raise ValueError("not a valid specie")
 
         if len(self.corrections) == 0:
-            self.compute_corrections()
+            raise RuntimeError(
+                "Please call compute_corrections or compute_from_files to calculate corrections first"
+            )
 
         abs_errors = [
             abs(i) for i in (self.diffs - np.dot(self.coeff_mat, self.corrections))
@@ -422,7 +426,9 @@ class CorrectionCalculator:
         """
 
         if len(self.corrections) == 0:
-            self.compute_corrections()
+            raise RuntimeError(
+                "Please call compute_corrections or compute_from_files to calculate corrections first"
+            )
 
         compatibility: OrderedDict = OrderedDict()
         comp_corr: OrderedDict[str, float] = OrderedDict()
