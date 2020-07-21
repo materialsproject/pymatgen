@@ -2031,13 +2031,13 @@ class IStructure(SiteCollection, MSONable):
                              ))
         return "\n".join(outs)
 
-    def get_orderings(self, mode: str = "enumerate", **kwargs):
+    def get_orderings(self, mode: str = "enum", **kwargs):
         r"""
         Returns list of orderings for a disordered structure. If structure
         does not contain disorder, the default structure is returned.
 
         Args:
-            mode (str): Either "enumerate" or "sqs". If enumerate,
+            mode (str): Either "enum" or "sqs". If enum,
                 the enumlib will be used to return all distinct
                 orderings. If sqs, mcsqs will be used to return
                 an sqs structure.
@@ -2053,7 +2053,7 @@ class IStructure(SiteCollection, MSONable):
         """
         if self.is_ordered:
             return [self]
-        if mode == "enumerate":
+        if mode.startswith("enum"):
             from pymatgen.command_line.enumlib_caller import EnumlibAdaptor
             adaptor = EnumlibAdaptor(self, **kwargs)
             adaptor.run()
@@ -2071,6 +2071,7 @@ class IStructure(SiteCollection, MSONable):
                         unique_dists.append(dists[i])
                 clusters = {(i+2): d + 0.01 for i, d in enumerate(unique_dists) if i < 2}
                 kwargs["clusters"] = clusters
+            print(kwargs["clusters"])
             return [run_mcsqs(self, **kwargs).bestsqs]
         raise ValueError()
 
@@ -2355,9 +2356,7 @@ class IStructure(SiteCollection, MSONable):
                                 merge_tol=merge_tol)
         elif fnmatch(fname, "input*.xml"):
             return ExcitingInput.from_file(fname).structure
-        elif fnmatch(fname, "*rndstr.in*") \
-                or fnmatch(fname, "*lat.in*") \
-                or fnmatch(fname, "*bestsqs*"):
+        elif fnmatch(fname, "*rndstr.in*") or fnmatch(fname, "*lat.in*") or fnmatch(fname, "*bestsqs*"):
             return cls.from_str(contents, fmt="mcsqs",
                                 primitive=primitive, sort=sort,
                                 merge_tol=merge_tol)
