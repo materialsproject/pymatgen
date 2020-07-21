@@ -80,10 +80,11 @@ class CorrectionCalculator:
         Args:
             max_error: maximum tolerable relative uncertainty in experimental energy.
                     Compounds with relative uncertainty greater than this value will be excluded from the fit
-            allow_unstable: whether unstable entries (entries with e_above_hull > 100 meV/atom) are to be included in the fit
-            allow_polyanions: whether entries containing the following polyanions are to be included in the fit: ["SO4", "CO3",
-                        "NO3", "OCl3", "SiO4", "SeO3", "TiO3", "TiO4"]. Compounds with these polyanions have been observed
-                        to contain additional sources of error that may negatively influence the quality of the fitted corrections
+            allow_unstable: whether unstable entries (e_above_hull > 100 meV/atom) are to be included in the fit
+            allow_polyanions: whether entries containing the following polyanions are to be included in the fit:
+                    ["SO4", "CO3", "NO3", "OCl3", "SiO4", "SeO3", "TiO3", "TiO4"]. Compounds with these polyanions
+                    have been observed to contain additional sources of error that may negatively influence the
+                    quality of the fitted corrections
 
         """
 
