@@ -164,9 +164,7 @@ class PotcarCorrection(Correction):
                 raise ValueError("Cannot check hash " "without potcar_spec field")
         else:
             if entry.parameters.get("potcar_spec"):
-                psp_settings = {d.get("titel").split()[1]
-                        for d in entry.parameters["potcar_spec"]
-                        if d}
+                psp_settings = {d.get("titel").split()[1] for d in entry.parameters["potcar_spec"] if d}
             else:
                 psp_settings = {sym.split()[1] for sym in entry.parameters["potcar_symbols"] if sym}
 
