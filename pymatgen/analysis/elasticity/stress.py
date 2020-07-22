@@ -8,10 +8,12 @@ This module provides the Stress class used to create, manipulate, and
 calculate relevant properties of the stress tensor.
 """
 
-from pymatgen.core.tensors import SquareTensor
 import math
-import numpy as np
 import warnings
+
+import numpy as np
+
+from pymatgen.core.tensors import SquareTensor
 
 __author__ = "Joseph Montoya"
 __copyright__ = "Copyright 2012, The Materials Project"
