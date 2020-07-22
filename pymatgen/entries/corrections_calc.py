@@ -2,7 +2,6 @@
 This module calculates corrections for the species listed below, fitted to the experimental and computed
 entries given to the CorrectionCalculator constructor.
 """
-# pylint: disable=C0330
 
 import warnings
 from collections import OrderedDict

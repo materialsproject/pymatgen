@@ -5,7 +5,6 @@
 """
 This module provides classes that define a chemical reaction.
 """
-# pylint: disable=C0330
 
 import logging
 import re

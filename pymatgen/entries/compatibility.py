@@ -5,7 +5,6 @@
 This module implements Compatibility corrections for mixing runs of different
 functionals.
 """
-# pylint: disable=C0330
 
 import abc
 import os
@@ -1227,7 +1226,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         # pin the energy of all H2 entries to h2_energy
         if rform == "H2":
             adjustments.append(
-                ConstantEnergyAdjustment(self.h2_energy * comp.num_atoms - entry.energy, np.nan,
+                ConstantEnergyAdjustment(self.h2_energy * comp.num_atoms - entry.energy, uncertainty=np.nan,
                                          name="MP Aqueous H2 / H2O referencing",
                                          cls=self.as_dict(),
                                          description="Adjusts the H2 and H2O energy to reproduce the experimental "
@@ -1238,7 +1237,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         # pin the energy of all H2O entries to fit_h2o_energy
         elif rform == "H2O":
             adjustments.append(
-                ConstantEnergyAdjustment(self.fit_h2o_energy * comp.num_atoms - entry.energy, np.nan,
+                ConstantEnergyAdjustment(self.fit_h2o_energy * comp.num_atoms - entry.energy, uncertainty=np.nan,
                                          name="MP Aqueous H2 / H2O referencing",
                                          cls=self.as_dict(),
                                          description="Adjusts the H2 and H2O energy to reproduce the experimental "
@@ -1250,8 +1249,8 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         # molecular-like at room temperature
         elif rform in self.cpd_entropies and rform != "H2O":
             adjustments.append(
-                TemperatureEnergyAdjustment(-1 * self.cpd_entropies[rform] / 298, np.nan, 298,
-                                            comp.num_atoms,
+                TemperatureEnergyAdjustment(-1 * self.cpd_entropies[rform] / 298, 298,
+                                            comp.num_atoms, unc_per_deg=np.nan,
                                             name="Compound entropy at room temperature",
                                             cls=self.as_dict(),
                                             description="Adds the entropy (T delta S) to energies of compounds that "
@@ -1286,8 +1285,8 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
 
                 adjustments.append(
                     CompositionEnergyAdjustment(
-                        hydrate_adjustment, np.nan,
-                        nH2O,
+                        hydrate_adjustment, nH2O,
+                        unc_per_atom=np.nan,
                         name="MP Aqueous hydrate",
                         cls=self.as_dict(),
                         description="Adjust the energy of solid hydrate compounds (compounds "
