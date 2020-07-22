@@ -5,27 +5,28 @@
 This module implements Compatibility corrections for mixing runs of different
 functionals.
 """
+# pylint: disable=C0330
 
-import os
 import abc
+import os
 import warnings
-
 from collections import defaultdict
+from typing import Optional, Sequence, Union
+
 import numpy as np
+from monty.design_patterns import cached_class
+from monty.dev import deprecated
+from monty.json import MSONable
+from monty.serialization import loadfn
 from uncertainties import ufloat
 
-from typing import Sequence, Union, Optional
-from monty.design_patterns import cached_class
-from monty.serialization import loadfn
-from monty.json import MSONable
-from monty.dev import deprecated
-
-from pymatgen.io.vasp.sets import MITRelaxSet, MPRelaxSet
-from pymatgen.core.periodic_table import Element
 from pymatgen.analysis.structure_analyzer import oxide_type, sulfide_type
-from pymatgen.entries.computed_entries import ComputedEntry, \
-    ConstantEnergyAdjustment, CompositionEnergyAdjustment, TemperatureEnergyAdjustment
-
+from pymatgen.core.periodic_table import Element
+from pymatgen.entries.computed_entries import (CompositionEnergyAdjustment,
+                                               ComputedEntry,
+                                               ConstantEnergyAdjustment,
+                                               TemperatureEnergyAdjustment)
+from pymatgen.io.vasp.sets import MITRelaxSet, MPRelaxSet
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 MU_H2O = -2.4583  # Free energy of formation of water, eV/H2O, used by MaterialsProjectAqueousCompatibility
@@ -464,7 +465,7 @@ class CompositionCorrection(Correction):
                 apply_correction = False
                 # only apply anion corrections if the element is an anion
                 # first check for a pre-populated oxidation states key
-                # the key is expected to comprise a dict corresponding to the first element output by 
+                # the key is expected to comprise a dict corresponding to the first element output by
                 # Composition.oxi_state_guesses(), e.g. {'Al': 3.0, 'S': 2.0, 'O': -2.0} for 'Al2SO4'
                 if entry.data.get("oxidation_states"):
                     if entry.data["oxidation_states"].get(anion, 0) < 0:

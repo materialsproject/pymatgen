@@ -10,14 +10,14 @@ __author__ = "Shyue Ping Ong, Geoffroy Hautier, Sai Jayaraman"
 __copyright__ = "Copyright 2011, The Materials Project"
 
 from math import pi, acos
-import numpy as np
 import itertools
 import collections
+from warnings import warn
 
+import numpy as np
+from scipy.spatial import Voronoi
 from monty.dev import deprecated
 
-from warnings import warn
-from scipy.spatial import Voronoi
 from pymatgen import PeriodicSite
 from pymatgen import Element, Specie, Composition
 from pymatgen.util.num import abs_cap
@@ -43,12 +43,12 @@ def average_coordination_number(structures, freq=10):
     for spec in structures[0].composition.as_dict().keys():
         coordination_numbers[spec] = 0.0
     count = 0
-    for t in range(len(structures)):
+    for t, s in enumerate(structures):
         if t % freq != 0:
             continue
         count += 1
         vnn = VoronoiNN()
-        for atom in range(len(structures[0])):
+        for atom, s in enumerate(structures[0]):
             cn = vnn.get_cn(structures[t], atom, use_weights=True)
             coordination_numbers[structures[t][atom].species_string] += cn
     elements = structures[0].composition.as_dict()
@@ -403,7 +403,7 @@ def get_max_bond_lengths(structure, el_radius_updates=None):
     bonds_lens = {}
     els = sorted(structure.composition.elements, key=lambda x: x.Z)
 
-    for i1 in range(len(els)):
+    for i1, el in enumerate(els):
         for i2 in range(len(els) - i1):
             bonds_lens[els[i1], els[i1 + i2]] = jmnn.get_max_bond_distance(
                 els[i1].symbol, els[i1 + i2].symbol)

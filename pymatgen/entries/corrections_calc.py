@@ -2,18 +2,19 @@
 This module calculates corrections for the species listed below, fitted to the experimental and computed
 entries given to the CorrectionCalculator constructor.
 """
+# pylint: disable=C0330
 
+import warnings as w
 from collections import OrderedDict
+from typing import Dict, List, Tuple
+
 import numpy as np
 import plotly.graph_objects as go
-from scipy.optimize import curve_fit
 import ruamel.yaml
-import warnings as w
-
-from typing import List, Dict, Tuple
 from monty.serialization import loadfn
+from scipy.optimize import curve_fit
 
-from pymatgen import Element, Composition
+from pymatgen import Composition, Element
 from pymatgen.analysis.reaction_calculator import ComputedReaction
 from pymatgen.analysis.structure_analyzer import sulfide_type
 
@@ -435,18 +436,18 @@ class CorrectionCalculator:
             )
 
         compatibility: OrderedDict = OrderedDict()
-        comp_corr: OrderedDict[str, float] = OrderedDict()
-        advanced: OrderedDict[str, OrderedDict] = OrderedDict()
-        u_corr: OrderedDict[str, OrderedDict] = OrderedDict()
-        o: OrderedDict[str, float] = OrderedDict()
-        f: OrderedDict[str, float] = OrderedDict()
+        comp_corr: "OrderedDict[str, float]" = OrderedDict()
+        advanced: "OrderedDict[str, OrderedDict]" = OrderedDict()
+        u_corr: "OrderedDict[str, OrderedDict]" = OrderedDict()
+        o: "OrderedDict[str, float]" = OrderedDict()
+        f: "OrderedDict[str, float]" = OrderedDict()
 
         compatibility_error: OrderedDict = OrderedDict()
-        comp_corr_error: OrderedDict[str, float] = OrderedDict()
-        advanced_error: OrderedDict[str, OrderedDict] = OrderedDict()
-        u_corr_error: OrderedDict[str, OrderedDict] = OrderedDict()
-        o_error: OrderedDict[str, float] = OrderedDict()
-        f_error: OrderedDict[str, float] = OrderedDict()
+        comp_corr_error: "OrderedDict[str, float]" = OrderedDict()
+        advanced_error: "OrderedDict[str, OrderedDict]" = OrderedDict()
+        u_corr_error: "OrderedDict[str, OrderedDict]" = OrderedDict()
+        o_error: "OrderedDict[str, float]" = OrderedDict()
+        f_error: "OrderedDict[str, float]" = OrderedDict()
 
         comp_corr["oxide"] = self.corrections_dict["oxide"][0]
         comp_corr["peroxide"] = self.corrections_dict["peroxide"][0]

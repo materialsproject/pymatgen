@@ -10,12 +10,12 @@ structure codes. For example, ComputedEntries can be used as inputs for phase
 diagram analysis.
 """
 
-import json
 import abc
-import numpy as np
-from uncertainties import ufloat
+import json
 
-from monty.json import MontyEncoder, MontyDecoder, MSONable
+import numpy as np
+from monty.json import MontyDecoder, MontyEncoder, MSONable
+from uncertainties import ufloat
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.structure import Structure

@@ -5,19 +5,19 @@
 """
 This module provides classes that define a chemical reaction.
 """
+# pylint: disable=C0330
 
 import logging
-import numpy as np
 import re
+from itertools import chain, combinations
 
-from monty.json import MSONable
-from pymatgen.core.composition import Composition
-from pymatgen.entries.computed_entries import ComputedEntry
-from monty.json import MontyDecoder
+import numpy as np
 from monty.fractions import gcd_float
+from monty.json import MontyDecoder, MSONable
 from uncertainties import ufloat
 
-from itertools import combinations, chain
+from pymatgen.core.composition import Composition
+from pymatgen.entries.computed_entries import ComputedEntry
 
 __author__ = "Shyue Ping Ong, Anubhav Jain"
 __copyright__ = "Copyright 2011, The Materials Project"
