@@ -92,6 +92,7 @@ class ConstantEnergyAdjustment(EnergyAdjustment):
         """
         Args:
             value: float, value of the energy adjustment in eV
+            uncertainty: float, uncertaint of the energy adjustment in eV. (Default: np.nan)
             name: str, human-readable name of the energy adjustment.
                 (Default: Constant energy adjustment)
             cls: dict, Serialized Compatibility class used to generate the energy adjustment. (Default: None)
@@ -148,13 +149,13 @@ class CompositionEnergyAdjustment(EnergyAdjustment):
     An energy adjustment applied to a ComputedEntry based on the atomic composition.
     Used in various DFT energy correction schemes.
     """
-    def __init__(self, adj_per_atom, unc_per_atom, n_atoms, name, cls=None,
+    def __init__(self, adj_per_atom, n_atoms, unc_per_atom=np.nan, name="", cls=None,
                  description="Composition-based energy adjustment"):
         """
         Args:
             adj_per_atom: float, energy adjustment to apply per atom, in eV/atom
-            unc_per_atom: float, uncertainty in energy adjustment to apply per atom, in eV/atom
-            n_atoms: float or int, number of atoms
+            n_atoms: float or int, number of atoms.
+            unc_per_atom: float, uncertainty in energy adjustment to apply per atom, in eV/atom. (Default: np.nan)
             name: str, human-readable name of the energy adjustment.
                 (Default: "")
             cls: dict, Serialized Compatibility class used to generate the
@@ -193,14 +194,14 @@ class TemperatureEnergyAdjustment(EnergyAdjustment):
     An energy adjustment applied to a ComputedEntry based on the temperature.
     Used, for example, to add entropy to DFT energies.
     """
-    def __init__(self, adj_per_deg, unc_per_deg, temp, n_atoms, name="", cls=None,
+    def __init__(self, adj_per_deg, temp, n_atoms, unc_per_deg=np.nan, name="", cls=None,
                  description="Temperature-based energy adjustment"):
         """
         Args:
             adj_per_deg: float, energy adjustment to apply per degree K, in eV/atom
-            unc_per_deg: float, uncertainty in energy adjustment to apply per degree K, in eV/atom
             temp: float, temperature in Kelvin
             n_atoms: float or int, number of atoms
+            unc_per_deg: float, uncertainty in energy adjustment to apply per degree K, in eV/atom. (Default: np.nan)
             name: str, human-readable name of the energy adjustment.
                 (Default: "")
             cls: dict, Serialized Compatibility class used to generate the

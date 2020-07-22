@@ -45,14 +45,14 @@ def test_constant_energy_adjustment():
 
 
 def test_composition_energy_adjustment():
-    ea = CompositionEnergyAdjustment(2, 0, 2, "H")
+    ea = CompositionEnergyAdjustment(2, 2, unc_per_atom=0, name="H")
     assert ea.name == "H"
     assert ea.value == 4
     assert ea.description == "Composition-based energy adjustment (2.000 eV/atom x 2 atoms)"
 
 
 def test_temp_energy_adjustment():
-    ea = TemperatureEnergyAdjustment(-0.1, 0, 298, 5, "entropy")
+    ea = TemperatureEnergyAdjustment(-0.1, 298, 5, unc_per_deg=0, name="entropy")
     assert ea.name == "entropy"
     assert ea.value == -0.1 * 298 * 5
     assert ea.n_atoms == 5
@@ -104,8 +104,8 @@ class ComputedEntryTest(unittest.TestCase):
     def test_normalize_energy_adjustments(self):
         ealist = [ManualEnergyAdjustment(5),
                   ConstantEnergyAdjustment(5),
-                  CompositionEnergyAdjustment(1, 0, 5, "Na"),
-                  TemperatureEnergyAdjustment(0.005, 0, 100, 10)
+                  CompositionEnergyAdjustment(1, 5, unc_per_atom=0, name="Na"),
+                  TemperatureEnergyAdjustment(0.005, 100, 10, unc_per_deg=0)
                   ]
         entry = ComputedEntry("Na5Cl5", 6.9, energy_adjustments=ealist)
         assert entry.correction == 20
