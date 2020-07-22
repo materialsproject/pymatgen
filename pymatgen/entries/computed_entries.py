@@ -394,15 +394,14 @@ class ComputedEntry(Entry):
         # this is the preferred / modern way of instantiating ComputedEntry
         # we don't pass correction explicitly because it will be calculated
         # on the fly from energy_adjustments
-        else:
-            return cls(d["composition"], d["energy"], correction=0,
-                       energy_adjustments=[dec.process_decoded(e)
-                                           for e in d.get("energy_adjustments", {})],
-                       parameters={k: dec.process_decoded(v)
-                                   for k, v in d.get("parameters", {}).items()},
-                       data={k: dec.process_decoded(v)
-                             for k, v in d.get("data", {}).items()},
-                       entry_id=d.get("entry_id", None))
+        return cls(d["composition"], d["energy"], correction=0,
+                    energy_adjustments=[dec.process_decoded(e)
+                                        for e in d.get("energy_adjustments", {})],
+                    parameters={k: dec.process_decoded(v)
+                                for k, v in d.get("parameters", {}).items()},
+                    data={k: dec.process_decoded(v)
+                            for k, v in d.get("data", {}).items()},
+                    entry_id=d.get("entry_id", None))
 
     def as_dict(self) -> dict:
         """
@@ -481,12 +480,11 @@ class ComputedStructureEntry(ComputedEntry):
         # this is the preferred / modern way of instantiating ComputedEntry
         # we don't pass correction explicitly because it will be calculated
         # on the fly from energy_adjustments
-        else:
-            return cls(dec.process_decoded(d["structure"]), d["energy"], correction=0,
-                       energy_adjustments=[dec.process_decoded(e)
-                                           for e in d.get("energy_adjustments", {})],
-                       parameters={k: dec.process_decoded(v)
-                                   for k, v in d.get("parameters", {}).items()},
-                       data={k: dec.process_decoded(v)
-                             for k, v in d.get("data", {}).items()},
-                       entry_id=d.get("entry_id", None))
+        return cls(dec.process_decoded(d["structure"]), d["energy"], correction=0,
+                    energy_adjustments=[dec.process_decoded(e)
+                                        for e in d.get("energy_adjustments", {})],
+                    parameters={k: dec.process_decoded(v)
+                                for k, v in d.get("parameters", {}).items()},
+                    data={k: dec.process_decoded(v)
+                            for k, v in d.get("data", {}).items()},
+                    entry_id=d.get("entry_id", None))

@@ -147,7 +147,7 @@ class PotcarCorrection(Correction):
                     "Cannot check hashes of potcars," " hashes are not set"
                 )
             else:
-                self.valid_potcars = {k: d for k, d in potcar_settings.items()}
+                self.valid_potcars = potcar_settings
 
         self.input_set = input_set
         self.check_hash = check_hash
@@ -159,28 +159,16 @@ class PotcarCorrection(Correction):
         """
         if self.check_hash:
             if entry.parameters.get("potcar_spec"):
-                psp_settings = set(
-                    [d.get("hash") for d in entry.parameters["potcar_spec"] if d]
-                )
+                psp_settings = {d.get("hash") for d in entry.parameters["potcar_spec"] if d}
             else:
                 raise ValueError("Cannot check hash " "without potcar_spec field")
         else:
             if entry.parameters.get("potcar_spec"):
-                psp_settings = set(
-                    [
-                        d.get("titel").split()[1]
+                psp_settings = {d.get("titel").split()[1]
                         for d in entry.parameters["potcar_spec"]
-                        if d
-                    ]
-                )
+                        if d}
             else:
-                psp_settings = set(
-                    [
-                        sym.split()[1]
-                        for sym in entry.parameters["potcar_symbols"]
-                        if sym
-                    ]
-                )
+                psp_settings = {sym.split()[1] for sym in entry.parameters["potcar_symbols"] if sym}
 
         if {
             self.valid_potcars.get(str(el)) for el in entry.composition.elements
@@ -724,8 +712,7 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
         """
         if self.process_entries(entry):
             return self.process_entries(entry)[0]
-        else:
-            return None
+        return None
 
     def process_entries(self, entries: Union[ComputedEntry, list], clean: bool = False):
         """
