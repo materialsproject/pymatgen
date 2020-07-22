@@ -554,7 +554,6 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
         compat_dict = self.compat.as_dict()
         decoder = MontyDecoder()
         temp_compat = decoder.process_decoded(compat_dict)
-        print(type(MaterialsProjectCompatibility))
         self.assertIsInstance(temp_compat, MaterialsProjectCompatibility)
 
     def test_deprecation_warning(self):
@@ -1005,7 +1004,6 @@ class MaterialsProject2020CompatibilityTest(unittest.TestCase):
             },
         )
         entry = self.compat.process_entry(entry)
-        #        self.assertEqual(entry.entry_id, -8)
         self.assertAlmostEqual(entry.energy, -1)
         self.assertAlmostEqual(self.ggacompat.process_entry(entry).energy, -1)
 

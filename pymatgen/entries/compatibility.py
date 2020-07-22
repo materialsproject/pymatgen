@@ -146,8 +146,7 @@ class PotcarCorrection(Correction):
                 raise ValueError(
                     "Cannot check hashes of potcars," " hashes are not set"
                 )
-            else:
-                self.valid_potcars = potcar_settings
+            self.valid_potcars = potcar_settings
 
         self.input_set = input_set
         self.check_hash = check_hash

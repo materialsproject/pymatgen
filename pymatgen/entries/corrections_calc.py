@@ -4,7 +4,7 @@ entries given to the CorrectionCalculator constructor.
 """
 # pylint: disable=C0330
 
-import warnings as w
+import warnings
 from collections import OrderedDict
 from typing import Dict, List, Tuple
 
@@ -158,7 +158,7 @@ class CorrectionCalculator:
 
             compound = self.calc_compounds.get(name, None)
             if not compound:
-                w.warn(
+                warnings.warn(
                     "Compound {} is not found in provided computed entries and is excluded from the fit".format(
                         name
                     )
@@ -170,7 +170,7 @@ class CorrectionCalculator:
             )
             if relative_uncertainty > self.max_error:
                 allow = False
-                w.warn(
+                warnings.warn(
                     "Compound {} is excluded from the fit due to high experimental uncertainty ({}%)".format(
                         name, relative_uncertainty
                     )
@@ -189,7 +189,7 @@ class CorrectionCalculator:
                 ]:
                     if anion in name or anion in cmpd_info["formula"]:
                         allow = False
-                        w.warn(
+                        warnings.warn(
                             "Compound {} contains the polyanion {} and is excluded from the fit".format(
                                 name, anion
                             )
@@ -203,7 +203,7 @@ class CorrectionCalculator:
                     raise ValueError("Missing e above hull data")
                 if eah > 0.1:  # unstable if e_above_hull is greater than 100 meV/atom
                     allow = False
-                    w.warn(
+                    warnings.warn(
                         "Compound {} is unstable and excluded from the fit (e_above_hull = {})".format(
                             name, eah
                         )
@@ -262,8 +262,8 @@ class CorrectionCalculator:
         sigma = np.array(self.exp_uncer)
         sigma[sigma == 0] = np.nan
 
-        with w.catch_warnings():
-            w.simplefilter(
+        with warnings.catch_warnings():
+            warnings.simplefilter(
                 "ignore", category=RuntimeWarning
             )  # numpy raises warning if the entire array is nan values
             mean_uncer = np.nanmean(sigma)
@@ -293,7 +293,7 @@ class CorrectionCalculator:
             )
         return self.corrections_dict
 
-    def graph_residual_error(self) -> None:
+    def graph_residual_error(self) -> go.Figure:
 
         """
         Graphs the residual errors for all compounds after applying computed corrections.
@@ -327,7 +327,6 @@ class CorrectionCalculator:
                 ),
             ),
         )
-        fig.show()
 
         print("Residual Error:")
         print("Median = " + str(np.median(np.array(abs_errors))))
@@ -338,7 +337,9 @@ class CorrectionCalculator:
         print("Mean = " + str(abs(np.mean(np.array(self.diffs)))))
         print("Std Dev = " + str(np.std(np.array(self.diffs))))
 
-    def graph_residual_error_per_species(self, specie: str) -> None:
+        return fig
+
+    def graph_residual_error_per_species(self, specie: str) -> go.Figure:
 
         """
         Graphs the residual errors for each compound that contains specie after applying computed corrections.
@@ -409,7 +410,6 @@ class CorrectionCalculator:
                 ),
             ),
         )
-        fig.show()
 
         print("Residual Error:")
         print("Median = " + str(np.median(np.array(abs_errors))))
@@ -419,6 +419,8 @@ class CorrectionCalculator:
         print("Median = " + str(abs(np.median(np.array(diffs_cpy)))))
         print("Mean = " + str(abs(np.mean(np.array(diffs_cpy)))))
         print("Std Dev = " + str(np.std(np.array(diffs_cpy))))
+
+        return fig
 
     def make_yaml(self, name: str = "MP2020") -> None:
         """
