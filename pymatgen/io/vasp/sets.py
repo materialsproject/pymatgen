@@ -67,14 +67,6 @@ from pymatgen.io.vasp.outputs import Vasprun, Outcar
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 
-__author__ = (
-    "Shyue Ping Ong, Wei Chen, Will Richards, Geoffroy Hautier, " "Anubhav Jain"
-)
-__copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "1.0"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "May 28 2016"
 
 MODULE_DIR = Path(__file__).resolve().parent
 
@@ -109,6 +101,7 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
         """
         List of POTCAR symbols.
         """
+        # pylint: disable=E1101
         elements = self.poscar.site_symbols
         potcar_symbols = []
         settings = self._config_dict["POTCAR"]
@@ -127,6 +120,7 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
         """
         Potcar object.
         """
+        # pylint: disable=E1101
         potcar = Potcar(self.potcar_symbols, functional=self.potcar_functional)
 
         # warn if the selected POTCARs do not correspond to the chosen
@@ -462,8 +456,7 @@ class DictSet(VaspInputSet):
                 sym_prec=self.sym_prec,
                 international_monoclinic=self.international_monoclinic,
             )
-        else:
-            return self._structure
+        return self._structure
 
     @property
     def incar(self) -> Incar:
@@ -507,12 +500,7 @@ class DictSet(VaspInputSet):
             elif k in ("LDAUU", "LDAUJ", "LDAUL"):
                 if hubbard_u:
                     if hasattr(structure[0], k.lower()):
-                        m = dict(
-                            [
-                                (site.specie.symbol, getattr(site, k.lower()))
-                                for site in structure
-                            ]
-                        )
+                        m = {site.specie.symbol: getattr(site, k.lower()) for site in structure}
                         incar[k] = [m[sym] for sym in poscar.site_symbols]
                     # lookup specific LDAU if specified for most_electroneg atom
                     elif most_electroneg in v.keys() and isinstance(
@@ -574,9 +562,7 @@ class DictSet(VaspInputSet):
             if np.product(self.kpoints.kpts) < 4 and incar.get("ISMEAR", 0) == -5:
                 incar["ISMEAR"] = 0
 
-        if self.user_incar_settings.get("KSPACING", 0) > 0.5 and incar.get(
-                "ISMEAR", 0 == -5
-        ):
+        if self.user_incar_settings.get("KSPACING", 0) > 0.5 and incar.get("ISMEAR", 0) == -5:
             warnings.warn(
                 "Large KSPACING value detected with ISMEAR = -5. Ensure that VASP "
                 "generates an adequate number of KPOINTS, lower KSPACING, or "
@@ -621,8 +607,7 @@ class DictSet(VaspInputSet):
 
         if self.use_structure_charge:
             return nelect - structure.charge
-        else:
-            return nelect
+        return nelect
 
     @property
     def kpoints(self) -> Union[Kpoints, None]:
@@ -652,10 +637,7 @@ class DictSet(VaspInputSet):
 
         # Return None if KSPACING is present in the INCAR, because this will
         # cause VASP to generate the kpoints automatically
-        if (
-                self.user_incar_settings.get("KSPACING")
-                and self.user_kpoints_settings == {}
-        ):
+        if self.user_incar_settings.get("KSPACING") and self.user_kpoints_settings == {}:
             return None
 
         # If grid_density is in the kpoints_settings use
@@ -667,23 +649,22 @@ class DictSet(VaspInputSet):
 
         # If reciprocal_density is in the kpoints_settings use
         # Kpoints.automatic_density_by_vol
-        elif settings.get("reciprocal_density"):
+        if settings.get("reciprocal_density"):
             return Kpoints.automatic_density_by_vol(
                 self.structure, int(settings["reciprocal_density"]), self.force_gamma
             )
 
         # If length is in the kpoints_settings use Kpoints.automatic
-        elif settings.get("length"):
+        if settings.get("length"):
             return Kpoints.automatic(settings["length"])
 
         # Raise error. Unsure of which kpoint generation to use
-        else:
-            raise ValueError(
-                "Invalid KPoint Generation algo : Supported Keys are "
-                "grid_density: for Kpoints.automatic_density generation, "
-                "reciprocal_density: for KPoints.automatic_density_by_vol "
-                "generation, and length  : for Kpoints.automatic generation"
-            )
+        raise ValueError(
+            "Invalid KPoint Generation algo : Supported Keys are "
+            "grid_density: for Kpoints.automatic_density generation, "
+            "reciprocal_density: for KPoints.automatic_density_by_vol "
+            "generation, and length  : for Kpoints.automatic generation"
+        )
 
     def __str__(self):
         return self.__class__.__name__
@@ -1205,8 +1186,8 @@ class MPHSEBSSet(MPHSERelaxSet):
                 line_density=self.kpoints_line_density, coords_are_cartesian=False
             )
 
-            for k in range(len(frac_k_points)):
-                kpts.append(frac_k_points[k])
+            for k, f in enumerate(frac_k_points):
+                kpts.append(f)
                 weights.append(0.0)
                 all_labels.append(labels[k])
 
@@ -1369,7 +1350,7 @@ class MPNonSCFSet(MPRelaxSet):
         """
         incar = super().incar
         if self.prev_incar is not None:
-            incar.update({k: v for k, v in self.prev_incar.items()})
+            incar.update(self.prev_incar.items())
 
         # Overwrite necessary INCAR parameters from previous runs
         incar.update(
@@ -1598,7 +1579,7 @@ class MPSOCSet(MPStaticSet):
         """
         incar = super().incar
         if self.prev_incar is not None:
-            incar.update({k: v for k, v in self.prev_incar.items()})
+            incar.update(self.prev_incar.items())
 
         # Overwrite necessary INCAR parameters from previous runs
         incar.update(
@@ -2301,8 +2282,8 @@ class MITNEBSet(MITRelaxSet):
         structures = [input_structures[0]]
         for s in input_structures[1:]:
             prev = structures[-1]
-            for i in range(len(s)):
-                t = np.round(prev[i].frac_coords - s[i].frac_coords)
+            for i, site in enumerate(s):
+                t = np.round(prev[i].frac_coords - site.frac_coords)
                 if np.any(np.abs(t) > 0.5):
                     s.translate_sites([i], t, to_unit_cell=False)
             structures.append(s)
@@ -2667,7 +2648,7 @@ class LobsterSet(MPRelaxSet):
             reciprocal_density (int): density of k-mesh by reciprocal volume
             user_supplied_basis (dict): dict including basis functions for all elements in structure,
                 e.g. {"Fe": "3d 3p 4s", "O": "2s 2p"}; if not supplied, a standard basis is used
-            address_basis_file (str): address to a file similar to "BASIS_PBE_54_standaard.yaml" 
+            address_basis_file (str): address to a file similar to "BASIS_PBE_54_standaard.yaml"
                 in pymatgen.io.lobster.lobster_basis
             **kwargs: Other kwargs supported by :class:`DictSet`.
         """
@@ -2675,9 +2656,9 @@ class LobsterSet(MPRelaxSet):
             "Make sure that all parameters are okay! This is a brand new implementation."
         )
 
-        if not (isym == -1 or isym == 0):
+        if isym not in (-1, 0):
             raise ValueError("Lobster cannot digest WAVEFUNCTIONS with symmetry")
-        if not (ismear == -5 or ismear == 0):
+        if ismear not in (-5, 0):
             raise ValueError("Lobster usually works with ismear=-5 or ismear=0")
 
         # newest potcars are preferred
