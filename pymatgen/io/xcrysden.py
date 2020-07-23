@@ -45,9 +45,9 @@ class XSF:
         app("PRIMCOORD")
         app(" %d 1" % len(cart_coords))
 
-        for a in range(len(cart_coords)):
+        for a, coord in enumerate(cart_coords):
             sp = "%d" % self.structure.atomic_numbers[a]
-            app(sp + ' %20.14f %20.14f %20.14f' % tuple(cart_coords[a]))
+            app(sp + ' %20.14f %20.14f %20.14f' % tuple(coord))
 
         return "\n".join(lines)
 
@@ -84,12 +84,12 @@ class XSF:
         lattice, coords, species = [], [], []
         lines = input_string.splitlines()
 
-        for i in range(len(lines)):
-            if "PRIMVEC" in lines[i]:
+        for i, line in enumerate(lines):
+            if "PRIMVEC" in line:
                 for j in range(i+1, i+4):
                     lattice.append([float(c) for c in lines[j].split()])
 
-            if "PRIMCOORD" in lines[i]:
+            if "PRIMCOORD" in line:
                 num_sites = int(lines[i+1].split()[0])
 
                 for j in range(i+2, i+2+num_sites):
