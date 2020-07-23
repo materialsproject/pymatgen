@@ -229,7 +229,7 @@ class PhaseDiagramTest(unittest.TestCase):
         for entry in self.pd.unstable_entries:
             self.assertGreaterEqual(
                 self.pd.get_decomposition_energy(entry), 0,
-                "Stable entries should have positive decomposition energy!")
+                "Unstable entries should have positive decomposition energy!")
 
         for entry in self.pd.stable_entries:
             if entry.composition.is_element:
