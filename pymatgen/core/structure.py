@@ -2031,6 +2031,50 @@ class IStructure(SiteCollection, MSONable):
                              ))
         return "\n".join(outs)
 
+    def get_orderings(self, mode: str = "enum", **kwargs):
+        r"""
+        Returns list of orderings for a disordered structure. If structure
+        does not contain disorder, the default structure is returned.
+
+        Args:
+            mode (str): Either "enum" or "sqs". If enum,
+                the enumlib will be used to return all distinct
+                orderings. If sqs, mcsqs will be used to return
+                an sqs structure.
+            kwargs: kwargs passed to either
+                pymatgen.command_line..enumlib_caller.EnumlibAdaptor
+                or pymatgen.command_line.mcsqs_caller.run_mcsqs.
+                For run_mcsqs, a default cluster search of 2 cluster interactions
+                with 1NN distance and 3 cluster interactions with 2NN distance
+                is set.
+
+        Returns:
+            List[Structure]
+        """
+        if self.is_ordered:
+            return [self]
+        if mode.startswith("enum"):
+            from pymatgen.command_line.enumlib_caller import EnumlibAdaptor
+            adaptor = EnumlibAdaptor(self, **kwargs)
+            adaptor.run()
+            return adaptor.structures
+        if mode == "sqs":
+            from pymatgen.command_line.mcsqs_caller import run_mcsqs
+            if "clusters" not in kwargs:
+                disordered_sites = [site for site in self if not site.is_ordered]
+                subset_structure = Structure.from_sites(disordered_sites)
+                dist_matrix = subset_structure.distance_matrix
+                dists = sorted(set(dist_matrix.ravel()))
+                unique_dists = []
+                for i in range(1, len(dists)):
+                    if dists[i] - dists[i-1] > 0.1:
+                        unique_dists.append(dists[i])
+                clusters = {(i+2): d + 0.01 for i, d in enumerate(unique_dists) if i < 2}
+                kwargs["clusters"] = clusters
+            print(kwargs["clusters"])
+            return [run_mcsqs(self, **kwargs).bestsqs]
+        raise ValueError()
+
     def as_dict(self, verbosity=1, fmt=None, **kwargs):
         """
         Dict representation of Structure.
@@ -2312,9 +2356,7 @@ class IStructure(SiteCollection, MSONable):
                                 merge_tol=merge_tol)
         elif fnmatch(fname, "input*.xml"):
             return ExcitingInput.from_file(fname).structure
-        elif fnmatch(fname, "*rndstr.in*") \
-                or fnmatch(fname, "*lat.in*") \
-                or fnmatch(fname, "*bestsqs*"):
+        elif fnmatch(fname, "*rndstr.in*") or fnmatch(fname, "*lat.in*") or fnmatch(fname, "*bestsqs*"):
             return cls.from_str(contents, fmt="mcsqs",
                                 primitive=primitive, sort=sort,
                                 merge_tol=merge_tol)
@@ -2841,7 +2883,7 @@ class IMolecule(SiteCollection, MSONable):
         return str(writer)
 
     @classmethod
-    def from_str(cls, input_string, fmt):
+    def from_str(cls, input_string: str, fmt: str):
         """
         Reads the molecule from a string.
 

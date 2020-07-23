@@ -46,6 +46,7 @@ jobs:
         for EXEPATH in `pwd`/cmd_line/*/Darwin_64bit; do export PATH=$PATH:$EXEPATH; done
     - name: pytest
       env:
+        PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
         MPLBACKEND: "Agg"
       run: |
         pytest pymatgen --ignore=pymatgen/analysis --color=yes

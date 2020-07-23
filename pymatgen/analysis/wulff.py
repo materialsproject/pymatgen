@@ -18,20 +18,22 @@ Tran, R.; Xu, Z.; Radhakrishnan, B.; Winston, D.; Persson, K. A.; Ong, S. P.
 (2016). Surface energies of elemental crystals. Scientific Data.
 """
 
-from pymatgen.core.structure import Structure
-from pymatgen.util.coord import get_angle
-import numpy as np
-from scipy.spatial import ConvexHull
+import itertools
 import logging
 import warnings
-import itertools
+
+import numpy as np
+from scipy.spatial import ConvexHull
 import plotly.graph_objs as go
+
+from pymatgen.core.structure import Structure
+from pymatgen.util.coord import get_angle
 from pymatgen.util.string import unicodeify_spacegroup
 
 __author__ = 'Zihan Xu, Richard Tran, Shyue Ping Ong'
 __copyright__ = 'Copyright 2013, The Materials Virtual Lab'
 __version__ = '0.1'
-__maintainer__ = 'Zihan Xu' 
+__maintainer__ = 'Zihan Xu'
 __email__ = 'zix009@eng.ucsd.edu'
 __date__ = 'May 5 2016'
 
@@ -517,10 +519,8 @@ class WulffShape:
         """
 
         units = 'Jm⁻²' if units_in_JPERM2 else 'eVÅ⁻²'
-        color_list, color_proxy, color_proxy_on_wulff, \
-            miller_on_wulff, e_surf_on_wulff = self. \
-            _get_colors(color_set, alpha, off_color,
-                        custom_colors=custom_colors)
+        color_list, color_proxy, color_proxy_on_wulff, miller_on_wulff, e_surf_on_wulff = self._get_colors(
+            color_set, alpha, off_color, custom_colors=custom_colors)
 
         planes_data, color_scale, ticktext, tickvals = [], [], [], []
         for plane in self.facets:
@@ -540,12 +540,14 @@ class WulffShape:
 
             # remove duplicate x y z pts to save time
             all_xyz = []
+            # pylint: disable=E1133,E1136
             [all_xyz.append(list(coord)) for coord in np.array([x_pts, y_pts, z_pts]).T
              if list(coord) not in all_xyz]
-            x_pts, y_pts, z_pts = np.array(all_xyz).T[0], np.array(all_xyz).T[1], np.array(all_xyz).T[2]
+            all_xyz = np.array(all_xyz).T
+            x_pts, y_pts, z_pts = all_xyz[0], all_xyz[1], all_xyz[2]
             index_list = [int(i) for i in np.linspace(0, len(x_pts) - 1, len(x_pts))]
 
-            tri_indices = np.array([c for c in itertools.combinations(index_list, 3)]).T
+            tri_indices = np.array(itertools.combinations(index_list, 3)).T
             hkl = self.miller_list[plane.index]
             hkl = unicodeify_spacegroup('(' + '%s' * len(hkl) % hkl + ')')
             color = 'rgba(%.5f, %.5f, %.5f, %.5f)' % tuple(np.array(plane_color) * 255)
@@ -599,14 +601,13 @@ class WulffShape:
         Returns:
             azim, elev for plotting
         """
-        if miller_index == (0, 0, 1) or miller_index == (0, 0, 0, 1):
+        if miller_index in [(0, 0, 1), (0, 0, 0, 1)]:
             return 0, 90
-        else:
-            cart = self.lattice.get_cartesian_coords(miller_index)
-            azim = get_angle([cart[0], cart[1], 0], (1, 0, 0))
-            v = [cart[0], cart[1], 0]
-            elev = get_angle(cart, v)
-            return azim, elev
+        cart = self.lattice.get_cartesian_coords(miller_index)
+        azim = get_angle([cart[0], cart[1], 0], (1, 0, 0))
+        v = [cart[0], cart[1], 0]
+        elev = get_angle(cart, v)
+        return azim, elev
 
     @property
     def volume(self):
