@@ -546,7 +546,7 @@ class PhaseDiagram(MSONable):
 
         Returns:
             Energy of lowest energy equilibrium at desired composition. Not
-            normalized by atoms, i.e. E(Li4O2) = 2 * E(Li2O)
+                normalized by atoms, i.e. E(Li4O2) = 2 * E(Li2O)
         """
         e = 0
         for k, v in self.get_decomposition(comp).items():
@@ -561,14 +561,14 @@ class PhaseDiagram(MSONable):
 
         Args:
             entry (PDEntry): A PDEntry like object
-            allow_negative (Bool): Whether to allow negative e_above_hulls. Used to
+            allow_negative (bool): Whether to allow negative e_above_hulls. Used to
                 calculate equilibrium reaction energies. Defaults to False.
 
         Returns:
-            (decomp, energy above convex hull)  Stable entries should have
-            energy above hull of 0. The decomposition is provided as a dict of
-            {PDEntry: amount} where amount is the amount of the fractional
-            composition.
+            (decomp, energy above convex hull). The decomposition is provided
+                as a dict of {PDEntry: amount} where amount is the amount of the
+                fractional composition. Stable entries should have energy above
+                convex hull of 0.
         """
         if entry in self.stable_entries:
             return {entry: 1}, 0
@@ -633,13 +633,14 @@ class PhaseDiagram(MSONable):
 
         Args:
             entry (PDEntry): A PDEntry like object
-            **kwargs:
+            **kwargs: Keyword args passed to `get_decomp_and_decomp_energy`
                 space_limit (int): The maximum number of competing entries to consider.
                 stable_only (bool): Only use stable materials as competing entries
 
         Returns:
             Decomposition energy per atom of entry. Stable entries should have
-            decomposition energies <= 0.
+            energies <= 0, Stable elemental entries should have energies = 0 and
+            unstable entries should have energies > 0.
         """
         # Handle unstable materials
         if entry not in self.stable_entries:
@@ -672,19 +673,19 @@ class PhaseDiagram(MSONable):
             stable_only (bool): Only use stable materials as competing entries.
 
         Returns:
-            (decomp, energy), decomp is given as a dict of {PDEntry, amount} for all
-            entries in the decomp reaction where amount is the amount of the fractional
-            composition. The energy is given per atom.
+            (decomp, energy). The decompostion  is given as a dict of {PDEntry, amount}
+            for all entries in the decomp reaction where amount is the amount of the
+            fractional composition. The energy is given per atom.
         """
+
+        # For unstable materials use simplex approach
+        if entry not in self.stable_entries:
+            return self.get_decomp_and_e_above_hull(entry)
 
         if stable_only:
             compare_entries = self.stable_entries
         else:
             compare_entries = self.qhull_entries
-
-        # For unstable materials use simplex approach
-        if entry not in self.stable_entries:
-            return self.get_decomp_and_e_above_hull(entry)
 
         # take entries with negative formation enthalpies as competing entries
         competing_entries = [c for c in compare_entries if c != entry
@@ -1437,27 +1438,26 @@ def _slsqp_decomp_solution(entry, competing_entries):
         machine-learned formation energies, npj Computational Materials 6, 97 (2020)
 
     Args:
-        entry (PDEntry) - the entry to analyze
-        competing_entries - the entries in the same chemical space
+        entry (PDEntry): A PDEntry like entry to analyze
+        competing_entries ([PDEntry]): List of entries to consider for decomposition
 
     Returns:
-        scipy.optimize.minimize result
-            for finding the linear combination of competing entrys that
-            minimizes the competing formation energy
+        scipy.optimize.minimize result. If sucessful this gives the linear combination of
+            competing entrys that minimizes the competing formation energy
     """
-    # elemental amount present in given entry
+    # Elemental amount present in given entry
     amts = entry.composition.fractional_composition.get_el_amt_dict()
     chemical_space = tuple(amts.keys())
     b = np.array([amts[el] for el in chemical_space])
 
-    # elemental amounts present in competing entries
+    # Elemental amounts present in competing entries
     A_transpose = np.zeros((len(chemical_space), len(competing_entries)))
     for j, comp_entry in enumerate(competing_entries):
         amts = comp_entry.composition.fractional_composition.get_el_amt_dict()
         for i, el in enumerate(chemical_space):
             A_transpose[i, j] = amts[el]
 
-    # energies of competing entries
+    # Energies of competing entries
     Es = np.array([comp_entry.energy_per_atom for comp_entry in competing_entries])
 
     molar_constraint = {
