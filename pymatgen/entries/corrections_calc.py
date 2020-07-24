@@ -44,7 +44,7 @@ class CorrectionCalculator:
 
     def __init__(
         self,
-        species = [
+        species: List[str] = [
             "oxide",
             "peroxide",
             "superoxide",
@@ -113,12 +113,12 @@ class CorrectionCalculator:
 
         """
         Args:
-            exp_gz: name of gzip file that contains experimental data
-                    data in gzip file should be a list of dictionary objects with the following keys/values:
+            exp_gz: name of .json.gz file that contains experimental data
+                    data in .json.gz file should be a list of dictionary objects with the following keys/values:
                     {"formula": chemical formula, "exp energy": formation energy in eV/formula unit,
                     "uncertainty": uncertainty in formation energy}
-            comp_gz: name of gzip file that contains computed entries
-                    data in gzip file should be a dictionary of {chemical formula: ComputedEntry}
+            comp_gz: name of .json.gz file that contains computed entries
+                    data in .json.gz file should be a dictionary of {chemical formula: ComputedEntry}
         """
 
         exp_entries = loadfn(exp_gz)
@@ -469,7 +469,6 @@ class CorrectionCalculator:
         u_corr_error: "OrderedDict[str, OrderedDict]" = OrderedDict()
         o_error: "OrderedDict[str, float]" = OrderedDict()
         f_error: "OrderedDict[str, float]" = OrderedDict()
-
 
         for specie in self.species:
             if specie in ucorrection_species:
