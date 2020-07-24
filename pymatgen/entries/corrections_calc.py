@@ -42,33 +42,32 @@ class CorrectionCalculator:
         corrections_dict: dictionary of format {'species': (value, uncertainty)} for easier correction lookup
     """
 
-    species = [
-        "oxide",
-        "peroxide",
-        "superoxide",
-        "sulfide",
-        "F",
-        "Cl",
-        "Br",
-        "I",
-        "N",
-        "Se",
-        "Si",
-        "Sb",
-        "Te",
-        "V",
-        "Cr",
-        "Mn",
-        "Fe",
-        "Co",
-        "Ni",
-        "W",
-        "Mo",
-        "H",
-    ]  # species that we're fitting corrections for
-
     def __init__(
         self,
+        species = [
+            "oxide",
+            "peroxide",
+            "superoxide",
+            "sulfide",
+            "F",
+            "Cl",
+            "Br",
+            "I",
+            "N",
+            "Se",
+            "Si",
+            "Sb",
+            "Te",
+            "V",
+            "Cr",
+            "Mn",
+            "Fe",
+            "Co",
+            "Ni",
+            "W",
+            "Mo",
+            "H",
+        ],
         max_error: float = 0.1,
         allow_unstable: bool = False,
         allow_polyanions: bool = False,
@@ -78,6 +77,7 @@ class CorrectionCalculator:
         Initializes a CorrectionCalculator.
 
         Args:
+            species: list of species to calculate corrections for
             max_error: maximum tolerable relative uncertainty in experimental energy.
                     Compounds with relative uncertainty greater than this value will be excluded from the fit
             allow_unstable: whether unstable entries (e_above_hull > 100 meV/atom) are to be included in the fit
@@ -88,6 +88,7 @@ class CorrectionCalculator:
 
         """
 
+        self.species = species
         self.max_error = max_error
         self.allow_unstable = allow_unstable
         self.allow_polyanions = allow_polyanions
@@ -99,10 +100,14 @@ class CorrectionCalculator:
         ] = {}  # {'species': (value, uncertainty)}
 
         # to help the graph_residual_error_per_species() method differentiate between oxygen containing compounds
-        self.oxides: List[str] = []
-        self.peroxides: List[str] = []
-        self.superoxides: List[str] = []
-        self.sulfides: List[str] = []
+        if "oxide" in self.species:
+            self.oxides: List[str] = []
+        if "peroxide" in self.species:
+            self.peroxides: List[str] = []
+        if "superoxide" in self.species:
+            self.superoxides: List[str] = []
+        if "sulfide" in self.species:
+            self.sulfides: List[str] = []
 
     def compute_from_files(self, exp_gz: str, comp_gz: str):
 
@@ -224,33 +229,45 @@ class CorrectionCalculator:
                 rxn.normalize_to(comp)
                 energy = rxn.calculated_reaction_energy
 
-                if compound.data["oxide_type"] == "oxide":
-                    coeff = [comp["O"], 0, 0]
-                    self.oxides.append(name)
-                elif compound.data["oxide_type"] == "peroxide":
-                    coeff = [0, comp["O"], 0]
-                    self.peroxides.append(name)
-                elif compound.data["oxide_type"] == "superoxide":
-                    coeff = [0, 0, comp["O"]]
-                    self.superoxides.append(name)
-                else:
-                    coeff = [0, 0, 0]
-
-                if Element("S") in comp:
-                    sf_type = "sulfide"
-                    if compound.data.get("sulfide_type"):
-                        sf_type = compound.data["sulfide_type"]
-                    elif hasattr(compound, "structure"):
-                        sf_type = sulfide_type(compound.structure)
-                    if sf_type == "sulfide":
-                        coeff += [comp["S"]]
-                        self.sulfides.append(name)
+                coeff = []
+                for specie in self.species:
+                    if specie == "oxide":
+                        if compound.data["oxide_type"] == "oxide":
+                            coeff.append(comp["O"])
+                            self.oxides.append(name)
+                        else:
+                            coeff.append(0)
+                    elif specie == "peroxide":
+                        if compound.data["oxide_type"] == "peroxide":
+                            coeff.append(comp["O"])
+                            self.peroxides.append(name)
+                        else:
+                            coeff.append(0)
+                    elif specie == "superoxide":
+                        if compound.data["oxide_type"] == "superoxide":
+                            coeff.append(comp["O"])
+                            self.superoxides.append(name)
+                        else:
+                            coeff.append(0)
+                    elif specie == "sulfide":
+                        if Element("S") in comp:
+                            sf_type = "sulfide"
+                            if compound.data.get("sulfide_type"):
+                                sf_type = compound.data["sulfide_type"]
+                            elif hasattr(compound, "structure"):
+                                sf_type = sulfide_type(compound.structure)
+                            if sf_type == "sulfide":
+                                coeff.append(comp["S"])
+                                self.sulfides.append(name)
+                            else:
+                                coeff.append(0)
+                        else:
+                            coeff.append(0)
                     else:
-                        coeff += [0]
-                else:
-                    coeff += [0]
-
-                coeff += [comp[elem] for elem in self.species[4:]]
+                        try:
+                            coeff.append(comp[specie])
+                        except ValueError:
+                            raise ValueError("We can't detect this specie: {}".format(specie))
 
                 self.names.append(name)
                 self.diffs.append((cmpd_info["exp energy"] - energy) / comp.num_atoms)
@@ -436,6 +453,9 @@ class CorrectionCalculator:
                 "Please call compute_corrections or compute_from_files to calculate corrections first"
             )
 
+        # elements with U values
+        ucorrection_species = ["V", "Cr", "Mn", "Fe", "Co", "Ni", "W", "Mo"]
+
         compatibility: OrderedDict = OrderedDict()
         comp_corr: "OrderedDict[str, float]" = OrderedDict()
         advanced: "OrderedDict[str, OrderedDict]" = OrderedDict()
@@ -450,29 +470,21 @@ class CorrectionCalculator:
         o_error: "OrderedDict[str, float]" = OrderedDict()
         f_error: "OrderedDict[str, float]" = OrderedDict()
 
-        comp_corr["oxide"] = self.corrections_dict["oxide"][0]
-        comp_corr["peroxide"] = self.corrections_dict["peroxide"][0]
-        comp_corr["superoxide"] = self.corrections_dict["superoxide"][0]
+
+        for specie in self.species:
+            if specie in ucorrection_species:
+                o[specie] = self.corrections_dict[specie][0]
+                f[specie] = self.corrections_dict[specie][0]
+
+                o_error[specie] = self.corrections_dict[specie][1]
+                f_error[specie] = self.corrections_dict[specie][1]
+
+            else:
+                comp_corr[specie] = self.corrections_dict[specie][0]
+                comp_corr_error[specie] = self.corrections_dict[specie][1]
+
         comp_corr["ozonide"] = 0  # do i need this??
-
-        comp_corr_error["oxide"] = self.corrections_dict["oxide"][1]
-        comp_corr_error["peroxide"] = self.corrections_dict["peroxide"][1]
-        comp_corr_error["superoxide"] = self.corrections_dict["superoxide"][1]
-        comp_corr_error["ozonide"] = 0  # do i need this??
-
-        comp_corr["sulfide"] = self.corrections_dict["sulfide"][0]
-        comp_corr_error["sulfide"] = self.corrections_dict["sulfide"][1]
-
-        for elem in ["Br", "I", "Se", "Si", "Sb", "Te", "F", "Cl", "N", "H"]:
-            comp_corr[elem] = self.corrections_dict[elem][0]
-            comp_corr_error[elem] = self.corrections_dict[elem][1]
-
-        for elem in ["V", "Cr", "Mn", "Fe", "Co", "Ni", "W", "Mo"]:
-            o[elem] = self.corrections_dict[elem][0]
-            f[elem] = self.corrections_dict[elem][0]
-
-            o_error[elem] = self.corrections_dict[elem][1]
-            f_error[elem] = self.corrections_dict[elem][1]
+        comp_corr_error["ozonide"] = 0
 
         u_corr["O"] = o
         u_corr["F"] = f
