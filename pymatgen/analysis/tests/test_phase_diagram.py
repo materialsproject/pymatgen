@@ -3,16 +3,31 @@
 # Distributed under the terms of the MIT License.
 
 
-import unittest
 import os
-from numbers import Number
+import unittest
 import warnings
+import numpy as np
+
+from numbers import Number
 from pathlib import Path
-from pymatgen.analysis.phase_diagram import *
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.core.periodic_table import Element, DummySpecie
 from pymatgen.core.composition import Composition
 from pymatgen.entries.entry_tools import EntrySet
+from pymatgen.analysis.phase_diagram import (
+    PDEntry,
+    GrandPotPDEntry,
+    TransformedPDEntry,
+    PhaseDiagram,
+    GrandPotentialPhaseDiagram,
+    CompoundPhaseDiagram,
+    PhaseDiagramError,
+    ReactionDiagram,
+    PDPlotter,
+    uniquelines,
+    triangular_coord,
+    tet_coord,
+)
 
 module_dir = Path(__file__).absolute().parent
 
