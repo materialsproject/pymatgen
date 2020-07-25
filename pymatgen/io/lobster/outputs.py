@@ -782,7 +782,7 @@ class Lobsterout:
             if len(splitrow) > 4:
                 if splitrow[3] == "program...":
                     return splitrow[4]
-        raise ValueError("DFT program not found.")
+        return None
 
     @staticmethod
     def _get_number_of_spins(data):
