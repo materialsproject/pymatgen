@@ -116,7 +116,7 @@ class CorrectionCalculatorTest(unittest.TestCase):
         calc_path = os.path.join(self.test_dir, "calc_compounds_norm.gz")
 
         calculator = CorrectionCalculator(
-            max_error=1, allow_polyanions=True, allow_unstable=True
+            max_error=1, exclude_polyanions=[], allow_unstable=True
         )
         corrs = calculator.compute_from_files(exp_path, calc_path)
 

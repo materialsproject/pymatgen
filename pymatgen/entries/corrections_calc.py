@@ -5,7 +5,7 @@ entries given to the CorrectionCalculator constructor.
 
 import warnings
 from collections import OrderedDict
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Union
 
 import numpy as np
 import plotly.graph_objects as go
@@ -69,8 +69,17 @@ class CorrectionCalculator:
             "H",
         ],
         max_error: float = 0.1,
-        allow_unstable: bool = False,
-        allow_polyanions: bool = False,
+        allow_unstable: Union[float, bool] = 0.1,
+        exclude_polyanions: List[str] = [
+            "SO4",
+            "CO3",
+            "NO3",
+            "OCl3",
+            "SiO4",
+            "SeO3",
+            "TiO3",
+            "TiO4",
+        ]
     ) -> None:
 
         """
@@ -80,18 +89,23 @@ class CorrectionCalculator:
             species: list of species to calculate corrections for
             max_error: maximum tolerable relative uncertainty in experimental energy.
                     Compounds with relative uncertainty greater than this value will be excluded from the fit
-            allow_unstable: whether unstable entries (e_above_hull > 100 meV/atom) are to be included in the fit
-            allow_polyanions: whether entries containing the following polyanions are to be included in the fit:
-                    ["SO4", "CO3", "NO3", "OCl3", "SiO4", "SeO3", "TiO3", "TiO4"]. Compounds with these polyanions
-                    have been observed to contain additional sources of error that may negatively influence the
-                    quality of the fitted corrections
+            allow_unstable: whether unstable entries are to be included in the fit. If True, all compounds will
+                            be included regardless of their energy above hull. If False or a float, compounds with
+                            energy above hull greater than the given value (defaults to 0.1 eV/atom) will be
+                            excluded
+            exclude_polyanions: a list of polyanions that contain additional sources of error that may negatively
+                                influence the quality of the fitted corrections. Compounds with these polyanions
+                                will be excluded from the fit
 
         """
 
         self.species = species
         self.max_error = max_error
-        self.allow_unstable = allow_unstable
-        self.allow_polyanions = allow_polyanions
+        if not allow_unstable:
+            self.allow_unstable = 0.1
+        else:
+            self.allow_unstable = allow_unstable
+        self.exclude_polyanions = exclude_polyanions
 
         self.corrections: List[float] = []
         self.corrections_std_error: List[float] = []
@@ -169,6 +183,7 @@ class CorrectionCalculator:
                 )
                 continue
 
+            # filter out compounds with large uncertainties
             relative_uncertainty = abs(
                 cmpd_info["uncertainty"] / cmpd_info["exp energy"]
             )
@@ -180,32 +195,24 @@ class CorrectionCalculator:
                     )
                 )
 
-            if not self.allow_polyanions:
-                for anion in [
-                    "SO4",
-                    "CO3",
-                    "NO3",
-                    "OCl3",
-                    "SiO4",
-                    "SeO3",
-                    "TiO3",
-                    "TiO4",
-                ]:
-                    if anion in name or anion in cmpd_info["formula"]:
-                        allow = False
-                        warnings.warn(
-                            "Compound {} contains the polyanion {} and is excluded from the fit".format(
-                                name, anion
-                            )
+            # filter out compounds containing certain polyanions
+            for anion in self.exclude_polyanions:
+                if anion in name or anion in cmpd_info["formula"]:
+                    allow = False
+                    warnings.warn(
+                        "Compound {} contains the polyanion {} and is excluded from the fit".format(
+                            name, anion
                         )
-                        break
+                    )
+                    break
 
-            if not self.allow_unstable:
+            # filter out compounds that are unstable
+            if type(self.allow_unstable) == float:
                 try:
                     eah = compound.data["e_above_hull"]
                 except KeyError:
                     raise ValueError("Missing e above hull data")
-                if eah > 0.1:  # unstable if e_above_hull is greater than 100 meV/atom
+                if eah > self.allow_unstable:
                     allow = False
                     warnings.warn(
                         "Compound {} is unstable and excluded from the fit (e_above_hull = {})".format(
