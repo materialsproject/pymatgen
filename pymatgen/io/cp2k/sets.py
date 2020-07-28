@@ -40,6 +40,8 @@ from pymatgen.io.cp2k.inputs import (
     Cell,
     Subsys,
     Scf,
+    Kpoints,
+    Smear
 )
 from pymatgen.io.cp2k.utils import (
     get_basis_and_potential,
@@ -120,9 +122,11 @@ class Cp2kInputSet(Cp2kInput):
         # Important CP2K set parameters
         self.structure = structure
         self.charge = structure.charge
+        self.potential_and_basis = potential_and_basis
         self.multiplicity = multiplicity  # spin multiplicity = 2s+1
         self.override_default_params = override_default_params
         self.project_name = project_name
+        self.kwargs = kwargs
 
         cell = Cell(structure.lattice)
         subsys = Subsys(subsections={"CELL": cell})
@@ -131,13 +135,17 @@ class Cp2kInputSet(Cp2kInput):
         basis_type = potential_and_basis.get("basis", "MOLOPT")
         functional = potential_and_basis.get("functional", "PBE")
         cardinality = potential_and_basis.get("cardinality", "DZVP")
+        sr = potential_and_basis.get('sr', True)
+        q = potential_and_basis.get('q', None)
         basis_and_potential = get_basis_and_potential(
             structure.symbol_set,
             functional=functional,
             basis_type=basis_type,
             cardinality=cardinality,
+            sr=sr,
+            q=q
         )
-        self.basis_set_file_name = basis_and_potential["basis_filename"]
+        self.basis_set_file_names = basis_and_potential["basis_filenames"]
         self.potential_file_name = basis_and_potential["potential_filename"]
 
         # Insert atom kinds by identifying the unique sites (unique element and site properties)
@@ -235,7 +243,7 @@ class Cp2kInputSet(Cp2kInput):
         )
 
         for k, v in self["FORCE_EVAL"]["SUBSYS"].subsections.items():
-            if "KIND" in k:
+            if "KIND" == v.name.upper():
                 kind = v.get_keyword("ELEMENT").values[0]
                 v.keywords.append(
                     Keyword("BASIS_SET", "AUX_FIT", basis[kind])
@@ -253,8 +261,7 @@ class Cp2kInputSet(Cp2kInput):
 
         # Define the GGA functional as PBE
         pbe = PBE("ORIG", scale_c=gga_c_fraction, scale_x=gga_x_fraction)
-        xc = XC_FUNCTIONAL("PBE", subsections={"PBE": pbe})
-        xc_functional = Section("XC_FUNCTIONAL", subsections={"PBE": pbe})
+        xc_functional = XC_FUNCTIONAL("PBE", subsections={"PBE": pbe})
 
         # Define screening of the HF term
         screening = Section(
@@ -378,6 +385,8 @@ class DftSet(Cp2kInputSet):
         progression_factor=3,
         override_default_params={},
         wfn_restart_file_name=None,
+        kpoints=None,
+        smearing=None,
         **kwargs
     ):
         """
@@ -413,12 +422,36 @@ class DftSet(Cp2kInputSet):
 
         super(DftSet, self).__init__(structure, **kwargs)
 
+        self.structure = structure
+        self.ot = ot
+        self.band_gap = band_gap
+        self.eps_default = eps_default
+        self.eps_scf = eps_scf
+        self.max_scf = max_scf
+        self.minimizer = minimizer
+        self.preconditioner = preconditioner
+        self.algorithm = algorithm
+        self.linesearch = linesearch
+        self.cutoff = cutoff
+        self.rel_cutoff = rel_cutoff
+        self.ngrids = ngrids
+        self.progression_factor = progression_factor
+        self.override_default_params = override_default_params
+        self.wfn_restart_file_name = wfn_restart_file_name
+        self.kpoints = kpoints
+        self.smearing = smearing
+        self.kwargs = kwargs
+
         # Build the QS Section
         qs = QS(eps_default=eps_default)
         scf = Scf(eps_scf=eps_scf, max_scf=max_scf, subsections={})
 
         # If there's a band gap, always use OT, else use Davidson
-        if band_gap or ot:
+        if ot:
+            if band_gap <= 0:
+                raise UserWarning('Orbital Transformation method is being used for'
+                                  'a system without a bandgap. OT can have very poor'
+                                  'convergence for metallic systems, proceed with caution.')
             scf.insert(
                 OrbitalTransformation(
                     minimizer=minimizer,
@@ -456,11 +489,16 @@ class DftSet(Cp2kInputSet):
         dft = Dft(
             MULTIPLICITY=self.multiplicity,
             CHARGE=self.charge,
-            basis_set_filename=self.basis_set_file_name,
+            basis_set_filenames=self.basis_set_file_names,
             potential_filename=self.potential_file_name,
             subsections={"QS": qs, "SCF": scf, "MGRID": mgrid},
             wfn_restart_file_name=wfn_restart_file_name
         )
+
+        if kpoints:
+            dft.insert(Kpoints.from_kpoints(kpoints))
+        if smearing or (band_gap <= 0.0):
+            scf.insert(Smear())
 
         # Create subsections and insert into them
         self["FORCE_EVAL"].insert(dft)
@@ -527,6 +565,13 @@ class DftSet(Cp2kInputSet):
             self["FORCE_EVAL"]["DFT"]["PRINT"].insert(
                 MO_Cubes(write_cube=write_cube, nlumo=nlumo, nhomo=nhomo)
             )
+
+    def print_mo(self):
+        """
+        Print molecular orbitals when running non-OT diagonalization
+        """
+        raise NotImplementedError
+        pass
 
     def print_hartree_potential(self, stride=[1, 1, 1]):
         """
@@ -623,8 +668,13 @@ class StaticSet(DftSet):
         """
         super(StaticSet, self).__init__(structure, **kwargs)
         global_section = Global(project_name=project_name, run_type=run_type)
+        self.structure = structure
+        self.project_name = project_name
+        self.run_type = run_type
+        self.override_default_params = override_default_params
         self.insert(global_section)
         self.update(override_default_params)
+        self.kwargs = kwargs
 
 
 class RelaxSet(DftSet):

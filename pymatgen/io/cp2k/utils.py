@@ -5,7 +5,7 @@ Utility functions for assisting with creating cp2k inputs
 import os
 import re
 import numpy as np
-from monty.re import regrep
+from ruamel import yaml
 from monty.serialization import loadfn
 from pathlib import Path
 
@@ -58,13 +58,11 @@ def natural_keys(text):
 
 
 def get_basis_and_potential(
-    species, functional="PBE", basis_type="MOLOPT", cardinality="DZVP"
+    species, functional="PBE", basis_type="MOLOPT", cardinality="DZVP", sr=True, q=None
 ):
-
     """
-    Given a specie and a potential/basis type, this function accesses the available basis sets and potentials in
-    the available "*_POTENTIAL.yaml" files. These files should come with this module distribution, but can be
-    updated or remade if needed (see utils.py). Generally, the GTH potentials are used with the GTH basis sets.
+    Given a specie and a potential/basis type, this function accesses the available basis sets and potentials.
+    Generally, the GTH potentials are used with the GTH basis sets.
 
     Note: as with most cp2k inputs, the convention is to use all caps, so use type="GTH" instead of "gth"
 
@@ -87,54 +85,70 @@ def get_basis_and_potential(
     Returns:
         (dict) of the form {'specie': {'potential': potential, 'basis': basis}...}
     """
-    cp2k_data = SETTINGS.get("PMG_CP2K_DATA_DIR", "")
-    basis_filename = SETTINGS.get("PMG_DEFAULT_CP2K_BASIS_FILE", "BASIS_MOLOPT")
-    basis_path = os.path.join(cp2k_data, basis_filename)
-
     potential_filename = SETTINGS.get(
         "PMG_DEFAULT_CP2K_POTENTIAL_FILE", "GTH_POTENTIALS"
     )
-    potential_path = os.path.join(cp2k_data, potential_filename)
+    basis_filenames = ['BASIS_MOLOPT', 'BASIS_MOLOPT_UCL']
 
-    functional = functional or SETTINGS.get("PMG_DEFAULT_FUNCTIONAL", "PBE")
+    functional = functional or SETTINGS.get(
+        "PMG_DEFAULT_FUNCTIONAL", "PBE"
+    )
     cardinality = cardinality or SETTINGS.get(
         "PMG_DEFAULT_BASIS_CARDINALITY", "DZVP"
     )
-
     basis_and_potential = {
-        "basis_filename": basis_filename,
+        "basis_filenames": basis_filenames,
         "potential_filename": potential_filename,
     }
 
-    patterns = {
-        specie: re.compile(r"^[\s+]?{}\s+(.+) ".format(specie))
-        for specie in species
-    }
-    matches_basis = regrep(basis_path, patterns=patterns)
-    matches_potential = regrep(potential_path, patterns=patterns)
+    with open(os.path.join(MODULE_DIR, 'basis_molopt.yaml'), 'rt') as f:
+        data_b = yaml.load(f, Loader=yaml.Loader)
+    with open(os.path.join(MODULE_DIR, 'gth_potentials.yaml'), 'rt') as f:
+        data_p = yaml.load(f, Loader=yaml.Loader)
 
-    for k in patterns.keys():
-        basis_and_potential[k] = {}
-        for m in [i[0] for i in matches_basis.get(k, [])]:
-            if m[0].__contains__(cardinality.upper()):
-                if m[0].__contains__(basis_type.upper()):
-                    basis_and_potential[k]["basis"] = m[0]
+    for s in species:
+        basis_and_potential[s] = {}
+        b = [_ for _ in data_b[s] if cardinality in _.split('-')]
+        if sr:
+            b = [_ for _ in b if 'SR' in _]
+        else:
+            b = [_ for _ in b if 'SR' not in _]
+        if q:
+            b = [_ for _ in b if q in _]
+        if len(b) == 0:
+            raise LookupError('NO BASIS OF THAT TYPE AVAILABLE')
+        elif len(b) > 1:
+            print(b)
+            raise LookupError('AMBIGUITY IN BASIS. PLEASE SPECIFY FURTHER')
 
-        for m in [i[0] for i in matches_potential.get(k, [])]:
-            if m[0].__contains__(functional.upper()):
-                basis_and_potential[k]["potential"] = m[0]
+        basis_and_potential[s]['basis'] = b[0]
+        p = [_ for _ in data_p[s] if functional in _.split('-')]
+        if len(p) == 0:
+            raise LookupError('NO PSEUDOPOTENTIAL OF THAT TYPE AVAILABLE')
+        if len(p) > 1:
+            print(p)
+            raise LookupError('AMBIGUITY IN POTENTIAL. PLEASE SPECIFY FURTHER')
+
+        basis_and_potential[s]['potential'] = p[0]
 
     return basis_and_potential
 
 
-def get_aux_basis(species, basis_filename=[], basis_type="cFIT"):
+def get_aux_basis(species, basis_type="cFIT"):
     """
-    Get auxiliary basis info for a list of species
+    Get auxiliary basis info for a list of species.
 
     Args:
         species (list): list of species to get info for
-        basis_filename (list): list of basis set filenames to look in
-        basis_type (str): default basis type to look for. Otherwise, follow defaults
+        basis_type (str): default basis type to look for. Otherwise, follow defaults.
+
+            Basis types:
+                FIT
+                cFIT
+                pFIT
+                cpFIT
+                GTH-def2
+                aug-{FIT,cFIT,pFIT,cpFIT, GTH-def2}
     """
 
     basis = {k: {} for k in species}

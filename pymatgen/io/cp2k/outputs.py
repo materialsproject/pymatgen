@@ -20,6 +20,7 @@ from monty.re import regrep
 
 from pymatgen.core.sites import Site
 from pymatgen.core.structure import Structure
+from pymatgen.core.units import bohr_to_angstrom as _bohr_to_angstrom_
 from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.electronic_structure.dos import Dos, add_densities
 from pymatgen.io.xyz import XYZ
@@ -40,7 +41,6 @@ _static_run_names_ = [
     "WAVEFUNCTION_OPTIMIZATION",
     "WFN_OPT",
 ]
-from pymatgen.core.units import bohr_to_angstrom as _bohr_to_angstrom_
 
 
 class Cp2kOutput:
