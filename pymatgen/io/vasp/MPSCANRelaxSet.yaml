@@ -9,7 +9,6 @@ INCAR:
   EDIFFG: -0.02
   ENCUT: 680
   IBRION: 2
-  ICHARG: 2
   ISIF: 3
   ISPIN: 2
   LORBIT: 11
@@ -19,6 +18,7 @@ INCAR:
   LCHARG: True  # Output CHGCAR
   LAECHG: True  # Output AECCAR
   LELF: True  # Output ELFCAR
+  LWAVE: False # Don't output WAVECAR
   LVTOT: True # Output LOCPOT
   METAGGA: SCAN
   NELM: 200
