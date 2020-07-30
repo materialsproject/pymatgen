@@ -625,62 +625,57 @@ class PhaseDiagram(MSONable):
         modpd = PhaseDiagram(entries, self.elements)
         return modpd.get_decomp_and_e_above_hull(entry, allow_negative=True)[1]
 
-    def get_decomposition_energy(self, entry, **kwargs):
+    def get_decomp_and_quasi_e_to_hull(
+        self,
+        entry,
+        space_limit=200,
+        stable_only=True,
+        tol=1e-10,
+        maxiter=1000
+    ):
         """
-        Provides the decomposition energy of an entry from the neighboring
-        stable entries excluding the entry in question. For unstable entries
-        this is the same as the energy above the hull.
+        Provides the combination of entries in the PhaseDiagram that gives the
+        lowest formation enthalpy with the same composition as the given entry
+        and the energy difference per atom between the given entry and the energy
+        of the combination found.
 
-        Args:
-            entry (PDEntry): A PDEntry like object
-            **kwargs: Keyword args passed to `get_decomp_and_decomp_energy`
-                space_limit (int): The maximum number of competing entries to consider.
-                stable_only (bool): Only use stable materials as competing entries
+        For unstable entries (or novel entries) this is simply the energy above
+        (or below) the convex hull.
 
-        Returns:
-            Decomposition energy per atom of entry. Stable entries should have
-            energies <= 0, Stable elemental entries should have energies = 0 and
-            unstable entries should have energies > 0.
-        """
-        # Handle unstable materials
-        if entry not in self.stable_entries:
-            return self.get_e_above_hull(entry)
-
-        # Handle stable elemental materials
-        if entry.is_element:
-            return 0
-
-        # Handle stable compounds
-        return self.get_decomp_and_decomp_energy(entry, **kwargs)[1]
-
-    def get_decomp_and_decomp_energy(self, entry, space_limit=200, stable_only=True):
-        """
-        Provides the combination of entries in the PhaseDiagram that minimises
-        the formation enthalpy for the composition of a given energy as well as
-        the energy difference per atom between that entry and the energy of the
-        decomposition found. For unstable entries this is simply the energy above
-        the convex hull.
-
-        The energy returned is referred to as the decomposition enthalpy in:
+        For stable entries when `stable_only` is `False` (Default) allows for entries
+        not previously on the convect hull to be considered in the combination.
+        In this case the energy returned is what is referred to as the decomposition
+        enthalpy in:
 
         1. Bartel, C., Trewartha, A., Wang, Q., Dunn, A., Jain, A., Ceder, G.,
-        A critical examination of compound stability predictions from
-        machine-learned formation energies, npj Computational Materials 6, 97 (2020)
+            A critical examination of compound stability predictions from
+            machine-learned formation energies, npj Computational Materials 6, 97 (2020)
+
+        For stable entries setting `stable_only` to `True` returns the same energy
+        as `get_equilibrium_reaction_energy`. This function is based on a constrained
+        optimisation rather than recalculation of the convex hull making it
+        algorithmically cheaper. However, if `tol` is too loose there is potential
+        for this algorithm to converge to a different solution.
 
         Args:
             entry (PDEntry): A PDEntry like object.
-            space_limit (int): The maximum number of competing entries to consider.
+            space_limit (int): The maximum number of competing entries to consider
+                before calculating a second convex hull to reducing the complexity
+                of the optimization.
             stable_only (bool): Only use stable materials as competing entries.
+            tol (float): The tolerence for convergence of the SLSQP optimization
+                when finding the equilibrium reaction.
+            maxiter (int): The maximum number of iterations of the SLSQP optimizer
+                when finding the equilibrium reaction.
 
         Returns:
             (decomp, energy). The decompostion  is given as a dict of {PDEntry, amount}
             for all entries in the decomp reaction where amount is the amount of the
             fractional composition. The energy is given per atom.
         """
-
         # For unstable materials use simplex approach
         if entry not in self.stable_entries:
-            return self.get_decomp_and_e_above_hull(entry)
+            return self.get_decomp_and_e_above_hull(entry, allow_negative=True)
 
         if stable_only:
             compare_entries = self.stable_entries
@@ -706,7 +701,7 @@ class PhaseDiagram(MSONable):
             competing_entries = list(self.stable_entries.union(inner_hull.stable_entries))
             competing_entries = [c for c in competing_entries if c != entry]
 
-        solution = _slsqp_decomp_solution(entry, competing_entries)
+        solution = _slsqp_decomp_solution(entry, competing_entries, tol, maxiter)
 
         if solution.success:
             decomp_amts = solution.x
@@ -722,6 +717,42 @@ class PhaseDiagram(MSONable):
             return decomp, decomp_enthalpy
 
         raise ValueError("No valid decomp found for {}!".format(entry))
+
+    def get_quasi_e_to_hull(self, entry, **kwargs):
+        """
+        Provides the energy to the convex hull for the given entry. For stable entries
+        already in the phase diagram the algorithm provides a quasi energy to the convex
+        hull which is refered to as the decomposition enthalpy in:
+
+        1. Bartel, C., Trewartha, A., Wang, Q., Dunn, A., Jain, A., Ceder, G.,
+            A critical examination of compound stability predictions from
+            machine-learned formation energies, npj Computational Materials 6, 97 (2020)
+
+        Args:
+            entry (PDEntry): A PDEntry like object
+            **kwargs: Keyword args passed to `get_decomp_and_decomp_energy`
+                space_limit (int): The maximum number of competing entries to consider.
+                stable_only (bool): Only use stable materials as competing entries
+                tol (float): The tolerence for convergence of the SLSQP optimization
+                    when finding the equilibrium reaction.
+                maxiter (int): The maximum number of iterations of the SLSQP optimizer
+                    when finding the equilibrium reaction.
+
+        Returns:
+            Decomposition energy per atom of entry. Stable entries should have
+            energies <= 0, Stable elemental entries should have energies = 0 and
+            unstable entries should have energies > 0.
+        """
+        # Handle unstable materials
+        if entry not in self.stable_entries:
+            return self.get_decomp_and_e_above_hull(entry, allow_negative=True)[1]
+
+        # Handle stable elemental materials
+        if entry.is_element:
+            return 0
+
+        # Handle stable compounds
+        return self.get_decomp_and_quasi_e_to_hull(entry, **kwargs)[1]
 
     def get_composition_chempots(self, comp):
         """
@@ -1426,7 +1457,7 @@ def get_facets(qhull_data, joggle=False):
     return ConvexHull(qhull_data, qhull_options="Qt i").simplices
 
 
-def _slsqp_decomp_solution(entry, competing_entries):
+def _slsqp_decomp_solution(entry, competing_entries, tol, maxiter):
     """
     Finds the amounts of competing compositions that minimize the energy of a
     given composition
@@ -1467,7 +1498,7 @@ def _slsqp_decomp_solution(entry, competing_entries):
     }
 
     options = {
-        "maxiter": 1000,
+        "maxiter": maxiter,
         "disp": False
     }
 
@@ -1477,14 +1508,14 @@ def _slsqp_decomp_solution(entry, competing_entries):
 
     # NOTE the tolerence needs to be tight to stop the optimization
     # from exiting before convergence is reached. Issues observed for
-    # tol > 1e-7 in the fractional composition.
+    # tol > 1e-7 in the fractional composition (default 1e-10).
     solution = minimize(fun=lambda x: np.dot(x, Es),
                         x0=x0,
                         method="SLSQP",
                         jac=lambda x: Es,
                         bounds=bounds,
                         constraints=[molar_constraint],
-                        tol=PhaseDiagram.numerical_tol,
+                        tol=tol,
                         options=options)
 
     return solution
