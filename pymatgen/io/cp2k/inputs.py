@@ -757,6 +757,7 @@ class Scf(Section):
             Keyword(
                 "SCF_GUESS", scf_guess
             ),  # Uses Restart file if present, and ATOMIC if not present
+            Keyword("MAX_ITER_LUMO", kwargs.get('max_iter_lumo', 400))
         ]
 
         super(Scf, self).__init__(
