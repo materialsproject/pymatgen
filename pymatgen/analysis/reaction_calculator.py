@@ -14,6 +14,7 @@ import numpy as np
 from monty.fractions import gcd_float
 from monty.json import MSONable
 from monty.json import MontyDecoder
+from uncertainties import ufloat
 
 from pymatgen.core.composition import Composition
 from pymatgen.entries.computed_entries import ComputedEntry
