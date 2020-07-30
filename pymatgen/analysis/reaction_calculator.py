@@ -8,12 +8,12 @@ This module provides classes that define a chemical reaction.
 
 import logging
 import re
-from itertools import chain, combinations
+from itertools import combinations, chain
 
 import numpy as np
 from monty.fractions import gcd_float
-from monty.json import MontyDecoder, MSONable
-from uncertainties import ufloat
+from monty.json import MSONable
+from monty.json import MontyDecoder
 
 from pymatgen.core.composition import Composition
 from pymatgen.entries.computed_entries import ComputedEntry
@@ -401,7 +401,6 @@ class Reaction(BalancedReaction):
                 if num_errors == 0:
                     self._lowest_num_errors = 0
                     return np.squeeze(coeffs)
-
                 if num_errors < self._lowest_num_errors:
                     self._lowest_num_errors = num_errors
                     best_soln = coeffs

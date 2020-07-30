@@ -11,9 +11,10 @@ installed. Please consult the
 
 import warnings
 import copy
-from pymatgen.core.structure import Molecule
-from pymatgen.analysis.graphs import MoleculeGraph
+
 from monty.dev import requires
+
+from pymatgen.core.structure import Molecule
 
 try:
     from openbabel import openbabel as ob
@@ -59,7 +60,7 @@ class BabelMolAdaptor:
             obmol = ob.OBMol()
             obmol.BeginModify()
             for site in mol:
-                coords = [c for c in site.coords]
+                coords = list(site.coords)
                 atomno = site.specie.Z
                 obatom = ob.OBAtom()
                 obatom.thisown = 0
@@ -318,8 +319,8 @@ class BabelMolAdaptor:
         mols = pb.readfile(str(file_format), str(filename))
         if return_all_molecules:
             return [BabelMolAdaptor(mol.OBMol) for mol in mols]
-        else:
-            return BabelMolAdaptor(next(mols).OBMol)
+
+        return BabelMolAdaptor(next(mols).OBMol)
 
     @staticmethod
     def from_molecule_graph(mol):
@@ -332,8 +333,7 @@ class BabelMolAdaptor:
         Returns:
             BabelMolAdaptor object
         """
-        if isinstance(mol, MoleculeGraph):
-            return BabelMolAdaptor(mol.molecule)
+        return BabelMolAdaptor(mol.molecule)
 
     @staticmethod
     def from_string(string_data, file_format="xyz"):

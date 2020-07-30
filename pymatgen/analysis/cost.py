@@ -11,19 +11,19 @@ to give the desired compound with lowest total cost.
 """
 
 import abc
-from collections import defaultdict
 import csv
-import os
 import itertools
+import os
+from collections import defaultdict
+from io import open
+
+import scipy.constants as const
 from monty.design_patterns import singleton
 from monty.string import unicode2str
 
-import scipy.constants as const
-
 from pymatgen import Composition, Element
-from pymatgen.util.provenance import is_valid_bibtex
 from pymatgen.analysis.phase_diagram import PDEntry, PhaseDiagram
-from io import open
+from pymatgen.util.provenance import is_valid_bibtex
 
 __author__ = 'Anubhav Jain'
 __copyright__ = 'Copyright 2013, The Materials Project'

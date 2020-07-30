@@ -47,16 +47,6 @@ from pymatgen.util.io_utils import clean_lines, micro_pyawk
 from pymatgen.util.num import make_symmetric_matrix_from_upper_tri
 
 
-__author__ = "Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, " + \
-             "Vincent L Chevrier, Ioannis Petousis, Stephen Dacek, Mark Turiansky"
-__credits__ = "Anubhav Jain"
-__copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "1.2"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__status__ = "Production"
-__date__ = "Nov 30, 2012"
-
 logger = logging.getLogger(__name__)
 
 
@@ -71,12 +61,11 @@ def _parse_parameters(val_type, val):
     """
     if val_type == "logical":
         return val == "T"
-    elif val_type == "int":
+    if val_type == "int":
         return int(val)
-    elif val_type == "string":
+    if val_type == "string":
         return val.strip()
-    else:
-        return float(val)
+    return float(val)
 
 
 def _parse_v_parameters(val_type, val, filename, param_name):
@@ -123,7 +112,7 @@ def _parse_v_parameters(val_type, val, filename, param_name):
 
 def _parse_varray(elem):
     if elem.get("type", None) == 'logical':
-        m = [[True if i == 'T' else False for i in v.text.split()] for v in elem]
+        m = [[i == 'T' for i in v.text.split()] for v in elem]
     else:
         m = [[_vasprun_float(i) for i in v.text.split()] for v in elem]
     return m
@@ -140,8 +129,7 @@ def _parse_from_incar(filename, key):
             incar = Incar.from_file(os.path.join(dirname, f))
             if key in incar:
                 return incar[key]
-            else:
-                return None
+            return None
     return None
 
 
@@ -469,10 +457,9 @@ class Vasprun(MSONable):
         except ET.ParseError as ex:
             if self.exception_on_bad_xml:
                 raise ex
-            else:
-                warnings.warn(
-                    "XML is malformed. Parsing has stopped but partial data"
-                    "is available.", UserWarning)
+            warnings.warn(
+                "XML is malformed. Parsing has stopped but partial data"
+                "is available.", UserWarning)
         self.ionic_steps = ionic_steps
         self.vasp_version = self.generator["version"]
 
@@ -643,11 +630,10 @@ class Vasprun(MSONable):
             js = [0] * len(us)
         if len(us) == len(symbols):
             return {symbols[i]: us[i] - js[i] for i in range(len(symbols))}
-        elif sum(us) == 0 and sum(js) == 0:
+        if sum(us) == 0 and sum(js) == 0:
             return {}
-        else:
-            raise VaspParserError("Length of U value parameters and atomic "
-                                  "symbols are mismatched")
+        raise VaspParserError("Length of U value parameters and atomic "
+                              "symbols are mismatched")
 
     @property
     def run_type(self):
@@ -732,13 +718,8 @@ class Vasprun(MSONable):
         data = {p: getattr(self, p) for p in data} if data is not None else {}
 
         if inc_structure:
-            return ComputedStructureEntry(self.final_structure,
-                                          self.final_energy, parameters=params,
-                                          data=data)
-        else:
-            return ComputedEntry(self.final_structure.composition,
-                                 self.final_energy, parameters=params,
-                                 data=data)
+            return ComputedStructureEntry(self.final_structure, self.final_energy, parameters=params, data=data)
+        return ComputedEntry(self.final_structure.composition, self.final_energy, parameters=params, data=data)
 
     def get_band_structure(self, kpoints_filename=None, efermi=None,
                            line_mode=False, force_hybrid_mode=False):
@@ -868,10 +849,9 @@ class Vasprun(MSONable):
                                          efermi, labels_dict,
                                          structure=self.final_structure,
                                          projections=p_eigenvals)
-        else:
-            return BandStructure(kpoints, eigenvals, lattice_new, efermi,
-                                 structure=self.final_structure,
-                                 projections=p_eigenvals)
+        return BandStructure(kpoints, eigenvals, lattice_new, efermi,
+                             structure=self.final_structure,
+                             projections=p_eigenvals)
 
     @property
     def eigenvalue_band_properties(self):
@@ -903,18 +883,17 @@ class Vasprun(MSONable):
             for fn in os.listdir(os.path.abspath(p)):
                 if fn.startswith('POTCAR'):
                     pc = Potcar.from_file(os.path.join(p, fn))
-                    if {d.header for d in pc} == \
-                            {sym for sym in self.potcar_symbols}:
+                    if {d.header for d in pc} == set(self.potcar_symbols):
                         return pc
             warnings.warn("No POTCAR file with matching TITEL fields"
                           " was found in {}".format(os.path.abspath(p)))
+            return None
 
         if isinstance(path, (str, Path)):
             path = str(path)
             if "POTCAR" in path:
                 potcar = Potcar.from_file(path)
-                if {d.TITEL for d in potcar} != \
-                        {sym for sym in self.potcar_symbols}:
+                if {d.TITEL for d in potcar} != set(self.potcar_symbols):
                     raise ValueError("Potcar TITELs do not match Vasprun")
             else:
                 potcar = get_potcar_in_path(path)
@@ -1003,7 +982,7 @@ class Vasprun(MSONable):
 
         d["run_type"] = self.run_type
 
-        vin = {"incar": {k: v for k, v in self.incar.items()},
+        vin = {"incar": dict(self.incar.items()),
                "crystal": self.initial_structure.as_dict(),
                "kpoints": self.kpoints.as_dict()}
         actual_kpts = [{"abc": list(self.actual_kpoints[i]),
@@ -1014,7 +993,7 @@ class Vasprun(MSONable):
         vin["potcar"] = [s.split(" ")[1] for s in self.potcar_symbols]
         vin["potcar_spec"] = self.potcar_spec
         vin["potcar_type"] = [s.split(" ")[0] for s in self.potcar_symbols]
-        vin["parameters"] = {k: v for k, v in self.parameters.items()}
+        vin["parameters"] = dict(self.parameters.items())
         vin["lattice_rec"] = self.final_structure.lattice.reciprocal_lattice.as_dict()
         d["input"] = vin
 
@@ -1074,7 +1053,8 @@ class Vasprun(MSONable):
         elem.clear()
         return Incar(params)
 
-    def _parse_atominfo(self, elem):
+    @staticmethod
+    def _parse_atominfo(elem):
         for a in elem.findall("array"):
             if a.attrib["name"] == "atoms":
                 atomic_symbols = [rc.find("c").text.strip()
@@ -1091,15 +1071,15 @@ class Vasprun(MSONable):
             except ValueError as e:
                 if symbol == "X":
                     return "Xe"
-                elif symbol == "r":
+                if symbol == "r":
                     return "Zr"
                 raise e
 
         elem.clear()
-        return [parse_atomic_symbol(sym) for
-                sym in atomic_symbols], potcar_symbols
+        return [parse_atomic_symbol(sym) for sym in atomic_symbols], potcar_symbols
 
-    def _parse_kpoints(self, elem):
+    @staticmethod
+    def _parse_kpoints(elem):
         e = elem
         if elem.find("generation"):
             e = elem.find("generation")
@@ -1139,16 +1119,17 @@ class Vasprun(MSONable):
                                      _parse_varray(sdyn))
         return struct
 
-    def _parse_diel(self, elem):
+    @staticmethod
+    def _parse_diel(elem):
         imag = [[_vasprun_float(l) for l in r.text.split()]
                 for r in elem.find("imag").find("array").find("set").findall("r")]
         real = [[_vasprun_float(l) for l in r.text.split()]
                 for r in elem.find("real").find("array").find("set").findall("r")]
         elem.clear()
-        return [e[0] for e in imag], \
-               [e[1:] for e in real], [e[1:] for e in imag]
+        return [e[0] for e in imag], [e[1:] for e in real], [e[1:] for e in imag]
 
-    def _parse_optical_transition(self, elem):
+    @staticmethod
+    def _parse_optical_transition(elem):
         for va in elem.findall("varray"):
             if va.attrib.get("name") == "opticaltransitions":
                 # opticaltransitions array contains oscillator strength and probability of transition
@@ -1215,7 +1196,8 @@ class Vasprun(MSONable):
         elem.clear()
         return istep
 
-    def _parse_dos(self, elem):
+    @staticmethod
+    def _parse_dos(elem):
         efermi = float(elem.find("i").text)
         energies = None
         tdensities = {}
@@ -1252,7 +1234,8 @@ class Vasprun(MSONable):
         elem.clear()
         return Dos(efermi, energies, tdensities), Dos(efermi, energies, idensities), pdoss
 
-    def _parse_eigen(self, elem):
+    @staticmethod
+    def _parse_eigen(elem):
         eigenvalues = defaultdict(list)
         for s in elem.find("array").find("set").findall("set"):
             spin = Spin.up if s.attrib["comment"] == "spin 1" else Spin.down
@@ -1262,7 +1245,8 @@ class Vasprun(MSONable):
         elem.clear()
         return eigenvalues
 
-    def _parse_projected_eigen(self, elem):
+    @staticmethod
+    def _parse_projected_eigen(elem):
         root = elem.find("array").find("set")
         proj_eigen = defaultdict(list)
         for s in root.findall("set"):
@@ -1280,7 +1264,8 @@ class Vasprun(MSONable):
         elem.clear()
         return proj_eigen
 
-    def _parse_dynmat(self, elem):
+    @staticmethod
+    def _parse_dynmat(elem):
         hessian = []
         eigenvalues = []
         eigenvectors = []
@@ -1371,8 +1356,6 @@ class BSVasprun(Vasprun):
         d["unit_cell_formula"] = comp.as_dict()
         d["reduced_cell_formula"] = Composition(comp.reduced_formula).as_dict()
         d["pretty_formula"] = comp.reduced_formula
-        symbols = [s.split()[1] for s in self.potcar_symbols]
-        symbols = [re.split(r"_", s)[0] for s in symbols]
         d["is_hubbard"] = self.is_hubbard
         d["hubbards"] = self.hubbards
 
@@ -1382,7 +1365,7 @@ class BSVasprun(Vasprun):
 
         d["run_type"] = self.run_type
 
-        vin = {"incar": {k: v for k, v in self.incar.items()},
+        vin = {"incar": dict(self.incar),
                "crystal": self.final_structure.as_dict(),
                "kpoints": self.kpoints.as_dict()}
         actual_kpts = [{"abc": list(self.actual_kpoints[i]),
@@ -1392,7 +1375,7 @@ class BSVasprun(Vasprun):
         vin["potcar"] = [s.split(" ")[1] for s in self.potcar_symbols]
         vin["potcar_spec"] = self.potcar_spec
         vin["potcar_type"] = [s.split(" ")[0] for s in self.potcar_symbols]
-        vin["parameters"] = {k: v for k, v in self.parameters.items()}
+        vin["parameters"] = dict(self.parameters)
         vin["lattice_rec"] = self.final_structure.lattice.reciprocal_lattice.as_dict()
         d["input"] = vin
 
@@ -2687,6 +2670,7 @@ class Outcar:
         """
         Create pseudopotential ZVAL dictionary.
         """
+        # pylint: disable=E1101
         try:
             def atom_symbols(results, match):
                 element_symbol = match.group(1)
@@ -2710,8 +2694,8 @@ class Outcar:
             self.zval_dict = zval_dict
 
             # Clean-up
-            del (self.atom_symbols)
-            del (self.zvals)
+            del self.atom_symbols
+            del self.zvals
         except Exception:
             raise Exception("ZVAL dict could not be parsed.")
 
@@ -2959,8 +2943,9 @@ class VolumetricData(MSONable):
         self.xpoints = np.linspace(0.0, 1.0, num=self.dim[0])
         self.ypoints = np.linspace(0.0, 1.0, num=self.dim[1])
         self.zpoints = np.linspace(0.0, 1.0, num=self.dim[2])
-        self.interpolator = RegularGridInterpolator((self.xpoints, self.ypoints, self.zpoints), 
+        self.interpolator = RegularGridInterpolator((self.xpoints, self.ypoints, self.zpoints),
                                                     self.data['total'], bounds_error=True)
+        self.name = "VolumetricData"
 
     @property
     def spin_data(self):
@@ -3046,6 +3031,7 @@ class VolumetricData(MSONable):
         Returns:
             (poscar, data)
         """
+        # pylint: disable=E1136,E1126
         poscar_read = False
         poscar_string = []
         dataset = []
@@ -3159,8 +3145,7 @@ class VolumetricData(MSONable):
             s = "{:.10E}".format(f)
             if f >= 0:
                 return "0." + s[0] + s[2:12] + 'E' + "{:+03}".format(int(s[13:]) + 1)
-            else:
-                return "-." + s[1] + s[3:13] + 'E' + "{:+03}".format(int(s[14:]) + 1)
+            return "-." + s[1] + s[3:13] + 'E' + "{:+03}".format(int(s[14:]) + 1)
 
         with zopen(file_name, "wt") as f:
             p = Poscar(self.structure)
@@ -3212,9 +3197,9 @@ class VolumetricData(MSONable):
 
     def value_at(self, x, y, z):
         """
-        Get a data value from self.data at a given point (x, y, z) in terms 
-        of fractional lattice parameters. Will be interpolated using a 
-        RegularGridInterpolator on self.data if (x, y, z) is not in the original 
+        Get a data value from self.data at a given point (x, y, z) in terms
+        of fractional lattice parameters. Will be interpolated using a
+        RegularGridInterpolator on self.data if (x, y, z) is not in the original
         set of data points.
 
         Args:
@@ -3223,7 +3208,7 @@ class VolumetricData(MSONable):
             z (float): Fraction of lattice vector c.
 
         Returns:
-            Value from self.data (potentially interpolated) correspondisng to 
+            Value from self.data (potentially interpolated) correspondisng to
             the point (x, y, z).
         """
         return self.interpolator([x, y, z])[0]
@@ -3239,7 +3224,7 @@ class VolumetricData(MSONable):
             n (int): Number of data points to collect, defaults to 100.
 
         Returns:
-            List of n data points (mostly interpolated) representing a linear slice of the 
+            List of n data points (mostly interpolated) representing a linear slice of the
             data from point p1 to point p2.
         """
         assert type(p1) in [list, np.ndarray] and type(p2) in [list, np.ndarray]
@@ -3452,8 +3437,7 @@ class Chgcar(VolumetricData):
         """
         if self.is_spin_polarized:
             return np.sum(self.data['diff'])
-        else:
-            return None
+        return None
 
 
 class Elfcar(VolumetricData):
@@ -3572,7 +3556,7 @@ class Procar:
             done = False
             spin = Spin.down
             weights = None
-
+            # pylint: disable=E1137
             for l in f:
                 l = l.strip()
                 if bandexpr.match(l):
@@ -3591,10 +3575,10 @@ class Procar:
                     headers.pop(0)
                     headers.pop(-1)
 
-                    def f():
+                    def ff():
                         return np.zeros((nkpoints, nbands, nions, len(headers)))
 
-                    data = defaultdict(f)
+                    data = defaultdict(ff)
 
                     def f2():
                         return np.full((nkpoints, nbands, nions, len(headers)),
@@ -3738,7 +3722,7 @@ class Oszicar:
 
         def smart_convert(header, num):
             try:
-                if header == "N" or header == "ncg":
+                if header in ("N", "ncg"):
                     v = int(num)
                     return v
                 v = float(num)
@@ -3853,24 +3837,24 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None,
 
         # populate branches with Bandstructure instances
         branches = []
-        for dir_name in sorted_branch_dir_names:
-            xml_file = os.path.join(dir_name, "vasprun.xml")
+        for dname in sorted_branch_dir_names:
+            xml_file = os.path.join(dname, "vasprun.xml")
             if os.path.exists(xml_file):
                 run = Vasprun(xml_file, parse_projected_eigen=projections)
                 branches.append(run.get_band_structure(efermi=efermi))
             else:
                 # It might be better to throw an exception
-                warnings.warn("Skipping {}. Unable to find {}".format(dir_name, xml_file))
+                warnings.warn("Skipping {}. Unable to find {}".format(dname, xml_file))
 
         return get_reconstructed_band_structure(branches, efermi)
-    else:
-        xml_file = os.path.join(dir_name, "vasprun.xml")
-        # Better handling of Errors
-        if os.path.exists(xml_file):
-            return Vasprun(xml_file, parse_projected_eigen=projections) \
-                .get_band_structure(kpoints_filename=None, efermi=efermi)
-        else:
-            return None
+
+    xml_file = os.path.join(dir_name, "vasprun.xml")
+    # Better handling of Errors
+    if os.path.exists(xml_file):
+        return Vasprun(xml_file, parse_projected_eigen=projections) \
+            .get_band_structure(kpoints_filename=None, efermi=efermi)
+
+    return None
 
 
 class Xdatcar:
@@ -3900,12 +3884,12 @@ class Xdatcar:
         coords_str = []
         structures = []
         preamble_done = False
-        if (ionicstep_start < 1):
+        if ionicstep_start < 1:
             raise Exception('Start ionic step cannot be less than 1')
-        if (ionicstep_end is not None and
-                ionicstep_start < 1):
+        if ionicstep_end is not None and ionicstep_start < 1:
             raise Exception('End ionic step cannot be less than 1')
 
+        # pylint: disable=E1136
         ionicstep_cnt = 1
         with zopen(filename, "rt") as f:
             for l in f:
@@ -3928,7 +3912,7 @@ class Xdatcar:
                     p = Poscar.from_string("\n".join(preamble +
                                                      ["Direct"] + coords_str))
                     if ionicstep_end is None:
-                        if (ionicstep_cnt >= ionicstep_start):
+                        if ionicstep_cnt >= ionicstep_start:
                             structures.append(p.structure)
                     else:
                         if ionicstep_start <= ionicstep_cnt < ionicstep_end:
@@ -3990,6 +3974,8 @@ class Xdatcar:
         if (ionicstep_end is not None and
                 ionicstep_start < 1):
             raise Exception('End ionic step cannot be less than 1')
+
+        # pylint: disable=E1136
         ionicstep_cnt = 1
         with zopen(filename, "rt") as f:
             for l in f:
@@ -4012,7 +3998,7 @@ class Xdatcar:
                     p = Poscar.from_string("\n".join(preamble +
                                                      ["Direct"] + coords_str))
                     if ionicstep_end is None:
-                        if (ionicstep_cnt >= ionicstep_start):
+                        if ionicstep_cnt >= ionicstep_start:
                             structures.append(p.structure)
                     else:
                         if ionicstep_start <= ionicstep_cnt < ionicstep_end:
@@ -4058,7 +4044,7 @@ class Xdatcar:
         for cnt, structure in enumerate(self.structures):
             ionicstep_cnt = cnt + 1
             if ionicstep_end is None:
-                if (ionicstep_cnt >= ionicstep_start):
+                if ionicstep_cnt >= ionicstep_start:
                     lines.append("Direct configuration=" +
                                  ' ' * (7 - len(str(output_cnt))) + str(output_cnt))
                     for (i, site) in enumerate(structure):
@@ -4139,7 +4125,7 @@ class Dynmat:
         # TODO: the following is most likely not correct or suboptimal
         # hence for demonstration purposes only
         frequencies = []
-        for k, v0 in self.data.iteritems():
+        for k, v0 in self.data.items():
             for v1 in v0.itervalues():
                 vec = map(abs, v1['dynmat'][k - 1])
                 frequency = math.sqrt(sum(vec)) * 2. * math.pi * 15.633302  # THz

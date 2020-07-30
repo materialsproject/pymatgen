@@ -120,7 +120,6 @@ class EnumlibAdaptor:
         self.symm_prec = symm_prec
         self.enum_precision_parameter = enum_precision_parameter
         self.check_ordered_symmetry = check_ordered_symmetry
-        self.structures = None
         self.timeout = timeout
 
     def run(self):
