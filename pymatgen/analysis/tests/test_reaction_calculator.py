@@ -362,12 +362,12 @@ class ComputedReactionTest(unittest.TestCase):
                                - 5.60748821935)
 
     def test_init(self):
-        self.assertEqual(str(self.rxn), "O2 + 2 Li -> Li2O2")
+        self.assertEqual(str(self.rxn), "2 Li + O2 -> Li2O2")
 
     def test_to_from_dict(self):
         d = self.rxn.as_dict()
         new_rxn = ComputedReaction.from_dict(d)
-        self.assertEqual(str(new_rxn), "O2 + 2 Li -> Li2O2")
+        self.assertEqual(str(new_rxn), "2 Li + O2 -> Li2O2")
 
     def test_all_entries(self):
         for c, e in zip(self.rxn.coeffs, self.rxn.all_entries):

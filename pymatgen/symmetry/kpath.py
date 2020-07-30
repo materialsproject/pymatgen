@@ -6,17 +6,17 @@
 Provides classes for generating high-symmetry k-paths using different conventions.
 """
 
-from __future__ import division, unicode_literals
-
 import abc
-from math import cos, sin, tan, e, pi, ceil
 import itertools
-from warnings import warn
 import operator
+from math import cos, sin, tan, e, pi, ceil
+from warnings import warn
+
 import numpy as np
-import networkx as nx
 from scipy.linalg import sqrtm
+import networkx as nx
 import spglib
+
 from monty.dev import requires
 
 from pymatgen.core.operations import SymmOp, MagSymmOp
@@ -111,6 +111,8 @@ class KPathBase(metaclass=abc.ABCMeta):
                     self._rec_lattice.get_cartesian_coords(start) - self._rec_lattice.get_cartesian_coords(end)
                 )
                 nb = int(ceil(distance * line_density))
+                if nb == 0:
+                    continue
                 sym_point_labels.extend([b[i - 1]] + [""] * (nb - 1) + [b[i]])
                 list_k_points.extend(
                     [
@@ -123,9 +125,9 @@ class KPathBase(metaclass=abc.ABCMeta):
                 )
         if coords_are_cartesian:
             return list_k_points, sym_point_labels
-        else:
-            frac_k_points = [self._rec_lattice.get_fractional_coords(k) for k in list_k_points]
-            return frac_k_points, sym_point_labels
+
+        frac_k_points = [self._rec_lattice.get_fractional_coords(k) for k in list_k_points]
+        return frac_k_points, sym_point_labels
 
 
 class KPathSetyawanCurtarolo(KPathBase):
@@ -1008,20 +1010,19 @@ class KPathSeek(KPathBase):
                 "aP3",
                 "oA1"]:
             return np.eye(3)
-        elif sub_class == "oF2":
+        if sub_class == "oF2":
             return np.array([[0, 0, 1], [1, 0, 0], [0, 1, 0]])
-        elif sub_class == "oI2":
+        if sub_class == "oI2":
             return np.array([[0, 1, 0], [0, 0, 1], [1, 0, 0]])
-        elif sub_class == "oI3":
+        if sub_class == "oI3":
             return np.array([[0, 0, 1], [1, 0, 0], [0, 1, 0]])
-        elif sub_class == "oA2":
+        if sub_class == "oA2":
             return np.array([[-1, 0, 0], [0, 1, 0], [0, 0, -1]])
-        elif sub_class == "oC2":
+        if sub_class == "oC2":
             return np.array([[-1, 0, 0], [0, 1, 0], [0, 0, -1]])
-        elif sub_class in ["mP1", "mC1", "mC2", "mC3"]:
+        if sub_class in ["mP1", "mC1", "mC2", "mC3"]:
             return np.array([[0, 1, 0], [-1, 0, 0], [0, 0, 1]])
-        else:
-            raise RuntimeError("Sub-classification of crystal not found!")
+        raise RuntimeError("Sub-classification of crystal not found!")
 
 
 class KPathLatimerMunro(KPathBase):
@@ -1354,7 +1355,7 @@ class KPathLatimerMunro(KPathBase):
                         if np.linalg.det(op) == 1:
                             nC2 += 1
                             break
-                        elif not (op == PAR).all():
+                        if not (op == PAR).all():
                             nsig += 1
                             break
                     elif (np.dot(op, np.dot(op, op)) == ID).all():
@@ -1512,7 +1513,8 @@ class KPathLatimerMunro(KPathBase):
 
         return key_points_inds_orbits
 
-    def _get_key_lines(self, key_points, bz_as_key_point_inds):
+    @staticmethod
+    def _get_key_lines(key_points, bz_as_key_point_inds):
         key_lines = []
         gamma_ind = len(key_points) - 1
 
@@ -1732,8 +1734,8 @@ class KPathLatimerMunro(KPathBase):
 
         return mag_ops
 
-    def _get_reciprocal_point_group(self, ops, R, A):
-
+    @staticmethod
+    def _get_reciprocal_point_group(ops, R, A):
         Ainv = np.linalg.inv(A)
         # convert to reciprocal primitive basis
         recip_point_group = [np.around(np.dot(A, np.dot(R, Ainv)), decimals=2)]
@@ -1800,13 +1802,14 @@ class KPathLatimerMunro(KPathBase):
 
         return "No coset factor found."
 
-    def _apply_op_to_magmom(self, r, magmom):
+    @staticmethod
+    def _apply_op_to_magmom(r, magmom):
         if np.linalg.det(r) == 1:
             return np.dot(r, magmom)
-        else:
-            return -1 * np.dot(r, magmom)
+        return -1 * np.dot(r, magmom)
 
-    def _all_ints(self, arr, atol):
+    @staticmethod
+    def _all_ints(arr, atol):
         rounded_arr = np.around(arr, decimals=0)
         return np.allclose(rounded_arr, arr, atol=atol)
 
@@ -1823,7 +1826,7 @@ class KPathLatimerMunro(KPathBase):
         tertiary_orientation = None
 
         planar_boundaries = []
-        IRBZ_points = [(i, point) for i, point in enumerate(key_points)]
+        IRBZ_points = list(enumerate(key_points))
 
         for sigma in rpgdict["reflections"]:
             norm = sigma["normal"]
@@ -2004,7 +2007,8 @@ class KPathLatimerMunro(KPathBase):
 
         return [point[0] for point in IRBZ_points]
 
-    def _get_reciprocal_point_group_dict(self, recip_point_group, atol):
+    @staticmethod
+    def _get_reciprocal_point_group_dict(recip_point_group, atol):
         PAR = np.array([[-1, 0, 0], [0, -1, 0], [0, 0, -1]])
 
         d = {
@@ -2031,7 +2035,7 @@ class KPathLatimerMunro(KPathBase):
             if np.isclose(det, 1, atol=atol):
                 if np.isclose(tr, 3, atol=atol):
                     continue
-                elif np.isclose(tr, -1, atol=atol):  # two-fold rotation
+                if np.isclose(tr, -1, atol=atol):  # two-fold rotation
                     for j in range(3):
                         if np.isclose(evals[j], 1, atol=atol):
                             ax = evects[:, j]
@@ -2082,7 +2086,8 @@ class KPathLatimerMunro(KPathBase):
 
         return d
 
-    def _op_maps_IRBZ_to_self(self, op, IRBZ_points, atol):
+    @staticmethod
+    def _op_maps_IRBZ_to_self(op, IRBZ_points, atol):
         point_coords = [point[1] for point in IRBZ_points]
         for point in point_coords:
             point_prime = np.dot(op, point)
@@ -2096,7 +2101,8 @@ class KPathLatimerMunro(KPathBase):
 
         return True
 
-    def _reduce_IRBZ(self, IRBZ_points, boundaries, g, atol):
+    @staticmethod
+    def _reduce_IRBZ(IRBZ_points, boundaries, g, atol):
         in_reduced_section = []
         for point in IRBZ_points:
             in_reduced_section.append(
@@ -2158,8 +2164,8 @@ class KPathLatimerMunro(KPathBase):
 
         return orbit_labels
 
-    def _reduce_cosines_array(self, orbit_cosines, pop_orbits, pop_labels):
-
+    @staticmethod
+    def _reduce_cosines_array(orbit_cosines, pop_orbits, pop_labels):
         return [
             [orb_cos[i] for i in range(len(orb_cos)) if orb_cos[i][0] not in pop_labels]
             for j, orb_cos in enumerate(orbit_cosines)
@@ -2195,6 +2201,7 @@ class KPathLatimerMunro(KPathBase):
                         if max_cosine_orbits_copy[grouped_ind][j][0] not in initial_max_cosine_label_inds:
                             next_choices.append(max_cosine_orbits_copy[grouped_ind][j][1])
                             break
+                        j += 1
                 worst_next_choice = next_choices.index(min(next_choices))
                 for grouped_ind in grouped_inds[i]:
                     if grouped_ind != worst_next_choice:

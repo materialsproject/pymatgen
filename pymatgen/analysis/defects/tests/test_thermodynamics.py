@@ -94,7 +94,6 @@ class DefectsThermodynamicsTest(PymatgenTest):
         self.assertEqual(len(self.sep_pd.stable_entries['Vac_As_mult4@0-43']), 1)
         self.assertEqual(len(self.sep_pd.finished_charges['Vac_As_mult4@0-43']), 2)
 
-    #
     def test_solve_for_fermi_energy(self):
         fermi_energy = self.pd.solve_for_fermi_energy(100., self.mu_elts, self.dos)
         self.assertAlmostEqual(fermi_energy, 0.5738732534885003, 3)

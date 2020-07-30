@@ -8,12 +8,10 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Introduction &mdash; pymatgen 2020.4.2 documentation</title>
+  <title>Introduction &mdash; pymatgen 2020.7.18 documentation</title>
   
 
   
-  
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
   
   
   
@@ -25,11 +23,11 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -72,7 +70,7 @@
             
             
               <div class="version">
-                2020.4.2
+                2020.7.18
               </div>
             
           
@@ -175,9 +173,7 @@
 <a class="reference internal image-reference" href="_images/pymatgen.png"><img alt="pymatgen" class="align-center" src="_images/pymatgen.png" style="width: 300px;" /></a>
 <div class="section" id="introduction">
 <h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
-<img alt="https://circleci.com/gh/materialsproject/pymatgen.svg?style=shield&amp;circle-token=:circle-token" src="https://circleci.com/gh/materialsproject/pymatgen.svg?style=shield&amp;circle-token=:circle-token" />
-<img alt="https://ci.appveyor.com/api/projects/status/akdyke5jxg6gps45?svg=true" src="https://ci.appveyor.com/api/projects/status/akdyke5jxg6gps45?svg=true" />
-<img alt="https://anaconda.org/conda-forge/pymatgen/badges/downloads.svg" src="https://anaconda.org/conda-forge/pymatgen/badges/downloads.svg" /><img alt="https://coveralls.io/repos/github/materialsproject/pymatgen/badge.svg?branch=master" src="https://coveralls.io/repos/github/materialsproject/pymatgen/badge.svg?branch=master" />
+<img alt="https://github.com/materialsproject/pymatgen/workflows/Testing%20-%20main/badge.svg" src="https://github.com/materialsproject/pymatgen/workflows/Testing%20-%20main/badge.svg" /><img alt="https://github.com/materialsproject/pymatgen/workflows/Testing%20-%20analysis/badge.svg" src="https://github.com/materialsproject/pymatgen/workflows/Testing%20-%20analysis/badge.svg" /><img alt="https://anaconda.org/conda-forge/pymatgen/badges/downloads.svg" src="https://anaconda.org/conda-forge/pymatgen/badges/downloads.svg" /><img alt="https://coveralls.io/repos/github/materialsproject/pymatgen/badge.svg?branch=master" src="https://coveralls.io/repos/github/materialsproject/pymatgen/badge.svg?branch=master" />
 <p>Pymatgen (Python Materials Genomics) is a robust, open-source Python library
 for materials analysis. These are some of the main features:</p>
 <ol class="arabic simple">
@@ -291,14 +287,8 @@ other research groups.</p></li>
 <div class="section" id="change-log">
 <h2>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li><p>New high-symmetry k-path algorithm (&#64;munrojm, &#64;kt-latimer)</p></li>
-<li><p>New TEM diffraction calculator (&#64;welltemperedpaprika, &#64;thefrankwan, &#64;shyamd)</p></li>
-<li><p>New plotly plotting option for Wulff shapes (&#64;richardtran415)</p></li>
-<li><p>Improvements to SQS caller (&#64;rwoodsrobinson)</p></li>
-<li><p>Various bug fixes and improvements (&#64;mfherbst, &#64;chc273,
-&#64;jacksund, &#64;espottesmith, &#64;hongyi-zhao, &#64;montoyjh,
-&#64;dongsenfo, &#64;dynikon) including significant BrunnerNN, EconNN fixes (&#64;utf),
-see individual pull requests for details.</p></li>
+<li><p>Add validation and extrapolation for stitching XAS (&#64;yimingcheng)</p></li>
+<li><p>Better error handling and possibly verbose warning to get_structure_by_material_id</p></li>
 </ul>
 <p><a class="reference internal" href="change_log.html"><span class="doc">Older versions</span></a></p>
 </div>
@@ -397,12 +387,12 @@ manipulation or analyses.</p>
 <p>Useful aliases for commonly used objects are now provided. Supported objects
 include Element, Composition, Structure, Molecule, Spin and Orbital. Here are
 some quick examples of the core capabilities and objects:</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pymatgen</span> <span class="kn">as</span> <span class="nn">mg</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pymatgen</span> <span class="k">as</span> <span class="nn">mg</span>
 <span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">si</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s2">&quot;Si&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">si</span><span class="o">.</span><span class="n">atomic_mass</span>
 <span class="go">28.0855</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">si</span><span class="o">.</span><span class="n">melting_point</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">si</span><span class="o">.</span><span class="n">melting_point</span><span class="p">)</span>
 <span class="go">1687.0 K</span>
 <span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">comp</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">Composition</span><span class="p">(</span><span class="s2">&quot;Fe2O3&quot;</span><span class="p">)</span>
@@ -454,7 +444,7 @@ some quick examples of the core capabilities and objects:</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Pythonic API for editing Structures and Molecules (v2.9.1 onwards)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Changing the specie of a site.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;F&quot;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
 <span class="go">Structure Summary (Cs1 F1)</span>
 <span class="go">Reduced Formula: CsF</span>
 <span class="go">abc   :   4.200000   4.200000   4.200000</span>
@@ -465,7 +455,7 @@ some quick examples of the core capabilities and objects:</p>
 <span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Changes species and coordinates (fractional assumed for structures)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Cl&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.51</span><span class="p">,</span> <span class="mf">0.51</span><span class="p">,</span> <span class="mf">0.51</span><span class="p">]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
 <span class="go">Structure Summary (Cs1 Cl1)</span>
 <span class="go">Reduced Formula: CsCl</span>
 <span class="go">abc   :   4.200000   4.200000   4.200000</span>
@@ -476,7 +466,7 @@ some quick examples of the core capabilities and objects:</p>
 <span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Replaces all Cs in the structure with K</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span><span class="p">[</span><span class="s2">&quot;Cs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;K&quot;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
 <span class="go">Structure Summary (K1 Cl1)</span>
 <span class="go">Reduced Formula: KCl</span>
 <span class="go">abc   :   4.200000   4.200000   4.200000</span>
@@ -488,7 +478,7 @@ some quick examples of the core capabilities and objects:</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Replaces all K in the structure with K: 0.5, Na: 0.5, i.e.,</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># a disordered structure is created.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span><span class="p">[</span><span class="s2">&quot;K&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;K0.5Na0.5&quot;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
 <span class="go">Full Formula (K0.5 Na0.5 Cl1)</span>
 <span class="go">Reduced Formula: K0.5Na0.5Cl1</span>
 <span class="go">abc   :   4.209000   4.209000   4.209000</span>
@@ -502,7 +492,7 @@ some quick examples of the core capabilities and objects:</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Because structure is like a list, it supports most list-like methods</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># such as sort, reverse, etc.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
 <span class="go">Structure Summary (Cs1 Cl1)</span>
 <span class="go">Reduced Formula: CsCl</span>
 <span class="go">abc   :   4.200000   4.200000   4.200000</span>

@@ -356,10 +356,10 @@ loop_
             # parsed as "N" because the label is "N{x}" (x = 1,2,..) and the
             # corresponding symbol is "NH3". Since, the label and symbol are switched
             # in CIFs from Springer Materials/Pauling file DBs, CifParser parses the
-            # element as "N".
+            # element as "Nh" (Nihonium).
             parser = CifParser(self.TEST_FILES_DIR / 'PF_sd_1002871.cif')
-            self.assertEqual(parser.get_structures(True)[0].formula, "Cu1 Br2 N6")
-            self.assertEqual(parser.get_structures(True)[1].formula, "Cu1 Br4 N6")
+            self.assertEqual(parser.get_structures(True)[0].formula, "Cu1 Br2 Nh6")
+            self.assertEqual(parser.get_structures(True)[1].formula, "Cu1 Br4 Nh6")
             self.assertTrue(parser.has_errors)
 
             # Incomplete powder diffraction data, previously unparsable
@@ -430,9 +430,9 @@ loop_
             "D1-": "D",
             "D4": "D",
             "D0": "D",
-            "NH": "N",
-            "NH2": "N",
-            "NH3": "N",
+            "NH": "Nh",
+            "NH2": "Nh",
+            "NH3": "Nh",
             "SH": "S"
         }
 

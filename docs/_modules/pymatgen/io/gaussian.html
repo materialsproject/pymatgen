@@ -1,19 +1,19 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.gaussian &#8212; pymatgen 2020.3.2 documentation</title>
-    <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.io.gaussian &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../../_static/language_data.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
  
@@ -33,15 +33,15 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.io.gaussian</a></li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
-        <div class="bodywrapper">
           <div class="body" role="main">
             
   <h1>Source code for pymatgen.io.gaussian</h1><div class="highlight"><pre>
@@ -58,14 +58,14 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 
-<span class="kn">from</span> <span class="nn">pymatgen.core.operations</span> <span class="k">import</span> <span class="n">SymmOp</span>
-<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="k">import</span> <span class="n">Element</span><span class="p">,</span> <span class="n">Molecule</span><span class="p">,</span> <span class="n">Composition</span>
-<span class="kn">from</span> <span class="nn">monty.io</span> <span class="k">import</span> <span class="n">zopen</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.units</span> <span class="k">import</span> <span class="n">Ha_to_eV</span>
-<span class="kn">from</span> <span class="nn">pymatgen.util.coord</span> <span class="k">import</span> <span class="n">get_angle</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.operations</span> <span class="kn">import</span> <span class="n">SymmOp</span>
+<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">Element</span><span class="p">,</span> <span class="n">Molecule</span><span class="p">,</span> <span class="n">Composition</span>
+<span class="kn">from</span> <span class="nn">monty.io</span> <span class="kn">import</span> <span class="n">zopen</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.units</span> <span class="kn">import</span> <span class="n">Ha_to_eV</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.coord</span> <span class="kn">import</span> <span class="n">get_angle</span>
 <span class="kn">import</span> <span class="nn">scipy.constants</span> <span class="k">as</span> <span class="nn">cst</span>
 
-<span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.core</span> <span class="k">import</span> <span class="n">Spin</span>
+<span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.core</span> <span class="kn">import</span> <span class="n">Spin</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;Shyue Ping Ong, Germain  Salvato-Vallverdu, Xin Chen&#39;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s1">&#39;Copyright 2013, The Materials Virtual Lab&#39;</span>
@@ -141,7 +141,7 @@
     <span class="n">_xyz_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^(\w+)[\s,]+([\d\.eE\-]+)[\s,]+([\d\.eE\-]+)[\s,]+&quot;</span>
                            <span class="sa">r</span><span class="s2">&quot;([\d\.eE\-]+)[\-\.\s,\w.]*$&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mol</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">spin_multiplicity</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mol</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">spin_multiplicity</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">functional</span><span class="o">=</span><span class="s2">&quot;HF&quot;</span><span class="p">,</span> <span class="n">basis_set</span><span class="o">=</span><span class="s2">&quot;6-31G(d)&quot;</span><span class="p">,</span> <span class="n">route_parameters</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">input_parameters</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">link0_parameters</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dieze_tag</span><span class="o">=</span><span class="s2">&quot;#P&quot;</span><span class="p">,</span>
                  <span class="n">gen_basis</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -179,7 +179,7 @@
         <span class="c1"># Determine multiplicity and charge settings</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">Molecule</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">charge</span> <span class="o">=</span> <span class="n">charge</span> <span class="k">if</span> <span class="n">charge</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">mol</span><span class="o">.</span><span class="n">charge</span>
-            <span class="n">nelectrons</span> <span class="o">=</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">charge</span> <span class="o">+</span> <span class="n">mol</span><span class="o">.</span><span class="n">charge</span> <span class="o">+</span> <span class="n">mol</span><span class="o">.</span><span class="n">nelectrons</span>
+            <span class="n">nelectrons</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">charge</span> <span class="o">+</span> <span class="n">mol</span><span class="o">.</span><span class="n">nelectrons</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">charge</span>
             <span class="k">if</span> <span class="n">spin_multiplicity</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">spin_multiplicity</span> <span class="o">=</span> <span class="n">spin_multiplicity</span>
                 <span class="k">if</span> <span class="p">(</span><span class="n">nelectrons</span> <span class="o">+</span> <span class="n">spin_multiplicity</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
@@ -468,7 +468,7 @@
                                   <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">to_s</span><span class="p">(</span><span class="n">j</span><span class="p">)</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="p">])]))</span>
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outs</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_string</span><span class="p">()</span>
 
 <div class="viewcode-block" id="GaussianInput.to_string"><a class="viewcode-back" href="../../../pymatgen.io.gaussian.html#pymatgen.io.gaussian.GaussianInput.to_string">[docs]</a>    <span class="k">def</span> <span class="nf">to_string</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cart_coords</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -580,7 +580,13 @@
 
 <span class="sd">    .. attribute:: structures_input_orientation</span>
 
-<span class="sd">        All structures from the calculation in the input orientation.</span>
+<span class="sd">        All structures from the calculation in the input orientation or the</span>
+<span class="sd">        Z-matrix orientation (if an opt=z-matrix was requested).</span>
+
+<span class="sd">    .. attribute:: opt_structures</span>
+
+<span class="sd">        All optimized structures from the calculation in the input orientation</span>
+<span class="sd">        or the Z-matrix orientation.</span>
 
 <span class="sd">    .. attribute:: energies</span>
 
@@ -754,7 +760,7 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            filename: Filename of Gaussian output file.</span>
@@ -799,7 +805,7 @@
         <span class="n">end_mulliken_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
             <span class="sa">r</span><span class="s1">&#39;(Sum of Mulliken )(.*)(charges)\s*=\s*(\D)&#39;</span><span class="p">)</span>
         <span class="n">std_orientation_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Standard orientation&quot;</span><span class="p">)</span>
-        <span class="n">input_orientation_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Input orientation&quot;</span><span class="p">)</span>
+        <span class="n">input_orientation_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Input orientation|Z-Matrix orientation&quot;</span><span class="p">)</span>
         <span class="n">orbital_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(Alpha|Beta)\s*\S+\s*eigenvalues --(.*)&quot;</span><span class="p">)</span>
         <span class="n">thermo_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(Zero-point|Thermal) correction(.*)=&quot;</span>
                                  <span class="sa">r</span><span class="s2">&quot;\s+([\d\.-]+)&quot;</span><span class="p">)</span>
@@ -861,6 +867,7 @@
         <span class="n">input_structures</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
         <span class="n">std_structures</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
         <span class="n">geom_orientation</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">opt_structures</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
 
         <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
@@ -1151,6 +1158,12 @@
                     <span class="k">elif</span> <span class="n">input_orientation_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
                         <span class="n">geom_orientation</span> <span class="o">=</span> <span class="s2">&quot;input&quot;</span>
                         <span class="n">read_coord</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">elif</span> <span class="s2">&quot;Optimization completed.&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                        <span class="n">line</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+                        <span class="k">if</span> <span class="s2">&quot; -- Stationary point found.&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">+</span>
+                                          <span class="s2">&quot;: Optimization complete but this is not a stationary point&quot;</span><span class="p">)</span>
+                        <span class="n">opt_structures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">input_structures</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
                     <span class="k">elif</span> <span class="ow">not</span> <span class="n">read_eigen</span> <span class="ow">and</span> <span class="n">orbital_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
                         <span class="n">eigen_txt</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
                         <span class="n">read_eigen</span> <span class="o">=</span> <span class="kc">True</span>
@@ -1205,6 +1218,8 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">structures</span> <span class="o">=</span> <span class="n">input_structures</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">structures_input_orientation</span> <span class="o">=</span> <span class="n">input_structures</span>
+        <span class="c1"># store optimized structure in input orientation </span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">opt_structures</span> <span class="o">=</span> <span class="n">opt_structures</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">terminated</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">+</span>
@@ -1294,6 +1309,7 @@
 
         <span class="n">scan_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^\sSummary of the potential surface scan:&quot;</span><span class="p">)</span>
         <span class="n">optscan_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^\sSummary of Optimized Potential Surface Scan&quot;</span><span class="p">)</span>
+        <span class="n">coord_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^\s*(\w+)((\s*[+-]?\d+\.\d+)+)&quot;</span><span class="p">)</span>
 
         <span class="c1"># data dict return</span>
         <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;energies&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(),</span> <span class="s2">&quot;coords&quot;</span><span class="p">:</span> <span class="nb">dict</span><span class="p">()}</span>
@@ -1310,14 +1326,14 @@
                     <span class="k">while</span> <span class="ow">not</span> <span class="n">endScan</span><span class="p">:</span>
                         <span class="n">data</span><span class="p">[</span><span class="s2">&quot;energies&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">floatList</span><span class="p">(</span><span class="n">float_patt</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">line</span><span class="p">))</span>
                         <span class="n">line</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
-                        <span class="k">while</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(^\s+(\d+)|^\s-+)&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                        <span class="k">while</span> <span class="n">coord_patt</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
                             <span class="n">icname</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
                             <span class="k">if</span> <span class="n">icname</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;coords&quot;</span><span class="p">]:</span>
                                 <span class="n">data</span><span class="p">[</span><span class="s2">&quot;coords&quot;</span><span class="p">][</span><span class="n">icname</span><span class="p">]</span> <span class="o">+=</span> <span class="n">floatList</span><span class="p">(</span><span class="n">float_patt</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">line</span><span class="p">))</span>
                             <span class="k">else</span><span class="p">:</span>
                                 <span class="n">data</span><span class="p">[</span><span class="s2">&quot;coords&quot;</span><span class="p">][</span><span class="n">icname</span><span class="p">]</span> <span class="o">=</span> <span class="n">floatList</span><span class="p">(</span><span class="n">float_patt</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">line</span><span class="p">))</span>
                             <span class="n">line</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
-                        <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^\s-+&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^\s+((\s*\d+)+)&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
                             <span class="n">endScan</span> <span class="o">=</span> <span class="kc">True</span>
                         <span class="k">else</span><span class="p">:</span>
                             <span class="n">line</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
@@ -1346,7 +1362,7 @@
 <span class="sd">        Args:</span>
 <span class="sd">            coords: internal coordinate name to use as abcissa.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span> <span class="nn">pymatgen.util.plotting</span> <span class="k">import</span> <span class="n">pretty_plot</span>
+        <span class="kn">from</span> <span class="nn">pymatgen.util.plotting</span> <span class="kn">import</span> <span class="n">pretty_plot</span>
 
         <span class="n">plt</span> <span class="o">=</span> <span class="n">pretty_plot</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
 
@@ -1424,8 +1440,8 @@
 <span class="sd">                    the sum of gaussian functions (xas).</span>
 <span class="sd">            A matplotlib plot.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span> <span class="nn">pymatgen.util.plotting</span> <span class="k">import</span> <span class="n">pretty_plot</span>
-        <span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="k">import</span> <span class="n">norm</span>
+        <span class="kn">from</span> <span class="nn">pymatgen.util.plotting</span> <span class="kn">import</span> <span class="n">pretty_plot</span>
+        <span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">norm</span>
         <span class="n">plt</span> <span class="o">=</span> <span class="n">pretty_plot</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
 
         <span class="n">transitions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_excitation_energies</span><span class="p">()</span>
@@ -1475,7 +1491,7 @@
         <span class="n">d</span><span class="p">,</span> <span class="n">plt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_spectre_plot</span><span class="p">(</span><span class="n">sigma</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="n">img_format</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="GaussianOutput.to_input"><a class="viewcode-back" href="../../../pymatgen.io.gaussian.html#pymatgen.io.gaussian.GaussianOutput.to_input">[docs]</a>    <span class="k">def</span> <span class="nf">to_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mol</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="n">charge</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="GaussianOutput.to_input"><a class="viewcode-back" href="../../../pymatgen.io.gaussian.html#pymatgen.io.gaussian.GaussianOutput.to_input">[docs]</a>    <span class="k">def</span> <span class="nf">to_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mol</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">spin_multiplicity</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">functional</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">basis_set</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">route_parameters</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">input_parameters</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">link0_parameters</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dieze_tag</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cart_coords</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -1526,22 +1542,8 @@
                              <span class="n">dieze_tag</span><span class="o">=</span><span class="n">dieze_tag</span><span class="p">)</span></div></div>
 </pre></div>
 
+            <div class="clearer"></div>
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
       </div>
       <div class="clearer"></div>
     </div>
@@ -1554,15 +1556,16 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.io.gaussian</a></li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

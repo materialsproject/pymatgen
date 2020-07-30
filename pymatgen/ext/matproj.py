@@ -19,11 +19,11 @@ import platform
 import re
 import warnings
 from time import sleep
-import requests
-from monty.json import MontyDecoder, MontyEncoder
-
 from enum import Enum, unique
 from collections import defaultdict
+
+import requests
+from monty.json import MontyDecoder, MontyEncoder
 
 from pymatgen import SETTINGS, __version__ as pmg_version
 
@@ -31,22 +31,11 @@ from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure
 from pymatgen.core.surface import get_symmetrically_equivalent_miller_indices
-
-from pymatgen.entries.computed_entries import ComputedEntry, \
-    ComputedStructureEntry
+from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
+from pymatgen.entries.compatibility import MaterialsProjectCompatibility, MaterialsProjectAqueousCompatibility
 from pymatgen.entries.exp_entries import ExpEntry
-
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-
 from pymatgen.util.sequence import get_chunks, PBar
-
-__author__ = "Shyue Ping Ong, Shreyas Cholia"
-__credits__ = "Anubhav Jain"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "1.0"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Feb 22, 2013"
 
 
 @unique
@@ -175,8 +164,7 @@ class MPRester:
                     if data.get("warning"):
                         warnings.warn(data["warning"])
                     return data["response"]
-                else:
-                    raise MPRestError(data["error"])
+                raise MPRestError(data["error"])
 
             raise MPRestError("REST query returned with error status code {}"
                               .format(response.status_code))
@@ -344,7 +332,7 @@ class MPRester:
             filename_or_structure: filename or Structure object
 
         Returns:
-            A list of matching structures.
+            A list of matching materials project ids for structure.
 
         Raises:
             MPRestError
@@ -364,8 +352,7 @@ class MPRester:
                 resp = json.loads(response.text, cls=MontyDecoder)
                 if resp['valid_response']:
                     return resp['response']
-                else:
-                    raise MPRestError(resp["error"])
+                raise MPRestError(resp["error"])
             raise MPRestError("REST error with status code {} and error {}"
                               .format(response.status_code, response.text))
         except Exception as ex:
@@ -458,14 +445,13 @@ class MPRester:
                     entry_id=d["task_id"])
             entries.append(e)
         if compatible_only:
-            from pymatgen.entries.compatibility import \
-                MaterialsProjectCompatibility
+            from pymatgen.entries.compatibility import MaterialsProjectCompatibility
             entries = MaterialsProjectCompatibility().process_entries(entries)
         if sort_by_e_above_hull:
             entries = sorted(entries, key=lambda entry: entry.data["e_above_hull"])
         return entries
 
-    def get_pourbaix_entries(self, chemsys):
+    def get_pourbaix_entries(self, chemsys, solid_compat=MaterialsProjectCompatibility()):
         """
         A helper function to get all entries necessary to generate
         a pourbaix diagram from the rest interface.
@@ -473,12 +459,12 @@ class MPRester:
         Args:
             chemsys ([str]): A list of elements comprising the chemical
                 system, e.g. ['Li', 'Fe']
+            solid_compat: Compatiblity scheme used to pre-process solid DFT energies prior to applying aqueous
+                energy adjustments. Default: MaterialsProjectCompatibility().
         """
         from pymatgen.analysis.pourbaix_diagram import PourbaixEntry, IonEntry
         from pymatgen.analysis.phase_diagram import PhaseDiagram
         from pymatgen.core.ion import Ion
-        from pymatgen.entries.compatibility import \
-            MaterialsProjectAqueousCompatibility
 
         pbx_entries = []
 
@@ -492,7 +478,12 @@ class MPRester:
         ion_ref_entries = self.get_entries_in_chemsys(
             list(set([str(e) for e in ion_ref_elts] + ['O', 'H'])),
             property_data=['e_above_hull'], compatible_only=False)
-        compat = MaterialsProjectAqueousCompatibility("Advanced")
+
+        # suppress the warning about supplying the required energies; they will be calculated from the
+        # entries we get from MPRester
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", message="You did not provide the required O2 and H2O energies.")
+            compat = MaterialsProjectAqueousCompatibility(solid_compat=solid_compat)
         ion_ref_entries = compat.process_entries(ion_ref_entries)
         ion_ref_pd = PhaseDiagram(ion_ref_entries)
 
@@ -546,6 +537,22 @@ class MPRester:
         """
         prop = "final_structure" if final else "initial_structure"
         data = self.get_data(material_id, prop=prop)
+        if not data:
+            try:
+                new_material_id = self.get_materials_id_from_task_id(material_id)
+                if new_material_id:
+                    warnings.warn("The calculation task {} is mapped to canonical mp-id {}, "
+                                  "so structure for {} returned. "
+                                  "This is not an error, see documentation. "
+                                  "If original task data for {} is required, "
+                                  "use get_task_data(). To find the canonical mp-id from a task id "
+                                  "use get_materials_id_from_task_id()."
+                                  .format(material_id, new_material_id, new_material_id, material_id))
+                return self.get_structure_by_material_id(new_material_id)
+            except MPRestError:
+                raise MPRestError("material_id {} unknown, if this seems like "
+                                  "an error please let us know at "
+                                  "matsci.org/materials-project".format(material_id))
         if conventional_unit_cell:
             data[0][prop] = SpacegroupAnalyzer(data[0][prop]). \
                 get_conventional_standard_structure()
@@ -835,17 +842,17 @@ class MPRester:
                                            chunk_size=0, mp_decode=mp_decode))
                     break
                 except MPRestError as e:
+                    # pylint: disable=E1101
                     match = re.search(r"error status code (\d+)", e.message)
                     if match:
                         if not match.group(1).startswith("5"):
                             raise e
-                        else:  # 5xx error. Try again
-                            num_tries += 1
-                            print(
-                                "Unknown server error. Trying again in five "
-                                "seconds (will try at most {} times)...".format(
-                                    max_tries_per_chunk))
-                            sleep(5)
+                        num_tries += 1
+                        print(
+                            "Unknown server error. Trying again in five "
+                            "seconds (will try at most {} times)...".format(
+                                max_tries_per_chunk))
+                        sleep(5)
             progress_bar.update(len(chunk))
         return data
 
@@ -924,8 +931,7 @@ class MPRester:
                     if resp.get("warning"):
                         warnings.warn(resp["warning"])
                     return resp['inserted_ids']
-                else:
-                    raise MPRestError(resp["error"])
+                raise MPRestError(resp["error"])
 
             raise MPRestError("REST error with status code {} and error {}"
                               .format(response.status_code, response.text))
@@ -960,8 +966,7 @@ class MPRester:
                     if resp.get("warning"):
                         warnings.warn(resp["warning"])
                     return resp
-                else:
-                    raise MPRestError(resp["error"])
+                raise MPRestError(resp["error"])
 
             raise MPRestError("REST error with status code {} and error {}"
                               .format(response.status_code, response.text))
@@ -998,8 +1003,7 @@ class MPRester:
                     if resp.get("warning"):
                         warnings.warn(resp["warning"])
                     return resp["response"]
-                else:
-                    raise MPRestError(resp["error"])
+                raise MPRestError(resp["error"])
 
             raise MPRestError("REST error with status code {} and error {}"
                               .format(response.status_code, response.text))
@@ -1092,8 +1096,7 @@ class MPRester:
                     if resp.get("warning"):
                         warnings.warn(resp["warning"])
                     return resp["response"]
-                else:
-                    raise MPRestError(resp["error"])
+                raise MPRestError(resp["error"])
             raise MPRestError("REST error with status code {} and error {}"
                               .format(response.status_code, response.text))
         except Exception as ex:
@@ -1203,8 +1206,8 @@ class MPRester:
             for one_surf in surf_list:
                 if tuple(one_surf['miller_index']) in eq_indices:
                     return one_surf
-        else:
-            return self._make_request(req)
+            raise ValueError("Bad miller index.")
+        return self._make_request(req)
 
     def get_wulff_shape(self, material_id):
         """
@@ -1282,9 +1285,7 @@ class MPRester:
                 gb_dict['work_of_separation'] = wsep
             return list_of_gbs
 
-        else:
-            return self._make_request("/grain_boundaries",
-                                      payload=payload)
+        return self._make_request("/grain_boundaries", payload=payload)
 
     def get_interface_reactions(self, reactant1, reactant2,
                                 open_el=None, relative_mu=None,
@@ -1398,17 +1399,15 @@ class MPRester:
         def parse_sym(sym):
             if sym == "*":
                 return [el.symbol for el in Element]
-            else:
-                m = re.match(r"\{(.*)\}", sym)
-                if m:
-                    return [s.strip() for s in m.group(1).split(",")]
-                else:
-                    return [sym]
+            m = re.match(r"\{(.*)\}", sym)
+            if m:
+                return [s.strip() for s in m.group(1).split(",")]
+            return [sym]
 
         def parse_tok(t):
             if re.match(r"\w+-\d+", t):
                 return {"task_id": t}
-            elif "-" in t:
+            if "-" in t:
                 elements = [parse_sym(sym) for sym in t.split("-")]
                 chemsyss = []
                 for cs in itertools.product(*elements):
@@ -1417,33 +1416,31 @@ class MPRester:
                         cs = [Element(s).symbol for s in cs]
                         chemsyss.append("-".join(sorted(cs)))
                 return {"chemsys": {"$in": chemsyss}}
-            else:
-                all_formulas = set()
-                explicit_els = []
-                wild_card_els = []
-                for sym in re.findall(
-                        r"(\*[\.\d]*|\{.*\}[\.\d]*|[A-Z][a-z]*)[\.\d]*", t):
-                    if ("*" in sym) or ("{" in sym):
-                        wild_card_els.append(sym)
-                    else:
-                        m = re.match(r"([A-Z][a-z]*)[\.\d]*", sym)
-                        explicit_els.append(m.group(1))
-                nelements = len(wild_card_els) + len(set(explicit_els))
-                parts = re.split(r"(\*|\{.*\})", t)
-                parts = [parse_sym(s) for s in parts if s != ""]
-                for f in itertools.product(*parts):
-                    c = Composition("".join(f))
-                    if len(c) == nelements:
-                        # Check for valid Elements in keys.
-                        for e in c.keys():
-                            Element(e.symbol)
-                        all_formulas.add(c.reduced_formula)
-                return {"pretty_formula": {"$in": list(all_formulas)}}
+            all_formulas = set()
+            explicit_els = []
+            wild_card_els = []
+            for sym in re.findall(
+                    r"(\*[\.\d]*|\{.*\}[\.\d]*|[A-Z][a-z]*)[\.\d]*", t):
+                if ("*" in sym) or ("{" in sym):
+                    wild_card_els.append(sym)
+                else:
+                    m = re.match(r"([A-Z][a-z]*)[\.\d]*", sym)
+                    explicit_els.append(m.group(1))
+            nelements = len(wild_card_els) + len(set(explicit_els))
+            parts = re.split(r"(\*|\{.*\})", t)
+            parts = [parse_sym(s) for s in parts if s != ""]
+            for f in itertools.product(*parts):
+                c = Composition("".join(f))
+                if len(c) == nelements:
+                    # Check for valid Elements in keys.
+                    for e in c.keys():
+                        Element(e.symbol)
+                    all_formulas.add(c.reduced_formula)
+            return {"pretty_formula": {"$in": list(all_formulas)}}
 
         if len(toks) == 1:
             return parse_tok(toks[0])
-        else:
-            return {"$or": list(map(parse_tok, toks))}
+        return {"$or": list(map(parse_tok, toks))}
 
 
 class MPRestError(Exception):

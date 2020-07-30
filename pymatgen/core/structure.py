@@ -38,15 +38,6 @@ from pymatgen.util.coord import get_angle, all_distances, \
 from pymatgen.core.units import Mass, Length
 
 
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "2.0"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__status__ = "Production"
-__date__ = "Sep 23, 2011"
-
-
 class Neighbor(Site):
     """
     Simple Site subclass to contain a neighboring atom that skips all the
@@ -838,7 +829,7 @@ class IStructure(SiteCollection, MSONable):
     @classmethod
     def from_magnetic_spacegroup(
             cls,
-            msg: Union[str, 'MagneticSpaceGroup'],  # type: ignore
+            msg: Union[str, 'MagneticSpaceGroup'],  # type: ignore  # noqa: F821
             lattice: Union[List, np.ndarray, Lattice],
             species: Sequence[Union[str, Element, Specie, DummySpecie, Composition]],
             coords: Sequence[Sequence[float]],
@@ -1267,7 +1258,7 @@ class IStructure(SiteCollection, MSONable):
                     offsets.append(n.image)
                     distances.append(n.nn_distance)
         return tuple((np.array(center_indices), np.array(points_indices),
-                     np.array(offsets), np.array(distances)))
+                      np.array(offsets), np.array(distances)))
 
     def get_neighbor_list(self, r: float,
                           sites: List[PeriodicSite] = None,
@@ -1319,7 +1310,7 @@ class IStructure(SiteCollection, MSONable):
                 self_pair = (center_indices == points_indices) & (distances <= numerical_tol)
                 cond = ~self_pair
             return tuple((center_indices[cond], points_indices[cond],
-                         images[cond], distances[cond]))
+                          images[cond], distances[cond]))
 
     def get_all_neighbors(self, r: float,
                           include_index: bool = False,
@@ -2040,6 +2031,50 @@ class IStructure(SiteCollection, MSONable):
                              ))
         return "\n".join(outs)
 
+    def get_orderings(self, mode: str = "enum", **kwargs):
+        r"""
+        Returns list of orderings for a disordered structure. If structure
+        does not contain disorder, the default structure is returned.
+
+        Args:
+            mode (str): Either "enum" or "sqs". If enum,
+                the enumlib will be used to return all distinct
+                orderings. If sqs, mcsqs will be used to return
+                an sqs structure.
+            kwargs: kwargs passed to either
+                pymatgen.command_line..enumlib_caller.EnumlibAdaptor
+                or pymatgen.command_line.mcsqs_caller.run_mcsqs.
+                For run_mcsqs, a default cluster search of 2 cluster interactions
+                with 1NN distance and 3 cluster interactions with 2NN distance
+                is set.
+
+        Returns:
+            List[Structure]
+        """
+        if self.is_ordered:
+            return [self]
+        if mode.startswith("enum"):
+            from pymatgen.command_line.enumlib_caller import EnumlibAdaptor
+            adaptor = EnumlibAdaptor(self, **kwargs)
+            adaptor.run()
+            return adaptor.structures
+        if mode == "sqs":
+            from pymatgen.command_line.mcsqs_caller import run_mcsqs
+            if "clusters" not in kwargs:
+                disordered_sites = [site for site in self if not site.is_ordered]
+                subset_structure = Structure.from_sites(disordered_sites)
+                dist_matrix = subset_structure.distance_matrix
+                dists = sorted(set(dist_matrix.ravel()))
+                unique_dists = []
+                for i in range(1, len(dists)):
+                    if dists[i] - dists[i-1] > 0.1:
+                        unique_dists.append(dists[i])
+                clusters = {(i+2): d + 0.01 for i, d in enumerate(unique_dists) if i < 2}
+                kwargs["clusters"] = clusters
+            print(kwargs["clusters"])
+            return [run_mcsqs(self, **kwargs).bestsqs]
+        raise ValueError()
+
     def as_dict(self, verbosity=1, fmt=None, **kwargs):
         """
         Dict representation of Structure.
@@ -2080,6 +2115,28 @@ class IStructure(SiteCollection, MSONable):
             del site_dict["@class"]
             d["sites"].append(site_dict)
         return d
+
+    def as_dataframe(self):
+        """
+        Returns a Pandas dataframe of the sites. Structure level attributes are stored in DataFrame.attrs. Example:
+
+        Species    a    b             c    x             y             z  magmom
+        0    (Si)  0.0  0.0  0.000000e+00  0.0  0.000000e+00  0.000000e+00       5
+        1    (Si)  0.0  0.0  1.000000e-07  0.0 -2.217138e-07  3.135509e-07      -5
+        """
+        data = []
+        site_properties = self.site_properties
+        prop_keys = list(site_properties.keys())
+        for site in self:
+            row = [site.species] + list(site.frac_coords) + list(site.coords)
+            for k in prop_keys:
+                row.append(site.properties.get(k))
+            data.append(row)
+        import pandas as pd
+        df = pd.DataFrame(data, columns=["Species", "a", "b", "c", "x", "y", "z"] + prop_keys)
+        df.attrs["Reduced Formula"] = self.composition.reduced_formula
+        df.attrs["Lattice"] = self.lattice
+        return df
 
     @classmethod
     def from_dict(cls, d, fmt=None):
@@ -2299,9 +2356,7 @@ class IStructure(SiteCollection, MSONable):
                                 merge_tol=merge_tol)
         elif fnmatch(fname, "input*.xml"):
             return ExcitingInput.from_file(fname).structure
-        elif fnmatch(fname, "*rndstr.in*") \
-                or fnmatch(fname, "*lat.in*") \
-                or fnmatch(fname, "*bestsqs*"):
+        elif fnmatch(fname, "*rndstr.in*") or fnmatch(fname, "*lat.in*") or fnmatch(fname, "*bestsqs*"):
             return cls.from_str(contents, fmt="mcsqs",
                                 primitive=primitive, sort=sort,
                                 merge_tol=merge_tol)
@@ -2364,7 +2419,7 @@ class IMolecule(SiteCollection, MSONable):
                                   "coordinates."))
 
         sites = []
-        for i in range(len(species)):
+        for i, _ in enumerate(species):
             prop = None
             if site_properties:
                 prop = {k: v[i] for k, v in site_properties.items()}
@@ -2752,10 +2807,10 @@ class IMolecule(SiteCollection, MSONable):
             return cls(lattice, self.species * nimages, coords,
                        coords_are_cartesian=True,
                        site_properties=sprops).get_sorted_structure()
-        else:
-            return cls(lattice, self.species * nimages, coords,
-                       coords_are_cartesian=True,
-                       site_properties=sprops)
+
+        return cls(lattice, self.species * nimages, coords,
+                   coords_are_cartesian=True,
+                   site_properties=sprops)
 
     def get_centered_molecule(self):
         """
@@ -2828,7 +2883,7 @@ class IMolecule(SiteCollection, MSONable):
         return str(writer)
 
     @classmethod
-    def from_str(cls, input_string, fmt):
+    def from_str(cls, input_string: str, fmt: str):
         """
         Reads the molecule from a string.
 

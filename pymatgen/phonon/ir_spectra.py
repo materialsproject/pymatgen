@@ -7,7 +7,6 @@ This implementation is adapted from Abipy
 https://github.com/abinit/abipy
 where it was originally done by Guido Petretto and Matteo Giantomassi
 """
-from __future__ import unicode_literals
 
 import numpy as np
 

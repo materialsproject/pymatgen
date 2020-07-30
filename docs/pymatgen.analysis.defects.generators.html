@@ -8,12 +8,10 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.analysis.defects.generators module &mdash; pymatgen 2020.4.2 documentation</title>
+  <title>pymatgen.analysis.defects.generators module &mdash; pymatgen 2020.7.18 documentation</title>
   
 
   
-  
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
   
   
   
@@ -25,11 +23,11 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -73,7 +71,7 @@
             
             
               <div class="version">
-                2020.4.2
+                2020.7.18
               </div>
             
           
@@ -209,17 +207,17 @@
   <div class="section" id="module-pymatgen.analysis.defects.generators">
 <span id="pymatgen-analysis-defects-generators-module"></span><h1>pymatgen.analysis.defects.generators module<a class="headerlink" href="#module-pymatgen.analysis.defects.generators" title="Permalink to this headline">¶</a></h1>
 <p>This module defines classes to generate point defect structures</p>
-<dl class="class">
+<dl class="py class">
 <dt id="pymatgen.analysis.defects.generators.DefectGenerator">
-<em class="property">class </em><code class="sig-name descname">DefectGenerator</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.2/pymatgen/analysis/defects/generators.py#L33-L50"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.generators.DefectGenerator" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">DefectGenerator</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.7.18/pymatgen/analysis/defects/generators.py#L33-L50"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.generators.DefectGenerator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Abstract class for point defects
 Implements generator pattern</p>
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="pymatgen.analysis.defects.generators.InterstitialGenerator">
-<em class="property">class </em><code class="sig-name descname">InterstitialGenerator</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">element</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.2/pymatgen/analysis/defects/generators.py#L139-L191"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.generators.InterstitialGenerator" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">InterstitialGenerator</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">element</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.7.18/pymatgen/analysis/defects/generators.py#L139-L191"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.generators.InterstitialGenerator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.defects.generators.DefectGenerator" title="pymatgen.analysis.defects.generators.DefectGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.defects.generators.DefectGenerator</span></code></a></p>
 <p>Generator for interstitials at positions
 where the interstitialcy is coordinated by nearest neighbors
@@ -237,9 +235,9 @@ and it is used by the Python Charged Defect Toolkit
 :type element: str or Element or Specie</p>
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="pymatgen.analysis.defects.generators.SimpleChargeGenerator">
-<em class="property">class </em><code class="sig-name descname">SimpleChargeGenerator</code><span class="sig-paren">(</span><em class="sig-param">defect</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.2/pymatgen/analysis/defects/generators.py#L254-L304"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.generators.SimpleChargeGenerator" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">SimpleChargeGenerator</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">defect</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.7.18/pymatgen/analysis/defects/generators.py#L254-L304"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.generators.SimpleChargeGenerator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.defects.generators.DefectGenerator" title="pymatgen.analysis.defects.generators.DefectGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.defects.generators.DefectGenerator</span></code></a></p>
 <p>Does an extremely simple/limited charge generation scheme (only one charge generated)</p>
 <dl class="simple">
@@ -257,9 +255,9 @@ added to likely charge of substitutional site (closest to zero)</p>
 </dl>
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="pymatgen.analysis.defects.generators.SubstitutionGenerator">
-<em class="property">class </em><code class="sig-name descname">SubstitutionGenerator</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">element</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.2/pymatgen/analysis/defects/generators.py#L95-L136"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.generators.SubstitutionGenerator" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">SubstitutionGenerator</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">element</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.7.18/pymatgen/analysis/defects/generators.py#L95-L136"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.generators.SubstitutionGenerator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.defects.generators.DefectGenerator" title="pymatgen.analysis.defects.generators.DefectGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.defects.generators.DefectGenerator</span></code></a></p>
 <p>Simple generator for substitution based on periodically
 equivalent sites</p>
@@ -271,9 +269,9 @@ note: an Antisite is considered a type of substitution
 :type element: str or Element or Specie</p>
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="pymatgen.analysis.defects.generators.VacancyGenerator">
-<em class="property">class </em><code class="sig-name descname">VacancyGenerator</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">include_bv_charge=False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.2/pymatgen/analysis/defects/generators.py#L53-L92"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.generators.VacancyGenerator" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">VacancyGenerator</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">include_bv_charge</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.7.18/pymatgen/analysis/defects/generators.py#L53-L92"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.generators.VacancyGenerator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.defects.generators.DefectGenerator" title="pymatgen.analysis.defects.generators.DefectGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.defects.generators.DefectGenerator</span></code></a></p>
 <p>Simple generator for vacancies based on periodically
 equivalent sites</p>
@@ -282,9 +280,9 @@ equivalent sites</p>
 :type structure: Structure</p>
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="pymatgen.analysis.defects.generators.VoronoiInterstitialGenerator">
-<em class="property">class </em><code class="sig-name descname">VoronoiInterstitialGenerator</code><span class="sig-paren">(</span><em class="sig-param">structure</em>, <em class="sig-param">element</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.2/pymatgen/analysis/defects/generators.py#L194-L251"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.generators.VoronoiInterstitialGenerator" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">VoronoiInterstitialGenerator</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">element</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.7.18/pymatgen/analysis/defects/generators.py#L194-L251"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.generators.VoronoiInterstitialGenerator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.defects.generators.DefectGenerator" title="pymatgen.analysis.defects.generators.DefectGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.defects.generators.DefectGenerator</span></code></a></p>
 <p>Generator for interstitials based on a simple Voronoi analysis</p>
 <p>Initializes an Interstitial generator using Voronoi sites

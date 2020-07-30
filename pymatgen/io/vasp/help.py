@@ -2,10 +2,10 @@
 Get help with VASP parameters from VASP wiki.
 """
 
-import requests
 import re
-import urllib3
 
+import requests
+import urllib3
 from bs4 import BeautifulSoup
 
 
@@ -41,7 +41,8 @@ class VaspDoc:
         from IPython.core.display import display, HTML
         display(HTML(help))
 
-    def get_help(self, tag, fmt="text"):
+    @classmethod
+    def get_help(cls, tag, fmt="text"):
         """
         Get help on a VASP tag.
 
@@ -63,7 +64,8 @@ class VaspDoc:
 
         return output
 
-    def get_incar_tags(self):
+    @classmethod
+    def get_incar_tags(cls):
         """
         Returns: All incar tags
         """

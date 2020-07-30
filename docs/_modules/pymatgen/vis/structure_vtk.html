@@ -1,19 +1,19 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.vis.structure_vtk &#8212; pymatgen 2020.3.2 documentation</title>
-    <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.vis.structure_vtk &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../../_static/language_data.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
  
@@ -33,15 +33,15 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.vis.structure_vtk</a></li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
-        <div class="bodywrapper">
           <div class="body" role="main">
             
   <h1>Source code for pymatgen.vis.structure_vtk</h1><div class="highlight"><pre>
@@ -71,19 +71,19 @@
 
 <span class="k">try</span><span class="p">:</span>
     <span class="kn">import</span> <span class="nn">vtk</span>
-    <span class="kn">from</span> <span class="nn">vtk</span> <span class="k">import</span> <span class="n">vtkInteractorStyleTrackballCamera</span>
+    <span class="kn">from</span> <span class="nn">vtk</span> <span class="kn">import</span> <span class="n">vtkInteractorStyleTrackballCamera</span>
 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
     <span class="c1"># VTK not present. The Camera is to set object to avoid errors in unittest.</span>
     <span class="n">vtk</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">vtkInteractorStyleTrackballCamera</span> <span class="o">=</span> <span class="nb">object</span>
 
-<span class="kn">from</span> <span class="nn">monty.serialization</span> <span class="k">import</span> <span class="n">loadfn</span>
-<span class="kn">from</span> <span class="nn">monty.dev</span> <span class="k">import</span> <span class="n">requires</span>
+<span class="kn">from</span> <span class="nn">monty.serialization</span> <span class="kn">import</span> <span class="n">loadfn</span>
+<span class="kn">from</span> <span class="nn">monty.dev</span> <span class="kn">import</span> <span class="n">requires</span>
 
-<span class="kn">from</span> <span class="nn">pymatgen.util.coord</span> <span class="k">import</span> <span class="n">in_coord_list</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">Specie</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.sites</span> <span class="k">import</span> <span class="n">PeriodicSite</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.coord</span> <span class="kn">import</span> <span class="n">in_coord_list</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="kn">import</span> <span class="n">Specie</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">Structure</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.sites</span> <span class="kn">import</span> <span class="n">PeriodicSite</span>
 
 <span class="n">module_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
 <span class="n">EL_COLORS</span> <span class="o">=</span> <span class="n">loadfn</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">module_dir</span><span class="p">,</span> <span class="s2">&quot;ElementColorSchemes.yaml&quot;</span><span class="p">))</span>
@@ -96,7 +96,7 @@
 
     <span class="nd">@requires</span><span class="p">(</span><span class="n">vtk</span><span class="p">,</span> <span class="s2">&quot;Visualization requires the installation of VTK with &quot;</span>
                    <span class="s2">&quot;Python bindings.&quot;</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element_color_mapping</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">show_unit_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element_color_mapping</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">show_unit_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                  <span class="n">show_bonds</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">show_polyhedron</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                  <span class="n">poly_radii_tol_factor</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">excluded_bonding_elements</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -236,6 +236,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">ren_win</span><span class="o">.</span><span class="n">Render</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="StructureVis.orthongonalize_structure"><a class="viewcode-back" href="../../../pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.StructureVis.orthongonalize_structure">[docs]</a>    <span class="k">def</span> <span class="nf">orthongonalize_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Orthogonalize the structure.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_structure</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">sanitize</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ren_win</span><span class="o">.</span><span class="n">Render</span><span class="p">()</span></div>
@@ -423,6 +426,17 @@
 
 <div class="viewcode-block" id="StructureVis.add_partial_sphere"><a class="viewcode-back" href="../../../pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.StructureVis.add_partial_sphere">[docs]</a>    <span class="k">def</span> <span class="nf">add_partial_sphere</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">360</span><span class="p">,</span>
                            <span class="n">opacity</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adding a partial sphere (to display partial occupancies.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            coords (nd.array): Coordinates</span>
+<span class="sd">            radius (float): Radius of sphere</span>
+<span class="sd">            color (): Color of sphere.</span>
+<span class="sd">            start (float): Starting angle.</span>
+<span class="sd">            end (float): Ending angle.</span>
+<span class="sd">            opacity (float): Opacity.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">sphere</span> <span class="o">=</span> <span class="n">vtk</span><span class="o">.</span><span class="n">vtkSphereSource</span><span class="p">()</span>
         <span class="n">sphere</span><span class="o">.</span><span class="n">SetCenter</span><span class="p">(</span><span class="n">coords</span><span class="p">)</span>
         <span class="n">sphere</span><span class="o">.</span><span class="n">SetRadius</span><span class="p">(</span><span class="n">radius</span><span class="p">)</span>
@@ -606,6 +620,14 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">ren</span><span class="o">.</span><span class="n">AddActor</span><span class="p">(</span><span class="n">ac</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="StructureVis.add_faces"><a class="viewcode-back" href="../../../pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.StructureVis.add_faces">[docs]</a>    <span class="k">def</span> <span class="nf">add_faces</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">faces</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">opacity</span><span class="o">=</span><span class="mf">0.35</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adding face of polygon.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            faces (): Coordinates of the faces.</span>
+<span class="sd">            color (): Color.</span>
+<span class="sd">            opacity (float): Opacity</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">face</span> <span class="ow">in</span> <span class="n">faces</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">face</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
                 <span class="n">points</span> <span class="o">=</span> <span class="n">vtk</span><span class="o">.</span><span class="n">vtkPoints</span><span class="p">()</span>
@@ -690,6 +712,13 @@
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Number of points for a face should be &gt;= 3&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="StructureVis.add_edges"><a class="viewcode-back" href="../../../pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.StructureVis.add_edges">[docs]</a>    <span class="k">def</span> <span class="nf">add_edges</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edges</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;line&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            edges (): List of edges</span>
+<span class="sd">            type ():</span>
+<span class="sd">            linewidth (): Width of line</span>
+<span class="sd">            color (nd.array/tuple): RGB color.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">points</span> <span class="o">=</span> <span class="n">vtk</span><span class="o">.</span><span class="n">vtkPoints</span><span class="p">()</span>
         <span class="n">lines</span> <span class="o">=</span> <span class="n">vtk</span><span class="o">.</span><span class="n">vtkCellArray</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">iedge</span><span class="p">,</span> <span class="n">edge</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">edges</span><span class="p">):</span>
@@ -757,7 +786,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">ren</span><span class="o">.</span><span class="n">AddActor</span><span class="p">(</span><span class="n">actor</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="StructureVis.add_picker_fixed"><a class="viewcode-back" href="../../../pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.StructureVis.add_picker_fixed">[docs]</a>    <span class="k">def</span> <span class="nf">add_picker_fixed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c1"># Create a cell picker.</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a cell picker.Returns:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">picker</span> <span class="o">=</span> <span class="n">vtk</span><span class="o">.</span><span class="n">vtkCellPicker</span><span class="p">()</span>
 
         <span class="c1"># Create a Python function to create the text for the text mapper used</span>
@@ -788,7 +819,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">iren</span><span class="o">.</span><span class="n">SetPicker</span><span class="p">(</span><span class="n">picker</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="StructureVis.add_picker"><a class="viewcode-back" href="../../../pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.StructureVis.add_picker">[docs]</a>    <span class="k">def</span> <span class="nf">add_picker</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c1"># Create a cell picker.</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a cell picker.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">picker</span> <span class="o">=</span> <span class="n">vtk</span><span class="o">.</span><span class="n">vtkCellPicker</span><span class="p">()</span>
         <span class="c1"># Create a Python function to create the text for the text mapper used</span>
         <span class="c1"># to display the results of picking.</span>
@@ -829,7 +862,11 @@
 <span class="sd">    A custom interactor style for visualizing structures.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            parent ():</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">parent</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">AddObserver</span><span class="p">(</span><span class="s2">&quot;LeftButtonPressEvent&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">leftButtonPressEvent</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">AddObserver</span><span class="p">(</span><span class="s2">&quot;MouseMoveEvent&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mouseMoveEvent</span><span class="p">)</span>
@@ -837,16 +874,31 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">AddObserver</span><span class="p">(</span><span class="s2">&quot;KeyPressEvent&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">keyPressEvent</span><span class="p">)</span>
 
 <div class="viewcode-block" id="StructureInteractorStyle.leftButtonPressEvent"><a class="viewcode-back" href="../../../pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.StructureInteractorStyle.leftButtonPressEvent">[docs]</a>    <span class="k">def</span> <span class="nf">leftButtonPressEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            obj ():</span>
+<span class="sd">            event ():</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mouse_motion</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">OnLeftButtonDown</span><span class="p">()</span>
         <span class="k">return</span></div>
 
 <div class="viewcode-block" id="StructureInteractorStyle.mouseMoveEvent"><a class="viewcode-back" href="../../../pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.StructureInteractorStyle.mouseMoveEvent">[docs]</a>    <span class="k">def</span> <span class="nf">mouseMoveEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            obj ():</span>
+<span class="sd">            event ():</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mouse_motion</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">OnMouseMove</span><span class="p">()</span>
         <span class="k">return</span></div>
 
 <div class="viewcode-block" id="StructureInteractorStyle.leftButtonReleaseEvent"><a class="viewcode-back" href="../../../pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.StructureInteractorStyle.leftButtonReleaseEvent">[docs]</a>    <span class="k">def</span> <span class="nf">leftButtonReleaseEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            obj ():</span>
+<span class="sd">            event ():</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">ren</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">GetCurrentRenderer</span><span class="p">()</span>
         <span class="n">iren</span> <span class="o">=</span> <span class="n">ren</span><span class="o">.</span><span class="n">GetRenderWindow</span><span class="p">()</span><span class="o">.</span><span class="n">GetInteractor</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mouse_motion</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -856,6 +908,11 @@
         <span class="k">return</span></div>
 
 <div class="viewcode-block" id="StructureInteractorStyle.keyPressEvent"><a class="viewcode-back" href="../../../pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.StructureInteractorStyle.keyPressEvent">[docs]</a>    <span class="k">def</span> <span class="nf">keyPressEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            obj ():</span>
+<span class="sd">            event ():</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">parent</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">GetCurrentRenderer</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span>
         <span class="n">sym</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">iren</span><span class="o">.</span><span class="n">GetKeySym</span><span class="p">()</span>
 
@@ -910,7 +967,7 @@
 
 <div class="viewcode-block" id="make_movie"><a class="viewcode-back" href="../../../pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.make_movie">[docs]</a><span class="k">def</span> <span class="nf">make_movie</span><span class="p">(</span><span class="n">structures</span><span class="p">,</span> <span class="n">output_filename</span><span class="o">=</span><span class="s2">&quot;movie.mp4&quot;</span><span class="p">,</span> <span class="n">zoom</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
                <span class="n">bitrate</span><span class="o">=</span><span class="s2">&quot;10000k&quot;</span><span class="p">,</span> <span class="n">quality</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Generate a movie from a sequence of structures using vtk and ffmpeg.</span>
 
 <span class="sd">    Args:</span>
@@ -942,15 +999,40 @@
 
 
 <div class="viewcode-block" id="MultiStructuresVis"><a class="viewcode-back" href="../../../pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.MultiStructuresVis">[docs]</a><span class="k">class</span> <span class="nc">MultiStructuresVis</span><span class="p">(</span><span class="n">StructureVis</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Visualization for multiple structures.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">DEFAULT_ANIMATED_MOVIE_OPTIONS</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;time_between_frames&#39;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
                                       <span class="s1">&#39;looping_type&#39;</span><span class="p">:</span> <span class="s1">&#39;restart&#39;</span><span class="p">,</span>
                                       <span class="s1">&#39;number_of_loops&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
                                       <span class="s1">&#39;time_between_loops&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">}</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element_color_mapping</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">show_unit_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element_color_mapping</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">show_unit_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                  <span class="n">show_bonds</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">show_polyhedron</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">poly_radii_tol_factor</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">excluded_bonding_elements</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">animated_movie_options</span><span class="o">=</span><span class="n">DEFAULT_ANIMATED_MOVIE_OPTIONS</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            element_color_mapping: Optional color mapping for the elements,</span>
+<span class="sd">                as a dict of {symbol: rgb tuple}. For example, {&quot;Fe&quot;: (255,</span>
+<span class="sd">                123,0), ....} If None is specified, a default based on</span>
+<span class="sd">                Jmol&quot;s color scheme is used.</span>
+<span class="sd">            show_unit_cell: Set to False to not show the unit cell</span>
+<span class="sd">                boundaries. Defaults to True.</span>
+<span class="sd">            show_bonds: Set to True to show bonds. Defaults to True.</span>
+<span class="sd">            show_polyhedron: Set to True to show polyhedrons. Defaults to</span>
+<span class="sd">                False.</span>
+<span class="sd">            poly_radii_tol_factor: The polyhedron and bonding code uses the</span>
+<span class="sd">                ionic radii of the elements or species to determine if two</span>
+<span class="sd">                atoms are bonded. This specifies a tolerance scaling factor</span>
+<span class="sd">                such that atoms which are (1 + poly_radii_tol_factor) * sum</span>
+<span class="sd">                of ionic radii apart are still considered as bonded.</span>
+<span class="sd">            excluded_bonding_elements: List of atom types to exclude from</span>
+<span class="sd">                bonding determination. Defaults to an empty list. Useful</span>
+<span class="sd">                when trying to visualize a certain atom type in the</span>
+<span class="sd">                framework (e.g., Li in a Li-ion battery cathode material).</span>
+<span class="sd">            animated_movie_options (): Used for moving.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">element_color_mapping</span><span class="o">=</span><span class="n">element_color_mapping</span><span class="p">,</span>
                          <span class="n">show_unit_cell</span><span class="o">=</span><span class="n">show_unit_cell</span><span class="p">,</span>
                          <span class="n">show_bonds</span><span class="o">=</span><span class="n">show_bonds</span><span class="p">,</span> <span class="n">show_polyhedron</span><span class="o">=</span><span class="n">show_polyhedron</span><span class="p">,</span>
@@ -966,6 +1048,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">set_animated_movie_options</span><span class="p">(</span><span class="n">animated_movie_options</span><span class="o">=</span><span class="n">animated_movie_options</span><span class="p">)</span>
 
 <div class="viewcode-block" id="MultiStructuresVis.set_structures"><a class="viewcode-back" href="../../../pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.MultiStructuresVis.set_structures">[docs]</a>    <span class="k">def</span> <span class="nf">set_structures</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structures</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add list of structures to the visualizer.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structures (List of Structures):</span>
+<span class="sd">            tags (): List of tags.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">structures</span> <span class="o">=</span> <span class="n">structures</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">istruct</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">current_structure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">istruct</span><span class="p">]</span>
@@ -989,11 +1078,23 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">set_structure</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_structure</span><span class="p">,</span> <span class="n">reset_camera</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="MultiStructuresVis.set_structure"><a class="viewcode-back" href="../../../pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.MultiStructuresVis.set_structure">[docs]</a>    <span class="k">def</span> <span class="nf">set_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">reset_camera</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add a structure to the visualizer.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structure: structure to visualize</span>
+<span class="sd">            reset_camera: Set to True to reset the camera to a default</span>
+<span class="sd">                determined based on the structure.</span>
+<span class="sd">            to_unit_cell: Whether or not to fall back sites into the unit cell.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">set_structure</span><span class="p">(</span><span class="n">structure</span><span class="o">=</span><span class="n">structure</span><span class="p">,</span> <span class="n">reset_camera</span><span class="o">=</span><span class="n">reset_camera</span><span class="p">,</span>
                               <span class="n">to_unit_cell</span><span class="o">=</span><span class="n">to_unit_cell</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">apply_tags</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="MultiStructuresVis.apply_tags"><a class="viewcode-back" href="../../../pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.MultiStructuresVis.apply_tags">[docs]</a>    <span class="k">def</span> <span class="nf">apply_tags</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Apply tags.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">tags</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tags</span><span class="p">:</span>
             <span class="n">istruct</span> <span class="o">=</span> <span class="n">tag</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;istruct&#39;</span><span class="p">,</span> <span class="s1">&#39;all&#39;</span><span class="p">)</span>
@@ -1042,6 +1143,10 @@
                                     <span class="n">opacity</span><span class="o">=</span><span class="n">opacity</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="MultiStructuresVis.set_animated_movie_options"><a class="viewcode-back" href="../../../pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.MultiStructuresVis.set_animated_movie_options">[docs]</a>    <span class="k">def</span> <span class="nf">set_animated_movie_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">animated_movie_options</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            animated_movie_options ():</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">animated_movie_options</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">animated_movie_options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DEFAULT_ANIMATED_MOVIE_OPTIONS</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1074,6 +1179,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">helptxt_actor</span><span class="o">.</span><span class="n">VisibilityOn</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="MultiStructuresVis.display_warning"><a class="viewcode-back" href="../../../pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.MultiStructuresVis.display_warning">[docs]</a>    <span class="k">def</span> <span class="nf">display_warning</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">warning</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            warning (str): Warning</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">warningtxt_mapper</span> <span class="o">=</span> <span class="n">vtk</span><span class="o">.</span><span class="n">vtkTextMapper</span><span class="p">()</span>
         <span class="n">tprops</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">warningtxt_mapper</span><span class="o">.</span><span class="n">GetTextProperty</span><span class="p">()</span>
         <span class="n">tprops</span><span class="o">.</span><span class="n">SetFontSize</span><span class="p">(</span><span class="mi">14</span><span class="p">)</span>
@@ -1092,9 +1201,16 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">warningtxt_actor</span><span class="o">.</span><span class="n">VisibilityOn</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="MultiStructuresVis.erase_warning"><a class="viewcode-back" href="../../../pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.MultiStructuresVis.erase_warning">[docs]</a>    <span class="k">def</span> <span class="nf">erase_warning</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Remove warnings.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">warningtxt_actor</span><span class="o">.</span><span class="n">VisibilityOff</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="MultiStructuresVis.display_info"><a class="viewcode-back" href="../../../pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.MultiStructuresVis.display_info">[docs]</a>    <span class="k">def</span> <span class="nf">display_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            info (str): Information.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">infotxt_mapper</span> <span class="o">=</span> <span class="n">vtk</span><span class="o">.</span><span class="n">vtkTextMapper</span><span class="p">()</span>
         <span class="n">tprops</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">infotxt_mapper</span><span class="o">.</span><span class="n">GetTextProperty</span><span class="p">()</span>
         <span class="n">tprops</span><span class="o">.</span><span class="n">SetFontSize</span><span class="p">(</span><span class="mi">14</span><span class="p">)</span>
@@ -1113,14 +1229,29 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">infotxt_actor</span><span class="o">.</span><span class="n">VisibilityOn</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="MultiStructuresVis.erase_info"><a class="viewcode-back" href="../../../pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.MultiStructuresVis.erase_info">[docs]</a>    <span class="k">def</span> <span class="nf">erase_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Erase all info.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">infotxt_actor</span><span class="o">.</span><span class="n">VisibilityOff</span><span class="p">()</span></div></div>
 
 
 <div class="viewcode-block" id="MultiStructuresInteractorStyle"><a class="viewcode-back" href="../../../pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.MultiStructuresInteractorStyle">[docs]</a><span class="k">class</span> <span class="nc">MultiStructuresInteractorStyle</span><span class="p">(</span><span class="n">StructureInteractorStyle</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Interactor for MultiStructureVis.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            parent ():</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">StructureInteractorStyle</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">)</span>
 
 <div class="viewcode-block" id="MultiStructuresInteractorStyle.keyPressEvent"><a class="viewcode-back" href="../../../pymatgen.vis.structure_vtk.html#pymatgen.vis.structure_vtk.MultiStructuresInteractorStyle.keyPressEvent">[docs]</a>    <span class="k">def</span> <span class="nf">keyPressEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            obj ():</span>
+<span class="sd">            event ():</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">parent</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">GetCurrentRenderer</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span>
         <span class="n">sym</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">iren</span><span class="o">.</span><span class="n">GetKeySym</span><span class="p">()</span>
 
@@ -1178,22 +1309,8 @@
         <span class="n">StructureInteractorStyle</span><span class="o">.</span><span class="n">keyPressEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span></div></div>
 </pre></div>
 
+            <div class="clearer"></div>
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
       </div>
       <div class="clearer"></div>
     </div>
@@ -1206,15 +1323,16 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.vis.structure_vtk</a></li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

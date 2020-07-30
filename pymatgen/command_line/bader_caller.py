@@ -30,13 +30,6 @@ from monty.os.path import which
 from monty.tempfile import ScratchDir
 from monty.io import zopen
 
-__author__ = "shyuepingong"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__status__ = "Beta"
-__date__ = "4/5/13"
-
 BADEREXE = which("bader") or which("bader.exe")
 
 
@@ -133,7 +126,7 @@ class BaderAnalysis:
         self.natoms = self.chgcar.poscar.natoms
         chgcarpath = os.path.abspath(chgcar_filename)
         chgrefpath = os.path.abspath(chgref_filename) if chgref_filename else None
-        self.reference_used = True if chgref_filename else False
+        self.reference_used = bool(chgref_filename)
         self.parse_atomic_densities = parse_atomic_densities
         with ScratchDir("."):
             with zopen(chgcarpath, 'rt') as f_in:
@@ -362,6 +355,29 @@ class BaderAnalysis:
                    chgref_filename=chgref_filename)
 
 
+def get_filepath(filename, warning, path, suffix):
+    """
+    Args:
+        filename: Filename
+        warning: Warning message
+        path: Path to search
+        suffix: Suffixes to search.
+    """
+    paths = glob.glob(os.path.join(path, filename + suffix + '*'))
+    if not paths:
+        warnings.warn(warning)
+        return None
+    if len(paths) > 1:
+        # using reverse=True because, if multiple files are present,
+        # they likely have suffixes 'static', 'relax', 'relax2', etc.
+        # and this would give 'static' over 'relax2' over 'relax'
+        # however, better to use 'suffix' kwarg to avoid this!
+        paths.sort(reverse=True)
+        warnings.warn('Multiple files detected, using {}'.format(os.path.basename(path)))
+    path = paths[0]
+    return path
+
+
 def bader_analysis_from_path(path, suffix=''):
     """
     Convenience method to run Bader analysis on a folder containing
@@ -381,31 +397,18 @@ def bader_analysis_from_path(path, suffix=''):
     :return: summary dict
     """
 
-    def _get_filepath(filename, warning, path=path, suffix=suffix):
-        paths = glob.glob(os.path.join(path, filename + suffix + '*'))
-        if not paths:
-            warnings.warn(warning)
-            return None
-        if len(paths) > 1:
-            # using reverse=True because, if multiple files are present,
-            # they likely have suffixes 'static', 'relax', 'relax2', etc.
-            # and this would give 'static' over 'relax2' over 'relax'
-            # however, better to use 'suffix' kwarg to avoid this!
-            paths.sort(reverse=True)
-            warnings.warn('Multiple files detected, using {}'.format(os.path.basename(path)))
-        path = paths[0]
-        return path
-
-    chgcar_path = _get_filepath('CHGCAR', 'Could not find CHGCAR!')
+    chgcar_path = get_filepath('CHGCAR', 'Could not find CHGCAR!', path, suffix)
     chgcar = Chgcar.from_file(chgcar_path)
 
-    aeccar0_path = _get_filepath('AECCAR0', 'Could not find AECCAR0, interpret Bader results with caution.')
+    aeccar0_path = get_filepath('AECCAR0', 'Could not find AECCAR0, interpret Bader results with caution.',
+                                path, suffix)
     aeccar0 = Chgcar.from_file(aeccar0_path) if aeccar0_path else None
 
-    aeccar2_path = _get_filepath('AECCAR2', 'Could not find AECCAR2, interpret Bader results with caution.')
+    aeccar2_path = get_filepath('AECCAR2', 'Could not find AECCAR2, interpret Bader results with caution.',
+                                path, suffix)
     aeccar2 = Chgcar.from_file(aeccar2_path) if aeccar2_path else None
 
-    potcar_path = _get_filepath('POTCAR', 'Could not find POTCAR, cannot calculate charge transfer.')
+    potcar_path = get_filepath('POTCAR', 'Could not find POTCAR, cannot calculate charge transfer.', path, suffix)
     potcar = Potcar.from_file(potcar_path) if potcar_path else None
 
     return bader_analysis_from_objects(chgcar, potcar, aeccar0, aeccar2)
@@ -457,7 +460,7 @@ def bader_analysis_from_objects(chgcar, potcar=None, aeccar0=None, aeccar2=None)
             "atomic_volume": [d['atomic_vol'] for d in ba.data],
             "vacuum_charge": ba.vacuum_charge,
             "vacuum_volume": ba.vacuum_volume,
-            "reference_used": True if chgref_path else False,
+            "reference_used": bool(chgref_path),
             "bader_version": ba.version,
         }
 

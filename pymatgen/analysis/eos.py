@@ -10,10 +10,10 @@ Note: Most of the code were initially adapted from ASE and deltafactor by
 @gmatteo but has since undergone major refactoring.
 """
 
-from copy import deepcopy
-from abc import ABCMeta, abstractmethod
 import logging
 import warnings
+from abc import ABCMeta, abstractmethod
+from copy import deepcopy
 
 import numpy as np
 from scipy.optimize import leastsq, minimize
@@ -188,6 +188,7 @@ class EOSBase(metaclass=ABCMeta):
         Returns:
             Matplotlib plot object.
         """
+        # pylint: disable=E1307
         plt = pretty_plot(width=width, height=height, plt=plt, dpi=dpi)
 
         color = kwargs.get("color", "r")
@@ -237,6 +238,7 @@ class EOSBase(metaclass=ABCMeta):
         Returns:
             Matplotlib figure object.
         """
+        # pylint: disable=E1307
         ax, fig, plt = get_ax_fig_plt(ax=ax)
 
         color = kwargs.get("color", "r")
@@ -467,7 +469,7 @@ class NumericalEOS(PolynomialEOS):
             return np.sqrt(np.sum((np.array(x) - np.array(y)) ** 2) / len(x))
 
         # list of (energy, volume) tuples
-        e_v = [(i, j) for i, j in zip(self.energies, self.volumes)]
+        e_v = list(zip(self.energies, self.volumes))
         ndata = len(e_v)
         # minimum number of data points used for fitting
         ndata_min = max(ndata - 2 * min_ndata_factor, min_poly_order + 1)

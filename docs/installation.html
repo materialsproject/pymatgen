@@ -8,12 +8,10 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Installation &mdash; pymatgen 2020.4.2 documentation</title>
+  <title>Installation &mdash; pymatgen 2020.7.18 documentation</title>
   
 
   
-  
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
   
   
   
@@ -25,11 +23,11 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -73,7 +71,7 @@
             
             
               <div class="version">
-                2020.4.2
+                2020.7.18
               </div>
             
           
@@ -113,6 +111,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#potcar-setup">POTCAR Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pypy-support">PyPy Support</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#setup-for-developers-using-github">Setup for Developers (using GitHub)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#step-1-preparing-your-system">Step 1: Preparing your system</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#windows">Windows</a></li>
@@ -399,6 +398,27 @@ from these other functionals with Materials Project data. For up-to-date informa
 on this, please consult the Materials Project documentation.</p>
 </div>
 </div>
+<div class="section" id="pypy-support">
+<h2>PyPy Support<a class="headerlink" href="#pypy-support" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="https://www.pypy.org">PyPy</a> is an alternative Python interpreter for running Python code
+and comes with significant speed improvements for common applications. However, historically,
+fewer packages offer PyPy support.</p>
+<p>It is possible to install and use pymatgen with the PyPy interpreter
+but it comes with some important caveats:</p>
+<ul class="simple">
+<li><p>While it is usable, PyPy is not officially supported by pymatgen. We do not run our
+full test suite on PyPy and it’s possible some parts of pymatgen will be broken.</p></li>
+<li><p>All of pymatgen’s dependencies now support PyPy including numpy, scipy, and pandas,
+however matplotlib is difficult to install. If trying PyPy, the current advice
+is to remove the matplotlib dependency, however this means any modules using matplotlib
+will not be importable. The easiest way to install dependencies is using the
+<a class="reference external" href="https://conda-forge.org/blog/2020/03/10/pypy">PyPy builds on conda-forge</a>. For spglib,
+cloning the repository and running <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">setup.py</span> <span class="pre">install</span></code> manually is advised.</p></li>
+<li><p>Performance improvements are unpredictible. Since pymatgen makes heavy use of numpy
+and custom extensions where appropriate, many code hot spots have already been optimized.</p></li>
+</ul>
+<p>We welcome any developers interested in expanding our PyPy support.</p>
+</div>
 <div class="section" id="setup-for-developers-using-github">
 <h2>Setup for Developers (using GitHub)<a class="headerlink" href="#setup-for-developers-using-github" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="step-1-preparing-your-system">
@@ -624,9 +644,9 @@ Here are the steps you need to follow (thanks to Bharat)</p>
 </div>
 <p>To test that the installation worked, here is an example series of things you
 can do using pymatgen:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">In</span> <span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="kn">from</span> <span class="nn">pymatgen.analysis.defects.point_defects</span> <span class="k">import</span> <span class="n">Interstitial</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">In</span> <span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="kn">from</span> <span class="nn">pymatgen.analysis.defects.point_defects</span> <span class="kn">import</span> <span class="n">Interstitial</span>
 
-<span class="n">In</span> <span class="p">[</span><span class="mi">2</span><span class="p">]:</span> <span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">2</span><span class="p">]:</span> <span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">Structure</span>
 
 <span class="n">In</span> <span class="p">[</span><span class="mi">3</span><span class="p">]:</span> <span class="n">structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s1">&#39;/path/to/file&#39;</span><span class="p">)</span>
 

@@ -1,19 +1,19 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.analysis.structure_matcher &#8212; pymatgen 2020.3.2 documentation</title>
-    <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.analysis.structure_matcher &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../../_static/language_data.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
  
@@ -33,15 +33,15 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.structure_matcher</a></li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
-        <div class="bodywrapper">
           <div class="body" role="main">
             
   <h1>Source code for pymatgen.analysis.structure_matcher</h1><div class="highlight"><pre>
@@ -57,17 +57,17 @@
 <span class="kn">import</span> <span class="nn">itertools</span>
 <span class="kn">import</span> <span class="nn">abc</span>
 
-<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core</span> <span class="k">import</span> <span class="n">PeriodicSite</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.lattice</span> <span class="k">import</span> <span class="n">Lattice</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.composition</span> <span class="k">import</span> <span class="n">Composition</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">MSONable</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core</span> <span class="kn">import</span> <span class="n">PeriodicSite</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">Structure</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.lattice</span> <span class="kn">import</span> <span class="n">Lattice</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.composition</span> <span class="kn">import</span> <span class="n">Composition</span>
 
-<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">get_el_sp</span>
-<span class="kn">from</span> <span class="nn">pymatgen.optimization.linear_assignment</span> <span class="k">import</span> <span class="n">LinearAssignment</span>  <span class="c1"># type: ignore</span>
-<span class="kn">from</span> <span class="nn">pymatgen.util.coord_cython</span> <span class="k">import</span> <span class="n">pbc_shortest_vectors</span><span class="p">,</span> <span class="n">is_coord_subset_pbc</span>  <span class="c1"># type: ignore</span>
-<span class="kn">from</span> <span class="nn">pymatgen.util.coord</span> <span class="k">import</span> <span class="n">lattice_points_in_supercell</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.defects.core</span> <span class="k">import</span> <span class="n">Interstitial</span><span class="p">,</span> \
+<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="kn">import</span> <span class="n">get_el_sp</span>
+<span class="kn">from</span> <span class="nn">pymatgen.optimization.linear_assignment</span> <span class="kn">import</span> <span class="n">LinearAssignment</span>  <span class="c1"># type: ignore</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.coord_cython</span> <span class="kn">import</span> <span class="n">pbc_shortest_vectors</span><span class="p">,</span> <span class="n">is_coord_subset_pbc</span>  <span class="c1"># type: ignore</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.coord</span> <span class="kn">import</span> <span class="n">lattice_points_in_supercell</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.defects.core</span> <span class="kn">import</span> <span class="n">Interstitial</span><span class="p">,</span> \
     <span class="n">Defect</span><span class="p">,</span> <span class="n">Vacancy</span><span class="p">,</span> <span class="n">Substitution</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;William Davidson Richards, Stephen Dacek, Shyue Ping Ong&quot;</span>
@@ -384,7 +384,7 @@
 <span class="sd">                    between the two structures)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ltol</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">stol</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">angle_tol</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">primitive_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ltol</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">stol</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">angle_tol</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">primitive_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                  <span class="n">scale</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">attempt_supercell</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">allow_subset</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">comparator</span><span class="o">=</span><span class="n">SpeciesComparator</span><span class="p">(),</span> <span class="n">supercell_size</span><span class="o">=</span><span class="s1">&#39;num_sites&#39;</span><span class="p">,</span>
                  <span class="n">ignored_species</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -463,10 +463,10 @@
                 <span class="n">s2comp</span> <span class="o">+=</span> <span class="n">s2</span><span class="o">.</span><span class="n">composition</span><span class="p">[</span><span class="n">el</span><span class="p">]</span>
             <span class="n">fu</span> <span class="o">=</span> <span class="n">s2comp</span> <span class="o">/</span> <span class="n">s1comp</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">el</span> <span class="o">=</span> <span class="n">get_el_sp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_supercell_size</span><span class="p">)</span>
+            <span class="n">el</span> <span class="o">=</span> <span class="n">get_el_sp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_supercell_size</span><span class="p">)</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">el</span> <span class="ow">in</span> <span class="n">s2</span><span class="o">.</span><span class="n">composition</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">el</span> <span class="ow">in</span> <span class="n">s1</span><span class="o">.</span><span class="n">composition</span><span class="p">):</span>
                 <span class="n">fu</span> <span class="o">=</span> <span class="n">s2</span><span class="o">.</span><span class="n">composition</span><span class="p">[</span><span class="n">el</span><span class="p">]</span> <span class="o">/</span> <span class="n">s1</span><span class="o">.</span><span class="n">composition</span><span class="p">[</span><span class="n">el</span><span class="p">]</span>
-            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Invalid argument for supercell_size.&#39;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">fu</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="o">/</span> <span class="mi">3</span><span class="p">:</span>
@@ -814,7 +814,7 @@
 
 <span class="sd">        Args:</span>
 <span class="sd">            s_list ([Structure]): List of structures to be grouped</span>
-<span class="sd">            anonymous (bool): Wheher to use anonymous mode.</span>
+<span class="sd">            anonymous (bool): Whether to use anonymous mode.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A list of lists of matched structures</span>
@@ -872,7 +872,11 @@
                 <span class="s2">&quot;ltol&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ltol</span><span class="p">,</span>
                 <span class="s2">&quot;angle_tol&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">angle_tol</span><span class="p">,</span>
                 <span class="s2">&quot;primitive_cell&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_primitive_cell</span><span class="p">,</span>
-                <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scale</span><span class="p">}</span></div>
+                <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scale</span><span class="p">,</span>
+                <span class="s2">&quot;attempt_supercell&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_supercell</span><span class="p">,</span>
+                <span class="s2">&quot;allow_subset&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_subset</span><span class="p">,</span>
+                <span class="s2">&quot;supercell_size&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_supercell_size</span><span class="p">,</span>
+                <span class="s2">&quot;ignored_species&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ignored_species</span><span class="p">}</span></div>
 
 <div class="viewcode-block" id="StructureMatcher.from_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.structure_matcher.html#pymatgen.analysis.structure_matcher.StructureMatcher.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
@@ -883,7 +887,11 @@
         <span class="k">return</span> <span class="n">StructureMatcher</span><span class="p">(</span>
             <span class="n">ltol</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;ltol&quot;</span><span class="p">],</span> <span class="n">stol</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;stol&quot;</span><span class="p">],</span> <span class="n">angle_tol</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;angle_tol&quot;</span><span class="p">],</span>
             <span class="n">primitive_cell</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;primitive_cell&quot;</span><span class="p">],</span> <span class="n">scale</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;scale&quot;</span><span class="p">],</span>
-            <span class="n">comparator</span><span class="o">=</span><span class="n">AbstractComparator</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;comparator&quot;</span><span class="p">]))</span></div>
+            <span class="n">attempt_supercell</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;attempt_supercell&quot;</span><span class="p">],</span>
+            <span class="n">allow_subset</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;allow_subset&quot;</span><span class="p">],</span>
+            <span class="n">comparator</span><span class="o">=</span><span class="n">AbstractComparator</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;comparator&quot;</span><span class="p">]),</span>
+            <span class="n">supercell_size</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;supercell_size&quot;</span><span class="p">],</span>
+            <span class="n">ignored_species</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;ignored_species&quot;</span><span class="p">])</span></div>
 
     <span class="k">def</span> <span class="nf">_anonymous_match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">struct1</span><span class="p">,</span> <span class="n">struct2</span><span class="p">,</span> <span class="n">fu</span><span class="p">,</span> <span class="n">s1_supercell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                          <span class="n">use_rms</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">break_on_match</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">single_match</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -1208,7 +1216,7 @@
 <span class="sd">    this comparator will break.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">check_charge</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">check_primitive_cell</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">check_charge</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">check_primitive_cell</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">check_lattice_scale</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
@@ -1282,22 +1290,8 @@
                       <span class="n">d2</span><span class="o">.</span><span class="n">generate_defect_structure</span><span class="p">())</span></div></div>
 </pre></div>
 
+            <div class="clearer"></div>
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
       </div>
       <div class="clearer"></div>
     </div>
@@ -1310,15 +1304,16 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.analysis.structure_matcher</a></li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -6,18 +6,19 @@
 Module containing classes to generate grain boundaries.
 """
 
-import numpy as np
-from fractions import Fraction
-from math import gcd, floor, cos
-from functools import reduce
-from pymatgen import Structure, Lattice
-from pymatgen.core.sites import PeriodicSite
-from monty.fractions import lcm
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 import itertools
-
 import logging
 import warnings
+from fractions import Fraction
+from functools import reduce
+from math import gcd, floor, cos
+
+import numpy as np
+from monty.fractions import lcm
+
+from pymatgen import Structure, Lattice
+from pymatgen.core.sites import PeriodicSite
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 # This module implements representations of grain boundaries, as well as
 # algorithms for generating them.
@@ -309,7 +310,7 @@ class GrainBoundaryGenerator:
         """
         analyzer = SpacegroupAnalyzer(initial_structure, symprec, angle_tolerance)
         self.lat_type = analyzer.get_lattice_type()[0]
-        if (self.lat_type == 't'):
+        if self.lat_type == 't':
             # need to use the conventional cell for tetragonal
             initial_structure = analyzer.get_conventional_standard_structure()
             a, b, c = initial_structure.lattice.abc
@@ -321,20 +322,20 @@ class GrainBoundaryGenerator:
                 # b == c, rotate a to the third direction
                 else:
                     initial_structure.make_supercell([[0, 1, 0], [0, 0, 1], [1, 0, 0]])
-        elif (self.lat_type == 'h'):
+        elif self.lat_type == 'h':
             alpha, beta, gamma = initial_structure.lattice.angles
             # c axis is not in the third direction
-            if (abs(gamma - 90) < angle_tolerance):
+            if abs(gamma - 90) < angle_tolerance:
                 # alpha = 120 or 60, rotate b, c to a, b vectors
-                if (abs(alpha - 90) > angle_tolerance):
+                if abs(alpha - 90) > angle_tolerance:
                     initial_structure.make_supercell([[0, 1, 0], [0, 0, 1], [1, 0, 0]])
                 # beta = 120 or 60, rotate c, a to a, b vectors
-                elif (abs(beta - 90) > angle_tolerance):
+                elif abs(beta - 90) > angle_tolerance:
                     initial_structure.make_supercell([[0, 0, 1], [1, 0, 0], [0, 1, 0]])
-        elif (self.lat_type == 'r'):
+        elif self.lat_type == 'r':
             # need to use primitive cell for rhombohedra
             initial_structure = analyzer.get_primitive_standard_structure()
-        elif (self.lat_type == 'o'):
+        elif self.lat_type == 'o':
             # need to use the conventional cell for orthorombic
             initial_structure = analyzer.get_conventional_standard_structure()
         self.initial_structure = initial_structure
@@ -342,12 +343,11 @@ class GrainBoundaryGenerator:
     def gb_from_parameters(self, rotation_axis, rotation_angle, expand_times=4, vacuum_thickness=0.0,
                            ab_shift=[0, 0], normal=False, ratio=None, plane=None, max_search=20,
                            tol_coi=1.e-8, rm_ratio=0.7, quick_gen=False):
-
         """
         Args:
-           rotation_axis (list): Rotation axis of GB in the form of a list of integer
+            rotation_axis (list): Rotation axis of GB in the form of a list of integer
                 e.g.: [1, 1, 0]
-           rotation_angle (float, in unit of degree): rotation angle used to generate GB.
+            rotation_angle (float, in unit of degree): rotation angle used to generate GB.
                 Make sure the angle is accurate enough. You can use the enum* functions
                 in this class to extract the accurate angle.
                 e.g.: The rotation angle of sigma 3 twist GB with the rotation axis
@@ -355,10 +355,10 @@ class GrainBoundaryGenerator:
                 If you do not know the rotation angle, but know the sigma value, we have
                 provide the function get_rotation_angle_from_sigma which is able to return
                 all the rotation angles of sigma value you provided.
-           expand_times (int): The multiple times used to expand one unit grain to larger grain.
+            expand_times (int): The multiple times used to expand one unit grain to larger grain.
                 This is used to tune the grain length of GB to warrant that the two GBs in one
                 cell do not interact with each other. Default set to 4.
-           vacuum_thickness (float, in angstrom): The thickness of vacuum that you want to insert
+            vacuum_thickness (float, in angstrom): The thickness of vacuum that you want to insert
                 between two grains of the GB. Default to 0.
             ab_shift (list of float, in unit of a, b vectors of Gb): in plane shift of two grains
             normal (logic):
@@ -366,21 +366,21 @@ class GrainBoundaryGenerator:
                 perperdicular to the surface or not.
                 default to false.
             ratio (list of integers):
-                    lattice axial ratio.
-                    For cubic system, ratio is not needed.
-                    For tetragonal system, ratio = [mu, mv], list of two integers,
-                    that is, mu/mv = c2/a2. If it is irrational, set it to none.
-                    For orthorhombic system, ratio = [mu, lam, mv], list of three integers,
-                    that is, mu:lam:mv = c2:b2:a2. If irrational for one axis, set it to None.
-                    e.g. mu:lam:mv = c2,None,a2, means b2 is irrational.
-                    For rhombohedral system, ratio = [mu, mv], list of two integers,
-                    that is, mu/mv is the ratio of (1+2*cos(alpha))/cos(alpha).
-                    If irrational, set it to None.
-                    For hexagonal system, ratio = [mu, mv], list of two integers,
-                    that is, mu/mv = c2/a2. If it is irrational, set it to none.
-                    This code also supplies a class method to generate the ratio from the
-                    structure (get_ratio). User can also make their own approximation and
-                    input the ratio directly.
+                lattice axial ratio.
+                For cubic system, ratio is not needed.
+                For tetragonal system, ratio = [mu, mv], list of two integers,
+                that is, mu/mv = c2/a2. If it is irrational, set it to none.
+                For orthorhombic system, ratio = [mu, lam, mv], list of three integers,
+                that is, mu:lam:mv = c2:b2:a2. If irrational for one axis, set it to None.
+                e.g. mu:lam:mv = c2,None,a2, means b2 is irrational.
+                For rhombohedral system, ratio = [mu, mv], list of two integers,
+                that is, mu/mv is the ratio of (1+2*cos(alpha))/cos(alpha).
+                If irrational, set it to None.
+                For hexagonal system, ratio = [mu, mv], list of two integers,
+                that is, mu/mv = c2/a2. If it is irrational, set it to none.
+                This code also supplies a class method to generate the ratio from the
+                structure (get_ratio). User can also make their own approximation and
+                input the ratio directly.
             plane (list): Grain boundary plane in the form of a list of integers
                 e.g.: [1, 2, 3]. If none, we set it as twist GB. The plane will be perpendicular
                 to the rotation axis.
@@ -432,7 +432,7 @@ class GrainBoundaryGenerator:
             if ratio is None:
                 raise RuntimeError('CSL does not exist if all axial ratios are irrational '
                                    'for an orthorhombic system')
-            elif len(ratio) != 3:
+            if len(ratio) != 3:
                 raise RuntimeError('Orthorhombic system needs correct c2:b2:a2 ratio')
         elif lat_type == 'h':
             logger.info('Make sure this is for hexagonal system')
@@ -691,14 +691,14 @@ class GrainBoundaryGenerator:
             max_denominator (int): the maximum denominator for
                 the computed ratio, default to be 5.
             index_none (int): specify the irrational axis.
-                0-a, 1-b, 2-c. Only may be needed for orthorombic system.
+                0-a, 1-b, 2-c. Only may be needed for orthorhombic system.
         Returns:
                axial ratio needed for GB generator (list of integers).
 
         """
         structure = self.initial_structure
         lat_type = self.lat_type
-        if lat_type == 't' or lat_type == 'h':
+        if lat_type in ('t', 'h'):
             # For tetragonal and hexagonal system, ratio = c2 / a2.
             a, c = (structure.lattice.a, structure.lattice.c)
             if c > a:
@@ -728,7 +728,7 @@ class GrainBoundaryGenerator:
                 ratio[index[1]] = frac2.numerator * int(round((com_lcm / frac2.denominator)))
             else:
                 index.pop(index_none)
-                if (lat[index[0]] > lat[index[1]]):
+                if lat[index[0]] > lat[index[1]]:
                     frac = Fraction(lat[index[0]] ** 2 / lat[index[1]] ** 2).limit_denominator(max_denominator)
                     ratio[index[0]] = frac.numerator
                     ratio[index[1]] = frac.denominator
@@ -737,7 +737,8 @@ class GrainBoundaryGenerator:
                     ratio[index[1]] = frac.numerator
                     ratio[index[0]] = frac.denominator
         elif lat_type == 'c':
-            raise RuntimeError('Cubic system does not need axial ratio.')
+            # Cubic system does not need axial ratio.
+            return None
         else:
             raise RuntimeError('Lattice type not implemented.')
         return ratio
@@ -1111,7 +1112,7 @@ class GrainBoundaryGenerator:
             sigma = F / com_fac
             r_matrix = (np.array(r_list) / com_fac / sigma).reshape(3, 3)
 
-        if (sigma > 1000):
+        if sigma > 1000:
             raise RuntimeError('Sigma >1000 too large. Are you sure what you are doing, '
                                'Please check the GB if exist')
         # transform surface, r_axis, r_matrix in terms of primitive lattice
@@ -1245,7 +1246,7 @@ class GrainBoundaryGenerator:
                     else:
                         a = 1
                     sigma = int(round((m ** 2 + n ** 2 * sum(np.array(r_axis) ** 2)) / a))
-                    if (sigma <= cutoff) and (sigma > 1):
+                    if 1 < sigma <= cutoff:
                         if sigma not in list(sigmas.keys()):
                             if m == 0:
                                 angle = 180.0
@@ -1369,7 +1370,7 @@ class GrainBoundaryGenerator:
                     # and its inverse.
                     com_fac = reduce(gcd, all_list)
                     sigma = int(round((3 * mu * m ** 2 + d * n ** 2) / com_fac))
-                    if (sigma <= cutoff) and (sigma > 1):
+                    if 1 < sigma <= cutoff:
                         if sigma not in list(sigmas.keys()):
                             if m == 0:
                                 angle = 180.0
@@ -1513,7 +1514,7 @@ class GrainBoundaryGenerator:
                     #  and its inverse.
                     com_fac = reduce(gcd, all_list)
                     sigma = int(round(abs(F / com_fac)))
-                    if (sigma <= cutoff) and (sigma > 1):
+                    if 1 < sigma <= cutoff:
                         if sigma not in list(sigmas.keys()):
                             if m == 0:
                                 angle = 180.0
@@ -1630,7 +1631,7 @@ class GrainBoundaryGenerator:
                     #  and its inverse.
                     com_fac = reduce(gcd, all_list)
                     sigma = int(round((mu * m ** 2 + d * n ** 2) / com_fac))
-                    if (sigma <= cutoff) and (sigma > 1):
+                    if 1 < sigma <= cutoff:
                         if sigma not in list(sigmas.keys()):
                             if m == 0:
                                 angle = 180.0
@@ -1785,7 +1786,7 @@ class GrainBoundaryGenerator:
                     #  and its inverse.
                     com_fac = reduce(gcd, all_list)
                     sigma = int(round((mu * lam * m ** 2 + d * n ** 2) / com_fac))
-                    if (sigma <= cutoff) and (sigma > 1):
+                    if 1 < sigma <= cutoff:
                         if sigma not in list(sigmas.keys()):
                             if m == 0:
                                 angle = 180.0
@@ -2051,8 +2052,7 @@ class GrainBoundaryGenerator:
                 t_matrix[1] = ab_vector[1]
                 t_matrix[2] = csl[c_index]
                 return t_matrix
-            else:
-                max_j = abs(miller_nonzero[0])
+            max_j = abs(miller_nonzero[0])
         if max_j > max_search:
             max_j = max_search
         # area of a, b vectors
@@ -2064,10 +2064,7 @@ class GrainBoundaryGenerator:
         # check if the init c vector perpendicular to the surface
         if normal:
             c_cross = np.cross(np.matmul(t_matrix[2], trans), np.matmul(surface, ctrans))
-            if np.linalg.norm(c_cross) < 1.e-8:
-                normal_init = True
-            else:
-                normal_init = False
+            normal_init = np.linalg.norm(c_cross) < 1e-8
 
         j = np.arange(0, max_j + 1)
         combination = []
@@ -2113,7 +2110,7 @@ class GrainBoundaryGenerator:
 
         if normal and (not normal_init):
             logger.info('Did not find the perpendicular c vector, increase max_j')
-            while (not normal_init):
+            while not normal_init:
                 if max_j == max_search:
                     warnings.warn('Cannot find the perpendicular c vector, please increase max_search')
                     break

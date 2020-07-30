@@ -37,6 +37,7 @@ mile_to_meters = const.mile
 bohr_to_angstrom = const.physical_constants["Bohr radius"][0] * 1e10
 bohr_to_ang = bohr_to_angstrom
 ang_to_bohr = 1 / bohr_to_ang
+kCal_to_kJ = const.calorie
 
 """
 Definitions of supported units. Values below are essentially scaling and
@@ -99,7 +100,8 @@ DERIVED_UNITS = {
         "Ha": {"kg": 1, "m": 2, "s": -2, const.e * Ha_to_eV: 1},
         "Ry": {"kg": 1, "m": 2, "s": -2, const.e * Ry_to_eV: 1},
         "J": {"kg": 1, "m": 2, "s": -2},
-        "kJ": {"kg": 1, "m": 2, "s": -2, 1000: 1}
+        "kJ": {"kg": 1, "m": 2, "s": -2, 1000: 1},
+        "kCal": {"kg": 1, "m": 2, "s": -2, 1000: 1, kCal_to_kJ: 1}
     },
     "charge": {
         "C": {"A": 1, "s": 1},
@@ -586,7 +588,7 @@ class ArrayWithUnit(np.ndarray):
         return tuple(reduce)
 
     def __setstate__(self, state):
-        # print("in setstate %s" % str(state))
+        # pylint: disable=E1101
         super().__setstate__(state["np_state"])
         self._unit = state["_unit"]
 
@@ -641,6 +643,7 @@ class ArrayWithUnit(np.ndarray):
             unit=self.unit * other.unit)
 
     def __rmul__(self, other):
+        # pylint: disable=E1101
         if not hasattr(other, "unit_type"):
             return self.__class__(np.array(self).__rmul__(np.array(other)),
                                   unit_type=self._unit_type, unit=self._unit)
@@ -649,6 +652,7 @@ class ArrayWithUnit(np.ndarray):
             unit=self.unit * other.unit)
 
     def __div__(self, other):
+        # pylint: disable=E1101
         if not hasattr(other, "unit_type"):
             return self.__class__(np.array(self).__div__(np.array(other)),
                                   unit_type=self._unit_type, unit=self._unit)
@@ -657,6 +661,7 @@ class ArrayWithUnit(np.ndarray):
             unit=self.unit / other.unit)
 
     def __truediv__(self, other):
+        # pylint: disable=E1101
         if not hasattr(other, "unit_type"):
             return self.__class__(np.array(self).__truediv__(np.array(other)),
                                   unit_type=self._unit_type, unit=self._unit)

@@ -138,6 +138,21 @@ class Element(Enum):
     Md = "Md"
     No = "No"
     Lr = "Lr"
+    Rf = "Rf"
+    Db = "Db"
+    Sg = "Sg"
+    Bh = "Bh"
+    Hs = "Hs"
+    Mt = "Mt"
+    Ds = "Ds"
+    Rg = "Rg"
+    Cn = "Cn"
+    Nh = "Nh"
+    Fl = "Fl"
+    Mc = "Mc"
+    Lv = "Lv"
+    Ts = "Ts"
+    Og = "Og"
 
     def __init__(self, symbol: str):
         """
@@ -280,7 +295,7 @@ class Element(Enum):
 
             Mendeleev number from definition given by Pettifor, D. G. (1984).
             A chemical scale for crystal-structure maps. Solid State Communications,
-            51 (1), 31-34 
+            51 (1), 31-34
 
         .. attribute:: electrical_resistivity
 
@@ -308,9 +323,9 @@ class Element(Enum):
 
         .. attribute:: electronic_structure
 
-            Electronic structure. Simplified form with HTML formatting.
+            Electronic structure.
             E.g., The electronic structure for Fe is represented as
-            [Ar].3d<sup>6</sup>.4s<sup>2</sup>
+            [Ar].3d6.4s2
 
         .. attribute:: atomic_orbitals
 
@@ -444,8 +459,7 @@ class Element(Enum):
         if item in ["mendeleev_no", "electrical_resistivity",
                     "velocity_of_sound", "reflectivity",
                     "refractive_index", "poissons_ratio", "molar_volume",
-                    "electronic_structure", "thermal_conductivity",
-                    "boiling_point", "melting_point",
+                    "thermal_conductivity", "boiling_point", "melting_point",
                     "critical_temperature", "superconduction_temperature",
                     "liquid_range", "bulk_modulus", "youngs_modulus",
                     "brinell_hardness", "rigidity_modulus",
@@ -496,11 +510,19 @@ class Element(Enum):
         raise AttributeError("Element has no attribute %s!" % item)
 
     @property
-    def data(self):
+    def data(self) -> dict:
         """
         Returns dict of data for element.
         """
         return self._data.copy()
+
+    @property
+    def electronic_structure(self) -> str:
+        """
+        Electronic structure as string, with only valence electrons.
+        E.g., The electronic structure for Fe is represented as '[Ar].3d6.4s2'
+        """
+        return re.sub("</*sup>", "", self._data["Electronic structure"])
 
     @property
     def average_ionic_radius(self):
@@ -603,10 +625,10 @@ class Element(Enum):
         [(1, "s", 2), (2, "s", 2), (2, "p", 6), (3, "s", 2), (3, "p", 6),
         (3, "d", 6), (4, "s", 2)]
         """
-        estr = self._data["Electronic structure"]
+        estr = self.electronic_structure
 
         def parse_orbital(orbstr):
-            m = re.match(r"(\d+)([spdfg]+)<sup>(\d+)</sup>", orbstr)
+            m = re.match(r"(\d+)([spdfg]+)(\d+)", orbstr)
             if m:
                 return int(m.group(1)), m.group(2), int(m.group(3))
             return orbstr
@@ -670,7 +692,7 @@ class Element(Enum):
               for comb in e_config_combs]
         TS = [sum([ml_ms[comb[e]][1] for e in range(v_e)])
               for comb in e_config_combs]
-        comb_counter = Counter([r for r in zip(TL, TS)])
+        comb_counter = Counter(zip(TL, TS))
 
         term_symbols = []
         while sum(comb_counter.values()) > 0:
@@ -1071,7 +1093,7 @@ class Specie(MSONable):
         self._el = Element(symbol)
         self._oxi_state = oxidation_state
         self._properties = properties if properties else {}
-        for k in self._properties.keys():
+        for k, _ in self._properties.items():
             if k not in Specie.supported_properties:
                 raise ValueError("{} is not a supported property".format(k))
 
@@ -1386,7 +1408,7 @@ class DummySpecie(Specie):
         self._symbol = symbol
         self._oxi_state = oxidation_state
         self._properties = properties if properties else {}
-        for k in self._properties.keys():
+        for k, _ in self._properties.items():
             if k not in Specie.supported_properties:
                 raise ValueError("{} is not a supported property".format(k))
 

@@ -8,12 +8,10 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen &mdash; pymatgen 2020.4.2 documentation</title>
+  <title>pymatgen &mdash; pymatgen 2020.7.18 documentation</title>
   
 
   
-  
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
   
   
   
@@ -25,11 +23,11 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -73,7 +71,7 @@
             
             
               <div class="version">
-                2020.4.2
+                2020.7.18
               </div>
             
           
@@ -286,6 +284,14 @@
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.analysis.structure_prediction.html#module-pymatgen.analysis.structure_prediction">Module contents</a></li>
 </ul>
 </li>
+<li class="toctree-l5"><a class="reference internal" href="pymatgen.analysis.topological.html">pymatgen.analysis.topological package</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="pymatgen.analysis.topological.html#submodules">Submodules</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="pymatgen.analysis.topological.spillage.html">pymatgen.analysis.topological.spillage module</a></li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="pymatgen.analysis.topological.html#module-pymatgen.analysis.topological">Module contents</a></li>
+</ul>
+</li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.analysis.xas.html">pymatgen.analysis.xas package</a><ul>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.analysis.xas.html#subpackages">Subpackages</a><ul class="simple">
 </ul>
@@ -301,7 +307,6 @@
 </li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.html#submodules">Submodules</a><ul>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.analysis.adsorption.html">pymatgen.analysis.adsorption module</a></li>
-<li class="toctree-l5"><a class="reference internal" href="pymatgen.analysis.aflow_prototypes.html">pymatgen.analysis.aflow_prototypes module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.analysis.bond_dissociation.html">pymatgen.analysis.bond_dissociation module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.analysis.bond_valence.html">pymatgen.analysis.bond_valence module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.analysis.cost.html">pymatgen.analysis.cost module</a></li>
@@ -327,6 +332,7 @@
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.analysis.piezo.html">pymatgen.analysis.piezo module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.analysis.piezo_sensitivity.html">pymatgen.analysis.piezo_sensitivity module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.analysis.pourbaix_diagram.html">pymatgen.analysis.pourbaix_diagram module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="pymatgen.analysis.prototypes.html">pymatgen.analysis.prototypes module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.analysis.quasiharmonic.html">pymatgen.analysis.quasiharmonic module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.analysis.reaction_calculator.html">pymatgen.analysis.reaction_calculator module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.analysis.structure_analyzer.html">pymatgen.analysis.structure_analyzer module</a></li>
@@ -377,7 +383,6 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.cli.html">pymatgen.cli package</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.cli.html#submodules">Submodules</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="pymatgen.cli.feff_input_generation.html">pymatgen.cli.feff_input_generation module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.cli.feff_plot_cross_section.html">pymatgen.cli.feff_plot_cross_section module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.cli.feff_plot_dos.html">pymatgen.cli.feff_plot_dos module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.cli.gaussian_analyzer.html">pymatgen.cli.gaussian_analyzer module</a></li>
@@ -540,6 +545,18 @@
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.lammps.html#module-pymatgen.io.lammps">Module contents</a></li>
 </ul>
 </li>
+<li class="toctree-l5"><a class="reference internal" href="pymatgen.io.lobster.html">pymatgen.io.lobster package</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="pymatgen.io.lobster.html#subpackages">Subpackages</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="pymatgen.io.lobster.html#submodules">Submodules</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="pymatgen.io.lobster.inputs.html">pymatgen.io.lobster.inputs module</a></li>
+<li class="toctree-l7"><a class="reference internal" href="pymatgen.io.lobster.outputs.html">pymatgen.io.lobster.outputs module</a></li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="pymatgen.io.lobster.html#module-pymatgen.io.lobster">Module contents</a></li>
+</ul>
+</li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.io.qchem.html">pymatgen.io.qchem package</a><ul>
 <li class="toctree-l6"><a class="reference internal" href="pymatgen.io.qchem.html#subpackages">Subpackages</a><ul class="simple">
 </ul>
@@ -581,12 +598,12 @@
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.io.fiesta.html">pymatgen.io.fiesta module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.io.gaussian.html">pymatgen.io.gaussian module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.io.lmto.html">pymatgen.io.lmto module</a></li>
-<li class="toctree-l5"><a class="reference internal" href="pymatgen.io.lobster.html">pymatgen.io.lobster module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.io.nwchem.html">pymatgen.io.nwchem module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.io.phonopy.html">pymatgen.io.phonopy module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.io.prismatic.html">pymatgen.io.prismatic module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.io.pwscf.html">pymatgen.io.pwscf module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.io.shengbte.html">pymatgen.io.shengbte module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="pymatgen.io.wannier90.html">pymatgen.io.wannier90 module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.io.xcrysden.html">pymatgen.io.xcrysden module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.io.xr.html">pymatgen.io.xr module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.io.xyz.html">pymatgen.io.xyz module</a></li>
@@ -606,7 +623,9 @@
 </li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html#submodules">Submodules</a><ul>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.optimization.linear_assignment.html">pymatgen.optimization.linear_assignment module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="pymatgen.optimization.linear_assignment.html">pymatgen.optimization.linear_assignment module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.optimization.linear_assignment_numpy.html">pymatgen.optimization.linear_assignment_numpy module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="pymatgen.optimization.neighbors.html">pymatgen.optimization.neighbors module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.optimization.neighbors.html">pymatgen.optimization.neighbors module</a></li>
 </ul>
 </li>
@@ -671,6 +690,7 @@
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html#submodules">Submodules</a><ul>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.util.convergence.html">pymatgen.util.convergence module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.util.coord.html">pymatgen.util.coord module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="pymatgen.util.coord_cython.html">pymatgen.util.coord_cython module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.util.coord_cython.html">pymatgen.util.coord_cython module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.util.io_utils.html">pymatgen.util.io_utils module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.util.num.html">pymatgen.util.num module</a></li>
