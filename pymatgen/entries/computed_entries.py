@@ -322,7 +322,7 @@ class ComputedEntry(Entry):
         """
         # adds to ufloat(0.0, 0.0) to ensure that no corrections still result in ufloat object
         unc = ufloat(0.0, 0.0) + sum(
-            [ufloat(ea.value, ea.uncertainty) if not np.isnan(ea.uncertainty) 
+            [ufloat(ea.value, ea.uncertainty) if not np.isnan(ea.uncertainty)
                 else ufloat(ea.value, 0) for ea in self.energy_adjustments]
         )
 
