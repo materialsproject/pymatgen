@@ -830,8 +830,12 @@ class CorrectionsList(Compatibility):
         corrections, uncertainties = self.get_corrections_dict(entry)
 
         for k, v in corrections.items():
+            if v != 0 and uncertainties[k] == 0:
+                uncertainty = np.nan
+            else:
+                uncertainty = uncertainties[k]
             adjustment_list.append(ConstantEnergyAdjustment(v,
-                                                            uncertainty=uncertainties[k],
+                                                            uncertainty=uncertainty,
                                                             name=k,
                                                             cls=self.as_dict(),
                                                             )
@@ -894,11 +898,15 @@ class CorrectionsList(Compatibility):
         corrections = []
         corr_dict, uncer_dict = self.get_corrections_dict(entry)
         for c in self.corrections:
+            if corr_dict.get(str(c), 0) != 0 and uncer_dict.get(str(c), 0) == 0:
+                uncer = np.nan
+            else:
+                uncer = uncer_dict.get(str(c), 0)
             cd = {
                 "name": str(c),
                 "description": c.__doc__.split("Args")[0].strip(),
                 "value": corr_dict.get(str(c), 0),
-                "uncertainty": uncer_dict.get(str(c), 0),
+                "uncertainty": uncer,
             }
             corrections.append(cd)
         d["corrections"] = corrections
