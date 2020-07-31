@@ -913,6 +913,8 @@ class MPStaticSet(MPRelaxSet):
             prev_incar (Incar): Incar file from previous run.
             prev_kpoints (Kpoints): Kpoints from previous run.
             lepsilon (bool): Whether to add static dielectric calculation
+            lcalcpol (bool): Whether to turn on evaluation of the Berry phase approximations
+                for electronic polarization
             reciprocal_density (int): For static calculations, we usually set the
                 reciprocal density by volume. This is a convenience arg to change
                 that, rather than using user_kpoints_settings. Defaults to 100,
@@ -1076,6 +1078,127 @@ class MPStaticSet(MPRelaxSet):
             **kwargs: All kwargs supported by MPStaticSet, other than prev_incar
                 and prev_structure and prev_kpoints which are determined from
                 the prev_calc_dir.
+        """
+        input_set = cls(_dummy_structure, **kwargs)
+        return input_set.override_from_prev_calc(prev_calc_dir=prev_calc_dir)
+
+
+class MPScanStaticSet(MPScanRelaxSet):
+    """
+    Creates input files for a static calculation using the SCAN metaGGA functional.
+    """
+
+    def __init__(
+            self,
+            structure,
+            bandgap=0,
+            prev_incar=None,
+            lepsilon=False,
+            lcalcpol=False,
+            **kwargs
+    ):
+        """
+        Args:
+            structure (Structure): Structure from previous run.
+            bandgap (float): Bandgap of the structure in eV. The bandgap is used to
+                    compute the appropriate k-point density and determine the
+                    smearing settings.
+            prev_incar (Incar): Incar file from previous run.
+            prev_kpoints (Kpoints): Kpoints from previous run.
+            lepsilon (bool): Whether to add static dielectric calculation
+            lcalcpol (bool): Whether to turn on evaluation of the Berry phase approximations
+                for electronic polarization.
+            **kwargs: kwargs supported by MPScanRelaxSet.
+        """
+        super().__init__(structure, bandgap, **kwargs)
+        if isinstance(prev_incar, str):
+            prev_incar = Incar.from_file(prev_incar)
+
+        self.prev_incar = prev_incar
+        self.kwargs = kwargs
+        self.lepsilon = lepsilon
+        self.lcalcpol = lcalcpol
+
+    @property
+    def incar(self):
+        """
+        :return: Incar
+        """
+        parent_incar = super().incar
+        incar = (
+            Incar(self.prev_incar)
+            if self.prev_incar is not None
+            else Incar(parent_incar)
+        )
+
+        incar.update(
+            {
+                "LREAL": False,
+                "NSW": 0,
+                "LORBIT": 11,
+                "LVHAR": True,
+            }
+        )
+
+        if self.lepsilon:
+            incar["IBRION"] = 8
+            incar["LEPSILON"] = True
+
+            # LPEAD=T: numerical evaluation of overlap integral prevents
+            # LRF_COMMUTATOR errors and can lead to better expt. agreement
+            # but produces slightly different results
+            incar["LPEAD"] = True
+
+            # Note that DFPT calculations MUST unset NSW. NSW = 0 will fail
+            # to output ionic.
+            incar.pop("NSW", None)
+            incar.pop("NPAR", None)
+
+        if self.lcalcpol:
+            incar["LCALCPOL"] = True
+
+        for k in ["MAGMOM", "KSPACING", "SIGMA", "ISMEAR"] + list(
+                self.kwargs.get("user_incar_settings", {}).keys()
+        ):
+            # For these parameters as well as user specified settings, override
+            # the incar settings.
+            if parent_incar.get(k, None) is not None:
+                incar[k] = parent_incar[k]
+            else:
+                incar.pop(k, None)
+
+        return incar
+
+    def override_from_prev_calc(self, prev_calc_dir="."):
+        """
+        Update the input set to include settings from a previous calculation.
+
+        Args:
+            prev_calc_dir (str): The path to the previous calculation directory.
+
+        Returns:
+            The input set with the settings (structure, k-points, incar, etc)
+            updated using the previous VASP run.
+        """
+        vasprun, outcar = get_vasprun_outcar(prev_calc_dir)
+
+        self.prev_incar = vasprun.incar
+
+        self._structure = get_structure_from_prev_run(vasprun, outcar)
+
+        return self
+
+    @classmethod
+    def from_prev_calc(cls, prev_calc_dir, **kwargs):
+        """
+        Generate a set of Vasp input files for static calculations from a
+        directory of previous Vasp run.
+
+        Args:
+            prev_calc_dir (str): Directory containing the outputs(
+                vasprun.xml and OUTCAR) of previous vasp run.
+            **kwargs: All kwargs supported by MPScanStaticSet, other than prev_incar
+                and prev_structure which are determined from the prev_calc_dir.
         """
         input_set = cls(_dummy_structure, **kwargs)
         return input_set.override_from_prev_calc(prev_calc_dir=prev_calc_dir)
