@@ -102,6 +102,7 @@ class Cp2kOutput:
             self.parse_ionic_steps()  # collect energy, forces, and total stress into ionic steps variable
 
             self.parse_mo_eigenvalues()  # Get the eigenvalues of the MOs (for finding gaps, VBM, CBM)
+            self.parse_homo_lumo()  # Get the HOMO LUMO gap as printed after the mo eigenvalues
             self.parse_timing()  # Get timing info (includes total CPU time consumed, but also much more)
 
             # TODO: Is this the best way to implement? Should there just be the option to select each individually?
@@ -176,9 +177,6 @@ class Cp2kOutput:
         """
         Identify files present in the directory with the cp2k output file. Looks for trajectories, dos, and cubes
         """
-        print("-" * 50)
-        print("Beginning file parsing... looking for cp2k outputs.")
-        print("-" * 50)
         pdos = glob.glob(os.path.join(self.dir, "*pdos*"))
         self.filenames["PDOS"] = []
         self.filenames["LDOS"] = []
@@ -225,11 +223,6 @@ class Cp2kOutput:
                 self.filenames["wfn.bak"].append(w)
             else:
                 self.filenames["wfn"] = w
-        for k, v in self.filenames.items():
-            print("Finding {} files... found {} files.".format(k, len(v) if isinstance(v, list) else 1))
-        print("-" * 50)
-        print("Finished looking for output files.")
-        print("-" * 50)
 
     # TODO Maybe I should create a parse_files function that globs to get the file names instead of putting
     # it in each function seperate? -NW
@@ -965,9 +958,7 @@ class Cp2kOutput:
                                 "unoccupied": {Spin.up: [], Spin.down: []},
                             }
                         )
-                        band_gap.append({Spin.up: None, Spin.down: None})
                         efermi.append({Spin.up: None, Spin.down: None})
-
                         next(lines)
                         while True:
                             line = next(lines)
@@ -994,35 +985,58 @@ class Cp2kOutput:
                                 )
                     if line.__contains__(" unoccupied subspace spin"):
                         next(lines)
-                        next(lines)
+                        line = next(lines)
                         while True:
-                            line = next(lines)
-                            if line.__contains__("Eigenvalues"):
-                                break
-                            elif line.__contains__("HOMO"):
-                                band_gap[-1][Spin.up] = float(line.split()[-1])
-                                break
-                            eigenvalues[-1]["unoccupied"][Spin.up].extend(
-                                [_hartree_to_ev_ * float(l) for l in line.split()]
-                            )
-                        next(lines)
-                        next(lines)
-                        if line.__contains__(" unoccupied subspace spin"):
-                            while True:
+                            if line.__contains__("WARNING : did not converge"):
+                                warnings.warn('Convergence of eigenvalues for subspace 1 did NOT converge')
+                                next(lines)
+                                next(lines)
+                                next(lines)
                                 line = next(lines)
-                                if line.__contains__("HOMO"):
-                                    band_gap[-1][Spin.up] = float(line.split()[-1])
+                                eigenvalues[-1]["unoccupied"][Spin.up].extend(
+                                    [_hartree_to_ev_ * float(l) for l in line.split()]
+                                )
+                                next(lines)
+                                line = next(lines)
+                                break
+                            else:
+                                line = next(lines)
+                                if line.__contains__("Eigenvalues"):
+                                    break
+                                elif line.__contains__("HOMO"):
+                                    break
+                                eigenvalues[-1]["unoccupied"][Spin.up].extend(
+                                    [_hartree_to_ev_ * float(l) for l in line.split()]
+                                )
+                        if line.__contains__(" unoccupied subspace spin"):
+                            next(lines)
+                            line = next(lines)
+                            while True:
+                                if line.__contains__("WARNING : did not converge"):
+                                    warnings.warn('Convergence of eigenvalues for subspace 2 did NOT converge')
+                                    next(lines)
+                                    next(lines)
+                                    next(lines)
                                     line = next(lines)
-                                    band_gap[-1][Spin.down] = float(
-                                        line.split()[-1]
+                                    eigenvalues[-1]["unoccupied"][Spin.down].extend(
+                                        [_hartree_to_ev_ * float(l) for l in line.split()]
                                     )
                                     break
-                                eigenvalues[-1]["unoccupied"][Spin.down].extend(
-                                    [
-                                        _hartree_to_ev_ * float(l)
-                                        for l in line.split()
-                                    ]
-                                )
+                                else:
+                                    line = next(lines)
+                                    if line.__contains__("HOMO"):
+                                        next(lines)
+                                        break
+                                    try:
+                                        eigenvalues[-1]["unoccupied"][Spin.down].extend(
+                                            [
+                                                _hartree_to_ev_ * float(l)
+                                                for l in line.split()
+                                            ]
+                                        )
+                                    except AttributeError:
+                                        break
+
                 except ValueError:
                     eigenvalues = [{'occupied': {Spin.up: None, Spin.down: None},
                                     'unoccupied': {Spin.up: None, Spin.down: None}}]
@@ -1054,9 +1068,6 @@ class Cp2kOutput:
                 self.data["cbm"][Spin.up] + self.data["cbm"][Spin.down]
             ) / 2
             self.efermi = (efermi[-1][Spin.up] + efermi[-1][Spin.down]) / 2
-            self.band_gap = (
-                band_gap[-1][Spin.up] + band_gap[-1][Spin.down]
-            ) / 2
         else:
             self.data["vbm"] = {
                 Spin.up: np.max(eigenvalues[-1]["occupied"][Spin.up]),
@@ -1069,7 +1080,6 @@ class Cp2kOutput:
             self.vbm = self.data["vbm"][Spin.up]
             self.cbm = self.data["cbm"][Spin.up]
             self.efermi = efermi[-1][Spin.up]
-            self.band_gap = band_gap[-1][Spin.up]
 
     def parse_homo_lumo(self):
         """
@@ -1080,16 +1090,27 @@ class Cp2kOutput:
         self.read_pattern(
             patterns={"band_gap": pattern},
             reverse=True,
-            terminate_on_match=True,
+            terminate_on_match=False,
             postprocess=float,
         )
+        bg = {Spin.up: [], Spin.down: []}
+        for i in range(len(self.data['band_gap'])):
+            if self.spin_polarized:
+                if i % 2:
+                    bg[Spin.up].append(self.data['band_gap'][i][0])
+                else:
+                    bg[Spin.down].append(self.data['band_gap'][i][0])
+            else:
+                bg[Spin.up].append(self.data['band_gap'][i][0])
+                bg[Spin.down].append(self.data['band_gap'][i][0])
+        self.data['band_gap'] = bg
 
     # TODO: Turn pdos and ldos functions into special instances of more general dos parser
     def parse_ldos(self, ldos_files=None):
         """
         Not implemented
         """
-        pass
+        raise NotImplementedError
 
     # TODO: Pdos needs to be smeared when visualized (esp for Gamma point only DOS), but pymatgen smearing
     # doesn't give correct looking DOS... Using in-method smearing until resolved.
