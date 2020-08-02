@@ -7,17 +7,16 @@ This module provides classes that define a chemical reaction.
 """
 
 import logging
-import numpy as np
 import re
-
-from monty.json import MSONable
-from pymatgen.core.composition import Composition
-from pymatgen.entries.computed_entries import ComputedEntry
-from monty.json import MontyDecoder
-from monty.fractions import gcd_float
-
 from itertools import combinations, chain
 
+import numpy as np
+from monty.fractions import gcd_float
+from monty.json import MSONable
+from monty.json import MontyDecoder
+
+from pymatgen.core.composition import Composition
+from pymatgen.entries.computed_entries import ComputedEntry
 
 __author__ = "Shyue Ping Ong, Anubhav Jain"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -383,7 +382,7 @@ class Reaction(BalancedReaction):
                 if num_errors == 0:
                     self._lowest_num_errors = 0
                     return np.squeeze(coeffs)
-                elif num_errors < self._lowest_num_errors:
+                if num_errors < self._lowest_num_errors:
                     self._lowest_num_errors = num_errors
                     best_soln = coeffs
 
@@ -459,13 +458,9 @@ class ComputedReaction(Reaction):
         self._reactant_entries = reactant_entries
         self._product_entries = product_entries
         self._all_entries = reactant_entries + product_entries
-        reactant_comp = set(
-            [e.composition.get_reduced_composition_and_factor()[0]
-                for e in reactant_entries])
-        product_comp = set(
-            [e.composition.get_reduced_composition_and_factor()[0]
-                for e in product_entries])
-        super().__init__(list(reactant_comp), list(product_comp))
+        reactant_comp = [e.composition.get_reduced_composition_and_factor()[0] for e in reactant_entries]
+        product_comp = [e.composition.get_reduced_composition_and_factor()[0] for e in product_entries]
+        super().__init__(reactant_comp, product_comp)
 
     @property
     def all_entries(self):
