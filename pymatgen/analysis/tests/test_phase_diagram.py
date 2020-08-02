@@ -266,10 +266,12 @@ class PhaseDiagramTest(unittest.TestCase):
             self.pd.get_quasi_e_to_hull(novel_unstable_entry), 0,
             "Novel unstable entries should have positive decomposition energy!")
 
-        # duplicate_entry = PDEntry("Li5FeO4", 999)
-        # self.assertGreater(
-        #     self.pd.get_quasi_e_to_hull(novel_unstable_entry), 0,
-        #     "Novel unstable entries should have positive decomposition energy!")
+        duplicate_entry = PDEntry("Li2O", -14.31361175)
+        stable_entry = [e for e in self.pd.stable_entries if e.name == "Li2O"][0]
+
+        self.assertEqual(
+            self.pd.get_quasi_e_to_hull(duplicate_entry), self.pd.get_quasi_e_to_hull(stable_entry),
+            "Novel duplicates of stable entries should have same decomposition energy!")
 
     def test_get_decomposition(self):
         for entry in self.pd.stable_entries:
@@ -583,11 +585,17 @@ class PDPlotterTest(unittest.TestCase):
         self.assertEqual(len(unstable_entries),
                          len(self.pd.all_entries) - len(self.pd.stable_entries),
                          "Incorrect number of lines generated!")
+
+    def test_pd3d_plot_data(self):
         (lines, labels, unstable_entries) = self.plotter3d.pd_plot_data
         self.assertEqual(len(lines), 33)
-        self.assertEqual(len(labels), len(self.pd3d.stable_entries))
+        self.assertEqual(len(labels), len(self.pd3d.stable_entries),
+                         "Incorrect number of lines generated!")
         self.assertEqual(len(unstable_entries),
-                         len(self.pd3d.all_entries) - len(self.pd3d.stable_entries))
+                         len(self.pd3d.all_entries) - len(self.pd3d.stable_entries),
+                         "Incorrect number of lines generated!")
+
+    def test_pd_plot_formation(self):
         (lines, labels, unstable_entries) = self.plotter_formation.pd_plot_data
         self.assertEqual(len(lines), 3)
         self.assertEqual(len(labels), len(self.pd_formation.stable_entries))

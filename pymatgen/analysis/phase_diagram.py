@@ -95,7 +95,8 @@ class PDEntry(Entry):
         return False
 
     def __hash__(self):
-        return id(self)
+
+        return hash((self.composition.fractional_composition, self.energy_per_atom))
 
     @classmethod
     def from_dict(cls, d):
