@@ -202,7 +202,7 @@ class TemperatureEnergyAdjustment(EnergyAdjustment):
             adj_per_deg: float, energy adjustment to apply per degree K, in eV/atom
             temp: float, temperature in Kelvin
             n_atoms: float or int, number of atoms
-            uncertainty_per_degK: float, uncertainty in energy adjustment to apply per degree K, 
+            uncertainty_per_degK: float, uncertainty in energy adjustment to apply per degree K,
                 in eV/atom. (Default: np.nan)
             name: str, human-readable name of the energy adjustment.
                 (Default: "")
