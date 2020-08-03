@@ -155,7 +155,8 @@ class CompositionEnergyAdjustment(EnergyAdjustment):
         Args:
             adj_per_atom: float, energy adjustment to apply per atom, in eV/atom
             n_atoms: float or int, number of atoms.
-            uncertainty_per_atom: float, uncertainty in energy adjustment to apply per atom, in eV/atom. (Default: np.nan)
+            uncertainty_per_atom: float, uncertainty in energy adjustment to apply per atom, in eV/atom.
+                (Default: np.nan)
             name: str, human-readable name of the energy adjustment.
                 (Default: "")
             cls: dict, Serialized Compatibility class used to generate the
