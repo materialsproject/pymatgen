@@ -139,7 +139,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
         self.entry1 = ComputedEntry(
             "Fe2O3",
             -1,
-            0.0,
+            correction=0.0,
             parameters={
                 "is_hubbard": True,
                 "hubbards": {"Fe": 5.3, "O": 0},
@@ -160,7 +160,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
         self.entry_sulfide = ComputedEntry(
             "FeS",
             -1,
-            0.0,
+            correction=0.0,
             parameters={
                 "is_hubbard": False,
                 "run_type": "GGA",
@@ -180,7 +180,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
         self.entry4 = ComputedEntry(
             "H8",
             -27.1,
-            0.0,
+            correction=0.0,
             parameters={
                 "run_type": "LDA",
                 "is_hubbard": False,
@@ -198,7 +198,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
         self.entry2 = ComputedEntry(
             "Fe3O4",
             -2,
-            0.0,
+            correction=0.0,
             parameters={
                 "is_hubbard": True,
                 "hubbards": {"Fe": 5.3, "O": 0},
@@ -218,7 +218,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
         self.entry3 = ComputedEntry(
             "FeO",
             -2,
-            0.0,
+            correction=0.0,
             parameters={
                 "is_hubbard": True,
                 "hubbards": {"Fe": 4.3, "O": 0},
@@ -251,7 +251,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
         entry = ComputedEntry(
             "Fe2O3",
             -1,
-            0.0,
+            correction=0.0,
             parameters={
                 "is_hubbard": False,
                 "hubbards": {},
@@ -274,7 +274,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
         entry = ComputedEntry(
             "Fe2O3",
             -1,
-            0.0,
+            correction=0.0,
             parameters={
                 "is_hubbard": True,
                 "hubbards": {"Fe": 5.3, "O": 0},
@@ -302,7 +302,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
         entry = ComputedEntry(
             "FeF3",
             -2,
-            0.0,
+            correction=0.0,
             parameters={
                 "is_hubbard": True,
                 "hubbards": {"Fe": 5.3, "F": 0},
@@ -333,7 +333,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
         entry = ComputedEntry(
             "Fe2O3",
             -1,
-            0.0,
+            correction=0.0,
             parameters={
                 "is_hubbard": True,
                 "hubbards": {"Fe": 5.2, "O": 0},
@@ -356,7 +356,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
         entry = ComputedEntry(
             "Fe2O3",
             -1,
-            0.0,
+            correction=0.0,
             parameters={
                 "is_hubbard": False,
                 "hubbards": None,
@@ -379,7 +379,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
         entry = ComputedEntry(
             "Al2O3",
             -1,
-            0.0,
+            correction=0.0,
             parameters={
                 "is_hubbard": True,
                 "hubbards": {"Al": 5.3, "O": 0},
@@ -402,7 +402,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
         entry = ComputedEntry(
             "FeS2",
             -2,
-            0.0,
+            correction=0.0,
             parameters={
                 "is_hubbard": True,
                 "hubbards": {"Fe": 5.3, "S": 0},
@@ -426,7 +426,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
         entry = ComputedEntry(
             "Fe2O3",
             -1,
-            0.0,
+            correction=0.0,
             parameters={
                 "is_hubbard": True,
                 "hubbards": {"Fe": 5.3, "O": 0},
@@ -449,7 +449,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
         entry = ComputedEntry(
             "O",
             -1,
-            0.0,
+            correction=0.0,
             parameters={
                 "is_hubbard": False,
                 "hubbards": {},
@@ -472,7 +472,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
         entry = ComputedEntry(
             "Fe2O3",
             -1,
-            0.0,
+            correction=0.0,
             parameters={
                 "is_hubbard": True,
                 "hubbards": {"Fe": 5.3, "O": 0},
@@ -500,7 +500,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
         entry = ComputedEntry(
             "Fe2O3",
             -1,
-            0.0,
+            correction=0.0,
             parameters={
                 "is_hubbard": True,
                 "hubbards": {"Fe": 5.3, "O": 0},
@@ -550,7 +550,7 @@ class MaterialsProject2020CompatibilityTest(unittest.TestCase):
         self.entry1 = ComputedEntry(
             "Fe2O3",
             -1,
-            0.0,
+            correction=0.0,
             parameters={
                 "is_hubbard": True,
                 "hubbards": {"Fe": 5.3, "O": 0},
@@ -571,7 +571,7 @@ class MaterialsProject2020CompatibilityTest(unittest.TestCase):
         self.entry_sulfide = ComputedEntry(
             "FeS",
             -1,
-            0.0,
+            correction=0.0,
             parameters={
                 "is_hubbard": False,
                 "run_type": "GGA",
@@ -591,7 +591,7 @@ class MaterialsProject2020CompatibilityTest(unittest.TestCase):
         self.entry2 = ComputedEntry(
             "Fe3O4",
             -2,
-            0.0,
+            correction=0.0,
             parameters={
                 "is_hubbard": True,
                 "hubbards": {"Fe": 5.3, "O": 0},
@@ -611,7 +611,7 @@ class MaterialsProject2020CompatibilityTest(unittest.TestCase):
         self.entry3 = ComputedEntry(
             "FeO",
             -2,
-            0.0,
+            correction=0.0,
             parameters={
                 "is_hubbard": True,
                 "hubbards": {"Fe": 4.3, "O": 0},
@@ -646,7 +646,7 @@ class MaterialsProject2020CompatibilityTest(unittest.TestCase):
         entry = ComputedEntry(
             "Fe2O3",
             -1,
-            0.0,
+            correction=0.0,
             parameters={
                 "is_hubbard": False,
                 "hubbards": {},
@@ -669,7 +669,7 @@ class MaterialsProject2020CompatibilityTest(unittest.TestCase):
         entry = ComputedEntry(
             "Fe2O3",
             -1,
-            0.0,
+            correction=0.0,
             parameters={
                 "is_hubbard": True,
                 "hubbards": {"Fe": 5.3, "O": 0},
@@ -697,7 +697,7 @@ class MaterialsProject2020CompatibilityTest(unittest.TestCase):
         entry = ComputedEntry(
             "FeF3",
             -2,
-            0.0,
+            correction=0.0,
             parameters={
                 "is_hubbard": True,
                 "hubbards": {"Fe": 5.3, "F": 0},
@@ -856,7 +856,7 @@ class MaterialsProject2020CompatibilityTest(unittest.TestCase):
         entry = ComputedEntry(
             "Fe2O3",
             -1,
-            0.0,
+            correction=0.0,
             parameters={
                 "is_hubbard": True,
                 "hubbards": {"Fe": 5.2, "O": 0},
@@ -879,7 +879,7 @@ class MaterialsProject2020CompatibilityTest(unittest.TestCase):
         entry = ComputedEntry(
             "Fe2O3",
             -1,
-            0.0,
+            correction=0.0,
             parameters={
                 "is_hubbard": False,
                 "hubbards": None,
@@ -902,7 +902,7 @@ class MaterialsProject2020CompatibilityTest(unittest.TestCase):
         entry = ComputedEntry(
             "Al2O3",
             -1,
-            0.0,
+            correction=0.0,
             parameters={
                 "is_hubbard": True,
                 "hubbards": {"Al": 5.3, "O": 0},
@@ -925,7 +925,7 @@ class MaterialsProject2020CompatibilityTest(unittest.TestCase):
         entry = ComputedEntry(
             "FeS2",
             -2,
-            0.0,
+            correction=0.0,
             parameters={
                 "is_hubbard": True,
                 "hubbards": {"Fe": 5.3, "S": 0},
@@ -949,7 +949,7 @@ class MaterialsProject2020CompatibilityTest(unittest.TestCase):
         entry = ComputedEntry(
             "Fe2O3",
             -1,
-            0.0,
+            correction=0.0,
             parameters={
                 "is_hubbard": True,
                 "hubbards": {"Fe": 5.3, "O": 0},
@@ -972,7 +972,7 @@ class MaterialsProject2020CompatibilityTest(unittest.TestCase):
         entry = ComputedEntry(
             "O",
             -1,
-            0.0,
+            correction=0.0,
             parameters={
                 "is_hubbard": False,
                 "hubbards": {},
@@ -994,7 +994,7 @@ class MaterialsProject2020CompatibilityTest(unittest.TestCase):
         entry = ComputedEntry(
             "Fe2O3",
             -1,
-            0.0,
+            correction=0.0,
             parameters={
                 "is_hubbard": True,
                 "hubbards": {"Fe": 5.3, "O": 0},
@@ -1022,7 +1022,7 @@ class MaterialsProject2020CompatibilityTest(unittest.TestCase):
         entry = ComputedEntry(
             "Fe2O3",
             -1,
-            0.0,
+            correction=0.0,
             parameters={
                 "is_hubbard": True,
                 "hubbards": {"Fe": 5.3, "O": 0},
@@ -1072,7 +1072,7 @@ class MITCompatibilityTest(unittest.TestCase):
         self.entry_O = ComputedEntry(
             "Fe2O3",
             -1,
-            0.0,
+            correction=0.0,
             parameters={
                 "is_hubbard": True,
                 "hubbards": {"Fe": 4.0, "O": 0},
@@ -1093,7 +1093,7 @@ class MITCompatibilityTest(unittest.TestCase):
         self.entry_F = ComputedEntry(
             "FeF3",
             -2,
-            0.0,
+            correction=0.0,
             parameters={
                 "is_hubbard": True,
                 "hubbards": {"Fe": 4.0, "F": 0},
@@ -1113,7 +1113,7 @@ class MITCompatibilityTest(unittest.TestCase):
         self.entry_S = ComputedEntry(
             "FeS2",
             -2,
-            0.0,
+            correction=0.0,
             parameters={
                 "is_hubbard": True,
                 "hubbards": {"Fe": 1.9, "S": 0},
@@ -1156,7 +1156,7 @@ class MITCompatibilityTest(unittest.TestCase):
         entry = ComputedEntry(
             "NiS2",
             -2,
-            0.0,
+            correction=0.0,
             parameters={
                 "is_hubbard": True,
                 "hubbards": {"Ni": 1.9, "S": 0},
@@ -1179,7 +1179,7 @@ class MITCompatibilityTest(unittest.TestCase):
         entry = ComputedEntry(
             "NiS2",
             -2,
-            0.0,
+            correction=0.0,
             parameters={
                 "is_hubbard": True,
                 "hubbards": None,
@@ -1204,7 +1204,7 @@ class MITCompatibilityTest(unittest.TestCase):
         entry = ComputedEntry(
             "Fe2O3",
             -1,
-            0.0,
+            correction=0.0,
             parameters={
                 "is_hubbard": True,
                 "hubbards": {"Fe": 5.2, "O": 0},
@@ -1228,7 +1228,7 @@ class MITCompatibilityTest(unittest.TestCase):
         entry = ComputedEntry(
             "Fe2O3",
             -1,
-            0.0,
+            correction=0.0,
             parameters={
                 "is_hubbard": False,
                 "hubbards": None,
@@ -1253,7 +1253,7 @@ class MITCompatibilityTest(unittest.TestCase):
         entry = ComputedEntry(
             "Fe2O3",
             -1,
-            0.0,
+            correction=0.0,
             parameters={
                 "is_hubbard": True,
                 "hubbards": {"Fe": 4.0, "O": 0},
@@ -1277,7 +1277,7 @@ class MITCompatibilityTest(unittest.TestCase):
         entry = ComputedEntry(
             "O",
             -1,
-            0.0,
+            correction=0.0,
             parameters={
                 "is_hubbard": False,
                 "hubbards": {},
@@ -1299,7 +1299,7 @@ class MITCompatibilityTest(unittest.TestCase):
         entry = ComputedEntry(
             "Fe2O3",
             -1,
-            0.0,
+            correction=0.0,
             parameters={
                 "is_hubbard": True,
                 "hubbards": {"Fe": 4.0, "O": 0},
@@ -1320,7 +1320,7 @@ class MITCompatibilityTest(unittest.TestCase):
         entry2 = ComputedEntry(
             "Fe2O3",
             -1,
-            0.0,
+            correction=0.0,
             parameters={
                 "is_hubbard": True,
                 "hubbards": {"Fe": 4.0, "O": 0},
@@ -1345,7 +1345,7 @@ class MITCompatibilityTest(unittest.TestCase):
         entry = ComputedEntry(
             "Fe2O3",
             -1,
-            0.0,
+            correction=0.0,
             parameters={
                 "is_hubbard": True,
                 "hubbards": {"Fe": 4.0, "O": 0},
@@ -1363,7 +1363,7 @@ class MITCompatibilityTest(unittest.TestCase):
         entry = ComputedEntry(
             "Li2O3",
             -1,
-            0.0,
+            correction=0.0,
             parameters={
                 "is_hubbard": True,
                 "hubbards": {"Fe": 4.0, "O": 0},
@@ -1379,7 +1379,7 @@ class MITCompatibilityTest(unittest.TestCase):
         entry = ComputedEntry(
             "Li2O3",
             -1,
-            0.0,
+            correction=0.0,
             parameters={
                 "is_hubbard": True,
                 "hubbards": {"Fe": 4.0, "O": 0},
@@ -1395,7 +1395,7 @@ class MITCompatibilityTest(unittest.TestCase):
         entry = ComputedEntry(
             "Fe2O3",
             -1,
-            0.0,
+            correction=0.0,
             parameters={
                 "is_hubbard": True,
                 "hubbards": {"Fe": 4.0, "O": 0},
@@ -2134,7 +2134,7 @@ class MITAqueousCompatibilityTest(unittest.TestCase):
         entry = ComputedEntry(
             "AmSi",
             -1,
-            0.0,
+            correction=0.0,
             parameters={
                 "potcar_spec": [
                     {
@@ -2159,7 +2159,7 @@ class CorrectionErrors2020CompatibilityTest(unittest.TestCase):
         self.entry1 = ComputedEntry(
             "Fe2O3",
             -1,
-            0.0,
+            correction=0.0,
             parameters={
                 "is_hubbard": True,
                 "hubbards": {"Fe": 5.3, "O": 0},
@@ -2200,7 +2200,7 @@ class CorrectionErrors2020CompatibilityTest(unittest.TestCase):
         self.entry2 = ComputedEntry(
             "Fe3O4",
             -2,
-            0.0,
+            correction=0.0,
             parameters={
                 "is_hubbard": True,
                 "hubbards": {"Fe": 5.3, "O": 0},
@@ -2221,7 +2221,7 @@ class CorrectionErrors2020CompatibilityTest(unittest.TestCase):
         self.entry_fluoride = ComputedEntry(
             "FeF3",
             -2,
-            0.0,
+            correction=0.0,
             parameters={
                 "is_hubbard": True,
                 "hubbards": {"Fe": 5.3, "F": 0},
@@ -2242,7 +2242,7 @@ class CorrectionErrors2020CompatibilityTest(unittest.TestCase):
         self.entry_hydride = ComputedEntry(
             "LiH",
             -2,
-            0.0,
+            correction=0.0,
             parameters={
                 "is_hubbard": False,
                 "run_type": "GGA",
