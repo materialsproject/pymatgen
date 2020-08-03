@@ -478,11 +478,11 @@ class ComputedReaction(Reaction):
         self._reactant_entries = reactant_entries
         self._product_entries = product_entries
         self._all_entries = reactant_entries + product_entries
-        reactant_comp = {e.composition.get_reduced_composition_and_factor()[0]
-                         for e in reactant_entries}
+        reactant_comp = [e.composition.get_reduced_composition_and_factor()[0]
+                         for e in reactant_entries]
 
-        product_comp = {e.composition.get_reduced_composition_and_factor()[0]
-                        for e in product_entries}
+        product_comp = [e.composition.get_reduced_composition_and_factor()[0]
+                        for e in product_entries]
 
         super().__init__(list(reactant_comp), list(product_comp))
 
