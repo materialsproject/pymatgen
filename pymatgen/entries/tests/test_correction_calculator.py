@@ -99,8 +99,8 @@ class CorrectionCalculatorTest(unittest.TestCase):
         Test that the values in MPCompatiblity.yaml are reproduced correctly.
         """
 
-        exp_path = os.path.join(self.test_dir, "exp_compounds_norm.gz")
-        calc_path = os.path.join(self.test_dir, "calc_compounds_norm.gz")
+        exp_path = os.path.join(self.test_dir, "exp_compounds_norm.json.gz")
+        calc_path = os.path.join(self.test_dir, "calc_compounds_norm.json.gz")
 
         calculator = CorrectionCalculator()
         corrs = calculator.compute_from_files(exp_path, calc_path)
@@ -112,8 +112,8 @@ class CorrectionCalculatorTest(unittest.TestCase):
         Test that compounds can be included/excluded using the allow_{warning} optional parameters.
         """
 
-        exp_path = os.path.join(self.test_dir, "exp_compounds_norm.gz")
-        calc_path = os.path.join(self.test_dir, "calc_compounds_norm.gz")
+        exp_path = os.path.join(self.test_dir, "exp_compounds_norm.json.gz")
+        calc_path = os.path.join(self.test_dir, "calc_compounds_norm.json.gz")
 
         calculator = CorrectionCalculator(
             max_error=1, exclude_polyanions=[], allow_unstable=True
@@ -127,8 +127,8 @@ class CorrectionCalculatorTest(unittest.TestCase):
         Test that corrections can be calculated with no uncertainties.
         """
 
-        exp_path = os.path.join(self.test_dir, "exp_no_error_compounds.gz")
-        calc_path = os.path.join(self.test_dir, "calc_compounds_norm.gz")
+        exp_path = os.path.join(self.test_dir, "exp_no_error_compounds.json.gz")
+        calc_path = os.path.join(self.test_dir, "calc_compounds_norm.json.gz")
 
         calculator = CorrectionCalculator()
         corrs = calculator.compute_from_files(exp_path, calc_path)
@@ -140,8 +140,8 @@ class CorrectionCalculatorTest(unittest.TestCase):
         Test that correct error is raised (ValueError) if the input is missing a computed entry.
         """
 
-        exp_path = os.path.join(self.test_dir, "exp_compounds_norm.gz")
-        calc_path = os.path.join(self.test_dir, "calc_missing_compounds.gz")
+        exp_path = os.path.join(self.test_dir, "exp_compounds_norm.json.gz")
+        calc_path = os.path.join(self.test_dir, "calc_missing_compounds.json.gz")
 
         calculator = CorrectionCalculator()
         with self.assertRaises(ValueError):
