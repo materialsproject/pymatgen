@@ -337,9 +337,9 @@ class GaussianOutputTest(unittest.TestCase):
         self.assertAlmostEqual(124.01095, d["coords"]["ASO"][2])
         gau = GaussianOutput(os.path.join(test_dir, "H2O_scan_G16.out"))
         self.assertEqual(21, len(gau.opt_structures))
-        coords = [[0.104226,  0.000000,  0.087456],
-                  [-0.059296, 0.000000,  1.014833],
-                  [0.989118,  0.000000, -0.234619]]
+        coords = [[0.000000,  0.000000,  0.094168],
+                  [0.000000,  0.815522, -0.376673],
+                  [0.000000, -0.815522, -0.376673]]
         self.assertAlmostEqual(gau.opt_structures[-1].cart_coords.tolist(), coords)
         d = gau.read_scan()
         self.assertAlmostEqual(-0.00523, d["energies"][-1])
@@ -348,8 +348,10 @@ class GaussianOutputTest(unittest.TestCase):
         self.assertAlmostEqual(0.94710, d["coords"]["R1"][6])
         self.assertAlmostEqual(0.94277, d["coords"]["R2"][17])
 
-    def test_geo_opt()
-        # Test an optimization where no "input orientation" is outputted
+    def test_geo_opt(self):
+        """
+        Test an optimization where no "input orientation" is outputted
+        """
         gau = GaussianOutput(os.path.join(test_dir, "acene-n_gaussian09_opt.out"))
         self.assertAlmostEqual(-1812.58399675, gau.energies[-1])
         self.assertEqual(len(gau.structures), 6)
