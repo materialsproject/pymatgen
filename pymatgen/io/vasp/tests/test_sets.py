@@ -130,7 +130,7 @@ class MITMPRelaxSetTest(PymatgenTest):
 
     def test_potcar_validation(self):
         structure = Structure(self.lattice, ["P", "Fe"], self.coords)
-        # Use pytest's monkeypatch to temporarily point pymatgen to a directory 
+        # Use pytest's monkeypatch to temporarily point pymatgen to a directory
         # containing the wrong POTCARs (LDA potcars in a PBE directory)
         with self.monkeypatch.context() as m:
             m.setitem(SETTINGS, "PMG_VASP_PSP_DIR", str(self.TEST_FILES_DIR / "wrong_potcars"))
@@ -1224,9 +1224,11 @@ class MPScanRelaxSetTest(PymatgenTest):
 
     def test_incar(self):
         incar = self.mp_scan_set.incar
-        self.assertIn("METAGGA", incar)
-        self.assertIn("LASPH", incar)
-        self.assertIn("ADDGRID", incar)
+        self.assertEqual(incar["METAGGA"], "Scan")
+        self.assertEqual(incar["LASPH"], True)
+        self.assertEqual(incar["ADDGRID"], True)
+        self.assertEqual(incar["ENAUG"], 1360)
+        self.assertEqual(incar["ENCUT"], 680)
         self.assertEqual(incar["NSW"], 500)
         # the default POTCAR contains metals
         self.assertEqual(incar["KSPACING"], 0.22)
@@ -1298,6 +1300,112 @@ class MPScanRelaxSetTest(PymatgenTest):
 
         for f in ["INCAR", "POSCAR", "POTCAR"]:
             os.remove(f)
+
+
+class MPScanStaticSetTest(PymatgenTest):
+    def setUp(self):
+        self.tmp = tempfile.mkdtemp()
+        warnings.simplefilter("ignore")
+
+    def test_init(self):
+        # test inheriting from a previous GGA relaxation
+        # (note: this test calc has different settings than our typical )
+        prev_run = self.TEST_FILES_DIR / "scan_relaxation"
+
+        vis = MPScanStaticSet.from_prev_calc(prev_calc_dir=prev_run)
+        # check that StaticSet settings were applied
+        self.assertEqual(vis.incar["NSW"], 0)
+        self.assertEqual(vis.incar["LREAL"], False)
+        self.assertEqual(vis.incar["LORBIT"], 11)
+        self.assertEqual(vis.incar["LVHAR"], True)
+        # Check that ENCUT and other INCAR settings were inherited.
+        self.assertEqual(vis.incar["ENCUT"], 680)
+        self.assertEqual(vis.incar["METAGGA"], "Scan")
+        self.assertEqual(vis.incar["KSPACING"], 0.35099344)
+
+        # Check as from dict.
+        # check that StaticSet settings were applied
+        self.assertEqual(vis.incar["NSW"], 0)
+        self.assertEqual(vis.incar["LREAL"], False)
+        self.assertEqual(vis.incar["LORBIT"], 11)
+        self.assertEqual(vis.incar["LVHAR"], True)
+        # Check that ENCUT and KSPACING were inherited.
+        self.assertEqual(vis.incar["ENCUT"], 680)
+        self.assertEqual(vis.incar["METAGGA"], "Scan")
+        self.assertEqual(vis.incar["KSPACING"], 0.35099344)
+
+        non_prev_vis = MPScanStaticSet(
+            vis.structure, user_incar_settings={"ENCUT": 800, "LORBIT": 12, "LWAVE": True}
+        )
+        # check that StaticSet settings were applied
+        self.assertEqual(non_prev_vis.incar["NSW"], 0)
+        self.assertEqual(non_prev_vis.incar["LREAL"], False)
+        self.assertEqual(non_prev_vis.incar["LVHAR"], True)
+        # Check that ENCUT and other INCAR settings were inherited.
+        self.assertEqual(non_prev_vis.incar["METAGGA"], "Scan")
+        # the KSPACING will have the default value here, since no previous calc
+        self.assertEqual(non_prev_vis.incar["KSPACING"], 0.22)
+        # Check that user incar settings are applied.
+        self.assertEqual(non_prev_vis.incar["ENCUT"], 800)
+        self.assertEqual(non_prev_vis.incar["LORBIT"], 12)
+        self.assertTrue(non_prev_vis.incar["LWAVE"])
+
+        v2 = MPScanStaticSet.from_dict(non_prev_vis.as_dict())
+        # Check that user incar settings are applied.
+        self.assertEqual(v2.incar["ENCUT"], 800)
+        self.assertEqual(v2.incar["LORBIT"], 12)
+        self.assertTrue(non_prev_vis.incar["LWAVE"])
+
+        # Check LCALCPOL flag
+        lcalcpol_vis = MPScanStaticSet.from_prev_calc(prev_calc_dir=prev_run, lcalcpol=True)
+        self.assertTrue(lcalcpol_vis.incar["LCALCPOL"])
+
+        # Check LEPSILON flag
+        lepsilon_vis = MPScanStaticSet.from_prev_calc(prev_calc_dir=prev_run, lepsilon=True)
+        self.assertTrue(lepsilon_vis.incar["LEPSILON"])
+        self.assertTrue(lepsilon_vis.incar["LPEAD"])
+        self.assertEqual(lepsilon_vis.incar["IBRION"], 8)
+        self.assertIsNone(lepsilon_vis.incar.get("NSW"))
+        self.assertIsNone(lepsilon_vis.incar.get("NPAR"))
+
+    def test_override_from_prev_calc(self):
+        # test override_from_prev
+        prev_run = self.TEST_FILES_DIR / "scan_relaxation"
+
+        vis = MPScanStaticSet(_dummy_structure)
+        vis.override_from_prev_calc(prev_calc_dir=prev_run)
+        # check that StaticSet settings were applied
+        self.assertEqual(vis.incar["NSW"], 0)
+        self.assertEqual(vis.incar["LREAL"], False)
+        self.assertEqual(vis.incar["LORBIT"], 11)
+        self.assertEqual(vis.incar["LVHAR"], True)
+        # Check that ENCUT and other INCAR settings were inherited.
+        self.assertEqual(vis.incar["ENCUT"], 680)
+        self.assertEqual(vis.incar["METAGGA"], "Scan")
+        self.assertEqual(vis.incar["KSPACING"], 0.35099344)
+
+        # Check LCALCPOL flag
+        lcalcpol_vis = MPScanStaticSet(_dummy_structure, lcalcpol=True)
+        lcalcpol_vis = lcalcpol_vis.override_from_prev_calc(prev_calc_dir=prev_run)
+        self.assertTrue(lcalcpol_vis.incar["LCALCPOL"])
+
+        # Check LEPSILON flag
+        lepsilon_vis = MPScanStaticSet(_dummy_structure, lepsilon=True)
+        lepsilon_vis = lepsilon_vis.override_from_prev_calc(prev_calc_dir=prev_run)
+        self.assertTrue(lepsilon_vis.incar["LEPSILON"])
+        self.assertTrue(lepsilon_vis.incar["LPEAD"])
+        self.assertEqual(lepsilon_vis.incar["IBRION"], 8)
+        self.assertIsNone(lepsilon_vis.incar.get("NSW"))
+        self.assertIsNone(lepsilon_vis.incar.get("NPAR"))
+
+    def test_conflicting_arguments(self):
+        with pytest.raises(ValueError, match="deprecated"):
+            si = self.get_structure("Si")
+            vis = MPScanStaticSet(si, potcar_functional="PBE", user_potcar_functional="PBE")
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp)
+        warnings.simplefilter("default")
 
 
 class FuncTest(PymatgenTest):

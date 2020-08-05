@@ -1104,7 +1104,6 @@ class MPScanStaticSet(MPScanRelaxSet):
                     compute the appropriate k-point density and determine the
                     smearing settings.
             prev_incar (Incar): Incar file from previous run.
-            prev_kpoints (Kpoints): Kpoints from previous run.
             lepsilon (bool): Whether to add static dielectric calculation
             lcalcpol (bool): Whether to turn on evaluation of the Berry phase approximations
                 for electronic polarization.
@@ -1157,10 +1156,8 @@ class MPScanStaticSet(MPScanRelaxSet):
         if self.lcalcpol:
             incar["LCALCPOL"] = True
 
-        for k in ["MAGMOM", "KSPACING", "SIGMA", "ISMEAR"] + list(
-                self.kwargs.get("user_incar_settings", {}).keys()
-        ):
-            # For these parameters as well as user specified settings, override
+        for k in list(self.kwargs.get("user_incar_settings", {}).keys()):
+            # For user specified settings, override
             # the incar settings.
             if parent_incar.get(k, None) is not None:
                 incar[k] = parent_incar[k]
@@ -1198,7 +1195,7 @@ class MPScanStaticSet(MPScanRelaxSet):
             prev_calc_dir (str): Directory containing the outputs(
                 vasprun.xml and OUTCAR) of previous vasp run.
             **kwargs: All kwargs supported by MPScanStaticSet, other than prev_incar
-                and prev_structure which are determined from the prev_calc_dir.
+                which is determined from the prev_calc_dir.
         """
         input_set = cls(_dummy_structure, **kwargs)
         return input_set.override_from_prev_calc(prev_calc_dir=prev_calc_dir)
