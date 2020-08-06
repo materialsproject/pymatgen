@@ -444,8 +444,7 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
         """
         if self.process_entries(entry):
             return self.process_entries(entry)[0]
-        else:
-            return None
+        return None
 
     def process_entries(self, entries: Union[ComputedEntry, list], clean: bool = True):
         """
