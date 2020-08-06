@@ -134,7 +134,7 @@ class Section(MSONable):
                 self.subsections[key] = value.__deepcopy__()
             else:
                 self.insert(value)
-        if isinstance(value, str):
+        if not isinstance(value, Keyword):
             value = Keyword(key, value)
         if isinstance(value, Keyword):
             for i, k in enumerate(self.keywords):
@@ -504,11 +504,12 @@ class Cp2kInput(Section):
                 current = "/".join(current.split("/")[:-1])
             elif line.startswith("&"):
                 name, subsection_params = line.split()[0][1:], line.split()[1:]
+                alias = name+" ".join(subsection_params) if subsection_params else None
                 s = Section(
-                    name, section_parameters=subsection_params, subsections={}
+                    name, section_parameters=subsection_params, alias=alias, subsections={}
                 )
                 self.by_path(current).insert(s)
-                current = current + "/" + name
+                current = current + "/" + alias if alias else current + "/" + name
             else:
                 args = map(_postprocessor, line.split())
                 self.by_path(current).keywords.append(Keyword(*args))
@@ -875,6 +876,36 @@ class Diagonalization(Section):
             repeats=False,
             location=location,
             subsections=self.subsections,
+            **kwargs
+        )
+
+
+class Davidson(Section):
+
+    """
+    Parameters for davidson diagonalization
+    """
+
+    def __init__(self, new_prec_each=20, preconditioner='FULL_SINGLE_INVERSE', **kwargs):
+        """
+        Args:
+            new_prec_each (int): How often to recalculate the preconditioner
+            preconditioner (str): Preconditioner to use
+        """
+        self.new_prec_each = new_prec_each
+        self.preconditioner = preconditioner
+
+        keywords = [
+            Keyword('NEW_PREC_EACH', new_prec_each),
+            Keyword('PRECONDITIONER', preconditioner)
+        ]
+
+        super(Davidson, self).__init__(
+            "DAVIDSON",
+            keywords=keywords,
+            repeats=False,
+            location=None,
+            subsections={},
             **kwargs
         )
 

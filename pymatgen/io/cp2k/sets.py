@@ -132,19 +132,9 @@ class Cp2kInputSet(Cp2kInput):
         subsys = Subsys(subsections={"CELL": cell})
 
         # Decide what basis sets/pseudopotentials to use
-        basis_type = potential_and_basis.get("basis", "MOLOPT")
-        functional = potential_and_basis.get("functional", "PBE")
-        cardinality = potential_and_basis.get("cardinality", "DZVP")
-        sr = potential_and_basis.get('sr', True)
-        q = potential_and_basis.get('q', None)
         basis_and_potential = get_basis_and_potential(
-            structure.symbol_set,
-            functional=functional,
-            basis_type=basis_type,
-            cardinality=cardinality,
-            sr=sr,
-            q=q
-        )
+            [str(s) for s in structure.species],
+            potential_and_basis)
         self.basis_set_file_names = basis_and_potential["basis_filenames"]
         self.potential_file_name = basis_and_potential["potential_filename"]
 
@@ -374,7 +364,7 @@ class DftSet(Cp2kInputSet):
         band_gap=0.01,
         eps_default=1e-12,
         eps_scf=1e-7,
-        max_scf=50,
+        max_scf=None,
         minimizer="DIIS",
         preconditioner="FULL_ALL",
         algorithm="STRICT",
@@ -444,6 +434,7 @@ class DftSet(Cp2kInputSet):
 
         # Build the QS Section
         qs = QS(eps_default=eps_default)
+        max_scf = max_scf if max_scf else 50 if ot else 400  # If ot, max_scf is for inner loop
         scf = Scf(eps_scf=eps_scf, max_scf=max_scf, subsections={})
 
         # If there's a band gap, always use OT, else use Davidson
@@ -475,7 +466,18 @@ class DftSet(Cp2kInputSet):
             )
         else:
             scf.insert(Section("DIAGONALIZATION", subsections={}))
-            scf["DIAGONALIZATION"].insert(Section("DAVIDSON", subsections={}))
+            mixing_kwds = [
+                Keyword('METHOD', 'BROYDEN_MIXING'),
+                Keyword('ALPHA', 0.2),
+                Keyword('NBUFFER', 5)
+            ]
+            mixing = Section('MIXING', keywords=mixing_kwds, subsections=None)
+            scf.insert(mixing)
+            davidson_kwds = [
+                Keyword('PRECONDITIONER', 'FULL_SINGLE_INVERSE')
+            ]
+            davidson = Section('DAVIDSON', keywords=davidson_kwds, subsections=None)
+            scf["DIAGONALIZATION"].insert(davidson)
 
         # Create the multigrid for FFTs
         mgrid = Mgrid(
@@ -498,6 +500,7 @@ class DftSet(Cp2kInputSet):
         if kpoints:
             dft.insert(Kpoints.from_kpoints(kpoints))
         if smearing or (band_gap <= 0.0):
+            scf['ADDED_MOS'] = 100  # TODO: how to grab the appropriate number?
             scf.insert(Smear())
 
         # Create subsections and insert into them

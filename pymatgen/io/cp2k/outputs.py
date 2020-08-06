@@ -988,7 +988,8 @@ class Cp2kOutput:
                         line = next(lines)
                         while True:
                             if line.__contains__("WARNING : did not converge"):
-                                warnings.warn('Convergence of eigenvalues for subspace 1 did NOT converge')
+                                warnings.warn('Convergence of eigenvalues for '
+                                              'unoccupied subspace spin 1 did NOT converge')
                                 next(lines)
                                 next(lines)
                                 next(lines)
@@ -1013,7 +1014,8 @@ class Cp2kOutput:
                             line = next(lines)
                             while True:
                                 if line.__contains__("WARNING : did not converge"):
-                                    warnings.warn('Convergence of eigenvalues for subspace 2 did NOT converge')
+                                    warnings.warn('Convergence of eigenvalues for '
+                                                  'unoccupied subspace spin 2 did NOT converge')
                                     next(lines)
                                     next(lines)
                                     next(lines)
@@ -1086,7 +1088,7 @@ class Cp2kOutput:
         Find the HOMO - LUMO gap in [eV]. Returns the last value. For gaps/eigenvalues decomposed by
         spin up/spin down channel and over many ionic steps, see parse_mo_eigenvalues()
         """
-        pattern = re.compile(r"HOMO - LUMO gap.*\s(-?\d+.\d+)")
+        pattern = re.compile(r"HOMO.*-.*LUMO.*gap.*\s(-?\d+.\d+)")
         self.read_pattern(
             patterns={"band_gap": pattern},
             reverse=True,
@@ -1104,6 +1106,7 @@ class Cp2kOutput:
                 bg[Spin.up].append(self.data['band_gap'][i][0])
                 bg[Spin.down].append(self.data['band_gap'][i][0])
         self.data['band_gap'] = bg
+        self.band_gap = (bg[Spin.up][-1]+bg[Spin.down][-1])/2
 
     # TODO: Turn pdos and ldos functions into special instances of more general dos parser
     def parse_ldos(self, ldos_files=None):

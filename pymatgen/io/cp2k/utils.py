@@ -57,9 +57,7 @@ def natural_keys(text):
     return [atoi(c) for c in re.split(r'_(\d+)', text)]
 
 
-def get_basis_and_potential(
-    species, functional="PBE", basis_type="MOLOPT", cardinality="DZVP", sr=True, q=None
-):
+def get_basis_and_potential(species, d, cardinality='DZVP', functional='PBE'):
     """
     Given a specie and a potential/basis type, this function accesses the available basis sets and potentials.
     Generally, the GTH potentials are used with the GTH basis sets.
@@ -85,6 +83,7 @@ def get_basis_and_potential(
     Returns:
         (dict) of the form {'specie': {'potential': potential, 'basis': basis}...}
     """
+
     potential_filename = SETTINGS.get(
         "PMG_DEFAULT_CP2K_POTENTIAL_FILE", "GTH_POTENTIALS"
     )
@@ -100,6 +99,13 @@ def get_basis_and_potential(
         "basis_filenames": basis_filenames,
         "potential_filename": potential_filename,
     }
+    for s in species:
+        if s not in d:
+            d[s] = {}
+        if 'sr' not in d[s]:
+            d[s]['sr'] = True
+        if 'cardinality' not in d[s]:
+            d[s]['cardinality'] = cardinality
 
     with open(os.path.join(MODULE_DIR, 'basis_molopt.yaml'), 'rt') as f:
         data_b = yaml.load(f, Loader=yaml.Loader)
@@ -109,16 +115,15 @@ def get_basis_and_potential(
     for s in species:
         basis_and_potential[s] = {}
         b = [_ for _ in data_b[s] if cardinality in _.split('-')]
-        if sr:
+        if d[s]['sr']:
             b = [_ for _ in b if 'SR' in _]
         else:
             b = [_ for _ in b if 'SR' not in _]
-        if q:
-            b = [_ for _ in b if q in _]
+        if 'q' in d[s]:
+            b = [_ for _ in b if d[s]['q'] in _]
         if len(b) == 0:
             raise LookupError('NO BASIS OF THAT TYPE AVAILABLE')
         elif len(b) > 1:
-            print(b)
             raise LookupError('AMBIGUITY IN BASIS. PLEASE SPECIFY FURTHER')
 
         basis_and_potential[s]['basis'] = b[0]
