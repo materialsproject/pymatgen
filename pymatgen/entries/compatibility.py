@@ -469,7 +469,7 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
 
         for entry in entries:
             ignore_entry = False
-            # if clean is True, remove all previous adjustments, other than Manual adjustments, from the entry
+            # if clean is True, remove all previous adjustments from the entry
             if clean:
                 for ea in entry.energy_adjustments:
                     entry.energy_adjustments.remove(ea)
@@ -508,6 +508,7 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
 
         return processed_entry_list
 
+    @staticmethod
     def explain(self, entry):
         """
         Prints an explanation of the energy adjustments applied by the
@@ -989,4 +990,4 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
                 self.h2o_energy = h2o_entries[0].energy_per_atom
                 self.h2o_adjustments = h2o_entries[0].correction / h2o_entries[0].composition.num_atoms
 
-        return super().process_entries(entries)
+        return super().process_entries(entries, clean=clean)
