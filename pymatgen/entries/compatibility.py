@@ -455,7 +455,7 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
         else:
             return None
 
-    def process_entries(self, entries: Union[ComputedEntry, list], clean: bool = False):
+    def process_entries(self, entries: Union[ComputedEntry, list], clean: bool = True):
         """
         Process a sequence of entries with the chosen Compatibility scheme.
 
@@ -463,7 +463,7 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
             entries: ComputedEntry or [ComputedEntry]
             clean: bool, whether to remove any previously-applied energy adjustments.
                 If True, all EnergyAdjustment are removed prior to processing the Entry.
-                Default is False.
+                Default is True.
 
         Returns:
             A list of adjusted entries.  Entries in the original list which
