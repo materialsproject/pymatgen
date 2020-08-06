@@ -162,7 +162,7 @@ class Cp2kInputSet(Cp2kInput):
                     ghost=ghost
                 )
             )
-        coord = Coord(structure, alias=unique_kinds)
+        coord = Coord(structure, aliases=unique_kinds)
         subsys.insert(coord)
 
         if not self.check("FORCE_EVAL"):

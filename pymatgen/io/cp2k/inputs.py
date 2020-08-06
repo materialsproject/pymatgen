@@ -1111,7 +1111,7 @@ class Coord(Section):
     Specifies the coordinates of the atoms using a pymatgen structure object.
     """
 
-    def __init__(self, structure, alias=False, subsections={}, **kwargs):
+    def __init__(self, structure, aliases=False, subsections={}, **kwargs):
         """
         Args:
             structure: Pymatgen structure object
@@ -1120,7 +1120,7 @@ class Coord(Section):
         """
 
         self.structure = structure
-        self.alias = alias
+        self.aliases = aliases
         self.subsections = subsections
         self.kwargs = kwargs
 
@@ -1129,9 +1129,9 @@ class Coord(Section):
             + "here by default using explicit XYZ coordinates. More complex systems "
             + "should be given via an external coordinate file in the SUBSYS%TOPOLOGY section."
         )
-        if alias:
+        if aliases:
             keywords = []
-            for k, v in alias.items():
+            for k, v in aliases.items():
                 keywords.extend([Keyword(k, *structure[i].coords) for i in v])
         else:
             keywords = [
@@ -1139,7 +1139,8 @@ class Coord(Section):
             ]
 
         super(Coord, self).__init__(
-            name="COORD", description=description, keywords=keywords,
+            name="COORD", description=description,
+            keywords=keywords, alias=None,
             subsections=self.subsections, **kwargs
         )
 
