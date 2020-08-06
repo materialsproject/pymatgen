@@ -111,21 +111,19 @@ class PotcarCorrection(Correction):
             CombatibilityError if wrong potcar symbols
         """
         potcar_settings = input_set.CONFIG["POTCAR"]
-        if isinstance(list(potcar_settings.values())[-1],
-                      dict):
+        if isinstance(list(potcar_settings.values())[-1], dict):
             if check_hash:
-                self.valid_potcars = {k: d["hash"] for k, d in
-                                      potcar_settings.items()}
+                self.valid_potcars = {k: d["hash"] for k, d in potcar_settings.items()}
             else:
-                self.valid_potcars = {k: d["symbol"] for k, d in
-                                      potcar_settings.items()}
+                self.valid_potcars = {
+                    k: d["symbol"] for k, d in potcar_settings.items()
+                }
         else:
             if check_hash:
-                raise ValueError('Cannot check hashes of potcars,'
-                                 ' hashes are not set')
-            else:
-                self.valid_potcars = {k: d for k, d in
-                                      potcar_settings.items()}
+                raise ValueError(
+                    "Cannot check hashes of potcars, since hashes are not included in the entry."
+                )
+            self.valid_potcars = potcar_settings
 
         self.input_set = input_set
         self.check_hash = check_hash
@@ -137,25 +135,19 @@ class PotcarCorrection(Correction):
         """
         if self.check_hash:
             if entry.parameters.get("potcar_spec"):
-                psp_settings = set([d.get("hash")
-                                    for d in entry.parameters[
-                                        "potcar_spec"] if d])
+                psp_settings = {d.get("hash") for d in entry.parameters["potcar_spec"] if d}
             else:
-                raise ValueError('Cannot check hash '
-                                 'without potcar_spec field')
+                raise ValueError("Cannot check hash without potcar_spec field")
         else:
             if entry.parameters.get("potcar_spec"):
-                psp_settings = set([d.get("titel").split()[1]
-                                    for d in entry.parameters[
-                                        "potcar_spec"] if d])
+                psp_settings = {d.get("titel").split()[1] for d in entry.parameters["potcar_spec"] if d}
             else:
-                psp_settings = set([sym.split()[1]
-                                    for sym in entry.parameters[
-                                        "potcar_symbols"] if sym])
+                psp_settings = {sym.split()[1] for sym in entry.parameters["potcar_symbols"] if sym}
 
-        if {self.valid_potcars.get(str(el))
-                for el in entry.composition.elements} != psp_settings:
-            raise CompatibilityError('Incompatible potcar')
+        if {
+            self.valid_potcars.get(str(el)) for el in entry.composition.elements
+        } != psp_settings:
+            raise CompatibilityError("Incompatible potcar")
         return 0
 
     def __str__(self):
