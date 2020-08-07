@@ -48,7 +48,7 @@ class CorrectionCalculator:
             "oxide",
             "peroxide",
             "superoxide",
-            "sulfide",
+            "S",
             "F",
             "Cl",
             "Br",
@@ -120,7 +120,7 @@ class CorrectionCalculator:
             self.peroxides: List[str] = []
         if "superoxide" in self.species:
             self.superoxides: List[str] = []
-        if "sulfide" in self.species:
+        if "S" in self.species:
             self.sulfides: List[str] = []
 
     def compute_from_files(self, exp_gz: str, comp_gz: str):
@@ -256,7 +256,7 @@ class CorrectionCalculator:
                             self.superoxides.append(name)
                         else:
                             coeff.append(0)
-                    elif specie == "sulfide":
+                    elif specie == "S":
                         if Element("S") in comp:
                             sf_type = "sulfide"
                             if compound.data.get("sulfide_type"):
@@ -393,7 +393,7 @@ class CorrectionCalculator:
             specie == "oxide"
             or specie == "peroxide"
             or specie == "superoxide"
-            or specie == "sulfide"
+            or specie == "S"
         ):
             if specie == "oxide":
                 compounds = self.oxides

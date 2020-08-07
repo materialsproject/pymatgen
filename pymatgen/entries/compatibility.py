@@ -362,9 +362,9 @@ class CompositionCorrection(Correction):
             if sf_type == "polysulfide":
                 sf_type = "sulfide"
 
-            if sf_type in self.comp_correction:
+            if sf_type == "sulfide":
                 correction += (
-                    ufloat(self.comp_correction[sf_type], self.comp_errors[sf_type])
+                    ufloat(self.comp_correction["S"], self.comp_errors["S"])
                     * comp["S"]
                 )
 

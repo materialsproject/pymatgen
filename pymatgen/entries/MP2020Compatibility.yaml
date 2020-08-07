@@ -24,7 +24,7 @@ CompositionCorrections:
   peroxide: -0.466
   superoxide: -0.16
   ozonide: 0
-  sulfide: -0.637
+  S: -0.637
   Br: -0.536
   I: -0.377
   Se: -0.473
