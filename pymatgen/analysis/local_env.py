@@ -1048,7 +1048,7 @@ class JmolNN(NearNeighbors):
     states.
     """
 
-    def __init__(self, tol=0.56, min_bond_distance=0.4, el_radius_updates=None):
+    def __init__(self, tol=0.45, min_bond_distance=0.4, el_radius_updates=None):
         """
         Args:
             tol (float): tolerance parameter for bond determination
