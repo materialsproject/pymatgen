@@ -54,11 +54,11 @@ Lead Maintainers
 Newest Contributors
 ===================
 
-Welcome and thank you to our newest contributors `@uthpalah`_, `@LindaHung-TRI`_ and `@mattmcdermott`_!
+Welcome and thank you to our newest contributors `@eimrek`_, `@wsyxbcl`_ and `@orioncohen`_!
 
-.. _@uthpalah: https://github.com/uthpalah
-.. _@LindaHung-TRI: https://github.com/LindaHung-TRI
-.. _@mattmcdermott: https://github.com/mattmcdermott
+.. _@eimrek: https://github.com/eimrek
+.. _@wsyxbcl: https://github.com/wsyxbcl
+.. _@orioncohen: https://github.com/orioncohen
 
 
 List of Developers (A–Z)

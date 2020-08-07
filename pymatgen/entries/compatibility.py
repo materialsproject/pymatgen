@@ -159,7 +159,7 @@ class PotcarCorrection(Correction):
             if entry.parameters.get("potcar_spec"):
                 psp_settings = {d.get("hash") for d in entry.parameters["potcar_spec"] if d}
             else:
-                raise ValueError("Cannot check hash " "without potcar_spec field")
+                raise ValueError("Cannot check hash without potcar_spec field")
         else:
             if entry.parameters.get("potcar_spec"):
                 psp_settings = {d.get("titel").split()[1] for d in entry.parameters["potcar_spec"] if d}
@@ -710,7 +710,7 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
             return self.process_entries(entry)[0]
         return None
 
-    def process_entries(self, entries: Union[ComputedEntry, list], clean: bool = False):
+    def process_entries(self, entries: Union[ComputedEntry, list], clean: bool = True):
         """
         Process a sequence of entries with the chosen Compatibility scheme.
 
@@ -718,7 +718,7 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
             entries: ComputedEntry or [ComputedEntry]
             clean: bool, whether to remove any previously-applied energy adjustments.
                 If True, all EnergyAdjustment are removed prior to processing the Entry.
-                Default is False.
+                Default is True.
 
         Returns:
             A list of adjusted entries.  Entries in the original list which
@@ -732,7 +732,7 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
 
         for entry in entries:
             ignore_entry = False
-            # if clean is True, remove all previous adjustments, other than Manual adjustments, from the entry
+            # if clean is True, remove all previous adjustments from the entry
             if clean:
                 for ea in entry.energy_adjustments:
                     entry.energy_adjustments.remove(ea)
@@ -1342,4 +1342,4 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
                 self.h2o_energy = h2o_entries[0].energy_per_atom
                 self.h2o_adjustments = h2o_entries[0].correction / h2o_entries[0].composition.num_atoms
 
-        return super().process_entries(entries)
+        return super().process_entries(entries, clean=clean)

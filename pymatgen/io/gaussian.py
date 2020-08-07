@@ -537,7 +537,8 @@ class GaussianOutput:
 
     .. attribute:: opt_structures
 
-        All optimized structures from the calculation in the input orientation
+        All optimized structures from the calculation in the standard orientation,
+        if the attribute 'standard_orientation' is True, otherwise in the input
         or the Z-matrix orientation.
 
     .. attribute:: energies
@@ -1114,7 +1115,10 @@ class GaussianOutput:
                         if " -- Stationary point found." not in line:
                             warnings.warn("\n" + self.filename +
                                           ": Optimization complete but this is not a stationary point")
-                        opt_structures.append(input_structures[-1])
+                        if standard_orientation:
+                            opt_structures.append(std_structures[-1])
+                        else:
+                            opt_structures.append(input_structures[-1])
                     elif not read_eigen and orbital_patt.search(line):
                         eigen_txt.append(line)
                         read_eigen = True

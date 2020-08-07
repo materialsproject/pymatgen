@@ -89,9 +89,9 @@ def test_clean_arg():
     compat = DummyCompatibility()
 
     assert entry.correction == -4
-    compat.process_entries(entry)
+    compat.process_entries(entry, clean=False)
     assert entry.correction == -14
-    compat.process_entries(entry, clean=True)
+    compat.process_entries(entry)
     assert entry.correction == -10
 
 
@@ -101,14 +101,17 @@ def test_energy_adjustment_normalize():
     by the normalize method
     """
     entry = ComputedEntry("Fe4O6", -2, correction=-4)
-    compat = DummyCompatibility()
-    entry = compat.process_entries(entry)[0]
     entry.normalize()
-    assert entry.correction == -7
     for ea in entry.energy_adjustments:
         if "Manual" in ea.name:
             assert ea.value == -2
-        elif "Dummy" in ea.name:
+
+    compat = DummyCompatibility()
+    entry = ComputedEntry("Fe4O6", -2, correction=-4)
+    entry = compat.process_entries(entry)[0]
+    entry.normalize()
+    for ea in entry.energy_adjustments:
+        if "Dummy" in ea.name:
             assert ea.value == -5
 
 
@@ -125,10 +128,8 @@ def test_overlapping_adjustments():
     assert entry.correction == -5
 
     # in case of a collision between EnergyAdjustment, check for a UserWarning
-    with pytest.warns(
-        UserWarning, match="already has an energy adjustment called Dummy"
-    ):
-        processed = compat.process_entries(entry)
+    with pytest.warns(UserWarning, match="already has an energy adjustment called Dummy"):
+        processed = compat.process_entries(entry, clean=False)
 
     assert len(processed) == 0
 
