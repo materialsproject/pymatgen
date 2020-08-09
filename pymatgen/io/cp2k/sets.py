@@ -366,7 +366,7 @@ class DftSet(Cp2kInputSet):
         eps_scf=1e-7,
         max_scf=None,
         minimizer="DIIS",
-        preconditioner="FULL_ALL",
+        preconditioner="FULL_SINGLE_INVERSE",
         algorithm="STRICT",
         linesearch="2PNT",
         cutoff=1200,
@@ -434,7 +434,7 @@ class DftSet(Cp2kInputSet):
 
         # Build the QS Section
         qs = QS(eps_default=eps_default)
-        max_scf = max_scf if max_scf else 50 if ot else 400  # If ot, max_scf is for inner loop
+        max_scf = max_scf if max_scf else 20 if ot else 400  # If ot, max_scf is for inner loop
         scf = Scf(eps_scf=eps_scf, max_scf=max_scf, subsections={})
 
         # If there's a band gap, always use OT, else use Davidson
@@ -500,6 +500,7 @@ class DftSet(Cp2kInputSet):
         if kpoints:
             dft.insert(Kpoints.from_kpoints(kpoints))
         if smearing or (band_gap <= 0.0):
+            scf.kwargs['ADDED_MOS'] = 100
             scf['ADDED_MOS'] = 100  # TODO: how to grab the appropriate number?
             scf.insert(Smear())
 
