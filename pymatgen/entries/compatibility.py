@@ -434,7 +434,8 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
 
     def process_entry(self, entry):
         """
-        Process a single entry with the chosen Corrections.
+        Process a single entry with the chosen Corrections. Note
+        that this method will change the data of the original entry.
 
         Args:
             entry: A ComputedEntry object.
@@ -448,7 +449,8 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
 
     def process_entries(self, entries: Union[ComputedEntry, list], clean: bool = True):
         """
-        Process a sequence of entries with the chosen Compatibility scheme.
+        Process a sequence of entries with the chosen Compatibility scheme. Note
+        that this method will change the data of the original entries.
 
         Args:
             entries: ComputedEntry or [ComputedEntry]
