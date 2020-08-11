@@ -472,8 +472,7 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
             ignore_entry = False
             # if clean is True, remove all previous adjustments from the entry
             if clean:
-                for ea in entry.energy_adjustments:
-                    entry.energy_adjustments.remove(ea)
+                entry.energy_adjustments = []
 
             # get the energy adjustments
             try:
