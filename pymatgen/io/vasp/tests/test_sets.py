@@ -49,7 +49,6 @@ class SetChangeCheckTest(PymatgenTest):
             "vdW_parameters.yaml": "66541f58b221c8966109156f4f651b2ca8aa76da",
         }
 
-        # assert hashes == known_hashes
         self.assertDictEqual(
             hashes,
             known_hashes,
