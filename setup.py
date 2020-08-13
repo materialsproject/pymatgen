@@ -6,6 +6,7 @@
 
 import sys
 import platform
+import os
 
 from setuptools import setup, find_packages, Extension
 from setuptools.command.build_ext import build_ext as _build_ext
@@ -30,6 +31,17 @@ class build_ext(_build_ext):
 extra_link_args = []
 if sys.platform.startswith('win') and platform.machine().endswith('64'):
     extra_link_args.append('-Wl,--allow-multiple-definition')
+    
+# thanks https://stackoverflow.com/a/36693250
+def package_files(directory, extensions):
+    """Walk package directory to make sure we include all relevant files in package."""
+    paths = []
+    for (path, directories, filenames) in os.walk(directory):
+        for filename in filenames:
+            if any([filename.endswith(ext) for ext in extensions]):
+                paths.append(os.path.join('..', path, filename))
+    return paths
+json_yaml_csv_files = package_files('pymatgen', ['yaml', 'json', 'csv'])
 
 long_desc = """
 Official docs: [http://pymatgen.org](http://pymatgen.org/)
@@ -109,30 +121,17 @@ setup(
             "dataclasses>=0.6",
         ]},
     package_data={
-        "pymatgen.core": ["*.json", "py.typed"],
-        "pymatgen.analysis": ["*.yaml", "*.json", "*.csv"],
-        "pymatgen.analysis.chemenv.coordination_environments.coordination_geometries_files": ["*.txt", "*.json"],
-        "pymatgen.analysis.chemenv.coordination_environments.strategy_files": ["*.json"],
-        "pymatgen.analysis.magnetism": ["*.json", "*.yaml"],
-        "pymatgen.analysis.structure_prediction": ["data/*.json", "*.yaml"],
-        "pymatgen.io": ["*.yaml"],
-        "pymatgen.io.vasp": ["*.yaml", "*.json"],
-        "pymatgen.io.lammps": ["templates/*.*", "*.yaml"],
-        "pymatgen.io.lobster": ["lobster_basis/*.yaml"],
-        "pymatgen.io.feff": ["*.yaml"],
-        "pymatgen.symmetry": ["*.yaml", "*.json", "*.sqlite"],
-        "pymatgen.entries": ["*.yaml"],
-        "pymatgen.entries.data": ["*.json"],
-        "pymatgen.vis": ["ElementColorSchemes.yaml"],
+        "pymatgen": json_yaml_csv_files,
+        "pymatgen.core": ["py.typed"],
+        "pymatgen.analysis.chemenv.coordination_environments.coordination_geometries_files": ["*.txt"],
+        "pymatgen.symmetry": ["*.sqlite"],
         "pymatgen.command_line": ["OxideTersoffPotentials"],
-        "pymatgen.analysis.defects": ["*.json"],
-        "pymatgen.analysis.diffraction": ["*.json"],
-        "pymatgen.util": ["structures/*.json"]},
+    },
     author="Pymatgen Development Team",
     author_email="ongsp@eng.ucsd.edu",
     maintainer="Shyue Ping Ong, Matthew Horton",
     maintainer_email="ongsp@eng.ucsd.edu, mkhorton@lbl.gov",
-    url="http://www.pymatgen.org",
+    url="https://www.pymatgen.org",
     license="MIT",
     description="Python Materials Genomics is a robust materials "
                 "analysis code that defines core object representations for "
