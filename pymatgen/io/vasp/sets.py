@@ -2633,11 +2633,12 @@ class LobsterSet(MPRelaxSet):
     def __init__(
             self,
             structure: Structure,
-            isym: int = -1,
+            isym: int = 0,
             ismear: int = -5,
             reciprocal_density: int = None,
             address_basis_file: str = None,
             user_supplied_basis: dict = None,
+            user_potcar_settings: dict = {"W": "W_sv"},
             **kwargs
     ):
         """
@@ -2688,9 +2689,6 @@ class LobsterSet(MPRelaxSet):
             else:
                 self.reciprocal_density = reciprocal_density
 
-        # might need to be adapted in the future
-        ediff_per_atom = 5e-05
-
         self.isym = isym
         self.ismear = ismear
         self.user_supplied_basis = user_supplied_basis
@@ -2720,7 +2718,7 @@ class LobsterSet(MPRelaxSet):
         nbands = lobsterin._get_nbands(structure=structure)
 
         update_dict = {
-            "EDIFF_PER_ATOM": ediff_per_atom,
+            "EDIFF": 1e-6,
             "NSW": 0,
             "LWAVE": True,
             "ISYM": isym,
