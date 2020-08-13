@@ -524,7 +524,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         self,
         structure: Structure,
         formation_enthalpy: float,
-        temp: int = 300,
+        temp: float = 300,
         gibbs_model: str = "SISSO",
         correction: float = 0.0,
         energy_adjustments: list = None,
@@ -537,7 +537,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
             structure (Structure): The pymatgen Structure object of an entry.
             formation_enthalpy (float): Formation enthalpy of the entry, calculated
                 using phase diagram construction (eV)
-            temp (int): Temperature in Kelvin. If temperature is not selected from
+            temp (float): Temperature in Kelvin. If temperature is not selected from
                 one of [300, 400, 500, ... 2000 K], then free energies will
                 be interpolated. Defaults to 300 K.
             gibbs_model (str): Model for Gibbs Free energy. Currently the default (and
@@ -552,7 +552,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         """
         self.structure = structure
         self.formation_enthalpy = formation_enthalpy
-        self.temp = int(temp)
+        self.temp = temp
         self.interpolated = False
 
         if self.temp < 300 or self.temp > 2000:
