@@ -376,10 +376,8 @@ class DictSet(VaspInputSet):
         self.sym_prec = sym_prec
         self.international_monoclinic = international_monoclinic
 
-        if (
-                self.user_incar_settings.get("KSPACING")
-                and user_kpoints_settings is not None
-        ):
+        if (self.user_incar_settings.get("KSPACING") and user_kpoints_settings is not
+                None):
             warnings.warn(
                 "You have specified KSPACING and also supplied kpoints "
                 "settings. KSPACING only has effect when there is no "
@@ -501,13 +499,8 @@ class DictSet(VaspInputSet):
                         m = {site.specie.symbol: getattr(site, k.lower()) for site in structure}
                         incar[k] = [m[sym] for sym in poscar.site_symbols]
                     # lookup specific LDAU if specified for most_electroneg atom
-                    elif most_electroneg in v.keys() and isinstance(
-                            v[most_electroneg], dict
-                    ):
-                        incar[k] = [
-                            v[most_electroneg].get(sym, 0)
-                            for sym in poscar.site_symbols
-                        ]
+                    elif most_electroneg in v.keys() and isinstance(v[most_electroneg], dict):
+                        incar[k] = [v[most_electroneg].get(sym, 0) for sym in poscar.site_symbols]
                     # else, use fallback LDAU value if it exists
                     else:
                         incar[k] = [
@@ -599,9 +592,7 @@ class DictSet(VaspInputSet):
         for ps in self.potcar:
             if ps.element in site_symbols:
                 site_symbols.remove(ps.element)
-                nelect += (
-                        structure.composition.element_composition[ps.element] * ps.ZVAL
-                )
+                nelect += (structure.composition.element_composition[ps.element] * ps.ZVAL)
 
         if self.use_structure_charge:
             return nelect - structure.charge
@@ -1056,9 +1047,7 @@ class MPStaticSet(MPRelaxSet):
         if self.small_gap_multiply:
             gap = vasprun.eigenvalue_band_properties[0]
             if gap <= self.small_gap_multiply[0]:
-                self.reciprocal_density = (
-                        self.reciprocal_density * self.small_gap_multiply[1]
-                )
+                self.reciprocal_density = (self.reciprocal_density * self.small_gap_multiply[1])
 
         return self
 
@@ -1138,15 +1127,10 @@ class MPHSEBSSet(MPHSERelaxSet):
         self.added_kpoints = added_kpoints if added_kpoints is not None else []
         self.mode = mode
 
-        if (
-                not reciprocal_density
-                or "reciprocal_density" not in self.user_kpoints_settings
-        ):
+        if (not reciprocal_density or "reciprocal_density" not in self.user_kpoints_setting):
             self.reciprocal_density = 50
         else:
-            self.reciprocal_density = (
-                    reciprocal_density or self.user_kpoints_settings["reciprocal_density"]
-            )
+            self.reciprocal_density = (reciprocal_density or self.user_kpoints_settings["reciprocal_density"])
 
         self.kpoints_line_density = kpoints_line_density
         self.copy_chgcar = copy_chgcar
@@ -1489,12 +1473,8 @@ class MPNonSCFSet(MPRelaxSet):
         if self.small_gap_multiply:
             gap = vasprun.eigenvalue_band_properties[0]
             if gap <= self.small_gap_multiply[0]:
-                self.reciprocal_density = (
-                        self.reciprocal_density * self.small_gap_multiply[1]
-                )
-                self.kpoints_line_density = (
-                        self.kpoints_line_density * self.small_gap_multiply[1]
-                )
+                self.reciprocal_density = (self.reciprocal_density * self.small_gap_multiply[1])
+                self.kpoints_line_density = (self.kpoints_line_density * self.small_gap_multiply[1])
 
         # automatic setting of nedos using the total energy range and the energy step dedos
         if self.nedos == 0:
@@ -1654,9 +1634,7 @@ class MPSOCSet(MPStaticSet):
         if self.small_gap_multiply:
             gap = vasprun.eigenvalue_band_properties[0]
             if gap <= self.small_gap_multiply[0]:
-                self.reciprocal_density = (
-                        self.reciprocal_density * self.small_gap_multiply[1]
-                )
+                self.reciprocal_density = (self.reciprocal_density * self.small_gap_multiply[1])
 
         return self
 
@@ -2669,17 +2647,11 @@ class LobsterSet(MPRelaxSet):
 
         # reciprocal density
         if self.user_kpoints_settings is not None:
-            if (
-                    not reciprocal_density
-                    or "reciprocal_density" not in self.user_kpoints_settings
-            ):
+            if (not reciprocal_density or "reciprocal_density" not in self.user_kpoints_settings):
                 # test, if this is okay
                 self.reciprocal_density = 310
             else:
-                self.reciprocal_density = (
-                        reciprocal_density
-                        or self.user_kpoints_settings["reciprocal_density"]
-                )
+                self.reciprocal_density = (reciprocal_density or self.user_kpoints_settings["reciprocal_density"])
         else:
             if not reciprocal_density:
                 # test, if this is okay
@@ -2706,10 +2678,7 @@ class LobsterSet(MPRelaxSet):
             # test if all elements from structure are in user_supplied_basis
             for atomtype in structure.symbol_set:
                 if atomtype not in user_supplied_basis:
-                    raise ValueError(
-                        "There are no basis functions for the atom type "
-                        + str(atomtype)
-                    )
+                    raise ValueError("There are no basis functions for the atom type " + str(atomtype))
             basis = [key + " " + value for key, value in user_supplied_basis.items()]
 
         lobsterin = Lobsterin(settingsdict={"basisfunctions": basis})
