@@ -1497,7 +1497,6 @@ class MVLRelax52SetTest(PymatgenTest):
 
 
 class LobsterSetTest(PymatgenTest):
-    # TODO: what kind of tests should I write for this?
 
     def setUp(self):
         file_path = self.TEST_FILES_DIR / "POSCAR"
@@ -1539,10 +1538,10 @@ class LobsterSetTest(PymatgenTest):
         self.assertIn("NBANDS", incar1)
         self.assertEqual(incar1["NBANDS"], 116)
         self.assertEqual(incar1["NSW"], 0)
-        self.assertEqual(incar1["NSW"], 0)
         self.assertEqual(incar1["ISMEAR"], -5)
         self.assertEqual(incar1["ISYM"], -1)
         self.assertEqual(incar1["ALGO"], "Normal")
+        self.assertEqual(incar1["EDIFF"], 1e-6)
         incar2 = self.lobsterset2.incar
         self.assertEqual(incar2["ISYM"], 0)
         self.assertEqual(incar2["ISMEAR"], 0)
