@@ -122,6 +122,7 @@ setup(
         "pymatgen.io.feff": ["*.yaml"],
         "pymatgen.symmetry": ["*.yaml", "*.json", "*.sqlite"],
         "pymatgen.entries": ["*.yaml"],
+        "pymatgen.entries.data": ["*.json"],
         "pymatgen.vis": ["ElementColorSchemes.yaml"],
         "pymatgen.command_line": ["OxideTersoffPotentials"],
         "pymatgen.analysis.defects": ["*.json"],
