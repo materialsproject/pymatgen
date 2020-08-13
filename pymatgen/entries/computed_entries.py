@@ -387,21 +387,20 @@ class ComputedEntry(Entry):
         # this is the preferred / modern way of instantiating ComputedEntry
         # we don't pass correction explicitly because it will be calculated
         # on the fly from energy_adjustments
-        else:
-            return cls(
-                d["composition"],
-                d["energy"],
-                correction=0,
-                energy_adjustments=[
-                    dec.process_decoded(e) for e in d.get("energy_adjustments", {})
-                ],
-                parameters={
-                    k: dec.process_decoded(v)
-                    for k, v in d.get("parameters", {}).items()
-                },
-                data={k: dec.process_decoded(v) for k, v in d.get("data", {}).items()},
-                entry_id=d.get("entry_id", None),
-            )
+        return cls(
+            d["composition"],
+            d["energy"],
+            correction=0,
+            energy_adjustments=[
+                dec.process_decoded(e) for e in d.get("energy_adjustments", {})
+            ],
+            parameters={
+                k: dec.process_decoded(v)
+                for k, v in d.get("parameters", {}).items()
+            },
+            data={k: dec.process_decoded(v) for k, v in d.get("data", {}).items()},
+            entry_id=d.get("entry_id", None),
+        )
 
     def as_dict(self) -> dict:
         """
@@ -499,21 +498,20 @@ class ComputedStructureEntry(ComputedEntry):
         # this is the preferred / modern way of instantiating ComputedEntry
         # we don't pass correction explicitly because it will be calculated
         # on the fly from energy_adjustments
-        else:
-            return cls(
-                dec.process_decoded(d["structure"]),
-                d["energy"],
-                correction=0,
-                energy_adjustments=[
-                    dec.process_decoded(e) for e in d.get("energy_adjustments", {})
-                ],
-                parameters={
-                    k: dec.process_decoded(v)
-                    for k, v in d.get("parameters", {}).items()
-                },
-                data={k: dec.process_decoded(v) for k, v in d.get("data", {}).items()},
-                entry_id=d.get("entry_id", None),
-            )
+        return cls(
+            dec.process_decoded(d["structure"]),
+            d["energy"],
+            correction=0,
+            energy_adjustments=[
+                dec.process_decoded(e) for e in d.get("energy_adjustments", {})
+            ],
+            parameters={
+                k: dec.process_decoded(v)
+                for k, v in d.get("parameters", {}).items()
+            },
+            data={k: dec.process_decoded(v) for k, v in d.get("data", {}).items()},
+            entry_id=d.get("entry_id", None),
+        )
 
 
 class GibbsComputedStructureEntry(ComputedStructureEntry):
@@ -559,7 +557,8 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
 
         if self.temp < 300 or self.temp > 2000:
             raise ValueError("Temperature must be selected from range: [300, 2000] K.")
-        elif self.temp % 100:
+
+        if self.temp % 100:
             self.interpolated = True
 
         if gibbs_model.lower() == "sisso":
@@ -603,14 +602,16 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
 
         if comp.is_element:
             return self.formation_enthalpy
-        elif comp.reduced_formula in G_GASES.keys():
+
+        if comp.reduced_formula in G_GASES.keys():
             data = G_GASES[comp.reduced_formula]
             factor = comp.get_reduced_formula_and_factor()[1]
+
             if self.interpolated:
                 g_interp = interp1d([int(t) for t in data.keys()], list(data.values()))
                 return g_interp(self.temp) * factor
-            else:
-                return data[str(self.temp)] * factor
+ 
+            return data[str(self.temp)] * factor
 
         num_atoms = self.structure.num_sites
         vol_per_atom = self.structure.volume / num_atoms
