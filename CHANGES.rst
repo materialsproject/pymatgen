@@ -1,6 +1,17 @@
 Change log
 ==========
 
+v2020.8.13
+----------
+
+* New GibbsComputedStructureEntry (@mattmcdermott, #1921)
+* Changes to MPScanRelaxSet and new MPScanStaticSet (@rkingsbury, #1917)
+* Changes to LobsterSet (@JaGeo, #1928)
+* Bug fix for JMolNN (@utf, #1920)
+* Bug fix for Element valences (@rkurchin, #1926)
+* Bug fix for BabelMolAdaptor (@smheidrich, #1924)
+* Bug fix for Gaussion IO (@eimrek, #1918)
+
 v2020.8.3
 ---------
 * Change neighbor-finding algorithm extension to C instead of C++ for better cross-platform robustness (@chc273)
