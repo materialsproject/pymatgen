@@ -10,11 +10,14 @@ structure codes. For example, ComputedEntries can be used as inputs for phase
 diagram analysis.
 """
 
-import os
-import json
 import abc
-import numpy as np
 from itertools import combinations
+import json
+import os
+from typing import List
+
+import numpy as np
+from scipy.interpolate import interp1d
 
 from monty.json import MontyEncoder, MontyDecoder, MSONable
 
@@ -22,7 +25,6 @@ from pymatgen.core.composition import Composition
 from pymatgen.core.structure import Structure
 from pymatgen.entries import Entry
 
-from scipy.interpolate import interp1d
 
 __author__ = "Ryan Kingsbury, Matt McDermott, Shyue Ping Ong, Anubhav Jain"
 __copyright__ = "Copyright 2011-2020, The Materials Project"
@@ -536,7 +538,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         Args:
             structure (Structure): The pymatgen Structure object of an entry.
             formation_enthalpy (float): Formation enthalpy of the entry, calculated
-                sing phase diagram construction (eV)
+                using phase diagram construction (eV)
             temp (int): Temperature in Kelvin. If temperature is not selected from
                 one of [300, 400, 500, ... 2000 K], then free energies will
                 be interpolated. Defaults to 300 K.
@@ -579,12 +581,12 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
             entry_id=entry_id,
         )
 
-    def gf_sisso(self):
+    def gf_sisso(self) -> float:
         """
         Gibbs Free Energy of formation as calculated by SISSO descriptor from Bartel
         et al. (2018). Units: eV (not normalized)
 
-        NOTE: This descriptor only applies to solids. The implementation here
+        WARNING: This descriptor only applies to solids. The implementation here
         attempts to detect and use downloaded NIST-JANAF data for common gases (e.g.
         CO2) where possible.
 
@@ -620,7 +622,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
             - self._sum_g_i()
         )
 
-    def _sum_g_i(self):
+    def _sum_g_i(self) -> float:
         """
         Sum of the stoichiometrically weighted chemical potentials of the elements
         at specified temperature, as acquired from "g_els.json".
@@ -645,7 +647,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
 
         return sum_g_i
 
-    def _reduced_mass(self):
+    def _reduced_mass(self) -> float:
         """
         Reduced mass as calculated via Eq. 6 in Bartel et al. (2018)
 
@@ -674,7 +676,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         return reduced_mass
 
     @staticmethod
-    def _g_delta_sisso(vol_per_atom, reduced_mass, temp):
+    def _g_delta_sisso(vol_per_atom, reduced_mass, temp) -> float:
         """
         G^delta as predicted by SISSO-learned descriptor from Eq. (4) in
         Bartel et al. (2018).
@@ -697,14 +699,18 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         )
 
     @classmethod
-    def from_pd(cls, pd, temp=300, gibbs_model="SISSO"):
+    def from_pd(
+        cls, pd, temp=300, gibbs_model="SISSO"
+    ) -> List["GibbsComputedStructureEntry"]:
         """
         Constructor method for initializing a list of GibbsComputedStructureEntry
-        objects from an existing T = 0 K phase diagram, as generated via data from a
-        thermochemical database; e.g. The Materials Project.
+        objects from an existing T = 0 K phase diagram composed of
+        ComputedStructureEntry objects, as acquired from a thermochemical database;
+        e.g. The Materials Project.
 
         Args:
-            pd (PhaseDiagram): T = 0 K phase diagram as created in pymatgen.
+            pd (PhaseDiagram): T = 0 K phase diagram as created in pymatgen. Must
+                contain ComputedStructureEntry objects.
             temp (int): Temperature [K] for estimating Gibbs free energy of formation.
             gibbs_model (str): Gibbs model to use; currently the only option is "SISSO".
 
@@ -731,6 +737,67 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
                     )
                 )
         return gibbs_entries
+
+    @classmethod
+    def from_entries(
+        cls, entries, temp=300, gibbs_model="SISSO"
+    ) -> List["GibbsComputedStructureEntry"]:
+        """
+        Constructor method for initializing GibbsComputedStructureEntry objects from
+        T = 0 K ComputedStructureEntry objects, as acquired from a thermochemical
+        database e.g. The Materials Project.
+
+        Args:
+            entries ([ComputedStructureEntry]): List of ComputedStructureEntry objects,
+                as downloaded from The Materials Project API.
+            temp (int): Temperature [K] for estimating Gibbs free energy of formation.
+            gibbs_model (str): Gibbs model to use; currently the only option is "SISSO".
+
+        Returns:
+            [GibbsComputedStructureEntry]: list of new entries which replace the orig.
+                entries with inclusion of Gibbs free energy of formation at the
+                specified temperature.
+        """
+        from pymatgen.analysis.phase_diagram import PhaseDiagram
+
+        pd = PhaseDiagram(entries)
+        return cls.from_pd(pd, temp, gibbs_model)
+
+    def as_dict(self) -> dict:
+        """
+        :return: MSONAble dict.
+        """
+        d = super().as_dict()
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        d["formation_enthalpy"] = self.formation_enthalpy
+        d["temp"] = self.temp
+        d["gibbs_model"] = self.gibbs_model
+        d["interpolated"] = self.interpolated
+        return d
+
+    @classmethod
+    def from_dict(cls, d) -> "GibbsComputedStructureEntry":
+        """
+        :param d: Dict representation.
+        :return: GibbsComputedStructureEntry
+        """
+        dec = MontyDecoder()
+        return cls(
+            dec.process_decoded(d["structure"]),
+            d["formation_enthalpy"],
+            d["temp"],
+            d["gibbs_model"],
+            correction=d["correction"],
+            energy_adjustments=[
+                dec.process_decoded(e) for e in d.get("energy_adjustments", {})
+            ],
+            parameters={
+                k: dec.process_decoded(v) for k, v in d.get("parameters", {}).items()
+            },
+            data={k: dec.process_decoded(v) for k, v in d.get("data", {}).items()},
+            entry_id=d.get("entry_id", None),
+        )
 
     def __repr__(self):
         output = [
