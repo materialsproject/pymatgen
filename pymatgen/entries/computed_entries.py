@@ -610,7 +610,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
             if self.interpolated:
                 g_interp = interp1d([int(t) for t in data.keys()], list(data.values()))
                 return g_interp(self.temp) * factor
- 
+
             return data[str(self.temp)] * factor
 
         num_atoms = self.structure.num_sites
