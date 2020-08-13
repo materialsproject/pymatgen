@@ -1,6 +1,11 @@
 Change log
 ==========
 
+v2020.8.3
+---------
+* Change neighbor-finding algorithm extension to C instead of C++ for better cross-platform robustness (@chc273)
+* Add I/O for JARVIS Atoms (@knc6)
+
 v2020.7.18
 ----------
 * Add validation and extrapolation for stitching XAS (@yimingcheng)

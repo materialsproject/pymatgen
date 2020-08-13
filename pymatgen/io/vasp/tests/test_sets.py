@@ -38,24 +38,27 @@ class SetChangeCheckTest(PymatgenTest):
         for input_set in input_sets:
             with open(input_set, "r") as f:
                 hashes[input_set] = hashlib.sha1(f.read().encode("utf-8")).hexdigest()
-        known_hashes = {'MVLGWSet.yaml': 'f4df9516cf7dd923b37281172c662a70fa32bebc',
-                        'MVLRelax52Set.yaml': 'eb538ffb45c0cd13f13df48afc1e71c44d2e34b2',
-                        'MPHSERelaxSet.yaml': '2bb969e64b57ff049077c8ec10e64f94c9c97f42',
-                        'VASPIncarBase.yaml': 'dbdbfe7d5c055a3f1e87223a031ae3ad58631395',
-                        'MPSCANRelaxSet.yaml': 'd582e2e6dc55e1931c7616bacaf703326f3f1110',
-                        'MPRelaxSet.yaml': '6e981500f8b8b3c33b6bee3c279a3b824cbafe3d',
-                        'MITRelaxSet.yaml': '1a0970f8cad9417ec810f7ab349dc854eaa67010',
-                        'vdW_parameters.yaml': '66541f58b221c8966109156f4f651b2ca8aa76da'}
+        known_hashes = {
+            "MVLGWSet.yaml": "f4df9516cf7dd923b37281172c662a70fa32bebc",
+            "MVLRelax52Set.yaml": "eb538ffb45c0cd13f13df48afc1e71c44d2e34b2",
+            "MPHSERelaxSet.yaml": "2bb969e64b57ff049077c8ec10e64f94c9c97f42",
+            "VASPIncarBase.yaml": "dbdbfe7d5c055a3f1e87223a031ae3ad58631395",
+            "MPSCANRelaxSet.yaml": "d582e2e6dc55e1931c7616bacaf703326f3f1110",
+            "MPRelaxSet.yaml": "4ea97d776fbdc7e168036f73e9176012a56c0a45",
+            "MITRelaxSet.yaml": "1a0970f8cad9417ec810f7ab349dc854eaa67010",
+            "vdW_parameters.yaml": "66541f58b221c8966109156f4f651b2ca8aa76da",
+        }
 
-        # assert hashes == known_hashes
-        if hashes != known_hashes:
-            raise UserWarning(
-                'These tests will fail when you change an input set. \
-                They are included as a sanity check: if you want to change \
-                an input set, please make sure to notify the users for that set. \
-                For sets starting with "MVL" this is @shyuep, for sets starting \
-                with "MP" this is @shyuep and @mkhorton.'
-            )
+        self.assertDictEqual(
+            hashes,
+            known_hashes,
+            "These tests will fail when you change an input set. "
+            "They are included as a sanity check: if you want to "
+            "change an input set, please make sure to notify the "
+            "users for that set. "
+            'For sets starting with "MVL" this is @shyuep, '
+            'for sets starting with "MP" this is @shyuep and @mkhorton.',
+        )
 
 
 class MITMPRelaxSetTest(PymatgenTest):
