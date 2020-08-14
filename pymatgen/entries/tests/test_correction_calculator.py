@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from pymatgen.entries.corrections_calc import CorrectionCalculator
+from pymatgen.entries.correction_calculator import CorrectionCalculator
 
 
 class CorrectionCalculatorTest(unittest.TestCase):
