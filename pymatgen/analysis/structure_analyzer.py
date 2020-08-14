@@ -16,7 +16,6 @@ from warnings import warn
 
 import numpy as np
 from scipy.spatial import Voronoi
-
 from monty.dev import deprecated
 
 from pymatgen import Element, Specie, Composition
@@ -596,13 +595,13 @@ def oxide_type(structure, relative_cutoff=1.1, return_nbonds=False):
 
 def sulfide_type(structure):
     """
-    Determines if a structure is a sulfide/polysulfide
+    Determines if a structure is a sulfide/polysulfide/sulfate
 
     Args:
         structure (Structure): Input structure.
 
     Returns:
-        (str) sulfide/polysulfide/sulfate
+        (str) sulfide/polysulfide or None if structure is a sulfate.
     """
     structure = structure.copy()
     structure.remove_oxidation_states()

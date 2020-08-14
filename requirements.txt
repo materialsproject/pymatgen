@@ -13,3 +13,4 @@ networkx==2.4
 dataclasses>=0.6; python_version < '3.7'
 plotly==4.5.4
 beautifulsoup4==4.9.0
+uncertainties==3.1.2
