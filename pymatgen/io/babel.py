@@ -14,7 +14,7 @@ import copy
 
 from monty.dev import requires
 
-from pymatgen.core.structure import Molecule
+from pymatgen.core.structure import Molecule, IMolecule
 
 try:
     from openbabel import openbabel as ob
@@ -46,9 +46,9 @@ class BabelMolAdaptor:
         Initializes with pymatgen Molecule or OpenBabel"s OBMol.
 
         Args:
-            mol: pymatgen's Molecule or OpenBabel OBMol
+            mol: pymatgen's Molecule/IMolecule or OpenBabel OBMol
         """
-        if isinstance(mol, Molecule):
+        if isinstance(mol, IMolecule):
             if not mol.is_ordered:
                 raise ValueError("OpenBabel Molecule only supports ordered "
                                  "molecules.")
