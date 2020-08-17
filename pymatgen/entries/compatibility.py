@@ -809,7 +809,7 @@ class CorrectionsList(Compatibility):
     The CorrectionsList class combines a list of corrections to be applied to
     an entry or a set of entries. Note that some of the Corrections have
     interdependencies. For example, PotcarCorrection must always be used
-    before any other compatibility. Also, CompositionCorrection("MP") must be used
+    before any other compatibility. Also, AnionCorrection("MP") must be used
     with PotcarCorrection("MP") (similarly with "MIT"). Typically,
     you should use the specific MaterialsProjectCompatibility and
     MITCompatibility subclasses instead.
