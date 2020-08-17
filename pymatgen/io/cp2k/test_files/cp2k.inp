@@ -1,8 +1,11 @@
+@include ../test_files/include.inc
+@SET METHOD QS
+@SET MAX_SCF 20
 
 ! parameters needed to calculate energy and forces
 ! and describe the system you want to analyze.
 &FORCE_EVAL 
-	METHOD QS
+	METHOD ${METHOD}
 
 	! a subsystem: coordinates, topology, molecules
 	! and cell
@@ -269,7 +272,7 @@
 
 		! Parameters needed to perform an SCF run.
 		&SCF 
-			MAX_SCF 50
+			MAX_SCF $MAX_SCF
 			EPS_SCF 1e-07
 			SCF_GUESS RESTART
 

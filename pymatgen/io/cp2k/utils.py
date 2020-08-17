@@ -1,5 +1,5 @@
 """
-Utility functions for assisting with creating cp2k inputs
+Utility functions for assisting with cp2k IO
 """
 
 import os
@@ -24,7 +24,7 @@ def _postprocessor(s):
 
     if s.lower() == "no" or s.lower() == "none":
         return False
-    elif s.lower() == "yes":
+    elif s.lower() == "yes" or s.lower() == 'true':
         return True
     elif re.match(r"^-?\d+$", s):
         try:
@@ -62,23 +62,13 @@ def get_basis_and_potential(species, d, cardinality='DZVP', functional='PBE'):
     Given a specie and a potential/basis type, this function accesses the available basis sets and potentials.
     Generally, the GTH potentials are used with the GTH basis sets.
 
-    Note: as with most cp2k inputs, the convention is to use all caps, so use type="GTH" instead of "gth"
-
     Args:
         species: (list) list of species for which to get the potential/basis strings
+        d: (dict) a dictionary specifying how bases and/or potentials should be assigned to species
+            E.g. {'Si': {'cardinality': 'DZVP', 'sr': True}, 'O': {'cardinality': 'TZVP'}}
         functional: (str) functional type. Default: 'PBE'
         basis_type: (str) the basis set type. Default: 'MOLOPT'
         cardinality: (str) basis set cardinality. Default: 'DZVP'
-
-            functionals available in CP2K:
-                - BLYP
-                - BP
-                - HCTH120
-                - HCTH407
-                - PADE
-                - PBE
-                - PBEsol
-                - OLYP
 
     Returns:
         (dict) of the form {'specie': {'potential': potential, 'basis': basis}...}
@@ -114,8 +104,8 @@ def get_basis_and_potential(species, d, cardinality='DZVP', functional='PBE'):
 
     for s in species:
         basis_and_potential[s] = {}
-        b = [_ for _ in data_b[s] if cardinality in _.split('-')]
-        if d[s]['sr']:
+        b = [_ for _ in data_b[s] if d[s]['cardinality'] in _.split('-')]
+        if d[s]['sr'] and any(['SR' in _ for _ in b]):
             b = [_ for _ in b if 'SR' in _]
         else:
             b = [_ for _ in b if 'SR' not in _]
@@ -172,7 +162,13 @@ def get_aux_basis(species, basis_type="cFIT"):
 def get_unique_site_indices(structure):
     """
     Get unique site indices for a structure according to site properties. Whatever site-property has the most
-    unique values is used for indexing
+    unique values is used for indexing.
+
+    For example, if you have magnetic CoO with half Co atoms having a positive moment, and the other
+    half having a negative moment. Then this function will create a dict of sites for Co_1, Co_2, O.
+
+    This creates unique sites, based on site properties, but does not have anything to do with turning
+    those site properties into CP2K input parameters.
     """
     sites = {}
     _property = None

@@ -22,6 +22,7 @@ from pymatgen.io.cp2k.inputs import (
     Cp2kInput,
     Section,
     Keyword,
+    KeywordList,
     Global,
     ForceEval,
     Mgrid,
@@ -48,6 +49,9 @@ from pymatgen.io.cp2k.utils import (
     get_aux_basis,
     get_unique_site_indices,
 )
+from pymatgen import Element, Structure, Molecule
+from pymatgen.io.vasp.inputs import Kpoints
+from typing import Dict, List, Tuple, Optional, Union, Iterator, Set, Sequence, Iterable
 
 __author__ = "Nicholas Winner"
 __version__ = "0.2"
@@ -80,40 +84,29 @@ class Cp2kInputSet(Cp2kInput):
 
     def __init__(
         self,
-        structure,
-        potential_and_basis={},
-        multiplicity=0,
-        project_name="CP2K",
-        override_default_params={},
+        structure: Union[Structure, Molecule],
+        potential_and_basis: Dict = {},
+        multiplicity: int = 0,
+        project_name: str = "CP2K",
+        override_default_params: Dict = {},
         **kwargs
     ):
         """
         Args:
-            structure: (Structure) pymatgen structure object used to define the lattice,
-                        coordinates, and elements
-
-            sections: (dict) the sections that define the simulation parameters.
-                Most sections are optional, but two are required: (1) GLOBAL and (2) FORCE_EVAL.
-                GLOBAL does not, itself, have required values, but the section must exist. FORCE_EVAL,
-                technically, only needs SUBSYS to exist, which is written so long as a structure argument
-                passed, but the code won't do anything. Sections that are defined by the structure object
-                automatically are:
-
-                    -SUBSYS Requires a list of "KIND" section objects, which describes the elements in
-                    the calculation.
-                    -CELL defines the lattice vectors as A, B, C
-                    -COORDS defines the coordinates of the atoms within the CELL in cartesian coordinates
-
-            potential_and_basis: (dict) Specifies what basis set and potential to use. Specify each as "basis" and
-                "potential". Note: These must be consistent with one another, e.g. a GTH basis
-                should go with a GTH potential. They potentials of all the elements should also
-                match, e.g. if you use a double zeta potential for one element, you should
-                use it for all.
-
-                    Ex: {'potential': 'GTH', 'functional': 'PBE', 'basis': 'DZVP'} for a
-                        GTH type potential with a double-zeta valence GTH basis and PBE
-                        XC functional.
-
+            structure: (Structure or Molecule) pymatgen structure or molecule object used to define
+                the lattice, coordinates, and elements. This structure object cannot contain "special"
+                species like the Dummy species, e.g. X, or fractional occupations, e.g. Fe0.2, etc.
+            potential_and_basis: (dict) Specifies what basis set and potential to use. Specify these
+                as a dict of the form:
+                    { element: {'cardinality': __, 'sr': __, 'q': __},
+                     'cardinality': __, 'functional': __}
+                Where cardinality and functional are overall specifications (for all elements), while
+                <key='element'> specifies the overrides for a specific element. Currently the following
+                conventions must be followed:
+                    (a) All species of a particular element must have the same potential/basis
+            multiplicity: (int) Specify the system's multiplicity if appropriate
+            project_name: (str) Specify the project name. This will be used to name the output files
+                from a CP2K calculation
             override_default_params: (dict) Specifies user-defined settings to override the settings of any
                 input set (See Section.update())
         """
@@ -128,15 +121,32 @@ class Cp2kInputSet(Cp2kInput):
         self.project_name = project_name
         self.kwargs = kwargs
 
-        cell = Cell(structure.lattice)
-        subsys = Subsys(subsections={"CELL": cell})
+        for s in self.structure.species:
+            assert (s in [e for e in Element])
+
+        if not self.check("FORCE_EVAL"):
+            self.insert(ForceEval())
+
+        subsys, self.basis_set_file_names, self.potential_file_name = \
+            self.create_subsys(self.structure)
+
+        self["FORCE_EVAL"].insert(subsys)
+        self.print_forces()
+        self.print_motion()
+        self.update(override_default_params)
+
+    def create_subsys(self, structure: Union[Structure, Molecule]):
+        """
+        Create the structure for the input
+        """
+        subsys = Subsys()
+        if isinstance(structure, Structure):
+            subsys.insert(Cell(structure.lattice))
 
         # Decide what basis sets/pseudopotentials to use
         basis_and_potential = get_basis_and_potential(
             [str(s) for s in structure.species],
-            potential_and_basis)
-        self.basis_set_file_names = basis_and_potential["basis_filenames"]
-        self.potential_file_name = basis_and_potential["potential_filename"]
+            self.potential_and_basis)
 
         # Insert atom kinds by identifying the unique sites (unique element and site properties)
         unique_kinds = get_unique_site_indices(structure)
@@ -165,32 +175,20 @@ class Cp2kInputSet(Cp2kInput):
         coord = Coord(structure, aliases=unique_kinds)
         subsys.insert(coord)
 
-        if not self.check("FORCE_EVAL"):
-            self.insert(ForceEval())
-
-        self["FORCE_EVAL"].insert(subsys)
-        self.print_forces()
-        self.print_motion()
-
-        self.update(override_default_params)
-
-    def create_structure(self, structure=None):
-        """
-        Create the structure for the input
-        """
-        pass
+        return subsys, \
+               basis_and_potential["basis_filenames"], \
+               basis_and_potential["potential_filename"]
 
     def activate_hybrid(
         self,
-        hybrid_functional="PBE0",
-        hf_fraction=0.25,
-        gga_x_fraction=0.75,
-        gga_c_fraction=1,
-        max_memory=2000,
-        cutoff_radius=8.,
-        omega=.2,
-        aux_basis=None,
-        **kwargs
+        hybrid_functional: str = "PBE0",
+        hf_fraction: float = 0.25,
+        gga_x_fraction: float = 0.75,
+        gga_c_fraction: float = 1,
+        max_memory: int = 2000,
+        cutoff_radius: float = 8.,
+        omega: float = .2,
+        aux_basis: Union[Dict, None] = None,
     ):
 
         """
@@ -223,26 +221,30 @@ class Cp2kInputSet(Cp2kInput):
                 radius. The default is selected as that which generally gives convergence, but
                 maybe too low (if you want very high accuracy) or too high (if you want a quick
                 screening). Default: 8 angstroms
+            omega (float): For HSE, this specifies the screening parameter. HSE06 sets this as
+                0.2, which is the default.
+            aux_basis (dict): If you want to specify the aux basis to use, specify it as a dict of
+                the form {'specie_1': 'AUX_BASIS_1', 'specie_2': 'AUX_BASIS_2'}
         """
         if aux_basis is None:
             basis = get_aux_basis(self.structure.symbol_set)
         else:
             basis = aux_basis
-        self["FORCE_EVAL"]["DFT"].keywords.extend(
-            [Keyword("BASIS_SET_FILE_NAME", k) for k in ['BASIS_ADMM', 'BASIS_ADMM_MOLOPT']],
-        )
+        if isinstance(self["FORCE_EVAL"]["DFT"]['BASIS_SET_FILE_NAME'],
+                      KeywordList):
+            self["FORCE_EVAL"]["DFT"]['BASIS_SET_FILE_NAME'].extend(
+                [Keyword("BASIS_SET_FILE_NAME", k) for k in ['BASIS_ADMM', 'BASIS_ADMM_MOLOPT']],
+            )
 
         for k, v in self["FORCE_EVAL"]["SUBSYS"].subsections.items():
             if "KIND" == v.name.upper():
-                kind = v.get_keyword("ELEMENT").values[0]
-                v.keywords.append(
-                    Keyword("BASIS_SET", "AUX_FIT", basis[kind])
-                )
+                kind = v["ELEMENT"].values[0]
+                v.keywords['BASIS_SET'] += Keyword("BASIS_SET", "AUX_FIT", basis[kind])
 
-        aux_matrix_params = [
-            Keyword("ADMM_PURIFICATION_METHOD", "NONE"),  # Use NONE for accurate eigenvalues (static calcs)
-            Keyword("METHOD", "BASIS_PROJECTION"),  # Don't change unless you know what you're doing
-        ]
+        aux_matrix_params = {
+            "ADMM_PURIFICATION_METHOD": Keyword("ADMM_PURIFICATION_METHOD", "NONE"),  # Use NONE for accurate eigenvalues (static calcs)
+            "METHOD": Keyword("METHOD", "BASIS_PROJECTION"),  # Don't change unless you know what you're doing
+        }
         aux_matrix = Section(
             "AUXILIARY_DENSITY_MATRIX_METHOD",
             keywords=aux_matrix_params,
@@ -257,12 +259,12 @@ class Cp2kInputSet(Cp2kInput):
         screening = Section(
             "SCREENING",
             subsections={},
-            keywords=[
-                Keyword("EPS_SCHWARZ", 1e-6),  # Aggressive screening for high throughput
-                Keyword("EPS_SCHWARZ_FORCES", 1e-6),  # Aggressive screening for high throughput
-                Keyword("SCREEN_ON_INITIAL_P", True),  # Better performance. Requires decent starting wfn
-                Keyword("SCREEN_P_FORCES", True),  # Better performance. Requires decent starting wfn
-            ],
+            keywords={
+                "EPS_SCHWARZ": Keyword("EPS_SCHWARZ", 1e-6),  # Aggressive screening for high throughput
+                "EPS_SCHWARZ_FORCES": Keyword("EPS_SCHWARZ_FORCES", 1e-6),  # Aggressive screening for high throughput
+                "SCREEN_ON_INITIAL_P": Keyword("SCREEN_ON_INITIAL_P", True),  # Better performance. Requires decent starting wfn
+                "SCREEN_P_FORCES": Keyword("SCREEN_P_FORCES", True),  # Better performance. Requires decent starting wfn
+            },
         )
 
         if hybrid_functional == "HSE06":
@@ -270,47 +272,47 @@ class Cp2kInputSet(Cp2kInput):
                 Section(
                     "XWPBE",
                     subsections={},
-                    keywords=[
-                        Keyword("SCALE_X0", 1),
-                        Keyword("SCALE_X", -hf_fraction),
-                        Keyword("OMEGA", omega),
-                    ],
+                    keywords={
+                        "SCALE_X0": Keyword("SCALE_X0", 1),
+                        "SCALE_X": Keyword("SCALE_X", -hf_fraction),
+                        "OMEGA": Keyword("OMEGA", omega),
+                    },
                 )
             )
-            ip_keywords = [
-                Keyword("POTENTIAL_TYPE", "SHORTRANGE"),
-                Keyword(
+            ip_keywords = {
+                "POTENTIAL_TYPE": Keyword("POTENTIAL_TYPE", "SHORTRANGE"),
+                "OMEGA": Keyword(
                     "OMEGA", omega  # HSE06 screening parameter
                 ),
-            ]
+            }
         elif hybrid_functional == "PBE0":
-            ip_keywords = [
-                Keyword("POTENTIAL_TYPE", "TRUNCATED"),
-                Keyword(
+            ip_keywords = {
+                "POTENTIAL_TYPE": Keyword("POTENTIAL_TYPE", "TRUNCATED"),
+                "CUTOFF_RADIUS": Keyword(
                     "CUTOFF_RADIUS", cutoff_radius
                 ),
-                Keyword("T_C_G_DATA", "t_c_g.dat"),
-            ]
+                "T_C_G_DATA": Keyword("T_C_G_DATA", "t_c_g.dat"),
+            }
         interaction_potential = Section(
             "INTERACTION_POTENTIAL", subsections={}, keywords=ip_keywords
         )
 
         load_balance = Section(
             "LOAD_BALANCE",
-            keywords=[Keyword("RANDOMIZE", True)],
+            keywords={"RANDOMIZE": Keyword("RANDOMIZE", True)},
             subsections={},
         )
         memory = Section(
             "MEMORY",
             subsections={},
-            keywords=[
-                Keyword("EPS_STORAGE_SCALING", 0.1),  # squashes the integrals for efficient storage
-                Keyword("MAX_MEMORY", max_memory),
-            ],
+            keywords={
+                "EPS_STORAGE_SCALING": Keyword("EPS_STORAGE_SCALING", 0.1),  # squashes the integrals for efficient storage
+                "MAX_MEMORY": Keyword("MAX_MEMORY", max_memory),
+            },
         )
         hf = Section(
             "HF",
-            keywords=[Keyword("FRACTION", hf_fraction)],
+            keywords={"FRACTION": Keyword("FRACTION", hf_fraction)},
             subsections={
                 "SCREENING": screening,
                 "INTERACTION_POTENTIAL": interaction_potential,
@@ -359,31 +361,31 @@ class DftSet(Cp2kInputSet):
 
     def __init__(
         self,
-        structure,
-        ot=True,
-        band_gap=0.01,
-        eps_default=1e-12,
-        eps_scf=1e-7,
-        max_scf=None,
-        minimizer="DIIS",
-        preconditioner="FULL_SINGLE_INVERSE",
-        algorithm="STRICT",
-        linesearch="2PNT",
-        cutoff=1200,
-        rel_cutoff=80,
-        ngrids=5,
-        progression_factor=3,
-        override_default_params={},
-        wfn_restart_file_name=None,
-        kpoints=None,
-        smearing=None,
+        structure: Union[Structure, Molecule],
+        ot: bool = True,
+        band_gap: float = 0.01,
+        eps_default: float = 1e-12,
+        eps_scf: float = 1e-7,
+        max_scf: Union[int, None] = None,
+        minimizer: str = "DIIS",
+        preconditioner: str = "FULL_SINGLE_INVERSE",
+        algorithm: str = "STRICT",
+        linesearch: str = "2PNT",
+        cutoff: int = 1200,
+        rel_cutoff: int = 80,
+        ngrids: int = 5,
+        progression_factor: int = 3,
+        override_default_params: Dict = {},
+        wfn_restart_file_name: str = None,
+        kpoints: Union[Kpoints, None] = None,
+        smearing: bool = False,
         **kwargs
     ):
         """
         Args:
-            structure: Pymatgen structure object
+            structure: Pymatgen structure or molecule object
             ot (bool): Whether or not to use orbital transformation method for matrix diagonalization. OT is the
-                flagship matrix diagonalizer of CP2K, and will provide huge speed-ups for this part of the calculation,
+                flagship scf solver of CP2K, and will provide huge speed-ups for this part of the calculation,
                 but the system must have a band gap for OT to be used (higher band-gap --> faster convergence).
                 Band gap is also used by the preconditioner for OT, and should be set as a value SMALLER than the true
                 band gap to get good efficiency. Generally, this parameter does not need to be changed from
@@ -391,10 +393,19 @@ class DftSet(Cp2kInputSet):
             band_gap (float): The band gap can also be specified in order to determine if ot should be turned on.
             eps_default (float): Replaces all EPS_XX Keywords in the DFT section (NOT its subsections!) to have this
                 value, ensuring an overall accuracy of at least this much.
+            eps_scf (float): The convergence criteria for leaving the SCF loop in Hartrees. Default is 1e-7. Should
+                ensure reasonable results for all properties. Smaller than 1e-7 is generally not needed unless
+                you need very high precision. 1e-6 may be used for difficult systems, and should still give
+                reasonable results for most properties.
+            max_scf (int): The max number of SCF cycles before terminating the solver. NOTE: With the OT solver, this
+                corresponds to the max number of INNER scf loops, and then the outer loops are set with outer_max_scf,
+                while with diagnolization it corresponds to the overall (INNER*OUTER) number of SCF steps, with the
+                inner loop limit set by
             minimizer (str): The minimization scheme. DIIS can be as much as 50% faster than the more robust conjugate
                 gradient method, and so it is chosen as default. Switch to CG if dealing with a difficult system.
-            preconditioner (str): Preconditioner for the OT method. The FULL_ALL preconditioner with a small estimate
-                of the band gap is usually very robust. Should only change when simulation cell gets to be very large.
+            preconditioner (str): Preconditioner for the OT method. The FULL_SINGLE_INVERSE preconditioner has been
+                shown to be very robust from internal tests. Should only change when simulation cell gets to be
+                VERY large, in which case FULL_KINETIC might be preferred.
             cutoff (int): Cutoff energy (in Ry) for the finest level of the multigrid. A high cutoff will allow you to
                 have very accurate calculations PROVIDED that REL_CUTOFF is appropriate.
             rel_cutoff (int): This cutoff decides how the Guassians are mapped onto the different levels of the
@@ -456,26 +467,26 @@ class DftSet(Cp2kInputSet):
                 Section(
                     "OUTER_SCF",
                     subsections={},
-                    keywords=[
-                        Keyword("MAX_SCF", kwargs.get("outer_max_scf", 20)),
-                        Keyword(
+                    keywords={
+                        "MAX_SCF": Keyword("MAX_SCF", kwargs.get("outer_max_scf", 20)),
+                        "EPS_SCF": Keyword(
                             "EPS_SCF", kwargs.get("outer_eps_scf", eps_scf)
                         ),
-                    ],
+                    },
                 )
             )
         else:
             scf.insert(Section("DIAGONALIZATION", subsections={}))
-            mixing_kwds = [
-                Keyword('METHOD', 'BROYDEN_MIXING'),
-                Keyword('ALPHA', 0.2),
-                Keyword('NBUFFER', 5)
-            ]
+            mixing_kwds = {
+                "METHOD": Keyword('METHOD', 'BROYDEN_MIXING'),
+                "ALPHA": Keyword('ALPHA', 0.2),
+                "NBUFFER": Keyword('NBUFFER', 5)
+            }
             mixing = Section('MIXING', keywords=mixing_kwds, subsections=None)
             scf.insert(mixing)
-            davidson_kwds = [
-                Keyword('PRECONDITIONER', 'FULL_SINGLE_INVERSE')
-            ]
+            davidson_kwds = {
+                "PRECONDITIONER": Keyword('PRECONDITIONER', 'FULL_SINGLE_INVERSE')
+            }
             davidson = Section('DAVIDSON', keywords=davidson_kwds, subsections=None)
             scf["DIAGONALIZATION"].insert(davidson)
 
@@ -506,7 +517,7 @@ class DftSet(Cp2kInputSet):
 
         # Create subsections and insert into them
         self["FORCE_EVAL"].insert(dft)
-        xc_functional = XC_FUNCTIONAL(functional="PBE")
+        xc_functional = XC_FUNCTIONAL(functional=kwargs.get('functional', "PBE"))
         xc = Section("XC", subsections={"XC_FUNCTIONAL": xc_functional})
         self["FORCE_EVAL"]["DFT"].insert(xc)
         self["FORCE_EVAL"]["DFT"].insert(Section("PRINT", subsections={}))
@@ -597,7 +608,7 @@ class DftSet(Cp2kInputSet):
         """
         Set the overall charge of the simulation cell
         """
-        self["FORCE_EVAL"]["DFT"].set_keyword(Keyword("CHARGE", charge))
+        self["FORCE_EVAL"]["DFT"]['CHARGE'] = Keyword("CHARGE", charge)
 
     def activate_fast_minimization(self):
         """
@@ -645,7 +656,10 @@ class DftSet(Cp2kInputSet):
         changing the poisson solver.
         """
         self['FORCE_EVAL']['SUBSYS']['CELL'].keywords.apped(Keyword('PERIODIC', 'NONE'))
-        kwds = [Keyword('POISSON_SOLVER', 'MT'), Keyword('PERIODIC', 'NONE')]
+        kwds = {
+            "POISSON_SOLVER": Keyword('POISSON_SOLVER', 'MT'),
+            "PERIODIC": Keyword('PERIODIC', 'NONE')
+        }
         self['FORCE_EVAL']['DFT'].insert(Section('POISSON', subsections={}, keywords=kwds))
 
 
@@ -658,10 +672,10 @@ class StaticSet(DftSet):
 
     def __init__(
         self,
-        structure,
-        project_name="Static",
-        run_type="ENERGY_FORCE",
-        override_default_params={},
+        structure: Union[Structure, Molecule],
+        project_name: str = "Static",
+        run_type: str = "ENERGY_FORCE",
+        override_default_params: Dict = {},
         **kwargs
     ):
         """
@@ -690,13 +704,13 @@ class RelaxSet(DftSet):
 
     def __init__(
         self,
-        structure,
-        max_drift=3e-3,
-        max_force=4.5e-3,
-        max_iter=200,
-        project_name="Relax",
-        optimizer="BFGS",
-        override_default_params={},
+        structure: Union[Structure, Molecule],
+        max_drift: float = 3e-3,
+        max_force: float = 4.5e-3,
+        max_iter: int = 200,
+        project_name: str = "Relax",
+        optimizer: str = "BFGS",
+        override_default_params: Dict = {},
         **kwargs
     ):
 
@@ -723,18 +737,28 @@ class RelaxSet(DftSet):
                 the minimum, but it slower.
                 Default value: BFGS
         """
+
+        self.structure = structure
+        self.max_drift = max_drift
+        self.max_force = max_force
+        self.max_iter = max_iter
+        self.project_name = project_name
+        self.optimizer = optimizer
+        self.override_default_params = override_default_params
+        self.kwargs = kwargs
+
         super(RelaxSet, self).__init__(structure, **kwargs)
 
         global_section = Global(project_name=project_name, run_type="GEO_OPT")
 
-        geo_opt_params = [
-            Keyword("TYPE", "MINIMIZATION"),
-            Keyword("MAX_DR", max_drift),
-            Keyword("MAX_FORCE", max_force),
-            Keyword("RMS_DR", 1.5e-3),
-            Keyword("MAX_ITER", max_iter),
-            Keyword("OPTIMIZER", optimizer),
-        ]
+        geo_opt_params = {
+            "TYPE": Keyword("TYPE", "MINIMIZATION"),
+            "MAX_DR": Keyword("MAX_DR", max_drift),
+            "MAX_FORCE": Keyword("MAX_FORCE", max_force),
+            "RMS_DR": Keyword("RMS_DR", 1.5e-3),
+            "MAX_ITER": Keyword("MAX_ITER", max_iter),
+            "OPTIMIZER": Keyword("OPTIMIZER", optimizer),
+        }
         geo_opt = Section("GEO_OPT", subsections={}, keywords=geo_opt_params)
 
         if not self.check("MOTION"):
@@ -745,7 +769,6 @@ class RelaxSet(DftSet):
         self.update(override_default_params)
 
 
-# TODO: add defaults
 class CellOptSet(DftSet):
 
     """
@@ -755,15 +778,15 @@ class CellOptSet(DftSet):
 
     def __init__(
         self,
-        structure,
-        project_name="CellOpt",
-        override_default_params={},
+        structure: Union[Structure, Molecule],
+        project_name: str = "CellOpt",
+        override_default_params: Dict = {},
         **kwargs
     ):
 
         """
         Args:
-            structure:
+            structure: Pymatgen structure object
             max_drift: Convergence criterion for the maximum geometry change between the current and the
                 last optimizer iteration. This keyword cannot be repeated and it expects precisely one real.
                 Default value: 3.00000000E-003
@@ -784,6 +807,12 @@ class CellOptSet(DftSet):
                 the minimum, but it slower.
                 Default value: BFGS
         """
+
+        self.structure = structure
+        self.project_name = project_name
+        self.override_default_params = override_default_params
+        self.kwargs = kwargs
+
         super(CellOptSet, self).__init__(structure, **kwargs)
         global_section = Global(project_name=project_name, run_type="CELL_OPT")
         self.insert(global_section)
@@ -798,13 +827,13 @@ class HybridStaticSet(StaticSet):
 
     def __init__(
         self,
-        structure,
-        hybrid_functional="PBE0",
-        hf_fraction=0.25,
-        project_name="Hybrid-Static",
-        gga_x_fraction=0.75,
-        gga_c_fraction=1,
-        override_default_params={},
+        structure: Union[Structure, Molecule],
+        hybrid_functional: str = "PBE0",
+        hf_fraction: float = 0.25,
+        project_name: str = "Hybrid-Static",
+        gga_x_fraction: float = 0.75,
+        gga_c_fraction: float = 1,
+        override_default_params: Dict = {},
         **kwargs
     ):
         """
@@ -817,6 +846,16 @@ class HybridStaticSet(StaticSet):
             gga_c_fraction: percentage of gga correlation to use
             override_default_params: override settings (see above).
         """
+
+        self.structure = structure
+        self.hybrid_functional = hybrid_functional
+        self.hf_fraction = hf_fraction
+        self.project_name = project_name
+        self.gga_x_fraction = gga_x_fraction
+        self.gga_c_fraction = gga_c_fraction
+        self.override_default_params = override_default_params
+        self.kwargs = kwargs
+
         super(HybridStaticSet, self).__init__(
             structure, project_name=project_name, **kwargs
         )
@@ -838,13 +877,13 @@ class HybridRelaxSet(RelaxSet):
 
     def __init__(
         self,
-        structure,
-        hybrid_functional="PBE0",
-        hf_fraction=0.25,
-        project_name="Hybrid-Relax",
-        gga_x_fraction=0.75,
-        gga_c_fraction=1,
-        override_default_params={},
+        structure: Union[Structure, Molecule],
+        hybrid_functional: str = "PBE0",
+        hf_fraction: float = 0.25,
+        project_name: str = "Hybrid-Static",
+        gga_x_fraction: float = 0.75,
+        gga_c_fraction: float = 1,
+        override_default_params: Dict = {},
         **kwargs
     ):
         """
@@ -857,6 +896,16 @@ class HybridRelaxSet(RelaxSet):
             gga_c_fraction: percentage of gga correlation to use
             override_default_params: override settings (see above).
         """
+
+        self.structure = structure
+        self.hybrid_functional = hybrid_functional
+        self.hf_fraction = hf_fraction
+        self.project_name = project_name
+        self.gga_x_fraction = gga_x_fraction
+        self.gga_c_fraction = gga_c_fraction
+        self.override_default_params = override_default_params
+        self.kwargs = kwargs
+
         super(HybridRelaxSet, self).__init__(
             structure, project_name=project_name, **kwargs
         )
@@ -878,13 +927,13 @@ class HybridCellOptSet(CellOptSet):
 
     def __init__(
         self,
-        structure,
-        hybrid_functional="PBE0",
-        hf_fraction=0.25,
-        project_name="Hybrid-Relax",
-        gga_x_fraction=0.75,
-        gga_c_fraction=1,
-        override_default_params={},
+        structure: Union[Structure, Molecule],
+        hybrid_functional: str = "PBE0",
+        hf_fraction: float = 0.25,
+        project_name: str = "Hybrid-Static",
+        gga_x_fraction: float = 0.75,
+        gga_c_fraction: float = 1,
+        override_default_params: Dict = {},
         **kwargs
     ):
         """
@@ -897,6 +946,16 @@ class HybridCellOptSet(CellOptSet):
             gga_c_fraction: percentage of gga correlation to use
             override_default_params: override settings (see above).
         """
+
+        self.structure = structure
+        self.hybrid_functional = hybrid_functional
+        self.hf_fraction = hf_fraction
+        self.project_name = project_name
+        self.gga_x_fraction = gga_x_fraction
+        self.gga_c_fraction = gga_c_fraction
+        self.override_default_params = override_default_params
+        self.kwargs = kwargs
+
         super(HybridCellOptSet, self).__init__(
             structure, project_name=project_name, **kwargs
         )
