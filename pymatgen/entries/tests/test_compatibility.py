@@ -1015,7 +1015,7 @@ class MaterialsProject2020CompatibilityTest(unittest.TestCase):
         d = compat.get_explanation_dict(entry)
         self.assertEqual("MPRelaxSet Potcar Correction", d["corrections"][0]["name"])
 
-    def test_get_corrections_dict(self):
+    def test_energy_adjustments(self):
         compat = MaterialsProject2020Compatibility(check_potcar_hash=False)
         ggacompat = MaterialsProject2020Compatibility("GGA", check_potcar_hash=False)
 
@@ -1040,16 +1040,23 @@ class MaterialsProject2020CompatibilityTest(unittest.TestCase):
                 ],
             },
         )
-        c, e = compat.get_corrections_dict(entry)
-        self.assertAlmostEqual(c["MP2020 Composition Correction"], -0.738 * 3)
-        self.assertAlmostEqual(c["MP2020 Advanced Correction"], -2.181 * 2)
-        self.assertAlmostEqual(e["MP2020 Composition Correction"], 0.0017 * 3)
-        self.assertAlmostEqual(e["MP2020 Advanced Correction"], 0.009 * 2)
+        
+        c = compat.process_entry(entry)
+        assert "MP2020 anion correction" in [ea.name for ea in c.energy_adjustments]
+        assert "MP2020 GGA/GGA+U mixing correction" in [ea.name for ea in c.energy_adjustments]
+
+        for ea in c.energy_adjustments:
+            if ea.name == "MP2020 GGA/GGA+U mixing correction":
+                self.assertAlmostEqual(ea.value, -2.181 * 2)
+                self.assertAlmostEqual(ea.uncertainty, 0.009 * 2)
+            elif ea.name == "MP2020 anion correction":
+                self.assertAlmostEqual(ea.value, -0.738 * 3)
+                self.assertAlmostEqual(ea.uncertainty, 0.0017 * 3)
 
         entry.parameters["is_hubbard"] = False
         del entry.parameters["hubbards"]
-        c, e = ggacompat.get_corrections_dict(entry)
-        self.assertNotIn("test Advanced Correction", c)
+        c = ggacompat.process_entry(entry)
+        self.assertNotIn("MP2020 GGA/GGA+U mixing correction", [ea.name for ea in c.energy_adjustments])
 
     def test_process_entries(self):
         entries = self.compat.process_entries([self.entry1, self.entry2, self.entry3])
