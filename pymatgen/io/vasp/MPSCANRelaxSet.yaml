@@ -4,7 +4,6 @@
 PARENT: VASPIncarBase
 INCAR:
   ALGO: ALL
-  ADDGRID: True
   EDIFF: 1.e-05
   EDIFFG: -0.02
   ENAUG: 1360
