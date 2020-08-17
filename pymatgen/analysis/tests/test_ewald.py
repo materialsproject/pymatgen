@@ -88,9 +88,11 @@ class EwaldSummationTest(unittest.TestCase):
         d = ham.as_dict()
         self.assertTrue(d["compute_forces"])
         self.assertEqual(d["eta"], ham._eta)
-        self.assertEqual(d["acc_factor"], ham._accf)
+        self.assertEqual(d["acc_factor"], ham._acc_factor)
         self.assertEqual(d["real_space_cut"], ham._rmax)
         self.assertEqual(d["recip_space_cut"], ham._gmax)
+        self.assertEqual(ham.as_dict(),
+                         EwaldSummation.from_dict(d).as_dict())
 
 
 class EwaldMinimizerTest(unittest.TestCase):
