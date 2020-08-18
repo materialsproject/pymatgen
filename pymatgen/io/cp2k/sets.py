@@ -188,7 +188,7 @@ class Cp2kInputSet(Cp2kInput):
         cutoff_radius: float = 8.,
         omega: float = .2,
         aux_basis: Union[Dict, None] = None,
-        admm: bool = True
+        admm: bool = True,
     ):
 
         """
@@ -841,6 +841,11 @@ class HybridStaticSet(StaticSet):
         gga_x_fraction: float = 0.75,
         gga_c_fraction: float = 1,
         override_default_params: Dict = {},
+        max_memory: int = 2000,
+        cutoff_radius: float = 8.,
+        omega: float = .2,
+        aux_basis: Union[Dict, None] = None,
+        admm: bool = True,
         **kwargs
     ):
         """
@@ -861,6 +866,11 @@ class HybridStaticSet(StaticSet):
         self.gga_x_fraction = gga_x_fraction
         self.gga_c_fraction = gga_c_fraction
         self.override_default_params = override_default_params
+        self.max_memory = max_memory
+        self.cutoff_radius = cutoff_radius
+        self.omega = omega
+        self.aux_basis = aux_basis
+        self.admm = admm
         self.kwargs = kwargs
 
         super(HybridStaticSet, self).__init__(
@@ -871,7 +881,11 @@ class HybridStaticSet(StaticSet):
             hf_fraction=hf_fraction,
             gga_x_fraction=gga_x_fraction,
             gga_c_fraction=gga_c_fraction,
-            **kwargs
+            max_memory=max_memory,
+            cutoff_radius=cutoff_radius,
+            omega=omega,
+            aux_basis=aux_basis,
+            admm=admm
         )
         self.update(override_default_params)
 
@@ -891,6 +905,11 @@ class HybridRelaxSet(RelaxSet):
         gga_x_fraction: float = 0.75,
         gga_c_fraction: float = 1,
         override_default_params: Dict = {},
+        max_memory: int = 2000,
+        cutoff_radius: float = 8.,
+        omega: float = .2,
+        aux_basis: Union[Dict, None] = None,
+        admm: bool = True,
         **kwargs
     ):
         """
@@ -911,6 +930,11 @@ class HybridRelaxSet(RelaxSet):
         self.gga_x_fraction = gga_x_fraction
         self.gga_c_fraction = gga_c_fraction
         self.override_default_params = override_default_params
+        self.max_memory = max_memory
+        self.cutoff_radius = cutoff_radius
+        self.omega = omega
+        self.aux_basis = aux_basis
+        self.admm = admm
         self.kwargs = kwargs
 
         super(HybridRelaxSet, self).__init__(
@@ -921,7 +945,11 @@ class HybridRelaxSet(RelaxSet):
             hf_fraction=hf_fraction,
             gga_x_fraction=gga_x_fraction,
             gga_c_fraction=gga_c_fraction,
-            **kwargs
+            max_memory=max_memory,
+            cutoff_radius=cutoff_radius,
+            omega=omega,
+            aux_basis=aux_basis,
+            admm=admm
         )
         self.update(override_default_params)
 
@@ -941,6 +969,11 @@ class HybridCellOptSet(CellOptSet):
         gga_x_fraction: float = 0.75,
         gga_c_fraction: float = 1,
         override_default_params: Dict = {},
+        max_memory: int = 2000,
+        cutoff_radius: float = 8.,
+        omega: float = .2,
+        aux_basis: Union[Dict, None] = None,
+        admm: bool = True,
         **kwargs
     ):
         """
@@ -961,6 +994,11 @@ class HybridCellOptSet(CellOptSet):
         self.gga_x_fraction = gga_x_fraction
         self.gga_c_fraction = gga_c_fraction
         self.override_default_params = override_default_params
+        self.max_memory = max_memory
+        self.cutoff_radius = cutoff_radius
+        self.omega = omega
+        self.aux_basis = aux_basis
+        self.admm = admm
         self.kwargs = kwargs
 
         super(HybridCellOptSet, self).__init__(
@@ -971,6 +1009,10 @@ class HybridCellOptSet(CellOptSet):
             hf_fraction=hf_fraction,
             gga_x_fraction=gga_x_fraction,
             gga_c_fraction=gga_c_fraction,
-            **kwargs
+            max_memory=max_memory,
+            cutoff_radius=cutoff_radius,
+            omega=omega,
+            aux_basis=aux_basis,
+            admm=admm
         )
         self.update(override_default_params)
