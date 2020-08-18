@@ -11,7 +11,7 @@ import collections
 import itertools
 import math
 import logging
-from functools import lru_cache, cached_property
+from functools import lru_cache
 
 import numpy as np
 from scipy.spatial import ConvexHull
@@ -1462,7 +1462,8 @@ class PDPlotter:
             "linewidth": 3,
         }
 
-    @cached_property
+    @property  # type: ignore
+    @lru_cache(1)
     def pd_plot_data(self):
         """
         Plotting data for phase diagram.
