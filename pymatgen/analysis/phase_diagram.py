@@ -1547,21 +1547,21 @@ class PDPlotter:
         fig = None
 
         if self.backend == "plotly":
-            data = [self._create_lines()]
+            data = [self._create_plotly_lines()]
 
             if self._dim == 3:
-                data.append(self._create_ternary_guidelines())
-                data.append(self._create_ternary_hull())
+                data.append(self._create_plotly_ternary_support_lines())
+                data.append(self._create_plotly_ternary_hull())
             elif self._dim == 4:
-                data.append(self._create_quaternary_mesh())
+                data.append(self._create_plotly_quaternary_mesh())
 
-            data.extend(self._create_markers())
+            data.extend(self._create_plotly_markers())
 
             fig = go.Figure(data=data)
-            fig.layout = self._create_figure_layout()
+            fig.layout = self._create_plotly_figure_layout()
 
         elif self.backend == "matplotlib":
-            if self._dim == 2:
+            if self._dim <= 3:
                 fig = self._get_2d_plot(
                     label_stable,
                     label_unstable,
@@ -1570,7 +1570,7 @@ class PDPlotter:
                     plt=plt,
                     process_attributes=process_attributes,
                 )
-            elif self._dim == 3:
+            elif self._dim == 4:
                 fig = self._get_3d_plot(label_stable)
 
         return fig
@@ -2097,13 +2097,14 @@ class PDPlotter:
         plt.colorbar()
         return plt
 
-    def _create_lines(self):
+    def _create_plotly_lines(self):
         """
+        Creates Plotly Scatter (line) plots for all phase diagram simplexes.
 
-        :return:
+        :return: go.Scatter (or go.Scatter3d) plot
         """
         line_plot = None
-        x, y, z, energies = ([], [], [], [])
+        x, y, z, energies = [], [], [], []
 
         for line in self.pd_plot_data[0]:
             x.extend(list(line[0]) + [None])
@@ -2161,12 +2162,16 @@ class PDPlotter:
 
         return line_plot
 
-    def _create_figure_layout(self):
+    def _create_plotly_figure_layout(self):
         """
+        Creates layout for plotly phase diagram figure and updates with
+        figure annotations.
 
-        :return:
+        :return: Dictionary with Plotly figure layout settings.
         """
         annotations_list = []
+        layout = dict()
+        x, y, z = None, None, None
 
         for coords, entry in self.pd_plot_data[1].items():
             x, y = coords[0], coords[1]
@@ -2176,68 +2181,64 @@ class PDPlotter:
             elif self._dim == 4:
                 if not entry.composition.is_element:
                     continue
-                else:
-                    z = coords[2]
+                z = coords[2]
 
             if entry.composition.is_element:
                 clean_formula = str(entry.composition.elements[0])
                 font_dict = {"color": "#4c0e19", "size": 24.0}
+                opacity = 1.0
             else:
-                formula = list(entry.composition.reduced_formula)
+                formula = entry.composition.reduced_formula
                 clean_formula = self._htmlize_formula(formula)
                 font_dict = {"color": "#000000", "size": 12.0}
+                opacity = 0.7
 
-            annotation = {
-                "align": "center",
-                "font": font_dict,
-                "opacity": 1,
-                "showarrow": False,
-                "text": clean_formula,
-                "x": x,
-                "xanchor": "right",
-                "yanchor": "auto",
-                "xshift": -10,
-                "yshift": -10,
-                "xref": "x",
-                "y": y,
-                "yref": "y",
-            }
+            annotation = plotly_layouts.default_annotation_layout.copy()
+            annotation.update(
+                {
+                    "x": x,
+                    "y": y,
+                    "font": font_dict,
+                    "text": clean_formula,
+                    "opacity": opacity,
+                }
+            )
 
-            if self._dim == 3:
-                annotation.update({"x": y, "y": x})
-                if entry.is_element:
-                    z = z + (self._min_energy + 0.2)
+            if self._dim == 3 or self._dim == 4:
                 annotation.update({"z": z})
                 for d in ["xref", "yref"]:
                     annotation.pop(d)  # Scatter3d cannot contain xref, yref
-            elif self._dim == 4:
-                annotation.update({"z": z})
-                for d in ["xref", "yref"]:
-                    annotation.pop(d)  # Scatter3d cannot contain xref, yref
+                    if self._dim == 3:
+                        annotation.update({"x": y, "y": x})
+                        if entry.is_element:
+                            z = z + (self._min_energy + 0.2)  # shifts element ref name
 
             annotations_list.append(annotation)
 
-            if self._dim == 2:
-                layout = plotly_layouts.default_binary_layout
-                layout["annotations"] = annotations_list
-            elif self._dim == 3:
-                layout = plotly_layouts.default_ternary_layout
-                layout["scene"].update({"annotations": annotations_list})
-            elif self._dim == 4:
-                layout = plotly_layouts.default_quaternary_layout
-                layout["scene"].update({"annotations": annotations_list})
+        if self._dim == 2:
+            layout = plotly_layouts.default_binary_layout
+            layout["annotations"] = annotations_list
+        elif self._dim == 3:
+            layout = plotly_layouts.default_ternary_layout
+            layout["scene"].update({"annotations": annotations_list})
+        elif self._dim == 4:
+            layout = plotly_layouts.default_quaternary_layout
+            layout["scene"].update({"annotations": annotations_list})
 
         return layout
 
-    def _create_markers(self):
+    def _create_plotly_markers(self):
         """
-        Creates markers.
-        :return:
+        Creates stable and unstable marker plots for overlaying on the phase diagram.
+
+        :return: Tuple of Plotly Scatter (or Scatter3d) objects in order: (unstable,
+            stable)
         """
 
         def get_marker_props(coords, entries, stable=True):
-            """ Method for getting general marker locations from pd_plot_data"""
-            x, y, z, texts, energies = ([], [], [], [], [])
+            """ Method for getting general marker locations/annotations from
+            pd_plot_data"""
+            x, y, z, texts, energies = [], [], [], [], []
 
             for coord, entry in zip(coords, entries):
                 energy = round(self._pd.get_form_energy_per_atom(entry), 3)
@@ -2288,7 +2289,11 @@ class PDPlotter:
                     x=stable_props["x"],
                     y=stable_props["y"],
                     name="Stable",
-                    marker=dict(color=stable_props["energies"], size=8),
+                    marker=dict(
+                        color=stable_props["energies"],
+                        colorscale=plotly_layouts.colorscale,
+                        size=10,
+                    ),
                     hovertext=stable_props["texts"],
                 )
             )
@@ -2301,6 +2306,7 @@ class PDPlotter:
                     name="Above Hull",
                     marker=dict(color="#ff0000", size=6, symbol="diamond"),
                     hovertext=unstable_props["texts"],
+                    visible="legendonly",
                 )
             )
 
@@ -2312,7 +2318,11 @@ class PDPlotter:
                     y=stable_props["x"],
                     z=stable_props["z"],
                     name="Stable",
-                    marker=dict(color=stable_props["energies"], size=8),
+                    marker=dict(
+                        color=stable_props["energies"],
+                        colorscale=plotly_layouts.colorscale,
+                        size=8,
+                    ),
                     hovertext=stable_props["texts"],
                 )
             )
@@ -2322,9 +2332,11 @@ class PDPlotter:
                 dict(
                     x=unstable_props["y"],
                     y=unstable_props["x"],
+                    z=unstable_props["z"],
                     name="Above Hull",
-                    marker=dict(color="#ff0000", size=6, symbol="diamond"),
+                    marker=dict(color="#ff0000", size=4.5, symbol="diamond"),
                     hovertext=unstable_props["texts"],
+                    visible="legendonly",
                 )
             )
 
@@ -2336,7 +2348,11 @@ class PDPlotter:
                     y=stable_props["y"],
                     z=stable_props["z"],
                     name="Stable",
-                    marker=dict(color=stable_props["energies"], size=8),
+                    marker=dict(
+                        color=stable_props["energies"],
+                        colorscale=plotly_layouts.colorscale,
+                        size=8,
+                    ),
                     hovertext=stable_props["texts"],
                 )
             )
@@ -2350,6 +2366,7 @@ class PDPlotter:
                     name="Above Hull",
                     marker=dict(color="#ff0000", size=6, symbol="diamond"),
                     hovertext=unstable_props["texts"],
+                    visible="legendonly",
                 )
             )
 
@@ -2364,20 +2381,21 @@ class PDPlotter:
             else go.Scatter3d(**unstable_markers)
         )
 
-        print(unstable_marker_plot)
-        return stable_marker_plot, unstable_marker_plot
+        return unstable_marker_plot, stable_marker_plot
 
-    def _create_ternary_guidelines(self):
+    def _create_plotly_ternary_support_lines(self):
         """
+        Creates support lines which aid in seeing the ternary hull in three
+        dimensions.
 
-        :return:
+        :return: go.Scatter3d plot of support lines for ternary phase diagram.
         """
         stable_entry_coords = dict(map(reversed, self.pd_plot_data[1].items()))
 
         elem_coords = [stable_entry_coords[e] for e in self._pd.el_refs.values()]
 
         # add top and bottom triangle guidelines
-        x, y, z = ([], [], [])
+        x, y, z = [], [], []
         for line in itertools.combinations(elem_coords, 2):
             x.extend([line[0][0], line[1][0], None] * 2)
             y.extend([line[0][1], line[1][1], None] * 2)
@@ -2399,10 +2417,11 @@ class PDPlotter:
             showlegend=False,
         )
 
-    def _create_ternary_hull(self):
+    def _create_plotly_ternary_hull(self):
         """
+        Creates shaded mesh plot for coloring the ternary hull by formation energy.
 
-        :return:
+        :return: go.Mesh3d plot
         """
         facets = np.array(self._pd.facets)
         coords = np.array(
@@ -2422,19 +2441,19 @@ class PDPlotter:
             opacity=0.3,
             intensity=self._pd.qhull_data[:-1, 2],
             colorscale="PiYG_r",
-            colorbar=dict(title="Formation energy (eV/atom)", x=0.8, len=0.8),
+            colorbar=dict(title="Formation energy (eV/atom)", x=0.8, len=0.7),
             hoverinfo="none",
             name="Convex Hull (shading)",
             showlegend=True,
             visible="legendonly",
         )
 
-    def _create_quaternary_mesh(self):
+    def _create_plotly_quaternary_mesh(self):
         """
-
-        :return:
+        Creates shaded mesh plot for coloring the quaternary hull by formation energy.
+        :return: go.Mesh3d plot
         """
-        x, y, z, energies = ([], [], [], [])
+        x, y, z, energies = [], [], [], []
         for coord, entry in self.pd_plot_data[1].items():
             x.append(coord[0])
             y.append(coord[1])
@@ -2457,11 +2476,12 @@ class PDPlotter:
         )
 
     @staticmethod
-    def _htmlize_formula(formula):
+    def _htmlize_formula(formula: str):
         """
+        Adds HTML tags for displaying chemical formula in Plotly figure annotations.
 
-        :param formula:
-        :return:
+        :param formula: chemical formula
+        :return: clean chemical formula with necessary HTML tags
         """
         s = []
         for char in formula:
@@ -2517,7 +2537,7 @@ def tet_coord(coord):
     prettier phase diagram.
 
     Args:
-        coordinate: coordinate used in the convex hull computation.
+        coord: coordinate used in the convex hull computation.
 
     Returns:
         coordinates in a tetrahedron-based coordinate system.

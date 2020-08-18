@@ -7,6 +7,8 @@ Default plotly layouts for Binary (2), Ternary (3), and Quaternary (4) phase
 diagrams.
 """
 
+import numpy as np
+
 default_binary_layout = dict(
     xaxis={
         "title": "Fraction",
@@ -81,30 +83,31 @@ default_ternary_layout = dict(
         yanchor="top",
     ),
     scene_camera=dict(
-        center=dict(x=-0.1, y=-0.1, z=0),
-        eye=dict(x=-0.1, y=-0.1, z=1),
+        center=dict(x=0, y=0, z=0),
+        eye=dict(x=0, y=0, z=1),
         projection=dict(type="orthographic"),
     ),
     scene=dict(xaxis=default_3d_axis, yaxis=default_3d_axis, zaxis=default_3d_axis),
-    scene_aspectratio=dict(x=1.7, y=1.7, z=1.2),
+    scene_aspectratio=dict(x=1.7, y=1.7, z=1.4),
 )
 
-colorscale = [
-    [0.0, "#008d00"],
-    [0.1111111111111111, "#4b9f3f"],
-    [0.2222222222222222, "#73b255"],
-    [0.3333333333333333, "#97c65b"],
-    [0.4444444444444444, "#b9db53"],
-    [0.5555555555555556, "#ffdcdf"],
-    [0.6666666666666666, "#ffb8bf"],
-    [0.7777777777777778, "#fd92a0"],
-    [0.8888888888888888, "#f46b86"],
-    [1.0, "#e24377"],
+colors = [
+    "#3da12e",
+    "#569638",
+    "#688b40",
+    "#767f47",
+    "#81724e",
+    "#8b6553",
+    "#935659",
+    "#9a455e",
+    "#a02f63",
+    "#a60068",
 ]
+colorscale = list(zip(np.linspace(0, 1, len(colors)), colors))
 
 default_binary_marker_settings = dict(
     mode="markers",
-    marker=dict(size=6, colorscale=colorscale, line=dict(width=4, color="black")),
+    marker=dict(size=6, line=dict(width=4, color="black")),
     hoverinfo="text",
     hoverlabel=dict(font=dict(size=14)),
     showlegend=True,
@@ -133,6 +136,18 @@ default_quaternary_layout = dict(
     ),
     scene=dict(xaxis=default_3d_axis, yaxis=default_3d_axis, zaxis=default_3d_axis),
 )
+
+default_annotation_layout = {
+    "align": "center",
+    "opacity": 0.7,
+    "showarrow": False,
+    "xanchor": "right",
+    "yanchor": "auto",
+    "xshift": -10,
+    "yshift": -10,
+    "xref": "x",
+    "yref": "y",
+}
 
 empty_plot_style = {
     "xaxis": {"visible": False},
