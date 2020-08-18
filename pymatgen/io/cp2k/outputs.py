@@ -530,6 +530,7 @@ class Cp2kOutput:
             {"cp2k_version": version, "input_filename": input_file},
             terminate_on_match=True,
             reverse=False,
+            postprocess=_postprocessor
         )
 
     def parse_input(self):
@@ -1106,7 +1107,7 @@ class Cp2kOutput:
                 bg[Spin.up].append(self.data['band_gap'][i][0])
                 bg[Spin.down].append(self.data['band_gap'][i][0])
         self.data['band_gap'] = bg
-        self.band_gap = (bg[Spin.up][-1]+bg[Spin.down][-1])/2
+        self.band_gap = (bg[Spin.up][-1]+bg[Spin.down][-1])/2 if bg[Spin.up] and bg[Spin.down] else None
 
     # TODO: Turn pdos and ldos functions into special instances of more general dos parser
     def parse_ldos(self, ldos_files=None):

@@ -50,8 +50,7 @@ from pymatgen.io.cp2k.utils import (
     get_unique_site_indices,
 )
 from pymatgen import Element, Structure, Molecule
-from pymatgen.io.vasp.inputs import Kpoints
-from typing import Dict, List, Tuple, Optional, Union, Iterator, Set, Sequence, Iterable
+from typing import Dict, Union
 
 __author__ = "Nicholas Winner"
 __version__ = "0.2"
@@ -158,8 +157,10 @@ class Cp2kInputSet(Cp2kInput):
                 ]
             else:
                 magnetization = 0
-            if 'ghost' in self.structure.site_properties:
-                ghost = self.structure.site_properties.get("ghost")[unique_kinds[k][0]]
+            if 'ghost' in self.structure.site_properties.keys():
+                ghost = self.structure.site_properties["ghost"][
+                    unique_kinds[k][0]
+                ]
             else:
                 ghost = False
             subsys.insert(
@@ -175,9 +176,7 @@ class Cp2kInputSet(Cp2kInput):
         coord = Coord(structure, aliases=unique_kinds)
         subsys.insert(coord)
 
-        return subsys, \
-               basis_and_potential["basis_filenames"], \
-               basis_and_potential["potential_filename"]
+        return subsys, basis_and_potential["basis_filenames"], basis_and_potential["potential_filename"]
 
     def activate_hybrid(
         self,
@@ -189,6 +188,7 @@ class Cp2kInputSet(Cp2kInput):
         cutoff_radius: float = 8.,
         omega: float = .2,
         aux_basis: Union[Dict, None] = None,
+        admm: bool = True
     ):
 
         """
@@ -205,7 +205,7 @@ class Cp2kInputSet(Cp2kInput):
         accuracy. Please review the in-line comments in this method if you want more control.
 
         Args:
-            method (str): Type of hybrid functional. This set supports HSE (screened) and PBE0
+            hybrid_functional (str): Type of hybrid functional. This set supports HSE (screened) and PBE0
                 (truncated). Default is PBE0, which converges easier in the GPW basis used by
                 cp2k.
             hf_fraction (float): fraction of exact HF exchange energy to mix. Default: 0.25
@@ -225,45 +225,52 @@ class Cp2kInputSet(Cp2kInput):
                 0.2, which is the default.
             aux_basis (dict): If you want to specify the aux basis to use, specify it as a dict of
                 the form {'specie_1': 'AUX_BASIS_1', 'specie_2': 'AUX_BASIS_2'}
+            admm (bool): Whether or not to use the auxiliary density matrix method for the exact
+                HF exchange contribution. Highly recommended. Default: True
         """
-        if aux_basis is None:
-            basis = get_aux_basis(self.structure.symbol_set)
-        else:
-            basis = aux_basis
-        if isinstance(self["FORCE_EVAL"]["DFT"]['BASIS_SET_FILE_NAME'],
-                      KeywordList):
-            self["FORCE_EVAL"]["DFT"]['BASIS_SET_FILE_NAME'].extend(
-                [Keyword("BASIS_SET_FILE_NAME", k) for k in ['BASIS_ADMM', 'BASIS_ADMM_MOLOPT']],
+        if admm:
+            basis = get_aux_basis(species=self.structure.symbol_set, basis_type=aux_basis)
+            if isinstance(self["FORCE_EVAL"]["DFT"]['BASIS_SET_FILE_NAME'],
+                          KeywordList):
+                self["FORCE_EVAL"]["DFT"]['BASIS_SET_FILE_NAME'].extend(
+                    [Keyword("BASIS_SET_FILE_NAME", k) for k in ['BASIS_ADMM', 'BASIS_ADMM_MOLOPT']],
+                )
+
+            for k, v in self["FORCE_EVAL"]["SUBSYS"].subsections.items():
+                if "KIND" == v.name.upper():
+                    kind = v["ELEMENT"].values[0]
+                    v.keywords['BASIS_SET'] += Keyword("BASIS_SET", "AUX_FIT", basis[kind])
+
+            # Don't change unless you know what you're doing
+            # Use NONE for accurate eigenvalues (static calcs)
+            aux_matrix_params = {
+                "ADMM_PURIFICATION_METHOD": Keyword("ADMM_PURIFICATION_METHOD", "NONE"),
+                "METHOD": Keyword("METHOD", "BASIS_PROJECTION"),
+            }
+            aux_matrix = Section(
+                "AUXILIARY_DENSITY_MATRIX_METHOD",
+                keywords=aux_matrix_params,
+                subsections={},
             )
-
-        for k, v in self["FORCE_EVAL"]["SUBSYS"].subsections.items():
-            if "KIND" == v.name.upper():
-                kind = v["ELEMENT"].values[0]
-                v.keywords['BASIS_SET'] += Keyword("BASIS_SET", "AUX_FIT", basis[kind])
-
-        aux_matrix_params = {
-            "ADMM_PURIFICATION_METHOD": Keyword("ADMM_PURIFICATION_METHOD", "NONE"),  # Use NONE for accurate eigenvalues (static calcs)
-            "METHOD": Keyword("METHOD", "BASIS_PROJECTION"),  # Don't change unless you know what you're doing
-        }
-        aux_matrix = Section(
-            "AUXILIARY_DENSITY_MATRIX_METHOD",
-            keywords=aux_matrix_params,
-            subsections={},
-        )
+            self.subsections["FORCE_EVAL"]["DFT"].insert(aux_matrix)
 
         # Define the GGA functional as PBE
         pbe = PBE("ORIG", scale_c=gga_c_fraction, scale_x=gga_x_fraction)
         xc_functional = XC_FUNCTIONAL("PBE", subsections={"PBE": pbe})
 
         # Define screening of the HF term
+        # EPS_SCHWARZ: Aggressive screening for high throughput
+        # EPS_SCHWARZ_FORCES: Aggressive screening for high throughput
+        # SCREEN_ON_INITIAL_P: Better performance. Requires decent starting wfn
+        # SCREEN_P_FORCES: Better performance. Requires decent starting wfn
         screening = Section(
             "SCREENING",
             subsections={},
             keywords={
-                "EPS_SCHWARZ": Keyword("EPS_SCHWARZ", 1e-6),  # Aggressive screening for high throughput
-                "EPS_SCHWARZ_FORCES": Keyword("EPS_SCHWARZ_FORCES", 1e-6),  # Aggressive screening for high throughput
-                "SCREEN_ON_INITIAL_P": Keyword("SCREEN_ON_INITIAL_P", True),  # Better performance. Requires decent starting wfn
-                "SCREEN_P_FORCES": Keyword("SCREEN_P_FORCES", True),  # Better performance. Requires decent starting wfn
+                "EPS_SCHWARZ": Keyword("EPS_SCHWARZ", 1e-6),
+                "EPS_SCHWARZ_FORCES": Keyword("EPS_SCHWARZ_FORCES", 1e-6),
+                "SCREEN_ON_INITIAL_P": Keyword("SCREEN_ON_INITIAL_P", True),
+                "SCREEN_P_FORCES": Keyword("SCREEN_P_FORCES", True),
             },
         )
 
@@ -302,11 +309,12 @@ class Cp2kInputSet(Cp2kInput):
             keywords={"RANDOMIZE": Keyword("RANDOMIZE", True)},
             subsections={},
         )
+        # EPS_STORAGE_SCALING squashes the integrals for efficient storage
         memory = Section(
             "MEMORY",
             subsections={},
             keywords={
-                "EPS_STORAGE_SCALING": Keyword("EPS_STORAGE_SCALING", 0.1),  # squashes the integrals for efficient storage
+                "EPS_STORAGE_SCALING": Keyword("EPS_STORAGE_SCALING", 0.1),
                 "MAX_MEMORY": Keyword("MAX_MEMORY", max_memory),
             },
         )
@@ -324,7 +332,6 @@ class Cp2kInputSet(Cp2kInput):
             "XC", subsections={"XC_FUNCTIONAL": xc_functional, "HF": hf}
         )
 
-        self.subsections["FORCE_EVAL"]["DFT"].insert(aux_matrix)
         self.subsections["FORCE_EVAL"]["DFT"].insert(xc)
 
     def print_forces(self):

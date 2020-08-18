@@ -111,6 +111,10 @@ def get_basis_and_potential(species, d, cardinality='DZVP', functional='PBE'):
             b = [_ for _ in b if 'SR' not in _]
         if 'q' in d[s]:
             b = [_ for _ in b if d[s]['q'] in _]
+        else:
+            def srt(x):
+                return int(x.split('q')[-1])
+            b = sorted(b, key=srt)[-1:]
         if len(b) == 0:
             raise LookupError('NO BASIS OF THAT TYPE AVAILABLE')
         elif len(b) > 1:
@@ -135,23 +139,23 @@ def get_aux_basis(species, basis_type="cFIT"):
 
     Args:
         species (list): list of species to get info for
-        basis_type (str): default basis type to look for. Otherwise, follow defaults.
+        basis_type (dict): default basis type to look for. Otherwise, follow defaults.
 
-            Basis types:
-                FIT
-                cFIT
-                pFIT
-                cpFIT
-                GTH-def2
-                aug-{FIT,cFIT,pFIT,cpFIT, GTH-def2}
+        Basis types:
+            FIT
+            cFIT
+            pFIT
+            cpFIT
+            GTH-def2
+            aug-{FIT,cFIT,pFIT,cpFIT, GTH-def2}
     """
-
+    basis_type = basis_type if basis_type else {s: 'cFIT' for s in species}
     basis = {k: {} for k in species}
     aux_bases = loadfn(os.path.join(MODULE_DIR, 'aux_basis.yaml'))
     for k in species:
         if isinstance(aux_bases[k], list):
             for i in aux_bases[k]:
-                if i.startswith(basis_type):
+                if i.startswith(basis_type[k]):
                     basis[k] = i
                     break
         else:
