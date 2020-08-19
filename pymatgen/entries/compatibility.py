@@ -832,7 +832,7 @@ class MaterialsProject2020Compatibility(Compatibility):
     This class implements the Materials Project 2020 energy correction scheme,
     which incorporates uncertainty quantification and allows for mixing of GGA
     and GGA+U entries (see References).
-    
+
     Note that this scheme should only be applied to VASP calculations that use the
     Materials Project input set parameters (see pymatgen.io.vasp.sets.MPRelaxSet).
     Using this compatibility scheme on calculations with different parameters is not
