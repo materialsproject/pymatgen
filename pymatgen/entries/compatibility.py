@@ -829,10 +829,13 @@ class MaterialsProjectCompatibility(CorrectionsList):
 
 class MaterialsProject2020Compatibility(Compatibility):
     """
-    This class implements the GGA/GGA+U mixing scheme, which allows mixing of
-    entries. Note that this should only be used for VASP calculations using the
+    This class implements the Materials Project 2020 energy correction scheme,
+    which incorporates uncertainty quantification and allows for mixing of GGA
+    and GGA+U entries (see References).
+    
+    Note that this scheme should only be applied to VASP calculations that use the
     Materials Project input set parameters (see pymatgen.io.vasp.sets.MPRelaxSet).
-    Using this compatibility scheme on runs with different parameters is not
+    Using this compatibility scheme on calculations with different parameters is not
     valid.
     """
 
@@ -841,17 +844,17 @@ class MaterialsProject2020Compatibility(Compatibility):
         compat_type="Advanced",
         correct_peroxide=True,
         check_potcar_hash=False,
-        input_set=MPRelaxSet,
     ):
         """
         Args:
             compat_type: Two options, GGA or Advanced.  GGA means all GGA+U
-                entries are excluded.  Advanced means the GGA/GGA+U mixing scheme
-                of Jain et al. (see references) is implemented. In this case,
-                entries which are supposed to be done in GGA+U will have the
-                equivalent GGA entries excluded. For example, Fe oxides should
+                entries are excluded. Advanced means the GGA/GGA+U mixing scheme
+                of Jain et al. (see References) is implemented. In this case,
+                entries which are supposed to be calculated in GGA+U (i.e.,
+                transition metal oxides and fluorides) will have the corresponding
+                GGA entries excluded. For example, Fe oxides should
                 have a U value under the Advanced scheme. An Fe oxide run in GGA
-                will therefore be excluded. (Default: "Advanced")
+                will therefore be excluded.
 
                 To use the "Advanced" type, Entry.parameters must contain a "hubbards"
                 key which is a dict of all non-zero Hubbard U values used in the
@@ -861,13 +864,14 @@ class MaterialsProject2020Compatibility(Compatibility):
                 is missing, a GGA run is assumed. Entries obtained from the
                 MaterialsProject database will automatically have these fields
                 populated.
+
+                (Default: "Advanced")
             correct_peroxide: Specify whether peroxide/superoxide/ozonide
                 corrections are to be applied or not. If false, all oxygen-containing
                 compounds are assigned the 'oxide' correction. (Default: True)
-            check_potcar_hash (bool): Use potcar hash to verify POTCAR settings are correct.
-                (Default: False)
-            input_set: InputSet object used to check POTCAR and +U settings.
-                (Default: MPRelaxSet)
+            check_potcar_hash (bool): Use potcar hash to verify POTCAR settings are
+                consistent with MPRelaxSet. If False, only the POTCAR symbols will
+                be used. (Default: False)
 
         References:
             Wang, A., et al. A framework for quantifying uncertainty in DFT energy corrections.
@@ -882,25 +886,22 @@ class MaterialsProject2020Compatibility(Compatibility):
         self.compat_type = compat_type
         self.correct_peroxide = correct_peroxide
         self.check_potcar_hash = check_potcar_hash
-        self.input_set = input_set
 
         # load corrections and uncertainties
         self.config_file = os.path.join(MODULE_DIR, "MP2020Compatibility.yaml")
-        self.fp_error = os.path.join(MODULE_DIR, "MP2020CompatibilityUncertainties.yaml")
         c = loadfn(self.config_file)
-        self.comp_correction = c.get("CompositionCorrections", defaultdict(float))
         self.name = c["Name"]
+        self.comp_correction = c["Corrections"].get("CompositionCorrections", defaultdict(float))
+        self.comp_errors = c["Uncertainties"].get("CompositionCorrections", defaultdict(float))
 
-        e = loadfn(self.fp_error)
-        self.comp_errors = e.get("CompositionCorrections", defaultdict(float))
-        self.u_errors = e["Advanced"]["UCorrections"]
-
-        if compat_type == "Advanced":
-            self.u_settings = self.input_set.CONFIG["INCAR"]["LDAUU"]
-            self.u_corrections = c["Advanced"]["UCorrections"]
+        if self.compat_type == "Advanced":
+            self.u_settings = MPRelaxSet.CONFIG["INCAR"]["LDAUU"]
+            self.u_corrections = c["Corrections"].get("GGAUMixingCorrections", defaultdict(float))
+            self.u_errors = c["Uncertainties"].get("GGAUMixingCorrections", defaultdict(float))
         else:
             self.u_settings = {}
             self.u_corrections = {}
+            self.u_errors = {}
 
     def get_adjustments(self, entry: Union[ComputedEntry, ComputedStructureEntry]):
         """
@@ -927,7 +928,7 @@ class MaterialsProject2020Compatibility(Compatibility):
 
         # check the POTCAR symbols
         # this should return ufloat(0, 0) or raise a CompatibilityError or ValueError
-        pc = PotcarCorrection(self.input_set, check_hash=self.check_potcar_hash)
+        pc = PotcarCorrection(MPRelaxSet, check_hash=self.check_potcar_hash)
         pc.get_correction(entry)
 
         # apply energy adjustments
