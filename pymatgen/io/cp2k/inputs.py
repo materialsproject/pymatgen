@@ -96,6 +96,9 @@ class Keyword(MSONable):
     def __add__(self, other):
         return KeywordList(keywords=[self, other])
 
+    def __getitem__(self, item):
+        return self.values[item]
+
     def as_dict(self):
         """
         Get a dictionary representation of the Keyword
@@ -400,12 +403,7 @@ class Section(MSONable):
         """
         for k, v in d2.items():
             if isinstance(v, (str, float, bool)):
-                kwds = [kwd.name.upper() for kwd in d1.keywords]
-                if k.upper() in kwds:
-                    i = kwds.index(k)
-                    d1.keywords[i] = Keyword(k, v)
-                else:
-                    d1.add(Keyword(k, v))
+                d1[k] = Keyword(k, v)
             elif isinstance(v, dict):
                 if k not in list(d1.subsections.keys()):
                     d1.insert(Section(k, subsections={}))

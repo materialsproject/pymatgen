@@ -337,7 +337,7 @@ class Cp2kOutput:
             site_properties={'ghost': [gs.get(int(i[1])) for i in coord_table]}
         )
 
-        self.initial_structure.set_charge(self.input['FORCE_EVAL']['DFT']['CHARGE'])
+        self.initial_structure.set_charge(self.input['FORCE_EVAL']['DFT'].get('CHARGE', [0])[0])
         self.composition = self.initial_structure.composition
         return self.initial_structure
 

@@ -109,7 +109,7 @@ class Cp2kInputSet(Cp2kInput):
             override_default_params: (dict) Specifies user-defined settings to override the settings of any
                 input set (See Section.update())
         """
-        super(Cp2kInputSet, self).__init__(name="CP2K_INPUT", subsections={})
+        super().__init__(name="CP2K_INPUT", subsections={})
 
         # Important CP2K set parameters
         self.structure = structure
@@ -428,7 +428,7 @@ class DftSet(Cp2kInputSet):
             coarse.
         """
 
-        super(DftSet, self).__init__(structure, **kwargs)
+        super().__init__(structure, **kwargs)
 
         self.structure = structure
         self.ot = ot
@@ -691,7 +691,7 @@ class StaticSet(DftSet):
             project_name (str): What to name this cp2k project (controls naming of files printed out)
             run_type (str): Run type. As a static set it should be one of the static aliases, like 'ENERGY_FORCE'
         """
-        super(StaticSet, self).__init__(structure, **kwargs)
+        super().__init__(structure, **kwargs)
         global_section = Global(project_name=project_name, run_type=run_type)
         self.structure = structure
         self.project_name = project_name
@@ -744,6 +744,7 @@ class RelaxSet(DftSet):
                 the minimum, but it slower.
                 Default value: BFGS
         """
+        super().__init__(structure, **kwargs)
 
         self.structure = structure
         self.max_drift = max_drift
@@ -753,8 +754,6 @@ class RelaxSet(DftSet):
         self.optimizer = optimizer
         self.override_default_params = override_default_params
         self.kwargs = kwargs
-
-        super(RelaxSet, self).__init__(structure, **kwargs)
 
         global_section = Global(project_name=project_name, run_type="GEO_OPT")
 
@@ -814,13 +813,13 @@ class CellOptSet(DftSet):
                 the minimum, but it slower.
                 Default value: BFGS
         """
+        super().__init__(structure, **kwargs)
 
         self.structure = structure
         self.project_name = project_name
         self.override_default_params = override_default_params
         self.kwargs = kwargs
 
-        super(CellOptSet, self).__init__(structure, **kwargs)
         global_section = Global(project_name=project_name, run_type="CELL_OPT")
         self.insert(global_section)
         self.update(override_default_params)
@@ -858,6 +857,9 @@ class HybridStaticSet(StaticSet):
             gga_c_fraction: percentage of gga correlation to use
             override_default_params: override settings (see above).
         """
+        super().__init__(
+            structure, project_name=project_name, **kwargs
+        )
 
         self.structure = structure
         self.hybrid_functional = hybrid_functional
@@ -873,9 +875,6 @@ class HybridStaticSet(StaticSet):
         self.admm = admm
         self.kwargs = kwargs
 
-        super(HybridStaticSet, self).__init__(
-            structure, project_name=project_name, **kwargs
-        )
         self.activate_hybrid(
             hybrid_functional=hybrid_functional,
             hf_fraction=hf_fraction,
@@ -922,6 +921,9 @@ class HybridRelaxSet(RelaxSet):
             gga_c_fraction: percentage of gga correlation to use
             override_default_params: override settings (see above).
         """
+        super().__init__(
+            structure, project_name=project_name, **kwargs
+        )
 
         self.structure = structure
         self.hybrid_functional = hybrid_functional
@@ -937,9 +939,6 @@ class HybridRelaxSet(RelaxSet):
         self.admm = admm
         self.kwargs = kwargs
 
-        super(HybridRelaxSet, self).__init__(
-            structure, project_name=project_name, **kwargs
-        )
         self.activate_hybrid(
             hybrid_functional=hybrid_functional,
             hf_fraction=hf_fraction,
@@ -986,6 +985,9 @@ class HybridCellOptSet(CellOptSet):
             gga_c_fraction: percentage of gga correlation to use
             override_default_params: override settings (see above).
         """
+        super().__init__(
+            structure, project_name=project_name, **kwargs
+        )
 
         self.structure = structure
         self.hybrid_functional = hybrid_functional
@@ -1001,9 +1003,6 @@ class HybridCellOptSet(CellOptSet):
         self.admm = admm
         self.kwargs = kwargs
 
-        super(HybridCellOptSet, self).__init__(
-            structure, project_name=project_name, **kwargs
-        )
         self.activate_hybrid(
             hybrid_functional=hybrid_functional,
             hf_fraction=hf_fraction,
