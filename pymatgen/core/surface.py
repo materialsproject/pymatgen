@@ -139,10 +139,14 @@ class Slab(Structure):
         self.scale_factor = np.array(scale_factor)
         self.energy = energy
         self.reorient_lattice = reorient_lattice
-        lattice = Lattice.from_parameters(lattice.a, lattice.b, lattice.c,
-                                          lattice.alpha, lattice.beta,
-                                          lattice.gamma) \
-            if self.reorient_lattice else lattice
+        if self.reorient_lattice:
+            if coords_are_cartesian:
+                coords = lattice.get_fractional_coords(coords)
+                coords_are_cartesian = False
+            lattice = Lattice.from_parameters(lattice.a, lattice.b, lattice.c,
+                                              lattice.alpha, lattice.beta,
+                                              lattice.gamma)
+
         super().__init__(
             lattice, species, coords, validate_proximity=validate_proximity,
             to_unit_cell=to_unit_cell,
