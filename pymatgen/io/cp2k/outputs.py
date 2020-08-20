@@ -1378,6 +1378,7 @@ class Cp2kOutput:
         d["input"]["scf"] = self.data.get("scf", None)
         d["input"]["structure"] = self.initial_structure.as_dict()
         d["input"]["atomic_kind_info"] = self.data.get("atomic_kind_info", None)
+        d["input"]["cp2k_input"] = self.input
         d["ran_successfully"] = self.completed
         d["cp2k_version"] = self.cp2k_version
         d["output"]["structure"] = self.final_structure.as_dict()
