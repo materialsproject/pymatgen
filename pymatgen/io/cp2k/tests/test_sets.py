@@ -36,27 +36,49 @@ class SetTest(PymatgenTest):
         for s in [Si_structure, molecule]:
             cis = Cp2kInputSet(s)
             self.assertMSONable(cis)
+            cis = Cp2kInputSet.from_dict(cis.as_dict())
+            cis = Cp2kInputSet.from_string(cis.get_string())
+
             cis = DftSet(s)
             self.assertMSONable(cis)
+            cis = DftSet.from_dict(cis.as_dict())
+            cis = DftSet.from_string(cis.get_string())
+
             cis = StaticSet(s)
             self.assertMSONable(cis)
+            cis = StaticSet.from_dict(cis.as_dict())
+            cis = StaticSet.from_string(cis.get_string())
+
             cis = HybridStaticSet(s)
             self.assertMSONable(cis)
+            cis = HybridStaticSet.from_dict(cis.as_dict())
+            cis = HybridStaticSet.from_string(cis.get_string())
+
             cis = RelaxSet(s)
             self.assertMSONable(cis)
+            cis = RelaxSet.from_dict(cis.as_dict())
+            cis = RelaxSet.from_string(cis.get_string())
+
             cis = HybridRelaxSet(s)
             self.assertMSONable(cis)
+            cis = HybridRelaxSet.from_dict(cis.as_dict())
+            cis = HybridRelaxSet.from_string(cis.get_string())
+
             cis = CellOptSet(s)
             self.assertMSONable(cis)
+            cis = CellOptSet.from_dict(cis.as_dict())
+            cis = CellOptSet.from_string(cis.get_string())
+
             cis = HybridCellOptSet(s)
             self.assertMSONable(cis)
+            cis = HybridCellOptSet.from_dict(cis.as_dict())
+            cis = HybridCellOptSet.from_string(cis.get_string())
 
     def test_aux_basis(self):
         Si_aux_bases = ['FIT', 'cFIT', 'pFIT', 'cpFIT']
         for s in Si_aux_bases:
             cis = HybridStaticSet(Si_structure, aux_basis={'Si': s})
             cis = Cp2kInput.from_string(cis.get_string())
-
 
 if __name__ == "__main__":
     unittest.main()

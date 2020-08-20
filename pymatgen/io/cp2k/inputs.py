@@ -307,9 +307,6 @@ class Section(MSONable):
     def __str__(self):
         return self.get_string()
 
-    def __dict__(self):
-        return self.as_dict()
-
     def __eq__(self, d):
         d2 = copy.deepcopy(d)
         s2 = copy.deepcopy(self)

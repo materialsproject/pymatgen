@@ -56,7 +56,7 @@ class InputTest(PymatgenTest):
             coords = Coord(strucs)
             self.assertEqual(len(strucs.symbol_set), len(coords.keywords))
             for c in coords.keywords.values():
-                self.assertIsInstance(c.values, tuple)
+                self.assertIsInstance(c, KeywordList)
 
     def test_kind(self):
         for s in [nonsense_Structure, Si_structure, molecule]:
