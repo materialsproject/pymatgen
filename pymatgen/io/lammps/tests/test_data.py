@@ -80,19 +80,12 @@ class LammpsDataTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.peptide = LammpsData. \
-            from_file(filename=os.path.join(test_dir, "data.peptide"))
-        cls.ethane = LammpsData. \
-            from_file(filename=os.path.join(test_dir, "ethane.data"))
-        cls.quartz = LammpsData. \
-            from_file(filename=os.path.join(test_dir, "data.quartz"),
-                      atom_style="atomic")
-        cls.virus = LammpsData. \
-            from_file(filename=os.path.join(test_dir, "virus.data"),
-                      atom_style="angle")
-        cls.tatb = LammpsData. \
-            from_file(filename=os.path.join(test_dir, "tatb.data"),
-                      atom_style="charge", sort_id=True)
+        cls.peptide = LammpsData.from_file(filename=os.path.join(test_dir, "data.peptide"))
+        cls.ethane = LammpsData.from_file(filename=os.path.join(test_dir, "ethane.data"))
+        cls.quartz = LammpsData.from_file(filename=os.path.join(test_dir, "data.quartz"), atom_style="atomic")
+        cls.virus = LammpsData.from_file(filename=os.path.join(test_dir, "virus.data"), atom_style="angle")
+        cls.tatb = LammpsData.from_file(filename=os.path.join(test_dir, "tatb.data"),
+                                        atom_style="charge", sort_id=True)
 
     def test_structure(self):
         quartz = self.quartz.structure
@@ -323,7 +316,7 @@ class LammpsDataTest(unittest.TestCase):
                                         1)[0]
             topo_type_idx = sample_topo[0] - 1
             topo_type = tuple([atom_labels[i - 1] for i in
-                               atoms.loc[sample_topo[1:], "type"]])
+                               atoms.loc[list(sample_topo[1:])]["type"]])
 
             self.assertIn(topo_type, ff_coeffs[topo_type_idx]["types"], ff_kw)
         # test no guessing element and pairij as nonbond coeffs

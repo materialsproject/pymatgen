@@ -151,7 +151,7 @@ class SlabTest(PymatgenTest):
             total_surf_sites = sum([len(surf_sites_dict[key])
                                     for key in surf_sites_dict.keys()])
             r2 = total_surf_sites / (2 * slab.surface_area)
-            self.assertArrayEqual(r1, r2)
+            self.assertArrayAlmostEqual(r1, r2)
 
     def test_symmetrization(self):
 
