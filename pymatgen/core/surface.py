@@ -119,10 +119,10 @@ class Slab(Structure):
             scale_factor (np.ndarray): scale_factor Final computed scale factor
                 that brings the parent cell to the surface cell.
             reorient_lattice (bool): reorients the lattice parameters such that
-                the c direction is the third vector of the lattice matrix
+                the c direction is along the z axis.
             validate_proximity (bool): Whether to check if there are sites
                 that are less than 0.01 Ang apart. Defaults to False.
-            reconstruction (str): Type of reconstruction. Defaultst to None if
+            reconstruction (str): Type of reconstruction. Defaults to None if
                 the slab is not reconstructed.
             coords_are_cartesian (bool): Set to True if you are providing
                 coordinates in cartesian coordinates. Defaults to False.
@@ -139,10 +139,14 @@ class Slab(Structure):
         self.scale_factor = np.array(scale_factor)
         self.energy = energy
         self.reorient_lattice = reorient_lattice
-        lattice = Lattice.from_parameters(lattice.a, lattice.b, lattice.c,
-                                          lattice.alpha, lattice.beta,
-                                          lattice.gamma) \
-            if self.reorient_lattice else lattice
+        if self.reorient_lattice:
+            if coords_are_cartesian:
+                coords = lattice.get_fractional_coords(coords)
+                coords_are_cartesian = False
+            lattice = Lattice.from_parameters(lattice.a, lattice.b, lattice.c,
+                                              lattice.alpha, lattice.beta,
+                                              lattice.gamma)
+
         super().__init__(
             lattice, species, coords, validate_proximity=validate_proximity,
             to_unit_cell=to_unit_cell,
