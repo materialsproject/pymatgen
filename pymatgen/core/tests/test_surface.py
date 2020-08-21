@@ -66,6 +66,21 @@ class SlabTest(PymatgenTest):
         self.assertEqual(zno_slab.oriented_unit_cell.composition, self.zno1.composition)
         self.assertEqual(len(zno_slab), 8)
 
+        # check reorient_lattice. get a slab not oriented and check that orientation
+        # works even with cartesian coordinates.
+        zno_not_or = SlabGenerator(self.zno1, [1, 0, 0], 5, 5, lll_reduce=False,
+                                   center_slab=False, reorient_lattice=False).get_slab()
+        zno_slab_cart = Slab(zno_not_or.lattice, zno_not_or.species,
+                             zno_not_or.cart_coords,
+                             zno_not_or.miller_index,
+                             zno_not_or.oriented_unit_cell,
+                             0, zno_not_or.scale_factor,
+                             coords_are_cartesian=True,
+                             reorient_lattice=True)
+        self.assertArrayAlmostEqual(zno_slab.frac_coords, zno_slab_cart.frac_coords)
+        c = zno_slab_cart.lattice.matrix[2]
+        self.assertArrayAlmostEqual([0, 0, np.linalg.norm(c)], c)
+
     def test_add_adsorbate_atom(self):
         zno_slab = Slab(self.zno55.lattice, self.zno55.species,
                         self.zno55.frac_coords,

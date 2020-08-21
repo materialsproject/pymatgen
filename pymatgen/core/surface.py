@@ -119,10 +119,10 @@ class Slab(Structure):
             scale_factor (np.ndarray): scale_factor Final computed scale factor
                 that brings the parent cell to the surface cell.
             reorient_lattice (bool): reorients the lattice parameters such that
-                the c direction is the third vector of the lattice matrix
+                the c direction is along the z axis.
             validate_proximity (bool): Whether to check if there are sites
                 that are less than 0.01 Ang apart. Defaults to False.
-            reconstruction (str): Type of reconstruction. Defaultst to None if
+            reconstruction (str): Type of reconstruction. Defaults to None if
                 the slab is not reconstructed.
             coords_are_cartesian (bool): Set to True if you are providing
                 coordinates in cartesian coordinates. Defaults to False.
