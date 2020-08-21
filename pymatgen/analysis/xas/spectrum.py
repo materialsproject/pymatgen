@@ -69,8 +69,7 @@ class XAS(Spectrum):
         Initializes a spectrum object.
         """
 
-        super(XAS, self).__init__(x, y, structure, absorbing_element,
-                                  edge)
+        super().__init__(x, y, structure, absorbing_element, edge)
         self.structure = structure
         self.absorbing_element = absorbing_element
         self.edge = edge
@@ -91,7 +90,7 @@ class XAS(Spectrum):
         return "%s %s Edge %s for %s: %s" % (
             self.absorbing_element, self.edge, self.spectrum_type,
             self.structure.composition.reduced_formula,
-            super(XAS, self).__str__()
+            super().__str__()
         )
 
     def stitch(self, other: 'XAS', num_samples: int = 500, mode: str = "XAFS") \
