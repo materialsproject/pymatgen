@@ -355,13 +355,14 @@ class Section(MSONable):
                 self.subsections[key] = value.__deepcopy__()
             else:
                 self.insert(value)
-        if not isinstance(value, (Keyword, KeywordList)):
-            value = Keyword(key, value)
-        if isinstance(value, (Keyword, KeywordList)):
-            match = [k for k in self.keywords if key.upper() == k.upper()]
-            if match:
-                del self.keywords[match[0]]
-            self.keywords[key] = value
+        else:
+            if not isinstance(value, (Keyword, KeywordList)):
+                value = Keyword(key, value)
+            elif isinstance(value, (Keyword, KeywordList)):
+                match = [k for k in self.keywords if key.upper() == k.upper()]
+                if match:
+                    del self.keywords[match[0]]
+                self.keywords[key] = value
 
     def __delitem__(self, key):
         """
