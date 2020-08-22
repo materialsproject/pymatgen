@@ -1123,6 +1123,7 @@ class MPScanStaticSet(MPScanRelaxSet):
                 "NSW": 0,
                 "LORBIT": 11,
                 "LVHAR": True,
+                "ISMEAR": -5
             }
         )
 
