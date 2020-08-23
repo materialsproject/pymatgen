@@ -409,6 +409,12 @@ class Section(MSONable):
             elif isinstance(v, Section):
                 d1.insert(v)
 
+    def set(self, d: dict):
+        """
+        Alias for update. Used by custodian.
+        """
+        self.update(d)
+
     def insert(self, d):
         """
         Insert a new section as a subsection of the current one
