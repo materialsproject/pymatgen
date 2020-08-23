@@ -1,8 +1,7 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
@@ -12,6 +11,11 @@
   
 
   
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+
+  
   
   
   
@@ -19,7 +23,9 @@
   
 
   
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -32,11 +38,6 @@
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.analysis.magnetism package" href="pymatgen.analysis.magnetism.html" />
@@ -61,7 +62,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> pymatgen
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pymatgen
           
 
           
@@ -88,6 +89,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -135,6 +137,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -173,7 +176,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html">Docs</a> &raquo;</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
         
@@ -466,7 +469,13 @@ The algorithm for this code is from reference, Acta Cryst, A38,550(1982)</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>cutoff</strong> (<em>integer</em>) – the cutoff of sigma values.</p></li>
-<li><p><strong>(</strong><strong>list of three integers</strong><strong>, </strong><strong>e.g. u</strong><strong>, </strong><strong>v</strong><strong>, </strong><strong>w</strong> (<em>r_axis</em>) – or four integers, e.g. u, v, t, w):
+<li><p><strong>(</strong><strong>list of three integers</strong> (<em>r_axis</em>) – or four integers, e.g. u, v, t, w):
+the rotation axis of the grain boundary.</p></li>
+<li><p><strong>u</strong> (<em>e.g.</em>) – or four integers, e.g. u, v, t, w):
+the rotation axis of the grain boundary.</p></li>
+<li><p><strong>v</strong> – or four integers, e.g. u, v, t, w):
+the rotation axis of the grain boundary.</p></li>
+<li><p><strong>w</strong> – or four integers, e.g. u, v, t, w):
 the rotation axis of the grain boundary.</p></li>
 <li><p><strong>c2_a2_ratio</strong> (<em>list of two integers</em><em>, </em><em>e.g. mu</em><em>, </em><em>mv</em>) – mu/mv is the square of the hexagonal axial ratio, which is rational
 number. If irrational, set c2_a2_ratio = None</p></li>
@@ -534,7 +543,16 @@ The algorithm for this code is from reference, Acta Cryst, A45,505(1989).</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>cutoff</strong> (<em>integer</em>) – the cutoff of sigma values.</p></li>
-<li><p><strong>(</strong><strong>list of three integers</strong><strong>, </strong><strong>e.g. u</strong><strong>, </strong><strong>v</strong><strong>, </strong><strong>w</strong> (<em>r_axis</em>) – or four integers, e.g. u, v, t, w):
+<li><p><strong>(</strong><strong>list of three integers</strong> (<em>r_axis</em>) – or four integers, e.g. u, v, t, w):
+the rotation axis of the grain boundary, with the format of [u,v,w]
+or Weber indices [u, v, t, w].</p></li>
+<li><p><strong>u</strong> (<em>e.g.</em>) – or four integers, e.g. u, v, t, w):
+the rotation axis of the grain boundary, with the format of [u,v,w]
+or Weber indices [u, v, t, w].</p></li>
+<li><p><strong>v</strong> – or four integers, e.g. u, v, t, w):
+the rotation axis of the grain boundary, with the format of [u,v,w]
+or Weber indices [u, v, t, w].</p></li>
+<li><p><strong>w</strong> – or four integers, e.g. u, v, t, w):
 the rotation axis of the grain boundary, with the format of [u,v,w]
 or Weber indices [u, v, t, w].</p></li>
 <li><p><strong>ratio_alpha</strong> (<em>list of two integers</em><em>, </em><em>e.g. mu</em><em>, </em><em>mv</em>) – mu/mv is the ratio of (1+2*cos(alpha))/cos(alpha) with rational number.
@@ -684,7 +702,13 @@ find the smallest cell.</p></li>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>sigma</strong> (<em>integer</em>) – sigma value provided</p></li>
-<li><p><strong>(</strong><strong>list of three integers</strong><strong>, </strong><strong>e.g. u</strong><strong>, </strong><strong>v</strong><strong>, </strong><strong>w</strong> (<em>r_axis</em>) – or four integers, e.g. u, v, t, w for hex/rho system only):
+<li><p><strong>(</strong><strong>list of three integers</strong> (<em>r_axis</em>) – or four integers, e.g. u, v, t, w for hex/rho system only):
+the rotation axis of the grain boundary.</p></li>
+<li><p><strong>u</strong> (<em>e.g.</em>) – or four integers, e.g. u, v, t, w for hex/rho system only):
+the rotation axis of the grain boundary.</p></li>
+<li><p><strong>v</strong> – or four integers, e.g. u, v, t, w for hex/rho system only):
+the rotation axis of the grain boundary.</p></li>
+<li><p><strong>w</strong> – or four integers, e.g. u, v, t, w for hex/rho system only):
 the rotation axis of the grain boundary.</p></li>
 <li><p><strong>lat_type</strong> (<em>one character</em>) – <dl class="simple">
 <dt>‘c’ or ‘C’: cubic system</dt><dd><p>’t’ or ‘T’: tetragonal system
@@ -729,7 +753,13 @@ The algorithm for this code is from reference, Acta Cryst, A32,783(1976).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>(</strong><strong>list of three integers</strong><strong>, </strong><strong>e.g. u</strong><strong>, </strong><strong>v</strong><strong>, </strong><strong>w</strong> (<em>r_axis</em>) – or four integers, e.g. u, v, t, w for hex/rho system only):
+<li><p><strong>(</strong><strong>list of three integers</strong> (<em>surface</em>) – or four integers, e.g. u, v, t, w for hex/rho system only):
+the rotation axis of the grain boundary.</p></li>
+<li><p><strong>u</strong> (<em>e.g.</em>) – or four integers, e.g. u, v, t, w for hex/rho system only):
+the rotation axis of the grain boundary.</p></li>
+<li><p><strong>v</strong> – or four integers, e.g. u, v, t, w for hex/rho system only):
+the rotation axis of the grain boundary.</p></li>
+<li><p><strong>w</strong> – or four integers, e.g. u, v, t, w for hex/rho system only):
 the rotation axis of the grain boundary.</p></li>
 <li><p><strong>angle</strong> (<em>float</em><em>, </em><em>in unit of degree</em>) – the rotation angle of the grain boundary</p></li>
 <li><p><strong>normal</strong> (<em>logic</em>) – determine if need to require the c axis of one grain associated with
@@ -759,7 +789,19 @@ that is, mu/mv is the ratio of (1+2*cos(alpha)/cos(alpha).
 If irrational, set it to None.
 For hexagonal system, ratio = [mu, mv], list of two integers,
 that is, mu/mv = c2/a2. If it is irrational, set it to none.</p></li>
-<li><p><strong>(</strong><strong>list of three integers</strong><strong>, </strong><strong>e.g. h</strong><strong>, </strong><strong>k</strong><strong>, </strong><strong>l</strong> (<em>surface</em>) – or four integers, e.g. h, k, i, l for hex/rho system only):
+<li><p><strong>(</strong><strong>list of three integers</strong> – or four integers, e.g. h, k, i, l for hex/rho system only):
+the miller index of grain boundary plane, with the format of [h,k,l]
+if surface is not given, the default is perpendicular to r_axis, which is
+a twist grain boundary.</p></li>
+<li><p><strong>h</strong> (<em>e.g.</em>) – or four integers, e.g. h, k, i, l for hex/rho system only):
+the miller index of grain boundary plane, with the format of [h,k,l]
+if surface is not given, the default is perpendicular to r_axis, which is
+a twist grain boundary.</p></li>
+<li><p><strong>k</strong> – or four integers, e.g. h, k, i, l for hex/rho system only):
+the miller index of grain boundary plane, with the format of [h,k,l]
+if surface is not given, the default is perpendicular to r_axis, which is
+a twist grain boundary.</p></li>
+<li><p><strong>l</strong> – or four integers, e.g. h, k, i, l for hex/rho system only):
 the miller index of grain boundary plane, with the format of [h,k,l]
 if surface is not given, the default is perpendicular to r_axis, which is
 a twist grain boundary.</p></li>
@@ -909,11 +951,19 @@ input structure’s matrix</p></li>
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2011, Pymatgen Development Team
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -924,7 +974,6 @@ input structure’s matrix</p></li>
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {

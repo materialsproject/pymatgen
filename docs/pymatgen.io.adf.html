@@ -1,8 +1,7 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
@@ -12,6 +11,11 @@
   
 
   
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+
+  
   
   
   
@@ -19,7 +23,9 @@
   
 
   
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -32,11 +38,6 @@
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.io.aiida module" href="pymatgen.io.aiida.html" />
@@ -61,7 +62,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> pymatgen
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pymatgen
           
 
           
@@ -88,6 +89,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -135,6 +137,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -173,7 +176,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html">Docs</a> &raquo;</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
         
@@ -432,70 +435,125 @@ converted to upper cases.</p>
 <p>A basic ADF output file parser.</p>
 <dl class="py attribute">
 <dt id="pymatgen.io.adf.AdfOutput.is_failed">
-<code class="sig-name descname">is_failed</code><em class="property">: bool</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/io/adf.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.is_failed" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">is_failed</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/io/adf.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.is_failed" title="Permalink to this definition">¶</a></dt>
 <dd><p>True is the ADF job is terminated without success. Otherwise False.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt id="pymatgen.io.adf.AdfOutput.is_internal_crash">
-<code class="sig-name descname">is_internal_crash</code><em class="property">: bool</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/io/adf.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.is_internal_crash" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">is_internal_crash</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/io/adf.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.is_internal_crash" title="Permalink to this definition">¶</a></dt>
 <dd><p>True if the job is terminated with internal crash. Please read ‘TAPE13’
 of the ADF manual for more detail.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt id="pymatgen.io.adf.AdfOutput.error">
-<code class="sig-name descname">error</code><em class="property">: str</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/io/adf.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.error" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">error</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/io/adf.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.error" title="Permalink to this definition">¶</a></dt>
 <dd><p>The error description.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt id="pymatgen.io.adf.AdfOutput.run_type">
-<code class="sig-name descname">run_type</code><em class="property">: str</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/io/adf.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.run_type" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">run_type</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/io/adf.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.run_type" title="Permalink to this definition">¶</a></dt>
 <dd><p>The RunType of this ADF job. Possible options are: ‘SinglePoint’,
 ‘GeometryOptimization’, ‘AnalyticalFreq’ and ‘NUmericalFreq’.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt id="pymatgen.io.adf.AdfOutput.final_energy">
-<code class="sig-name descname">final_energy</code><em class="property">: float</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/io/adf.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.final_energy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">final_energy</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/io/adf.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.final_energy" title="Permalink to this definition">¶</a></dt>
 <dd><p>The final molecule energy (a.u).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt id="pymatgen.io.adf.AdfOutput.final_structure">
-<code class="sig-name descname">final_structure</code><em class="property">: GMolecule</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/io/adf.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.final_structure" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">final_structure</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/io/adf.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.final_structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>The final structure of the molecule.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>GMolecule</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt id="pymatgen.io.adf.AdfOutput.energies">
-<code class="sig-name descname">energies</code><em class="property">: Sized</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/io/adf.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.energies" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">energies</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/io/adf.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.energies" title="Permalink to this definition">¶</a></dt>
 <dd><p>The energy of each cycle.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Sized</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt id="pymatgen.io.adf.AdfOutput.structures">
-<code class="sig-name descname">structures</code><em class="property">: Sized</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/io/adf.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.structures" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">structures</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/io/adf.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.structures" title="Permalink to this definition">¶</a></dt>
 <dd><p>The structure of each cycle If geometry optimization is performed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Sized</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt id="pymatgen.io.adf.AdfOutput.frequencies">
-<code class="sig-name descname">frequencies</code><em class="property">: array_like</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/io/adf.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.frequencies" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">frequencies</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/io/adf.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.frequencies" title="Permalink to this definition">¶</a></dt>
 <dd><p>The frequencies of the molecule.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>array_like</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt id="pymatgen.io.adf.AdfOutput.normal_modes">
-<code class="sig-name descname">normal_modes</code><em class="property">: array_like</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/io/adf.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.normal_modes" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">normal_modes</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/io/adf.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.normal_modes" title="Permalink to this definition">¶</a></dt>
 <dd><p>The normal modes of the molecule.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>array_like</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt id="pymatgen.io.adf.AdfOutput.freq_type">
-<code class="sig-name descname">freq_type</code><em class="property">: str</em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/io/adf.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.freq_type" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">freq_type</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/io/adf.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.adf.AdfOutput.freq_type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Either ‘Analytical’ or ‘Numerical’.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
 </dd></dl>
 
 <p>Initialization method.</p>
@@ -647,11 +705,19 @@ float. Otherwise False will be returned.</p>
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2011, Pymatgen Development Team
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -662,7 +728,6 @@ float. Otherwise False will be returned.</p>
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {

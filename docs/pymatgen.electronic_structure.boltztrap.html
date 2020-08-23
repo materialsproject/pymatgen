@@ -1,8 +1,7 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
@@ -12,6 +11,11 @@
   
 
   
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+
+  
   
   
   
@@ -19,7 +23,9 @@
   
 
   
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -32,11 +38,6 @@
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.electronic_structure.boltztrap2 module" href="pymatgen.electronic_structure.boltztrap2.html" />
@@ -61,7 +62,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> pymatgen
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pymatgen
           
 
           
@@ -88,6 +89,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -135,6 +137,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -173,7 +176,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html">Docs</a> &raquo;</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
         
@@ -417,7 +420,8 @@ its 3 eigenvalues or an average</p>
 <li><p><strong>output</strong> (<em>string</em>) – ‘eigs’ for eigenvalues, ‘tensor’ for the full</p></li>
 <li><p><strong>and 'average' for an average</strong> (<em>tensor</em>) – </p></li>
 <li><p><strong>doping_levels</strong> (<em>boolean</em>) – True for the results to be given at</p></li>
-<li><p><strong>doping levels</strong><strong>, </strong><strong>False for results</strong> (<em>different</em>) – </p></li>
+<li><p><strong>doping levels</strong> (<em>different</em>) – </p></li>
+<li><p><strong>for results</strong> (<em>False</em>) – </p></li>
 <li><p><strong>different electron chemical potentials</strong> (<em>at</em>) – </p></li>
 </ul>
 </dd>
@@ -518,10 +522,12 @@ of electron chemical potential values</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>output</strong> (<em>string</em>) – the type of output. ‘tensor’ give the full</p></li>
-<li><p><strong>tensor</strong><strong>, </strong><strong>'eigs' its 3 eigenvalues and</strong> (<em>3x3</em>) – </p></li>
+<li><p><strong>tensor</strong> (<em>3x3</em>) – </p></li>
+<li><p><strong>its 3 eigenvalues and</strong> (<em>'eigs'</em>) – </p></li>
 <li><p><strong>the average of the three eigenvalues</strong> (<em>'average'</em>) – </p></li>
 <li><p><strong>doping_levels</strong> (<em>boolean</em>) – True for the results to be given at</p></li>
-<li><p><strong>doping levels</strong><strong>, </strong><strong>False for results</strong> (<em>different</em>) – </p></li>
+<li><p><strong>doping levels</strong> (<em>different</em>) – </p></li>
+<li><p><strong>for results</strong> (<em>False</em>) – </p></li>
 <li><p><strong>different electron chemical potentials</strong> (<em>at</em>) – </p></li>
 <li><p><strong>relaxation_time</strong> (<em>float</em>) – constant relaxation time in secs</p></li>
 </ul>
@@ -617,10 +623,12 @@ electron chemical potential values</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>output</strong> (<em>string</em>) – the type of output. ‘tensor’ give the full 3x3</p></li>
-<li><p><strong>'eigs' its 3 eigenvalues and</strong> (<em>tensor</em><em>,</em>) – </p></li>
+<li><p><strong>tensor</strong> – </p></li>
+<li><p><strong>its 3 eigenvalues and</strong> (<em>'eigs'</em>) – </p></li>
 <li><p><strong>the average of the three eigenvalues</strong> (<em>'average'</em>) – </p></li>
 <li><p><strong>doping_levels</strong> (<em>boolean</em>) – True for the results to be given at</p></li>
-<li><p><strong>doping levels</strong><strong>, </strong><strong>False for results</strong> (<em>different</em>) – </p></li>
+<li><p><strong>doping levels</strong> (<em>different</em>) – </p></li>
+<li><p><strong>for results</strong> (<em>False</em>) – </p></li>
 <li><p><strong>different electron chemical potentials</strong> (<em>at</em>) – </p></li>
 <li><p><strong>relaxation_time</strong> (<em>float</em>) – constant relaxation time in secs</p></li>
 </ul>
@@ -658,10 +666,12 @@ of electron chemical potential values</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>output</strong> (<em>string</em>) – the type of output. ‘tensor’ give the full</p></li>
-<li><p><strong>tensor</strong><strong>, </strong><strong>'eigs' its 3 eigenvalues and</strong> (<em>3x3</em>) – </p></li>
+<li><p><strong>tensor</strong> (<em>3x3</em>) – </p></li>
+<li><p><strong>its 3 eigenvalues and</strong> (<em>'eigs'</em>) – </p></li>
 <li><p><strong>the average of the three eigenvalues</strong> (<em>'average'</em>) – </p></li>
 <li><p><strong>doping_levels</strong> (<em>boolean</em>) – True for the results to be given at</p></li>
-<li><p><strong>doping levels</strong><strong>, </strong><strong>False for results</strong> (<em>different</em>) – </p></li>
+<li><p><strong>doping levels</strong> (<em>different</em>) – </p></li>
+<li><p><strong>for results</strong> (<em>False</em>) – </p></li>
 <li><p><strong>different electron chemical potentials</strong> (<em>at</em>) – </p></li>
 </ul>
 </dd>
@@ -745,10 +755,12 @@ electron chemical potential values</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>output</strong> (<em>string</em>) – the type of output. ‘tensor’ give the full 3x3</p></li>
-<li><p><strong>'eigs' its 3 eigenvalues and</strong> (<em>tensor</em><em>,</em>) – </p></li>
+<li><p><strong>tensor</strong> – </p></li>
+<li><p><strong>its 3 eigenvalues and</strong> (<em>'eigs'</em>) – </p></li>
 <li><p><strong>the average of the three eigenvalues</strong> (<em>'average'</em>) – </p></li>
 <li><p><strong>doping_levels</strong> (<em>boolean</em>) – True for the results to be given at</p></li>
-<li><p><strong>doping levels</strong><strong>, </strong><strong>False for results</strong> (<em>different</em>) – </p></li>
+<li><p><strong>doping levels</strong> (<em>different</em>) – </p></li>
+<li><p><strong>for results</strong> (<em>False</em>) – </p></li>
 <li><p><strong>different electron chemical potentials</strong> (<em>at</em>) – </p></li>
 <li><p><strong>k_el</strong> (<em>boolean</em>) – True for k_0-PF*T, False for k_0</p></li>
 <li><p><strong>relaxation_time</strong> (<em>float</em>) – constant relaxation time in secs</p></li>
@@ -790,10 +802,12 @@ lattice thermal conductivity</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>output</strong> (<em>string</em>) – the type of output. ‘tensor’ give the full 3x3</p></li>
-<li><p><strong>'eigs' its 3 eigenvalues and</strong> (<em>tensor</em><em>,</em>) – </p></li>
+<li><p><strong>tensor</strong> – </p></li>
+<li><p><strong>its 3 eigenvalues and</strong> (<em>'eigs'</em>) – </p></li>
 <li><p><strong>the average of the three eigenvalues</strong> (<em>'average'</em>) – </p></li>
 <li><p><strong>doping_levels</strong> (<em>boolean</em>) – True for the results to be given at</p></li>
-<li><p><strong>doping levels</strong><strong>, </strong><strong>False for results</strong> (<em>different</em>) – </p></li>
+<li><p><strong>doping levels</strong> (<em>different</em>) – </p></li>
+<li><p><strong>for results</strong> (<em>False</em>) – </p></li>
 <li><p><strong>different electron chemical potentials</strong> (<em>at</em>) – </p></li>
 <li><p><strong>relaxation_time</strong> (<em>float</em>) – constant relaxation time in secs</p></li>
 <li><p><strong>k_l</strong> (<em>float</em>) – lattice thermal cond in W/(m*K)</p></li>
@@ -1171,11 +1185,19 @@ a certain carrier concentration n</p>
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2011, Pymatgen Development Team
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -1186,7 +1208,6 @@ a certain carrier concentration n</p>
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {

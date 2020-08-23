@@ -1,8 +1,7 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
@@ -12,6 +11,11 @@
   
 
   
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+
+  
   
   
   
@@ -19,7 +23,9 @@
   
 
   
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -32,11 +38,6 @@
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.core.surface module" href="pymatgen.core.surface.html" />
@@ -61,7 +62,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> pymatgen
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pymatgen
           
 
           
@@ -88,6 +89,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -135,6 +137,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -173,7 +176,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html">Docs</a> &raquo;</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
         
@@ -608,7 +611,9 @@ object.</p></li>
 which is the default format used in pymatgen. Other options
 include “abivars”.</p></li>
 <li><p><strong>**kwargs</strong> – Allow passing of other kwargs needed for certain</p></li>
-<li><p><strong>e.g.</strong><strong>, </strong><strong>&quot;abivars&quot;.</strong> (<em>formats</em><em>,</em>) – </p></li>
+<li><p><strong>formats</strong> – </p></li>
+<li><p><strong>e.g.</strong> – </p></li>
+<li><p><strong>&quot;abivars&quot;.</strong> – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -901,7 +906,7 @@ ok in most instances.</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.core.structure.IStructure.get_all_neighbors_old">
-<code class="sig-name descname">get_all_neighbors_old</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/../../../../../../opt/miniconda3/envs/pymatgen-release/lib/python3.8/site-packages/monty/dev.py#L32-L46"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.get_all_neighbors_old" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_all_neighbors_old</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/../../monty/monty/dev.py#L32-L46"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.get_all_neighbors_old" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -1002,7 +1007,7 @@ miller index to.</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.core.structure.IStructure.get_neighbor_list">
-<code class="sig-name descname">get_neighbor_list</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">r</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">sites</span><span class="p">:</span> <span class="n">List<span class="p">[</span><a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.PeriodicSite" title="pymatgen.core.sites.PeriodicSite">pymatgen.core.sites.PeriodicSite</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">numerical_tol</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">1e-08</span></em>, <em class="sig-param"><span class="n">exclude_self</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span> &#x2192; Tuple[numpy.ndarray, …]<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/core/structure.py#L1263-L1313"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.get_neighbor_list" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_neighbor_list</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">r</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">sites</span><span class="p">:</span> <span class="n">List<span class="p">[</span><a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.PeriodicSite" title="pymatgen.core.sites.PeriodicSite">pymatgen.core.sites.PeriodicSite</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">numerical_tol</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">1e-08</span></em>, <em class="sig-param"><span class="n">exclude_self</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span> &#x2192; Tuple<span class="p">[</span>numpy.ndarray<span class="p">, </span><span class="p">…</span><span class="p">]</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/core/structure.py#L1263-L1313"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.get_neighbor_list" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get neighbor lists using numpy array representations without constructing
 Neighbor objects. If the cython extension is installed,  this method will
 be orders of magnitude faster than <cite>get_all_neighbors</cite>.
@@ -1081,7 +1086,7 @@ is always included in the returned data.</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.core.structure.IStructure.get_neighbors_old">
-<code class="sig-name descname">get_neighbors_old</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/../../../../../../opt/miniconda3/envs/pymatgen-release/lib/python3.8/site-packages/monty/dev.py#L32-L46"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.get_neighbors_old" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_neighbors_old</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/../../monty/monty/dev.py#L32-L46"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.get_neighbors_old" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -1814,7 +1819,7 @@ distance.</p>
 
 <dl class="py method">
 <dt id="pymatgen.core.structure.SiteCollection.indices_from_symbol">
-<code class="sig-name descname">indices_from_symbol</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">symbol</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span> &#x2192; Tuple[int, …]<a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/core/structure.py#L232-L238"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.SiteCollection.indices_from_symbol" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">indices_from_symbol</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">symbol</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span> &#x2192; Tuple<span class="p">[</span>int<span class="p">, </span><span class="p">…</span><span class="p">]</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/core/structure.py#L232-L238"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.SiteCollection.indices_from_symbol" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a tuple with the sequential indices of the sites
 that contain an element with the given chemical symbol.</p>
 </dd></dl>
@@ -2127,7 +2132,7 @@ Only first letter is considered.</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.core.structure.Structure.modify_lattice">
-<code class="sig-name descname">modify_lattice</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/../../../../../../opt/miniconda3/envs/pymatgen-release/lib/python3.8/site-packages/monty/dev.py#L32-L46"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.Structure.modify_lattice" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">modify_lattice</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/../../monty/monty/dev.py#L32-L46"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.Structure.modify_lattice" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -2329,11 +2334,19 @@ Raised when the structure has problems, e.g., atoms that are too close.</p>
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2011, Pymatgen Development Team
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -2344,7 +2357,6 @@ Raised when the structure has problems, e.g., atoms that are too close.</p>
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {

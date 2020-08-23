@@ -1,8 +1,7 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
@@ -12,6 +11,11 @@
   
 
   
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+
+  
   
   
   
@@ -19,7 +23,9 @@
   
 
   
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -32,11 +38,6 @@
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.io.vasp.outputs module" href="pymatgen.io.vasp.outputs.html" />
@@ -61,7 +62,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> pymatgen
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pymatgen
           
 
           
@@ -88,6 +89,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -135,6 +137,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -173,7 +176,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html">Docs</a> &raquo;</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
         
@@ -684,33 +687,33 @@ enum.</p>
 <em class="property">class </em><code class="sig-name descname">Orbital</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n</span></em>, <em class="sig-param"><span class="n">l</span></em>, <em class="sig-param"><span class="n">j</span></em>, <em class="sig-param"><span class="n">E</span></em>, <em class="sig-param"><span class="n">occ</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/io/vasp/inputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.Orbital" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
 <p>Create new instance of Orbital(n, l, j, E, occ)</p>
-<dl class="py attribute">
+<dl class="py method">
 <dt id="pymatgen.io.vasp.inputs.Orbital.E">
-<code class="sig-name descname">E</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/io/vasp/inputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.Orbital.E" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">E</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/io/vasp/inputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.Orbital.E" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alias for field number 3</p>
 </dd></dl>
 
-<dl class="py attribute">
+<dl class="py method">
 <dt id="pymatgen.io.vasp.inputs.Orbital.j">
-<code class="sig-name descname">j</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/io/vasp/inputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.Orbital.j" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">j</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/io/vasp/inputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.Orbital.j" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alias for field number 2</p>
 </dd></dl>
 
-<dl class="py attribute">
+<dl class="py method">
 <dt id="pymatgen.io.vasp.inputs.Orbital.l">
-<code class="sig-name descname">l</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/io/vasp/inputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.Orbital.l" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">l</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/io/vasp/inputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.Orbital.l" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alias for field number 1</p>
 </dd></dl>
 
-<dl class="py attribute">
+<dl class="py method">
 <dt id="pymatgen.io.vasp.inputs.Orbital.n">
-<code class="sig-name descname">n</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/io/vasp/inputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.Orbital.n" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">n</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/io/vasp/inputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.Orbital.n" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alias for field number 0</p>
 </dd></dl>
 
-<dl class="py attribute">
+<dl class="py method">
 <dt id="pymatgen.io.vasp.inputs.Orbital.occ">
-<code class="sig-name descname">occ</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/io/vasp/inputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.Orbital.occ" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">occ</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/io/vasp/inputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.Orbital.occ" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alias for field number 4</p>
 </dd></dl>
 
@@ -721,39 +724,39 @@ enum.</p>
 <em class="property">class </em><code class="sig-name descname">OrbitalDescription</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">l</span></em>, <em class="sig-param"><span class="n">E</span></em>, <em class="sig-param"><span class="n">Type</span></em>, <em class="sig-param"><span class="n">Rcut</span></em>, <em class="sig-param"><span class="n">Type2</span></em>, <em class="sig-param"><span class="n">Rcut2</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/io/vasp/inputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.OrbitalDescription" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
 <p>Create new instance of OrbitalDescription(l, E, Type, Rcut, Type2, Rcut2)</p>
-<dl class="py attribute">
+<dl class="py method">
 <dt id="pymatgen.io.vasp.inputs.OrbitalDescription.E">
-<code class="sig-name descname">E</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/io/vasp/inputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.OrbitalDescription.E" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">E</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/io/vasp/inputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.OrbitalDescription.E" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alias for field number 1</p>
 </dd></dl>
 
-<dl class="py attribute">
+<dl class="py method">
 <dt id="pymatgen.io.vasp.inputs.OrbitalDescription.Rcut">
-<code class="sig-name descname">Rcut</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/io/vasp/inputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.OrbitalDescription.Rcut" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">Rcut</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/io/vasp/inputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.OrbitalDescription.Rcut" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alias for field number 3</p>
 </dd></dl>
 
-<dl class="py attribute">
+<dl class="py method">
 <dt id="pymatgen.io.vasp.inputs.OrbitalDescription.Rcut2">
-<code class="sig-name descname">Rcut2</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/io/vasp/inputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.OrbitalDescription.Rcut2" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">Rcut2</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/io/vasp/inputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.OrbitalDescription.Rcut2" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alias for field number 5</p>
 </dd></dl>
 
-<dl class="py attribute">
+<dl class="py method">
 <dt id="pymatgen.io.vasp.inputs.OrbitalDescription.Type">
-<code class="sig-name descname">Type</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/io/vasp/inputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.OrbitalDescription.Type" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">Type</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/io/vasp/inputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.OrbitalDescription.Type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alias for field number 2</p>
 </dd></dl>
 
-<dl class="py attribute">
+<dl class="py method">
 <dt id="pymatgen.io.vasp.inputs.OrbitalDescription.Type2">
-<code class="sig-name descname">Type2</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/io/vasp/inputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.OrbitalDescription.Type2" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">Type2</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/io/vasp/inputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.OrbitalDescription.Type2" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alias for field number 4</p>
 </dd></dl>
 
-<dl class="py attribute">
+<dl class="py method">
 <dt id="pymatgen.io.vasp.inputs.OrbitalDescription.l">
-<code class="sig-name descname">l</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/io/vasp/inputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.OrbitalDescription.l" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">l</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/io/vasp/inputs.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.OrbitalDescription.l" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alias for field number 0</p>
 </dd></dl>
 
@@ -1463,11 +1466,19 @@ present. Defaults to True.</p></li>
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2011, Pymatgen Development Team
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -1478,7 +1489,6 @@ present. Defaults to True.</p></li>
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {
