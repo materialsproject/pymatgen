@@ -99,7 +99,7 @@ class Lobsterin(dict, MSONable):
         if not found:
             new_key = key
         if new_key.lower() not in [element.lower() for element in Lobsterin.AVAILABLEKEYWORDS]:
-            raise (ValueError("Key is currently not available"))
+            raise ValueError("Key is currently not available")
 
         super().__setitem__(new_key, val.strip() if isinstance(val, str) else val)
 
@@ -147,8 +147,8 @@ class Lobsterin(dict, MSONable):
                     else:
                         similar_param[k1.upper()] = v1
                 elif isinstance(v1, list):
-                    new_set1 = set([element.strip().lower() for element in v1])
-                    new_set2 = set([element.strip().lower() for element in other[new_key]])
+                    new_set1 = {element.strip().lower() for element in v1}
+                    new_set2 = {element.strip().lower() for element in other[new_key]}
                     if new_set1 != new_set2:
                         different_param[k1.upper()] = {"lobsterin1": v1, "lobsterin2": other[new_key]}
                 else:
@@ -174,15 +174,15 @@ class Lobsterin(dict, MSONable):
         """
         if self.get("basisfunctions") is None:
             raise IOError("No basis functions are provided. The program cannot calculate nbands.")
-        else:
-            basis_functions = []  # type: List[str]
-            for string_basis in self["basisfunctions"]:
-                # string_basis.lstrip()
-                string_basis_raw = string_basis.strip().split(" ")
-                while "" in string_basis_raw:
-                    string_basis_raw.remove("")
-                for i in range(0, int(structure.composition.element_composition[string_basis_raw[0]])):
-                    basis_functions.extend(string_basis_raw[1:])
+
+        basis_functions = []  # type: List[str]
+        for string_basis in self["basisfunctions"]:
+            # string_basis.lstrip()
+            string_basis_raw = string_basis.strip().split(" ")
+            while "" in string_basis_raw:
+                string_basis_raw.remove("")
+            for i in range(0, int(structure.composition.element_composition[string_basis_raw[0]])):
+                basis_functions.extend(string_basis_raw[1:])
 
         no_basis_functions = 0
         for basis in basis_functions:
@@ -212,10 +212,10 @@ class Lobsterin(dict, MSONable):
                 found = False
                 for key2 in self.keys():
                     if key.lower() == key2.lower():
-                        self.get[key2] = entry
+                        self[key2] = entry
                         found = True
                 if not found:
-                    self.get[key] = entry
+                    self[key] = entry
 
         filename = path
         with open(filename, 'w') as f:
@@ -298,7 +298,7 @@ class Lobsterin(dict, MSONable):
         Returns:
             returns basis
         """
-        Potcar_names = [name for name in potcar_symbols]
+        Potcar_names = list(potcar_symbols)
 
         AtomTypes_Potcar = [name.split('_')[0] for name in Potcar_names]
 
@@ -338,7 +338,7 @@ class Lobsterin(dict, MSONable):
             address_basis_file_min: path to file with the minium required basis by the POTCAR
             address_basis_file_max: path to file with the largest possible basis of the POTCAR
 
-        Returns: List of dictionaries that can be used to create new Lobsterin objects in 
+        Returns: List of dictionaries that can be used to create new Lobsterin objects in
         standard_calculations_from_vasp_files as dict_for_basis
 
         """
@@ -474,8 +474,8 @@ class Lobsterin(dict, MSONable):
                 line_density=kpoints_line_density,
                 coords_are_cartesian=False)
 
-            for k in range(len(frac_k_points)):
-                kpts.append(frac_k_points[k])
+            for k, f in enumerate(frac_k_points):
+                kpts.append(f)
                 weights.append(0.0)
                 all_labels.append(labels[k])
         if isym == -1:
@@ -701,13 +701,11 @@ def get_all_possible_basis_combinations(min_basis: list, max_basis: list) -> lis
         for iel, el in enumerate(list_basis[1:], 1):
             new_start_basis = []
             for ielbasis, elbasis in enumerate(start_basis):
-
                 for ielbasis2, elbasis2 in enumerate(list_basis[iel]):
-                    if type(elbasis) != list:
+                    if not isinstance(elbasis, list):
                         new_start_basis.append([elbasis, elbasis2])
                     else:
                         new_start_basis.append(elbasis.copy() + [elbasis2])
             start_basis = new_start_basis
         return start_basis
-    else:
-        return [[basis] for basis in start_basis]
+    return [[basis] for basis in start_basis]

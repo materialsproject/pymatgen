@@ -9,21 +9,21 @@ This module provides classes to perform topological analyses of structures.
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Sai Jayaraman"
 __copyright__ = "Copyright 2011, The Materials Project"
 
-from math import pi, acos
-import numpy as np
-import itertools
 import collections
+import itertools
+from math import pi, acos
+from warnings import warn
 
+import numpy as np
+from scipy.spatial import Voronoi
 from monty.dev import deprecated
 
-from warnings import warn
-from scipy.spatial import Voronoi
-from pymatgen import PeriodicSite
 from pymatgen import Element, Specie, Composition
-from pymatgen.util.num import abs_cap
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.core.surface import SlabGenerator
+from pymatgen import PeriodicSite
 from pymatgen.analysis.local_env import VoronoiNN, JmolNN
+from pymatgen.core.surface import SlabGenerator
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.util.num import abs_cap
 
 
 def average_coordination_number(structures, freq=10):
@@ -43,18 +43,17 @@ def average_coordination_number(structures, freq=10):
     for spec in structures[0].composition.as_dict().keys():
         coordination_numbers[spec] = 0.0
     count = 0
-    for t in range(len(structures)):
-        if t % freq != 0:
+    for i, s in enumerate(structures):
+        if i % freq != 0:
             continue
         count += 1
         vnn = VoronoiNN()
-        for atom in range(len(structures[0])):
-            cn = vnn.get_cn(structures[t], atom, use_weights=True)
-            coordination_numbers[structures[t][atom].species_string] += cn
+        for j, atom in enumerate(s):
+            cn = vnn.get_cn(s, j, use_weights=True)
+            coordination_numbers[atom.species_string] += cn
     elements = structures[0].composition.as_dict()
     for el in coordination_numbers:
-        coordination_numbers[el] = coordination_numbers[el] / elements[
-            el] / count
+        coordination_numbers[el] = coordination_numbers[el] / elements[el] / count
     return coordination_numbers
 
 
@@ -107,12 +106,11 @@ class VoronoiAnalyzer:
             if 0 in key:  # This means if the center atom is in key
                 if -1 in key:  # This means if an infinity point is in key
                     raise ValueError("Cutoff too short.")
-                else:
-                    try:
-                        vor_index[len(voro.ridge_dict[key]) - 3] += 1
-                    except IndexError:
-                        # If a facet has more than 10 edges, it's skipped here.
-                        pass
+                try:
+                    vor_index[len(voro.ridge_dict[key]) - 3] += 1
+                except IndexError:
+                    # If a facet has more than 10 edges, it's skipped here.
+                    pass
         return vor_index
 
     def analyze_structures(self, structures, step_freq=10,
@@ -161,7 +159,7 @@ class VoronoiAnalyzer:
         :param voronoi_ensemble:
         :return: matplotlib.pyplot
         """
-        t = zip(*voronoi_ensemble)
+        t = list(zip(*voronoi_ensemble))
         labels = t[0]
         val = list(t[1])
         tot = np.sum(val)
@@ -403,10 +401,9 @@ def get_max_bond_lengths(structure, el_radius_updates=None):
     bonds_lens = {}
     els = sorted(structure.composition.elements, key=lambda x: x.Z)
 
-    for i1 in range(len(els)):
+    for i1, el1 in enumerate(els):
         for i2 in range(len(els) - i1):
-            bonds_lens[els[i1], els[i1 + i2]] = jmnn.get_max_bond_distance(
-                els[i1].symbol, els[i1 + i2].symbol)
+            bonds_lens[el1, els[i1 + i2]] = jmnn.get_max_bond_distance(el1.symbol, els[i1 + i2].symbol)
 
     return bonds_lens
 
@@ -485,11 +482,7 @@ def contains_peroxide(structure, relative_cutoff=1.1):
     Returns:
         Boolean indicating if structure contains a peroxide anion.
     """
-    ox_type = oxide_type(structure, relative_cutoff)
-    if ox_type == "peroxide":
-        return True
-    else:
-        return False
+    return oxide_type(structure, relative_cutoff) == "peroxide"
 
 
 class OxideType:
@@ -597,19 +590,18 @@ def oxide_type(structure, relative_cutoff=1.1, return_nbonds=False):
     ox_obj = OxideType(structure, relative_cutoff)
     if return_nbonds:
         return ox_obj.oxide_type, ox_obj.nbonds
-    else:
-        return ox_obj.oxide_type
+    return ox_obj.oxide_type
 
 
 def sulfide_type(structure):
     """
-    Determines if a structure is a sulfide/polysulfide
+    Determines if a structure is a sulfide/polysulfide/sulfate
 
     Args:
         structure (Structure): Input structure.
 
     Returns:
-        (str) sulfide/polysulfide/sulfate
+        (str) sulfide/polysulfide or None if structure is a sulfate.
     """
     structure = structure.copy()
     structure.remove_oxidation_states()
@@ -642,15 +634,13 @@ def sulfide_type(structure):
         avg_electroneg = np.mean([e.X for e in coord_elements])
         if avg_electroneg > s.X:
             return "sulfate"
-        elif avg_electroneg == s.X and s in coord_elements:
+        if avg_electroneg == s.X and s in coord_elements:
             return "polysulfide"
-        else:
-            return "sulfide"
+        return "sulfide"
 
-    types = set([process_site(site) for site in s_sites])
+    types = {process_site(site) for site in s_sites}
     if "sulfate" in types:
         return None
-    elif "polysulfide" in types:
+    if "polysulfide" in types:
         return "polysulfide"
-    else:
-        return "sulfide"
+    return "sulfide"

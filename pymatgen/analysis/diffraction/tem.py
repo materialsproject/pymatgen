@@ -84,7 +84,8 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
                                         (1 + (sc.e * 1000 * self.voltage) / (2 * sc.m_e * sc.c ** 2))) * (10 ** 10)
         return wavelength_rel
 
-    def generate_points(self, coord_left: int = -10, coord_right: int = 10) -> np.ndarray:
+    @classmethod
+    def generate_points(cls, coord_left: int = -10, coord_right: int = 10) -> np.ndarray:
         """
         Generates a bunch of 3D points that span a cube.
         Args:
@@ -292,7 +293,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         """
         normalized_cell_intensity = {}
         cell_intensity = self.cell_intensity(structure, bragg_angles)
-        max_intensity = max([v for v in cell_intensity.values()])
+        max_intensity = max(cell_intensity.values())
         norm_factor = 1 / max_intensity
         for plane in cell_intensity:
             normalized_cell_intensity[plane] = cell_intensity[plane] * norm_factor
@@ -331,7 +332,8 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
                 max_d = spacings[plane]
         return {max_d_plane: max_d}
 
-    def get_interplanar_angle(self, structure: Structure, p1: Tuple[int, int, int], p2: Tuple[int, int, int]) \
+    @classmethod
+    def get_interplanar_angle(cls, structure: Structure, p1: Tuple[int, int, int], p2: Tuple[int, int, int]) \
             -> float:
         """
         Returns the interplanar angle (in degrees) between the normal of two crystal planes.
@@ -370,7 +372,8 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         phi = np.arccos(r1_dot_r2 / (r1_norm * r2_norm))
         return np.rad2deg(phi)
 
-    def get_plot_coeffs(self, p1: Tuple[int, int, int], p2: Tuple[int, int, int], p3: Tuple[int, int, int]) \
+    @classmethod
+    def get_plot_coeffs(cls, p1: Tuple[int, int, int], p2: Tuple[int, int, int], p3: Tuple[int, int, int]) \
             -> np.ndarray:
         """
         Calculates coefficients of the vector addition required to generate positions for each DP point

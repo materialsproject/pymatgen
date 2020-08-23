@@ -1,6 +1,32 @@
 Change log
 ==========
 
+v2020.8.13
+----------
+
+* New GibbsComputedStructureEntry (@mattmcdermott, #1921)
+* Changes to MPScanRelaxSet and new MPScanStaticSet (@rkingsbury, #1917)
+* Changes to LobsterSet (@JaGeo, #1928)
+* Bug fix and change for MPRelaxSet (@mkhorton, 9eb3ac2)
+* Bug fix for JMolNN (@utf, #1920)
+* Bug fix for Element valences (@rkurchin, #1926)
+* Bug fix for BabelMolAdaptor (@smheidrich, #1924)
+* Bug fix for Gaussion IO (@eimrek, #1918)
+
+v2020.8.3
+---------
+* Change neighbor-finding algorithm extension to C instead of C++ for better cross-platform robustness (@chc273)
+* Add I/O for JARVIS Atoms (@knc6)
+
+v2020.7.18
+----------
+* Add validation and extrapolation for stitching XAS (@yimingcheng)
+* Better error handling and possibly verbose warning to get_structure_by_material_id
+
+v2020.7.16
+----------
+* Bug fix for boltztrap2 spin support. (@fraricci)
+
 v2020.7.14
 ----------
 * EwaldSummation is now MSONAble (@lbluque).

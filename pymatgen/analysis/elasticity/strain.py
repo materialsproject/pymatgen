@@ -9,11 +9,11 @@ strains, including applying those deformations to structure objects and
 generating deformed structure sets for further calculations.
 """
 
-import numpy as np
-import scipy
+import collections
 import itertools
 
-import collections
+import numpy as np
+import scipy
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.tensors import SquareTensor, symmetry_reduce
@@ -216,14 +216,12 @@ class Strain(SquareTensor):
             v = np.zeros(6)
             v[idx] = amount
             return cls.from_voigt(v)
-        elif np.array(idx).ndim == 1:
+        if np.array(idx).ndim == 1:
             v = np.zeros((3, 3))
             for i in itertools.permutations(idx):
                 v[i] = amount
             return cls(v)
-        else:
-            raise ValueError("Index must either be 2-tuple or integer "
-                             "corresponding to full-tensor or voigt index")
+        raise ValueError("Index must either be 2-tuple or integer corresponding to full-tensor or voigt index")
 
     def get_deformation_matrix(self, shape="upper"):
         """

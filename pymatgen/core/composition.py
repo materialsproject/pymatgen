@@ -662,13 +662,13 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
         return d
 
     @property
-    def to_reduced_dict(self):
+    def to_reduced_dict(self) -> dict:
         """
         Returns:
             Dict with element symbol and reduced amount e.g.,
             {"Fe": 2.0, "O":3.0}
         """
-        return self.get_reduced_composition_and_factor()[0]
+        return self.get_reduced_composition_and_factor()[0].as_dict()
 
     @property
     def to_data_dict(self):

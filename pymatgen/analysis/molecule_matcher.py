@@ -306,7 +306,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         """
         vmol = ob.OBMol()
 
-        non_unique_atoms = set([a for g in eq_atoms for a in g])
+        non_unique_atoms = {a for g in eq_atoms for a in g}
         all_atoms = set(range(1, len(ilabels) + 1))
         unique_atom_labels = sorted(all_atoms - non_unique_atoms)
 
@@ -412,10 +412,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
                 canon_label2[c2 - 1] = canon_idx
                 candidates1.remove(canon_idx)
 
-        canon_inchi_orig_map2 = [(canon, inchi, orig)
-                                 for canon, inchi, orig in
-                                 zip(canon_label2, list(range(1, nheavy + 1)),
-                                     ilabel2)]
+        canon_inchi_orig_map2 = list(zip(canon_label2, list(range(1, nheavy + 1)), ilabel2))
         canon_inchi_orig_map2.sort(key=lambda m: m[0])
         heavy_atom_indices2 = tuple([x[2] for x in canon_inchi_orig_map2])
         return heavy_atom_indices2
@@ -478,9 +475,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
             hydrogen_label1.remove(idx)
 
         hydrogen_orig_idx2 = label2[len(heavy_indices2):]
-        hydrogen_canon_orig_map2 = [(canon, orig) for canon, orig
-                                    in zip(hydrogen_label2,
-                                           hydrogen_orig_idx2)]
+        hydrogen_canon_orig_map2 = list(zip(hydrogen_label2, hydrogen_orig_idx2))
         hydrogen_canon_orig_map2.sort(key=lambda m: m[0])
         hydrogen_canon_indices2 = [x[1] for x in hydrogen_canon_orig_map2]
 
@@ -696,16 +691,14 @@ class MoleculeMatcher(MSONable):
             mol_eq_test = [(p[0], p[1], self.fit(mol_list[p[0]],
                                                  mol_list[p[1]]))
                            for p in itertools.combinations(sorted(rg), 2)]
-            mol_eq = set([(p[0], p[1]) for p in mol_eq_test if p[2]])
+            mol_eq = {(p[0], p[1]) for p in mol_eq_test if p[2]}
             not_alone_mols = set(itertools.chain.from_iterable(mol_eq))
             alone_mols = set(rg) - not_alone_mols
             group_indices.extend([[m] for m in alone_mols])
             while len(not_alone_mols) > 0:
                 current_group = {not_alone_mols.pop()}
                 while len(not_alone_mols) > 0:
-                    candidate_pairs = set(
-                        [tuple(sorted(p)) for p
-                         in itertools.product(current_group, not_alone_mols)])
+                    candidate_pairs = {tuple(sorted(p)) for p in itertools.product(current_group, not_alone_mols)}
                     mutual_pairs = candidate_pairs & mol_eq
                     if len(mutual_pairs) == 0:
                         break

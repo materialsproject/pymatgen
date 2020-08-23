@@ -1,15 +1,19 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.io.babel module &mdash; pymatgen 2020.7.14 documentation</title>
+  <title>pymatgen.io.babel module &mdash; pymatgen 2020.8.13 documentation</title>
   
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
 
   
   
@@ -19,7 +23,9 @@
   
 
   
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -32,11 +38,6 @@
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.io.cif module" href="pymatgen.io.cif.html" />
@@ -61,7 +62,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> pymatgen
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pymatgen
           
 
           
@@ -71,7 +72,7 @@
             
             
               <div class="version">
-                2020.7.14
+                2020.8.13
               </div>
             
           
@@ -88,6 +89,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -135,6 +137,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -173,7 +176,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html">Docs</a> &raquo;</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
         
@@ -210,25 +213,25 @@ installed. Please consult the
 <a class="reference external" href="http://openbabel.org/wiki/Main_Page">openbabel documentation</a>.</p>
 <dl class="py class">
 <dt id="pymatgen.io.babel.BabelMolAdaptor">
-<em class="property">class </em><code class="sig-name descname">BabelMolAdaptor</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.7.14/pymatgen/io/babel.py#L33-L352"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.babel.BabelMolAdaptor" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">BabelMolAdaptor</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/io/babel.py#L34-L352"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.babel.BabelMolAdaptor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Adaptor serves as a bridge between OpenBabel’s Molecule and pymatgen’s
 Molecule.</p>
 <p>Initializes with pymatgen Molecule or OpenBabel”s OBMol.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>mol</strong> – pymatgen’s Molecule or OpenBabel OBMol</p>
+<dd class="field-odd"><p><strong>mol</strong> – pymatgen’s Molecule/IMolecule or OpenBabel OBMol</p>
 </dd>
 </dl>
 <dl class="py method">
 <dt id="pymatgen.io.babel.BabelMolAdaptor.add_hydrogen">
-<code class="sig-name descname">add_hydrogen</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.7.14/pymatgen/io/babel.py#L135-L139"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.babel.BabelMolAdaptor.add_hydrogen" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_hydrogen</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/io/babel.py#L136-L140"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.babel.BabelMolAdaptor.add_hydrogen" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add hydrogens (make all hydrogen explicit).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.io.babel.BabelMolAdaptor.confab_conformers">
-<code class="sig-name descname">confab_conformers</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">forcefield</span><span class="o">=</span><span class="default_value">'mmff94'</span></em>, <em class="sig-param"><span class="n">freeze_atoms</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">rmsd_cutoff</span><span class="o">=</span><span class="default_value">0.5</span></em>, <em class="sig-param"><span class="n">energy_cutoff</span><span class="o">=</span><span class="default_value">50.0</span></em>, <em class="sig-param"><span class="n">conf_cutoff</span><span class="o">=</span><span class="default_value">100000</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.7.14/pymatgen/io/babel.py#L224-L283"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.babel.BabelMolAdaptor.confab_conformers" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">confab_conformers</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">forcefield</span><span class="o">=</span><span class="default_value">'mmff94'</span></em>, <em class="sig-param"><span class="n">freeze_atoms</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">rmsd_cutoff</span><span class="o">=</span><span class="default_value">0.5</span></em>, <em class="sig-param"><span class="n">energy_cutoff</span><span class="o">=</span><span class="default_value">50.0</span></em>, <em class="sig-param"><span class="n">conf_cutoff</span><span class="o">=</span><span class="default_value">100000</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/io/babel.py#L225-L284"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.babel.BabelMolAdaptor.confab_conformers" title="Permalink to this definition">¶</a></dt>
 <dd><p>Conformer generation based on Confab to generate all diverse low-energy
 conformers for molecules. This is different from rotor_conformer or
 gen3d_conformer as it aims to not simply to find a low energy
@@ -259,7 +262,7 @@ default is False.</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.io.babel.BabelMolAdaptor.from_file">
-<em class="property">static </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="n">file_format</span><span class="o">=</span><span class="default_value">'xyz'</span></em>, <em class="sig-param"><span class="n">return_all_molecules</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.7.14/pymatgen/io/babel.py#L303-L322"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.babel.BabelMolAdaptor.from_file" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="n">file_format</span><span class="o">=</span><span class="default_value">'xyz'</span></em>, <em class="sig-param"><span class="n">return_all_molecules</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/io/babel.py#L304-L323"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.babel.BabelMolAdaptor.from_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Uses OpenBabel to read a molecule from a file in all supported formats.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -279,7 +282,7 @@ the file. If <code class="docutils literal notranslate"><span class="pre">False<
 
 <dl class="py method">
 <dt id="pymatgen.io.babel.BabelMolAdaptor.from_molecule_graph">
-<em class="property">static </em><code class="sig-name descname">from_molecule_graph</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mol</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.7.14/pymatgen/io/babel.py#L324-L336"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.babel.BabelMolAdaptor.from_molecule_graph" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">from_molecule_graph</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mol</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/io/babel.py#L325-L336"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.babel.BabelMolAdaptor.from_molecule_graph" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read a molecule from a pymatgen MoleculeGraph object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -293,7 +296,7 @@ the file. If <code class="docutils literal notranslate"><span class="pre">False<
 
 <dl class="py method">
 <dt id="pymatgen.io.babel.BabelMolAdaptor.from_string">
-<em class="property">static </em><code class="sig-name descname">from_string</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">string_data</span></em>, <em class="sig-param"><span class="n">file_format</span><span class="o">=</span><span class="default_value">'xyz'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.7.14/pymatgen/io/babel.py#L338-L352"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.babel.BabelMolAdaptor.from_string" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">from_string</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">string_data</span></em>, <em class="sig-param"><span class="n">file_format</span><span class="o">=</span><span class="default_value">'xyz'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/io/babel.py#L338-L352"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.babel.BabelMolAdaptor.from_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>Uses OpenBabel to read a molecule from a string in all supported
 formats.</p>
 <dl class="field-list simple">
@@ -311,7 +314,7 @@ formats.</p>
 
 <dl class="py method">
 <dt id="pymatgen.io.babel.BabelMolAdaptor.gen3d_conformer">
-<code class="sig-name descname">gen3d_conformer</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.7.14/pymatgen/io/babel.py#L201-L222"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.babel.BabelMolAdaptor.gen3d_conformer" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">gen3d_conformer</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/io/babel.py#L202-L223"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.babel.BabelMolAdaptor.gen3d_conformer" title="Permalink to this definition">¶</a></dt>
 <dd><p>A combined method to first generate 3D structures from 0D or 2D
 structures and then find the minimum energy conformer:</p>
 <ol class="arabic simple">
@@ -333,7 +336,7 @@ between speed and finding the global energy minimum.</p>
 
 <dl class="py method">
 <dt id="pymatgen.io.babel.BabelMolAdaptor.localopt">
-<code class="sig-name descname">localopt</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">forcefield</span><span class="o">=</span><span class="default_value">'mmff94'</span></em>, <em class="sig-param"><span class="n">steps</span><span class="o">=</span><span class="default_value">500</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.7.14/pymatgen/io/babel.py#L99-L110"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.babel.BabelMolAdaptor.localopt" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">localopt</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">forcefield</span><span class="o">=</span><span class="default_value">'mmff94'</span></em>, <em class="sig-param"><span class="n">steps</span><span class="o">=</span><span class="default_value">500</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/io/babel.py#L100-L111"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.babel.BabelMolAdaptor.localopt" title="Permalink to this definition">¶</a></dt>
 <dd><p>A wrapper to pybel’s localopt method to optimize a Molecule.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -348,7 +351,7 @@ between speed and finding the global energy minimum.</p>
 
 <dl class="py method">
 <dt id="pymatgen.io.babel.BabelMolAdaptor.make3d">
-<code class="sig-name descname">make3d</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">forcefield</span><span class="o">=</span><span class="default_value">'mmff94'</span></em>, <em class="sig-param"><span class="n">steps</span><span class="o">=</span><span class="default_value">50</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.7.14/pymatgen/io/babel.py#L112-L133"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.babel.BabelMolAdaptor.make3d" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">make3d</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">forcefield</span><span class="o">=</span><span class="default_value">'mmff94'</span></em>, <em class="sig-param"><span class="n">steps</span><span class="o">=</span><span class="default_value">50</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/io/babel.py#L113-L134"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.babel.BabelMolAdaptor.make3d" title="Permalink to this definition">¶</a></dt>
 <dd><p>A wrapper to pybel’s make3D method generate a 3D structure from a
 2D or 0D structure.
 The 3D structure is made very quickly using a combination of rules
@@ -372,25 +375,25 @@ search or geometry optimization to further optimize the structure.</p>
 
 <dl class="py method">
 <dt id="pymatgen.io.babel.BabelMolAdaptor.openbabel_mol">
-<em class="property">property </em><code class="sig-name descname">openbabel_mol</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.7.14/pymatgen/io/babel.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.babel.BabelMolAdaptor.openbabel_mol" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">openbabel_mol</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/io/babel.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.babel.BabelMolAdaptor.openbabel_mol" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns OpenBabel’s OBMol.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.io.babel.BabelMolAdaptor.pybel_mol">
-<em class="property">property </em><code class="sig-name descname">pybel_mol</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.7.14/pymatgen/io/babel.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.babel.BabelMolAdaptor.pybel_mol" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">pybel_mol</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/io/babel.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.babel.BabelMolAdaptor.pybel_mol" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns Pybel’s Molecule object.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.io.babel.BabelMolAdaptor.pymatgen_mol">
-<em class="property">property </em><code class="sig-name descname">pymatgen_mol</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.7.14/pymatgen/io/babel.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.babel.BabelMolAdaptor.pymatgen_mol" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">pymatgen_mol</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/io/babel.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.babel.BabelMolAdaptor.pymatgen_mol" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns pymatgen Molecule object.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pymatgen.io.babel.BabelMolAdaptor.remove_bond">
-<code class="sig-name descname">remove_bond</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">idx1</span></em>, <em class="sig-param"><span class="n">idx2</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.7.14/pymatgen/io/babel.py#L141-L152"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.babel.BabelMolAdaptor.remove_bond" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">remove_bond</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">idx1</span></em>, <em class="sig-param"><span class="n">idx2</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/io/babel.py#L142-L153"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.babel.BabelMolAdaptor.remove_bond" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove a bond from an openbabel molecule</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -404,7 +407,7 @@ search or geometry optimization to further optimize the structure.</p>
 
 <dl class="py method">
 <dt id="pymatgen.io.babel.BabelMolAdaptor.rotor_conformer">
-<code class="sig-name descname">rotor_conformer</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">rotor_args</span></em>, <em class="sig-param"><span class="n">algo</span><span class="o">=</span><span class="default_value">'WeightedRotorSearch'</span></em>, <em class="sig-param"><span class="n">forcefield</span><span class="o">=</span><span class="default_value">'mmff94'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.7.14/pymatgen/io/babel.py#L154-L199"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.babel.BabelMolAdaptor.rotor_conformer" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">rotor_conformer</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">rotor_args</span></em>, <em class="sig-param"><span class="n">algo</span><span class="o">=</span><span class="default_value">'WeightedRotorSearch'</span></em>, <em class="sig-param"><span class="n">forcefield</span><span class="o">=</span><span class="default_value">'mmff94'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/io/babel.py#L155-L200"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.babel.BabelMolAdaptor.rotor_conformer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Conformer search based on several Rotor Search algorithms of openbabel.
 If the input molecule is not 3D, make3d will be called (generate 3D
 structure, add hydrogen, a quick localopt). All hydrogen atoms need
@@ -431,7 +434,7 @@ sampleRingBonds-default False)</p></li>
 
 <dl class="py method">
 <dt id="pymatgen.io.babel.BabelMolAdaptor.write_file">
-<code class="sig-name descname">write_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="n">file_format</span><span class="o">=</span><span class="default_value">'xyz'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.7.14/pymatgen/io/babel.py#L292-L301"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.babel.BabelMolAdaptor.write_file" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">write_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="n">file_format</span><span class="o">=</span><span class="default_value">'xyz'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/io/babel.py#L293-L302"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.babel.BabelMolAdaptor.write_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Uses OpenBabel to output all supported formats.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -458,11 +461,19 @@ sampleRingBonds-default False)</p></li>
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2011, Pymatgen Development Team
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -473,7 +484,6 @@ sampleRingBonds-default False)</p></li>
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {

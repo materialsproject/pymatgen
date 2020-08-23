@@ -11,7 +11,6 @@ from datetime import datetime
 from copy import deepcopy, copy
 from warnings import warn
 import bisect
-
 from typing import Dict
 
 import numpy as np
@@ -459,7 +458,7 @@ class EwaldSummation(MSONable):
             "structure": self._s.as_dict(),
             "compute_forces": self._compute_forces,
             "eta": self._eta,
-            "acc_factor": self._accf,
+            "acc_factor": self._acc_factor,
             "real_space_cut": self._rmax,
             "recip_space_cut": self._gmax,
             "_recip": None if self._recip is None else self._recip.tolist(),
@@ -579,10 +578,9 @@ class EwaldMinimizer:
         This method finds and returns the permutations that produce the lowest
         ewald sum calls recursive function to iterate through permutations
         """
-        if self._algo == EwaldMinimizer.ALGO_FAST or \
-                self._algo == EwaldMinimizer.ALGO_BEST_FIRST:
-            return self._recurse(self._matrix, self._m_list,
-                                 set(range(len(self._matrix))))
+        if self._algo == EwaldMinimizer.ALGO_FAST or self._algo == EwaldMinimizer.ALGO_BEST_FIRST:
+            return self._recurse(self._matrix, self._m_list, set(range(len(self._matrix))))
+        return None
 
     def add_m_list(self, matrix_sum, m_list):
         """
@@ -655,11 +653,13 @@ class EwaldMinimizer:
 
         return best_case
 
-    def get_next_index(self, matrix, manipulation, indices_left):
+    @classmethod
+    def get_next_index(cls, matrix, manipulation, indices_left):
         """
         Returns an index that should have the most negative effect on the
         matrix sum
         """
+        # pylint: disable=E1126
         f = manipulation[0]
         indices = list(indices_left.intersection(manipulation[2]))
         sums = np.sum(matrix[indices], axis=1)

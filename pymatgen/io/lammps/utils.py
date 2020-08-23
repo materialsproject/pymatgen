@@ -19,13 +19,14 @@ try:
 except ImportError:
     pb = None
 
+from monty.os.path import which
+from monty.tempfile import ScratchDir
+
 from pymatgen import Molecule
 from pymatgen.core.operations import SymmOp
 from pymatgen.util.coord import get_angle
 from pymatgen.io.babel import BabelMolAdaptor
 
-from monty.os.path import which
-from monty.tempfile import ScratchDir
 
 __author__ = 'Kiran Mathew, Brandon Wood, Michael Humbert'
 __email__ = 'kmathew@lbl.gov'
@@ -177,24 +178,24 @@ class PackmolRunner:
                  bin="packmol"):
         """
         Args:
-              mols:
-                   list of Molecules to pack
-              input_file:
-                        name of the packmol input file
-              tolerance:
-                        min distance between the atoms
-              filetype:
-                       input/output structure file type
-              control_params:
-                           packmol control parameters dictionary. Basically
-                           all parameters other than structure/atoms
-              param_list:
-                    list of parameters containing dicts for each molecule
-              auto_box:
-                    put the molecule assembly in a box
-              output_file:
-                    output file name. The extension will be adjusted
-                    according to the filetype
+            mols:
+                list of Molecules to pack
+            input_file:
+                name of the packmol input file
+            tolerance:
+                min distance between the atoms
+            filetype:
+                input/output structure file type
+            control_params:
+                packmol control parameters dictionary. Basically
+                all parameters other than structure/atoms
+            param_list:
+                list of parameters containing dicts for each molecule
+            auto_box:
+                put the molecule assembly in a box
+            output_file:
+                output file name. The extension will be adjusted
+                according to the filetype
         """
         self.packmol_bin = bin.split()
         if not which(self.packmol_bin[-1]):
@@ -218,21 +219,21 @@ class PackmolRunner:
         if self.boxit:
             self._set_box()
 
-    def _format_param_val(self, param_val):
+    @staticmethod
+    def _format_param_val(param_val):
         """
         Internal method to format values in the packmol parameter dictionaries
 
         Args:
-              param_val:
-                   Some object to turn into String
+            param_val:
+                Some object to turn into String
 
         Returns:
-               string representation of the object
+            String representation of the object
         """
         if isinstance(param_val, list):
             return ' '.join(str(x) for x in param_val)
-        else:
-            return str(param_val)
+        return str(param_val)
 
     def _set_box(self):
         """
@@ -315,12 +316,10 @@ class PackmolRunner:
                 if site_property:
                     packed_mol = self.restore_site_properties(site_property=site_property, filename=output_file)
                 return packed_mol
-            else:
-                print("Packmol execution failed")
-                print(stdout, stderr)
-                return None
+            raise RuntimeError("Packmol execution failed. %s\n%s" % (stdout, stderr))
 
-    def write_pdb(self, mol, filename, name=None, num=None):
+    @staticmethod
+    def write_pdb(mol, filename, name=None, num=None):
         """
         dump the molecule into pdb file with custom residue name and number.
         """
@@ -370,7 +369,7 @@ class PackmolRunner:
             Molecule object
         """
 
-        restore_site_props = True if residue_name is not None else False
+        restore_site_props = residue_name is not None
 
         if restore_site_props and not hasattr(self, "map_residue_to_mol"):
             self._set_residue_map()

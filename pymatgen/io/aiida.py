@@ -15,8 +15,9 @@ __maintainer__ = "Andrius Merkys"
 __email__ = "andrius.merkys@gmail.com"
 __date__ = "Oct 9, 2015"
 
-from monty.dev import requires
 import warnings
+
+from monty.dev import requires
 
 try:
     from aiida.orm import DataFactory
