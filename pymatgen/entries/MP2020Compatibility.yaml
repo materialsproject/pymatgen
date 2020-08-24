@@ -2,9 +2,9 @@ Name: MP2020
 Corrections:
   # Energy corrections in eV/atom
   GGAUMixingCorrections:
-  # Composition-based corrections applied to transition metal oxides
-  # and fluorides to make GGA and GGA+U energies compatible 
-  # when compat_type = "Advanced" (default)
+    # Composition-based corrections applied to transition metal oxides
+    # and fluorides to make GGA and GGA+U energies compatible 
+    # when compat_type = "Advanced" (default)
     O:
       V: -1.604
       Cr: -1.899
