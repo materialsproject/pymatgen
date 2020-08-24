@@ -7,6 +7,7 @@ import re
 import numpy as np
 from ruamel import yaml
 from monty.serialization import loadfn
+from monty.io import zopen
 from pathlib import Path
 
 from pymatgen import SETTINGS
@@ -22,27 +23,73 @@ def _postprocessor(s):
     s = s.rstrip()  # Remove leading/trailing whitespace
     s = s.replace(" ", "_")  # Remove whitespaces
 
-    if s.lower() == "no" or s.lower() == "none":
+    if s.lower() == "no":
         return False
+    elif s.lower() == "none":
+        return None
     elif s.lower() == "yes" or s.lower() == 'true':
         return True
     elif re.match(r"^-?\d+$", s):
         try:
             return int(s)
         except ValueError:
-            raise IOError("Error in parsing CP2K output file.")
+            raise IOError("Error in parsing CP2K file.")
     elif re.match(r"^[+\-]?(?=.)(?:0|[1-9]\d*)?(?:\.\d*)?(?:\d[eE][+\-]?\d+)?$", s):
         try:
             return float(s)
         except ValueError:
-            raise IOError("Error in parsing CP2K output file.")
+            raise IOError("Error in parsing CP2K file.")
     elif re.match(r"\*+", s):
         try:
             return np.NaN
         except ValueError:
-            raise IOError("Error in parsing CP2K output file.")
+            raise IOError("Error in parsing CP2K file.")
     else:
         return s
+
+
+def _preprocessor(s):
+    """
+    Cp2k contains internal preprocessor flags that are evaluated before
+    excecution. This helper function recognizes those preprocessor flags
+    and replacees them with an equivalent cp2k input (this way everything
+    is contained neatly in the cp2k input structure, even if the user
+    preferred to use the flags.
+
+    CP2K preprocessor flags (with arguments) are:
+
+        @INCLUDE FILENAME: Insert the contents of FILENAME into the file at
+            this location.
+        @SET VAR VALUE: set a variable, VAR, to have the value, VALUE.
+        $VAR or ${VAR}: replace these with the value of the variable, as set
+            by the @SET flag.
+        @IF/@ELIF: Not implemented yet.
+
+    Args:
+        s (str): string representation of cp2k input to preprocess
+    """
+    includes = re.findall(r"(@include.+)", s, re.IGNORECASE)
+    for incl in includes:
+        inc = incl.split()
+        assert len(inc) == 2  # @include filename
+        inc = inc[1].strip('\'')
+        inc = inc.strip('\"')
+        with zopen(inc) as f:
+            s = re.sub(r"{}".format(incl), f.read(), s)
+    variable_sets = re.findall(r"(@SET.+)", s, re.IGNORECASE)
+    for match in variable_sets:
+        v = match.split()
+        assert len(v) == 3  # @SET VAR value
+        var, value = v[1:]
+        s = re.sub(r"{}".format(match), "", s)
+        s = re.sub(r"\${?"+var+"}?", value, s)
+
+    c1 = re.findall(r"@IF", s, re.IGNORECASE)
+    c2 = re.findall(r"@ELIF", s, re.IGNORECASE)
+    if len(c1) > 0 or len(c2) > 0:
+        raise NotImplementedError("This cp2k input processer does not currently "
+                                  "support conditional blocks.")
+    return s
 
 
 def natural_keys(text):

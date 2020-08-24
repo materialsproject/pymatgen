@@ -21,7 +21,7 @@ import warnings
 from typing import Dict, List, Tuple, Union, Sequence
 from monty.json import MSONable
 from monty.io import zopen
-from pymatgen.io.cp2k.utils import _postprocessor
+from pymatgen.io.cp2k.utils import _postprocessor, _preprocessor
 from pymatgen import Lattice, Structure, Molecule
 
 __author__ = "Nicholas Winner"
@@ -576,37 +576,12 @@ class Cp2kInput(Section):
         """
         Initialize from a string
         """
-        s = Cp2kInput._cp2k_preprocessor(s)
+        s = _preprocessor(s)
         lines = s.splitlines()
         lines = [line.replace("\t", "") for line in lines]
         lines = [line.strip() for line in lines]
         lines = [line for line in lines if line]
         return Cp2kInput.from_lines(lines)
-
-    @staticmethod
-    def _cp2k_preprocessor(s):
-        includes = re.findall(r"(@include.+)", s, re.IGNORECASE)
-        for incl in includes:
-            inc = incl.split()
-            assert len(inc) == 2  # @include filename
-            inc = inc[1].strip('\'')
-            inc = inc.strip('\"')
-            with zopen(inc) as f:
-                s = re.sub(r"{}".format(incl), f.read(), s)
-        variable_sets = re.findall(r"(@SET.+)", s, re.IGNORECASE)
-        for match in variable_sets:
-            v = match.split()
-            assert len(v) == 3  # @SET VAR value
-            var, value = v[1:]
-            s = re.sub(r"{}".format(match), "", s)
-            s = re.sub(r"\${?"+var+"}?", value, s)
-
-        c1 = re.findall(r"@IF", s, re.IGNORECASE)
-        c2 = re.findall(r"@ELIF", s, re.IGNORECASE)
-        if len(c1) > 0 or len(c2) > 0:
-            raise NotImplementedError("This cp2k input processer does not currently "
-                                      "support conditional blocks.")
-        return s
 
     @classmethod
     def from_lines(cls, lines: Union[List, tuple]):
