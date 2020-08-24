@@ -375,7 +375,7 @@ class DftSet(Cp2kInputSet):
         eps_scf: float = 1e-7,
         max_scf: Union[int, None] = None,
         minimizer: str = "DIIS",
-        preconditioner: str = "FULL_SINGLE_INVERSE",
+        preconditioner: str = "FULL_ALL",
         algorithm: str = "STRICT",
         linesearch: str = "2PNT",
         cutoff: int = 1200,
@@ -410,9 +410,10 @@ class DftSet(Cp2kInputSet):
                 inner loop limit set by
             minimizer (str): The minimization scheme. DIIS can be as much as 50% faster than the more robust conjugate
                 gradient method, and so it is chosen as default. Switch to CG if dealing with a difficult system.
-            preconditioner (str): Preconditioner for the OT method. The FULL_SINGLE_INVERSE preconditioner has been
-                shown to be very robust from internal tests. Should only change when simulation cell gets to be
-                VERY large, in which case FULL_KINETIC might be preferred.
+            preconditioner (str): Preconditioner for the OT method. FULL_ALL is the most reliable, and is the
+                default. Though FULL_SINGLE_INVERSE has faster convergence according to our internal tests. Should
+                only change from theses two when simulation cell gets to be VERY large,
+                in which case FULL_KINETIC might be preferred.
             cutoff (int): Cutoff energy (in Ry) for the finest level of the multigrid. A high cutoff will allow you to
                 have very accurate calculations PROVIDED that REL_CUTOFF is appropriate.
             rel_cutoff (int): This cutoff decides how the Guassians are mapped onto the different levels of the
@@ -492,7 +493,7 @@ class DftSet(Cp2kInputSet):
             mixing = Section('MIXING', keywords=mixing_kwds, subsections=None)
             scf.insert(mixing)
             davidson_kwds = {
-                "PRECONDITIONER": Keyword('PRECONDITIONER', 'FULL_SINGLE_INVERSE')
+                "PRECONDITIONER": Keyword('PRECONDITIONER', 'FULL_ALL')
             }
             davidson = Section('DAVIDSON', keywords=davidson_kwds, subsections=None)
             scf["DIAGONALIZATION"].insert(davidson)
@@ -636,7 +637,7 @@ class DftSet(Cp2kInputSet):
         """
         ot = OrbitalTransformation(
             minimizer="CG",
-            preconditioner="FULL_SINGLE_INVERSE",
+            preconditioner="FULL_ALL",
             algorithm="STRICT",
             energy_gap=0.05,
             linesearch="3PNT",
@@ -650,7 +651,7 @@ class DftSet(Cp2kInputSet):
         """
         ot = OrbitalTransformation(
             minimizer="CG",
-            preconditioner="FULL_SINGLE_INVERSE",
+            preconditioner="FULL_ALL",
             algorithm="STRICT",
             energy_gap=0.05,
             linesearch="GOLD",
