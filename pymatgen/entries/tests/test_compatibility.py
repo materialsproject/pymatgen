@@ -1019,39 +1019,40 @@ class MaterialsProject2020CompatibilityTest(unittest.TestCase):
         compat = MaterialsProject2020Compatibility(check_potcar_hash=False)
         ggacompat = MaterialsProject2020Compatibility("GGA", check_potcar_hash=False)
 
-        # Correct parameters
-        entry = ComputedEntry(
-            "Fe2O3",
-            -1,
-            correction=0.0,
-            parameters={
-                "is_hubbard": True,
-                "hubbards": {"Fe": 5.3, "O": 0},
-                "run_type": "GGA+U",
-                "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Fe_pv 06Sep2000",
-                        "hash": "994537de5c4122b7f1b77fb604476db4",
-                    },
-                    {
-                        "titel": "PAW_PBE O 08Apr2002",
-                        "hash": "7a25bc5b9a5393f46600a4939d357982",
-                    },
-                ],
-            },
-        )
+        # Fe 4 Co 2 O 8 (Fe2CoO4)
+        entry = {'@module': 'pymatgen.entries.computed_entries',
+                 '@class': 'ComputedEntry',
+                 'energy': -91.94962744,
+                 'composition': defaultdict(float, {'Fe': 4.0, 'Co': 2.0, 'O': 8.0}),
+                 'energy_adjustments': [],
+                 'parameters': {'run_type': 'GGA+U',
+                                'is_hubbard': True,
+                                'pseudo_potential': {'functional': 'PBE',
+                                                     'labels': ['Fe_pv', 'Co', 'O'],
+                                                     'pot_type': 'paw'},
+                                'hubbards': {'Fe': 5.3, 'Co': 3.32, 'O': 0.0},
+                                'potcar_symbols': ['PBE Fe_pv', 'PBE Co', 'PBE O'],
+                                'oxide_type': 'oxide'},
+                 'data': {'oxide_type': 'oxide'},
+                 'entry_id': 'mp-753222',
+                 'correction': 0}
+        entry = ComputedEntry.from_dict(entry)
         
         c = compat.process_entry(entry)
-        assert "MP2020 anion correction" in [ea.name for ea in c.energy_adjustments]
-        assert "MP2020 GGA/GGA+U mixing correction" in [ea.name for ea in c.energy_adjustments]
+        assert "MP2020 anion correction (oxide)" in [ea.name for ea in c.energy_adjustments]
+        assert "MP2020 GGA/GGA+U mixing correction (Fe)" in [ea.name for ea in c.energy_adjustments]
+        assert "MP2020 GGA/GGA+U mixing correction (Co)" in [ea.name for ea in c.energy_adjustments]
 
         for ea in c.energy_adjustments:
-            if ea.name == "MP2020 GGA/GGA+U mixing correction":
-                self.assertAlmostEqual(ea.value, -2.182 * 2)
-                self.assertAlmostEqual(ea.uncertainty, 0.009 * 2)
-            elif ea.name == "MP2020 anion correction":
-                self.assertAlmostEqual(ea.value, -0.74 * 3)
-                self.assertAlmostEqual(ea.uncertainty, 0.0017 * 3)
+            if ea.name == "MP2020 GGA/GGA+U mixing correction (Fe)":
+                self.assertAlmostEqual(ea.value, -2.182 * 4)
+                self.assertAlmostEqual(ea.uncertainty, 0.009 * 4)
+            elif ea.name == "MP2020 GGA/GGA+U mixing correction (Co)":
+                self.assertAlmostEqual(ea.value, -1.535 * 2)
+                self.assertAlmostEqual(ea.uncertainty, 0.0059 * 2)
+            elif ea.name == "MP2020 anion correction (oxide)":
+                self.assertAlmostEqual(ea.value, -0.74 * 8)
+                self.assertAlmostEqual(ea.uncertainty, 0.0017 * 8)
 
         entry.parameters["is_hubbard"] = False
         del entry.parameters["hubbards"]

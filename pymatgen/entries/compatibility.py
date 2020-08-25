@@ -959,7 +959,7 @@ class MaterialsProject2020Compatibility(Compatibility):
                 adjustments.append(CompositionEnergyAdjustment(self.comp_correction["S"],
                                                                comp["S"],
                                                                uncertainty_per_atom=self.comp_errors["S"],
-                                                               name="MP2020 anion correction"
+                                                               name="MP2020 anion correction (S)"
                                                                ))
 
         # Check for oxide, peroxide, superoxide, and ozonide corrections.
@@ -1013,7 +1013,7 @@ class MaterialsProject2020Compatibility(Compatibility):
                         CompositionEnergyAdjustment(self.comp_correction[ox_type],
                                                     comp["O"],
                                                     uncertainty_per_atom=self.comp_errors[ox_type],
-                                                    name="MP2020 anion correction"
+                                                    name="MP2020 anion correction ({})".format(ox_type)
                                                     )
                                 )
 
@@ -1064,7 +1064,7 @@ class MaterialsProject2020Compatibility(Compatibility):
                             CompositionEnergyAdjustment(ucorr[sym],
                                                         comp[el],
                                                         uncertainty_per_atom=uerrors[sym],
-                                                        name="MP2020 GGA/GGA+U mixing correction"
+                                                        name="MP2020 GGA/GGA+U mixing correction ({})".format(sym)
                                                         )
                                     )
 
