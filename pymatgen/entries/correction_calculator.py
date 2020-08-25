@@ -519,7 +519,7 @@ class CorrectionCalculator:
 
         contents["Corrections"].yaml_set_start_comment("Energy corrections in eV/atom", indent=2)
         contents["Corrections"]["GGAUMixingCorrections"].yaml_set_start_comment(
-            "Composition-based corrections applied to transition metal oxides\nand fluorides to " + \
+            "Composition-based corrections applied to transition metal oxides\nand fluorides to " +
             "make GGA and GGA+U energies compatible\nwhen compat_type = \"Advanced\" (default)", indent=4)
         contents["Corrections"]["CompositionCorrections"].yaml_set_start_comment(
             "Composition-based corrections applied to any compound containing\nthese species as anions", indent=4)
