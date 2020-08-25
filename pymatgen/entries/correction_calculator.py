@@ -461,24 +461,18 @@ class CorrectionCalculator:
             )
 
         # elements with U values
-        ucorrection_species = ["V", "Cr", "Mn", "Fe", "Co", "Ni", "W", "Mo"]
+        ggaucorrection_species = ["V", "Cr", "Mn", "Fe", "Co", "Ni", "W", "Mo"]
 
-        compatibility: OrderedDict = OrderedDict()
         comp_corr: "OrderedDict[str, float]" = OrderedDict()
-        advanced: "OrderedDict[str, OrderedDict]" = OrderedDict()
-        u_corr: "OrderedDict[str, OrderedDict]" = OrderedDict()
         o: "OrderedDict[str, float]" = OrderedDict()
         f: "OrderedDict[str, float]" = OrderedDict()
 
-        compatibility_error: OrderedDict = OrderedDict()
         comp_corr_error: "OrderedDict[str, float]" = OrderedDict()
-        advanced_error: "OrderedDict[str, OrderedDict]" = OrderedDict()
-        u_corr_error: "OrderedDict[str, OrderedDict]" = OrderedDict()
         o_error: "OrderedDict[str, float]" = OrderedDict()
         f_error: "OrderedDict[str, float]" = OrderedDict()
 
         for specie in self.species:
-            if specie in ucorrection_species:
+            if specie in ggaucorrection_species:
                 o[specie] = self.corrections_dict[specie][0]
                 f[specie] = self.corrections_dict[specie][0]
 
@@ -492,32 +486,41 @@ class CorrectionCalculator:
         comp_corr["ozonide"] = 0  # do i need this??
         comp_corr_error["ozonide"] = 0
 
-        u_corr["O"] = o
-        u_corr["F"] = f
-        advanced["UCorrections"] = u_corr
-        compatibility["Name"] = name
-        compatibility["Advanced"] = advanced
-        compatibility["CompositionCorrections"] = comp_corr
-
-        u_corr_error["O"] = o_error
-        u_corr_error["F"] = f_error
-        advanced_error["UCorrections"] = u_corr_error
-        compatibility_error["Name"] = name
-        compatibility_error["Advanced"] = advanced_error
-        compatibility_error["CompositionCorrections"] = comp_corr_error
+        outline = """\
+        Name:
+        Corrections:
+            GGAUMixingCorrections:
+                O:
+                F:
+            CompositionCorrections:
+        Uncertainties:
+            GGAUMixingCorrections:
+                O:
+                F:
+            CompositionCorrections:
+        """
 
         fn = name + "Compatibility.yaml"
         file = open(fn, "w")
         yaml = ruamel.yaml.YAML()
         yaml.Representer.add_representer(OrderedDict, yaml.Representer.represent_dict)
         yaml.default_flow_style = False
-        yaml.dump(compatibility, file)
-        file.close()
+        contents = yaml.load(outline)
 
-        fn = name + "CompatibilityUncertainties.yaml"
-        file = open(fn, "w")
-        yaml = ruamel.yaml.YAML()
-        yaml.Representer.add_representer(OrderedDict, yaml.Representer.represent_dict)
-        yaml.default_flow_style = False
-        yaml.dump(compatibility_error, file)
+        contents["Name"] = name
+
+        # make CommentedMap so comments can be added
+        contents["Corrections"]["GGAUMixingCorrections"]["O"] = ruamel.yaml.comments.CommentedMap(o)
+        contents["Corrections"]["GGAUMixingCorrections"]["F"] = ruamel.yaml.comments.CommentedMap(f)
+        contents["Corrections"]["CompositionCorrections"] = ruamel.yaml.comments.CommentedMap(comp_corr)
+        contents["Uncertainties"]["GGAUMixingCorrections"]["O"] = ruamel.yaml.comments.CommentedMap(o_error)
+        contents["Uncertainties"]["GGAUMixingCorrections"]["F"] = ruamel.yaml.comments.CommentedMap(f_error)
+        contents["Uncertainties"]["CompositionCorrections"] = ruamel.yaml.comments.CommentedMap(comp_corr_error)
+
+        contents["Corrections"].yaml_set_start_comment("Energy corrections in eV/atom", indent=2)
+        contents["Corrections"]["GGAUMixingCorrections"].yaml_set_start_comment("Composition-based corrections applied to transition metal oxides\nand fluorides to make GGA and GGA+U energies compatible\nwhen compat_type = \"Advanced\" (default)", indent=4)
+        contents["Corrections"]["CompositionCorrections"].yaml_set_start_comment("Composition-based corrections applied to any compound containing\nthese species as anions", indent=4)
+        contents["Uncertainties"].yaml_set_start_comment("Uncertainties corresponding to each energy correction (eV/atom)", indent=2)
+
+        yaml.dump(contents, file)
         file.close()
