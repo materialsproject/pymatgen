@@ -199,7 +199,7 @@ def _parse_sqs_path(path) -> Sqs:
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        bestsqs = Structure.from_file(path / "bestsqs.cif")
+        bestsqs = Structure.from_file(path / "bestsqs.out")
 
     # Get best SQS objective function
     with open(path / "bestcorr.out", "r") as f:
@@ -223,7 +223,7 @@ def _parse_sqs_path(path) -> Sqs:
         p.communicate()
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            sqs = Structure.from_file(path / sqs_cif)
+            sqs = Structure.from_file(path / sqs_out)
         with open(path / corr_out, "r") as f:
             lines = f.readlines()
 
