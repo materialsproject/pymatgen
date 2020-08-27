@@ -25,9 +25,9 @@ from pymatgen.io.cp2k.utils import _postprocessor, _preprocessor
 from pymatgen import Lattice, Structure, Molecule
 
 __author__ = "Nicholas Winner"
-__version__ = "0.2"
+__version__ = "0.3"
 __email__ = "nwinner@berkeley.edu"
-__date__ = "January 2019"
+__date__ = "August 2020"
 
 
 class Keyword(MSONable):
@@ -331,6 +331,17 @@ class Section(MSONable):
                 return self.subsections[k]
         raise KeyError
 
+    def __add__(self, other):
+        if isinstance(other, (Keyword, KeywordList)):
+            if other.name in self:
+                self[other.name] += other
+            else:
+                self[other] = other
+        elif isinstance(other, Section):
+            self.insert(other)
+        else:
+            TypeError("Can only add sections or keywords.")
+
     def get(self, d, default=None):
         """
         Similar to get for dictionaries. This will attempt to retrieve the
@@ -376,6 +387,9 @@ class Section(MSONable):
         else:
             raise KeyError("No section or keyword matching the given key.")
 
+    def __sub__(self, other):
+        return self.__delitem__(other)
+
     def update(self, d: dict):
         """
         Update the Section according to a dictionary argument. This is most useful
@@ -402,6 +416,8 @@ class Section(MSONable):
         for k, v in d2.items():
             if isinstance(v, (str, float, bool)):
                 d1[k] = Keyword(k, v)
+            elif isinstance(v, (Keyword, KeywordList)):
+                d1[k] = v
             elif isinstance(v, dict):
                 if k not in list(d1.subsections.keys()):
                     d1.insert(Section(k, subsections={}))
@@ -415,22 +431,43 @@ class Section(MSONable):
         """
         self.update(d)
 
+    def unset(self, d: dict):
+        """
+        Dict based deletion. Used by custodian.
+        """
+        for k, v in d.items():
+            if isinstance(v, (str, float, bool)):
+                del self[k][v]
+            elif isinstance(v, (Keyword, Section, KeywordList)):
+                del self[k][v.name]
+            elif isinstance(v, dict):
+                self[k].unset(v)
+            else:
+                TypeError("Can only add sections or keywords.")
+
+    def inc(self, d: dict):
+        """
+        Mongo style dict modification. Include.
+        """
+        for k, v in d.items():
+            if isinstance(v, (str, float, bool)):
+                v = Keyword(k, v)
+            if isinstance(v, (Keyword, Section, KeywordList)):
+                self[k] += v
+            elif isinstance(v, dict):
+                self[k].inc(v)
+            else:
+                TypeError("Can only add sections or keywords.")
+
     def insert(self, d):
         """
         Insert a new section as a subsection of the current one
         """
         self.subsections[d.alias or d.name] = d.__deepcopy__()
 
-    def add(self, d):
-        """
-        Add a keyword to the section keywords. Different from __setitem__
-        as that will override existing keyword by default.
-        """
-        self.keywords.append(d)
-
     def check(self, path: str):
         """
-        Check if section exists within the current. Can be useful for cross-checking whether or not
+        Check if section exists within the current using a path. Can be useful for cross-checking whether or not
         required dependencies have been satisfied, which CP2K does not enforce.
 
         Args:
@@ -719,10 +756,10 @@ class Dft(Section):
 
     def __init__(
         self,
-        basis_set_filenames: str = "BASIS_MOLOPT",
-        potential_filename: str = "GTH_POTENTIALS",
+        basis_set_filenames="BASIS_MOLOPT",
+        potential_filename="GTH_POTENTIALS",
         uks: bool = True,
-        wfn_restart_file_name: Union[str, None] = None,
+        wfn_restart_file_name=None,
         subsections: dict = None,
         **kwargs
     ):
@@ -1356,11 +1393,12 @@ class V_Hartree_Cube(Section):
     Controls printing of the hartree potential as a cube file.
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, keywords=None, **kwargs):
         """
         Initialize the V_HARTREE_CUBE section
         """
 
+        self.keywords = keywords if keywords else {}
         self.kwargs = kwargs
 
         description = (
@@ -1368,10 +1406,6 @@ class V_Hartree_Cube(Section):
             + "the total density (electrons+ions). It is valid only for QS with GPW formalism. "
             + "Note that by convention the potential has opposite sign than the expected physical one."
         )
-
-        keywords = {
-            'STRIDE': Keyword('stride', *kwargs.get('STRIDE', [1, 1, 1]))
-        }
 
         super(V_Hartree_Cube, self).__init__(
             "V_HARTREE_CUBE",

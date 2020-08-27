@@ -100,7 +100,6 @@ def natural_keys(text):
     """
     def atoi(t):
         return int(t) if t.isdigit() else t
-
     return [atoi(c) for c in re.split(r'_(\d+)', text)]
 
 
@@ -172,7 +171,6 @@ def get_basis_and_potential(species, d, cardinality='DZVP', functional='PBE'):
         if len(p) == 0:
             raise LookupError('NO PSEUDOPOTENTIAL OF THAT TYPE AVAILABLE')
         if len(p) > 1:
-            print(p)
             raise LookupError('AMBIGUITY IN POTENTIAL. PLEASE SPECIFY FURTHER')
 
         basis_and_potential[s]['potential'] = p[0]
@@ -180,33 +178,41 @@ def get_basis_and_potential(species, d, cardinality='DZVP', functional='PBE'):
     return basis_and_potential
 
 
-def get_aux_basis(species, basis_type="cFIT"):
+def get_aux_basis(basis_type, default_basis_type='cFIT'):
     """
     Get auxiliary basis info for a list of species.
 
     Args:
-        species (list): list of species to get info for
-        basis_type (dict): default basis type to look for. Otherwise, follow defaults.
+        basis_type (dict): dict of auxiliary basis sets to use. i.e:
+            basis_type = {'Si': 'cFIT', 'O': 'cpFIT'}. Basis type needs to
+            exist for that species.
 
-        Basis types:
-            FIT
-            cFIT
-            pFIT
-            cpFIT
-            GTH-def2
-            aug-{FIT,cFIT,pFIT,cpFIT, GTH-def2}
+            Basis types:
+                FIT
+                cFIT
+                pFIT
+                cpFIT
+                GTH-def2
+                aug-{FIT,cFIT,pFIT,cpFIT, GTH-def2}
+
+        default_basis_type (str) default basis type if n
+
     """
-    basis_type = basis_type if basis_type else {s: 'cFIT' for s in species}
-    basis = {k: {} for k in species}
+    default_basis_type = default_basis_type or SETTINGS.get("PMG_CP2K_DEFAULT_AUX_BASIS_TYPE")
+    basis_type = {k: basis_type[k] if basis_type[k] else default_basis_type for k in basis_type}
+    basis = {k: {} for k in basis_type}
     aux_bases = loadfn(os.path.join(MODULE_DIR, 'aux_basis.yaml'))
-    for k in species:
-        if isinstance(aux_bases[k], list):
-            for i in aux_bases[k]:
-                if i.startswith(basis_type[k]):
-                    basis[k] = i
-                    break
-        else:
-            basis[k] = aux_bases[k]
+    for k in basis_type:
+        for i in aux_bases[k]:
+            if i.startswith(basis_type[k]):
+                basis[k] = i
+                break
+    for k in basis:
+        if not basis[k]:
+            if aux_bases[k]:
+                basis[k] = aux_bases[k][0]
+            else:
+                raise LookupError("NO BASIS OF THAT TYPE")
     return basis
 
 
