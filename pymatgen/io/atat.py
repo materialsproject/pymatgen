@@ -114,7 +114,7 @@ class Mcsqs:
             )
             first_species_line = 6
 
-        scaled_matrix = np.matmul(coord_system, lattice_vecs)
+        scaled_matrix = np.matmul(lattice_vecs, coord_system)
         lattice = Lattice(scaled_matrix)
 
         all_coords = []
