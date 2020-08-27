@@ -87,13 +87,27 @@ class AtatTest(PymatgenTest):
 
         self.assertEqual(Mcsqs(s).to_string(), ref_string)
 
-    def test_mcsqs_cif(self):
+    def test_mcsqs_cif_nacl(self):
 
         # cif file from str2cif (utility distributed with atat)
         struc_from_cif = Structure.from_file(os.path.join(test_dir, "bestsqs_nacl.cif"))
 
         # output file directly from mcsqs
         struc_from_out = Structure.from_file(os.path.join(test_dir, "bestsqs_nacl.out"))
+
+        self.assertTrue(struc_from_cif.matches(struc_from_out))
+        self.assertArrayAlmostEqual(
+            struc_from_out.lattice.parameters,
+            struc_from_cif.lattice.parameters,
+            decimal=4,
+        )
+
+    def test_mcsqs_cif_pzt(self):
+        # cif file from str2cif (utility distributed with atat)
+        struc_from_cif = Structure.from_file(os.path.join(test_dir, "bestsqs_pzt.cif"))
+
+        # output file directly from mcsqs
+        struc_from_out = Structure.from_file(os.path.join(test_dir, "bestsqs_pzt.out"))
 
         self.assertTrue(struc_from_cif.matches(struc_from_out))
         self.assertArrayAlmostEqual(
