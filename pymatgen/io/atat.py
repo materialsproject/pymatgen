@@ -72,10 +72,10 @@ class Mcsqs:
     @staticmethod
     def structure_from_string(data):
         """
-        Parses a rndstr.in or lat.in file into pymatgen's
+        Parses a rndstr.in, lat.in or bestsqs.out file into pymatgen's
         Structure format.
 
-        :param data: contents of a rndstr.in or lat.in file
+        :param data: contents of a rndstr.in, lat.in or bestsqs.out file
         :return: Structure object
         """
 
