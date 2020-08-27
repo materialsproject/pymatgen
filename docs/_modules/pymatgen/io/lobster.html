@@ -1462,7 +1462,7 @@
         <span class="n">incar</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="n">incar_output</span><span class="p">)</span></div>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_get_basis</span><span class="p">(</span><span class="n">structure</span><span class="p">:</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">potcar_symbols</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+    <span class="k">def</span> <span class="nf">get_basis</span><span class="p">(</span><span class="n">structure</span><span class="p">:</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">potcar_symbols</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
                    <span class="n">address_basis_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MODULE_DIR</span><span class="p">,</span> <span class="s2">&quot;BASIS_PBE_54.yaml&quot;</span><span class="p">)):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        will get the basis from given potcar_symbols (e.g., [&quot;Fe_pv&quot;,&quot;Si&quot;]</span>
@@ -1793,7 +1793,7 @@
             <span class="c1"># get basis from POTCAR</span>
             <span class="n">potcar_names</span> <span class="o">=</span> <span class="n">Lobsterin</span><span class="o">.</span><span class="n">_get_potcar_symbols</span><span class="p">(</span><span class="n">POTCAR_input</span><span class="o">=</span><span class="n">POTCAR_input</span><span class="p">)</span>
 
-            <span class="n">basis</span> <span class="o">=</span> <span class="n">Lobsterin</span><span class="o">.</span><span class="n">_get_basis</span><span class="p">(</span><span class="n">structure</span><span class="o">=</span><span class="n">Structure</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">POSCAR_input</span><span class="p">),</span>
+            <span class="n">basis</span> <span class="o">=</span> <span class="n">Lobsterin</span><span class="o">.</span><span class="n">get_basis</span><span class="p">(</span><span class="n">structure</span><span class="o">=</span><span class="n">Structure</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">POSCAR_input</span><span class="p">),</span>
                                          <span class="n">potcar_symbols</span><span class="o">=</span><span class="n">potcar_names</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;basis cannot be generated&quot;</span><span class="p">)</span>

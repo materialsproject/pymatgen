@@ -3,21 +3,21 @@
 # Distributed under the terms of the MIT License.
 
 
+import hashlib
+import tempfile
 import unittest
+
 import pytest  # type: ignore
 from _pytest.monkeypatch import MonkeyPatch  # type: ignore
-import os
-import tempfile
-import hashlib
-from zipfile import ZipFile
 from monty.json import MontyDecoder
+
 from pymatgen import SETTINGS
-from pymatgen.io.vasp.sets import *
-from pymatgen.io.vasp.inputs import Poscar, Kpoints
 from pymatgen.core import Specie, Lattice, Structure
 from pymatgen.core.surface import SlabGenerator
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.io.vasp.inputs import Poscar, Kpoints
 from pymatgen.io.vasp.outputs import Vasprun
+from pymatgen.io.vasp.sets import *
+from pymatgen.util.testing import PymatgenTest
 
 MODULE_DIR = Path(__file__).resolve().parent
 
@@ -38,24 +38,27 @@ class SetChangeCheckTest(PymatgenTest):
         for input_set in input_sets:
             with open(input_set, "r") as f:
                 hashes[input_set] = hashlib.sha1(f.read().encode("utf-8")).hexdigest()
-        known_hashes = {'MVLGWSet.yaml': 'f4df9516cf7dd923b37281172c662a70fa32bebc',
-                        'MVLRelax52Set.yaml': 'eb538ffb45c0cd13f13df48afc1e71c44d2e34b2',
-                        'MPHSERelaxSet.yaml': '2bb969e64b57ff049077c8ec10e64f94c9c97f42',
-                        'VASPIncarBase.yaml': 'dbdbfe7d5c055a3f1e87223a031ae3ad58631395',
-                        'MPSCANRelaxSet.yaml': 'd582e2e6dc55e1931c7616bacaf703326f3f1110',
-                        'MPRelaxSet.yaml': '6e981500f8b8b3c33b6bee3c279a3b824cbafe3d',
-                        'MITRelaxSet.yaml': '1a0970f8cad9417ec810f7ab349dc854eaa67010',
-                        'vdW_parameters.yaml': '66541f58b221c8966109156f4f651b2ca8aa76da'}
+        known_hashes = {
+            "MVLGWSet.yaml": "f4df9516cf7dd923b37281172c662a70fa32bebc",
+            "MVLRelax52Set.yaml": "eb538ffb45c0cd13f13df48afc1e71c44d2e34b2",
+            "MPHSERelaxSet.yaml": "2bb969e64b57ff049077c8ec10e64f94c9c97f42",
+            "VASPIncarBase.yaml": "dbdbfe7d5c055a3f1e87223a031ae3ad58631395",
+            "MPSCANRelaxSet.yaml": "9b115af9415a422bdec784ff7f6ae5b18dec02b6",
+            "MPRelaxSet.yaml": "4ea97d776fbdc7e168036f73e9176012a56c0a45",
+            "MITRelaxSet.yaml": "1a0970f8cad9417ec810f7ab349dc854eaa67010",
+            "vdW_parameters.yaml": "66541f58b221c8966109156f4f651b2ca8aa76da",
+        }
 
-        # assert hashes == known_hashes
-        if hashes != known_hashes:
-            raise UserWarning(
-                'These tests will fail when you change an input set. \
-                They are included as a sanity check: if you want to change \
-                an input set, please make sure to notify the users for that set. \
-                For sets starting with "MVL" this is @shyuep, for sets starting \
-                with "MP" this is @shyuep and @mkhorton.'
-            )
+        self.assertDictEqual(
+            hashes,
+            known_hashes,
+            "These tests will fail when you change an input set. "
+            "They are included as a sanity check: if you want to "
+            "change an input set, please make sure to notify the "
+            "users for that set. "
+            'For sets starting with "MVL" this is @shyuep, '
+            'for sets starting with "MP" this is @shyuep and @mkhorton.',
+        )
 
 
 class MITMPRelaxSetTest(PymatgenTest):
@@ -130,7 +133,7 @@ class MITMPRelaxSetTest(PymatgenTest):
 
     def test_potcar_validation(self):
         structure = Structure(self.lattice, ["P", "Fe"], self.coords)
-        # Use pytest's monkeypatch to temporarily point pymatgen to a directory 
+        # Use pytest's monkeypatch to temporarily point pymatgen to a directory
         # containing the wrong POTCARs (LDA potcars in a PBE directory)
         with self.monkeypatch.context() as m:
             m.setitem(SETTINGS, "PMG_VASP_PSP_DIR", str(self.TEST_FILES_DIR / "wrong_potcars"))
@@ -523,7 +526,6 @@ class MPStaticSetTest(PymatgenTest):
         self.assertFalse(sm.fit(vis.structure, original_structure))
 
     def test_write_input_zipped(self):
-
         vis = MPStaticSet(self.get_structure("Si"))
         vis.write_input(output_dir=".", potcar_spec=True, zip_output=True)
 
@@ -1225,9 +1227,9 @@ class MPScanRelaxSetTest(PymatgenTest):
 
     def test_incar(self):
         incar = self.mp_scan_set.incar
-        self.assertIn("METAGGA", incar)
-        self.assertIn("LASPH", incar)
-        self.assertIn("ADDGRID", incar)
+        self.assertEqual(incar["METAGGA"], "Scan")
+        self.assertEqual(incar["LASPH"], True)
+        self.assertEqual(incar["ENCUT"], 680)
         self.assertEqual(incar["NSW"], 500)
         # the default POTCAR contains metals
         self.assertEqual(incar["KSPACING"], 0.22)
@@ -1299,6 +1301,115 @@ class MPScanRelaxSetTest(PymatgenTest):
 
         for f in ["INCAR", "POSCAR", "POTCAR"]:
             os.remove(f)
+
+
+class MPScanStaticSetTest(PymatgenTest):
+    def setUp(self):
+        self.tmp = tempfile.mkdtemp()
+        warnings.simplefilter("ignore")
+
+    def test_init(self):
+        # test inheriting from a previous GGA relaxation
+        # (note: this test calc has different settings than our typical )
+        prev_run = self.TEST_FILES_DIR / "scan_relaxation"
+
+        vis = MPScanStaticSet.from_prev_calc(prev_calc_dir=prev_run)
+        # check that StaticSet settings were applied
+        self.assertEqual(vis.incar["NSW"], 0)
+        self.assertEqual(vis.incar["LREAL"], False)
+        self.assertEqual(vis.incar["LORBIT"], 11)
+        self.assertEqual(vis.incar["LVHAR"], True)
+        self.assertEqual(vis.incar["ISMEAR"], -5)
+        # Check that ENCUT and other INCAR settings were inherited.
+        self.assertEqual(vis.incar["ENCUT"], 680)
+        self.assertEqual(vis.incar["METAGGA"], "Scan")
+        self.assertEqual(vis.incar["KSPACING"], 0.35099344)
+
+        # Check as from dict.
+        # check that StaticSet settings were applied
+        self.assertEqual(vis.incar["NSW"], 0)
+        self.assertEqual(vis.incar["LREAL"], False)
+        self.assertEqual(vis.incar["LORBIT"], 11)
+        self.assertEqual(vis.incar["LVHAR"], True)
+        # Check that ENCUT and KSPACING were inherited.
+        self.assertEqual(vis.incar["ENCUT"], 680)
+        self.assertEqual(vis.incar["METAGGA"], "Scan")
+        self.assertEqual(vis.incar["KSPACING"], 0.35099344)
+
+        non_prev_vis = MPScanStaticSet(
+            vis.structure, user_incar_settings={"ENCUT": 800, "LORBIT": 12, "LWAVE": True}
+        )
+        # check that StaticSet settings were applied
+        self.assertEqual(non_prev_vis.incar["NSW"], 0)
+        self.assertEqual(non_prev_vis.incar["LREAL"], False)
+        self.assertEqual(non_prev_vis.incar["LVHAR"], True)
+        self.assertEqual(vis.incar["ISMEAR"], -5)
+        # Check that ENCUT and other INCAR settings were inherited.
+        self.assertEqual(non_prev_vis.incar["METAGGA"], "Scan")
+        # the KSPACING will have the default value here, since no previous calc
+        self.assertEqual(non_prev_vis.incar["KSPACING"], 0.22)
+        # Check that user incar settings are applied.
+        self.assertEqual(non_prev_vis.incar["ENCUT"], 800)
+        self.assertEqual(non_prev_vis.incar["LORBIT"], 12)
+        self.assertTrue(non_prev_vis.incar["LWAVE"])
+
+        v2 = MPScanStaticSet.from_dict(non_prev_vis.as_dict())
+        # Check that user incar settings are applied.
+        self.assertEqual(v2.incar["ENCUT"], 800)
+        self.assertEqual(v2.incar["LORBIT"], 12)
+        self.assertTrue(non_prev_vis.incar["LWAVE"])
+
+        # Check LCALCPOL flag
+        lcalcpol_vis = MPScanStaticSet.from_prev_calc(prev_calc_dir=prev_run, lcalcpol=True)
+        self.assertTrue(lcalcpol_vis.incar["LCALCPOL"])
+
+        # Check LEPSILON flag
+        lepsilon_vis = MPScanStaticSet.from_prev_calc(prev_calc_dir=prev_run, lepsilon=True)
+        self.assertTrue(lepsilon_vis.incar["LEPSILON"])
+        self.assertTrue(lepsilon_vis.incar["LPEAD"])
+        self.assertEqual(lepsilon_vis.incar["IBRION"], 8)
+        self.assertIsNone(lepsilon_vis.incar.get("NSW"))
+        self.assertIsNone(lepsilon_vis.incar.get("NPAR"))
+
+    def test_override_from_prev_calc(self):
+        # test override_from_prev
+        prev_run = self.TEST_FILES_DIR / "scan_relaxation"
+
+        vis = MPScanStaticSet(_dummy_structure)
+        vis.override_from_prev_calc(prev_calc_dir=prev_run)
+        # check that StaticSet settings were applied
+        self.assertEqual(vis.incar["NSW"], 0)
+        self.assertEqual(vis.incar["LREAL"], False)
+        self.assertEqual(vis.incar["LORBIT"], 11)
+        self.assertEqual(vis.incar["LVHAR"], True)
+        self.assertEqual(vis.incar["ISMEAR"], -5)
+        # Check that ENCUT and other INCAR settings were inherited.
+        self.assertEqual(vis.incar["ENCUT"], 680)
+        self.assertEqual(vis.incar["METAGGA"], "Scan")
+        self.assertEqual(vis.incar["KSPACING"], 0.35099344)
+
+        # Check LCALCPOL flag
+        lcalcpol_vis = MPScanStaticSet(_dummy_structure, lcalcpol=True)
+        lcalcpol_vis = lcalcpol_vis.override_from_prev_calc(prev_calc_dir=prev_run)
+        self.assertTrue(lcalcpol_vis.incar["LCALCPOL"])
+
+        # Check LEPSILON flag
+        lepsilon_vis = MPScanStaticSet(_dummy_structure, lepsilon=True)
+        lepsilon_vis = lepsilon_vis.override_from_prev_calc(prev_calc_dir=prev_run)
+        self.assertTrue(lepsilon_vis.incar["LEPSILON"])
+        self.assertTrue(lepsilon_vis.incar["LPEAD"])
+        self.assertEqual(lepsilon_vis.incar["IBRION"], 8)
+        self.assertIsNone(lepsilon_vis.incar.get("NSW"))
+        self.assertIsNone(lepsilon_vis.incar.get("NPAR"))
+
+    def test_conflicting_arguments(self):
+        with pytest.raises(ValueError, match="deprecated"):
+            si = self.get_structure("Si")
+            vis = MPScanStaticSet(si, potcar_functional="PBE", user_potcar_functional="PBE")
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp)
+        warnings.simplefilter("default")
 
 
 class FuncTest(PymatgenTest):
@@ -1387,7 +1498,6 @@ class MVLRelax52SetTest(PymatgenTest):
 
 
 class LobsterSetTest(PymatgenTest):
-    # TODO: what kind of tests should I write for this?
 
     def setUp(self):
         file_path = self.TEST_FILES_DIR / "POSCAR"
@@ -1419,7 +1529,7 @@ class LobsterSetTest(PymatgenTest):
             )
         self.lobsterset7 = LobsterSet(
             self.struct,
-            address_basis_file=os.path.join(MODULE_DIR, "../../BASIS_PBE_54.yaml"),
+            address_basis_file=os.path.join(MODULE_DIR, "../../lobster/lobster_basis/BASIS_PBE_54_standard.yaml"),
         )
         with pytest.warns(BadInputSetWarning, match="Overriding the POTCAR"):
             self.lobsterset6 = LobsterSet(self.struct)
@@ -1429,10 +1539,10 @@ class LobsterSetTest(PymatgenTest):
         self.assertIn("NBANDS", incar1)
         self.assertEqual(incar1["NBANDS"], 116)
         self.assertEqual(incar1["NSW"], 0)
-        self.assertEqual(incar1["NSW"], 0)
         self.assertEqual(incar1["ISMEAR"], -5)
         self.assertEqual(incar1["ISYM"], -1)
         self.assertEqual(incar1["ALGO"], "Normal")
+        self.assertEqual(incar1["EDIFF"], 1e-6)
         incar2 = self.lobsterset2.incar
         self.assertEqual(incar2["ISYM"], 0)
         self.assertEqual(incar2["ISMEAR"], 0)

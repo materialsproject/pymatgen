@@ -5,14 +5,13 @@ https://www.brown.edu/Departments/Engineering/Labs/avdw/atat/
 
 import os
 import warnings
+import tempfile
 from subprocess import Popen, TimeoutExpired
 from typing import Dict, Union, List, NamedTuple, Optional
-from typing_extensions import Literal
 from pathlib import Path
 
 from monty.dev import requires
 from monty.os.path import which
-import tempfile
 
 from pymatgen import Structure
 
@@ -23,7 +22,7 @@ class Sqs(NamedTuple):
     """
 
     bestsqs: Structure
-    objective_function: Union[float, Literal["Perfect_match"]]
+    objective_function: Union[float, str]
     allsqs: List
     clusters: List
     directory: str
@@ -35,17 +34,17 @@ class Sqs(NamedTuple):
     "see https://www.brown.edu/Departments/Engineering/Labs/avdw/atat/",
 )
 def run_mcsqs(
-    structure: Structure,
-    clusters: Dict[int, float],
-    scaling: Union[int, List[int]],
-    search_time: float = 60,
-    directory: Optional[str] = None,
-    instances: Optional[int] = None,
-    temperature: Union[int, float] = 1,
-    wr: float = 1,
-    wn: float = 1,
-    wd: float = 0.5,
-    tol: float = 1e-3,
+        structure: Structure,
+        clusters: Dict[int, float],
+        scaling: Union[int, List[int]] = 1,
+        search_time: float = 60,
+        directory: Optional[str] = None,
+        instances: Optional[int] = None,
+        temperature: Union[int, float] = 1,
+        wr: float = 1,
+        wn: float = 1,
+        wd: float = 0.5,
+        tol: float = 1e-3,
 ) -> Sqs:
     """
     Helper function for calling mcsqs with different arguments
@@ -58,7 +57,7 @@ def run_mcsqs(
                    scaling=4 would lead to a 32 atom supercell
                 b. A sequence of three scaling factors, e.g., [2, 1, 1], which
                    specifies that the supercell should have dimensions 2a x b x c
-    Keyword Args:
+            Defaults to 1.
         search_time (float): Time spent looking for the ideal SQS in minutes (default: 60)
         directory (str): Directory to run mcsqs calculation and store files (default: None
             runs calculations in a temp directory)
@@ -172,9 +171,8 @@ def run_mcsqs(
             sqs = _parse_sqs_path(".")
             return sqs
 
-        else:
-            os.chdir(original_directory)
-            raise TimeoutError("Cluster expansion took too long.")
+        os.chdir(original_directory)
+        raise TimeoutError("Cluster expansion took too long.")
 
 
 def _parse_sqs_path(path) -> Sqs:
@@ -206,7 +204,7 @@ def _parse_sqs_path(path) -> Sqs:
         lines = f.readlines()
 
     objective_function_str = lines[-1].split("=")[-1].strip()
-    objective_function: Union[float, Literal["Perfect_match"]]
+    objective_function: Union[float, str]
     if objective_function_str != "Perfect_match":
         objective_function = float(objective_function_str)
     else:
@@ -228,7 +226,7 @@ def _parse_sqs_path(path) -> Sqs:
             lines = f.readlines()
 
         objective_function_str = lines[-1].split("=")[-1].strip()
-        obj: Union[float, Literal["Perfect_match"]]
+        obj: Union[float, str]
         if objective_function_str != "Perfect_match":
             obj = float(objective_function_str)
         else:

@@ -1,19 +1,21 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Change log &mdash; pymatgen 2020.4.2 documentation</title>
+  <title>Change log &mdash; pymatgen 2020.8.13 documentation</title>
   
 
   
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+
   
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
   
   
   
@@ -21,24 +23,21 @@
   
 
   
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
  
@@ -61,7 +60,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> pymatgen
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pymatgen
           
 
           
@@ -71,7 +70,7 @@
             
             
               <div class="version">
-                2020.4.2
+                2020.8.13
               </div>
             
           
@@ -88,6 +87,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -108,6 +108,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -146,7 +147,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html">Docs</a> &raquo;</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
       <li>Change log</li>
     
@@ -171,17 +172,17 @@
             
   <div class="section" id="change-log">
 <h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="v2020-4-2">
-<h2>v2020.4.2<a class="headerlink" href="#v2020-4-2" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="v2020-8-13">
+<h2>v2020.8.13<a class="headerlink" href="#v2020-8-13" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li><p>New high-symmetry k-path algorithm (&#64;munrojm, &#64;kt-latimer)</p></li>
-<li><p>New TEM diffraction calculator (&#64;welltemperedpaprika, &#64;thefrankwan, &#64;shyamd)</p></li>
-<li><p>New plotly plotting option for Wulff shapes (&#64;richardtran415)</p></li>
-<li><p>Improvements to SQS caller (&#64;rwoodsrobinson)</p></li>
-<li><p>Various bug fixes and improvements (&#64;mfherbst, &#64;chc273,
-&#64;jacksund, &#64;espottesmith, &#64;hongyi-zhao, &#64;montoyjh,
-&#64;dongsenfo, &#64;dynikon) including significant BrunnerNN, EconNN fixes (&#64;utf),
-see individual pull requests for details.</p></li>
+<li><p>New GibbsComputedStructureEntry (&#64;mattmcdermott, #1921)</p></li>
+<li><p>Changes to MPScanRelaxSet and new MPScanStaticSet (&#64;rkingsbury, #1917)</p></li>
+<li><p>Changes to LobsterSet (&#64;JaGeo, #1928)</p></li>
+<li><p>Bug fix and change for MPRelaxSet (&#64;mkhorton, 9eb3ac2)</p></li>
+<li><p>Bug fix for JMolNN (&#64;utf, #1920)</p></li>
+<li><p>Bug fix for Element valences (&#64;rkurchin, #1926)</p></li>
+<li><p>Bug fix for BabelMolAdaptor (&#64;smheidrich, #1924)</p></li>
+<li><p>Bug fix for Gaussion IO (&#64;eimrek, #1918)</p></li>
 </ul>
 </div>
 </div>
@@ -197,11 +198,19 @@ see individual pull requests for details.</p></li>
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2011, Pymatgen Development Team
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -212,7 +221,6 @@ see individual pull requests for details.</p></li>
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {

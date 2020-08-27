@@ -4,7 +4,6 @@
 
 
 import unittest
-import os
 
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.lattice import Lattice
@@ -12,7 +11,15 @@ from pymatgen.core.structure import Structure
 from pymatgen.symmetry.kpath import KPathSeek
 
 
+try:
+    from seekpath import get_path  # type: ignore
+except ImportError:
+    get_path = None
+
+
 class KPathSeekTest(PymatgenTest):
+
+    @unittest.skipIf(get_path is None, "No seek path present.")
     def test_kpath_generation(self):
         triclinic = [1, 2]
         monoclinic = range(3, 16)
@@ -45,7 +52,9 @@ class KPathSeekTest(PymatgenTest):
 
             struct = Structure.from_spacegroup(sg_num, lattice, species, coords)
             kpath = KPathSeek(struct)  # Throws error if something doesn't work, causing test to fail.
+            kpoints = kpath.get_kpoints()  # noqa: F841
 
+    @unittest.skipIf(get_path is None, "No seek path present.")
     def test_kpath_acentered(self):
         species = ["K", "La", "Ti"]
         coords = [[0.345, 5, 0.77298], [0.1345, 5.1, 0.77298], [0.7, 0.8, 0.9]]

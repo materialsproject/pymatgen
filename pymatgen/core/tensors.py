@@ -537,6 +537,7 @@ class Tensor(np.ndarray, MSONable):
         rotation = self.get_ieee_rotation(structure, refine_rotation)
         result = self.copy()
         if initial_fit:
+            # pylint: disable=E1101
             result = result.fit_to_structure(structure)
         return result.rotate(rotation, tol=1e-2)
 

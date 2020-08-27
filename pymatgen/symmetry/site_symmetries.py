@@ -38,50 +38,46 @@ def get_site_symmetries(struc, precision=0.1):
 
         sgastruc = sga(tempstruc, symprec=precision)
         ops = sgastruc.get_symmetry_operations(cartesian=True)
-        for site2 in range(len(ops)):
-            if all(ops[site2].translation_vector == [0, 0, 0]):
-                pointops[site1].append(ops[site2])
+        for site2, op in enumerate(ops):
+            if all(op.translation_vector == [0, 0, 0]):
+                pointops[site1].append(op)
     return pointops
 
 
 def get_shared_symmetry_operations(struc, pointops, tol=0.1):
     """
-        Get all the point group operations shared by a pair of atomic sites
-        in the form [[point operations of site index 1],[],...,[]]
+    Get all the point group operations shared by a pair of atomic sites
+    in the form [[point operations of site index 1],[],...,[]]
 
-        Args:
-            struc: Pymatgen structure
-            pointops: list of point group operations from get_site_symmetries method
+    Args:
+        struc: Pymatgen structure
+        pointops: list of point group operations from get_site_symmetries method
 
-        Return:
-            list of lists of shared point operations for each pair of atomic sites
+    Return:
+        list of lists of shared point operations for each pair of atomic sites
     """
     numsites = len(struc)
     sharedops = [[0 for x in range(numsites)] for y in range(numsites)]
     for site1 in range(numsites):
         for site2 in range(numsites):
             sharedops[site1][site2] = []
-            for op1 in range(len(pointops[site1])):
-                for op2 in range(len(pointops[site2])):
-                    if np.allclose(
-                        pointops[site1][op1].rotation_matrix,
-                        pointops[site2][op2].rotation_matrix,
-                    ):
-                        sharedops[site1][site2].append(pointops[site1][op1])
+            for op1, pop1 in enumerate(pointops[site1]):
+                for op2, pop2 in enumerate(pointops[site2]):
+                    if np.allclose(pop1.rotation_matrix, pop2.rotation_matrix):
+                        sharedops[site1][site2].append(pop1)
 
-    for site1 in range(len(sharedops)):
-        for site2 in range(len(sharedops[site1])):
+    for site1, sops in enumerate(sharedops):
+        for site2, sop in enumerate(sops):
             uniqueops = []
-            for ops in range(len(sharedops[site1][site2])):
+            for ops in sop:
                 op = SymmOp.from_rotation_and_translation(
-                    rotation_matrix=sharedops[site1][site2][ops].rotation_matrix,
+                    rotation_matrix=ops.rotation_matrix,
                     translation_vec=(0, 0, 0),
                     tol=tol,
                 )
-                if op in uniqueops:
-                    continue
-                else:
+                if op not in uniqueops:
                     uniqueops.append(op)
+
             sharedops[site1][site2] = uniqueops
 
     return sharedops

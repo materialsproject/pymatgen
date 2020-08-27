@@ -1,19 +1,21 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.analysis package &mdash; pymatgen 2020.4.2 documentation</title>
+  <title>pymatgen.analysis package &mdash; pymatgen 2020.8.13 documentation</title>
   
 
   
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+
   
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
   
   
   
@@ -21,24 +23,21 @@
   
 
   
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.analysis.chemenv package" href="pymatgen.analysis.chemenv.html" />
@@ -63,7 +62,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> pymatgen
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pymatgen
           
 
           
@@ -73,7 +72,7 @@
             
             
               <div class="version">
-                2020.4.2
+                2020.8.13
               </div>
             
           
@@ -90,6 +89,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -137,6 +137,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -175,7 +176,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html">Docs</a> &raquo;</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
         
@@ -351,6 +352,14 @@
 <li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.structure_prediction.html#module-pymatgen.analysis.structure_prediction">Module contents</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.topological.html">pymatgen.analysis.topological package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.topological.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.topological.spillage.html">pymatgen.analysis.topological.spillage module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.topological.html#module-pymatgen.analysis.topological">Module contents</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.xas.html">pymatgen.analysis.xas package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.xas.html#subpackages">Subpackages</a><ul class="simple">
 </ul>
@@ -370,7 +379,6 @@
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.adsorption.html">pymatgen.analysis.adsorption module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.aflow_prototypes.html">pymatgen.analysis.aflow_prototypes module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.bond_dissociation.html">pymatgen.analysis.bond_dissociation module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.bond_valence.html">pymatgen.analysis.bond_valence module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.cost.html">pymatgen.analysis.cost module</a></li>
@@ -396,6 +404,7 @@
 <li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.piezo.html">pymatgen.analysis.piezo module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.piezo_sensitivity.html">pymatgen.analysis.piezo_sensitivity module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.pourbaix_diagram.html">pymatgen.analysis.pourbaix_diagram module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.prototypes.html">pymatgen.analysis.prototypes module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.quasiharmonic.html">pymatgen.analysis.quasiharmonic module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.reaction_calculator.html">pymatgen.analysis.reaction_calculator module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.structure_analyzer.html">pymatgen.analysis.structure_analyzer module</a></li>
@@ -426,11 +435,19 @@ of materials data.</p>
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2011, Pymatgen Development Team
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -441,7 +458,6 @@ of materials data.</p>
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {

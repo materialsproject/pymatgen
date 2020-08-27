@@ -361,7 +361,7 @@ class Xmu(MSONable):
         """
         Returns the fermi level in eV.
         """
-        return (self.energies[0] - self.relative_energies[0])
+        return self.energies[0] - self.relative_energies[0]
 
     @property
     def source(self):

@@ -14,12 +14,13 @@ import json
 import warnings
 
 from monty.io import zopen
+from monty.json import MSONable
+
 from pymatgen.io.vasp.inputs import Incar, Potcar, Poscar
 from pymatgen.io.vasp.outputs import Vasprun, Oszicar, Dynmat
 from pymatgen.io.gaussian import GaussianOutput
-from pymatgen.entries.computed_entries import ComputedEntry, \
-    ComputedStructureEntry
-from monty.json import MSONable
+from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
+
 
 logger = logging.getLogger(__name__)
 
@@ -156,11 +157,11 @@ class VaspToComputedEntryDrone(AbstractDrone):
         (parent, subdirs, files) = path
         if "relax1" in subdirs and "relax2" in subdirs:
             return [parent]
-        if (not parent.endswith("/relax1")) and \
-                (not parent.endswith("/relax2")) and (
+        if (not parent.endswith("/relax1")) and (not parent.endswith("/relax2")) and (
                 len(glob.glob(os.path.join(parent, "vasprun.xml*"))) > 0 or (
-                len(glob.glob(os.path.join(parent, "POSCAR*"))) > 0 and
-                len(glob.glob(os.path.join(parent, "OSZICAR*"))) > 0)
+                    len(glob.glob(os.path.join(parent, "POSCAR*"))) > 0 and
+                    len(glob.glob(os.path.join(parent, "OSZICAR*"))) > 0
+                )
         ):
             return [parent]
         return []
@@ -269,11 +270,9 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
 
             param = {"hubbards": {}}
             if poscar is not None and incar is not None and "LDAUU" in incar:
-                param["hubbards"] = dict(zip(poscar.site_symbols,
-                                             incar["LDAUU"]))
-            param["is_hubbard"] = (
-                    incar.get("LDAU", True) and sum(param["hubbards"].values()) > 0
-            ) if incar is not None else False
+                param["hubbards"] = dict(zip(poscar.site_symbols, incar["LDAUU"]))
+            param["is_hubbard"] = (incar.get("LDAU", True) and sum(param["hubbards"].values()) > 0) \
+                if incar is not None else False
             param["run_type"] = None
             param["potcar_spec"] = potcar.spec if potcar is not None else None
             energy = oszicar.final_energy if oszicar is not None else Vasprun.final_energy

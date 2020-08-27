@@ -6,8 +6,6 @@ Provides a class for interacting with KPath classes to
 generate high-symmetry k-paths using different conventions.
 """
 
-from __future__ import division, unicode_literals
-
 import itertools
 import numpy as np
 import networkx as nx
@@ -278,7 +276,7 @@ class HighSymmKpath(KPathBase):
         return labels
 
     @staticmethod
-    def get_continuous_path(bandstructure=None):
+    def get_continuous_path(bandstructure):
         """
         Obtain a continous version of an inputted path using graph theory.
         This routine will attempt to add connections between nodes of

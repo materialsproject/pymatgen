@@ -1,19 +1,19 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.io.vasp.inputs &#8212; pymatgen 2020.3.2 documentation</title>
-    <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.io.vasp.inputs &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../../../_static/language_data.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
+    <script id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
  
@@ -33,15 +33,15 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
+          <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.io.vasp.inputs</a></li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
-        <div class="bodywrapper">
           <div class="body" role="main">
             
   <h1>Source code for pymatgen.io.vasp.inputs</h1><div class="highlight"><pre>
@@ -66,30 +66,30 @@
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
-<span class="kn">from</span> <span class="nn">numpy.linalg</span> <span class="k">import</span> <span class="n">det</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span><span class="p">,</span> <span class="n">namedtuple</span>
-<span class="kn">from</span> <span class="nn">hashlib</span> <span class="k">import</span> <span class="n">md5</span>
+<span class="kn">from</span> <span class="nn">numpy.linalg</span> <span class="kn">import</span> <span class="n">det</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span><span class="p">,</span> <span class="n">namedtuple</span>
+<span class="kn">from</span> <span class="nn">hashlib</span> <span class="kn">import</span> <span class="n">md5</span>
 
-<span class="kn">from</span> <span class="nn">monty.io</span> <span class="k">import</span> <span class="n">zopen</span>
-<span class="kn">from</span> <span class="nn">monty.os.path</span> <span class="k">import</span> <span class="n">zpath</span>
-<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MontyDecoder</span>
-<span class="kn">from</span> <span class="nn">monty.os</span> <span class="k">import</span> <span class="n">cd</span>
-<span class="kn">from</span> <span class="nn">monty.serialization</span> <span class="k">import</span> <span class="n">loadfn</span>
+<span class="kn">from</span> <span class="nn">monty.io</span> <span class="kn">import</span> <span class="n">zopen</span>
+<span class="kn">from</span> <span class="nn">monty.os.path</span> <span class="kn">import</span> <span class="n">zpath</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">MontyDecoder</span>
+<span class="kn">from</span> <span class="nn">monty.os</span> <span class="kn">import</span> <span class="n">cd</span>
+<span class="kn">from</span> <span class="nn">monty.serialization</span> <span class="kn">import</span> <span class="n">loadfn</span>
 
-<span class="kn">from</span> <span class="nn">enum</span> <span class="k">import</span> <span class="n">Enum</span>
-<span class="kn">from</span> <span class="nn">tabulate</span> <span class="k">import</span> <span class="n">tabulate</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">from</span> <span class="nn">tabulate</span> <span class="kn">import</span> <span class="n">tabulate</span>
 
 <span class="kn">import</span> <span class="nn">scipy.constants</span> <span class="k">as</span> <span class="nn">const</span>
 
-<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="k">import</span> <span class="n">SETTINGS</span><span class="p">,</span> <span class="n">__version__</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.lattice</span> <span class="k">import</span> <span class="n">Lattice</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">Element</span><span class="p">,</span> <span class="n">get_el_sp</span>
-<span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.core</span> <span class="k">import</span> <span class="n">Magmom</span>
-<span class="kn">from</span> <span class="nn">pymatgen.util.string</span> <span class="k">import</span> <span class="n">str_delimited</span>
-<span class="kn">from</span> <span class="nn">pymatgen.util.io_utils</span> <span class="k">import</span> <span class="n">clean_lines</span>
-<span class="kn">from</span> <span class="nn">pymatgen.util.typing</span> <span class="k">import</span> <span class="n">PathLike</span>
-<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
+<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">SETTINGS</span><span class="p">,</span> <span class="n">__version__</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.lattice</span> <span class="kn">import</span> <span class="n">Lattice</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">Structure</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="kn">import</span> <span class="n">Element</span><span class="p">,</span> <span class="n">get_el_sp</span>
+<span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.core</span> <span class="kn">import</span> <span class="n">Magmom</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.string</span> <span class="kn">import</span> <span class="n">str_delimited</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.io_utils</span> <span class="kn">import</span> <span class="n">clean_lines</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.typing</span> <span class="kn">import</span> <span class="n">PathLike</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">MSONable</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, Vincent L Chevrier, Stephen Dacek&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2011, The Materials Project&quot;</span>
@@ -144,7 +144,7 @@
 <span class="sd">        to -1 (MB hasn&quot;t been performed).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">structure</span><span class="p">:</span> <span class="n">Structure</span><span class="p">,</span>
         <span class="n">comment</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -245,7 +245,7 @@
         <span class="n">syms</span> <span class="o">=</span> <span class="p">[</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">symbol</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">]</span>
         <span class="k">return</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">syms</span><span class="p">)]</span>
 
-    <span class="k">def</span> <span class="nf">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;selective_dynamics&quot;</span><span class="p">,</span> <span class="s2">&quot;velocities&quot;</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
@@ -588,10 +588,10 @@
 
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span></div>
 
-    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_string</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        String representation of Poscar file.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -709,7 +709,7 @@
 <span class="sd">    a dictionary with some helper functions</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Creates an Incar object.</span>
 
@@ -731,7 +731,7 @@
 
             <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add parameter-val pair to Incar.  Warns if parameter is not in list of</span>
 <span class="sd">        valid INCAR tags. Also cleans the parameter and val by stripping</span>
@@ -805,7 +805,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">str_delimited</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot; = &quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span></div>
 
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_string</span><span class="p">(</span><span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">pretty</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Incar.write_file"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Incar.write_file">[docs]</a>    <span class="k">def</span> <span class="nf">write_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
@@ -1013,7 +1013,7 @@
                     <span class="n">different_param</span><span class="p">[</span><span class="n">k2</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;INCAR1&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;INCAR2&quot;</span><span class="p">:</span> <span class="n">v2</span><span class="p">}</span>
         <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;Same&quot;</span><span class="p">:</span> <span class="n">similar_param</span><span class="p">,</span> <span class="s2">&quot;Different&quot;</span><span class="p">:</span> <span class="n">different_param</span><span class="p">}</span></div>
 
-    <span class="k">def</span> <span class="nf">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add all the values of another INCAR object to this object.</span>
 <span class="sd">        Facilitates the use of &quot;standard&quot; INCARs.</span>
@@ -1084,7 +1084,7 @@
     <span class="n">Cartesian</span> <span class="o">=</span> <span class="mi">4</span>
     <span class="n">Reciprocal</span> <span class="o">=</span> <span class="mi">5</span>
 
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
 
 <div class="viewcode-block" id="Kpoints_supported_modes.from_string"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Kpoints_supported_modes.from_string">[docs]</a>    <span class="nd">@staticmethod</span>
@@ -1107,7 +1107,7 @@
 
     <span class="n">supported_modes</span> <span class="o">=</span> <span class="n">Kpoints_supported_modes</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Default gamma&quot;</span><span class="p">,</span>
         <span class="n">num_kpts</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
@@ -1300,7 +1300,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            Kpoints</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">comment</span> <span class="o">=</span> <span class="s2">&quot;pymatgen v</span><span class="si">%s</span><span class="s2"> with grid density = </span><span class="si">%.0f</span><span class="s2"> / atom&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">__version__</span><span class="p">,</span> <span class="n">kppa</span><span class="p">)</span>
+        <span class="n">comment</span> <span class="o">=</span> <span class="s2">&quot;pymatgen v</span><span class="si">%s</span><span class="s2"> with grid density = </span><span class="si">%.0f</span><span class="s2"> / number of atoms&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">__version__</span><span class="p">,</span> <span class="n">kppa</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">math</span><span class="o">.</span><span class="n">fabs</span><span class="p">((</span><span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">kppa</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">))</span> <span class="o">**</span> <span class="mi">3</span> <span class="o">-</span> <span class="n">kppa</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">kppa</span> <span class="o">+=</span> <span class="n">kppa</span> <span class="o">*</span> <span class="mf">0.01</span>
         <span class="n">latt</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">lattice</span>
@@ -1353,10 +1353,8 @@
 
         <span class="n">style</span> <span class="o">=</span> <span class="n">Kpoints</span><span class="o">.</span><span class="n">supported_modes</span><span class="o">.</span><span class="n">Gamma</span>
 
-        <span class="n">comment</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="s2">&quot;pymatgen 4.7.6+ generated KPOINTS with grid density = &quot;</span>
-            <span class="o">+</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> / atom&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">kppa</span><span class="p">)</span>
-        <span class="p">)</span>
+        <span class="n">comment</span> <span class="o">=</span> <span class="s2">&quot;pymatgen v</span><span class="si">%s</span><span class="s2"> with grid density = </span><span class="si">%.0f</span><span class="s2"> / number of atoms&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">__version__</span><span class="p">,</span> <span class="n">kppa</span><span class="p">)</span>
+
         <span class="n">num_kpts</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">return</span> <span class="n">Kpoints</span><span class="p">(</span><span class="n">comment</span><span class="p">,</span> <span class="n">num_kpts</span><span class="p">,</span> <span class="n">style</span><span class="p">,</span> <span class="p">[</span><span class="n">num_div</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span></div>
 
@@ -1575,10 +1573,10 @@
         <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;wt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">())</span></div>
 
-    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">comment</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_kpts</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
         <span class="n">style</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">style</span> <span class="o">==</span> <span class="s2">&quot;l&quot;</span><span class="p">:</span>
@@ -1694,7 +1692,7 @@
 <span class="p">)</span>
 
 
-<div class="viewcode-block" id="BadPotcarWarning"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.BadPotcarWarning">[docs]</a><span class="k">class</span> <span class="nc">BadPotcarWarning</span><span class="p">(</span><span class="ne">UserWarning</span><span class="p">):</span>
+<div class="viewcode-block" id="UnknownPotcarWarning"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.UnknownPotcarWarning">[docs]</a><span class="k">class</span> <span class="nc">UnknownPotcarWarning</span><span class="p">(</span><span class="ne">UserWarning</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Warning raised when POTCAR hashes do not pass validation</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1783,7 +1781,7 @@
         <span class="s2">&quot;GGA&quot;</span><span class="p">:</span> <span class="n">_parse_list</span><span class="p">,</span>
     <span class="p">}</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">symbol</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">symbol</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            data:</span>
@@ -1897,15 +1895,15 @@
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;POTCAR data with symbol </span><span class="si">{}</span><span class="s2"> does not match any VASP</span><span class="se">\</span>
 <span class="s2">                          POTCAR known to pymatgen. We advise verifying the</span><span class="se">\</span>
 <span class="s2">                          integrity of your POTCAR files.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">symbol</span><span class="p">),</span>
-                          <span class="n">BadPotcarWarning</span><span class="p">)</span>
+                          <span class="n">UnknownPotcarWarning</span><span class="p">)</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">identify_potcar</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;file&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="p">[]:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;POTCAR with symbol </span><span class="si">{}</span><span class="s2"> has metadata that does not match</span><span class="se">\</span>
 <span class="s2">                          any VASP POTCAR known to pymatgen. The data in this</span><span class="se">\</span>
 <span class="s2">                          POTCAR is known to match the following functionals:</span><span class="se">\</span>
 <span class="s2">                          </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">identify_potcar</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;data&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]),</span>
-                          <span class="n">BadPotcarWarning</span><span class="p">)</span>
+                          <span class="n">UnknownPotcarWarning</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
 
     <span class="nd">@property</span>
@@ -2213,7 +2211,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">hash_str</span> <span class="o">=</span> <span class="n">hash_str</span>
         <span class="k">return</span> <span class="n">md5</span><span class="p">(</span><span class="n">hash_str</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span></div>
 
-    <span class="k">def</span> <span class="nf">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Delegates attributes to keywords. For example, you can use</span>
 <span class="sd">        potcarsingle.enmax to get the ENMAX of the POTCAR.</span>
@@ -2236,7 +2234,7 @@
 
     <span class="n">FUNCTIONAL_CHOICES</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">PotcarSingle</span><span class="o">.</span><span class="n">functional_dir</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">symbols</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">functional</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sym_potcar_map</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">symbols</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">functional</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sym_potcar_map</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            symbols ([str]): Element symbols for POTCAR. This should correspond</span>
@@ -2312,7 +2310,7 @@
             <span class="n">potcar</span><span class="o">.</span><span class="n">functional</span> <span class="o">=</span> <span class="n">functionals</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">potcar</span></div>
 
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">potcar</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">potcar</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
 
 <div class="viewcode-block" id="Potcar.write_file"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Potcar.write_file">[docs]</a>    <span class="k">def</span> <span class="nf">write_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
@@ -2373,7 +2371,7 @@
 <span class="sd">    Class to contain a set of vasp input objects corresponding to a run.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">incar</span><span class="p">,</span> <span class="n">kpoints</span><span class="p">,</span> <span class="n">poscar</span><span class="p">,</span> <span class="n">potcar</span><span class="p">,</span> <span class="n">optional_files</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">incar</span><span class="p">,</span> <span class="n">kpoints</span><span class="p">,</span> <span class="n">poscar</span><span class="p">,</span> <span class="n">potcar</span><span class="p">,</span> <span class="n">optional_files</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            incar: Incar object.</span>
@@ -2391,7 +2389,7 @@
         <span class="k">if</span> <span class="n">optional_files</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">optional_files</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">output</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
@@ -2505,22 +2503,8 @@
                 <span class="n">subprocess</span><span class="o">.</span><span class="n">check_call</span><span class="p">(</span><span class="n">vasp_cmd</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">f_std</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">f_err</span><span class="p">)</span></div></div>
 </pre></div>
 
+            <div class="clearer"></div>
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="../../../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
       </div>
       <div class="clearer"></div>
     </div>
@@ -2533,15 +2517,16 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
+          <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.io.vasp.inputs</a></li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

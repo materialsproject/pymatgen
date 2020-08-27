@@ -59,17 +59,17 @@ class MPResterTest(PymatgenTest):
                  "is_compatible", "task_ids",
                  "density", "icsd_ids", "total_magnetization"]
 
-        expected_vals = [-191.3359011, -6.833425039285714, -2.5515769497278913,
+        expected_vals = [-191.7661349, -6.848790532142857, -2.5571951564625857,
                          28, {'P': 4, 'Fe': 4, 'O': 16, 'Li': 4},
                          "LiFePO4", True, ['Li', 'O', 'P', 'Fe'], 4, 0.0,
                          {'Fe': 5.3, 'Li': 0.0, 'O': 0.0, 'P': 0.0}, True,
                          {'mp-19017', 'mp-540081', 'mp-601412'},
-                         3.464840709092822,
+                         3.4708958823634912,
                          [159107, 154117, 160776, 99860, 181272, 166815,
                           260571, 92198, 165000, 155580, 38209, 161479, 153699,
                           260569, 260570, 200155, 260572, 181341, 181342,
                           72545, 56291, 97764, 162282, 155635],
-                         3.999999999]
+                         0]
 
         for (i, prop) in enumerate(props):
             if prop not in ['hubbards', 'unit_cell_formula', 'elements',
@@ -149,6 +149,14 @@ class MPResterTest(PymatgenTest):
     def test_get_structure_by_material_id(self):
         s1 = self.rester.get_structure_by_material_id("mp-1")
         self.assertEqual(s1.formula, "Cs1")
+
+        # requesting via task-id instead of mp-id
+        self.assertWarns(Warning, self.rester.get_structure_by_material_id,
+                         "mp-698856")
+
+        # requesting unknown mp-id
+        self.assertRaises(MPRestError, self.rester.get_structure_by_material_id,
+                          "mp-does-not-exist")
 
     def test_get_entry_by_material_id(self):
         e = self.rester.get_entry_by_material_id("mp-19017")
@@ -274,15 +282,15 @@ class MPResterTest(PymatgenTest):
             self.assertTrue(isinstance(pbx_entry, PourbaixEntry))
 
         fe_two_plus = [e for e in pbx_entries if e.entry_id == "ion-0"][0]
-        self.assertAlmostEqual(fe_two_plus.energy, -1.580096075)
+        self.assertAlmostEqual(fe_two_plus.energy, -1.6228450214319294)
 
         feo2 = [e for e in pbx_entries if e.entry_id == "mp-25332"][0]
-        self.assertAlmostEqual(feo2.energy, 2.51083231)
+        self.assertAlmostEqual(feo2.energy, 4.424365035000003)
 
         # Test S, which has Na in reference solids
         pbx_entries = self.rester.get_pourbaix_entries(["S"])
         so4_two_minus = pbx_entries[9]
-        self.assertAlmostEqual(so4_two_minus.energy, 0.047817821)
+        self.assertAlmostEqual(so4_two_minus.energy, 0.0644980568750011)
 
         # Ensure entries are pourbaix compatible
         pbx = PourbaixDiagram(pbx_entries)
@@ -406,22 +414,12 @@ class MPResterTest(PymatgenTest):
             material_ids, task_types=task_types,
             file_patterns=file_patterns
         )
-        self.assertEqual(meta, {
-            'mp-23494': [
-                {'task_id': 'mp-669929', 'task_type': 'GGA NSCF Uniform'},
-                {'task_id': 'mp-23494', 'task_type': 'GGA Structure Optimization'},
-                # for provenance {'task_id': 'mp-688563', 'task_type': 'GGA NSCF Line'},
-            ],
-            'mp-32800': [
-                {'task_id': 'mp-739635', 'task_type': 'GGA NSCF Uniform'},
-                {'task_id': 'mp-32800', 'task_type': 'GGA Structure Optimization'},
-                # for provenance {'task_id': 'mp-746913', 'task_type': 'GGA NSCF Line'},
-            ]
-        })
+        self.assertDictEqual(dict(meta), {'mp-23494': [{'task_id': 'mp-669929', 'task_type': 'GGA NSCF Uniform'}],
+                                          'mp-32800': [{'task_id': 'mp-739635', 'task_type': 'GGA NSCF Uniform'}]})
         prefix = 'http://labdev-nomad.esc.rzg.mpg.de/fairdi/nomad/mp/api/raw/query?'
         # previous test
         # ids = 'mp-23494,mp-688563,mp-32800,mp-746913'
-        ids = 'mp-669929,mp-23494,mp-739635,mp-32800'
+        ids = 'mp-669929,mp-739635'
         self.assertEqual(
             urls[0], f'{prefix}file_pattern=vasprun*&file_pattern=OUTCAR*&external_id={ids}'
         )

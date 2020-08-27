@@ -7,10 +7,11 @@ This module defines classes representing non-periodic and periodic sites.
 """
 
 import collections
-import numpy as np
 from typing import Union, Dict, Tuple, List
-
 import json
+
+import numpy as np
+
 from monty.json import MSONable
 from monty.json import MontyDecoder, MontyEncoder
 from monty.dev import deprecated

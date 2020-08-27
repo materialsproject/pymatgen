@@ -278,6 +278,7 @@ class CompositionTest(PymatgenTest):
         self.assertEqual(d['O'], correct_dict['O'])
         correct_dict = {'Fe': 2.0, 'O': 3.0}
         d = c.to_reduced_dict
+        self.assertIsInstance(d, dict)
         self.assertEqual(d['Fe'], correct_dict['Fe'])
         self.assertEqual(d['O'], correct_dict['O'])
 
@@ -285,6 +286,11 @@ class CompositionTest(PymatgenTest):
         for c in self.comp:
             self.serialize_with_pickle(c, test_eq=True)
             self.serialize_with_pickle(c.to_data_dict, test_eq=True)
+
+    def test_to_data_dict(self):
+        comp = Composition('Fe0.00009Ni0.99991')
+        d = comp.to_data_dict
+        self.assertAlmostEqual(d["reduced_cell_composition"]["Fe"], 9e-5)
 
     def test_add(self):
         self.assertEqual((self.comp[0] + self.comp[2]).formula,

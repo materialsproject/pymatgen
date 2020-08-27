@@ -72,6 +72,12 @@ class PhononBSPlotterTest(unittest.TestCase):
         rc('text', usetex=False)
         self.plotter.get_plot(units="mev")
 
+    def test_plot_compare(self):
+        # Disabling latex for testing.
+        from matplotlib import rc
+        rc('text', usetex=False)
+        self.plotter.plot_compare(self.plotter, units="mev")
+
 
 class ThermoPlotterTest(unittest.TestCase):
 

@@ -1,19 +1,19 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
-    <title>pymatgen.ext.matproj &#8212; pymatgen 2020.3.2 documentation</title>
-    <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pymatgen.ext.matproj &#8212; pymatgen 2020.7.3 documentation</title>
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../../_static/language_data.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
  
@@ -33,15 +33,15 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.ext.matproj</a></li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
-        <div class="bodywrapper">
           <div class="body" role="main">
             
   <h1>Source code for pymatgen.ext.matproj</h1><div class="highlight"><pre>
@@ -65,28 +65,28 @@
 <span class="kn">import</span> <span class="nn">platform</span>
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
-<span class="kn">from</span> <span class="nn">time</span> <span class="k">import</span> <span class="n">sleep</span>
+<span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">sleep</span>
 <span class="kn">import</span> <span class="nn">requests</span>
-<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MontyDecoder</span><span class="p">,</span> <span class="n">MontyEncoder</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">MontyDecoder</span><span class="p">,</span> <span class="n">MontyEncoder</span>
 
-<span class="kn">from</span> <span class="nn">enum</span> <span class="k">import</span> <span class="n">Enum</span><span class="p">,</span> <span class="n">unique</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">defaultdict</span>
-<span class="kn">from</span> <span class="nn">copy</span> <span class="k">import</span> <span class="n">deepcopy</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span><span class="p">,</span> <span class="n">unique</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
 
-<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="k">import</span> <span class="n">SETTINGS</span><span class="p">,</span> <span class="n">__version__</span> <span class="k">as</span> <span class="n">pmg_version</span>
+<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">SETTINGS</span><span class="p">,</span> <span class="n">__version__</span> <span class="k">as</span> <span class="n">pmg_version</span>
 
-<span class="kn">from</span> <span class="nn">pymatgen.core.composition</span> <span class="k">import</span> <span class="n">Composition</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">Element</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.surface</span> <span class="k">import</span> <span class="n">get_symmetrically_equivalent_miller_indices</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.composition</span> <span class="kn">import</span> <span class="n">Composition</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="kn">import</span> <span class="n">Element</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">Structure</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.surface</span> <span class="kn">import</span> <span class="n">get_symmetrically_equivalent_miller_indices</span>
 
-<span class="kn">from</span> <span class="nn">pymatgen.entries.computed_entries</span> <span class="k">import</span> <span class="n">ComputedEntry</span><span class="p">,</span> \
+<span class="kn">from</span> <span class="nn">pymatgen.entries.computed_entries</span> <span class="kn">import</span> <span class="n">ComputedEntry</span><span class="p">,</span> \
     <span class="n">ComputedStructureEntry</span>
-<span class="kn">from</span> <span class="nn">pymatgen.entries.exp_entries</span> <span class="k">import</span> <span class="n">ExpEntry</span>
+<span class="kn">from</span> <span class="nn">pymatgen.entries.compatibility</span> <span class="kn">import</span> <span class="n">MaterialsProjectCompatibility</span><span class="p">,</span> <span class="n">MaterialsProjectAqueousCompatibility</span>
+<span class="kn">from</span> <span class="nn">pymatgen.entries.exp_entries</span> <span class="kn">import</span> <span class="n">ExpEntry</span>
 
-<span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="k">import</span> <span class="n">SpacegroupAnalyzer</span>
+<span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="kn">import</span> <span class="n">SpacegroupAnalyzer</span>
 
-<span class="kn">from</span> <span class="nn">pymatgen.util.sequence</span> <span class="k">import</span> <span class="n">get_chunks</span><span class="p">,</span> <span class="n">PBar</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.sequence</span> <span class="kn">import</span> <span class="n">get_chunks</span><span class="p">,</span> <span class="n">PBar</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong, Shreyas Cholia&quot;</span>
 <span class="n">__credits__</span> <span class="o">=</span> <span class="s2">&quot;Anubhav Jain&quot;</span>
@@ -150,7 +150,7 @@
                                  <span class="s2">&quot;is_compatible&quot;</span><span class="p">,</span> <span class="s2">&quot;spacegroup&quot;</span><span class="p">,</span>
                                  <span class="s2">&quot;band_gap&quot;</span><span class="p">,</span> <span class="s2">&quot;density&quot;</span><span class="p">,</span> <span class="s2">&quot;icsd_id&quot;</span><span class="p">,</span> <span class="s2">&quot;cif&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">api_key</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">include_user_agent</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">api_key</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">include_user_agent</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            api_key (str): A String API key for accessing the MaterialsProject</span>
@@ -193,13 +193,13 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s2">&quot;user-agent&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> (</span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                 <span class="n">pymatgen_info</span><span class="p">,</span> <span class="n">python_info</span><span class="p">,</span> <span class="n">platform_info</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Support for &quot;with&quot; context.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">def</span> <span class="nf">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_val</span><span class="p">,</span> <span class="n">exc_tb</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_val</span><span class="p">,</span> <span class="n">exc_tb</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Support for &quot;with&quot; context.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -392,7 +392,7 @@
 <span class="sd">            filename_or_structure: filename or Structure object</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            A list of matching structures.</span>
+<span class="sd">            A list of matching materials project ids for structure.</span>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            MPRestError</span>
@@ -506,14 +506,13 @@
                     <span class="n">entry_id</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;task_id&quot;</span><span class="p">])</span>
             <span class="n">entries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">compatible_only</span><span class="p">:</span>
-            <span class="kn">from</span> <span class="nn">pymatgen.entries.compatibility</span> <span class="k">import</span> \
-                <span class="n">MaterialsProjectCompatibility</span>
+            <span class="kn">from</span> <span class="nn">pymatgen.entries.compatibility</span> <span class="kn">import</span> <span class="n">MaterialsProjectCompatibility</span>
             <span class="n">entries</span> <span class="o">=</span> <span class="n">MaterialsProjectCompatibility</span><span class="p">()</span><span class="o">.</span><span class="n">process_entries</span><span class="p">(</span><span class="n">entries</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">sort_by_e_above_hull</span><span class="p">:</span>
             <span class="n">entries</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">entries</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">entry</span><span class="p">:</span> <span class="n">entry</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;e_above_hull&quot;</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">entries</span></div>
 
-<div class="viewcode-block" id="MPRester.get_pourbaix_entries"><a class="viewcode-back" href="../../../pymatgen.ext.matproj.html#pymatgen.ext.matproj.MPRester.get_pourbaix_entries">[docs]</a>    <span class="k">def</span> <span class="nf">get_pourbaix_entries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chemsys</span><span class="p">):</span>
+<div class="viewcode-block" id="MPRester.get_pourbaix_entries"><a class="viewcode-back" href="../../../pymatgen.ext.matproj.html#pymatgen.ext.matproj.MPRester.get_pourbaix_entries">[docs]</a>    <span class="k">def</span> <span class="nf">get_pourbaix_entries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chemsys</span><span class="p">,</span> <span class="n">solid_compat</span><span class="o">=</span><span class="n">MaterialsProjectCompatibility</span><span class="p">()):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        A helper function to get all entries necessary to generate</span>
 <span class="sd">        a pourbaix diagram from the rest interface.</span>
@@ -521,12 +520,12 @@
 <span class="sd">        Args:</span>
 <span class="sd">            chemsys ([str]): A list of elements comprising the chemical</span>
 <span class="sd">                system, e.g. [&#39;Li&#39;, &#39;Fe&#39;]</span>
+<span class="sd">            solid_compat: Compatiblity scheme used to pre-process solid DFT energies prior to applying aqueous</span>
+<span class="sd">                energy adjustments. Default: MaterialsProjectCompatibility().</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span> <span class="nn">pymatgen.analysis.pourbaix_diagram</span> <span class="k">import</span> <span class="n">PourbaixEntry</span><span class="p">,</span> <span class="n">IonEntry</span>
-        <span class="kn">from</span> <span class="nn">pymatgen.analysis.phase_diagram</span> <span class="k">import</span> <span class="n">PhaseDiagram</span>
-        <span class="kn">from</span> <span class="nn">pymatgen.core.ion</span> <span class="k">import</span> <span class="n">Ion</span>
-        <span class="kn">from</span> <span class="nn">pymatgen.entries.compatibility</span> <span class="k">import</span> \
-            <span class="n">MaterialsProjectAqueousCompatibility</span>
+        <span class="kn">from</span> <span class="nn">pymatgen.analysis.pourbaix_diagram</span> <span class="kn">import</span> <span class="n">PourbaixEntry</span><span class="p">,</span> <span class="n">IonEntry</span>
+        <span class="kn">from</span> <span class="nn">pymatgen.analysis.phase_diagram</span> <span class="kn">import</span> <span class="n">PhaseDiagram</span>
+        <span class="kn">from</span> <span class="nn">pymatgen.core.ion</span> <span class="kn">import</span> <span class="n">Ion</span>
 
         <span class="n">pbx_entries</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -540,13 +539,18 @@
         <span class="n">ion_ref_entries</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_entries_in_chemsys</span><span class="p">(</span>
             <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">ion_ref_elts</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;O&#39;</span><span class="p">,</span> <span class="s1">&#39;H&#39;</span><span class="p">])),</span>
             <span class="n">property_data</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;e_above_hull&#39;</span><span class="p">],</span> <span class="n">compatible_only</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-        <span class="n">compat</span> <span class="o">=</span> <span class="n">MaterialsProjectAqueousCompatibility</span><span class="p">(</span><span class="s2">&quot;Advanced&quot;</span><span class="p">)</span>
+
+        <span class="c1"># suppress the warning about supplying the required energies; they will be calculated from the</span>
+        <span class="c1"># entries we get from MPRester</span>
+        <span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">():</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;You did not provide the required O2 and H2O energies.&quot;</span><span class="p">)</span>
+            <span class="n">compat</span> <span class="o">=</span> <span class="n">MaterialsProjectAqueousCompatibility</span><span class="p">(</span><span class="n">solid_compat</span><span class="o">=</span><span class="n">solid_compat</span><span class="p">)</span>
         <span class="n">ion_ref_entries</span> <span class="o">=</span> <span class="n">compat</span><span class="o">.</span><span class="n">process_entries</span><span class="p">(</span><span class="n">ion_ref_entries</span><span class="p">)</span>
         <span class="n">ion_ref_pd</span> <span class="o">=</span> <span class="n">PhaseDiagram</span><span class="p">(</span><span class="n">ion_ref_entries</span><span class="p">)</span>
 
         <span class="c1"># position the ion energies relative to most stable reference state</span>
         <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">i_d</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ion_data</span><span class="p">):</span>
-            <span class="n">ion_entry</span> <span class="o">=</span> <span class="n">IonEntry</span><span class="p">(</span><span class="n">Ion</span><span class="o">.</span><span class="n">from_formula</span><span class="p">(</span><span class="n">i_d</span><span class="p">[</span><span class="s1">&#39;Name&#39;</span><span class="p">]),</span> <span class="n">i_d</span><span class="p">[</span><span class="s1">&#39;Energy&#39;</span><span class="p">])</span>
+            <span class="n">ion</span> <span class="o">=</span> <span class="n">Ion</span><span class="o">.</span><span class="n">from_formula</span><span class="p">(</span><span class="n">i_d</span><span class="p">[</span><span class="s1">&#39;Name&#39;</span><span class="p">])</span>
             <span class="n">refs</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">ion_ref_entries</span>
                     <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_formula</span> <span class="o">==</span> <span class="n">i_d</span><span class="p">[</span><span class="s1">&#39;Reference Solid&#39;</span><span class="p">]]</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">refs</span><span class="p">:</span>
@@ -555,8 +559,9 @@
             <span class="n">rf</span> <span class="o">=</span> <span class="n">stable_ref</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">get_reduced_composition_and_factor</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>
             <span class="n">solid_diff</span> <span class="o">=</span> <span class="n">ion_ref_pd</span><span class="o">.</span><span class="n">get_form_energy</span><span class="p">(</span><span class="n">stable_ref</span><span class="p">)</span> <span class="o">-</span> <span class="n">i_d</span><span class="p">[</span><span class="s1">&#39;Reference solid energy&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">rf</span>
             <span class="n">elt</span> <span class="o">=</span> <span class="n">i_d</span><span class="p">[</span><span class="s1">&#39;Major_Elements&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-            <span class="n">correction_factor</span> <span class="o">=</span> <span class="n">ion_entry</span><span class="o">.</span><span class="n">ion</span><span class="o">.</span><span class="n">composition</span><span class="p">[</span><span class="n">elt</span><span class="p">]</span> <span class="o">/</span> <span class="n">stable_ref</span><span class="o">.</span><span class="n">composition</span><span class="p">[</span><span class="n">elt</span><span class="p">]</span>
-            <span class="n">ion_entry</span><span class="o">.</span><span class="n">energy</span> <span class="o">+=</span> <span class="n">solid_diff</span> <span class="o">*</span> <span class="n">correction_factor</span>
+            <span class="n">correction_factor</span> <span class="o">=</span> <span class="n">ion</span><span class="o">.</span><span class="n">composition</span><span class="p">[</span><span class="n">elt</span><span class="p">]</span> <span class="o">/</span> <span class="n">stable_ref</span><span class="o">.</span><span class="n">composition</span><span class="p">[</span><span class="n">elt</span><span class="p">]</span>
+            <span class="n">energy</span> <span class="o">=</span> <span class="n">i_d</span><span class="p">[</span><span class="s1">&#39;Energy&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">solid_diff</span> <span class="o">*</span> <span class="n">correction_factor</span>
+            <span class="n">ion_entry</span> <span class="o">=</span> <span class="n">IonEntry</span><span class="p">(</span><span class="n">ion</span><span class="p">,</span> <span class="n">energy</span><span class="p">)</span>
             <span class="n">pbx_entries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">PourbaixEntry</span><span class="p">(</span><span class="n">ion_entry</span><span class="p">,</span> <span class="s1">&#39;ion-</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">n</span><span class="p">)))</span>
 
         <span class="c1"># Construct the solid pourbaix entries from filtered ion_ref entries</span>
@@ -567,12 +572,9 @@
             <span class="c1"># Ensure no OH chemsys or extraneous elements from ion references</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">entry_elts</span> <span class="o">&lt;=</span> <span class="p">{</span><span class="n">Element</span><span class="p">(</span><span class="s1">&#39;H&#39;</span><span class="p">),</span> <span class="n">Element</span><span class="p">(</span><span class="s1">&#39;O&#39;</span><span class="p">)}</span> <span class="ow">or</span>
                     <span class="n">extra_elts</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">entry_elts</span><span class="p">)):</span>
-                <span class="c1"># replace energy with formation energy, use dict to</span>
-                <span class="c1"># avoid messing with the ion_ref_pd and to keep all old params</span>
+                <span class="c1"># Create new computed entry</span>
                 <span class="n">form_e</span> <span class="o">=</span> <span class="n">ion_ref_pd</span><span class="o">.</span><span class="n">get_form_energy</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
-                <span class="n">new_entry</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
-                <span class="n">new_entry</span><span class="o">.</span><span class="n">uncorrected_energy</span> <span class="o">=</span> <span class="n">form_e</span>
-                <span class="n">new_entry</span><span class="o">.</span><span class="n">correction</span> <span class="o">=</span> <span class="mf">0.0</span>
+                <span class="n">new_entry</span> <span class="o">=</span> <span class="n">ComputedEntry</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">composition</span><span class="p">,</span> <span class="n">form_e</span><span class="p">,</span> <span class="n">entry_id</span><span class="o">=</span><span class="n">entry</span><span class="o">.</span><span class="n">entry_id</span><span class="p">)</span>
                 <span class="n">pbx_entry</span> <span class="o">=</span> <span class="n">PourbaixEntry</span><span class="p">(</span><span class="n">new_entry</span><span class="p">)</span>
                 <span class="n">pbx_entries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pbx_entry</span><span class="p">)</span>
 
@@ -936,7 +938,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            A list of inserted submission ids.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span> <span class="nn">pymatgen.util.provenance</span> <span class="k">import</span> <span class="n">StructureNL</span>
+        <span class="kn">from</span> <span class="nn">pymatgen.util.provenance</span> <span class="kn">import</span> <span class="n">StructureNL</span>
         <span class="n">snl_list</span> <span class="o">=</span> <span class="n">StructureNL</span><span class="o">.</span><span class="n">from_structures</span><span class="p">(</span><span class="n">structures</span><span class="p">,</span> <span class="n">authors</span><span class="p">,</span> <span class="n">projects</span><span class="p">,</span>
                                                <span class="n">references</span><span class="p">,</span> <span class="n">remarks</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span>
                                                <span class="n">histories</span><span class="p">,</span> <span class="n">created_at</span><span class="p">)</span>
@@ -1094,8 +1096,8 @@
 <span class="sd">            ncpus (int): Number of cpus to use in using BorgQueen to</span>
 <span class="sd">                assimilate. Defaults to None, which means serial.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span> <span class="nn">pymatgen.apps.borg.hive</span> <span class="k">import</span> <span class="n">VaspToComputedEntryDrone</span>
-        <span class="kn">from</span> <span class="nn">pymatgen.apps.borg.queen</span> <span class="k">import</span> <span class="n">BorgQueen</span>
+        <span class="kn">from</span> <span class="nn">pymatgen.apps.borg.hive</span> <span class="kn">import</span> <span class="n">VaspToComputedEntryDrone</span>
+        <span class="kn">from</span> <span class="nn">pymatgen.apps.borg.queen</span> <span class="kn">import</span> <span class="n">BorgQueen</span>
         <span class="n">drone</span> <span class="o">=</span> <span class="n">VaspToComputedEntryDrone</span><span class="p">(</span><span class="n">inc_structure</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                                          <span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;filename&quot;</span><span class="p">,</span>
                                                <span class="s2">&quot;initial_structure&quot;</span><span class="p">])</span>
@@ -1265,8 +1267,8 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            pymatgen.analysis.wulff.WulffShape</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="k">import</span> <span class="n">SpacegroupAnalyzer</span>
-        <span class="kn">from</span> <span class="nn">pymatgen.analysis.wulff</span> <span class="k">import</span> <span class="n">WulffShape</span>
+        <span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="kn">import</span> <span class="n">SpacegroupAnalyzer</span>
+        <span class="kn">from</span> <span class="nn">pymatgen.analysis.wulff</span> <span class="kn">import</span> <span class="n">WulffShape</span>
 
         <span class="n">structure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_structure_by_material_id</span><span class="p">(</span><span class="n">material_id</span><span class="p">)</span>
         <span class="n">surfaces</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_surface_data</span><span class="p">(</span><span class="n">material_id</span><span class="p">)[</span><span class="s2">&quot;surfaces&quot;</span><span class="p">]</span>
@@ -1409,7 +1411,7 @@
         <span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39;http://labdev-nomad.esc.rzg.mpg.de/fairdi/nomad/mp/api/raw/query?&#39;</span>
         <span class="k">if</span> <span class="n">file_patterns</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">file_pattern</span> <span class="ow">in</span> <span class="n">file_patterns</span><span class="p">:</span>
-                <span class="n">prefix</span> <span class="o">+=</span> <span class="n">f</span><span class="s1">&#39;file_pattern=</span><span class="si">{file_pattern}</span><span class="s1">&amp;&#39;</span>
+                <span class="n">prefix</span> <span class="o">+=</span> <span class="sa">f</span><span class="s1">&#39;file_pattern=</span><span class="si">{</span><span class="n">file_pattern</span><span class="si">}</span><span class="s1">&amp;&#39;</span>
         <span class="n">prefix</span> <span class="o">+=</span> <span class="s1">&#39;external_id=&#39;</span>
 
         <span class="c1"># NOTE: IE has 2kb URL char limit</span>
@@ -1504,22 +1506,8 @@
     <span class="k">pass</span></div>
 </pre></div>
 
+            <div class="clearer"></div>
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
       </div>
       <div class="clearer"></div>
     </div>
@@ -1532,15 +1520,16 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.3.2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2020.7.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pymatgen.ext.matproj</a></li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

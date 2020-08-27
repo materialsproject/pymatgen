@@ -1,19 +1,21 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.analysis.chemenv.connectivity.structure_connectivity module &mdash; pymatgen 2020.4.2 documentation</title>
+  <title>pymatgen.analysis.chemenv.connectivity.structure_connectivity module &mdash; pymatgen 2020.8.13 documentation</title>
   
 
   
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+
   
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
   
   
   
@@ -21,24 +23,21 @@
   
 
   
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.analysis.chemenv.coordination_environments package" href="pymatgen.analysis.chemenv.coordination_environments.html" />
@@ -63,7 +62,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> pymatgen
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pymatgen
           
 
           
@@ -73,7 +72,7 @@
             
             
               <div class="version">
-                2020.4.2
+                2020.8.13
               </div>
             
           
@@ -90,6 +89,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -137,6 +137,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -175,7 +176,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html">Docs</a> &raquo;</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
         
@@ -211,9 +212,9 @@
   <div class="section" id="module-pymatgen.analysis.chemenv.connectivity.structure_connectivity">
 <span id="pymatgen-analysis-chemenv-connectivity-structure-connectivity-module"></span><h1>pymatgen.analysis.chemenv.connectivity.structure_connectivity module<a class="headerlink" href="#module-pymatgen.analysis.chemenv.connectivity.structure_connectivity" title="Permalink to this headline">¶</a></h1>
 <p>Structure connectivity class.</p>
-<dl class="class">
+<dl class="py class">
 <dt id="pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity">
-<em class="property">class </em><code class="sig-name descname">StructureConnectivity</code><span class="sig-paren">(</span><em class="sig-param">light_structure_environment</em>, <em class="sig-param">connectivity_graph=None</em>, <em class="sig-param">environment_subgraphs=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.2/pymatgen/analysis/chemenv/connectivity/structure_connectivity.py#L41-L344"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">StructureConnectivity</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">light_structure_environment</span></em>, <em class="sig-param"><span class="n">connectivity_graph</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">environment_subgraphs</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/analysis/chemenv/connectivity/structure_connectivity.py#L41-L344"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Main class containing the connectivity of a structure.</p>
 <p>Constructor for the StructureConnectivity object.</p>
@@ -232,9 +233,9 @@ if it is reconstructed from a file or dict).</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.add_bonds">
-<code class="sig-name descname">add_bonds</code><span class="sig-paren">(</span><em class="sig-param">isite</em>, <em class="sig-param">site_neighbors_set</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.2/pymatgen/analysis/chemenv/connectivity/structure_connectivity.py#L96-L137"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.add_bonds" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_bonds</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">isite</span></em>, <em class="sig-param"><span class="n">site_neighbors_set</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/analysis/chemenv/connectivity/structure_connectivity.py#L96-L137"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.add_bonds" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add the bonds for a given site index to the structure connectivity graph.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -246,21 +247,21 @@ if it is reconstructed from a file or dict).</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.add_sites">
-<code class="sig-name descname">add_sites</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.2/pymatgen/analysis/chemenv/connectivity/structure_connectivity.py#L90-L94"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.add_sites" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_sites</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/analysis/chemenv/connectivity/structure_connectivity.py#L90-L94"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.add_sites" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add the sites in the structure connectivity graph.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.as_dict">
-<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.2/pymatgen/analysis/chemenv/connectivity/structure_connectivity.py#L310-L321"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/analysis/chemenv/connectivity/structure_connectivity.py#L310-L321"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns:</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.environment_subgraph">
-<code class="sig-name descname">environment_subgraph</code><span class="sig-paren">(</span><em class="sig-param">environments_symbols=None</em>, <em class="sig-param">only_atoms=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.2/pymatgen/analysis/chemenv/connectivity/structure_connectivity.py#L71-L88"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.environment_subgraph" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">environment_subgraph</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">environments_symbols</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">only_atoms</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/analysis/chemenv/connectivity/structure_connectivity.py#L71-L88"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.environment_subgraph" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -272,9 +273,9 @@ if it is reconstructed from a file or dict).</p></li>
 <p>Returns:</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.from_dict">
-<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.2/pymatgen/analysis/chemenv/connectivity/structure_connectivity.py#L323-L344"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.from_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">d</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/analysis/chemenv/connectivity/structure_connectivity.py#L323-L344"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>d</em>) – </p>
@@ -283,9 +284,9 @@ if it is reconstructed from a file or dict).</p></li>
 <p>Returns:</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.get_connected_components">
-<code class="sig-name descname">get_connected_components</code><span class="sig-paren">(</span><em class="sig-param">environments_symbols=None</em>, <em class="sig-param">only_atoms=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.2/pymatgen/analysis/chemenv/connectivity/structure_connectivity.py#L241-L255"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.get_connected_components" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_connected_components</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">environments_symbols</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">only_atoms</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/analysis/chemenv/connectivity/structure_connectivity.py#L241-L255"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.get_connected_components" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -297,15 +298,15 @@ if it is reconstructed from a file or dict).</p></li>
 <p>Returns:</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.print_links">
-<code class="sig-name descname">print_links</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.2/pymatgen/analysis/chemenv/connectivity/structure_connectivity.py#L290-L308"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.print_links" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">print_links</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/analysis/chemenv/connectivity/structure_connectivity.py#L290-L308"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.print_links" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns:</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.setup_atom_environment_subgraph">
-<code class="sig-name descname">setup_atom_environment_subgraph</code><span class="sig-paren">(</span><em class="sig-param">atom_environment</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.2/pymatgen/analysis/chemenv/connectivity/structure_connectivity.py#L257-L266"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.setup_atom_environment_subgraph" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">setup_atom_environment_subgraph</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">atom_environment</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/analysis/chemenv/connectivity/structure_connectivity.py#L257-L266"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.setup_atom_environment_subgraph" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>atom_environment</em>) – </p>
@@ -314,9 +315,9 @@ if it is reconstructed from a file or dict).</p></li>
 <p>Returns:</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.setup_atom_environments_subgraph">
-<code class="sig-name descname">setup_atom_environments_subgraph</code><span class="sig-paren">(</span><em class="sig-param">atoms_environments</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.2/pymatgen/analysis/chemenv/connectivity/structure_connectivity.py#L279-L288"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.setup_atom_environments_subgraph" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">setup_atom_environments_subgraph</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">atoms_environments</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/analysis/chemenv/connectivity/structure_connectivity.py#L279-L288"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.setup_atom_environments_subgraph" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>atoms_environments</em>) – </p>
@@ -325,15 +326,15 @@ if it is reconstructed from a file or dict).</p></li>
 <p>Returns:</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.setup_connectivity_description">
-<code class="sig-name descname">setup_connectivity_description</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.2/pymatgen/analysis/chemenv/connectivity/structure_connectivity.py#L233-L239"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.setup_connectivity_description" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">setup_connectivity_description</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/analysis/chemenv/connectivity/structure_connectivity.py#L233-L239"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.setup_connectivity_description" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns:</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.setup_environment_subgraph">
-<code class="sig-name descname">setup_environment_subgraph</code><span class="sig-paren">(</span><em class="sig-param">environments_symbols</em>, <em class="sig-param">only_atoms=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.2/pymatgen/analysis/chemenv/connectivity/structure_connectivity.py#L139-L231"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.setup_environment_subgraph" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">setup_environment_subgraph</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">environments_symbols</span></em>, <em class="sig-param"><span class="n">only_atoms</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/analysis/chemenv/connectivity/structure_connectivity.py#L139-L231"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.setup_environment_subgraph" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set up the graph for predefined environments and optionally atoms.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -345,9 +346,9 @@ if it is reconstructed from a file or dict).</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.setup_environments_subgraph">
-<code class="sig-name descname">setup_environments_subgraph</code><span class="sig-paren">(</span><em class="sig-param">environments_symbols</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.2/pymatgen/analysis/chemenv/connectivity/structure_connectivity.py#L268-L277"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.setup_environments_subgraph" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">setup_environments_subgraph</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">environments_symbols</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/analysis/chemenv/connectivity/structure_connectivity.py#L268-L277"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.structure_connectivity.StructureConnectivity.setup_environments_subgraph" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>(</strong><strong>)</strong> (<em>environments_symbols</em>) – </p>
@@ -358,9 +359,9 @@ if it is reconstructed from a file or dict).</p></li>
 
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="pymatgen.analysis.chemenv.connectivity.structure_connectivity.get_delta_image">
-<code class="sig-name descname">get_delta_image</code><span class="sig-paren">(</span><em class="sig-param">isite1</em>, <em class="sig-param">isite2</em>, <em class="sig-param">data1</em>, <em class="sig-param">data2</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.4.2/pymatgen/analysis/chemenv/connectivity/structure_connectivity.py#L24-L38"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.structure_connectivity.get_delta_image" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_delta_image</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">isite1</span></em>, <em class="sig-param"><span class="n">isite2</span></em>, <em class="sig-param"><span class="n">data1</span></em>, <em class="sig-param"><span class="n">data2</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/analysis/chemenv/connectivity/structure_connectivity.py#L24-L38"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.connectivity.structure_connectivity.get_delta_image" title="Permalink to this definition">¶</a></dt>
 <dd><p>Helper method to get the delta image between one environment and another
 from the ligand’s delta images.</p>
 </dd></dl>
@@ -378,11 +379,19 @@ from the ligand’s delta images.</p>
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2011, Pymatgen Development Team
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -393,7 +402,6 @@ from the ligand’s delta images.</p>
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {

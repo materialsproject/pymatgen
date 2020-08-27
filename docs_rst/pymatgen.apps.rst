@@ -5,6 +5,7 @@ Subpackages
 -----------
 
 .. toctree::
+   :maxdepth: 7
 
    pymatgen.apps.battery
    pymatgen.apps.borg
