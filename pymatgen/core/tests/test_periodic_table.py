@@ -361,6 +361,7 @@ class SpecieTestCase(PymatgenTest):
         mo0 = Specie("Mo", None, {"spin": 5})
         self.assertEqual(str(mo0), "Mo,spin=5")
 
+
 class DummySpecieTestCase(unittest.TestCase):
 
     def test_init(self):
