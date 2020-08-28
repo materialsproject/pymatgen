@@ -891,7 +891,7 @@ class SlowPermInvMatcher(KabschMatcher):
         q_centroid = q_centroid[q_inds]
 
         # Initialising return values
-        p_inds, U, rmsd = None, None, np.inf
+        rmsd = np.inf
 
         # Generate all permutaion grouped/sorted by the elements
         for p_inds_test in self.all_permutations(p_atoms):
@@ -910,8 +910,7 @@ class SlowPermInvMatcher(KabschMatcher):
         V = q_trans - np.dot(p_trans, U)
 
         # Using the original order of the indecies
-        # Note: dirty fix for mypy to avoid 'Value of type "Optional[Any]" is not indexable' error
-        inds = np.array(p_inds)[np.argsort(q_inds)]
+        inds = p_inds[np.argsort(q_inds)]
 
         return inds, U, V, rmsd 
 
@@ -963,16 +962,10 @@ class PermInvMatcher(KabschMatcher):
         # Both sets of coordinates must be translated first, so that 
         # their center of mass with the origin of the coordinate system.
         p_trans, q_trans = p.center_of_mass, q.center_of_mass
-
         p_centroid, q_centroid = p_coord - p_trans, q_coord - q_trans
 
-        # Sort the order of the target molecule by the elements
-        # q_inds = np.argsort(q_atoms)
-        # q_atoms = q_atoms[q_inds]
-        # q_centroid = q_centroid[q_inds]
-
         # Initialising return values
-        p_inds, U, rmsd = None, None, np.inf
+        rmsd = np.inf
 
         # Generate all permutaion grouped/sorted by the elements
         for p_inds_test in self.hungarian_order(p_atoms, p_centroid, p_weights, q_atoms, q_centroid, q_weights):
@@ -989,9 +982,6 @@ class PermInvMatcher(KabschMatcher):
         # Rotate and translate matrix P unto matrix Q using Kabsch algorithm.
         # P' = P * U + V
         V = q_trans - np.dot(p_trans, U)
-
-        # Using the original order of the indecies
-        # inds = p_inds[np.argsort(q_inds)]
 
         return inds, U, V, rmsd 
 
@@ -1139,8 +1129,7 @@ class PermInvMatcher(KabschMatcher):
 if __name__ == "__main__":
     import random
     import numpy as np
-    from pymatgen import Lattice, Structure, Molecule
-    from pymatgen.analysis.molecule_matcher import MoleculeMatcher, IsomorphismMolAtomMapper, InchiMolAtomMapper
+    from pymatgen import Lattice, Structure
 
     coords = np.array([[0, 0, 0], [0.75, 0.5, 0.75]])
     lattice = Lattice.from_parameters(a=3.84, b=3.84, c=3.84, alpha=120, beta=90, gamma=60)
