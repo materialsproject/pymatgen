@@ -910,8 +910,8 @@ class SlowPermInvMatcher(KabschMatcher):
         V = q_trans - np.dot(p_trans, U)
 
         # Using the original order of the indecies
-        # TODO: mypy error: Value of type "Optional[Any]" is not indexable
-        inds = p_inds[np.argsort(q_inds)]
+        # Note: dirty fix for mypy to avoid 'Value of type "Optional[Any]" is not indexable' error
+        inds = np.array(p_inds)[np.argsort(q_inds)]
 
         return inds, U, V, rmsd 
 
@@ -1138,10 +1138,11 @@ class PermInvMatcher(KabschMatcher):
 
 if __name__ == "__main__":
     import random
+    import numpy as np
     from pymatgen import Lattice, Structure, Molecule
     from pymatgen.analysis.molecule_matcher import MoleculeMatcher, IsomorphismMolAtomMapper, InchiMolAtomMapper
 
-    coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
+    coords = np.array([[0, 0, 0], [0.75, 0.5, 0.75]])
     lattice = Lattice.from_parameters(a=3.84, b=3.84, c=3.84, alpha=120, beta=90, gamma=60)
     struct = Structure(lattice, ["Si", "Si"], coords)
     struct.make_supercell([2, 2, 2])
