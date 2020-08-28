@@ -142,47 +142,46 @@ class MoleculeMatcherTest(unittest.TestCase):
         mol2 = Molecule.from_file(os.path.join(test_dir, "cdi_23_2.xyz"))
         self.assertFalse(mm.fit(mol1, mol2))
 
+
 class KabschMatcherTest(unittest.TestCase):
 
     def test_get_rmsd(self):
-        
+
         mm = KabschMatcher()
         mol1 = Molecule.from_file(os.path.join(test_dir, "t3.xyz"))
         mol2 = Molecule.from_file(os.path.join(test_dir, "t4.xyz"))
-        
+
         _, _, rmsd = mm.match(mol1, mol2)
         self.assertAlmostEqual(rmsd, 0.0028172956033732936, places=5)
 
-
     def test_to_and_from_dict(self):
-        
+
         mm_source = KabschMatcher()
         d_source = mm_source.as_dict()
-        
+
         mm_target = KabschMatcher.from_dict(d_source)
         self.assertDictEqual(d_source, mm_target.as_dict())
-        
 
     def test_rotated_molecule(self):
-        
+
         coords = [[0.000000, 0.000000, 0.000000],
                   [0.000000, 0.000000, 1.089000],
                   [1.026719, 0.000000, -0.363000],
                   [-0.513360, -0.889165, -0.363000],
                   [-0.513360, 0.889165, -0.363000]]
-        
+
         op = SymmOp.from_origin_axis_angle([0, 0, 0], [0.1, 0.2, 0.3], 60)
         rotcoords = [op.operate(c) for c in coords]
-        
+
         mol1 = Molecule(["C", "H", "H", "H", "H"], coords)
         mol2 = Molecule(["C", "H", "H", "H", "H"], rotcoords)
-        
+
         mm = KabschMatcher()
         _, rmsd = mm.fit(mol1, mol2)
         self.assertAlmostEqual(rmsd, 0., places=5)
 
     def test_mismatched_atom_composition(self):
-        
+
         mm = KabschMatcher()
 
         with self.assertRaises(ValueError):
@@ -190,11 +189,11 @@ class KabschMatcherTest(unittest.TestCase):
             mol1 = Molecule.from_file(os.path.join(test_dir, "benzene1.xyz"))
             mol2 = Molecule.from_file(os.path.join(test_dir, "t2.xyz"))
             _, rmsd = mm.fit(mol1, mol2)
-    
+
     def test_missmatched_atom_order(self):
-        
+
         mm = KabschMatcher()
-        
+
         with self.assertRaises(ValueError):
             mol1 = Molecule.from_file(os.path.join(test_dir, "benzene1.xyz"))
             mol2 = Molecule.from_file(os.path.join(test_dir, "benzene2.xyz"))
@@ -204,12 +203,12 @@ class KabschMatcherTest(unittest.TestCase):
             mol1 = Molecule.from_file(os.path.join(test_dir, "c1.xyz"))
             mol2 = Molecule.from_file(os.path.join(test_dir, "c2.xyz"))
             _, rmsd = mm.fit(mol1, mol2)
-    
+
         with self.assertRaises(ValueError):
             mol1 = Molecule.from_file(os.path.join(test_dir, "j1.xyz"))
             mol2 = Molecule.from_file(os.path.join(test_dir, "j2.xyz"))
             _, rmsd = mm.fit(mol1, mol2)
-        
+
         with self.assertRaises(ValueError):
 
             mol1 = Molecule.from_file(os.path.join(test_dir, "ethene1.xyz"))
@@ -227,7 +226,7 @@ class KabschMatcherTest(unittest.TestCase):
             mol1 = Molecule.from_file(os.path.join(test_dir, "cyclohexane1.xyz"))
             mol2 = Molecule.from_file(os.path.join(test_dir, "cyclohexane2.xyz"))
             _, rmsd = mm.fit(mol1, mol2)
-        
+
     def test_fit(self):
 
         mm = KabschMatcher()
@@ -236,24 +235,24 @@ class KabschMatcherTest(unittest.TestCase):
         mol2 = Molecule.from_file(os.path.join(test_dir, "t4.xyz"))
         _, rmsd = mm.fit(mol1, mol2)
         self.assertAlmostEqual(rmsd, 0.0028172956033732936, places=7)
-        
+
         mol1 = Molecule.from_file(os.path.join(test_dir, "oxygen1.xyz"))
         mol2 = Molecule.from_file(os.path.join(test_dir, "oxygen2.xyz"))
         _, rmsd = mm.fit(mol1, mol2)
         self.assertAlmostEqual(rmsd, 0.)
-        
+
         mm = KabschMatcher()
         mol1 = Molecule.from_file(os.path.join(test_dir, "t3.xyz"))
         mol2 = Molecule.from_file(os.path.join(test_dir, "t4.xyz"))
         _, rmsd = mm.fit(mol1, mol2)
         self.assertAlmostEqual(rmsd, 0.0028172956033732936, places=7)
-        
+
     def test_strange_inchi(self):
-        
+
         mm = KabschMatcher()
         mol1 = Molecule.from_file(os.path.join(test_dir, "k1.sdf"))
         mol2 = Molecule.from_file(os.path.join(test_dir, "k2.sdf"))
-        
+
         _, _, rmsd = mm.match(mol1, mol2)
         self.assertTrue(rmsd < 0.05)
 
@@ -262,16 +261,16 @@ class KabschMatcherTest(unittest.TestCase):
         mol1 = Molecule.from_file(os.path.join(test_dir, "thiane1.sdf"))
         mol2 = Molecule.from_file(os.path.join(test_dir, "thiane2.sdf"))
 
-        _,_,rmsd = mm.match(mol1, mol2)
+        _, _, rmsd = mm.match(mol1, mol2)
         self.assertTrue(rmsd < 0.8)
         self.assertFalse(rmsd < 0.05)
-        
+
     def test_thiane_ethynyl(self):
         mm = KabschMatcher()
         mol1 = Molecule.from_file(os.path.join(test_dir, "thiane_ethynyl1.sdf"))
         mol2 = Molecule.from_file(os.path.join(test_dir, "thiane_ethynyl2.sdf"))
-        
-        _,_,rmsd = mm.match(mol1, mol2)
+
+        _, _, rmsd = mm.match(mol1, mol2)
         self.assertTrue(rmsd < 0.5)
         self.assertFalse(rmsd < 0.05)
 
@@ -279,10 +278,11 @@ class KabschMatcherTest(unittest.TestCase):
         mm = KabschMatcher()
         mol1 = Molecule.from_file(os.path.join(test_dir, "cdi_23_1.xyz"))
         mol2 = Molecule.from_file(os.path.join(test_dir, "cdi_23_2.xyz"))
-       
-        _,_,rmsd = mm.match(mol1, mol2)
+
+        _, _, rmsd = mm.match(mol1, mol2)
         self.assertTrue(rmsd < 0.3)
         self.assertFalse(rmsd < 0.05)
+
 
 class PermInvMatcherTest(unittest.TestCase):
 
@@ -478,7 +478,8 @@ class KabschMatcherSiTest(unittest.TestCase):
         self.assertAlmostEqual(rmsd, 0.16485977191499607, places=5)
 
     def test_perturbed_atoms_order(self):
-        # This test shows very poor rmsd result, because the `KabschMatcher` is not capable to handle arbitrary atom's order    
+        # This test shows very poor rmsd result, because the `KabschMatcher` 
+        # is not capable to handle arbitrary atom's order    
 
         random.seed(42)
 
@@ -589,7 +590,8 @@ class KabschMatcherSiO2Test(unittest.TestCase):
         self.assertAlmostEqual(rmsd, 0.17232715121269107, places=5)
 
     def test_perturbed_atoms_order(self):
-        # This task fails because `KabschMatcher` is not capable to handle arbitrary atom's order    
+        # This task should fail, because `KabschMatcher` is not capable 
+        # to handle arbitrary atom's order    
         random.seed(42)
 
         mol2 = self.mol1.copy()
