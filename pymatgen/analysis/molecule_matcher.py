@@ -21,11 +21,6 @@ __email__ = "xhqu1981@gmail.com"
 __status__ = "Development"
 __date__ = "Aug 21, 2020"
 
-import numpy as np
-from scipy.spatial.distance import cdist
-from scipy.optimize import linear_sum_assignment
-
-from pymatgen import Molecule
 
 import re
 import math
@@ -41,6 +36,12 @@ try:
     from pymatgen.io.babel import BabelMolAdaptor
 except ImportError:
     ob = None
+
+import numpy as np
+from scipy.spatial.distance import cdist
+from scipy.optimize import linear_sum_assignment
+
+from pymatgen import Molecule
 
 
 class AbstractMolAtomMapper(MSONable, metaclass=abc.ABCMeta):
@@ -909,6 +910,7 @@ class SlowPermInvMatcher(KabschMatcher):
         V = q_trans - np.dot(p_trans, U)
 
         # Using the original order of the indecies
+        # TODO: mypy error: Value of type "Optional[Any]" is not indexable
         inds = p_inds[np.argsort(q_inds)]
 
         return inds, U, V, rmsd 
