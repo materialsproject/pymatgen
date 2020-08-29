@@ -1406,7 +1406,7 @@ class DummySpecie(Specie):
 
     def __init__(self,
                  symbol: str = "X",
-                 oxidation_state: float = 0,
+                 oxidation_state: Optional[float] = 0,
                  properties: dict = None):
         """
         Args:
