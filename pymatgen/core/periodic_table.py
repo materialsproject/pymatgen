@@ -1487,7 +1487,7 @@ class DummySpecie(Specie):
         return self.symbol.__hash__()
 
     @property
-    def oxi_state(self) -> float:
+    def oxi_state(self) -> Optional[float]:
         """
         Oxidation state associated with DummySpecie
         """
