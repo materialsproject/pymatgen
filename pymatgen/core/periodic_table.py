@@ -1070,7 +1070,7 @@ class Specie(MSONable):
     supported_properties = ("spin",)
 
     def __init__(self, symbol: str,
-                 oxidation_state: float = 0.0,
+                 oxidation_state: Optional[float] = 0.0,
                  properties: dict = None):
         """
         Initializes a Specie.
