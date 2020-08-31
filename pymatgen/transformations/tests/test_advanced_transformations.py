@@ -701,14 +701,12 @@ class DisorderedOrderedTransformationTest(PymatgenTest):
 @unittest.skipIf(not mcsqs_cmd, "mcsqs not present.")
 class SQSTransformationTest(PymatgenTest):
     def test_apply_transformation(self):
-        # non-sensical example just for testing purposes
         pztstructs = loadfn(os.path.join(test_dir, "mcsqs/pztstructs.json"))
-        self.struc = self.get_structure("Pb2TiZrO6")
-
         trans = SQSTransformation(
             scaling=[2, 1, 1], search_time=0.01, instances=1, wd=0
         )
-        struc = self.struc.copy()
+        # nonsensical example just for testing purposes
+        struc = self.get_structure("Pb2TiZrO6").copy()
         struc.replace_species(
             {"Ti": {"Ti": 0.5, "Zr": 0.5}, "Zr": {"Ti": 0.5, "Zr": 0.5}}
         )
@@ -719,16 +717,31 @@ class SQSTransformationTest(PymatgenTest):
     def test_return_ranked_list(self):
         # list of structures
         pztstructs2 = loadfn(os.path.join(test_dir, "mcsqs/pztstructs2.json"))
-        self.struc = self.get_structure("Pb2TiZrO6")
-
         trans = SQSTransformation(scaling=2, search_time=0.01, instances=8, wd=0)
-        struc = self.struc.copy()
+        struc = self.get_structure("Pb2TiZrO6").copy()
         struc.replace_species(
             {"Ti": {"Ti": 0.5, "Zr": 0.5}, "Zr": {"Ti": 0.5, "Zr": 0.5}}
         )
         ranked_list_out = trans.apply_transformation(struc, return_ranked_list=True)
         matches = [ranked_list_out[0]["structure"].matches(s) for s in pztstructs2]
         self.assertIn(True, matches)
+
+    def test_spin(self):
+
+        trans = SQSTransformation(
+            scaling=[2, 1, 1], search_time=0.01, instances=1, wd=0
+        )
+
+        # nonsensical example just for testing purposes
+        struc = self.get_structure("Pb2TiZrO6").copy()
+        struc.replace_species(
+            {"Ti": {"Ti,spin=5": 0.5, "Ti,spin=-5": 0.5}}
+        )
+
+        struc_out = trans.apply_transformation(struc)
+        struc_out_specie_strings = [site.species_string for site in struc_out]
+        self.assertIn("Ti,spin=-5", struc_out_specie_strings)
+        self.assertIn("Ti,spin=5", struc_out_specie_strings)
 
 
 class CubicSupercellTransformationTest(PymatgenTest):

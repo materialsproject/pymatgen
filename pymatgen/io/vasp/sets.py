@@ -949,7 +949,6 @@ class MPStaticSet(MPRelaxSet):
                 "LVHAR": True,
                 "LWAVE": False,
                 "NSW": 0,
-                "ICHARG": 0,
                 "ALGO": "Normal",
             }
         )
@@ -1123,6 +1122,7 @@ class MPScanStaticSet(MPScanRelaxSet):
                 "NSW": 0,
                 "LORBIT": 11,
                 "LVHAR": True,
+                "ISMEAR": -5
             }
         )
 
