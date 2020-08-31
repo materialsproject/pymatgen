@@ -75,11 +75,11 @@ default_ternary_layout = dict(
     margin=dict(b=0, l=0, pad=0, t=0, r=0),
     showlegend=True,
     legend=dict(
-        orientation="v",
-        x=0.1,
-        y=0.99,
+        orientation="h",
+        x=0.5,
+        y=0.0,
         traceorder="reversed",
-        xanchor="left",
+        xanchor="center",
         yanchor="top",
     ),
     scene_camera=dict(
@@ -91,19 +91,12 @@ default_ternary_layout = dict(
     scene_aspectratio=dict(x=1.7, y=1.7, z=1.4),
 )
 
-colors = [
-    "#3da12e",
-    "#569638",
-    "#688b40",
-    "#767f47",
-    "#81724e",
-    "#8b6553",
-    "#935659",
-    "#9a455e",
-    "#a02f63",
-    "#a60068",
-]
-colorscale = list(zip(np.linspace(0, 1, len(colors)), colors))
+stable_colors = ['#0c8c00', '#d8ffd4', '#ffffff']
+stable_colorscale = list(zip(np.linspace(0, 1, len(stable_colors)), stable_colors))
+
+unstable_colors = ['#fcf1a9', '#ff813d', '#ff0000']
+unstable_colorscale = list(zip(np.linspace(0, 1, len(unstable_colors)),
+                               unstable_colors))
 
 default_binary_marker_settings = dict(
     mode="markers",

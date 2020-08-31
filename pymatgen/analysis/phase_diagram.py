@@ -2186,7 +2186,7 @@ class PDPlotter:
 
             if entry.composition.is_element:
                 clean_formula = str(entry.composition.elements[0])
-                font_dict = {"color": "#4c0e19", "size": 24.0}
+                font_dict = {"color": "#000000", "size": 24.0}
                 opacity = 1.0
             else:
                 formula = entry.composition.reduced_formula
@@ -2206,13 +2206,14 @@ class PDPlotter:
             )
 
             if self._dim == 3 or self._dim == 4:
-                annotation.update({"z": z})
                 for d in ["xref", "yref"]:
                     annotation.pop(d)  # Scatter3d cannot contain xref, yref
                     if self._dim == 3:
                         annotation.update({"x": y, "y": x})
-                        if entry.is_element:
-                            z = z + (self._min_energy + 0.2)  # shifts element ref name
+                        if entry.composition.is_element:
+                            z = self._min_energy + 0.2  # shifts element ref name
+
+                annotation.update({"z": z})
 
             annotations_list.append(annotation)
 
@@ -2243,13 +2244,12 @@ class PDPlotter:
 
             for coord, entry in zip(coords, entries):
                 energy = round(self._pd.get_form_energy_per_atom(entry), 3)
-                entry_id = entry.entry_id if entry.entry_id else None
+                entry_id = entry.entry_id if entry.entry_id else ""
                 formula = entry.composition.reduced_formula
                 clean_formula = self._htmlize_formula(formula)
 
                 x.append(coord[0])
                 y.append(coord[1])
-                energies.append(energy)
 
                 if self._dim == 3:
                     z.append(energy)
@@ -2261,6 +2261,9 @@ class PDPlotter:
                 if not stable:
                     e_above_hull = round(self._pd.get_e_above_hull(entry), 3)
                     label += f" (+{e_above_hull} eV/atom)"
+                    energies.append(e_above_hull)
+                else:
+                    energies.append(energy)
 
                 texts.append(label)
 
@@ -2291,8 +2294,8 @@ class PDPlotter:
                     y=stable_props["y"],
                     name="Stable",
                     marker=dict(
-                        color=stable_props["energies"],
-                        colorscale=plotly_layouts.colorscale,
+                        color="black",
+                        symbol="square",
                         size=10,
                     ),
                     hovertext=stable_props["texts"],
@@ -2305,9 +2308,9 @@ class PDPlotter:
                     x=unstable_props["x"],
                     y=unstable_props["y"],
                     name="Above Hull",
-                    marker=dict(color="#ff0000", size=6, symbol="diamond"),
+                    marker=dict(color=unstable_props["energies"],
+                                colorscale=plotly_layouts.unstable_colorscale),
                     hovertext=unstable_props["texts"],
-                    visible="legendonly",
                 )
             )
 
@@ -2319,10 +2322,11 @@ class PDPlotter:
                     y=stable_props["x"],
                     z=stable_props["z"],
                     name="Stable",
+                    opacity=0.8,
                     marker=dict(
-                        color=stable_props["energies"],
-                        colorscale=plotly_layouts.colorscale,
-                        size=8,
+                        color="black",
+                        symbol="circle",
+                        size=7,
                     ),
                     hovertext=stable_props["texts"],
                 )
@@ -2335,9 +2339,14 @@ class PDPlotter:
                     y=unstable_props["x"],
                     z=unstable_props["z"],
                     name="Above Hull",
-                    marker=dict(color="#ff0000", size=4.5, symbol="diamond"),
+                    marker=dict(color=unstable_props["energies"],
+                                colorscale=plotly_layouts.unstable_colorscale,
+                                size=4.2,
+                                symbol="diamond",
+                                colorbar=dict(title="Energy Above Hull<br>(eV/atom)",
+                                              x=0.13, len=0.82),
+                                ),
                     hovertext=unstable_props["texts"],
-                    visible="legendonly",
                 )
             )
 
@@ -2351,7 +2360,7 @@ class PDPlotter:
                     name="Stable",
                     marker=dict(
                         color=stable_props["energies"],
-                        colorscale=plotly_layouts.colorscale,
+                        colorscale="PRGn_r",
                         size=8,
                     ),
                     hovertext=stable_props["texts"],
@@ -2365,7 +2374,7 @@ class PDPlotter:
                     y=unstable_props["y"],
                     z=unstable_props["z"],
                     name="Above Hull",
-                    marker=dict(color="#ff0000", size=6, symbol="diamond"),
+                    marker=dict(color="#ff0000", size=5, symbol="diamond"),
                     hovertext=unstable_props["texts"],
                     visible="legendonly",
                 )
@@ -2439,14 +2448,15 @@ class PDPlotter:
             i=facets[:, 1],
             j=facets[:, 0],
             k=facets[:, 2],
-            opacity=0.3,
+            opacity=0.8,
             intensity=self._pd.qhull_data[:-1, 2],
-            colorscale="PiYG_r",
-            colorbar=dict(title="Formation energy (eV/atom)", x=0.8, len=0.7),
+            colorscale=plotly_layouts.stable_colorscale,
+            colorbar=dict(title="Formation energy<br>(eV/atom)", x=0.8, len=0.82),
             hoverinfo="none",
+            lighting=dict(diffuse=0.0, ambient=1.0),
             name="Convex Hull (shading)",
+            flatshading=True,
             showlegend=True,
-            visible="legendonly",
         )
 
     def _create_plotly_quaternary_mesh(self):
@@ -2465,11 +2475,12 @@ class PDPlotter:
             x=x,
             y=y,
             z=z,
-            alphahull=0,
-            colorscale="PiYG_r",
+            colorscale=plotly_layouts.stable_colorscale,
             intensity=energies,
-            opacity=0.2,
+            alphahull=0,
+            opacity=0.25,
             colorbar=dict(title="Formation energy (eV/atom)", x=0.8, len=0.8),
+            lighting=dict(diffuse=0.0, ambient=1.0),
             hoverinfo="none",
             name="Convex Hull (shading)",
             showlegend=True,
