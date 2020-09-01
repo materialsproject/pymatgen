@@ -11,6 +11,8 @@ import collections
 import itertools
 import math
 import logging
+import os
+import json
 from functools import lru_cache
 
 import numpy as np
@@ -27,9 +29,13 @@ from pymatgen.analysis.reaction_calculator import Reaction, ReactionError
 from pymatgen.entries import Entry
 
 import plotly.graph_objs as go
-import pymatgen.util.plotly_pd_layouts as plotly_layouts
 
 logger = logging.getLogger(__name__)
+
+
+with open(os.path.join(os.path.dirname(__file__),
+                       "..", "util/plotly_pd_layouts.json")) as f:
+    plotly_layouts = json.load(f)
 
 
 class PDEntry(Entry):
