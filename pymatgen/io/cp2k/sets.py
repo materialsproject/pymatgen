@@ -895,6 +895,10 @@ class HybridStaticSet(StaticSet):
         omega: float = .2,
         aux_basis: Union[Dict, None] = None,
         admm: bool = True,
+        eps_schwarz: float = 1e-6,
+        eps_schwarz_forces: float = 1e-6,
+        screen_on_initial_p: bool = True,
+        screen_p_forces: bool = True,
         **kwargs
     ):
         """
@@ -923,6 +927,10 @@ class HybridStaticSet(StaticSet):
         self.omega = omega
         self.aux_basis = aux_basis
         self.admm = admm
+        self.eps_schwarz = eps_schwarz
+        self.eps_schwarz_forces = eps_schwarz_forces
+        self.screen_on_initial_p = screen_on_initial_p
+        self.screen_p_forces = screen_p_forces
         self.kwargs = kwargs
 
         self.activate_hybrid(
@@ -934,7 +942,11 @@ class HybridStaticSet(StaticSet):
             cutoff_radius=cutoff_radius,
             omega=omega,
             aux_basis=aux_basis,
-            admm=admm
+            admm=admm,
+            eps_schwarz=eps_schwarz,
+            eps_schwarz_forces=eps_schwarz_forces,
+            screen_on_initial_p=screen_on_initial_p,
+            screen_p_forces=screen_p_forces
         )
         self.update(override_default_params)
 
@@ -950,7 +962,7 @@ class HybridRelaxSet(RelaxSet):
         structure: Union[Structure, Molecule],
         hybrid_functional: str = "PBE0",
         hf_fraction: float = 0.25,
-        project_name: str = "Hybrid-Static",
+        project_name: str = "Hybrid-Relax",
         gga_x_fraction: float = 0.75,
         gga_c_fraction: float = 1,
         override_default_params: Dict = {},
@@ -959,6 +971,10 @@ class HybridRelaxSet(RelaxSet):
         omega: float = .2,
         aux_basis: Union[Dict, None] = None,
         admm: bool = True,
+        eps_schwarz: float = 1e-6,
+        eps_schwarz_forces: float = 1e-6,
+        screen_on_initial_p: bool = True,
+        screen_p_forces: bool = True,
         **kwargs
     ):
         """
@@ -987,6 +1003,10 @@ class HybridRelaxSet(RelaxSet):
         self.omega = omega
         self.aux_basis = aux_basis
         self.admm = admm
+        self.eps_schwarz = eps_schwarz
+        self.eps_schwarz_forces = eps_schwarz_forces
+        self.screen_on_initial_p = screen_on_initial_p
+        self.screen_p_forces = screen_p_forces
         self.kwargs = kwargs
 
         self.activate_hybrid(
@@ -998,7 +1018,11 @@ class HybridRelaxSet(RelaxSet):
             cutoff_radius=cutoff_radius,
             omega=omega,
             aux_basis=aux_basis,
-            admm=admm
+            admm=admm,
+            eps_schwarz=eps_schwarz,
+            eps_schwarz_forces=eps_schwarz_forces,
+            screen_on_initial_p=screen_on_initial_p,
+            screen_p_forces=screen_p_forces
         )
         self.update(override_default_params)
 
@@ -1014,7 +1038,7 @@ class HybridCellOptSet(CellOptSet):
         structure: Union[Structure, Molecule],
         hybrid_functional: str = "PBE0",
         hf_fraction: float = 0.25,
-        project_name: str = "Hybrid-Static",
+        project_name: str = "Hybrid-CellOpt",
         gga_x_fraction: float = 0.75,
         gga_c_fraction: float = 1,
         override_default_params: Dict = {},
@@ -1023,6 +1047,10 @@ class HybridCellOptSet(CellOptSet):
         omega: float = .2,
         aux_basis: Union[Dict, None] = None,
         admm: bool = True,
+        eps_schwarz: float = 1e-6,
+        eps_schwarz_forces: float = 1e-6,
+        screen_on_initial_p: bool = True,
+        screen_p_forces: bool = True,
         **kwargs
     ):
         """
@@ -1051,6 +1079,10 @@ class HybridCellOptSet(CellOptSet):
         self.omega = omega
         self.aux_basis = aux_basis
         self.admm = admm
+        self.eps_schwarz = eps_schwarz
+        self.eps_schwarz_forces = eps_schwarz_forces
+        self.screen_on_initial_p = screen_on_initial_p
+        self.screen_p_forces = screen_p_forces
         self.kwargs = kwargs
 
         self.activate_hybrid(
@@ -1062,6 +1094,10 @@ class HybridCellOptSet(CellOptSet):
             cutoff_radius=cutoff_radius,
             omega=omega,
             aux_basis=aux_basis,
-            admm=admm
+            admm=admm,
+            eps_schwarz=eps_schwarz,
+            eps_schwarz_forces=eps_schwarz_forces,
+            screen_on_initial_p=screen_on_initial_p,
+            screen_p_forces=screen_p_forces
         )
         self.update(override_default_params)
