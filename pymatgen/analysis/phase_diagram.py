@@ -2447,16 +2447,18 @@ class PDPlotter:
                 for c in zip(self._pd.qhull_data[:-1, 0], self._pd.qhull_data[:-1, 1])
             ]
         )
+        energies = np.array([self._pd.get_form_energy_per_atom(e) for e in
+                             self._pd.qhull_entries])
 
         return go.Mesh3d(
             x=coords[:, 1],
             y=coords[:, 0],
-            z=self._pd.qhull_data[:-1, 2],
+            z=energies,
             i=facets[:, 1],
             j=facets[:, 0],
             k=facets[:, 2],
             opacity=0.8,
-            intensity=self._pd.qhull_data[:-1, 2],
+            intensity=energies,
             colorscale=plotly_layouts["stable_colorscale"],
             colorbar=dict(title="Formation energy<br>(eV/atom)", x=0.8, len=0.82),
             hoverinfo="none",
