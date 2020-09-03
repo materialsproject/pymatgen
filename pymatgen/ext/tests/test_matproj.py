@@ -7,7 +7,8 @@ import unittest
 import warnings
 import random
 import sys
-from pymatgen import SETTINGS, __version__ as pmg_version
+import ruamel.yaml as yaml
+from pymatgen import SETTINGS, __version__ as pmg_version, SETTINGS_FILE
 from pymatgen.ext.matproj import MPRester, MPRestError, TaskType
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure, Composition
@@ -469,6 +470,19 @@ class MPResterTest(PymatgenTest):
         )
         self.rester = MPRester(include_user_agent=False)
         self.assertNotIn("user-agent", self.rester.session.headers, msg="user-agent header unwanted")
+
+    def test_database_version(self):
+
+        with MPRester(notify_db_version=True) as mpr:
+            db_version = mpr.get_database_version()
+
+        self.assertIsInstance(db_version, str)
+
+        with open(SETTINGS_FILE, "rt") as f:
+                d = yaml.safe_load(f)
+
+        self.assertEqual(d["MAPI_DB_VERSION"]["LAST_ACCESSED"], db_version)
+        self.assertIsInstance(d["MAPI_DB_VERSION"]["LOG"][db_version], int)
 
 
 if __name__ == "__main__":

@@ -23,9 +23,11 @@ from enum import Enum, unique
 from collections import defaultdict
 
 import requests
+import ruamel.yaml as yaml
 from monty.json import MontyDecoder, MontyEncoder
+from monty.serialization import dumpfn
 
-from pymatgen import SETTINGS, __version__ as pmg_version
+from pymatgen import SETTINGS, SETTINGS_FILE, __version__ as pmg_version
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
@@ -91,7 +93,7 @@ class MPRester:
                                  "is_compatible", "spacegroup",
                                  "band_gap", "density", "icsd_id", "cif")
 
-    def __init__(self, api_key=None, endpoint=None, include_user_agent=True):
+    def __init__(self, api_key=None, endpoint=None, notify_db_version=True, include_user_agent=True):
         """
         Args:
             api_key (str): A String API key for accessing the MaterialsProject
@@ -105,6 +107,13 @@ class MPRester:
                 interface. Defaults to the standard Materials Project REST
                 address at "https://materialsproject.org/rest/v2", but
                 can be changed to other urls implementing a similar interface.
+            notify_db_version (bool): If True, the current MP database version will
+                be retrieved and logged locally in the ~/.pmgrc.yaml. If the database
+                version changes, you will be notified. The current database version is
+                also printed on instantiation. These local logs are not sent to
+                materialsproject.org and are not associated with your API key, so be
+                aware that a notification may not be presented if you run MPRester
+                from multiple computing environments.
             include_user_agent (bool): If True, will include a user agent with the
                 HTTP request including information on pymatgen and system version
                 making the API request. This helps MP support pymatgen users, and
@@ -133,6 +142,35 @@ class MPRester:
             platform_info = "{}/{}".format(platform.system(), platform.release())
             self.session.headers["user-agent"] = "{} ({} {})".format(
                 pymatgen_info, python_info, platform_info)
+
+        if notify_db_version:
+            db_version = self.get_database_version()
+            print(f"Connection established to Materials Project database {db_version}.")
+
+            try:
+                with open(SETTINGS_FILE, "rt") as f:
+                    d = yaml.safe_load(f)
+            except IOError:
+                d = {}
+
+            if "MAPI_DB_VERSION" not in d:
+                d["MAPI_DB_VERSION"] = {"LOG": {}, "LAST_ACCESSED": None}
+
+            # store a log of what database versions are being connected to
+            if db_version not in d["MAPI_DB_VERSION"]["LOG"]:
+                d["MAPI_DB_VERSION"]["LOG"][db_version] = 1
+            else:
+                d["MAPI_DB_VERSION"]["LOG"][db_version] += 1
+
+            # alert user if db version changed
+            last_accessed = d["MAPI_DB_VERSION"]["LAST_ACCESSED"]
+            if last_accessed and last_accessed != db_version:
+                print(f"This database version has changed from the database last accessed ({last_accessed}).\n"
+                      f"Please see release notes on materialsproject.org for information about what has changed.")
+            d["MAPI_DB_VERSION"]["LAST_ACCESSED"] = db_version
+
+            # write out new database log
+            dumpfn(d, SETTINGS_FILE)
 
     def __enter__(self):
         """
@@ -173,6 +211,24 @@ class MPRester:
             msg = "{}. Content: {}".format(str(ex), response.content) \
                 if hasattr(response, "content") else str(ex)
             raise MPRestError(msg)
+
+    def get_database_version(self):
+        """
+        The Materials Project database is periodically updated and has a
+        database version associated with it. When the database is updated,
+        consolidated data (information about "a material") may and does
+        change, while calculation data about a specific calculation task
+        remains unchanged and available for querying via its task_id.
+
+        The database version is set as a date in the format YYYY-MM-DD,
+        where "-DD" may be optional. An additional numerical suffix
+        might be added if multiple releases happen on the same day.
+
+        Returns: database version as a string
+        """
+        d = self._make_request('/api_check')
+        return d["version"]["db"]
+
 
     def get_materials_id_from_task_id(self, task_id):
         """
