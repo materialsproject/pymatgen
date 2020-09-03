@@ -148,6 +148,7 @@ class AbinitTimerParser(collections.abc.Iterable):
 
             return AbinitTimerSection(name, ctime, cfract, wtime, wfract, ncalls, gflops)
 
+        sections, info, cpu_time, wall_time = None, None, None, None
         data = {}
         inside, has_timer = 0, False
         for line in fh:
@@ -667,9 +668,6 @@ class AbinitTimer:
             self.fname, self.wall_time, self.mpi_nprocs, self.omp_nthreads)
         # string += ", rank = " + self.mpi_rank
         return string
-
-    def __cmp__(self, other):
-        return cmp(self.wall_time, other.wall_time)
 
     @property
     def ncpus(self):

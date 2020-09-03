@@ -11,29 +11,21 @@ import collections
 import itertools
 import math
 import logging
-
-from monty.json import MSONable, MontyDecoder
 from functools import lru_cache
 
 import numpy as np
 from scipy.spatial import ConvexHull
+
+from monty.json import MSONable, MontyDecoder
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element, DummySpecie, get_el_sp
 from pymatgen.util.coord import Simplex, in_coord_list
 from pymatgen.util.string import latexify
 from pymatgen.util.plotting import pretty_plot
-from pymatgen.analysis.reaction_calculator import Reaction, \
-    ReactionError
+from pymatgen.analysis.reaction_calculator import Reaction, ReactionError
 from pymatgen.entries import Entry
 
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "1.0"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__status__ = "Production"
-__date__ = "May 16, 2011"
 
 logger = logging.getLogger(__name__)
 
@@ -69,7 +61,7 @@ class PDEntry(Entry):
         Args:
             composition (Composition): Composition
             energy (float): Energy for composition.
-            name (str): Optional parameter to name the entry. Defaults 
+            name (str): Optional parameter to name the entry. Defaults
                 to the reduced chemical formula.
             attribute: Optional attribute of the entry. Must be MSONable.
         """
@@ -100,8 +92,7 @@ class PDEntry(Entry):
     def __eq__(self, other):
         if isinstance(other, self.__class__):
             return self.as_dict() == other.as_dict()
-        else:
-            return False
+        return False
 
     def __hash__(self):
         return id(self)
@@ -644,13 +635,13 @@ class PhaseDiagram(MSONable):
 
         if not len(allfacets):
             raise RuntimeError("No facets found for comp = {}".format(comp))
-        else:
-            chempots = {}
-            for facet in allfacets:
-                facet_elt_list = [self.qhull_entries[j].name for j in facet]
-                facet_name = '-'.join(facet_elt_list)
-                chempots[facet_name] = self._get_facet_chempots(facet)
-            return chempots
+
+        chempots = {}
+        for facet in allfacets:
+            facet_elt_list = [self.qhull_entries[j].name for j in facet]
+            facet_name = '-'.join(facet_elt_list)
+            chempots[facet_name] = self._get_facet_chempots(facet)
+        return chempots
 
     def get_transition_chempots(self, element):
         """
@@ -877,8 +868,8 @@ class PhaseDiagram(MSONable):
                     for v in s._coords:
                         elts = [e for e in self.elements if e != dep_elt]
                         res = {}
-                        for i in range(len(elts)):
-                            res[elts[i]] = v[i] + muref[i]
+                        for i, el in enumerate(elts):
+                            res[el] = v[i] + muref[i]
                         res[dep_elt] = (np.dot(v + muref, coeff) + ef) / target_comp[dep_elt]
                         already_in = False
                         for di in all_coords:
@@ -940,8 +931,8 @@ class PhaseDiagram(MSONable):
                             min_mus = v
         elts = [e for e in self.elements if e != open_elt]
         res = {}
-        for i in range(len(elts)):
-            res[elts[i]] = (min_mus[i] + muref[i], max_mus[i] + muref[i])
+        for i, el in enumerate(elts):
+            res[el] = (min_mus[i] + muref[i], max_mus[i] + muref[i])
         res[open_elt] = (min_open, max_open)
         return res
 
@@ -1210,10 +1201,8 @@ class ReactionDiagram:
                     coeffs = np.linalg.solve(m, comp_vec2)
 
                     x = coeffs[-1]
-
-                    if all([c >= -tol for c in coeffs]) and \
-                            (abs(sum(coeffs[:-1]) - 1) < tol) and \
-                            (tol < x < 1 - tol):
+                    # pylint: disable=R1716
+                    if all([c >= -tol for c in coeffs]) and (abs(sum(coeffs[:-1]) - 1) < tol) and (tol < x < 1 - tol):
 
                         c1 = x / r1.num_atoms
                         c2 = (1 - x) / r2.num_atoms
@@ -1318,8 +1307,7 @@ def get_facets(qhull_data, joggle=False):
     """
     if joggle:
         return ConvexHull(qhull_data, qhull_options="QJ i").simplices
-    else:
-        return ConvexHull(qhull_data, qhull_options="Qt i").simplices
+    return ConvexHull(qhull_data, qhull_options="Qt i").simplices
 
 
 class PDPlotter:
@@ -1402,8 +1390,7 @@ class PDPlotter:
         all_data = np.array(pd.all_entries_hulldata)
         unstable_entries = dict()
         stable = pd.stable_entries
-        for i in range(0, len(all_entries)):
-            entry = all_entries[i]
+        for i, entry in enumerate(all_entries):
             if entry not in stable:
                 if self._dim < 3:
                     x = [all_data[i][0], all_data[i][0]]
@@ -1889,6 +1876,7 @@ class PDPlotter:
             for (j, yval) in enumerate(ynew):
                 znew[j, i] = f(xval, yval)
 
+        # pylint: disable=E1101
         plt.contourf(xnew, ynew, znew, 1000, cmap=cm.autumn_r)
 
         plt.colorbar()
@@ -2003,15 +1991,15 @@ def order_phase_diagram(lines, stable_entries, unstable_entries, ordering):
         if nameleft == ordering[1]:
             # The coordinates were already in the user ordering
             return lines, stable_entries, unstable_entries
-        else:
-            newlines = [[np.array(1.0 - x), y] for x, y in lines]
-            newstable_entries = {(1.0 - c[0], c[1]): entry
-                                 for c, entry in stable_entries.items()}
-            newunstable_entries = {entry: (1.0 - c[0], c[1])
-                                   for entry, c in
-                                   unstable_entries.items()}
-            return newlines, newstable_entries, newunstable_entries
-    elif nameup == ordering[1]:
+
+        newlines = [[np.array(1.0 - x), y] for x, y in lines]
+        newstable_entries = {(1.0 - c[0], c[1]): entry
+                             for c, entry in stable_entries.items()}
+        newunstable_entries = {entry: (1.0 - c[0], c[1])
+                               for entry, c in
+                               unstable_entries.items()}
+        return newlines, newstable_entries, newunstable_entries
+    if nameup == ordering[1]:
         if nameleft == ordering[2]:
             c120 = np.cos(2.0 * np.pi / 3.0)
             s120 = np.sin(2.0 * np.pi / 3.0)
@@ -2032,26 +2020,25 @@ def order_phase_diagram(lines, stable_entries, unstable_entries, ordering):
                         s120 * (c[0] - cc[0]) + c120 * (c[1] - cc[1]) + cc[1])
                 for entry, c in unstable_entries.items()}
             return newlines, newstable_entries, newunstable_entries
-        else:
-            c120 = np.cos(2.0 * np.pi / 3.0)
-            s120 = np.sin(2.0 * np.pi / 3.0)
-            newlines = []
-            for x, y in lines:
-                newx = np.zeros_like(x)
-                newy = np.zeros_like(y)
-                for ii, xx in enumerate(x):
-                    newx[ii] = -c120 * (xx - 1.0) - s120 * y[ii] + 1.0
-                    newy[ii] = -s120 * (xx - 1.0) + c120 * y[ii]
-                newlines.append([newx, newy])
-            newstable_entries = {(-c120 * (c[0] - 1.0) - s120 * c[1] + 1.0,
-                                  -s120 * (c[0] - 1.0) + c120 * c[1]): entry
-                                 for c, entry in stable_entries.items()}
-            newunstable_entries = {
-                entry: (-c120 * (c[0] - 1.0) - s120 * c[1] + 1.0,
-                        -s120 * (c[0] - 1.0) + c120 * c[1])
-                for entry, c in unstable_entries.items()}
-            return newlines, newstable_entries, newunstable_entries
-    elif nameup == ordering[2]:
+        c120 = np.cos(2.0 * np.pi / 3.0)
+        s120 = np.sin(2.0 * np.pi / 3.0)
+        newlines = []
+        for x, y in lines:
+            newx = np.zeros_like(x)
+            newy = np.zeros_like(y)
+            for ii, xx in enumerate(x):
+                newx[ii] = -c120 * (xx - 1.0) - s120 * y[ii] + 1.0
+                newy[ii] = -s120 * (xx - 1.0) + c120 * y[ii]
+            newlines.append([newx, newy])
+        newstable_entries = {(-c120 * (c[0] - 1.0) - s120 * c[1] + 1.0,
+                              -s120 * (c[0] - 1.0) + c120 * c[1]): entry
+                             for c, entry in stable_entries.items()}
+        newunstable_entries = {
+            entry: (-c120 * (c[0] - 1.0) - s120 * c[1] + 1.0,
+                    -s120 * (c[0] - 1.0) + c120 * c[1])
+            for entry, c in unstable_entries.items()}
+        return newlines, newstable_entries, newunstable_entries
+    if nameup == ordering[2]:
         if nameleft == ordering[0]:
             c240 = np.cos(4.0 * np.pi / 3.0)
             s240 = np.sin(4.0 * np.pi / 3.0)
@@ -2072,21 +2059,21 @@ def order_phase_diagram(lines, stable_entries, unstable_entries, ordering):
                         s240 * (c[0] - cc[0]) + c240 * (c[1] - cc[1]) + cc[1])
                 for entry, c in unstable_entries.items()}
             return newlines, newstable_entries, newunstable_entries
-        else:
-            c240 = np.cos(4.0 * np.pi / 3.0)
-            s240 = np.sin(4.0 * np.pi / 3.0)
-            newlines = []
-            for x, y in lines:
-                newx = np.zeros_like(x)
-                newy = np.zeros_like(y)
-                for ii, xx in enumerate(x):
-                    newx[ii] = -c240 * xx - s240 * y[ii]
-                    newy[ii] = -s240 * xx + c240 * y[ii]
-                newlines.append([newx, newy])
-            newstable_entries = {(-c240 * c[0] - s240 * c[1],
-                                  -s240 * c[0] + c240 * c[1]): entry
-                                 for c, entry in stable_entries.items()}
-            newunstable_entries = {entry: (-c240 * c[0] - s240 * c[1],
-                                           -s240 * c[0] + c240 * c[1])
-                                   for entry, c in unstable_entries.items()}
-            return newlines, newstable_entries, newunstable_entries
+        c240 = np.cos(4.0 * np.pi / 3.0)
+        s240 = np.sin(4.0 * np.pi / 3.0)
+        newlines = []
+        for x, y in lines:
+            newx = np.zeros_like(x)
+            newy = np.zeros_like(y)
+            for ii, xx in enumerate(x):
+                newx[ii] = -c240 * xx - s240 * y[ii]
+                newy[ii] = -s240 * xx + c240 * y[ii]
+            newlines.append([newx, newy])
+        newstable_entries = {(-c240 * c[0] - s240 * c[1],
+                              -s240 * c[0] + c240 * c[1]): entry
+                             for c, entry in stable_entries.items()}
+        newunstable_entries = {entry: (-c240 * c[0] - s240 * c[1],
+                                       -s240 * c[0] + c240 * c[1])
+                               for entry, c in unstable_entries.items()}
+        return newlines, newstable_entries, newunstable_entries
+    raise ValueError("Invalid ordering.")

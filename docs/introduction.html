@@ -1,15 +1,19 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Introduction &mdash; pymatgen 2020.4.29 documentation</title>
+  <title>Introduction &mdash; pymatgen 2020.8.13 documentation</title>
   
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
 
   
   
@@ -19,7 +23,9 @@
   
 
   
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -32,11 +38,6 @@
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Installation" href="installation.html" />
@@ -61,7 +62,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> pymatgen
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pymatgen
           
 
           
@@ -71,7 +72,7 @@
             
             
               <div class="version">
-                2020.4.29
+                2020.8.13
               </div>
             
           
@@ -88,6 +89,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -98,28 +100,19 @@
               <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Introduction</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#offline-docs">Offline docs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#development-news">Development News</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#py3k-only-with-effect-from-2019-1-1">Py3k-only with effect from 2019.1.1</a></li>
-</ul>
-</li>
 <li class="toctree-l2"><a class="reference internal" href="#matgenie-examples">Matgenie &amp; Examples</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#why-use-pymatgen">Why use pymatgen?</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#change-log">Change log</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#getting-pymatgen">Getting pymatgen</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#via-conda-recommended">Via conda (recommended)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#via-pip">Via pip</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#shared-cluster-installation">Shared cluster installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#change-log">Change log</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#v2020-8-13">v2020.8.13</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#quick-start">Quick start</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#api-documentation">API documentation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#more-resources">More resources</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#pmg-command-line-tool">pmg - Command line tool</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#add-ons">Add-ons</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#getting-pymatgen">Getting pymatgen</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#contributing">Contributing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#reporting-bugs">Reporting bugs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#developing-new-functionality">Developing new functionality</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#contributing">Contributing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#how-to-cite-pymatgen">How to cite pymatgen</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#license">License</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#about-the-team">About the Team</a></li>
@@ -138,6 +131,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -176,7 +170,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html">Docs</a> &raquo;</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
       <li>Introduction</li>
     
@@ -202,9 +196,7 @@
   <a class="reference internal image-reference" href="_images/pymatgen.png"><img alt="pymatgen" class="align-center" src="_images/pymatgen.png" style="width: 300px;" /></a>
 <div class="section" id="introduction">
 <h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
-<img alt="https://circleci.com/gh/materialsproject/pymatgen.svg?style=shield&amp;circle-token=:circle-token" src="https://circleci.com/gh/materialsproject/pymatgen.svg?style=shield&amp;circle-token=:circle-token" />
-<img alt="https://ci.appveyor.com/api/projects/status/akdyke5jxg6gps45?svg=true" src="https://ci.appveyor.com/api/projects/status/akdyke5jxg6gps45?svg=true" />
-<img alt="https://anaconda.org/conda-forge/pymatgen/badges/downloads.svg" src="https://anaconda.org/conda-forge/pymatgen/badges/downloads.svg" /><img alt="https://coveralls.io/repos/github/materialsproject/pymatgen/badge.svg?branch=master" src="https://coveralls.io/repos/github/materialsproject/pymatgen/badge.svg?branch=master" />
+<img alt="https://github.com/materialsproject/pymatgen/workflows/Testing%20-%20main/badge.svg" src="https://github.com/materialsproject/pymatgen/workflows/Testing%20-%20main/badge.svg" /><img alt="https://github.com/materialsproject/pymatgen/workflows/Testing%20-%20analysis/badge.svg" src="https://github.com/materialsproject/pymatgen/workflows/Testing%20-%20analysis/badge.svg" /><img alt="https://anaconda.org/conda-forge/pymatgen/badges/downloads.svg" src="https://anaconda.org/conda-forge/pymatgen/badges/downloads.svg" /><img alt="https://coveralls.io/repos/github/materialsproject/pymatgen/badge.svg?branch=master" src="https://coveralls.io/repos/github/materialsproject/pymatgen/badge.svg?branch=master" />
 <p>Pymatgen (Python Materials Genomics) is a robust, open-source Python library
 for materials analysis. These are some of the main features:</p>
 <ol class="arabic simple">
@@ -217,8 +209,9 @@ Gaussian, XYZ, and many other file formats.</p></li>
 diagrams, diffusion analyses, reactions, etc.</p></li>
 <li><p>Electronic structure analyses, such as density of states and band structure.</p></li>
 <li><p>Integration with the Materials Project REST API, Crystallography Open
-Database.</p></li>
+Database and other external data sources.</p></li>
 </ol>
+<p>As of 2020, pymatgen only supports Python 3 and above.</p>
 <p>Pymatgen is free to use. However, we also welcome your help to improve this
 library by making your own contributions. These contributions can be in the
 form of additional tools or modules you develop, or feature requests and bug
@@ -245,24 +238,6 @@ are two options:</p>
 “User Contributed Docsets”, search for pymatgen and install.</p></li>
 </ol>
 </div>
-<div class="section" id="development-news">
-<h2>Development News<a class="headerlink" href="#development-news" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="py3k-only-with-effect-from-2019-1-1">
-<h3>Py3k-only with effect from 2019.1.1<a class="headerlink" href="#py3k-only-with-effect-from-2019-1-1" title="Permalink to this headline">¶</a></h3>
-<p>Pymatgen has supported both Python 2.7 as well as Python 3.x from version 3.0.
-With increasing support by most standard libraries for Py3k, it no longer makes
-sense to maintain this dual support going forward. Dual support imposes costs in
-terms of developmental effort, and also forces compromises in code quality and
-efficiency. Though some legacy clusters may only come with Py2k installed by
-default, the recommended approach in any case is to create an isolated Py3k
-environment.</p>
-<p>The pymatgen development team will phase out Py2k support over the course of
-2018. From v2018.1.1, new features implemented in pymatgen no longer need to
-support Py2k (i.e., unittests do not need to pass Py2k testing), though
-existing features will still be Py2k compatible. From v2019.1.1, pymatgen will
-be Py3k only.</p>
-</div>
-</div>
 <div class="section" id="matgenie-examples">
 <h2>Matgenie &amp; Examples<a class="headerlink" href="#matgenie-examples" title="Permalink to this headline">¶</a></h2>
 <p>The <a class="reference external" href="http://www.materialsvirtuallab.org">Materials Virtual Lab</a> has developed a
@@ -274,12 +249,12 @@ pymatgen examples page in favor of this more sustainable approach going forward.
 One of the ways you can contribute is to fork the matgenb repo and add your own
 examples.</p>
 <p>Below are a quick look at some of the graphical output possible.</p>
-<div class="figure align-center" id="id3">
+<div class="figure align-center" id="id2">
 <a class="reference internal image-reference" href="_images/examples.png"><img alt="Examples" src="_images/examples.png" style="width: 100%;" /></a>
 <p class="caption"><span class="caption-text">Top: (left) Phase and (right) Pourbaix diagram from the Materials API.
 Bottom left: Calculated bandstructure plot using pymatgen’s parsing and
 plotting utilities. Bottom right: Arrhenius plot using pymatgen’s
-DiffusionAnalyzer.</span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
+DiffusionAnalyzer.</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
 </div>
 </div>
 <div class="section" id="why-use-pymatgen">
@@ -317,22 +292,23 @@ other research groups.</p></li>
 </div>
 <div class="section" id="change-log">
 <h2>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="v2020-8-13">
+<h3>v2020.8.13<a class="headerlink" href="#v2020-8-13" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li><p>New: Support for parsing WAVECARS with spin-orbit coupling (&#64;mturiansky, #1861)</p></li>
-<li><p>New: Support to convert WAVECAR to wannier90 UNK files (&#64;mturiansky, #1861)</p></li>
-<li><p>New: Site-weighted XAS spectrum (&#64;yimingchen95, #1837)</p></li>
-<li><p>Fixed: Elfcar serialization (&#64;ayushgupta, #1859)</p></li>
-<li><p>Fixed: Units in label for phonon plot (&#64;ab5424, #1857)</p></li>
-<li><p>Fixed: StructureMatcher serialization (&#64;lbluque, #1850)</p></li>
-<li><p>Fixed: Comment string in KPOINTS file (&#64;arosen93, #1842)</p></li>
-<li><p>Fixed: parsing of dielectric function in VASP output (&#64;computron, #1836)</p></li>
+<li><p>New GibbsComputedStructureEntry (&#64;mattmcdermott, #1921)</p></li>
+<li><p>Changes to MPScanRelaxSet and new MPScanStaticSet (&#64;rkingsbury, #1917)</p></li>
+<li><p>Changes to LobsterSet (&#64;JaGeo, #1928)</p></li>
+<li><p>Bug fix and change for MPRelaxSet (&#64;mkhorton, 9eb3ac2)</p></li>
+<li><p>Bug fix for JMolNN (&#64;utf, #1920)</p></li>
+<li><p>Bug fix for Element valences (&#64;rkurchin, #1926)</p></li>
+<li><p>Bug fix for BabelMolAdaptor (&#64;smheidrich, #1924)</p></li>
+<li><p>Bug fix for Gaussion IO (&#64;eimrek, #1918)</p></li>
 </ul>
 <p><a class="reference internal" href="change_log.html"><span class="doc">Older versions</span></a></p>
 </div>
+</div>
 <div class="section" id="getting-pymatgen">
 <h2>Getting pymatgen<a class="headerlink" href="#getting-pymatgen" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="via-conda-recommended">
-<h3>Via conda (recommended)<a class="headerlink" href="#via-conda-recommended" title="Permalink to this headline">¶</a></h3>
 <p>If you are absolutely new to Python and/or are using Windows, the easiest
 installation process is using <a class="reference external" href="http://conda.pydata.org">conda</a>. If you
 already have conda installed, pymatgen can be installed from the <a class="reference external" href="https://anaconda.org/conda-forge">conda-forge
@@ -352,9 +328,6 @@ upgrade pymatgen to the latest version, use the following command:</p>
 </div>
 <p>Step-by-step instructions for all platforms are available at the
 <a class="reference internal" href="installation.html"><span class="doc">installation page</span></a>.</p>
-</div>
-<div class="section" id="via-pip">
-<h3>Via pip<a class="headerlink" href="#via-pip" title="Permalink to this headline">¶</a></h3>
 <p>The version at the Python Package Index (PyPI) is always the latest stable
 release that is relatively bug-free. The easiest way to install pymatgen on
 any system is to use pip:</p>
@@ -387,9 +360,6 @@ interface usage, setup for developers, etc.are given on this
 </pre></div>
 </div>
 <p>For an always up-to-date list of extras, consult the <a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/master/setup.py">setup.py’s extras_require</a>.</p>
-</div>
-<div class="section" id="shared-cluster-installation">
-<h3>Shared cluster installation<a class="headerlink" href="#shared-cluster-installation" title="Permalink to this headline">¶</a></h3>
 <p>If you are installing pymatgen on shared computing clusters, e.g., the XSEDE
 or NERSC resources in the US, the best way is to use conda to perform a local
 install. This guarantees the right version of python and all dependencies:</p>
@@ -406,12 +376,11 @@ conda install --yes --channel conda-forge pymatgen
 </pre></div>
 </div>
 </div>
-</div>
 <div class="section" id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
-<div class="figure align-center" id="id4">
+<div class="figure align-center" id="id3">
 <a class="reference internal image-reference" href="_images/overview.jpg"><img alt="pymatgen overview" src="_images/overview.jpg" style="width: 100%;" /></a>
-<p class="caption"><span class="caption-text">Overview of a typical workflow for pymatgen.</span><a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-text">Overview of a typical workflow for pymatgen.</span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
 </div>
 <p>The figure above provides an overview of the functionality in pymatgen. A
 typical workflow would involve a user converting data (structure, calculations,
@@ -419,8 +388,6 @@ etc.) from various sources (first principles calculations, crystallographic and
 molecule input files, Materials Project, etc.) into Python objects using
 pymatgen’s io packages, which are then used to perform further structure
 manipulation or analyses.</p>
-<div class="section" id="quick-start">
-<span id="id1"></span><h3>Quick start<a class="headerlink" href="#quick-start" title="Permalink to this headline">¶</a></h3>
 <p>Useful aliases for commonly used objects are now provided. Supported objects
 include Element, Composition, Structure, Molecule, Spin and Orbital. Here are
 some quick examples of the core capabilities and objects:</p>
@@ -550,22 +517,13 @@ some quick examples of the core capabilities and objects:</p>
 </div>
 <p>The above illustrates only the most basic capabilities of pymatgen. Users are
 strongly encouraged to explore the <a class="reference internal" href="usage.html"><span class="doc">usage pages</span></a> (toc given below).</p>
-</div>
-<div class="section" id="api-documentation">
-<h3>API documentation<a class="headerlink" href="#api-documentation" title="Permalink to this headline">¶</a></h3>
 <p>For detailed documentation of all modules and classes, please refer to the
 <a class="reference internal" href="modules.html"><span class="doc">API docs</span></a>.</p>
-</div>
-<div class="section" id="more-resources">
-<h3>More resources<a class="headerlink" href="#more-resources" title="Permalink to this headline">¶</a></h3>
 <p>The founder and maintainer of pymatgen, Shyue Ping Ong, has conducted several
 workshops (together with Anubhav Jain) on how to effectively use pymatgen (as
 well as the extremely useful <a class="reference external" href="https://pypi.python.org/pypi/custodian">custodian</a> error management and <a class="reference external" href="https://materialsproject.github.io/fireworks">FireWorks</a>
 workflow software. The slides for these workshops are available on the
 <a class="reference external" href="http://www.materialsvirtuallab.org">Materials Virtual Lab</a>.</p>
-</div>
-<div class="section" id="pmg-command-line-tool">
-<h3>pmg - Command line tool<a class="headerlink" href="#pmg-command-line-tool" title="Permalink to this headline">¶</a></h3>
 <p>To demonstrate the capabilities of pymatgen and to make it easy for users to
 quickly use the functionality, pymatgen comes with a set of useful scripts
 that utilize the library to perform all kinds of analyses. These are
@@ -621,9 +579,6 @@ line to your <code class="docutils literal notranslate"><span class="pre">.bash_
 <span class="n">pmg</span> <span class="n">potcar</span> <span class="o">--</span><span class="n">symbols</span> <span class="n">Li_sv</span> <span class="n">O</span> <span class="o">--</span><span class="n">functional</span> <span class="n">PBE</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="add-ons">
-<h3>Add-ons<a class="headerlink" href="#add-ons" title="Permalink to this headline">¶</a></h3>
 <p>Some add-ons are available for pymatgen today:</p>
 <ol class="arabic simple">
 <li><p>The <a class="reference external" href="https://pypi.python.org/pypi/pymatgen-db">pymatgen-db</a> add-on
@@ -634,7 +589,6 @@ correction for calculations.</p></li>
 by the <a class="reference external" href="http://www.materialsvirtuallab.org">Materials Virtual Lab</a> provides additional useful analyses for
 diffusion in materials.</p></li>
 </ol>
-</div>
 </div>
 <div class="section" id="contributing">
 <h2>Contributing<a class="headerlink" href="#contributing" title="Permalink to this headline">¶</a></h2>
@@ -649,14 +603,20 @@ to pymatgen in some small way, it would be greatly appreciated. A benefit of
 contributing is that your code will now be used by other researchers who use
 pymatgen, and we will include an acknowledgement to you (and any related
 publications) in pymatgen.</p>
+<div class="section" id="reporting-bugs">
+<h3>Reporting bugs<a class="headerlink" href="#reporting-bugs" title="Permalink to this headline">¶</a></h3>
 <p>A simple way that anyone can contribute is simply to report bugs and issues
 to the developing team. Please report any bugs and issues at pymatgen’s
 <a class="reference external" href="https://github.com/materialsproject/pymatgen/issues">Github Issues page</a>.
 For help with any pymatgen issue, consult <a class="reference external" href="https://stackoverflow.com/questions/tagged/pymatgen">Stack Overflow</a> and if
 you cannot find an answer, please post a question with the tag <cite>pymatgen</cite>.</p>
+</div>
+<div class="section" id="developing-new-functionality">
+<h3>Developing new functionality<a class="headerlink" href="#developing-new-functionality" title="Permalink to this headline">¶</a></h3>
 <p>Another way to contribute is to submit new code/bugfixes to pymatgen. The
 best way for anyone to develop pymatgen is by adopting the collaborative
 Github workflow (see <a class="reference external" href="/contributing">contributing page</a>).</p>
+</div>
 </div>
 <div class="section" id="how-to-cite-pymatgen">
 <h2>How to cite pymatgen<a class="headerlink" href="#how-to-cite-pymatgen" title="Permalink to this headline">¶</a></h2>
@@ -747,11 +707,19 @@ to indicate the copyright and license terms:</p>
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2011, Pymatgen Development Team
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -762,7 +730,6 @@ to indicate the copyright and license terms:</p>
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {

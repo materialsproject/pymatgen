@@ -3,8 +3,9 @@ Utilities for Qchem io.
 """
 
 import re
-import numpy as np
 from collections import defaultdict
+
+import numpy as np
 
 
 def read_pattern(text_str, patterns, terminate_on_match=False,
@@ -128,22 +129,22 @@ def lower_and_check_unique(dict_to_check):
     """
     if dict_to_check is None:
         return None
-    else:
-        to_return = {}
-        for key in dict_to_check:
-            new_key = key.lower()
-            if new_key == "jobtype":
-                new_key = "job_type"
-            if new_key in to_return:
-                if to_return[key] != to_return[new_key]:
-                    raise Exception(
-                        "Multiple instances of key " + new_key + " found with different values! Exiting...")
-            else:
-                try:
-                    to_return[new_key] = dict_to_check.get(key).lower()
-                except AttributeError:
-                    to_return[new_key] = dict_to_check.get(key)
-        return to_return
+
+    to_return = {}
+    for key in dict_to_check:
+        new_key = key.lower()
+        if new_key == "jobtype":
+            new_key = "job_type"
+        if new_key in to_return:
+            if to_return[key] != to_return[new_key]:
+                raise Exception(
+                    "Multiple instances of key " + new_key + " found with different values! Exiting...")
+        else:
+            try:
+                to_return[new_key] = dict_to_check.get(key).lower()
+            except AttributeError:
+                to_return[new_key] = dict_to_check.get(key)
+    return to_return
 
 
 def process_parsed_coords(coords):

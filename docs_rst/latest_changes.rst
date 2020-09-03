@@ -1,13 +1,13 @@
 Change log
 ==========
 
-v2020.6.8
----------
-* New: Support for parsing WAVECARS with spin-orbit coupling (@mturiansky, #1861)
-* New: Support to convert WAVECAR to wannier90 UNK files (@mturiansky, #1861)
-* New: Site-weighted XAS spectrum (@yimingchen95, #1837)
-* Fixed: Elfcar serialization (@ayushgupta, #1859)
-* Fixed: Units in label for phonon plot (@ab5424, #1857)
-* Fixed: StructureMatcher serialization (@lbluque, #1850)
-* Fixed: Comment string in KPOINTS file (@arosen93, #1842)
-* Fixed: parsing of dielectric function in VASP output (@computron, #1836)
+v2020.8.13
+----------
+* New GibbsComputedStructureEntry (@mattmcdermott, #1921)
+* Changes to MPScanRelaxSet and new MPScanStaticSet (@rkingsbury, #1917)
+* Changes to LobsterSet (@JaGeo, #1928)
+* Bug fix and change for MPRelaxSet (@mkhorton, 9eb3ac2)
+* Bug fix for JMolNN (@utf, #1920)
+* Bug fix for Element valences (@rkurchin, #1926)
+* Bug fix for BabelMolAdaptor (@smheidrich, #1924)
+* Bug fix for Gaussion IO (@eimrek, #1918)

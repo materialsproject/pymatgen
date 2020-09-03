@@ -6,14 +6,16 @@
 This module provides classes to define everything related to band structures.
 """
 
-import numpy as np
 import re
 import math
 import itertools
 import collections
 import warnings
 
+import numpy as np
+
 from monty.json import MSONable
+
 from pymatgen.core.periodic_table import get_el_sp, Element
 from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
@@ -444,10 +446,8 @@ class BandStructure:
 
         result["energy"] = cbm["energy"] - vbm["energy"]
 
-        if (cbm["kpoint"].label is not None and cbm["kpoint"].label == vbm[
-            "kpoint"].label) \
-                or np.linalg.norm(cbm["kpoint"].cart_coords
-                                  - vbm["kpoint"].cart_coords) < 0.01:
+        if (cbm["kpoint"].label is not None and cbm["kpoint"].label == vbm["kpoint"].label) \
+                or np.linalg.norm(cbm["kpoint"].cart_coords - vbm["kpoint"].cart_coords) < 0.01:
             result["direct"] = True
 
         result["transition"] = "-".join(
@@ -537,6 +537,7 @@ class BandStructure:
         all_kpts = self.get_sym_eq_kpoints(kpoint, cartesian, tol=tol)
         if all_kpts is not None:
             return len(all_kpts)
+        return None
 
     def as_dict(self):
         """
@@ -634,10 +635,8 @@ class BandStructure:
                         for k in range(len(d['projections'][spin][i][j])):
                             ddddd = []
                             orb = Orbital(k).name
-                            for l in range(len(d['projections'][spin][i][j][
-                                                   orb])):
-                                ddddd.append(d['projections'][spin][i][j][
-                                                 orb][l])
+                            for l in range(len(d['projections'][spin][i][j][orb])):
+                                ddddd.append(d['projections'][spin][i][j][orb][l])
                             dddd.append(np.array(ddddd))
                         ddd.append(np.array(dddd))
                     dd.append(np.array(ddd))
@@ -944,10 +943,8 @@ class BandStructureSymmLine(BandStructure, MSONable):
                         for k in range(len(d['projections'][spin][i][j])):
                             ddddd = []
                             orb = Orbital(k).name
-                            for l in range(len(d['projections'][spin][i][j][
-                                                   orb])):
-                                ddddd.append(d['projections'][spin][i][j][
-                                                 orb][l])
+                            for l in range(len(d['projections'][spin][i][j][orb])):
+                                ddddd.append(d['projections'][spin][i][j][orb][l])
                             dddd.append(np.array(ddddd))
                         ddd.append(np.array(dddd))
                     dd.append(np.array(ddd))
@@ -1189,7 +1186,6 @@ def get_reconstructed_band_structure(list_bs, efermi=None):
                                      efermi, labels_dict,
                                      structure=list_bs[0].structure,
                                      projections=projections)
-    else:
-        return BandStructure(kpoints, eigenvals, rec_lattice, efermi,
-                             labels_dict, structure=list_bs[0].structure,
-                             projections=projections)
+    return BandStructure(kpoints, eigenvals, rec_lattice, efermi,
+                         labels_dict, structure=list_bs[0].structure,
+                         projections=projections)

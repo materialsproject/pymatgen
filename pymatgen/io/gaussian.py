@@ -7,18 +7,17 @@ This module implements input and output processing from Gaussian.
 """
 
 import re
-
-import numpy as np
 import warnings
 
-from pymatgen.core.operations import SymmOp
-from pymatgen import Element, Molecule, Composition
-from monty.io import zopen
-from pymatgen.core.units import Ha_to_eV
-from pymatgen.util.coord import get_angle
+import numpy as np
 import scipy.constants as cst
+from monty.io import zopen
 
+from pymatgen import Element, Molecule, Composition
+from pymatgen.core.operations import SymmOp
+from pymatgen.core.units import Ha_to_eV
 from pymatgen.electronic_structure.core import Spin
+from pymatgen.util.coord import get_angle
 
 __author__ = 'Shyue Ping Ong, Germain  Salvato-Vallverdu, Xin Chen'
 __copyright__ = 'Copyright 2013, The Materials Virtual Lab'
@@ -538,7 +537,8 @@ class GaussianOutput:
 
     .. attribute:: opt_structures
 
-        All optimized structures from the calculation in the input orientation
+        All optimized structures from the calculation in the standard orientation,
+        if the attribute 'standard_orientation' is True, otherwise in the input
         or the Z-matrix orientation.
 
     .. attribute:: energies
@@ -944,10 +944,9 @@ class GaussianOutput:
                                         self.atom_basis_labels[iat].append(m.group(4))
 
                                     # MO coefficients
-                                    coeffs = [float(c) for c in
-                                              float_patt.findall(line)]
-                                    for j in range(len(coeffs)):
-                                        mat_mo[spin][i, nMO + j] = coeffs[j]
+                                    coeffs = [float(c) for c in float_patt.findall(line)]
+                                    for j, c in enumerate(coeffs):
+                                        mat_mo[spin][i, nMO + j] = c
 
                                 nMO += len(coeffs)
                                 line = f.readline()
@@ -1116,7 +1115,10 @@ class GaussianOutput:
                         if " -- Stationary point found." not in line:
                             warnings.warn("\n" + self.filename +
                                           ": Optimization complete but this is not a stationary point")
-                        opt_structures.append(input_structures[-1])
+                        if standard_orientation:
+                            opt_structures.append(std_structures[-1])
+                        else:
+                            opt_structures.append(input_structures[-1])
                     elif not read_eigen and orbital_patt.search(line):
                         eigen_txt.append(line)
                         read_eigen = True
@@ -1171,7 +1173,7 @@ class GaussianOutput:
         else:
             self.structures = input_structures
             self.structures_input_orientation = input_structures
-        # store optimized structure in input orientation 
+        # store optimized structure in input orientation
         self.opt_structures = opt_structures
 
         if not terminated:

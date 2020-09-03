@@ -46,10 +46,9 @@ def formula_double_format(afloat, ignore_ones=True, tol=1e-8):
     """
     if ignore_ones and afloat == 1:
         return ""
-    elif abs(afloat - int(afloat)) < tol:
+    if abs(afloat - int(afloat)) < tol:
         return str(int(afloat))
-    else:
-        return str(round(afloat, 8))
+    return str(round(afloat, 8))
 
 
 def latexify(formula):
@@ -361,7 +360,7 @@ class StringColorizer:
     """
     Provides coloring for strings in terminals.
     """
-
+    # pylint: disable=R0903
     colours = {
         "default": "",
         "blue": "\x1b[01;34m",
@@ -386,12 +385,5 @@ class StringColorizer:
             code = self.colours.get(colour.lower(), "")
             if code:
                 return code + string + "\x1b[00m"
-            else:
-                return string
-        else:
             return string
-
-
-if __name__ == "__main__":
-    import doctest
-    doctest.testmod()
+        return string

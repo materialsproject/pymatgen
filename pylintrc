@@ -7,7 +7,7 @@ extension-pkg-whitelist=
 
 # Add files or directories to the blacklist. They should be base names, not
 # paths.
-ignore=pymatgen/__init__.py,pymatgen/io/abinit/*.py
+ignore=
 
 # Add files or directories matching the regex patterns to the blacklist. The
 # regex matches against base names, not paths.
@@ -19,7 +19,7 @@ ignore-patterns=test_
 
 # Use multiple processes to speed up Pylint. Specifying 0 will auto-detect the
 # number of processors available to use.
-jobs=1
+jobs=0
 
 # Control the amount of potential inferred values when inferring a single
 # object. This can help the performance when dealing with large functions or
@@ -140,6 +140,7 @@ disable=print-statement,
         exception-escape,
         comprehension-escape,
         C0103,
+        C0201,
         E0401,
         R0902,
         R0904,
@@ -150,12 +151,15 @@ disable=print-statement,
         R0915,
         R0916,
         R1702,
+        R0903,
         W,
         C1801,
         E0611,
         E1121,
-
-        R0901
+        R0901,
+        C0415,
+        C0330,
+        C0302
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option

@@ -22,28 +22,20 @@ This module implements input and output processing from Nwchem.
         1. forces.                      ["forces"]
 """
 
-import re
 import os
+import re
 import warnings
 from string import Template
 
 import numpy as np
-
 from monty.io import zopen
-
-from pymatgen.core.structure import Molecule, Structure
 from monty.json import MSONable
+
+from pymatgen.analysis.excitation import ExcitationSpectrum
+from pymatgen.core.structure import Molecule, Structure
 from pymatgen.core.units import Energy
 from pymatgen.core.units import FloatWithUnit
-from pymatgen.analysis.excitation import ExcitationSpectrum
 
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "6/5/13"
 
 NWCHEM_BASIS_LIBRARY = None
 if os.environ.get("NWCHEM_BASIS_LIBRARY"):
@@ -261,7 +253,7 @@ $theory_spec
             re.sub(r"\s", "", mol.formula), theory, operation)
 
         charge = charge if charge is not None else mol.charge
-        nelectrons = - charge + mol.charge + mol.nelectrons
+        nelectrons = - charge + mol.charge + mol.nelectrons  # pylint: disable=E1130
         if spin_multiplicity is not None:
             spin_multiplicity = spin_multiplicity
             if (nelectrons + spin_multiplicity) % 2 != 1:
@@ -655,7 +647,8 @@ class NwOutput:
             y.append(t * prefac)
         return ExcitationSpectrum(x, y)
 
-    def _parse_preamble(self, preamble):
+    @staticmethod
+    def _parse_preamble(preamble):
         info = {}
         for l in preamble.split("\n"):
             toks = l.split("=")
@@ -672,7 +665,8 @@ class NwOutput:
     def __len__(self):
         return len(self.data)
 
-    def _parse_job(self, output):
+    @staticmethod
+    def _parse_job(output):
         energy_patt = re.compile(r'Total \w+ energy\s+=\s+([.\-\d]+)')
         energy_gas_patt = re.compile(r'gas phase energy\s+=\s+([.\-\d]+)')
         energy_sol_patt = re.compile(r'sol phase energy\s+=\s+([.\-\d]+)')
@@ -730,7 +724,9 @@ class NwOutput:
         job_type = ""
         parse_time = False
         time = 0
+
         for l in output.split("\n"):
+            # pylint: disable=E1136
             for e, v in error_defs.items():
                 if l.find(e) != -1:
                     errors.append(v)
@@ -774,8 +770,7 @@ class NwOutput:
                 if len(l.strip()) == 0:
                     if len(normal_frequencies[-1][1]) == 0:
                         continue
-                    else:
-                        parse_freq = False
+                    parse_freq = False
                 else:
                     vibs = [float(vib) for vib in l.strip().split()[1:]]
                     num_vibs = len(vibs)
@@ -786,8 +781,7 @@ class NwOutput:
                 if len(l.strip()) == 0:
                     if len(frequencies[-1][1]) == 0:
                         continue
-                    else:
-                        parse_projected_freq = False
+                    parse_projected_freq = False
                 else:
                     vibs = [float(vib) for vib in l.strip().split()[1:]]
                     num_vibs = len(vibs)

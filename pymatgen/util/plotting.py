@@ -10,14 +10,6 @@ import numpy as np
 from pymatgen.core.periodic_table import Element
 
 
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Mar 13, 2012"
-
-
 def pretty_plot(width=8, height=None, plt=None, dpi=None,
                 color_cycle=("qualitative", "Set1_9")):
     """
@@ -96,7 +88,7 @@ def pretty_plot_two_axis(x, y1, y2, xlabel=None, y1label=None, y2label=None,
     Returns:
         matplotlib.pyplot
     """
-
+    # pylint: disable=E1101
     import palettable.colorbrewer.diverging
 
     colors = palettable.colorbrewer.diverging.RdYlBu_4.mpl_colors

@@ -20,22 +20,20 @@ get_dimensionality_gorai:
     J. Mater. Chem. A 2, 4136 (2016).
 """
 
-import itertools
 import copy
-
-import numpy as np
-
+import itertools
 from collections import defaultdict
 
+import numpy as np
 from networkx.readwrite import json_graph
 
 from pymatgen.analysis.graphs import MoleculeGraph, StructureGraph
-from pymatgen.core.lattice import get_integer_index
-from pymatgen.core.structure import Structure, Molecule
-from pymatgen.core.periodic_table import Specie
-from pymatgen.core.surface import SlabGenerator
 from pymatgen.analysis.local_env import JmolNN
 from pymatgen.analysis.structure_analyzer import get_max_bond_lengths
+from pymatgen.core.lattice import get_integer_index
+from pymatgen.core.periodic_table import Specie
+from pymatgen.core.structure import Structure, Molecule
+from pymatgen.core.surface import SlabGenerator
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 __author__ = "Alex Ganose, Gowoon Cheon, Prashun Gorai"
@@ -204,14 +202,12 @@ def calculate_dimensionality_of_site(bonded_structure, site_index,
     def rank(vertices):
         if len(vertices) == 0:
             return -1
-        elif len(vertices) == 1:
+        if len(vertices) == 1:
             return 0
-        else:
-            vertices = np.array(list(vertices))
-            return np.linalg.matrix_rank(vertices[1:] - vertices[0])
+        vertices = np.array(list(vertices))
+        return np.linalg.matrix_rank(vertices[1:] - vertices[0])
 
     def rank_increase(seen, candidate):
-
         rank0 = len(seen) - 1
         rank1 = rank(seen.union({candidate}))
         return rank1 > rank0
@@ -248,8 +244,7 @@ def calculate_dimensionality_of_site(bonded_structure, site_index,
     if inc_vertices:
         return (rank(seen_comp_vertices[site_index]),
                 list(seen_comp_vertices[site_index]))
-    else:
-        return rank(seen_comp_vertices[site_index])
+    return rank(seen_comp_vertices[site_index])
 
 
 def zero_d_graph_to_molecule_graph(bonded_structure, graph):
@@ -359,7 +354,7 @@ def get_dimensionality_cheon(structure_raw, tolerance=0.45,
             if dim == int(dim):
                 dim = str(int(dim)) + 'D'
             else:
-                return
+                return None
     else:
         structure.make_supercell([[2, 0, 0], [0, 2, 0], [0, 0, 2]])
         connected_list2 = find_connected_atoms(structure, tolerance=tolerance, ldict=ldict)
@@ -390,7 +385,7 @@ def get_dimensionality_cheon(structure_raw, tolerance=0.45,
                     if dim == int(dim):
                         dim = str(int(dim)) + 'D'
                     else:
-                        return
+                        return None
     return dim
 
 
@@ -415,6 +410,7 @@ def find_connected_atoms(struct, tolerance=0.45, ldict=JmolNN().el_radius):
         If any image of atom j is bonded to atom i with periodic boundary
         conditions, the matrix element [atom i, atom j] is 1.
     """
+    # pylint: disable=E1136
     n_atoms = len(struct.species)
     fc = np.array(struct.frac_coords)
     fc_copy = np.repeat(fc[:, :, np.newaxis], 27, axis=2)

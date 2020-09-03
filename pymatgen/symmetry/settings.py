@@ -6,15 +6,15 @@
 This module provides classes for non-standard space-group settings
 """
 
-from fractions import Fraction
-import numpy as np
 import re
+from fractions import Fraction
+from typing import Union, List, Tuple
+
+import numpy as np
 
 from pymatgen.core import Lattice
-from pymatgen.util.string import transformation_to_string
 from pymatgen.core.operations import MagSymmOp, SymmOp
-
-from typing import Union, List, Tuple
+from pymatgen.util.string import transformation_to_string
 
 __author__ = "Matthew Horton"
 __copyright__ = "Copyright 2017, The Materials Project"
@@ -169,7 +169,7 @@ class JonesFaithfulTransformation:
             return MagSymmOp.from_rotation_and_translation_and_time_reversal(
                 rotation_matrix=W_, translation_vec=w_,
                 time_reversal=symmop.time_reversal, tol=symmop.tol)
-        elif isinstance(symmop, SymmOp):
+        if isinstance(symmop, SymmOp):
             return SymmOp.from_rotation_and_translation(
                 rotation_matrix=W_, translation_vec=w_, tol=symmop.tol)
         raise RuntimeError
