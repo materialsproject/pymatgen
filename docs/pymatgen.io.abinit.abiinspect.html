@@ -1,8 +1,7 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
@@ -12,6 +11,11 @@
   
 
   
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+
+  
   
   
   
@@ -19,7 +23,9 @@
   
 
   
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -32,11 +38,6 @@
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.io.abinit.abiobjects module" href="pymatgen.io.abinit.abiobjects.html" />
@@ -61,7 +62,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> pymatgen
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pymatgen
           
 
           
@@ -88,6 +89,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -135,6 +137,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -173,7 +176,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html">Docs</a> &raquo;</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
         
@@ -221,7 +224,7 @@ by extracting information from the main output file (text format).</p>
 
 <dl class="py method">
 <dt id="pymatgen.io.abinit.abiinspect.CyclesPlotter.combiplot">
-<code class="sig-name descname">combiplot</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/util/plotting.py#L276-L291"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.CyclesPlotter.combiplot" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">combiplot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fontsize</span><span class="o">=</span><span class="default_value">8</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/util/plotting.py#L276-L291"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.CyclesPlotter.combiplot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compare multiple cycels on a grid: one subplot per quantity,
 all cycles on the same subplot.</p>
 <dl class="field-list simple">
@@ -362,7 +365,7 @@ the data as function of the relaxation step.</p>
 
 <dl class="py method">
 <dt id="pymatgen.io.abinit.abiinspect.Relaxation.plot">
-<code class="sig-name descname">plot</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/util/plotting.py#L400-L456"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.Relaxation.plot" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">plot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ax_list</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fontsize</span><span class="o">=</span><span class="default_value">12</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/util/plotting.py#L400-L456"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.Relaxation.plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot relaxation history i.e. the results of the last iteration of each SCF cycle.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -470,7 +473,7 @@ to list of floats containing the data at the different iterations.</p>
 
 <dl class="py method">
 <dt id="pymatgen.io.abinit.abiinspect.ScfCycle.plot">
-<code class="sig-name descname">plot</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/util/plotting.py#L175-L233"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.ScfCycle.plot" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">plot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ax_list</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fontsize</span><span class="o">=</span><span class="default_value">12</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/util/plotting.py#L175-L233"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.ScfCycle.plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Uses matplotlib to plot the evolution of the SCF cycle.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -689,11 +692,19 @@ Returns None if it is not able to detect the class to instantiate.</p>
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2011, Pymatgen Development Team
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -704,7 +715,6 @@ Returns None if it is not able to detect the class to instantiate.</p>
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {

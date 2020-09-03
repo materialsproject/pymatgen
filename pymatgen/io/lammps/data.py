@@ -542,10 +542,9 @@ class LammpsData(MSONable):
                 ff_kw = k[:-1] + " Coeffs"
                 for topo in v.itertuples(False, None):
                     topo_idx = topo[0] - 1
-                    indices = topo[1:]
-                    mids = atoms_df.loc[indices, "molecule-ID"].unique()
-                    assert len(mids) == 1, \
-                        "Do not support intermolecular topology formed " \
+                    indices = list(topo[1:])
+                    mids = atoms_df.loc[indices]["molecule-ID"].unique()
+                    assert len(mids) == 1, "Do not support intermolecular topology formed " \
                         "by atoms with different molecule-IDs"
                     label = label_topo(indices)
                     topo_coeffs[ff_kw][topo_idx]["types"].append(label)

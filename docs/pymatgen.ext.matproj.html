@@ -1,8 +1,7 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
@@ -12,6 +11,11 @@
   
 
   
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+
+  
   
   
   
@@ -19,7 +23,9 @@
   
 
   
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -32,11 +38,6 @@
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.io package" href="pymatgen.io.html" />
@@ -61,7 +62,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> pymatgen
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pymatgen
           
 
           
@@ -88,6 +89,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -135,6 +137,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -173,7 +176,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html">Docs</a> &raquo;</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
         
@@ -573,9 +576,21 @@ Materials Project REST interface.</p>
 <li><p><strong>pretty_formula</strong> (<em>str</em>) – The formula of metals. e.g., ‘Fe’</p></li>
 <li><p><strong>sigma</strong> (<em>int</em>) – The sigma value of a certain type of grain boundary</p></li>
 <li><p><strong>gb_plane</strong> (<em>list of integer</em>) – The Miller index of grain</p></li>
-<li><p><strong>plane. e.g.</strong><strong>, </strong><strong>[</strong><strong>1</strong><strong>, </strong><strong>1</strong><strong>, </strong><strong>1</strong><strong>]</strong> (<em>boundary</em>) – </p></li>
+<li><p><strong>plane. e.g.</strong> (<em>boundary</em>) – </p></li>
+<li><p><strong>[</strong><strong>1</strong> (<em>and</em>) – </p></li>
+<li><p><strong>1</strong> – </p></li>
+<li><p><strong>1</strong><strong>]</strong> – </p></li>
 <li><p><strong>rotation_axis</strong> (<em>list of integer</em>) – The Miller index of rotation</p></li>
-<li><p><strong>e.g.</strong><strong>, </strong><strong>[</strong><strong>1</strong><strong>, </strong><strong>0</strong><strong>, </strong><strong>0</strong><strong>]</strong><strong>, </strong><strong>[</strong><strong>1</strong><strong>, </strong><strong>1</strong><strong>, </strong><strong>0</strong><strong>]</strong><strong>, </strong><strong>and</strong><strong> [</strong><strong>1</strong><strong>, </strong><strong>1</strong><strong>, </strong><strong>1</strong><strong>]</strong> (<em>axis.</em>) – </p></li>
+<li><p><strong>e.g.</strong> (<em>axis.</em>) – </p></li>
+<li><p><strong>[</strong><strong>1</strong> – </p></li>
+<li><p><strong>0</strong> – </p></li>
+<li><p><strong>0</strong><strong>]</strong> – </p></li>
+<li><p><strong>[</strong><strong>1</strong> – </p></li>
+<li><p><strong>1</strong> – </p></li>
+<li><p><strong>0</strong><strong>]</strong> – </p></li>
+<li><p><strong>[</strong><strong>1</strong> – </p></li>
+<li><p><strong>1</strong> – </p></li>
+<li><p><strong>1</strong><strong>]</strong> – </p></li>
 <li><p><strong>value is determined by the combination of rotation axis and</strong> (<em>Sigma</em>) – </p></li>
 <li><p><strong>angle. The five degrees of freedom</strong> (<em>rotation</em>) – </p></li>
 <li><p><strong>include</strong> – rotation axis (2 DOFs), rotation angle (1 DOF), and grain</p></li>
@@ -608,14 +623,18 @@ reaction products change) between two reactants. See the
 <li><p><strong>relative_mu</strong> (<em>float</em>) – Relative chemical potential of element in
 reservoir with respect to pure substance. Must be non-positive.</p></li>
 <li><p><strong>use_hull_energy</strong> (<em>bool</em>) – Whether to use the convex hull energy for a</p></li>
-<li><p><strong>composition for the reaction energy calculation. If false</strong><strong>,</strong> (<em>given</em>) – </p></li>
-<li><p><strong>energy of the ground state structure will be preferred; if a</strong> (<em>the</em>) – </p></li>
-<li><p><strong>state can not be found for a composition</strong><strong>, </strong><strong>the convex hull</strong> (<em>ground</em>) – </p></li>
-<li><p><strong>will be used with a warning message.</strong> (<em>energy</em>) – </p></li>
+<li><p><strong>composition for the reaction energy calculation. If false</strong> (<em>given</em>) – </p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><dl class="simple">
+</dl>
+<p>:param :
+:param the energy of the ground state structure will be preferred; if a:
+:param ground state can not be found for a composition:
+:param the convex hull:
+:param energy will be used with a warning message.:</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><dl class="simple">
 <dt>list of dicts of form {ratio,energy,rxn} where <cite>ratio</cite> is the</dt><dd><p>reactant mixing ratio, <cite>energy</cite> is the reaction energy
 in eV/atom, and <cite>rxn</cite> is a
 <cite>pymatgen.analysis.reaction_calculator.Reaction</cite>.</p>
@@ -623,8 +642,8 @@ in eV/atom, and <cite>rxn</cite> is a
 </dl>
 </p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>list</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list</p>
 </dd>
 </dl>
 </dd></dl>
@@ -841,7 +860,11 @@ crystals. Scientific Data, 3(160080), 1–13.
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>material_id</strong> (<em>str</em>) – Materials Project material_id, e.g. ‘mp-123’.</p></li>
 <li><p><strong>miller_index</strong> (<em>list of integer</em>) – The miller index of the surface.</p></li>
-<li><p><strong>[</strong><strong>3</strong><strong>, </strong><strong>2</strong><strong>, </strong><strong>1</strong><strong>]</strong><strong> If miller_index is provided</strong><strong>, </strong><strong>only one dictionary</strong> (<em>e.g.</em><em>,</em>) – </p></li>
+<li><p><strong>e.g.</strong> – </p></li>
+<li><p><strong>[</strong><strong>3</strong> – </p></li>
+<li><p><strong>2</strong> – </p></li>
+<li><p><strong>If miller_index is provided</strong> (<em>1</em><em>]</em><em></em>) – </p></li>
+<li><p><strong>one dictionary</strong> (<em>only</em>) – </p></li>
 <li><p><strong>this specific plane will be returned.</strong> (<em>of</em>) – </p></li>
 <li><p><strong>inc_structures</strong> (<em>bool</em>) – Include final surface slab structures.
 These are unnecessary for Wulff shape construction.</p></li>
@@ -1236,11 +1259,19 @@ assimilate. Defaults to None, which means serial.</p></li>
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2011, Pymatgen Development Team
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -1251,7 +1282,6 @@ assimilate. Defaults to None, which means serial.</p></li>
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {

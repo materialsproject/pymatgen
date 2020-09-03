@@ -1,8 +1,7 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
@@ -12,6 +11,11 @@
   
 
   
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+
+  
   
   
   
@@ -19,7 +23,9 @@
   
 
   
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -32,11 +38,6 @@
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.plugins package" href="pymatgen.plugins.html" />
@@ -61,7 +62,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> pymatgen
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pymatgen
           
 
           
@@ -88,6 +89,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -135,6 +137,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -173,7 +176,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html">Docs</a> &raquo;</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
         
@@ -210,15 +213,15 @@
 <em class="property">class </em><code class="sig-name descname">FreqUnits</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">factor</span></em>, <em class="sig-param"><span class="n">label</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/phonon/plotter.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.FreqUnits" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
 <p>Create new instance of FreqUnits(factor, label)</p>
-<dl class="py attribute">
+<dl class="py method">
 <dt id="pymatgen.phonon.plotter.FreqUnits.factor">
-<code class="sig-name descname">factor</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/phonon/plotter.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.FreqUnits.factor" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">factor</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/phonon/plotter.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.FreqUnits.factor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alias for field number 0</p>
 </dd></dl>
 
-<dl class="py attribute">
+<dl class="py method">
 <dt id="pymatgen.phonon.plotter.FreqUnits.label">
-<code class="sig-name descname">label</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/phonon/plotter.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.FreqUnits.label" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">label</code><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/phonon/plotter.py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.FreqUnits.label" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alias for field number 1</p>
 </dd></dl>
 
@@ -482,7 +485,7 @@ the plots in units of mol instead of mole-cell</p>
 </dl>
 <dl class="py method">
 <dt id="pymatgen.phonon.plotter.ThermoPlotter.plot_cv">
-<code class="sig-name descname">plot_cv</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/util/plotting.py#L551-L574"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.ThermoPlotter.plot_cv" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">plot_cv</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tmin</span></em>, <em class="sig-param"><span class="n">tmax</span></em>, <em class="sig-param"><span class="n">ntemp</span></em>, <em class="sig-param"><span class="n">ylim</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/util/plotting.py#L551-L574"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.ThermoPlotter.plot_cv" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plots the constant volume specific heat C_v in a temperature range.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -543,7 +546,7 @@ Default: False</p></td>
 
 <dl class="py method">
 <dt id="pymatgen.phonon.plotter.ThermoPlotter.plot_entropy">
-<code class="sig-name descname">plot_entropy</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/util/plotting.py#L576-L599"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.ThermoPlotter.plot_entropy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">plot_entropy</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tmin</span></em>, <em class="sig-param"><span class="n">tmax</span></em>, <em class="sig-param"><span class="n">ntemp</span></em>, <em class="sig-param"><span class="n">ylim</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/util/plotting.py#L576-L599"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.ThermoPlotter.plot_entropy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plots the vibrational entrpy in a temperature range.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -604,7 +607,7 @@ Default: False</p></td>
 
 <dl class="py method">
 <dt id="pymatgen.phonon.plotter.ThermoPlotter.plot_helmholtz_free_energy">
-<code class="sig-name descname">plot_helmholtz_free_energy</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/util/plotting.py#L627-L651"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.ThermoPlotter.plot_helmholtz_free_energy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">plot_helmholtz_free_energy</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tmin</span></em>, <em class="sig-param"><span class="n">tmax</span></em>, <em class="sig-param"><span class="n">ntemp</span></em>, <em class="sig-param"><span class="n">ylim</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/util/plotting.py#L627-L651"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.ThermoPlotter.plot_helmholtz_free_energy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plots the vibrational contribution to the Helmoltz free energy in a temperature range.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -665,7 +668,7 @@ Default: False</p></td>
 
 <dl class="py method">
 <dt id="pymatgen.phonon.plotter.ThermoPlotter.plot_internal_energy">
-<code class="sig-name descname">plot_internal_energy</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/util/plotting.py#L601-L625"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.ThermoPlotter.plot_internal_energy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">plot_internal_energy</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tmin</span></em>, <em class="sig-param"><span class="n">tmax</span></em>, <em class="sig-param"><span class="n">ntemp</span></em>, <em class="sig-param"><span class="n">ylim</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/util/plotting.py#L601-L625"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.ThermoPlotter.plot_internal_energy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plots the vibrational internal energy in a temperature range.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -726,7 +729,7 @@ Default: False</p></td>
 
 <dl class="py method">
 <dt id="pymatgen.phonon.plotter.ThermoPlotter.plot_thermodynamic_properties">
-<code class="sig-name descname">plot_thermodynamic_properties</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/util/plotting.py#L653-L682"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.ThermoPlotter.plot_thermodynamic_properties" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">plot_thermodynamic_properties</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tmin</span></em>, <em class="sig-param"><span class="n">tmax</span></em>, <em class="sig-param"><span class="n">ntemp</span></em>, <em class="sig-param"><span class="n">ylim</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/util/plotting.py#L653-L682"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.ThermoPlotter.plot_thermodynamic_properties" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plots all the thermodynamic properties in a temperature range.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -813,11 +816,19 @@ Default: False</p></td>
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2011, Pymatgen Development Team
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -828,7 +839,6 @@ Default: False</p></td>
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {

@@ -1,8 +1,7 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
@@ -12,6 +11,11 @@
   
 
   
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+
+  
   
   
   
@@ -19,7 +23,9 @@
   
 
   
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -32,11 +38,6 @@
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.phonon.plotter module" href="pymatgen.phonon.plotter.html" />
@@ -61,7 +62,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> pymatgen
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pymatgen
           
 
           
@@ -88,6 +89,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -135,6 +137,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -173,7 +176,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html">Docs</a> &raquo;</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
         
@@ -246,7 +249,8 @@ in Eq. 54 in <a href="#id3"><span class="problematic" id="id4">:cite:`Gonze1997`
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>broad</strong> – a list of broadenings or a single broadening for the phonon peaks</p></li>
-<li><p><strong>emax</strong> (<em>emin</em><em>,</em>) – minimum and maximum energy in which to obtain the spectra</p></li>
+<li><p><strong>emin</strong> – minimum and maximum energy in which to obtain the spectra</p></li>
+<li><p><strong>emax</strong> – minimum and maximum energy in which to obtain the spectra</p></li>
 <li><p><strong>divs</strong> – number of frequency samples between emin and emax</p></li>
 </ul>
 </dd>
@@ -275,7 +279,8 @@ in Eq. 54 in <a href="#id3"><span class="problematic" id="id4">:cite:`Gonze1997`
 <li><p><strong>components</strong> – A list with the components of the dielectric tensor to plot.
 Can be either two indexes or a string like ‘xx’ to plot the (0,0) component</p></li>
 <li><p><strong>reim</strong> – If ‘re’ (im) is present in the string plots the real (imaginary) part of the dielectric tensor</p></li>
-<li><p><strong>emax</strong> (<em>emin</em><em>,</em>) – minimum and maximum energy in which to obtain the spectra</p></li>
+<li><p><strong>emin</strong> – minimum and maximum energy in which to obtain the spectra</p></li>
+<li><p><strong>emax</strong> – minimum and maximum energy in which to obtain the spectra</p></li>
 <li><p><strong>divs</strong> – number of frequency samples between emin and emax</p></li>
 </ul>
 </dd>
@@ -304,7 +309,7 @@ broad: a list of broadenings or a single broadening for the phonon peaks</p>
 
 <dl class="py method">
 <dt id="pymatgen.phonon.ir_spectra.IRDielectricTensor.plot">
-<code class="sig-name descname">plot</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/util/plotting.py#L123-L142"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.ir_spectra.IRDielectricTensor.plot" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">plot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">components</span><span class="o">=</span><span class="default_value">'xx'</span></em>, <em class="sig-param"><span class="n">reim</span><span class="o">=</span><span class="default_value">'reim'</span></em>, <em class="sig-param"><span class="n">show_phonon_frequencies</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">xlim</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">ylim</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/util/plotting.py#L123-L142"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.ir_spectra.IRDielectricTensor.plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Helper function to generate the Spectrum plotter and directly plot the results</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -380,11 +385,19 @@ Default: False</p></td>
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2011, Pymatgen Development Team
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -395,7 +408,6 @@ Default: False</p></td>
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {

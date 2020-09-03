@@ -1,8 +1,7 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
@@ -12,6 +11,11 @@
   
 
   
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+
+  
   
   
   
@@ -19,7 +23,9 @@
   
 
   
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -32,11 +38,6 @@
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.core.ion module" href="pymatgen.core.ion.html" />
@@ -61,7 +62,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> pymatgen
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pymatgen
           
 
           
@@ -88,6 +89,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -135,6 +137,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -173,7 +176,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html">Docs</a> &raquo;</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
         
@@ -216,8 +219,11 @@ multiplied by a Composition (returns an energy)
 added/subtracted with other ChemicalPotentials.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>**kwargs</strong> (<em>*args</em><em>,</em>) – <p>any valid dict init arguments</p>
-</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>*args</strong> – any valid dict init arguments</p></li>
+<li><p><strong>**kwargs</strong> – <p>any valid dict init arguments</p>
+</p></li>
+</ul>
 </dd>
 </dl>
 <dl class="py method">
@@ -283,16 +289,25 @@ dict(). Also extended to allow simple string init.</p>
 of these. E.g., {Element(“Li”):2 ,Element(“O”):1},
 {“Li”:2, “O”:1}, {3:2, 8:1} all result in a Li2O composition.</p>
 </p></li>
-<li><p><strong>Keyword arg initialization</strong><strong>, </strong><strong>similar to a dict</strong><strong>, </strong><strong>e.g.</strong><strong>,</strong> (<em>2.</em>) – Composition(Li = 2, O = 1)</p></li>
-<li><p><strong>addition</strong><strong>, </strong><strong>the Composition constructor also allows a single</strong> (<em>In</em>) – </p></li>
-<li><p><strong>as an input formula. E.g.</strong><strong>, </strong><strong>Composition</strong> (<em>string</em>) – </p></li>
-<li><p><strong>strict</strong> – Only allow valid Elements and Species in the Composition.</p></li>
-<li><p><strong>allow_negative</strong> – Whether to allow negative compositions. This
-argument must be popped from the <a href="#id3"><span class="problematic" id="id4">**</span></a>kwargs due to <a href="#id5"><span class="problematic" id="id6">*</span></a>args
-ambiguity.</p></li>
+<li><p><strong>Keyword arg initialization</strong> (<em>2.</em>) – Composition(Li = 2, O = 1)</p></li>
+<li><p><strong>to a dict</strong> (<em>similar</em>) – Composition(Li = 2, O = 1)</p></li>
+<li><p><strong>e.g.</strong> – Composition(Li = 2, O = 1)</p></li>
 </ul>
 </dd>
 </dl>
+<p>:param : Composition(Li = 2, O = 1)
+:param In addition:
+:param the Composition constructor also allows a single:
+:param string as an input formula. E.g.:
+:type string as an input formula. E.g.: “Li2O”
+:param Composition:
+:type Composition: “Li2O”
+:param strict: Only allow valid Elements and Species in the Composition.
+:param allow_negative: Whether to allow negative compositions. This</p>
+<blockquote>
+<div><p>argument must be popped from the <a href="#id3"><span class="problematic" id="id4">**</span></a>kwargs due to <a href="#id5"><span class="problematic" id="id6">*</span></a>args
+ambiguity.</p>
+</div></blockquote>
 <dl class="py method">
 <dt id="pymatgen.core.composition.Composition.add_charges_from_oxi_state_guesses">
 <code class="sig-name descname">add_charges_from_oxi_state_guesses</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">oxi_states_override</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">target_charge</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">all_oxi_states</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">max_sites</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.8.13/pymatgen/core/composition.py#L726-L776"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.composition.Composition.add_charges_from_oxi_state_guesses" title="Permalink to this definition">¶</a></dt>
@@ -405,13 +420,29 @@ in database keys.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>category</strong> (<em>str</em>) – one of “noble_gas”, “transition_metal”,</p></li>
-<li><p><strong>&quot;rare_earth_metal&quot;</strong><strong>, </strong><strong>&quot;metal&quot;</strong><strong>, </strong><strong>&quot;metalloid&quot;</strong><strong>,</strong> (<em>&quot;post_transition_metal&quot;</em><em>,</em>) – </p></li>
-<li><p><strong>&quot;alkaline&quot;</strong><strong>, </strong><strong>&quot;halogen&quot;</strong><strong>, </strong><strong>&quot;chalcogen&quot;</strong><strong>, </strong><strong>&quot;lanthanoid&quot;</strong><strong>,</strong> (<em>&quot;alkali&quot;</em><em>,</em>) – </p></li>
-<li><p><strong>&quot;quadrupolar&quot;</strong><strong>, </strong><strong>&quot;s-block&quot;</strong><strong>, </strong><strong>&quot;p-block&quot;</strong><strong>, </strong><strong>&quot;d-block&quot;</strong><strong>, </strong><strong>&quot;f-block&quot;</strong> (<em>&quot;actinoid&quot;</em><em>,</em>) – </p></li>
+<li><p><strong>&quot;post_transition_metal&quot;</strong> – </p></li>
+<li><p><strong>&quot;rare_earth_metal&quot;</strong> – </p></li>
+<li><p><strong>&quot;metal&quot;</strong> – </p></li>
+<li><p><strong>&quot;metalloid&quot;</strong> – </p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>True if any elements in Composition match category, otherwise False</p>
+</dl>
+<p>:param :
+:param “alkali”:
+:param “alkaline”:
+:param “halogen”:
+:param “chalcogen”:
+:param “lanthanoid”:
+:param :
+:param “actinoid”:
+:param “quadrupolar”:
+:param “s-block”:
+:param “p-block”:
+:param “d-block”:
+:param “f-block”:</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>True if any elements in Composition match category, otherwise False</p>
 </dd>
 </dl>
 </dd></dl>
@@ -804,11 +835,19 @@ the elements.</p></li>
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2011, Pymatgen Development Team
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -819,7 +858,6 @@ the elements.</p></li>
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {
