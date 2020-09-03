@@ -2200,7 +2200,7 @@ class PDPlotter:
                 font_dict = {"color": "#000000", "size": 12.0}
                 opacity = 0.7
 
-            annotation = plotly_layouts.default_annotation_layout.copy()
+            annotation = plotly_layouts["default_annotation_layout"].copy()
             annotation.update(
                 {
                     "x": x,
@@ -2224,13 +2224,13 @@ class PDPlotter:
             annotations_list.append(annotation)
 
         if self._dim == 2:
-            layout = plotly_layouts.default_binary_layout
+            layout = plotly_layouts["default_binary_layout"]
             layout["annotations"] = annotations_list
         elif self._dim == 3:
-            layout = plotly_layouts.default_ternary_layout
+            layout = plotly_layouts["default_ternary_layout"]
             layout["scene"].update({"annotations": annotations_list})
         elif self._dim == 4:
-            layout = plotly_layouts.default_quaternary_layout
+            layout = plotly_layouts["default_quaternary_layout"]
             layout["scene"].update({"annotations": annotations_list})
 
         return layout
@@ -2293,7 +2293,7 @@ class PDPlotter:
         stable_markers, unstable_markers = dict(), dict()
 
         if self._dim == 2:
-            stable_markers = plotly_layouts.default_binary_marker_settings.copy()
+            stable_markers = plotly_layouts["default_binary_marker_settings"].copy()
             stable_markers.update(
                 dict(
                     x=stable_props["x"],
@@ -2308,20 +2308,20 @@ class PDPlotter:
                 )
             )
 
-            unstable_markers = plotly_layouts.default_binary_marker_settings.copy()
+            unstable_markers = plotly_layouts["default_binary_marker_settings"].copy()
             unstable_markers.update(
                 dict(
                     x=unstable_props["x"],
                     y=unstable_props["y"],
                     name="Above Hull",
                     marker=dict(color=unstable_props["energies"],
-                                colorscale=plotly_layouts.unstable_colorscale),
+                                colorscale=plotly_layouts["unstable_colorscale"]),
                     hovertext=unstable_props["texts"],
                 )
             )
 
         elif self._dim == 3:
-            stable_markers = plotly_layouts.default_ternary_marker_settings.copy()
+            stable_markers = plotly_layouts["default_ternary_marker_settings"].copy()
             stable_markers.update(
                 dict(
                     x=stable_props["y"],
@@ -2338,7 +2338,7 @@ class PDPlotter:
                 )
             )
 
-            unstable_markers = plotly_layouts.default_ternary_marker_settings.copy()
+            unstable_markers = plotly_layouts["default_ternary_marker_settings"].copy()
             unstable_markers.update(
                 dict(
                     x=unstable_props["y"],
@@ -2346,7 +2346,7 @@ class PDPlotter:
                     z=unstable_props["z"],
                     name="Above Hull",
                     marker=dict(color=unstable_props["energies"],
-                                colorscale=plotly_layouts.unstable_colorscale,
+                                colorscale=plotly_layouts["unstable_colorscale"],
                                 size=4.2,
                                 symbol="diamond",
                                 colorbar=dict(title="Energy Above Hull<br>(eV/atom)",
@@ -2357,7 +2357,7 @@ class PDPlotter:
             )
 
         elif self._dim == 4:
-            stable_markers = plotly_layouts.default_quaternary_marker_settings.copy()
+            stable_markers = plotly_layouts["default_quaternary_marker_settings"].copy()
             stable_markers.update(
                 dict(
                     x=stable_props["x"],
@@ -2373,7 +2373,8 @@ class PDPlotter:
                 )
             )
 
-            unstable_markers = plotly_layouts.default_quaternary_marker_settings.copy()
+            unstable_markers = plotly_layouts[
+                "default_quaternary_marker_settings"].copy()
             unstable_markers.update(
                 dict(
                     x=unstable_props["x"],
@@ -2456,7 +2457,7 @@ class PDPlotter:
             k=facets[:, 2],
             opacity=0.8,
             intensity=self._pd.qhull_data[:-1, 2],
-            colorscale=plotly_layouts.stable_colorscale,
+            colorscale=plotly_layouts["stable_colorscale"],
             colorbar=dict(title="Formation energy<br>(eV/atom)", x=0.8, len=0.82),
             hoverinfo="none",
             lighting=dict(diffuse=0.0, ambient=1.0),
@@ -2481,7 +2482,7 @@ class PDPlotter:
             x=x,
             y=y,
             z=z,
-            colorscale=plotly_layouts.stable_colorscale,
+            colorscale=plotly_layouts["stable_colorscale"],
             intensity=energies,
             alphahull=0,
             opacity=0.25,
