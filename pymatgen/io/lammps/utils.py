@@ -285,7 +285,7 @@ class PackmolRunner:
                     inp.write('  {} {}\n'.format(k, self._format_param_val(v)))
                 inp.write('end structure\n')
 
-    def run(self, copy_to_current_on_exit=False, site_property=None):
+    def run(self, site_property=None):
         """
         Write the input file to the scratch directory, run packmol and return
         the packed molecule to the current working directory.
@@ -298,7 +298,6 @@ class PackmolRunner:
                 Molecule object
         """
         with tempfile.TemporaryDirectory() as scratch_dir:
-        # with ScratchDir(scratch, copy_to_current_on_exit=copy_to_current_on_exit) as scratch_dir:
             self._write_input(input_dir=scratch_dir)
             with open(os.path.join(scratch_dir, self.input_file), 'r') as packmol_input:
                 with Popen(self.packmol_bin, stdin=packmol_input, stdout=PIPE, stderr=PIPE) as p:
