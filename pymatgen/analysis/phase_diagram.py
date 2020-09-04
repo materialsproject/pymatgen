@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 
 
 with open(os.path.join(os.path.dirname(__file__),
-                       "..", "util/plotly_pd_layouts.json")) as f:
+                       "..", "util", "plotly_pd_layouts.json")) as f:
     plotly_layouts = json.load(f)
 
 
@@ -1559,8 +1559,6 @@ class PDPlotter:
             if self._dim == 3:
                 data.append(self._create_plotly_ternary_support_lines())
                 data.append(self._create_plotly_ternary_hull())
-            elif self._dim == 4:
-                data.append(self._create_plotly_quaternary_mesh())
 
             data.extend(self._create_plotly_markers())
 
@@ -2169,15 +2167,8 @@ class PDPlotter:
 
         return line_plot
 
-    def _create_plotly_figure_layout(self):
-        """
-        Creates layout for plotly phase diagram figure and updates with
-        figure annotations.
-
-        :return: Dictionary with Plotly figure layout settings.
-        """
+    def _create_plotly_annotations(self):
         annotations_list = []
-        layout = dict()
         x, y, z = None, None, None
 
         for coords, entry in self.pd_plot_data[1].items():
@@ -2222,15 +2213,29 @@ class PDPlotter:
                 annotation.update({"z": z})
 
             annotations_list.append(annotation)
+        return annotations_list
+
+    def _create_plotly_figure_layout(self, label_stable=True):
+        """
+        Creates layout for plotly phase diagram figure and updates with
+        figure annotations.
+
+        :return: Dictionary with Plotly figure layout settings.
+        """
+        annotations_list = None
+        layout = dict()
+
+        if label_stable:
+            annotations_list = self._create_plotly_annotations()
 
         if self._dim == 2:
-            layout = plotly_layouts["default_binary_layout"]
+            layout = plotly_layouts["default_binary_layout"].copy()
             layout["annotations"] = annotations_list
         elif self._dim == 3:
-            layout = plotly_layouts["default_ternary_layout"]
+            layout = plotly_layouts["default_ternary_layout"].copy()
             layout["scene"].update({"annotations": annotations_list})
         elif self._dim == 4:
-            layout = plotly_layouts["default_quaternary_layout"]
+            layout = plotly_layouts["default_quaternary_layout"].copy()
             layout["scene"].update({"annotations": annotations_list})
 
         return layout
@@ -2246,14 +2251,13 @@ class PDPlotter:
         def get_marker_props(coords, entries, stable=True):
             """ Method for getting general marker locations/annotations from
             pd_plot_data"""
-            x, y, z, texts, energies = [], [], [], [], []
+            x, y, z, texts, energies, uncertainties = [], [], [], [], [], []
 
             for coord, entry in zip(coords, entries):
                 energy = round(self._pd.get_form_energy_per_atom(entry), 3)
                 entry_id = entry.entry_id if entry.entry_id else ""
                 formula = entry.composition.reduced_formula
                 clean_formula = self._htmlize_formula(formula)
-
                 x.append(coord[0])
                 y.append(coord[1])
 
@@ -2269,11 +2273,16 @@ class PDPlotter:
                     label += f" (+{e_above_hull} eV/atom)"
                     energies.append(e_above_hull)
                 else:
+                    uncertainty = 0
+                    if hasattr(entry, 'correction_uncertainty'):
+                        uncertainty = entry.correction_uncertainty
+                    uncertainties.append(uncertainty)
                     energies.append(energy)
 
                 texts.append(label)
 
-            return {"x": x, "y": y, "z": z, "texts": texts, "energies": energies}
+            return {"x": x, "y": y, "z": z, "texts": texts, "energies": energies,
+                    "uncertainties": uncertainties}
 
         stable_coords, stable_entries = (
             self.pd_plot_data[1].keys(),
@@ -2300,11 +2309,19 @@ class PDPlotter:
                     y=stable_props["y"],
                     name="Stable",
                     marker=dict(
-                        color="black",
-                        symbol="square",
-                        size=10,
+                        color='darkgreen',
+                        size=7.5,
+                        line=dict(
+                            color='black',
+                            width=3
+                        )
                     ),
+                    opacity=0.8,
                     hovertext=stable_props["texts"],
+                    error_y=dict(array=stable_props["uncertainties"],
+                                 type="data",
+                                 color="gray"
+                                 )
                 )
             )
 
@@ -2330,11 +2347,18 @@ class PDPlotter:
                     name="Stable",
                     opacity=0.8,
                     marker=dict(
-                        color="black",
-                        symbol="circle",
-                        size=7,
+                        color='darkgreen',
+                        size=7.5,
+                        line=dict(
+                            color='black',
+                            width=3
+                        )
                     ),
                     hovertext=stable_props["texts"],
+                    error_z=dict(array=stable_props["uncertainties"],
+                                 type="data",
+                                 color="gray"
+                                 )
                 )
             )
 
@@ -2366,7 +2390,7 @@ class PDPlotter:
                     name="Stable",
                     marker=dict(
                         color=stable_props["energies"],
-                        colorscale="PRGn_r",
+                        colorscale=plotly_layouts["stable_markers_colorscale"],
                         size=8,
                     ),
                     hovertext=stable_props["texts"],
@@ -2381,7 +2405,13 @@ class PDPlotter:
                     y=unstable_props["y"],
                     z=unstable_props["z"],
                     name="Above Hull",
-                    marker=dict(color="#ff0000", size=5, symbol="diamond"),
+                    marker=dict(color=unstable_props["energies"],
+                                colorscale=plotly_layouts["unstable_colorscale"],
+                                size=5,
+                                symbol="diamond",
+                                colorbar=dict(title="Energy Above Hull<br>(eV/atom)",
+                                              x=0.13, len=0.82),
+                                ),
                     hovertext=unstable_props["texts"],
                     visible="legendonly",
                 )
@@ -2460,40 +2490,12 @@ class PDPlotter:
             opacity=0.8,
             intensity=energies,
             colorscale=plotly_layouts["stable_colorscale"],
-            colorbar=dict(title="Formation energy<br>(eV/atom)", x=0.8, len=0.82),
+            colorbar=dict(title="Formation energy<br>(eV/atom)", x=0.8, len=0.8),
             hoverinfo="none",
             lighting=dict(diffuse=0.0, ambient=1.0),
             name="Convex Hull (shading)",
             flatshading=True,
             showlegend=True,
-        )
-
-    def _create_plotly_quaternary_mesh(self):
-        """
-        Creates shaded mesh plot for coloring the quaternary hull by formation energy.
-        :return: go.Mesh3d plot
-        """
-        x, y, z, energies = [], [], [], []
-        for coord, entry in self.pd_plot_data[1].items():
-            x.append(coord[0])
-            y.append(coord[1])
-            z.append(coord[2])
-            energies.append(self._pd.get_form_energy_per_atom(entry))
-
-        return go.Mesh3d(
-            x=x,
-            y=y,
-            z=z,
-            colorscale=plotly_layouts["stable_colorscale"],
-            intensity=energies,
-            alphahull=0,
-            opacity=0.25,
-            colorbar=dict(title="Formation energy (eV/atom)", x=0.8, len=0.8),
-            lighting=dict(diffuse=0.0, ambient=1.0),
-            hoverinfo="none",
-            name="Convex Hull (shading)",
-            showlegend=True,
-            visible="legendonly",
         )
 
     @staticmethod

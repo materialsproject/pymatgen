@@ -1,5 +1,7 @@
 {
   "default_binary_layout": {
+    "autosize": true,
+    "height": 700,
     "xaxis": {
       "title": "Fraction",
       "anchor": "y",
@@ -61,11 +63,12 @@
   },
   "default_ternary_layout": {
     "autosize": true,
+    "height": 700,
     "hovermode": "closest",
     "paper_bgcolor": "rgba(0,0,0,0)",
     "plot_bgcolor": "rgba(0,0,0,0)",
     "margin": {
-      "b": 0,
+      "b": 10,
       "l": 0,
       "pad": 0,
       "t": 0,
@@ -89,7 +92,7 @@
       "eye": {
         "x": 0,
         "y": 0,
-        "z": 1
+        "z": 2.5
       },
       "projection": {
         "type": "orthographic"
@@ -136,29 +139,29 @@
     "scene_aspectratio": {
       "x": 1.7,
       "y": 1.7,
-      "z": 1.4
+      "z": 1.5
     }
   },
   "default_quaternary_layout": {
     "autosize": true,
-    "height": 450,
+    "height": 700,
     "hovermode": "closest",
     "margin": {
-      "b": 30,
-      "l": 30,
+      "b": 10,
+      "l": 0,
       "pad": 0,
       "t": 0,
-      "r": 20
+      "r": 0
     },
     "paper_bgcolor": "rgba(0,0,0,0)",
     "plot_bgcolor": "rgba(0,0,0,0)",
     "showlegend": true,
     "legend": {
-      "orientation": "v",
-      "x": 0.1,
-      "y": 0.99,
+      "orientation": "h",
+      "x": 0.5,
+      "y": 0.0,
       "traceorder": "reversed",
-      "xanchor": "left",
+      "xanchor": "center",
       "yanchor": "top"
     },
     "scene": {
@@ -198,13 +201,28 @@
         "showticklabels": false,
         "showspikes": false
       }
+    },
+    "scene_camera": {
+      "center": {
+        "x": 0.5,
+        "y": 0.5,
+        "z": 0.5
+      },
+      "eye": {
+        "x": 0.5,
+        "y": 0.5,
+        "z": 0.5
+      },
+      "projection": {
+        "type": "orthographic"
+      }
+    },
+    "scene_aspectratio": {
+      "x": 1.4,
+      "y": 1.4,
+      "z": 1.4
     }
   },
-  "stable_colors": [
-    "#0c8c00",
-    "#d8ffd4",
-    "#ffffff"
-  ],
   "stable_colorscale": [
     [
       0.0,
@@ -219,11 +237,7 @@
       "#ffffff"
     ]
   ],
-  "unstable_colors": [
-    "#fcf1a9",
-    "#ff813d",
-    "#ff0000"
-  ],
+
   "unstable_colorscale": [
     [
       0.0,
@@ -236,6 +250,17 @@
     [
       1.0,
       "#ff0000"
+    ]
+  ],
+
+  "stable_markers_colorscale": [
+    [
+      0.0,
+      "#075400"
+    ],
+    [
+      1.0,
+      "#7ce371"
     ]
   ],
   "default_binary_marker_settings": {
