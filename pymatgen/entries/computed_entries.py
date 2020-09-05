@@ -338,6 +338,7 @@ class ComputedEntry(Entry):
         """
         return self.uncorrected_energy + self.correction
 
+    @property
     def uncorrected_energy_per_atom(self) -> float:
         """
         Returns:
@@ -364,6 +365,7 @@ class ComputedEntry(Entry):
         corr = ManualEnergyAdjustment(x)
         self.energy_adjustments = [corr]
 
+    @property
     def correction_per_atom(self) -> float:
         """
         Returns:
@@ -389,6 +391,7 @@ class ComputedEntry(Entry):
 
         return unc.std_dev
 
+    @property
     def correction_uncertainty_per_atom(self) -> float:
         """
         Returns:
