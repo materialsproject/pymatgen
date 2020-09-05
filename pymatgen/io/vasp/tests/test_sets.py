@@ -1229,6 +1229,7 @@ class MPScanRelaxSetTest(PymatgenTest):
         incar = self.mp_scan_set.incar
         self.assertEqual(incar["METAGGA"], "Scan")
         self.assertEqual(incar["LASPH"], True)
+        self.assertEqual(incar["ENAUG"], 1360)
         self.assertEqual(incar["ENCUT"], 680)
         self.assertEqual(incar["NSW"], 500)
         # the default POTCAR contains metals
