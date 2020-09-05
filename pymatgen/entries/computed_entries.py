@@ -359,6 +359,11 @@ class ComputedEntry(Entry):
         )
         return corr.nominal_value
 
+    @correction.setter
+    def correction(self, x: float) -> None:
+        corr = ManualEnergyAdjustment(x)
+        self.energy_adjustments = [corr]
+
     def correction_per_atom(self) -> float:
         """
         Returns:
@@ -366,11 +371,6 @@ class ComputedEntry(Entry):
                 normalized by atoms (units of eV/atom)
         """
         return self.correction / self.composition.num_atoms
-
-    @correction.setter
-    def correction(self, x: float) -> None:
-        corr = ManualEnergyAdjustment(x)
-        self.energy_adjustments = [corr]
 
     @property
     def correction_uncertainty(self) -> float:
