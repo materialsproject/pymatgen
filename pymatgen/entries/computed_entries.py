@@ -338,6 +338,14 @@ class ComputedEntry(Entry):
         """
         return self.uncorrected_energy + self.correction
 
+    def uncorrected_energy_per_atom(self) -> float:
+        """
+        Returns:
+            float: the *uncorrected* energy of the entry, normalized by atoms
+                (units of eV/atom)
+        """
+        return self.uncorrected_energy / self.composition.num_atoms
+
     @property
     def correction(self) -> float:
         """
@@ -351,6 +359,14 @@ class ComputedEntry(Entry):
         )
         return corr.nominal_value
 
+    def correction_per_atom(self) -> float:
+        """
+        Returns:
+            float: the total energy correction / adjustment applied to the entry,
+                normalized by atoms (units of eV/atom)
+        """
+        return self.correction / self.composition.num_atoms
+
     @correction.setter
     def correction(self, x: float) -> None:
         corr = ManualEnergyAdjustment(x)
@@ -360,7 +376,7 @@ class ComputedEntry(Entry):
     def correction_uncertainty(self) -> float:
         """
         Returns:
-            float: the uncertainty of the energy adjustment in eV
+            float: the uncertainty of the energy adjustments applied to the entry, in eV
         """
         # adds to ufloat(0.0, 0.0) to ensure that no corrections still result in ufloat object
         unc = ufloat(0.0, 0.0) + sum(
@@ -372,6 +388,14 @@ class ComputedEntry(Entry):
             return np.nan
 
         return unc.std_dev
+
+    def correction_uncertainty_per_atom(self) -> float:
+        """
+        Returns:
+            float: the uncertainty of the energy adjustments applied to the entry,
+                normalized by atoms (units of eV/atom)
+        """
+        return self.correction_uncertainty / self.composition.num_atoms
 
     def normalize(self, mode: str = "formula_unit") -> None:
         """
