@@ -1541,6 +1541,7 @@ class PDPlotter:
         energy_colormap=None,
         process_attributes=False,
         plt=None,
+        shade_uncertainty_window=False
     ):
         """
         :param label_stable: Whether to label stable compounds.
@@ -1549,6 +1550,8 @@ class PDPlotter:
         :param energy_colormap: Colormap for coloring energy.
         :param process_attributes: Whether to process the attributes.
         :param plt: Existing plt object if plotting multiple phase diagrams.
+        :param shade_uncertainty_window: Whether to shade the hull with
+            uncertainties. Currently only works in Plotly and in binary phase diagrams.
         :return: matplotlib.pyplot.
         """
         fig = None
@@ -1560,7 +1563,13 @@ class PDPlotter:
                 data.append(self._create_plotly_ternary_support_lines())
                 data.append(self._create_plotly_ternary_hull())
 
-            data.extend(self._create_plotly_markers())
+            unstable_marker_plot, stable_marker_plot = self._create_plotly_markers()
+
+            if self._dim == 2 and shade_uncertainty_window:
+                data.append(self._create_plotly_uncertainty_shading(stable_marker_plot))
+
+            data.append(unstable_marker_plot)
+            data.append(stable_marker_plot)
 
             fig = go.Figure(data=data)
             fig.layout = self._create_plotly_figure_layout()
@@ -2244,8 +2253,8 @@ class PDPlotter:
         """
         Creates stable and unstable marker plots for overlaying on the phase diagram.
 
-        :return: Tuple of Plotly Scatter (or Scatter3d) objects in order: (unstable,
-            stable)
+        :return: Tuple of Plotly go.Scatter (or go.Scatter3d) objects in order: (
+            unstable, stable)
         """
 
         def get_marker_props(coords, entries, stable=True):
@@ -2275,7 +2284,8 @@ class PDPlotter:
                 else:
                     uncertainty = 0
                     if hasattr(entry, 'correction_uncertainty'):
-                        uncertainty = entry.correction_uncertainty
+                        uncertainty = \
+                            entry.correction_uncertainty
                     uncertainties.append(uncertainty)
                     energies.append(energy)
 
@@ -2310,17 +2320,19 @@ class PDPlotter:
                     name="Stable",
                     marker=dict(
                         color='darkgreen',
-                        size=7.5,
+                        size=11,
                         line=dict(
                             color='black',
-                            width=3
+                            width=2
                         )
                     ),
                     opacity=0.8,
                     hovertext=stable_props["texts"],
                     error_y=dict(array=stable_props["uncertainties"],
                                  type="data",
-                                 color="gray"
+                                 color="gray",
+                                 thickness=2.5,
+                                 width=5
                                  )
                 )
             )
@@ -2332,7 +2344,9 @@ class PDPlotter:
                     y=unstable_props["y"],
                     name="Above Hull",
                     marker=dict(color=unstable_props["energies"],
-                                colorscale=plotly_layouts["unstable_colorscale"]),
+                                colorscale=plotly_layouts["unstable_colorscale"],
+                                size=6,
+                                symbol="diamond"),
                     hovertext=unstable_props["texts"],
                 )
             )
@@ -2348,7 +2362,7 @@ class PDPlotter:
                     opacity=0.8,
                     marker=dict(
                         color='darkgreen',
-                        size=7.5,
+                        size=8.5,
                         line=dict(
                             color='black',
                             width=3
@@ -2357,7 +2371,9 @@ class PDPlotter:
                     hovertext=stable_props["texts"],
                     error_z=dict(array=stable_props["uncertainties"],
                                  type="data",
-                                 color="gray"
+                                 color="darkgray",
+                                 width=10,
+                                 thickness=5
                                  )
                 )
             )
@@ -2429,6 +2445,42 @@ class PDPlotter:
         )
 
         return unstable_marker_plot, stable_marker_plot
+
+    def _create_plotly_uncertainty_shading(self, stable_marker_plot):
+        """
+        Creates shaded uncertainty region for stable entries. Currently only works
+        for binary phase diagrams.
+
+        :param stable_marker_plot: go.Scatter object with stable markers and their
+            error bars.
+        :return: Plotly go.Scatter object
+        """
+
+        uncertainty_plot = None
+
+        x = stable_marker_plot.x
+        y = stable_marker_plot.y
+
+        if self._dim == 2:
+            error = stable_marker_plot.error_y["array"]
+            points = np.append(x, [y, error]).reshape(3, -1).T
+            points = points[points[:, 0].argsort()]  # sort by composition
+            outline = points[:, :2].copy()
+            outline[:, 1] = outline[:, 1] + points[:, 2]
+            flipped_points = np.flip(points[:-1, :].copy(), 0)
+            flipped_points[:, 1] = flipped_points[:, 1] - flipped_points[:, 2]
+            outline = np.vstack((outline, flipped_points[:, :2]))  # loop over points
+            uncertainty_plot = go.Scatter(x=outline[:, 0],
+                                          y=outline[:, 1],
+                                          name="Uncertainty (window)",
+                                          fill="toself",
+                                          mode="lines",
+                                          line=dict(width=0),
+                                          fillcolor="lightblue",
+                                          hoverinfo="skip",
+                                          opacity=0.4)
+
+        return uncertainty_plot
 
     def _create_plotly_ternary_support_lines(self):
         """

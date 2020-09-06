@@ -87,7 +87,7 @@
       "center": {
         "x": 0,
         "y": 0,
-        "z": 0
+        "z": -0.2
       },
       "eye": {
         "x": 0,
@@ -203,15 +203,20 @@
       }
     },
     "scene_camera": {
+      "up": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
       "center": {
         "x": 0.5,
         "y": 0.5,
         "z": 0.5
       },
       "eye": {
-        "x": 0.5,
-        "y": 0.5,
-        "z": 0.5
+        "x": 1.25,
+        "y": 1.25,
+        "z": 1.25
       },
       "projection": {
         "type": "orthographic"
@@ -241,7 +246,7 @@
   "unstable_colorscale": [
     [
       0.0,
-      "#fcf1a9"
+      "#fad393"
     ],
     [
       0.5,
@@ -283,7 +288,7 @@
   "default_ternary_marker_settings": {
     "mode": "markers",
     "marker": {
-      "size": 6,
+      "size": 8,
       "line": {
         "width": 4,
         "color": "black"
