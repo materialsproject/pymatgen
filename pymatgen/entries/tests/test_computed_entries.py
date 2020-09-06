@@ -103,6 +103,20 @@ class ComputedEntryTest(unittest.TestCase):
         self.assertEqual(self.entry5.composition.reduced_formula, "Fe2O3")
         self.assertEqual(self.entry5.composition.get_reduced_formula_and_factor()[1], 3)
 
+    def test_per_atom_props(self):
+        entry = ComputedEntry("Fe6O9", 6.9)
+        entry.energy_adjustments.append(
+            CompositionEnergyAdjustment(-0.5, 9, uncertainty_per_atom=0.1, name="O")
+        )
+        self.assertAlmostEqual(entry.energy, 2.4)
+        self.assertAlmostEqual(entry.energy_per_atom, 2.4 / 15)
+        self.assertAlmostEqual(entry.uncorrected_energy, 6.9)
+        self.assertAlmostEqual(entry.uncorrected_energy_per_atom, 6.9 / 15)
+        self.assertAlmostEqual(entry.correction, -4.5)
+        self.assertAlmostEqual(entry.correction_per_atom, -4.5/15)
+        self.assertAlmostEqual(entry.correction_uncertainty, 0.9)
+        self.assertAlmostEqual(entry.correction_uncertainty_per_atom, 0.9/15)
+
     def test_normalize(self):
         entry = ComputedEntry("Fe6O9", 6.9, correction=1)
         entry.normalize()
