@@ -29,7 +29,7 @@ import itertools
 import copy
 
 from monty.json import MSONable
-from monty.dev import requires, deprecated
+from monty.dev import requires
 
 try:
     from openbabel import openbabel as ob
@@ -1278,6 +1278,14 @@ class GeneticOrderMatcher(KabschMatcher):
         return out
 
     def permutations(self, p: Molecule):
+        """Generates all of possible permutations of atom order according the threshold.
+
+        Args:
+            p: a `Molecule` object what will be matched with the target one.
+
+        Returns:
+            Array of index arrays
+        """
 
         # caching atomic numbers and coordinates
         p_atoms, q_atoms = p.atomic_numbers, self.target.atomic_numbers
