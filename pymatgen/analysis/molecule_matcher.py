@@ -1197,7 +1197,8 @@ class GeneticOrderMatcher(KabschMatcher):
     The main idea here is that in each iteration (generation) we can check the match of all possible
     fragments and ignore those which are not feasible.
 
-    Although in worst case this method has N! complexity (same as the brute force one) but in practice it performs much faster.
+    Although in worst case this method has N! complexity (same as the brute force one)
+    but in practice it performs much faster.
     because many of the combination can be eliminated during the fragment matching.
 
     Notes:
@@ -1286,7 +1287,7 @@ class GeneticOrderMatcher(KabschMatcher):
             raise ValueError('The number of the same species aren\'t matching!')
 
         # starting maches (only based on element)
-        partial_matches = [[j] for j in range(self.N) if p_atoms[j]==q_atoms[0]]
+        partial_matches = [[j] for j in range(self.N) if p_atoms[j] == q_atoms[0]]
 
         for i in range(1, self.N):
             # extending the target fragment with then next atom
@@ -1332,7 +1333,8 @@ class GeneticOrderMatcher(KabschMatcher):
 
             partial_matches = matches
 
-            logger.info('number of atom in the fragment: {}, number of possible matches: {}'.format(i + 1, len(matches)))
+            logger.info('number of atom in the fragment: {}, '
+                        'number of possible matches: {}'.format(i + 1, len(matches)))
 
         return matches
 
