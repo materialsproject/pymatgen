@@ -4032,8 +4032,7 @@ class Xdatcar:
 
         Args:
             filename (str): Filename of output XDATCAR file.
-            The supported kwargs are the same as those for the
-            Xdatcar.get_string method and are passed through directly.
+            kwargs: Same as those for the Xdatcar.get_string method (and passed through directly)
         """
         with zopen(filename, "wt") as f:
             f.write(self.get_string(**kwargs))
