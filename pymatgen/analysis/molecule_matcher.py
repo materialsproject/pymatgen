@@ -27,6 +27,8 @@ import math
 import abc
 import itertools
 import copy
+import logging
+import numpy as np
 
 from monty.json import MSONable
 from monty.dev import requires
@@ -37,12 +39,10 @@ try:
 except ImportError:
     ob = None
 
-import logging
-import numpy as np
 from scipy.spatial.distance import cdist
 from scipy.optimize import linear_sum_assignment
 
-from pymatgen import Molecule
+from pymatgen import Molecule   # pylint: disable=ungrouped-imports
 
 logger = logging.getLogger(__name__)
 
@@ -1176,7 +1176,8 @@ class HungarianOrderMatcher(KabschMatcher):
         if np.allclose(v1, v2):
             # same direction
             return np.eye(3)
-        elif np.allclose(v1, -v2):
+
+        if np.allclose(v1, -v2):
             # opposite direction: return a rotation of pi around the y-axis
             return np.array([[-1., 0., 0.], [0., 1., 0.], [0., 0., -1.]])
 
@@ -1349,8 +1350,7 @@ class GeneticOrderMatcher(KabschMatcher):
 
 if __name__ == "__main__":
     import random
-    import numpy as np
-    from pymatgen import Lattice, Structure
+    from pymatgen import Structure, Lattice  # pylint: disable=ungrouped-imports
 
     coords = np.array([[0, 0, 0], [0.75, 0.5, 0.75]])
     lattice = Lattice.from_parameters(a=3.84, b=3.84, c=3.84, alpha=120, beta=90, gamma=60)
