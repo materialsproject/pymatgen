@@ -3,7 +3,7 @@
 # Distributed under the terms of the MIT License.
 
 """
-This module provides classes used to define a MD trajectory.
+This module provides classes used to define an MD trajectory.
 """
 
 import itertools
@@ -26,8 +26,8 @@ __date__ = "Jan 25, 2019"
 
 class Trajectory(MSONable):
     """
-    Trajectory object that stores structural information related to a MD simulation.
-    Provides basic functions such as slicing trajectory or obtaining displacements.
+    Trajectory object that stores structural information related to an MD simulation.
+    Provides basic functions such as slicing of trajectory or extracting displacements.
     """
 
     def __init__(self, lattice: Union[List, np.ndarray, Lattice],
@@ -46,7 +46,7 @@ class Trajectory(MSONable):
                 vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
                 lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].
             species: List of species on each site. Can take in flexible input,
-                including:
+                including
                 i.  A sequence of element / specie specified either as string
                     symbols, e.g. ["Li", "Fe2+", "P", ...] or atomic numbers,
                     e.g., (3, 56, ...) or actual Element or Specie objects.
@@ -55,18 +55,18 @@ class Trajectory(MSONable):
                     disordered structures.
             frac_coords (MxNx3 array): list of fractional coordinates of
                 each species
-            time_step (int, float): Timestep of simulation in femtoseconds. Defaults to 2fs.
+            time_step (int, float): Timestep of simulation in femtoseconds. Defaults to 2 fs.
             site_properties (list): Properties associated with the sites as a list of
                 dicts of sequences, e.g., [{"magmom":[5,5,5,5]}, {"magmom":[5,5,5,5]}]. The sequences
                 have to be the same length as the atomic species and fractional_coords. Number of supplied
                 dicts should match number of frames in trajectory
                 Defaults to None for no properties.
-            frame_properties (dict): Properties of the trajectory such as energy, pressure, etc. each property should
-                have a length equal to the trajectory length. eg: {'energy': [#, #, #, #], 'pressure': [0, 0.1, 0 0.02]}
+            frame_properties (dict): Properties of the trajectory such as energy, pressure, etc. Each property should
+                have a length equal to the trajectory length, e.g., {'energy': [#, #, #, #], 'pressure': [0, 0.1, 0 0.02]}
             constant_lattice (bool): Whether the lattice changes during the simulation, such as in an NPT MD simulation.
             coords_are_displacement (bool): Whether supplied coordinates are given in displacements (True) or
                 positions (False)
-            base_positions (Nx3 array): The starting positions of all atoms in trajectory. Used to reconstruct positions
+            base_positions (Nx3 array): The starting positions of all atoms in the trajectory. Used to reconstruct positions
                 when converting from displacements to positions. Only needs to be specified if
                 coords_are_displacement=True. Defaults to first index of frac_coords if coords_are_displacement=False.
         """
@@ -140,12 +140,12 @@ class Trajectory(MSONable):
             trajectory (Trajectory): Trajectory to add
         """
         if self.time_step != trajectory.time_step:
-            raise ValueError('Trajectory not extended: Time steps of trajectories is incompatible')
+            raise ValueError('Trajectory not extended: Time steps of trajectories are incompatible')
 
         if len(self.species) != len(trajectory.species) and self.species != trajectory.species:
-            raise ValueError('Trajectory not extended: species in trajectory do not match')
+            raise ValueError('Trajectory not extended: Species in trajectories do not match')
 
-        # Ensure both trajectories are in positions before combining
+        # Ensure both trajectories are in position format before combining
         self.to_positions()
         trajectory.to_positions()
 
@@ -170,13 +170,13 @@ class Trajectory(MSONable):
 
     def __getitem__(self, frames):
         """
-        Gets a subset of the trajectory if a slice is given, if an int is given, return a structure
+        Gets a subset of the trajectory if a slice is given; if a single int is given, return a structure
         Args:
             frames (int, slice): int or slice of trajectory to return
         Return:
             (Trajectory, Structure) Subset of trajectory
         """
-        # If trajectory is in displacement mode, return the displacements at that frame
+        # If trajectory is in displacement mode, return the displacements for that frame
         if self.coords_are_displacement:
             if isinstance(frames, int):
                 if frames >= np.shape(self.frac_coords)[0]:
@@ -261,13 +261,13 @@ class Trajectory(MSONable):
     @classmethod
     def from_structures(cls, structures, constant_lattice=True, **kwargs):
         """
-        Convenience constructor to obtain trajectory from a list of structures.
+        Convenience constructor to generate trajectory from a list of structures.
         Note: Assumes no atoms removed during simulation
 
         Args:
             structures (list): list of pymatgen Structure objects.
             constant_lattice (bool): Whether the lattice changes during the simulation, such as in an NPT MD
-                simulation. True results in
+                simulation. True results in ...?
         Returns:
             (Trajectory)
         """
