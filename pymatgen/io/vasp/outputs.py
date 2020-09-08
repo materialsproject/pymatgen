@@ -3838,22 +3838,22 @@ class Xdatcar:
     def __init__(self, filename, ionicstep_start=1,
                  ionicstep_end=None, comment=None):
         """
-        Init a Xdatcar.
+        Init an Xdatcar.
 
         Args:
             filename (str): Filename of input XDATCAR file.
-            ionicstep_start (int): Starting number of ionic step.
-            ionicstep_end (int): Ending number of ionic step.
+            ionicstep_start (int): Number of first ionic step.
+            ionicstep_end (int): Number of last ionic step.
         """
         preamble = None
         coords_str = []
         structures = []
         preamble_done = False
         if (ionicstep_start < 1):
-            raise Exception('Start ionic step cannot be less than 1')
+            raise Exception('First ionic step cannot be less than 1')
         if (ionicstep_end is not None and
                 ionicstep_start < 1):
-            raise Exception('End ionic step cannot be less than 1')
+            raise Exception('Last ionic step cannot be less than 1')
 
         ionicstep_cnt = 1
         with zopen(filename, "rt") as f:
@@ -3911,7 +3911,7 @@ class Xdatcar:
     @property
     def natoms(self):
         """
-        Sequence of number of sites of each type associated with the Poscar.
+        List of number of sites of each type associated with the Poscar.
         Similar to 7th line in vasp 5+ Xdatcar.
         """
         syms = [site.specie.symbol for site in self.structures[0]]
@@ -3924,21 +3924,21 @@ class Xdatcar:
 
         Args:
             filename (str): Filename of XDATCAR file to be concatenated.
-            ionicstep_start (int): Starting number of ionic step.
-            ionicstep_end (int): Ending number of ionic step.
+            ionicstep_start (int): Number of first ionic step.
+            ionicstep_end (int): Number of last ionic step.
         TODO(rambalachandran):
-           Requires a check to ensure if the new concatenating file has the
-           same lattice structure and atoms as the Xdatcar class.
+           Requires a check to ensure that the new concatenating file has the
+           same lattice cell and atoms as the Xdatcar class.
         """
         preamble = None
         coords_str = []
         structures = self.structures
         preamble_done = False
         if ionicstep_start < 1:
-            raise Exception('Start ionic step cannot be less than 1')
+            raise Exception('First ionic step cannot be less than 1')
         if (ionicstep_end is not None and
                 ionicstep_start < 1):
-            raise Exception('End ionic step cannot be less than 1')
+            raise Exception('Last ionic step cannot be less than 1')
         ionicstep_cnt = 1
         with zopen(filename, "rt") as f:
             for l in f:
@@ -3987,14 +3987,14 @@ class Xdatcar:
         Write  Xdatcar class to a string.
 
         Args:
-            ionicstep_start (int): Starting number of ionic step.
-            ionicstep_end (int): Ending number of ionic step.
+            ionicstep_start (int): Number of first ionic step.
+            ionicstep_end (int): Number of last ionic step.
             significant_figures (int): Number of significant figures.
         """
         if ionicstep_start < 1:
-            raise Exception('Start ionic step cannot be less than 1')
+            raise Exception('First ionic step cannot be less than 1')
         if ionicstep_end is not None and ionicstep_end < 1:
-            raise Exception('End ionic step cannot be less than 1')
+            raise Exception('Last ionic step cannot be less than 1')
         latt = self.structures[0].lattice
         if np.linalg.det(latt.matrix) < 0:
             latt = Lattice(-latt.matrix)
@@ -4028,7 +4028,7 @@ class Xdatcar:
 
     def write_file(self, filename, **kwargs):
         """
-        Write  Xdatcar class into a file.
+        Write  Xdatcar class to a file.
 
         Args:
             filename (str): Filename of output XDATCAR file.
