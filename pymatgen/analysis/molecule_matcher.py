@@ -10,7 +10,7 @@ This module is supposed to perform exact comparisons without the atom order
 correspondence prerequisite, while molecule_structure_comparator is supposed
 to do rough comparisons with the atom order correspondence prerequisite.
 
-The implementation is based on an excellent python package called `rmsd` that 
+The implementation is based on an excellent python package called `rmsd` that
 you can find at https://github.com/charnley/rmsd.
 """
 
@@ -29,7 +29,7 @@ import itertools
 import copy
 
 from monty.json import MSONable
-from monty.dev import requires
+from monty.dev import requires, deprecated
 
 try:
     from openbabel import openbabel as ob
@@ -37,11 +37,14 @@ try:
 except ImportError:
     ob = None
 
+import logging
 import numpy as np
 from scipy.spatial.distance import cdist
 from scipy.optimize import linear_sum_assignment
 
 from pymatgen import Molecule
+
+logger = logging.getLogger(__name__)
 
 
 class AbstractMolAtomMapper(MSONable, metaclass=abc.ABCMeta):
@@ -744,130 +747,154 @@ class MoleculeMatcher(MSONable):
             mapper=AbstractMolAtomMapper.from_dict(d["mapper"]))
 
 
-class AbstractMatcher(MSONable, metaclass=abc.ABCMeta):
-    """Abstract class for molecular matching implementaions. 
-    A mapping will be able to find the parameters (order, translation, rotation) by minimizing the RMSE
-    of two molecules which are topologically (atom types, geometry) similar two each other.
+class KabschMatcher(MSONable):
+    """Molecule matcher using Kabsch algorithm
 
-    Depending the choice of the methods the return values can differ!
+    The Kabsch algorithm capable aligning two molecules by finding the parameters
+    (translation, rotation) which minimize the root-mean-square-deviation (RMSD) of
+    two molecules which are topologically (atom types, geometry) similar two each other.
+
+    Notes:
+        When aligning molecules, the atoms of the two molecules **must** be in the same
+        order for the results to be sensible.
     """
 
-    @abc.abstractmethod
-    def match(self, p: Molecule, q: Molecule):
-        """
-        Pair the geometrically equivalent atoms of the molecules.
+    def __init__(self, target: Molecule):
+        """Constructor of the matcher object.
 
         Args:
-            p: First molecule.
-            q: Second molecule. (target)
+            target: a `Molecule` object used as a target during the alignment
         """
+        self.target = target
 
-        pass
+    def match(self, p: Molecule):
+        """Using the Kabsch algorithm the alignment of two molecules (P, Q)
+        happens in three steps:
+        - translate the P and Q into their centroid
+        - compute of the optimal rotation matrix (U) using Kabsch algorithm
+        - compute the translation (V) and rmsd
 
-    @abc.abstractmethod
-    def fit(self, p: Molecule, q: Molecule):
-        """Maps `p` molecule onto `q` molecule
-
-        Args:
-            p: First molecule.
-            q: Second molecule. (target)
-
-        Returns:
-            p_prime: Roated and translated of the `p` Molecule object 
-            rmsd: Root-mean-square-deviation between `p_prime` and `q`
-        """
-        pass
-
-
-class KabschMatcher(AbstractMatcher):
-
-    def match(self, p: Molecule, q: Molecule):
-
-        if p.atomic_numbers != q.atomic_numbers:
-            raise ValueError('The order of the species aren\'t matching! '
-                             'Please try using `PermInvMatcher`.')
-
-        p_coord, q_coord = p.cart_coords, q.cart_coords
-
-        # Both sets of coordinates must be translated first, so that 
-        # their centroid coincides with the origin of the coordinate system.
-        p_trans, q_trans = p_coord.mean(axis=0), q_coord.mean(axis=0)
-
-        U = self.kabsch(p_coord - p_trans, q_coord - q_trans)
-        V = q_trans - np.dot(p_trans, U)
-
-        # Rotate and translate matrix P unto matrix Q using Kabsch algorithm.
-        # P' = P * U + V
-        p_prime_coord = np.dot(p_coord, U) + V
-
-        rmsd = np.sqrt(np.mean(np.square(p_prime_coord - q_coord)))
-        return U, V, rmsd 
-
-    def fit(self, p: Molecule, q: Molecule):
-
-        U, V, rmsd = self.match(p, q)
-
-        # Translate and rotate `mol1` unto `mol2` using Kabsch algorithm.
-        p_prime = p.copy()
-        for site in p_prime:
-            site.coords = np.dot(site.coords, U) + V
-
-        return p_prime, rmsd 
-
-    @staticmethod
-    def kabsch(P: np.ndarray, Q: np.ndarray):
-        """Using the Kabsch algorithm with two sets of paired point P and Q, 
-        centered around the centroid. Each vector set is represented as an NxD
-        matrix, where D is the the dimension of the space.
-
-        The algorithm works in three steps:
-        - a centroid translation of P and Q (assumed done before this function
-        call)
-        - the computation of a covariance matrix C
-        - computation of the optimal rotation matrix U
-        For more info see http://en.wikipedia.org/wiki/Kabsch_algorithm
-
-        The function returns the rotation matrix U, translation vector V,
-        and RMS deviation between Q and P', where P' is:
+        The function returns the rotation matrix (U), translation vector (V),
+        and RMSD between Q and P', where P' is:
 
             P' = P * U + V
 
         Args:
-            P: (N,D) matrix, where N is points and D is dimension.
-            Q: (N,D) matrix, where N is points and D is dimension.
+            p: a `Molecule` object what will be matched with the target one.
 
         Returns:
             U: Rotation matrix (D,D)
             V: Translation vector (D)
             RMSD : Root mean squared deviation between P and Q
         """
+        if self.target.atomic_numbers != p.atomic_numbers:
+            raise ValueError('The order of the species aren\'t matching! '
+                             'Please try using `PermInvMatcher`.')
 
-        # Computation of the covariance matrix
+        p_coord, q_coord = p.cart_coords, self.target.cart_coords
+
+        # Both sets of coordinates must be translated first, so that their
+        # centroid coincides with the origin of the coordinate system.
+        p_trans, q_trans = p_coord.mean(axis=0), q_coord.mean(axis=0)
+        p_centroid, q_centroid = p_coord - p_trans, q_coord - q_trans
+
+        # The optimal rotation matrix U using Kabsch algorithm
+        U = self.kabsch(p_centroid, q_centroid)
+
+        p_prime_centroid = np.dot(p_centroid, U)
+        rmsd = np.sqrt(np.mean(np.square(p_prime_centroid - q_centroid)))
+
+        V = q_trans - np.dot(p_trans, U)
+
+        return U, V, rmsd
+
+    def fit(self, p: Molecule):
+        """Rotate and transform `p` molecule according to the best match.
+
+        Args:
+            p: a `Molecule` object what will be matched with the target one.
+
+        Returns:
+            p_prime: Rotated and translated of the `p` `Molecule` object
+            rmsd: Root-mean-square-deviation between `p_prime` and the `target`
+        """
+        U, V, rmsd = self.match(p)
+
+        # Rotate and translate matrix `p` onto the target molecule.
+        # P' = P * U + V
+        p_prime = p.copy()
+        for site in p_prime:
+            site.coords = np.dot(site.coords, U) + V
+
+        return p_prime, rmsd
+
+    @staticmethod
+    def kabsch(P: np.ndarray, Q: np.ndarray):
+        """The Kabsch algorithm is a method for calculating the optimal rotation matrix
+        that minimizes the root mean squared deviation (RMSD) between two paired sets of points
+        P and Q, centered around the their centroid.
+
+        For more info see:
+        - http://en.wikipedia.org/wiki/Kabsch_algorithm and
+        - https://cnx.org/contents/HV-RsdwL@23/Molecular-Distance-Measures
+
+        Args:
+            P: Nx3 matrix, where N is the number of points.
+            Q: Nx3 matrix, where N is the number of points.
+
+        Returns:
+            U: 3x3 rotation matrix
+        """
+
+        # Computation of the cross-covariance matrix
         C = np.dot(P.T, Q)
 
-        # Computation of the optimal rotation matrix 
+        # Computation of the optimal rotation matrix
         # using singular value decomposition (SVD).
-        # Getting the sign of the det(V)*(W) to decide whether 
+        V, S, WT = np.linalg.svd(C)
+
+        # Getting the sign of the det(V*Wt) to decide whether
+        d = np.linalg.det(np.dot(V, WT))
+
+        # And finally calculating the optimal rotation matrix R
         # we need to correct our rotation matrix to ensure a right-handed coordinate system.
-        V, S, W = np.linalg.svd(C)
-
-        d = (np.linalg.det(V) * np.linalg.det(W)) < 0.0
-        if d:
-            S[-1] = -S[-1]
-            V[:, -1] = -V[:, -1]
-
-        # And finally calculating the optimal rotation matrix U
-        U = np.dot(V, W)
+        U = np.dot(np.dot(V, np.diag([1, 1, d])), WT)
 
         return U
 
 
-class SlowPermInvMatcher(KabschMatcher):
+class BruteForceOrderMatcher(KabschMatcher):
+    """Finding the best match between molecules by selecting molecule order
+    with the smallest RMSD from all the possible order combinations.
 
-    def match(self, p: Molecule, q: Molecule, ignore_warning=False):
+    Notes:
+        When aligning molecules, the atoms of the two molecules **must** have same number
+        of atoms from the same species.
+    """
+
+    def match(self, p: Molecule, ignore_warning=False):
+        """Similar as `KabschMatcher.match` but this method also finds the order of
+        atoms which belongs to the best match.
+
+        A `ValueError` will be raised when the total number of possible combinations
+        become unfeasible (more than a million combination).
+
+        Args:
+            p: a `Molecule` object what will be matched with the target one.
+            ignore_warning: ignoring error when the number of combination is too large
+
+        Returns:
+            inds: The indices of atoms
+            U: 3x3 rotation matrix
+            V: Translation vector
+            rmsd: Root mean squared deviation between P and Q
+        """
+
+        q = self.target
 
         if sorted(p.atomic_numbers) != sorted(q.atomic_numbers):
-            raise ValueError('The number of the same species aren\'t matching!')
+            raise ValueError(
+                'The number of the same species aren\'t matching!')
 
         _, count = np.unique(p.atomic_numbers, return_counts=True)
         total_permutations = 1
@@ -875,13 +902,13 @@ class SlowPermInvMatcher(KabschMatcher):
             total_permutations *= np.math.factorial(c)
 
         if not ignore_warning and total_permutations > 1_000_000:
-            raise ValueError('The number of all possible permuataions '
+            raise ValueError('The number of all possible permutations '
                              '({}) is not feasible to run this method!'.format(total_permutations))
 
         p_coord, q_coord = p.cart_coords, q.cart_coords
         p_atoms, q_atoms = np.array(p.atomic_numbers), np.array(q.atomic_numbers)
 
-        # Both sets of coordinates must be translated first, so that 
+        # Both sets of coordinates must be translated first, so that
         # their centroid coincides with the origin of the coordinate system.
         p_trans, q_trans = p_coord.mean(axis=0), q_coord.mean(axis=0)
         p_centroid, q_centroid = p_coord - p_trans, q_coord - q_trans
@@ -890,11 +917,11 @@ class SlowPermInvMatcher(KabschMatcher):
         q_inds = np.argsort(q_atoms)
         q_centroid = q_centroid[q_inds]
 
-        # Initialising return values
+        # Initializing return values
         rmsd = np.inf
 
-        # Generate all permutaion grouped/sorted by the elements
-        for p_inds_test in self.all_permutations(p_atoms):
+        # Generate all permutation grouped/sorted by the elements
+        for p_inds_test in self.permutations(p_atoms):
 
             p_centroid_test = p_centroid[p_inds_test]
             U_test = self.kabsch(p_centroid_test, q_centroid)
@@ -909,66 +936,89 @@ class SlowPermInvMatcher(KabschMatcher):
         # P' = P * U + V
         V = q_trans - np.dot(p_trans, U)
 
-        # Using the original order of the indecies
+        # Using the original order of the indices
         inds = p_inds[np.argsort(q_inds)]
 
-        return inds, U, V, rmsd 
+        return inds, U, V, rmsd
 
-    def fit(self, p: Molecule, q: Molecule):
+    def fit(self, p: Molecule, ignore_warning=False):
+        """Order, rotate and transform `p` molecule according to the best match.
 
-        inds, U, V, rmsd = self.match(p, q)
+        A `ValueError` will be raised when the total number of possible combinations
+        become unfeasible (more than a million combination).
 
-        # Translate and rotate `mol1` unto `mol2` using Kabsch algorithm.
+        Args:
+            p: a `Molecule` object what will be matched with the target one.
+            ignore_warning: ignoring error when the number of combination is too large
+
+        Returns:
+            p_prime: Rotated and translated of the `p` `Molecule` object
+            rmsd: Root-mean-square-deviation between `p_prime` and the `target`
+        """
+
+        inds, U, V, rmsd = self.match(p, ignore_warning=ignore_warning)
+
         p_prime = Molecule.from_sites([p[i] for i in inds])
         for site in p_prime:
             site.coords = np.dot(site.coords, U) + V
 
-        return p_prime, rmsd 
+        return p_prime, rmsd
 
     @staticmethod
-    def all_permutations(atoms):
+    def permutations(atoms):
+        """Generates all the possible permutations of atom order. To achieve better
+        performance all tha cases where the atoms are different has been ignored.
+        """
         element_iterators = [itertools.permutations(np.where(atoms == element)[0]) for element in np.unique(atoms)]
+
         for inds in itertools.product(*element_iterators):
             yield np.array(list(itertools.chain(*inds)))
 
 
-class PermInvMatcher(KabschMatcher):
+class HungarianOrderMatcher(KabschMatcher):
+    """This method pre-aligns the molecules based on their principal inertia
+    axis and then re-orders the input atom list using the Hungarian method.
 
-    def match(self, p: Molecule, q: Molecule):
-        """Align the principal intertia axis and then re-orders the input atom 
-        list and xyz coordinates using the Hungarian method 
-        (using optimized column results)
+    Notes:
+        This method cannot guarante the best match but very fast.
+
+        When aligning molecules, the atoms of the two molecules **must** have same number
+        of atoms from the same species.
+    """
+
+    def match(self, p: Molecule):
+        """Similar as `KabschMatcher.match` but this method also finds the order of
+        atoms which belongs to the best match.
 
         Args:
-            p_atoms: (N,1) matrix, where N is points holding the atoms' names
-            p_atoms: (N,1) matrix, where N is points holding the atoms' names
-            p_coord: (N,D) matrix, where N is points and D is dimension
-            q_coord: (N,D) matrix, where N is points and D is dimension
+            p: a `Molecule` object what will be matched with the target one.
 
         Returns:
-            view_reorder: (N,1) matrix, reordered indexes of atom alignment 
-                based on the coordinates of the atoms
+            inds: The indices of atoms
+            U: 3x3 rotation matrix
+            V: Translation vector
+            rmsd: Root mean squared deviation between P and Q
         """
 
-        if sorted(p.atomic_numbers) != sorted(q.atomic_numbers):
+        if sorted(p.atomic_numbers) != sorted(self.target.atomic_numbers):
             raise ValueError('The number of the same species aren\'t matching!')
 
-        p_coord, q_coord = p.cart_coords, q.cart_coords
-        p_atoms, q_atoms = np.array(p.atomic_numbers), np.array(q.atomic_numbers)
+        p_coord, q_coord = p.cart_coords, self.target.cart_coords
+        p_atoms, q_atoms = np.array(p.atomic_numbers), np.array(self.target.atomic_numbers)
 
         p_weights = np.array([site.species.weight for site in p])
-        q_weights = np.array([site.species.weight for site in q])
+        q_weights = np.array([site.species.weight for site in self.target])
 
-        # Both sets of coordinates must be translated first, so that 
+        # Both sets of coordinates must be translated first, so that
         # their center of mass with the origin of the coordinate system.
-        p_trans, q_trans = p.center_of_mass, q.center_of_mass
+        p_trans, q_trans = p.center_of_mass, self.target.center_of_mass
         p_centroid, q_centroid = p_coord - p_trans, q_coord - q_trans
 
-        # Initialising return values
+        # Initializing return values
         rmsd = np.inf
 
-        # Generate all permutaion grouped/sorted by the elements
-        for p_inds_test in self.hungarian_order(p_atoms, p_centroid, p_weights, q_atoms, q_centroid, q_weights):
+        # Generate all permutation grouped/sorted by the elements
+        for p_inds_test in self.permutations(p_atoms, p_centroid, p_weights, q_atoms, q_centroid, q_weights):
 
             p_centroid_test = p_centroid[p_inds_test]
             U_test = self.kabsch(p_centroid_test, q_centroid)
@@ -983,38 +1033,60 @@ class PermInvMatcher(KabschMatcher):
         # P' = P * U + V
         V = q_trans - np.dot(p_trans, U)
 
-        return inds, U, V, rmsd 
+        return inds, U, V, rmsd
 
-    def fit(self, p: Molecule, q: Molecule):
+    def fit(self, q: Molecule):
+        """Order, rotate and transform `p` molecule according to the best match.
 
-        inds, U, V, rmsd = self.match(p, q)
+        Args:
+            p: a `Molecule` object what will be matched with the target one.
+
+        Returns:
+            p_prime: Rotated and translated of the `p` `Molecule` object
+            rmsd: Root-mean-square-deviation between `p_prime` and the `target`
+        """
+
+        p = self.target
+        inds, U, V, rmsd = self.match(q)
 
         # Translate and rotate `mol1` unto `mol2` using Kabsch algorithm.
         p_prime = Molecule.from_sites([p[i] for i in inds])
         for site in p_prime:
             site.coords = np.dot(site.coords, U) + V
 
-        return p_prime, rmsd 
+        return p_prime, rmsd
 
     @staticmethod
-    def hungarian_order(p_atoms, p_centroid, p_weights, q_atoms, q_centroid, q_weights):
+    def permutations(p_atoms, p_centroid, p_weights, q_atoms, q_centroid, q_weights):
+        """Generates two possible permutations of atom order. This method uses the principle component
+        of the inertia tensor to prealign the molecules and hungarian method to determine the order.
+        There are always two possible permutation depending on the way to pre-aligning the molecules.
 
+        Args:
+            p_atoms: atom numbers
+            p_centroid: array of atom positions
+            p_weights: array of atom weights
+            q_atoms: atom numbers
+            q_centroid: array of atom positions
+            q_weights: array of atom weights
+
+        Yield:
+            perm_inds: array of atoms' order
+        """
         # get the principal axis of P and Q
-        p_axis = PermInvMatcher.get_principal_axis(p_centroid, p_weights)
-        q_axis = PermInvMatcher.get_principal_axis(q_centroid, q_weights)
-        # print(p_axis, q_axis)
+        p_axis = HungarianOrderMatcher.get_principal_axis(p_centroid, p_weights)
+        q_axis = HungarianOrderMatcher.get_principal_axis(q_centroid, q_weights)
 
         # rotate Q onto P considering that the axis are parallel and antiparallel
-        U = PermInvMatcher.rotation_matrix_vectors(q_axis, p_axis)
-
+        U = HungarianOrderMatcher.rotation_matrix_vectors(q_axis, p_axis)
         p_centroid_test = np.dot(p_centroid, U)
-        # print(p_centroid_test, q_centroid)
 
         # generate full view from q shape to fill in atom view on the fly
         perm_inds = np.zeros(len(p_atoms), dtype=int)
 
-        species = np.unique(p_atoms)
         # Find unique atoms
+        species = np.unique(p_atoms)
+
         for specie in species:
             p_atom_inds = np.where(p_atoms == specie)[0]
             q_atom_inds = np.where(q_atoms == specie)[0]
@@ -1026,22 +1098,20 @@ class PermInvMatcher(KabschMatcher):
             distances = cdist(A, B, 'euclidean')
             a_inds, b_inds = linear_sum_assignment(distances)
 
-            # print(p_atom_inds, q_atom_inds, a_inds, b_inds)
             perm_inds[q_atom_inds] = p_atom_inds[b_inds]
 
         yield perm_inds
 
         # rotate Q onto P considering that the axis are parallel and antiparallel
-        U = PermInvMatcher.rotation_matrix_vectors(q_axis, -p_axis)
-
+        U = HungarianOrderMatcher.rotation_matrix_vectors(q_axis, -p_axis)
         p_centroid_test = np.dot(p_centroid, U)
-        # print(p_centroid_test, q_centroid)
 
         # generate full view from q shape to fill in atom view on the fly
         perm_inds = np.zeros(len(p_atoms), dtype=int)
 
-        species = np.unique(p_atoms)
         # Find unique atoms
+        species = np.unique(p_atoms)
+
         for specie in species:
             p_atom_inds = np.where(p_atoms == specie)[0]
             q_atom_inds = np.where(q_atoms == specie)[0]
@@ -1053,20 +1123,20 @@ class PermInvMatcher(KabschMatcher):
             distances = cdist(A, B, 'euclidean')
             a_inds, b_inds = linear_sum_assignment(distances)
 
-            # print(p_atom_inds, q_atom_inds, a_inds, b_inds)
             perm_inds[q_atom_inds] = p_atom_inds[b_inds]
 
-        yield perm_inds        
+        yield perm_inds
 
     @staticmethod
     def get_principal_axis(coords, weights):
-        """
-        Get the molecule's principal axis.
+        """Get the molecule's principal axis.
 
         Args:
-            mol: 
-        Return:
-            output: Array of dim 3 containing the principal axis
+            coords: coordinates of atoms
+            weights: the weight use for calculating the inertia tensor
+
+        Returns:
+            Array of dim 3 containing the principal axis
         """
 
         Ixx = Iyy = Izz = Ixy = Ixz = Iyz = 0.
@@ -1082,48 +1152,189 @@ class PermInvMatcher(KabschMatcher):
             Iyz += -wt * y * z
 
         inertia_tensor = np.array([[Ixx, Ixy, Ixz], [Ixy, Iyy, Iyz], [Ixz, Iyz, Izz]])
+
         eigvals, eigvecs = np.linalg.eigh(inertia_tensor)
 
-        # print('inertia_tensor')
-        # print(inertia_tensor)
-        # print('eigvals, eigvecs')
-        # print(eigvals, eigvecs)
         principal_axis = eigvecs[:, 0]
         return principal_axis
 
     @staticmethod
     def rotation_matrix_vectors(v1, v2):
-        """
-        Returns the rotation matrix that rotates v1 onto v2
-        using Rodrigues' rotation formula.
-        (see https://math.stackexchange.com/a/476311)
-        ----------
-        v1 : array
-            Dim 3 float array
-        v2 : array
-            Dim 3 float array
+        """Returns the rotation matrix that rotates v1 onto v2 using
+        Rodrigues' rotation formula.
 
-        Return
-        ------
-        output : 3x3 matrix
-            Rotation matrix
+        See more: https://math.stackexchange.com/a/476311
+
+        Args:
+            v1: initial vector
+            v2: target vector
+
+        Returns:
+            3x3 rotation matrix
         """
 
         if np.allclose(v1, v2):
-            # print('same direction')
+            # same direction
             return np.eye(3)
         elif np.allclose(v1, -v2):
-            # print('opposite direction')
-            # return a rotation of pi around the y-axis
+            # opposite direction: return a rotation of pi around the y-axis
             return np.array([[-1., 0., 0.], [0., 1., 0.], [0., 0., -1.]])
-        else:
-            v = np.cross(v1, v2)
-            s = np.linalg.norm(v)
-            c = np.vdot(v1, v2)
 
-            vx = np.array([[0., -v[2], v[1]], [v[2], 0., -v[0]], [-v[1], v[0], 0.]])
+        v = np.cross(v1, v2)
+        s = np.linalg.norm(v)
+        c = np.vdot(v1, v2)
 
-            return np.eye(3) + vx + np.dot(vx, vx)*((1.-c)/(s*s))
+        vx = np.array([[0., -v[2], v[1]], [v[2], 0., -v[0]], [-v[1], v[0],  0.]])
+
+        return np.eye(3) + vx + np.dot(vx, vx) * ((1. - c) / (s * s))
+
+
+class GeneticOrderMatcher(KabschMatcher):
+    """This method was inspired by genetic algorithms and tries to match molecules
+    based on their already matched fragments.
+
+    It uses the fact that when two molecule is matching their sub-structures have to match as well.
+    The main idea here is that in each iteration (generation) we can check the match of all possible
+    fragments and ignore those which are not feasible.
+
+    Although in worst case this method has N! complexity (same as the brute force one) but in practice it performs much faster.
+    because many of the combination can be eliminated during the fragment matching.
+
+    Notes:
+        This method very robust and returns with all the possible orders.
+
+        There is a well nonce weakness/ corner case: The case when there is
+        a outlier with large deviation with a small index might be ignored.
+        This happens due to the nature ov the avarage function
+        used to calculate the RMSD for the fragments.
+
+        When aligning molecules, the atoms of the two molecules **must** have same number
+        of atoms from the same species.
+    """
+
+    def __init__(self, target: Molecule, treshold: float):
+        """Constructor of the matcher object.
+
+        Args:
+            target: a `Molecule` object used as a target during the alignment
+            treshold: value used to match fragments and prune configuration
+        """
+        super().__init__(target)
+        self.threshold = treshold
+        self.N = len(target)
+
+    def match(self, p: Molecule):
+        """Similar as `KabschMatcher.match` but this method also finds all of the
+        possible atomic orders according to the `treshold`.
+
+        Args:
+            p: a `Molecule` object what will be matched with the target one.
+
+        Returns:
+            Array of the possible matches where the elements are:
+                inds: The indices of atoms
+                U: 3x3 rotation matrix
+                V: Translation vector
+                rmsd: Root mean squared deviation between P and Q
+        """
+        out = []
+        for inds in self.permutations(p):
+            p_prime = p.copy()
+            p_prime._sites = [p_prime[i] for i in inds]
+
+            U, V, rmsd = super().match(p_prime)
+
+            out.append((inds, U, V, rmsd))
+
+        return out
+
+    def fit(self, p: Molecule):
+        """Order, rotate and transform all of the matched `p` molecule
+        according to the given `treshold`.
+
+        Args:
+            p: a `Molecule` object what will be matched with the target one.
+
+        Returns:
+            Array of the possible matches where the elements are:
+                p_prime: Rotated and translated of the `p` `Molecule` object
+                rmsd: Root-mean-square-deviation between `p_prime` and the `target`
+        """
+        out = []
+        for inds in self.permutations(p):
+            p_prime = p.copy()
+            p_prime._sites = [p_prime[i] for i in inds]
+
+            U, V, rmsd = super().match(p_prime)
+
+            # Rotate and translate matrix `p` onto the target molecule.
+            # P' = P * U + V
+            for site in p_prime:
+                site.coords = np.dot(site.coords, U) + V
+
+            out.append((p_prime, rmsd))
+
+        return out
+
+    def permutations(self, p: Molecule):
+
+        # caching atomic numbers and coordinates
+        p_atoms, q_atoms = p.atomic_numbers, self.target.atomic_numbers
+        p_coords, q_coords = p.cart_coords, self.target.cart_coords
+
+        if sorted(p_atoms) != sorted(q_atoms):
+            raise ValueError('The number of the same species aren\'t matching!')
+
+        # starting maches (only based on element)
+        partial_matches = [[j] for j in range(self.N) if p_atoms[j]==q_atoms[0]]
+
+        for i in range(1, self.N):
+            # extending the target fragment with then next atom
+            f_coords = q_coords[:i + 1]
+            f_atom = q_atoms[i]
+
+            f_trans = f_coords.mean(axis=0)
+            f_centroid = f_coords - f_trans
+
+            matches = []
+            for indices in partial_matches:
+
+                for j in range(self.N):
+
+                    # skipping if the this index is already matched
+                    if j in indices:
+                        continue
+
+                    # skipping if they are different species
+                    if p_atoms[j] != f_atom:
+                        continue
+
+                    inds = indices + [j]
+                    P = p_coords[inds]
+
+                    # Both sets of coordinates must be translated first, so that
+                    # their centroid coincides with the origin of the coordinate system.
+                    p_trans = P.mean(axis=0)
+                    p_centroid = P - p_trans
+
+                    # The optimal rotation matrix U using Kabsch algorithm
+                    U = self.kabsch(p_centroid, f_centroid)
+
+                    p_prime_centroid = np.dot(p_centroid, U)
+                    rmsd = np.sqrt(np.mean(np.square(p_prime_centroid - f_centroid)))
+
+                    # rejecting if the deviation is too large
+                    if rmsd > self.threshold:
+                        continue
+
+                    logger.debug('match - rmsd: {}, inds: {}'.format(rmsd, inds))
+                    matches.append(inds)
+
+            partial_matches = matches
+
+            logger.info('number of atom in the fragment: {}, number of possible matches: {}'.format(i + 1, len(matches)))
+
+        return matches
 
 
 if __name__ == "__main__":
@@ -1157,14 +1368,14 @@ if __name__ == "__main__":
 
         print(mm.get_rmsd(struct2, struct_perturbed))
 
-    mm = PermInvMatcher()
+    mm = HungarianOrderMatcher(struct)
 
     # perturbing the atoms' position
     for i in range(N):
         struct2 = struct.copy()
         struct_perturbed = struct.copy()
         struct_perturbed.perturb(0.3)
-        _, _, _, rmsd = mm.match(struct2, struct_perturbed)
+        _, _, _, rmsd = mm.match(struct_perturbed)
         print(rmsd)
 
     # perturbing the atoms' order
@@ -1173,6 +1384,27 @@ if __name__ == "__main__":
         struct_perturbed = struct.copy()
         random.shuffle(struct_perturbed)
 
-        _, _, _, rmsd = mm.match(struct2, struct_perturbed)
+        _, _, _, rmsd = mm.match(struct_perturbed)
 
         print(rmsd)
+
+    mm = GeneticOrderMatcher(struct, treshold=0.3)
+    print(mm)
+
+    # perturbing the atoms' position
+    for i in range(N):
+        struct2 = struct.copy()
+        struct_perturbed = struct.copy()
+        struct_perturbed.perturb(0.3)
+        res = mm.match(struct_perturbed)
+        print(res[0][-1])
+
+    # perturbing the atoms' order
+    for i in range(N):
+        struct2 = struct.copy()
+        struct_perturbed = struct.copy()
+        random.shuffle(struct_perturbed)
+
+        res = mm.match(struct_perturbed)
+
+        print(res[0][-1])
