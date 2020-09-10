@@ -1,7 +1,6 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-import platform
 import re
 import unittest
 import warnings
@@ -358,14 +357,14 @@ class MPResterTest(PymatgenTest):
         self.assertAlmostEqual(so4_two_minus.energy, 0.0644980568750011)
 
         # Ensure entries are pourbaix compatible
-        pbx = PourbaixDiagram(pbx_entries)
+        PourbaixDiagram(pbx_entries)
 
     def test_get_exp_entry(self):
         entry = self.rester.get_exp_entry("Fe2O3")
         self.assertEqual(entry.energy, -825.5)
 
-    def test_submit_query_delete_snl(self):
-        s = Structure([[5, 0, 0], [0, 5, 0], [0, 0, 5]], ["Fe"], [[0, 0, 0]])
+    # def test_submit_query_delete_snl(self):
+        # s = Structure([[5, 0, 0], [0, 5, 0], [0, 0, 5]], ["Fe"], [[0, 0, 0]])
         # d = self.rester.submit_snl(
         #     [s, s], remarks=["unittest"],
         #     authors="Test User <test@materialsproject.com>")
