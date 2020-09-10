@@ -949,7 +949,6 @@ class MPStaticSet(MPRelaxSet):
                 "LVHAR": True,
                 "LWAVE": False,
                 "NSW": 0,
-                "ICHARG": 0,
                 "ALGO": "Normal",
             }
         )
