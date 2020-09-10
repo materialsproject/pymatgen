@@ -1,0 +1,37 @@
+Name: MP2020
+Advanced:
+  UCorrections:
+    O:
+      V: -1.604
+      Cr: -1.899
+      Mn: -1.592
+      Fe: -2.181
+      Co: -1.521
+      Ni: -2.499
+      W: -4.584
+      Mo: -3.066
+    F:
+      V: -1.604
+      Cr: -1.899
+      Mn: -1.592
+      Fe: -2.181
+      Co: -1.521
+      Ni: -2.499
+      W: -4.584
+      Mo: -3.066
+CompositionCorrections:
+  oxide: -0.738
+  peroxide: -0.466
+  superoxide: -0.16
+  ozonide: 0
+  S: -0.637
+  Br: -0.536
+  I: -0.377
+  Se: -0.473
+  Si: -0.406
+  Sb: -0.192
+  Te: -0.419
+  F: -0.481
+  Cl: -0.586
+  N: -0.344
+  H: -0.178

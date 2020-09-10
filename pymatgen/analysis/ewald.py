@@ -458,7 +458,7 @@ class EwaldSummation(MSONable):
             "structure": self._s.as_dict(),
             "compute_forces": self._compute_forces,
             "eta": self._eta,
-            "acc_factor": self._accf,
+            "acc_factor": self._acc_factor,
             "real_space_cut": self._rmax,
             "recip_space_cut": self._gmax,
             "_recip": None if self._recip is None else self._recip.tolist(),

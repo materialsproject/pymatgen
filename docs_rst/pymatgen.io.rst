@@ -30,6 +30,7 @@ Submodules
    pymatgen.io.cssr
    pymatgen.io.fiesta
    pymatgen.io.gaussian
+   pymatgen.io.jarvis
    pymatgen.io.lmto
    pymatgen.io.nwchem
    pymatgen.io.phonopy

@@ -20,6 +20,7 @@ import spglib
 from monty.dev import requires
 
 from pymatgen.core.operations import SymmOp, MagSymmOp
+from pymatgen.core.lattice import Lattice
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 try:
@@ -963,7 +964,7 @@ class KPathSeek(KPathBase):
         spath_dat = get_path(spg_struct, system_is_tri, "hpkot", atol, symprec, angle_tolerance)
 
         self._tmat = self._trans_sc_to_Hin(spath_dat["bravais_lattice_extended"])
-        self._rec_lattice = spath_dat["reciprocal_primitive_lattice"]
+        self._rec_lattice = Lattice(spath_dat["reciprocal_primitive_lattice"])
 
         spath_data_formatted = [[spath_dat["path"][0][0]]]
         count = 0

@@ -21,25 +21,21 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
+        pip install -r requirements-dev.txt --quiet
     - name: pycodestyle
       run: |
-        pip install pycodestyle --upgrade --quiet
         pycodestyle pymatgen
     - name: mypy
       run: |
-        pip install mypy --upgrade --quiet
         mypy pymatgen
     - name: flake8
       run: |
-        pip install flake8 --upgrade --quiet
         flake8 --count --show-source --statistics pymatgen
         # exit-zero treats all errors as warnings.
         flake8 --count --exit-zero --max-complexity=20 --statistics pymatgen
     - name: pydocstyle
       run: |
-        pip install pydocstyle --upgrade --quiet
         pydocstyle --count pymatgen
     - name: pylint
       run: |
-        pip install pylint --upgrade --quiet
         source pylint_mod.sh

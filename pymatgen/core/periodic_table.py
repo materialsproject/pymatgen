@@ -3,24 +3,24 @@
 # Distributed under the terms of the MIT License.
 
 """Module contains classes presenting Element and Specie (Element + oxidation state) and PeriodicTable."""
-
-import re
+import ast
 import json
+import re
 import warnings
-from io import open
-from pathlib import Path
+from collections import Counter
 from enum import Enum
-from typing import Optional, Callable
+from io import open
 from itertools import product, \
     combinations
-from collections import Counter
+from pathlib import Path
+from typing import Optional, Callable
 
 import numpy as np
+from monty.json import MSONable
 
 from pymatgen.core.units import Mass, Length, FloatWithUnit, Unit, \
     SUPPORTED_UNIT_NAMES
 from pymatgen.util.string import formula_double_format
-from monty.json import MSONable
 
 # Loads element data from json file
 with open(str(Path(__file__).absolute().parent / "periodic_table.json"), "rt") as f:
@@ -653,9 +653,13 @@ class Element(Enum):
         L_symbols = 'SPDFGHIKLMNOQRTUVWXYZ'
         valence = []
         full_electron_config = self.full_electronic_structure
-        for _, l_symbol, ne in full_electron_config[::-1]:
+        last_orbital = full_electron_config[-1]
+        for n, l_symbol, ne in full_electron_config:
             l = L_symbols.lower().index(l_symbol)
             if ne < (2 * l + 1) * 2:
+                valence.append((l, ne))
+            # check for full last shell (e.g. column 2)
+            elif (n, l_symbol, ne) == last_orbital and ne == (2 * l + 1) * 2 and len(valence) == 0:
                 valence.append((l, ne))
         if len(valence) > 1:
             raise ValueError("Ambiguous valence")
@@ -1066,7 +1070,7 @@ class Specie(MSONable):
     supported_properties = ("spin",)
 
     def __init__(self, symbol: str,
-                 oxidation_state: float = 0.0,
+                 oxidation_state: Optional[float] = 0.0,
                  properties: dict = None):
         """
         Initializes a Specie.
@@ -1197,15 +1201,36 @@ class Specie(MSONable):
         Raises:
             ValueError if species_string cannot be intepreted.
         """
-        m = re.search(r"([A-Z][a-z]*)([0-9.]*)([+\-])(.*)", species_string)
+
+        # e.g. Fe2+,spin=5
+        # 1st group: ([A-Z][a-z]*)    --> Fe
+        # 2nd group: ([0-9.]*)        --> "2"
+        # 3rd group: ([+\-])          --> +
+        # 4th group: (.*)             --> everything else, ",spin=5"
+
+        m = re.search(r"([A-Z][a-z]*)([0-9.]*)([+\-]*)(.*)", species_string)
         if m:
+
+            # parse symbol
             sym = m.group(1)
-            oxi = 1 if m.group(2) == "" else float(m.group(2))
-            oxi = -oxi if m.group(3) == "-" else oxi
+
+            # parse oxidation state (optional)
+            if not m.group(2) and not m.group(3):
+                oxi = None
+            else:
+                oxi = 1 if m.group(2) == "" else float(m.group(2))
+                oxi = -oxi if m.group(3) == "-" else oxi
+
+            # parse properties (optional)
             properties = None
             if m.group(4):
                 toks = m.group(4).replace(",", "").split("=")
-                properties = {toks[0]: float(toks[1])}
+                properties = {toks[0]: ast.literal_eval(toks[1])}
+
+            # but we need either an oxidation state or a property
+            if oxi is None and properties is None:
+                raise ValueError("Invalid Species String")
+
             return Specie(sym, oxi, properties)
         raise ValueError("Invalid Species String")
 
@@ -1381,7 +1406,7 @@ class DummySpecie(Specie):
 
     def __init__(self,
                  symbol: str = "X",
-                 oxidation_state: float = 0,
+                 oxidation_state: Optional[float] = 0,
                  properties: dict = None):
         """
         Args:
@@ -1462,7 +1487,7 @@ class DummySpecie(Specie):
         return self.symbol.__hash__()
 
     @property
-    def oxi_state(self) -> float:
+    def oxi_state(self) -> Optional[float]:
         """
         Oxidation state associated with DummySpecie
         """

@@ -285,28 +285,24 @@ class PackmolRunner:
                     inp.write('  {} {}\n'.format(k, self._format_param_val(v)))
                 inp.write('end structure\n')
 
-    def run(self, copy_to_current_on_exit=False, site_property=None):
+    def run(self, site_property=None):
         """
         Write the input file to the scratch directory, run packmol and return
-        the packed molecule.
+        the packed molecule to the current working directory.
 
         Args:
-            copy_to_current_on_exit (bool): Whether or not to copy the packmol
-                input/output files from the scratch directory to the current
-                directory.
             site_property (str): if set then the specified site property
                 for the the final packed molecule will be restored.
 
         Returns:
                 Molecule object
         """
-        scratch = tempfile.gettempdir()
-        with ScratchDir(scratch, copy_to_current_on_exit=copy_to_current_on_exit) as scratch_dir:
+        with tempfile.TemporaryDirectory() as scratch_dir:
             self._write_input(input_dir=scratch_dir)
-            packmol_input = open(os.path.join(scratch_dir, self.input_file), 'r')
-            p = Popen(self.packmol_bin, stdin=packmol_input, stdout=PIPE, stderr=PIPE)
-            (stdout, stderr) = p.communicate()
-            output_file = os.path.join(scratch_dir, self.control_params["output"])
+            with open(os.path.join(scratch_dir, self.input_file), 'r') as packmol_input:
+                with Popen(self.packmol_bin, stdin=packmol_input, stdout=PIPE, stderr=PIPE) as p:
+                    (stdout, stderr) = p.communicate()
+            output_file = os.path.join(self.control_params["output"])
             if os.path.isfile(output_file):
                 packed_mol = BabelMolAdaptor.from_file(output_file,
                                                        self.control_params["filetype"])
