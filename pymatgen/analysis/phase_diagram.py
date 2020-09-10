@@ -20,6 +20,8 @@ from scipy.spatial import ConvexHull
 
 from monty.json import MSONable, MontyDecoder
 
+import plotly.graph_objs as go
+
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element, DummySpecie, get_el_sp
 from pymatgen.util.coord import Simplex, in_coord_list
@@ -27,8 +29,6 @@ from pymatgen.util.string import latexify
 from pymatgen.util.plotting import pretty_plot
 from pymatgen.analysis.reaction_calculator import Reaction, ReactionError
 from pymatgen.entries import Entry
-
-import plotly.graph_objs as go
 
 logger = logging.getLogger(__name__)
 
