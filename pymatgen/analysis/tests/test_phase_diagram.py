@@ -618,8 +618,9 @@ class PDPlotterTest(unittest.TestCase):
 
         entries.append(PDEntry("C", 0))
         self.pd_quaternary = PhaseDiagram(entries)
-        self.plotter_quaternary_mpl = PDPlotter(self.pd_quaternary,
-                                                backend="matplotlib")
+        self.plotter_quaternary_mpl = PDPlotter(
+            self.pd_quaternary, backend="matplotlib"
+        )
         self.plotter_quaternary_plotly = PDPlotter(self.pd_quaternary, backend="plotly")
 
     def test_pd_plot_data(self):
@@ -640,8 +641,8 @@ class PDPlotterTest(unittest.TestCase):
         self.assertEqual(len(labels), len(self.pd_quaternary.stable_entries))
         self.assertEqual(
             len(unstable_entries),
-            len(self.pd_quaternary.all_entries) - len(
-                self.pd_quaternary.stable_entries),
+            len(self.pd_quaternary.all_entries)
+            - len(self.pd_quaternary.stable_entries),
         )
         (lines, labels, unstable_entries) = self.plotter_binary_mpl.pd_plot_data
         self.assertEqual(len(lines), 3)
@@ -653,10 +654,12 @@ class PDPlotterTest(unittest.TestCase):
         self.plotter_ternary_mpl.get_plot().close()
         self.plotter_quaternary_mpl.get_plot().close()
         self.plotter_ternary_mpl.get_contour_pd_plot().close()
-        self.plotter_ternary_mpl.get_chempot_range_map_plot([Element("Li"), Element(
-            "O")]).close()
-        self.plotter_ternary_mpl.plot_element_profile(Element("O"), Composition(
-            "Li2O")).close()
+        self.plotter_ternary_mpl.get_chempot_range_map_plot(
+            [Element("Li"), Element("O")]
+        ).close()
+        self.plotter_ternary_mpl.plot_element_profile(
+            Element("O"), Composition("Li2O")
+        ).close()
 
     def test_plotly_plots(self):
         # Also very basic tests. Ensures callability and 2D vs 3D properties.
@@ -682,28 +685,28 @@ class UtilityFunctionTest(unittest.TestCase):
             [21, 17, 400],
         ]
         expected_ans = {
-                (5, 393),
-                (21, 353),
-                (353, 400),
-                (5, 13),
-                (17, 20),
-                (21, 400),
-                (17, 400),
-                (52, 399),
-                (393, 399),
-                (20, 52),
-                (353, 393),
-                (5, 353),
-                (5, 53),
-                (13, 399),
-                (393, 400),
-                (13, 52),
-                (53, 353),
-                (17, 21),
-                (13, 393),
-                (20, 399),
-                (399, 400),
-                (20, 400)
+            (5, 393),
+            (21, 353),
+            (353, 400),
+            (5, 13),
+            (17, 20),
+            (21, 400),
+            (17, 400),
+            (52, 399),
+            (393, 399),
+            (20, 52),
+            (353, 393),
+            (5, 353),
+            (5, 53),
+            (13, 399),
+            (393, 400),
+            (13, 52),
+            (53, 353),
+            (17, 21),
+            (13, 393),
+            (20, 399),
+            (399, 400),
+            (20, 400),
         }
         self.assertEqual(uniquelines(testdata), expected_ans)
 
