@@ -1546,12 +1546,13 @@ class PDPlotter:
         """
         :param label_stable: Whether to label stable compounds.
         :param label_unstable: Whether to label unstable compounds.
-        :param ordering: Ordering of vertices.
-        :param energy_colormap: Colormap for coloring energy.
+        :param ordering: Ordering of vertices (matplotlib backend only).
+        :param energy_colormap: Colormap for coloring energy (matplotlib backend only).
         :param process_attributes: Whether to process the attributes.
         :param plt: Existing plt object if plotting multiple phase diagrams.
         :param shade_uncertainty_window: Whether to shade the hull with
-            uncertainties. Currently only works in Plotly and in binary phase diagrams.
+            uncertainties. Currently only works with Plotly backend and binary phase
+            diagrams.
         :return: matplotlib.pyplot.
         """
         fig = None
@@ -1658,7 +1659,7 @@ class PDPlotter:
 
     def show(self, *args, **kwargs):
         r"""
-        Draws the phase diagram using Matplotlib and show it.
+        Draw the phase diagram using Plotly (or Matplotlib) and show it.
 
         Args:
             *args: Passed to get_plot.
@@ -2264,7 +2265,7 @@ class PDPlotter:
 
             for coord, entry in zip(coords, entries):
                 energy = round(self._pd.get_form_energy_per_atom(entry), 3)
-                entry_id = entry.entry_id if entry.entry_id else ""
+                entry_id = getattr(entry, "entry.id", "")
                 formula = entry.composition.reduced_formula
                 clean_formula = self._htmlize_formula(formula)
                 x.append(coord[0])
