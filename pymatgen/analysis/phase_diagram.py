@@ -33,8 +33,9 @@ import plotly.graph_objs as go
 logger = logging.getLogger(__name__)
 
 
-with open(os.path.join(os.path.dirname(__file__),
-                       "..", "util", "plotly_pd_layouts.json")) as f:
+with open(
+    os.path.join(os.path.dirname(__file__), "..", "util", "plotly_pd_layouts.json")
+) as f:
     plotly_layouts = json.load(f)
 
 
@@ -1424,16 +1425,16 @@ class PDPlotter:
     def __init__(
         self,
         phasediagram: PhaseDiagram,
-        show_unstable: float = 0.0,
+        show_unstable: float = 0.2,
         backend: str = "plotly",
         **plotkwargs,
     ):
         """
         Args:
             phasediagram (PhaseDiagram): PhaseDiagram object.
-            show_unstable (float): Whether unstable phases will be plotted as
-                well as red crosses. If a number > 0 is entered, all phases with
-                ehull < show_unstable will be shown.
+            show_unstable (float): Whether unstable (above the hull) phases will be
+                plotted. If a number > 0 is entered, all phases with
+                e_hull < show_unstable (eV/atom) will be shown.
             backend (str): Python package used for plotting ("matplotlib" or
                 "plotly"). Defaults to "plotly".
             **plotkwargs (dict): Keyword args passed to matplotlib.pyplot.plot. Can
@@ -1472,18 +1473,18 @@ class PDPlotter:
     @lru_cache(1)
     def pd_plot_data(self):
         """
-        Plotting data for phase diagram.
+        Plotting data for phase diagram. Cached for repetitive calls.
         2-comp - Full hull with energies
         3/4-comp - Projection into 2D or 3D Gibbs triangle.
 
         Returns:
             (lines, stable_entries, unstable_entries):
             - lines is a list of list of coordinates for lines in the PD.
-            - stable_entries is a {coordinate : entry} for each stable node
-            in the phase diagram. (Each coordinate can only have one
-            stable phase)
-            - unstable_entries is a {entry: coordinates} for all unstable
-            nodes in the phase diagram.
+            - stable_entries is a dict of {coordinates : entry} for each stable node
+                in the phase diagram. (Each coordinate can only have one
+                stable phase)
+            - unstable_entries is a dict of {entry: coordinates} for all unstable
+                nodes in the phase diagram.
         """
         pd = self._pd
         entries = pd.qhull_entries
@@ -1541,19 +1542,21 @@ class PDPlotter:
         energy_colormap=None,
         process_attributes=False,
         plt=None,
-        shade_uncertainty_window=False
+        label_uncertainties=False,
     ):
         """
         :param label_stable: Whether to label stable compounds.
         :param label_unstable: Whether to label unstable compounds.
         :param ordering: Ordering of vertices (matplotlib backend only).
         :param energy_colormap: Colormap for coloring energy (matplotlib backend only).
-        :param process_attributes: Whether to process the attributes.
-        :param plt: Existing plt object if plotting multiple phase diagrams.
-        :param shade_uncertainty_window: Whether to shade the hull with
-            uncertainties. Currently only works with Plotly backend and binary phase
-            diagrams.
-        :return: matplotlib.pyplot.
+        :param process_attributes: Whether to process the attributes (matplotlib
+            backend only).
+        :param plt: Existing plt object if plotting multiple phase diagrams (
+            matplotlib backend only).
+        :param label_uncertainties: Whether to add error bars to the hull (plotly
+            backend only). For binaries, this also shades the hull with the
+            uncertainty window.
+        :return: go.Figure (plotly) or matplotlib.pyplot (matplotlib)
         """
         fig = None
 
@@ -1564,11 +1567,15 @@ class PDPlotter:
                 data.append(self._create_plotly_ternary_support_lines())
                 data.append(self._create_plotly_ternary_hull())
 
-            unstable_marker_plot, stable_marker_plot = self._create_plotly_markers()
+            stable_labels_plot = self._create_plotly_stable_labels(label_stable)
+            stable_marker_plot, unstable_marker_plot = self._create_plotly_markers(
+                label_uncertainties
+            )
 
-            if self._dim == 2 and shade_uncertainty_window:
+            if self._dim == 2 and label_uncertainties:
                 data.append(self._create_plotly_uncertainty_shading(stable_marker_plot))
 
+            data.append(stable_labels_plot)
             data.append(unstable_marker_plot)
             data.append(stable_marker_plot)
 
@@ -2144,62 +2151,125 @@ class PDPlotter:
                 )
                 z.extend(list(line[2]) + [None])
 
+        plot_args = dict(
+            mode="lines",
+            hoverinfo="none",
+            line={"color": "rgba (0, 0, 0, 1)", "dash": "solid", "width": 3.0},
+            showlegend=False,
+        )
+
         if self._dim == 2:
-            line_plot = go.Scatter(
-                x=x,
-                y=y,
-                mode="lines",
-                hoverinfo="none",
-                line={"color": "rgba (0, 0, 0, 1)", "dash": "solid", "width": 3.0},
-                showlegend=False,
-            )
+            line_plot = go.Scatter(x=x, y=y, **plot_args)
 
         elif self._dim == 3:
-            line_plot = go.Scatter3d(
-                x=y,
-                y=x,
-                z=z,
-                mode="lines",
-                hoverinfo="none",
-                line={"color": "rgba (0, 0, 0, 1)", "dash": "solid", "width": 3.0},
-                showlegend=False,
-            )
+            line_plot = go.Scatter3d(x=y, y=x, z=z, **plot_args)
         elif self._dim == 4:
-            line_plot = go.Scatter3d(
-                x=x,
-                y=y,
-                z=z,
-                mode="lines",
-                hoverinfo="none",
-                line={"color": "rgba (0, 0, 0, 1)", "dash": "solid", "width": 2.0},
-                showlegend=False,
-            )
+            line_plot = go.Scatter3d(x=x, y=y, z=z, **plot_args)
 
         return line_plot
 
-    def _create_plotly_annotations(self):
+    def _create_plotly_stable_labels(self, label_stable=True):
+        """
+        Creates a scatter trace containing labels of stable phases.
+
+        :return: go.Scatter (or go.Scatter3d) plot
+        """
+        x, y, z, text, textpositions = [], [], [], [], []
+        stable_labels_plot = None
+        offset_2d = 0.01  # extra distance to offset label position for clarity
+        offset_3d = 0.015
+        if self._dim == 2:
+            min_energy_x = min(list(self.pd_plot_data[1].keys()), key=lambda c: c[1])[0]
+
+        for coords, entry in self.pd_plot_data[1].items():
+            if entry.composition.is_element:  # taken care of by other function
+                continue
+            x_coord = coords[0]
+            y_coord = coords[1]
+            textposition = None
+
+            if self._dim == 2:
+                textposition = "bottom left"
+                if x_coord >= min_energy_x:
+                    textposition = "bottom right"
+                    x_coord += offset_2d
+                else:
+                    x_coord -= offset_2d
+                y_coord -= offset_2d
+            elif self._dim == 3:
+                textposition = "middle center"
+                if coords[0] > 0.5:
+                    x_coord += offset_3d
+                else:
+                    x_coord -= offset_3d
+                if coords[1] > 0.866 / 2:
+                    y_coord -= offset_3d
+                else:
+                    y_coord += offset_3d
+
+                z.append(self._pd.get_form_energy_per_atom(entry) + 3 * offset_3d)
+
+            elif self._dim == 4:
+                x_coord = x_coord - offset_3d
+                y_coord = y_coord - offset_3d
+                textposition = "bottom right"
+                z.append(coords[2])
+
+            x.append(x_coord)
+            y.append(y_coord)
+            textpositions.append(textposition)
+
+            formula = list(entry.composition.reduced_formula)
+            text.append(self._htmlize_formula(formula))
+
+        visible = True
+        if not label_stable or self._dim == 4:
+            visible = "legendonly"
+
+        plot_args = dict(
+            text=text,
+            textposition=textpositions,
+            mode="text",
+            name="Labels (stable)",
+            hoverinfo="skip",
+            opacity=1.0,
+            visible=visible,
+            showlegend=True,
+        )
+
+        if self._dim == 2:
+            stable_labels_plot = go.Scatter(x=x, y=y, **plot_args)
+        elif self._dim == 3:
+            stable_labels_plot = go.Scatter3d(x=y, y=x, z=z, **plot_args)
+        elif self._dim == 4:
+            stable_labels_plot = go.Scatter3d(x=x, y=y, z=z, **plot_args)
+
+        return stable_labels_plot
+
+    def _create_plotly_element_annotations(self):
+        """
+        Creates terminal element annotations for Plotly phase diagrams.
+
+        :return: list of annotation dicts.
+        """
         annotations_list = []
         x, y, z = None, None, None
 
         for coords, entry in self.pd_plot_data[1].items():
+            if not entry.composition.is_element:
+                continue
+
             x, y = coords[0], coords[1]
 
             if self._dim == 3:
                 z = self._pd.get_form_energy_per_atom(entry)
             elif self._dim == 4:
-                if not entry.composition.is_element:
-                    continue
                 z = coords[2]
 
             if entry.composition.is_element:
                 clean_formula = str(entry.composition.elements[0])
                 font_dict = {"color": "#000000", "size": 24.0}
                 opacity = 1.0
-            else:
-                formula = entry.composition.reduced_formula
-                clean_formula = self._htmlize_formula(formula)
-                font_dict = {"color": "#000000", "size": 12.0}
-                opacity = 0.7
 
             annotation = plotly_layouts["default_annotation_layout"].copy()
             annotation.update(
@@ -2223,6 +2293,11 @@ class PDPlotter:
                 annotation.update({"z": z})
 
             annotations_list.append(annotation)
+
+        # extra point ensures equilateral triangular scaling is shown
+        if self._dim == 3:
+            annotations_list.append(dict(x=1, y=1, z=0, opacity=0, text=""))
+
         return annotations_list
 
     def _create_plotly_figure_layout(self, label_stable=True):
@@ -2236,7 +2311,7 @@ class PDPlotter:
         layout = dict()
 
         if label_stable:
-            annotations_list = self._create_plotly_annotations()
+            annotations_list = self._create_plotly_element_annotations()
 
         if self._dim == 2:
             layout = plotly_layouts["default_binary_layout"].copy()
@@ -2250,7 +2325,7 @@ class PDPlotter:
 
         return layout
 
-    def _create_plotly_markers(self):
+    def _create_plotly_markers(self, label_uncertainties=False):
         """
         Creates stable and unstable marker plots for overlaying on the phase diagram.
 
@@ -2265,9 +2340,31 @@ class PDPlotter:
 
             for coord, entry in zip(coords, entries):
                 energy = round(self._pd.get_form_energy_per_atom(entry), 3)
-                entry_id = getattr(entry, "entry.id", "")
+
+                entry_id = getattr(entry, "entry_id", "no ID")
                 formula = entry.composition.reduced_formula
                 clean_formula = self._htmlize_formula(formula)
+                label = f"{clean_formula} ({entry_id}) <br> " f"{energy} eV/atom"
+
+                if not stable:
+                    e_above_hull = round(self._pd.get_e_above_hull(entry), 3)
+                    if e_above_hull > self.show_unstable:
+                        continue
+                    label += f" (+{e_above_hull} eV/atom)"
+                    energies.append(e_above_hull)
+                else:
+                    uncertainty = 0
+                    if (
+                        hasattr(entry, "correction_uncertainty_per_atom")
+                        and label_uncertainties
+                    ):
+                        uncertainty = entry.correction_uncertainty_per_atom
+
+                    uncertainties.append(uncertainty)
+                    energies.append(energy)
+
+                texts.append(label)
+
                 x.append(coord[0])
                 y.append(coord[1])
 
@@ -2276,24 +2373,14 @@ class PDPlotter:
                 elif self._dim == 4:
                     z.append(coord[2])
 
-                label = f"{clean_formula} ({entry_id}) <br> " f"{energy} eV/atom"
-
-                if not stable:
-                    e_above_hull = round(self._pd.get_e_above_hull(entry), 3)
-                    label += f" (+{e_above_hull} eV/atom)"
-                    energies.append(e_above_hull)
-                else:
-                    uncertainty = 0
-                    if hasattr(entry, 'correction_uncertainty'):
-                        uncertainty = \
-                            entry.correction_uncertainty
-                    uncertainties.append(uncertainty)
-                    energies.append(energy)
-
-                texts.append(label)
-
-            return {"x": x, "y": y, "z": z, "texts": texts, "energies": energies,
-                    "uncertainties": uncertainties}
+            return {
+                "x": x,
+                "y": y,
+                "z": z,
+                "texts": texts,
+                "energies": energies,
+                "uncertainties": uncertainties,
+            }
 
         stable_coords, stable_entries = (
             self.pd_plot_data[1].keys(),
@@ -2320,21 +2407,17 @@ class PDPlotter:
                     y=stable_props["y"],
                     name="Stable",
                     marker=dict(
-                        color='darkgreen',
-                        size=11,
-                        line=dict(
-                            color='black',
-                            width=2
-                        )
+                        color="darkgreen", size=11, line=dict(color="black", width=2)
                     ),
-                    opacity=0.8,
+                    opacity=0.9,
                     hovertext=stable_props["texts"],
-                    error_y=dict(array=stable_props["uncertainties"],
-                                 type="data",
-                                 color="gray",
-                                 thickness=2.5,
-                                 width=5
-                                 )
+                    error_y=dict(
+                        array=stable_props["uncertainties"],
+                        type="data",
+                        color="gray",
+                        thickness=2.5,
+                        width=5,
+                    ),
                 )
             )
 
@@ -2344,10 +2427,12 @@ class PDPlotter:
                     x=unstable_props["x"],
                     y=unstable_props["y"],
                     name="Above Hull",
-                    marker=dict(color=unstable_props["energies"],
-                                colorscale=plotly_layouts["unstable_colorscale"],
-                                size=6,
-                                symbol="diamond"),
+                    marker=dict(
+                        color=unstable_props["energies"],
+                        colorscale=plotly_layouts["unstable_colorscale"],
+                        size=6,
+                        symbol="diamond",
+                    ),
                     hovertext=unstable_props["texts"],
                 )
             )
@@ -2360,22 +2445,18 @@ class PDPlotter:
                     y=stable_props["x"],
                     z=stable_props["z"],
                     name="Stable",
-                    opacity=0.8,
+                    opacity=0.9,
                     marker=dict(
-                        color='darkgreen',
-                        size=8.5,
-                        line=dict(
-                            color='black',
-                            width=3
-                        )
+                        color="darkgreen", size=8.5, line=dict(color="black", width=3)
                     ),
                     hovertext=stable_props["texts"],
-                    error_z=dict(array=stable_props["uncertainties"],
-                                 type="data",
-                                 color="darkgray",
-                                 width=10,
-                                 thickness=5
-                                 )
+                    error_z=dict(
+                        array=stable_props["uncertainties"],
+                        type="data",
+                        color="darkgray",
+                        width=10,
+                        thickness=5,
+                    ),
                 )
             )
 
@@ -2386,13 +2467,15 @@ class PDPlotter:
                     y=unstable_props["x"],
                     z=unstable_props["z"],
                     name="Above Hull",
-                    marker=dict(color=unstable_props["energies"],
-                                colorscale=plotly_layouts["unstable_colorscale"],
-                                size=4.2,
-                                symbol="diamond",
-                                colorbar=dict(title="Energy Above Hull<br>(eV/atom)",
-                                              x=0.13, len=0.82),
-                                ),
+                    marker=dict(
+                        color=unstable_props["energies"],
+                        colorscale=plotly_layouts["unstable_colorscale"],
+                        size=4.2,
+                        symbol="diamond",
+                        colorbar=dict(
+                            title="Energy Above Hull<br>(eV/atom)", x=0.05, len=0.75
+                        ),
+                    ),
                     hovertext=unstable_props["texts"],
                 )
             )
@@ -2409,26 +2492,30 @@ class PDPlotter:
                         color=stable_props["energies"],
                         colorscale=plotly_layouts["stable_markers_colorscale"],
                         size=8,
+                        opacity=0.9,
                     ),
                     hovertext=stable_props["texts"],
                 )
             )
 
             unstable_markers = plotly_layouts[
-                "default_quaternary_marker_settings"].copy()
+                "default_quaternary_marker_settings"
+            ].copy()
             unstable_markers.update(
                 dict(
                     x=unstable_props["x"],
                     y=unstable_props["y"],
                     z=unstable_props["z"],
                     name="Above Hull",
-                    marker=dict(color=unstable_props["energies"],
-                                colorscale=plotly_layouts["unstable_colorscale"],
-                                size=5,
-                                symbol="diamond",
-                                colorbar=dict(title="Energy Above Hull<br>(eV/atom)",
-                                              x=0.13, len=0.82),
-                                ),
+                    marker=dict(
+                        color=unstable_props["energies"],
+                        colorscale=plotly_layouts["unstable_colorscale"],
+                        size=5,
+                        symbol="diamond",
+                        colorbar=dict(
+                            title="Energy Above Hull<br>(eV/atom)", x=0.05, len=0.75
+                        ),
+                    ),
                     hovertext=unstable_props["texts"],
                     visible="legendonly",
                 )
@@ -2445,7 +2532,7 @@ class PDPlotter:
             else go.Scatter3d(**unstable_markers)
         )
 
-        return unstable_marker_plot, stable_marker_plot
+        return stable_marker_plot, unstable_marker_plot
 
     def _create_plotly_uncertainty_shading(self, stable_marker_plot):
         """
@@ -2471,15 +2558,17 @@ class PDPlotter:
             flipped_points = np.flip(points[:-1, :].copy(), 0)
             flipped_points[:, 1] = flipped_points[:, 1] - flipped_points[:, 2]
             outline = np.vstack((outline, flipped_points[:, :2]))  # loop over points
-            uncertainty_plot = go.Scatter(x=outline[:, 0],
-                                          y=outline[:, 1],
-                                          name="Uncertainty (window)",
-                                          fill="toself",
-                                          mode="lines",
-                                          line=dict(width=0),
-                                          fillcolor="lightblue",
-                                          hoverinfo="skip",
-                                          opacity=0.4)
+            uncertainty_plot = go.Scatter(
+                x=outline[:, 0],
+                y=outline[:, 1],
+                name="Uncertainty (window)",
+                fill="toself",
+                mode="lines",
+                line=dict(width=0),
+                fillcolor="lightblue",
+                hoverinfo="skip",
+                opacity=0.4,
+            )
 
         return uncertainty_plot
 
@@ -2530,8 +2619,9 @@ class PDPlotter:
                 for c in zip(self._pd.qhull_data[:-1, 0], self._pd.qhull_data[:-1, 1])
             ]
         )
-        energies = np.array([self._pd.get_form_energy_per_atom(e) for e in
-                             self._pd.qhull_entries])
+        energies = np.array(
+            [self._pd.get_form_energy_per_atom(e) for e in self._pd.qhull_entries]
+        )
 
         return go.Mesh3d(
             x=coords[:, 1],
@@ -2543,7 +2633,7 @@ class PDPlotter:
             opacity=0.8,
             intensity=energies,
             colorscale=plotly_layouts["stable_colorscale"],
-            colorbar=dict(title="Formation energy<br>(eV/atom)", x=0.8, len=0.8),
+            colorbar=dict(title="Formation energy<br>(eV/atom)", x=0.9, len=0.75),
             hoverinfo="none",
             lighting=dict(diffuse=0.0, ambient=1.0),
             name="Convex Hull (shading)",
@@ -2566,9 +2656,7 @@ class PDPlotter:
             else:
                 s.append(char)
 
-        clean_formula = "".join(s)
-
-        return clean_formula
+        return "".join(s)
 
 
 def uniquelines(q):
@@ -2597,12 +2685,13 @@ def triangular_coord(coord):
     prettier phase diagram.
 
     Args:
-        coordinate: coordinate used in the convex hull computation.
+        coord: coordinate used in the convex hull computation.
 
     Returns:
         coordinates in a triangular-based coordinate system.
     """
     unitvec = np.array([[1, 0], [0.5, math.sqrt(3) / 2]])
+
     result = np.dot(np.array(coord), unitvec)
     return result.transpose()
 

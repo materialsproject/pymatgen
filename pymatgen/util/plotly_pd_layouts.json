@@ -43,18 +43,17 @@
     "hovermode": "closest",
     "paper_bgcolor": "rgba(0,0,0,0)",
     "plot_bgcolor": "rgba(0,0,0,0)",
-    "autosize": true,
     "showlegend": true,
     "legend": {
       "orientation": "h",
       "traceorder": "reversed",
-      "x": 0.1,
+      "x": 0,
       "y": 1.05,
-      "xanchor": "right",
-      "tracegroupgap": 5
+      "xanchor": "left",
+      "tracegroupgap": 7
     },
     "margin": {
-      "b": 10,
+      "b": 20,
       "l": 10,
       "pad": 20,
       "t": 20,
@@ -85,12 +84,12 @@
     },
     "scene_camera": {
       "center": {
-        "x": 0,
+        "x": -0.1,
         "y": 0,
-        "z": -0.2
+        "z": -0.15
       },
       "eye": {
-        "x": 0,
+        "x": -0.1,
         "y": 0,
         "z": 2.5
       },
@@ -139,7 +138,7 @@
     "scene_aspectratio": {
       "x": 1.7,
       "y": 1.7,
-      "z": 1.5
+      "z": 1.2
     }
   },
   "default_quaternary_layout": {
@@ -203,20 +202,10 @@
       }
     },
     "scene_camera": {
-      "up": {
-        "x": 0.0,
-        "y": 0.0,
-        "z": 1.0
-      },
       "center": {
-        "x": 0.5,
-        "y": 0.5,
-        "z": 0.5
-      },
-      "eye": {
-        "x": 1.25,
-        "y": 1.25,
-        "z": 1.25
+        "x": 0,
+        "y": -0.08,
+        "z": 0
       },
       "projection": {
         "type": "orthographic"
@@ -271,7 +260,7 @@
   "default_binary_marker_settings": {
     "mode": "markers",
     "marker": {
-      "size": 6,
+      "size": 8,
       "line": {
         "width": 4,
         "color": "black"
