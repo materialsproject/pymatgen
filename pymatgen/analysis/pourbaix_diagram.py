@@ -127,9 +127,6 @@ class PourbaixEntry(MSONable):
         if self.phase_type == "Solid":
             return self.entry.composition.reduced_formula + "(s)"
 
-        if self.phase_type == "Ion":
-            return self.entry.name + "(aq)"
-
         return self.entry.name
 
     @property
