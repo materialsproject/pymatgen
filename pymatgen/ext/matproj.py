@@ -636,7 +636,7 @@ class MPRester:
             material_id (str): Materials Project material_id.
 
         Returns:
-            ﻿CompletePhononDos: A phonon DOS object.
+            CompletePhononDos: A phonon DOS object.
         """
         return self._make_request("/materials/{}/phonondos".format(material_id))
 
