@@ -375,7 +375,7 @@ class IonEntry(PDEntry):
         self.ion = ion
         # Auto-assign name
         name = name if name else self.ion.reduced_formula
-        super(IonEntry, self).__init__(
+        super().__init__(
             composition=ion.composition, energy=energy, name=name,
             attribute=attribute)
 
