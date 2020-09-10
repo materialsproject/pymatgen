@@ -482,14 +482,14 @@ class MPResterTest(PymatgenTest):
         self.assertDictEqual(
             dict(meta),
             {
-                "mp-23494": [{"task_id": "mp-669929", "task_type": "GGA NSCF Uniform"}],
+                "mp-23494": [{"task_id": "mp-1752825", "task_type": "GGA NSCF Uniform"}],
                 "mp-32800": [{"task_id": "mp-739635", "task_type": "GGA NSCF Uniform"}],
             },
         )
         prefix = "http://labdev-nomad.esc.rzg.mpg.de/fairdi/nomad/mp/api/raw/query?"
         # previous test
         # ids = 'mp-23494,mp-688563,mp-32800,mp-746913'
-        ids = "mp-669929,mp-739635"
+        ids = "mp-1752825,mp-739635"
         self.assertEqual(
             urls[0],
             f"{prefix}file_pattern=vasprun*&file_pattern=OUTCAR*&external_id={ids}",
