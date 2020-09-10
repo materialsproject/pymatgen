@@ -1687,9 +1687,8 @@ class PDPlotter:
         plt=None,
     ):
         """
-        Shows the plot using pylab.  Usually I won't do imports in methods,
-        but since plotting is a fairly expensive library to load and not all
-        machines have matplotlib installed, I have done it this way.
+        Shows the plot using pylab. Contains import statements since matplotlib is a
+        fairly extensive library to load.
         """
         if plt is None:
             plt = pretty_plot(8, 6)
@@ -2121,7 +2120,7 @@ class PDPlotter:
 
     def _create_plotly_lines(self):
         """
-        Creates Plotly Scatter (line) plots for all phase diagram simplexes.
+        Creates Plotly scatter (line) plots for all phase diagram facets.
 
         :return: go.Scatter (or go.Scatter3d) plot
         """
@@ -2170,14 +2169,17 @@ class PDPlotter:
 
     def _create_plotly_stable_labels(self, label_stable=True):
         """
-        Creates a scatter trace containing labels of stable phases.
+        Creates a (hidable) scatter trace containing labels of stable phases.
+        Contains some functionality for creating sensible label positions.
 
         :return: go.Scatter (or go.Scatter3d) plot
         """
         x, y, z, text, textpositions = [], [], [], [], []
         stable_labels_plot = None
+        min_energy_x = None
         offset_2d = 0.01  # extra distance to offset label position for clarity
         offset_3d = 0.015
+
         if self._dim == 2:
             min_energy_x = min(list(self.pd_plot_data[1].keys()), key=lambda c: c[1])[0]
 
@@ -2294,7 +2296,7 @@ class PDPlotter:
 
             annotations_list.append(annotation)
 
-        # extra point ensures equilateral triangular scaling is shown
+        # extra point ensures equilateral triangular scaling is displayed
         if self._dim == 3:
             annotations_list.append(dict(x=1, y=1, z=0, opacity=0, text=""))
 
@@ -2330,12 +2332,12 @@ class PDPlotter:
         Creates stable and unstable marker plots for overlaying on the phase diagram.
 
         :return: Tuple of Plotly go.Scatter (or go.Scatter3d) objects in order: (
-            unstable, stable)
+            stable markers, unstable markers)
         """
 
         def get_marker_props(coords, entries, stable=True):
-            """ Method for getting general marker locations/annotations from
-            pd_plot_data"""
+            """ Method for getting marker locations, hovertext, and error bars
+            from pd_plot_data"""
             x, y, z, texts, energies, uncertainties = [], [], [], [], [], []
 
             for coord, entry in zip(coords, entries):
@@ -2541,7 +2543,7 @@ class PDPlotter:
 
         :param stable_marker_plot: go.Scatter object with stable markers and their
             error bars.
-        :return: Plotly go.Scatter object
+        :return: Plotly go.Scatter object with uncertainty window shading.
         """
 
         uncertainty_plot = None
@@ -2553,11 +2555,14 @@ class PDPlotter:
             error = stable_marker_plot.error_y["array"]
             points = np.append(x, [y, error]).reshape(3, -1).T
             points = points[points[:, 0].argsort()]  # sort by composition
+
+            # these steps trace out the boundary pts of the uncertainty window
             outline = points[:, :2].copy()
             outline[:, 1] = outline[:, 1] + points[:, 2]
             flipped_points = np.flip(points[:-1, :].copy(), 0)
             flipped_points[:, 1] = flipped_points[:, 1] - flipped_points[:, 2]
-            outline = np.vstack((outline, flipped_points[:, :2]))  # loop over points
+            outline = np.vstack((outline, flipped_points[:, :2]))
+
             uncertainty_plot = go.Scatter(
                 x=outline[:, 0],
                 y=outline[:, 1],

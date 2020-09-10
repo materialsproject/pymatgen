@@ -606,56 +606,63 @@ class PDPlotterTest(unittest.TestCase):
         entries = list(
             EntrySet.from_csv(os.path.join(module_dir, "pdentries_test.csv"))
         )
-        self.pd = PhaseDiagram(entries)
 
-        self.plotter_mpl = PDPlotter(self.pd, show_unstable=True, backend="matplotlib")
-        self.plotter_plotly = PDPlotter(self.pd, backend="plotly")
+        self.pd_ternary = PhaseDiagram(entries)
+        self.plotter_ternary_mpl = PDPlotter(self.pd_ternary, backend="matplotlib")
+        self.plotter_ternary_plotly = PDPlotter(self.pd_ternary, backend="plotly")
+
         entrieslio = [e for e in entries if "Fe" not in e.composition]
+        self.pd_binary = PhaseDiagram(entrieslio)
+        self.plotter_binary_mpl = PDPlotter(self.pd_binary, backend="matplotlib")
+        self.plotter_binary_plotly = PDPlotter(self.pd_binary, backend="plotly")
 
-        self.pd_formation = PhaseDiagram(entrieslio)
-        self.plotter_formation = PDPlotter(self.pd_formation, show_unstable=0.1)
         entries.append(PDEntry("C", 0))
-        self.pd3d = PhaseDiagram(entries)
-        self.plotter3d = PDPlotter(self.pd3d, show_unstable=0.1, backend="matplotlib")
-        self.plotter3d_plotly = PDPlotter(self.pd3d, backend="plotly")
+        self.pd_quaternary = PhaseDiagram(entries)
+        self.plotter_quaternary_mpl = PDPlotter(self.pd_quaternary,
+                                                backend="matplotlib")
+        self.plotter_quaternary_plotly = PDPlotter(self.pd_quaternary, backend="plotly")
 
     def test_pd_plot_data(self):
-        (lines, labels, unstable_entries) = self.plotter_mpl.pd_plot_data
+        (lines, labels, unstable_entries) = self.plotter_ternary_mpl.pd_plot_data
         self.assertEqual(len(lines), 22)
         self.assertEqual(
             len(labels),
-            len(self.pd.stable_entries),
+            len(self.pd_ternary.stable_entries),
             "Incorrect number of lines generated!",
         )
         self.assertEqual(
             len(unstable_entries),
-            len(self.pd.all_entries) - len(self.pd.stable_entries),
+            len(self.pd_ternary.all_entries) - len(self.pd_ternary.stable_entries),
             "Incorrect number of lines generated!",
         )
-        (lines, labels, unstable_entries) = self.plotter3d.pd_plot_data
+        (lines, labels, unstable_entries) = self.plotter_quaternary_mpl.pd_plot_data
         self.assertEqual(len(lines), 33)
-        self.assertEqual(len(labels), len(self.pd3d.stable_entries))
+        self.assertEqual(len(labels), len(self.pd_quaternary.stable_entries))
         self.assertEqual(
             len(unstable_entries),
-            len(self.pd3d.all_entries) - len(self.pd3d.stable_entries),
+            len(self.pd_quaternary.all_entries) - len(
+                self.pd_quaternary.stable_entries),
         )
-        (lines, labels, unstable_entries) = self.plotter_formation.pd_plot_data
+        (lines, labels, unstable_entries) = self.plotter_binary_mpl.pd_plot_data
         self.assertEqual(len(lines), 3)
-        self.assertEqual(len(labels), len(self.pd_formation.stable_entries))
+        self.assertEqual(len(labels), len(self.pd_binary.stable_entries))
 
-    def test_get_plot(self):
-        # Some very basic non-tests. Just to make sure the methods are callable.
-        self.plotter_mpl.get_plot().close()
-        self.plotter3d.get_plot().close()
-        self.plotter_mpl.get_contour_pd_plot().close()
-        # self.plotter_mpl.get_plot(energy_colormap="Reds", process_attributes=True)
-        # plt = self.plotter3d.get_plot(energy_colormap="Reds",
-        #                               process_attributes=True)
-        # self.plotter_mpl.get_plot(energy_colormap="Reds", process_attributes=False)
-        # plt = self.plotter3d.get_plot(energy_colormap="Reds",
-        #                               process_attributes=False)
-        self.plotter_mpl.get_chempot_range_map_plot([Element("Li"), Element("O")]).close()
-        self.plotter_mpl.plot_element_profile(Element("O"), Composition("Li2O")).close()
+    def test_mpl_plots(self):
+        # Some very basic ("non")-tests. Just to make sure the methods are callable.
+        self.plotter_binary_mpl.get_plot().close()
+        self.plotter_ternary_mpl.get_plot().close()
+        self.plotter_quaternary_mpl.get_plot().close()
+        self.plotter_ternary_mpl.get_contour_pd_plot().close()
+        self.plotter_ternary_mpl.get_chempot_range_map_plot([Element("Li"), Element(
+            "O")]).close()
+        self.plotter_ternary_mpl.plot_element_profile(Element("O"), Composition(
+            "Li2O")).close()
+
+    def test_plotly_plots(self):
+        # Also very basic tests. Ensures callability and 2D vs 3D properties.
+        self.plotter_binary_plotly.get_plot()
+        self.plotter_ternary_plotly.get_plot()
+        self.plotter_quaternary_plotly.get_plot()
 
 
 class UtilityFunctionTest(unittest.TestCase):
