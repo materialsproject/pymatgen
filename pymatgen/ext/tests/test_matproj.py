@@ -336,7 +336,13 @@ class MPResterTest(PymatgenTest):
         self.assertEqual(Fe_entries[0].data["e_above_hull"], 0)
 
     def test_get_pourbaix_entries(self):
+        # test input chemsys as a list of elements
         pbx_entries = self.rester.get_pourbaix_entries(["Fe", "Cr"])
+        for pbx_entry in pbx_entries:
+            self.assertTrue(isinstance(pbx_entry, PourbaixEntry))
+
+        # test input chemsys as a string
+        pbx_entries = self.rester.get_pourbaix_entries("Fe-Cr")
         for pbx_entry in pbx_entries:
             self.assertTrue(isinstance(pbx_entry, PourbaixEntry))
 

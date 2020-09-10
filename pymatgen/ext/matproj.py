@@ -591,8 +591,9 @@ class MPRester:
         a pourbaix diagram from the rest interface.
 
         Args:
-            chemsys ([str]): A list of elements comprising the chemical
-                system, e.g. ['Li', 'Fe']
+            chemsys (str or [str]): Chemical system string comprising element
+                symbols separated by dashes, e.g., "Li-Fe-O" or List of element
+                symbols, e.g., ["Li", "Fe", "O"].
             solid_compat: Compatiblity scheme used to pre-process solid DFT energies prior to applying aqueous
                 energy adjustments. May be passed as a class (e.g. MaterialsProjectCompatibility) or an instance
                 (e.g., MaterialsProjectCompatibility()). If None, solid DFT energies are used as-is.
@@ -603,6 +604,9 @@ class MPRester:
         from pymatgen.core.ion import Ion
 
         pbx_entries = []
+
+        if isinstance(chemsys, str):
+            chemsys = chemsys.split('-')
 
         # Get ion entries first, because certain ions have reference
         # solids that aren't necessarily in the chemsys (Na2SO4)
