@@ -21,13 +21,13 @@ import warnings
 from typing import Dict, List, Tuple, Union, Sequence
 from monty.json import MSONable
 from monty.io import zopen
-from pymatgen.io.cp2k.utils import _postprocessor
+from pymatgen.io.cp2k.utils import _postprocessor, _preprocessor
 from pymatgen import Lattice, Structure, Molecule
 
 __author__ = "Nicholas Winner"
-__version__ = "0.2"
+__version__ = "0.3"
 __email__ = "nwinner@berkeley.edu"
-__date__ = "January 2019"
+__date__ = "August 2020"
 
 
 class Keyword(MSONable):
@@ -151,11 +151,11 @@ class Keyword(MSONable):
                        units=units[0],
                        description=description)
 
-    def silence(self):
+    def verbosity(self, v):
         """
-        Deactivate the printing of this keyword's description.
+        Change the printing of this keyword's description.
         """
-        self.verbose = False
+        self.verbose = v
 
 
 class KeywordList(MSONable, Sequence):
@@ -215,12 +215,12 @@ class KeywordList(MSONable, Sequence):
         """
         return " \n".join(["\t" * indent + k.__str__() for k in self.keywords])
 
-    def silence(self):
+    def verbosity(self, verbosity):
         """
         Silence all keywords in keyword list
         """
         for k in self.keywords:
-            k.silence()
+            k.verbosity(verbosity)
 
 
 class Section(MSONable):
@@ -331,6 +331,17 @@ class Section(MSONable):
                 return self.subsections[k]
         raise KeyError
 
+    def __add__(self, other):
+        if isinstance(other, (Keyword, KeywordList)):
+            if other.name in self:
+                self[other.name] += other
+            else:
+                self[other] = other
+        elif isinstance(other, Section):
+            self.insert(other)
+        else:
+            TypeError("Can only add sections or keywords.")
+
     def get(self, d, default=None):
         """
         Similar to get for dictionaries. This will attempt to retrieve the
@@ -355,25 +366,32 @@ class Section(MSONable):
                 self.subsections[key] = value.__deepcopy__()
             else:
                 self.insert(value)
-        if not isinstance(value, (Keyword, KeywordList)):
-            value = Keyword(key, value)
-        if isinstance(value, (Keyword, KeywordList)):
-            match = [k for k in self.keywords if key.upper() == k.upper()]
-            if match:
-                del self.keywords[match[0]]
-            self.keywords[key] = value
+        else:
+            if not isinstance(value, (Keyword, KeywordList)):
+                value = Keyword(key, value)
+            elif isinstance(value, (Keyword, KeywordList)):
+                match = [k for k in self.keywords if key.upper() == k.upper()]
+                if match:
+                    del self.keywords[match[0]]
+                self.keywords[key] = value
 
     def __delitem__(self, key):
         """
         Delete section with name matching key OR delete all keywords
         with names matching this key
         """
-        if key in self.subsections:
-            del self.subsections[key]
-        elif key in self.keywords:
-            del self.keywords[key]
-        else:
-            raise KeyError("No section or keyword matching the given key.")
+        l = [s for s in self.subsections if s.upper() == key.upper()]
+        if l:
+            del self.subsections[l[0]]
+            return
+        l = [k for k in self.keywords if k.upper() == key.upper()]
+        if l:
+            del self.keywords[l[0]]
+            return
+        raise KeyError("No section or keyword matching the given key.")
+
+    def __sub__(self, other):
+        return self.__delitem__(other)
 
     def update(self, d: dict):
         """
@@ -399,14 +417,54 @@ class Section(MSONable):
         Helper method for self.update(d) method (see above).
         """
         for k, v in d2.items():
-            if isinstance(v, (str, float, bool)):
+            if isinstance(v, (str, float, int, bool)):
                 d1[k] = Keyword(k, v)
+            elif isinstance(v, (Keyword, KeywordList)):
+                d1[k] = v
             elif isinstance(v, dict):
                 if k not in list(d1.subsections.keys()):
                     d1.insert(Section(k, subsections={}))
                 return Section._update(d1.subsections[k], v)
             elif isinstance(v, Section):
                 d1.insert(v)
+            else:
+                print(type(v))
+                raise TypeError("Unrecognized type.")
+
+    def set(self, d: dict):
+        """
+        Alias for update. Used by custodian.
+        """
+        self.update(d)
+
+    def unset(self, d: dict):
+        """
+        Dict based deletion. Used by custodian.
+        """
+        for k, v in d.items():
+            if isinstance(v, (str, float, int, bool)):
+                del self[k][v]
+            elif isinstance(v, (Keyword, Section, KeywordList)):
+                del self[k][v.name]
+            elif isinstance(v, dict):
+                self[k].unset(v)
+            else:
+                TypeError("Can only add sections or keywords.")
+
+    def inc(self, d: dict):
+        """
+        Mongo style dict modification. Include.
+        """
+        for k, v in d.items():
+            if isinstance(v, (str, float, bool)):
+                v = Keyword(k, v)
+            if isinstance(v, (Keyword, Section, KeywordList)):
+                self[k] += v
+            elif isinstance(v, dict):
+                self[k].inc(v)
+            else:
+                print()
+                TypeError("Can only add sections or keywords.")
 
     def insert(self, d):
         """
@@ -414,16 +472,9 @@ class Section(MSONable):
         """
         self.subsections[d.alias or d.name] = d.__deepcopy__()
 
-    def add(self, d):
-        """
-        Add a keyword to the section keywords. Different from __setitem__
-        as that will override existing keyword by default.
-        """
-        self.keywords.append(d)
-
     def check(self, path: str):
         """
-        Check if section exists within the current. Can be useful for cross-checking whether or not
+        Check if section exists within the current using a path. Can be useful for cross-checking whether or not
         required dependencies have been satisfied, which CP2K does not enforce.
 
         Args:
@@ -492,16 +543,27 @@ class Section(MSONable):
 
         return string
 
+    def verbosity(self, verbosity):
+        """
+        Change the section verbossity recursively by turning on/off the printing of descriptions.
+        Turning off descriptions may reduce the appealing documentation of input files, but also
+        helps de-clutter them.
+        """
+        self.verbose = verbosity
+        for k, v in self.keywords.items():
+            v.verbosity(verbosity)
+        for k, v in self.subsections.items():
+            v.verbosity(verbosity)
+
     def silence(self):
         """
-        Silence the section recursively by turning off the printing of descriptions. This may reduce
-        the appealing documentation of input files, but also helps de-clutter them.
+        Recursively delete all print sections so that only defaults are printed out.
         """
-        self.verbose = False
-        for k, v in self.keywords.items():
-            v.silence()
-        for k, v in self.subsections.items():
-            v.silence()
+        if self.subsections:
+            if self.subsections.get('PRINT'):
+                del self.subsections['PRINT']
+            for _s in self.subsections:
+                self.subsections[_s].silence()
 
 
 class Cp2kInput(Section):
@@ -569,37 +631,12 @@ class Cp2kInput(Section):
         """
         Initialize from a string
         """
-        s = Cp2kInput._cp2k_preprocessor(s)
+        s = _preprocessor(s)
         lines = s.splitlines()
         lines = [line.replace("\t", "") for line in lines]
         lines = [line.strip() for line in lines]
         lines = [line for line in lines if line]
         return Cp2kInput.from_lines(lines)
-
-    @staticmethod
-    def _cp2k_preprocessor(s):
-        includes = re.findall(r"(@include.+)", s, re.IGNORECASE)
-        for incl in includes:
-            inc = incl.split()
-            assert len(inc) == 2  # @include filename
-            inc = inc[1].strip('\'')
-            inc = inc.strip('\"')
-            with zopen(inc) as f:
-                s = re.sub(r"{}".format(incl), f.read(), s)
-        variable_sets = re.findall(r"(@SET.+)", s, re.IGNORECASE)
-        for match in variable_sets:
-            v = match.split()
-            assert len(v) == 3  # @SET VAR value
-            var, value = v[1:]
-            s = re.sub(r"{}".format(match), "", s)
-            s = re.sub(r"\${?"+var+"}?", value, s)
-
-        c1 = re.findall(r"@IF", s, re.IGNORECASE)
-        c2 = re.findall(r"@ELIF", s, re.IGNORECASE)
-        if len(c1) > 0 or len(c2) > 0:
-            raise NotImplementedError("This cp2k input processer does not currently "
-                                      "support conditional blocks.")
-        return s
 
     @classmethod
     def from_lines(cls, lines: Union[List, tuple]):
@@ -737,10 +774,10 @@ class Dft(Section):
 
     def __init__(
         self,
-        basis_set_filenames: str = "BASIS_MOLOPT",
-        potential_filename: str = "GTH_POTENTIALS",
+        basis_set_filenames="BASIS_MOLOPT",
+        potential_filename="GTH_POTENTIALS",
         uks: bool = True,
-        wfn_restart_file_name: Union[str, None] = None,
+        wfn_restart_file_name=None,
         subsections: dict = None,
         **kwargs
     ):
@@ -1242,6 +1279,50 @@ class Kind(Section):
         )
 
 
+class DftPlusU(Section):
+
+    """
+    Controls DFT+U for an atom kind
+    """
+
+    def __init__(self, eps_u_ramping=1e-5, init_u_ramping_each_scf=False, l=-1, u_minus_j=0, u_ramping=0):
+        """
+        Initialize the DftPlusU section.
+
+        Args:
+            eps_u_ramping: (float) SCF convergence threshold at which to start ramping the U value
+            init_u_ramping_each_scf: (bool) Whether or not to do u_ramping each scf cycle
+            l: (int) angular moment of the orbital to apply the +U correction
+            u_minus_j: (float) the effective U parameter, Ueff = U-J
+            u_ramping: (float) stepwise amount to increase during ramping until u_minus_j is reached
+        """
+
+        self.name = 'DFT_PLUS_U'
+        self.eps_u_ramping = 1e-5
+        self.init_u_ramping_each_scf = False
+        self.l = l
+        self.u_minus_j = u_minus_j
+        self.u_ramping = u_ramping
+
+        keywords = {
+            'EPS_U_RAMPING': Keyword('EPS_U_RAMPING', eps_u_ramping),
+            'INIT_U_RAMPING_EACH_SCF': Keyword('INIT_U_RAMPING_EACH_SCF', init_u_ramping_each_scf),
+            'L': Keyword('L', l),
+            'U_MINUS_J': Keyword('U_MINUS_J', u_minus_j),
+            'U_RAMPING': Keyword('U_RAMPING', u_ramping)
+        }
+
+        super(DftPlusU, self).__init__(
+            name=self.name,
+            subsections=None,
+            description=self.description,
+            keywords=keywords,
+            section_parameters=self.section_parameters,
+            alias=None,
+            location=None
+        )
+
+
 class Coord(Section):
 
     """
@@ -1374,11 +1455,12 @@ class V_Hartree_Cube(Section):
     Controls printing of the hartree potential as a cube file.
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, keywords=None, **kwargs):
         """
         Initialize the V_HARTREE_CUBE section
         """
 
+        self.keywords = keywords if keywords else {}
         self.kwargs = kwargs
 
         description = (
@@ -1386,10 +1468,6 @@ class V_Hartree_Cube(Section):
             + "the total density (electrons+ions). It is valid only for QS with GPW formalism. "
             + "Note that by convention the potential has opposite sign than the expected physical one."
         )
-
-        keywords = {
-            'STRIDE': Keyword('stride', *kwargs.get('STRIDE', [1, 1, 1]))
-        }
 
         super(V_Hartree_Cube, self).__init__(
             "V_HARTREE_CUBE",

@@ -80,5 +80,13 @@ class SetTest(PymatgenTest):
             cis = HybridStaticSet(Si_structure, aux_basis={'Si': s})
             cis = Cp2kInput.from_string(cis.get_string())
 
+    def test_prints(self):
+        cis = RelaxSet(Si_structure, print_ldos=False, print_pdos=False)
+        self.assertFalse(cis.check('FORCE_EVAL/DFT/PRINT/PRINT/PDOS'))
+        cis = RelaxSet(Si_structure, print_ldos=True, print_hartree_potential=True)
+        self.assertTrue(cis.check('FORCE_EVAL/DFT/PRINT/PDOS/LDOS 1'))
+        self.assertTrue(cis.check('FORCE_EVAL/DFT/PRINT/V_HARTREE_CUBE'))
+
+
 if __name__ == "__main__":
     unittest.main()

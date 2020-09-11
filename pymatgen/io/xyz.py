@@ -109,7 +109,7 @@ class XYZ:
         Returns:
             XYZ object
         """
-        with zopen(filename) as f:
+        with zopen(filename, 'rt') as f:
             return XYZ.from_string(f.read())
 
     def _frame_str(self, frame_mol):

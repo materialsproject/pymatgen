@@ -49,8 +49,9 @@ from pymatgen.io.cp2k.utils import (
     get_aux_basis,
     get_unique_site_indices,
 )
-from pymatgen import Element, Structure, Molecule
+from pymatgen import Element, Structure, Molecule, Lattice
 from typing import Dict, Union
+import warnings
 
 __author__ = "Nicholas Winner"
 __version__ = "0.2"
@@ -123,15 +124,16 @@ class Cp2kInputSet(Cp2kInput):
         for s in self.structure.species:
             assert (s in [e for e in Element])
 
-        if not self.check("FORCE_EVAL"):
-            self.insert(ForceEval())
+        self.insert(ForceEval())  # always present in cp2k
+        self.basis_set_file_names = None  # need for dft
+        self.potential_file_name = None  # need for dft
+        self.create_subsys(self.structure)  # assemble structure with atom types and pseudopotentials assigned
 
-        subsys, self.basis_set_file_names, self.potential_file_name = \
-            self.create_subsys(self.structure)
+        if self.kwargs.get('print_forces', True):
+            self.print_forces()
+        if self.kwargs.get('print_motion', True):
+            self.print_motion()
 
-        self["FORCE_EVAL"].insert(subsys)
-        self.print_forces()
-        self.print_motion()
         self.update(override_default_params)
 
     def create_subsys(self, structure: Union[Structure, Molecule]):
@@ -151,188 +153,50 @@ class Cp2kInputSet(Cp2kInput):
         unique_kinds = get_unique_site_indices(structure)
         for k in unique_kinds.keys():
             kind = k.split("_")[0]
-            if "magmom" in self.structure.site_properties.keys():
-                magnetization = self.structure.site_properties["magmom"][
+            kwargs = {}
+            if "magmom" in self.structure.site_properties:
+                kwargs['magnetization'] = self.structure.site_properties["magmom"][
+                    unique_kinds[k][0]
+                ]
+
+            if 'ghost' in self.structure.site_properties:
+                kwargs['ghost'] = self.structure.site_properties["ghost"][
+                    unique_kinds[k][0]
+                ]
+
+            if 'basis_set' in self.structure.site_properties:
+                basis_set = self.structure.site_properties['basis_set'][
                     unique_kinds[k][0]
                 ]
             else:
-                magnetization = 0
-            if 'ghost' in self.structure.site_properties.keys():
-                ghost = self.structure.site_properties["ghost"][
+                basis_set = basis_and_potential[kind]["basis"]
+
+            if 'potential' in self.structure.site_properties:
+                potential = self.structure.site_properties['potential'][
                     unique_kinds[k][0]
                 ]
             else:
-                ghost = False
+                potential = basis_and_potential[kind]["potential"]
+
+            if 'aux_basis' in self.structure.site_properties:
+                kwargs['aux_basis'] = self.structure.site_properties['aux_basis'][
+                    unique_kinds[k][0]
+                ]
+
             subsys.insert(
                 Kind(
                     kind,
                     alias=k,
-                    basis_set=basis_and_potential[kind]["basis"],
-                    magnetization=magnetization,
-                    potential=basis_and_potential[kind]["potential"],
-                    ghost=ghost
+                    basis_set=basis_set,
+                    potential=potential,
+                    **kwargs
                 )
             )
         coord = Coord(structure, aliases=unique_kinds)
         subsys.insert(coord)
-
-        return subsys, basis_and_potential["basis_filenames"], basis_and_potential["potential_filename"]
-
-    def activate_hybrid(
-        self,
-        hybrid_functional: str = "PBE0",
-        hf_fraction: float = 0.25,
-        gga_x_fraction: float = 0.75,
-        gga_c_fraction: float = 1,
-        max_memory: int = 2000,
-        cutoff_radius: float = 8.,
-        omega: float = .2,
-        aux_basis: Union[Dict, None] = None,
-        admm: bool = True,
-    ):
-
-        """
-        Basic set for activating hybrid DFT calculation using Auxiliary Density Matrix Method.
-
-        Note 1: When running ADMM with cp2k, memory is very important. If the memory requirements exceed
-        what is available (see max_memory), then CP2K will have to calculate the 4-electron integrals
-        for HFX during each step of the SCF cycle. ADMM provides a huge speed up by making the memory
-        requirements *feasible* to fit into RAM, which means you only need to calculate the integrals
-        once each SCF cycle. But, this only works if it fits into memory. When setting up ADMM
-        calculations, we recommend doing whatever is possible to fit all the 4EI into memory.
-
-        Note 2: This set is designed for reliable high-throughput calculations, NOT for extreme
-        accuracy. Please review the in-line comments in this method if you want more control.
-
-        Args:
-            hybrid_functional (str): Type of hybrid functional. This set supports HSE (screened) and PBE0
-                (truncated). Default is PBE0, which converges easier in the GPW basis used by
-                cp2k.
-            hf_fraction (float): fraction of exact HF exchange energy to mix. Default: 0.25
-            gga_x_fraction (float): fraction of gga exchange energy to retain. Default: 0.75
-            gga_c_fraction (float): fraction of gga correlation energy to retain. Default: 1.0
-            max_memory (int): Maximum memory available to each MPI process (in Mb) in the calculation.
-                Most modern computing nodes will have ~2Gb per core, or 2048 Mb, but check for
-                your specific system. This value should be as large as possible while still leaving
-                some memory for the other parts of cp2k. Important: If this value is set larger
-                than the memory limits, CP2K will likely seg-fault.
-                Default: 2000
-            cutoff_radius (float): for truncated hybrid functional (i.e. PBE0), this is the cutoff
-                radius. The default is selected as that which generally gives convergence, but
-                maybe too low (if you want very high accuracy) or too high (if you want a quick
-                screening). Default: 8 angstroms
-            omega (float): For HSE, this specifies the screening parameter. HSE06 sets this as
-                0.2, which is the default.
-            aux_basis (dict): If you want to specify the aux basis to use, specify it as a dict of
-                the form {'specie_1': 'AUX_BASIS_1', 'specie_2': 'AUX_BASIS_2'}
-            admm (bool): Whether or not to use the auxiliary density matrix method for the exact
-                HF exchange contribution. Highly recommended. Default: True
-        """
-        if admm:
-            basis = get_aux_basis(species=self.structure.symbol_set, basis_type=aux_basis)
-            if isinstance(self["FORCE_EVAL"]["DFT"]['BASIS_SET_FILE_NAME'],
-                          KeywordList):
-                self["FORCE_EVAL"]["DFT"]['BASIS_SET_FILE_NAME'].extend(
-                    [Keyword("BASIS_SET_FILE_NAME", k) for k in ['BASIS_ADMM', 'BASIS_ADMM_MOLOPT']],
-                )
-
-            for k, v in self["FORCE_EVAL"]["SUBSYS"].subsections.items():
-                if "KIND" == v.name.upper():
-                    kind = v["ELEMENT"].values[0]
-                    v.keywords['BASIS_SET'] += Keyword("BASIS_SET", "AUX_FIT", basis[kind])
-
-            # Don't change unless you know what you're doing
-            # Use NONE for accurate eigenvalues (static calcs)
-            aux_matrix_params = {
-                "ADMM_PURIFICATION_METHOD": Keyword("ADMM_PURIFICATION_METHOD", "NONE"),
-                "METHOD": Keyword("METHOD", "BASIS_PROJECTION"),
-            }
-            aux_matrix = Section(
-                "AUXILIARY_DENSITY_MATRIX_METHOD",
-                keywords=aux_matrix_params,
-                subsections={},
-            )
-            self.subsections["FORCE_EVAL"]["DFT"].insert(aux_matrix)
-
-        # Define the GGA functional as PBE
-        pbe = PBE("ORIG", scale_c=gga_c_fraction, scale_x=gga_x_fraction)
-        xc_functional = XC_FUNCTIONAL("PBE", subsections={"PBE": pbe})
-
-        # Define screening of the HF term
-        # EPS_SCHWARZ: Aggressive screening for high throughput
-        # EPS_SCHWARZ_FORCES: Aggressive screening for high throughput
-        # SCREEN_ON_INITIAL_P: Better performance. Requires decent starting wfn
-        # SCREEN_P_FORCES: Better performance. Requires decent starting wfn
-        screening = Section(
-            "SCREENING",
-            subsections={},
-            keywords={
-                "EPS_SCHWARZ": Keyword("EPS_SCHWARZ", 1e-6),
-                "EPS_SCHWARZ_FORCES": Keyword("EPS_SCHWARZ_FORCES", 1e-6),
-                "SCREEN_ON_INITIAL_P": Keyword("SCREEN_ON_INITIAL_P", True),
-                "SCREEN_P_FORCES": Keyword("SCREEN_P_FORCES", True),
-            },
-        )
-
-        if hybrid_functional == "HSE06":
-            xc_functional.insert(
-                Section(
-                    "XWPBE",
-                    subsections={},
-                    keywords={
-                        "SCALE_X0": Keyword("SCALE_X0", 1),
-                        "SCALE_X": Keyword("SCALE_X", -hf_fraction),
-                        "OMEGA": Keyword("OMEGA", omega),
-                    },
-                )
-            )
-            ip_keywords = {
-                "POTENTIAL_TYPE": Keyword("POTENTIAL_TYPE", "SHORTRANGE"),
-                "OMEGA": Keyword(
-                    "OMEGA", omega  # HSE06 screening parameter
-                ),
-            }
-        elif hybrid_functional == "PBE0":
-            ip_keywords = {
-                "POTENTIAL_TYPE": Keyword("POTENTIAL_TYPE", "TRUNCATED"),
-                "CUTOFF_RADIUS": Keyword(
-                    "CUTOFF_RADIUS", cutoff_radius
-                ),
-                "T_C_G_DATA": Keyword("T_C_G_DATA", "t_c_g.dat"),
-            }
-        interaction_potential = Section(
-            "INTERACTION_POTENTIAL", subsections={}, keywords=ip_keywords
-        )
-
-        load_balance = Section(
-            "LOAD_BALANCE",
-            keywords={"RANDOMIZE": Keyword("RANDOMIZE", True)},
-            subsections={},
-        )
-        # EPS_STORAGE_SCALING squashes the integrals for efficient storage
-        memory = Section(
-            "MEMORY",
-            subsections={},
-            keywords={
-                "EPS_STORAGE_SCALING": Keyword("EPS_STORAGE_SCALING", 0.1),
-                "MAX_MEMORY": Keyword("MAX_MEMORY", max_memory),
-            },
-        )
-        hf = Section(
-            "HF",
-            keywords={"FRACTION": Keyword("FRACTION", hf_fraction)},
-            subsections={
-                "SCREENING": screening,
-                "INTERACTION_POTENTIAL": interaction_potential,
-                "LOAD_BALANCE": load_balance,
-                "MEMORY": memory,
-            },
-        )
-        xc = Section(
-            "XC", subsections={"XC_FUNCTIONAL": xc_functional, "HF": hf}
-        )
-
-        self.subsections["FORCE_EVAL"]["DFT"].insert(xc)
+        self["FORCE_EVAL"].insert(subsys)
+        self.basis_set_file_names = basis_and_potential["basis_filenames"]
+        self.potential_file_name = basis_and_potential["potential_filename"]
 
     def print_forces(self):
         """
@@ -375,7 +239,7 @@ class DftSet(Cp2kInputSet):
         eps_scf: float = 1e-7,
         max_scf: Union[int, None] = None,
         minimizer: str = "DIIS",
-        preconditioner: str = "FULL_SINGLE_INVERSE",
+        preconditioner: str = "FULL_ALL",
         algorithm: str = "STRICT",
         linesearch: str = "2PNT",
         cutoff: int = 1200,
@@ -410,9 +274,10 @@ class DftSet(Cp2kInputSet):
                 inner loop limit set by
             minimizer (str): The minimization scheme. DIIS can be as much as 50% faster than the more robust conjugate
                 gradient method, and so it is chosen as default. Switch to CG if dealing with a difficult system.
-            preconditioner (str): Preconditioner for the OT method. The FULL_SINGLE_INVERSE preconditioner has been
-                shown to be very robust from internal tests. Should only change when simulation cell gets to be
-                VERY large, in which case FULL_KINETIC might be preferred.
+            preconditioner (str): Preconditioner for the OT method. FULL_ALL is the most reliable, and is the
+                default. Though FULL_SINGLE_INVERSE has faster convergence according to our internal tests. Should
+                only change from theses two when simulation cell gets to be VERY large,
+                in which case FULL_KINETIC might be preferred.
             cutoff (int): Cutoff energy (in Ry) for the finest level of the multigrid. A high cutoff will allow you to
                 have very accurate calculations PROVIDED that REL_CUTOFF is appropriate.
             rel_cutoff (int): This cutoff decides how the Guassians are mapped onto the different levels of the
@@ -455,12 +320,12 @@ class DftSet(Cp2kInputSet):
         max_scf = max_scf if max_scf else 20 if ot else 400  # If ot, max_scf is for inner loop
         scf = Scf(eps_scf=eps_scf, max_scf=max_scf, subsections={})
 
-        # If there's a band gap, always use OT, else use Davidson
+        # If there's a band gap, use OT, else use Davidson
         if ot:
             if band_gap <= 0:
-                raise UserWarning('Orbital Transformation method is being used for'
-                                  'a system without a bandgap. OT can have very poor'
-                                  'convergence for metallic systems, proceed with caution.')
+                warnings.warn('Orbital Transformation method is being used for'
+                              'a system without a bandgap. OT can have very poor'
+                              'convergence for metallic systems, proceed with caution.', UserWarning)
             scf.insert(
                 OrbitalTransformation(
                     minimizer=minimizer,
@@ -492,7 +357,7 @@ class DftSet(Cp2kInputSet):
             mixing = Section('MIXING', keywords=mixing_kwds, subsections=None)
             scf.insert(mixing)
             davidson_kwds = {
-                "PRECONDITIONER": Keyword('PRECONDITIONER', 'FULL_SINGLE_INVERSE')
+                "PRECONDITIONER": Keyword('PRECONDITIONER', 'FULL_ALL')
             }
             davidson = Section('DAVIDSON', keywords=davidson_kwds, subsections=None)
             scf["DIAGONALIZATION"].insert(davidson)
@@ -529,7 +394,9 @@ class DftSet(Cp2kInputSet):
         self["FORCE_EVAL"]["DFT"].insert(xc)
         self["FORCE_EVAL"]["DFT"].insert(Section("PRINT", subsections={}))
 
-        # TODO: Ugly workaround...
+        if isinstance(structure, Molecule):
+            self.activate_nonperiodic()
+
         if kwargs.get('print_pdos', True):
             self.print_pdos()
         if kwargs.get('print_ldos', False):
@@ -537,16 +404,11 @@ class DftSet(Cp2kInputSet):
         if kwargs.get('print_mo_cubes', True):
             self.print_mo_cubes()
         if kwargs.get('print_hartree_potential', False):
-            self.print_hartree_potential(stride=kwargs.get('stride', [1, 1, 1]))
+            self.print_hartree_potential()
         if kwargs.get('print_e_density', False):
             self.print_e_density()
-        if kwargs.get('activate_fast_minimization', False):
-            self.activate_fast_minimization()
-        if kwargs.get('activate_robust_minimization', False):
-            self.activate_robust_minimization()
-        if kwargs.get('activate_very_strict_minimization', False):
-            self.activate_very_strict_minimization()
-        self.update(override_default_params)
+
+        self.update(self.override_default_params)
 
     def print_pdos(self, nlumo=-1):
         """
@@ -593,7 +455,6 @@ class DftSet(Cp2kInputSet):
         Print molecular orbitals when running non-OT diagonalization
         """
         raise NotImplementedError
-        pass
 
     def print_hartree_potential(self, stride=[1, 1, 1]):
         """
@@ -602,7 +463,13 @@ class DftSet(Cp2kInputSet):
         Note that by convention the potential has opposite sign than the expected physical one.
         """
         if not self.check("FORCE_EVAL/DFT/PRINT/V_HARTREE_CUBE"):
-            self["FORCE_EVAL"]["DFT"]["PRINT"].insert(V_Hartree_Cube(stride=stride))
+            self["FORCE_EVAL"]["DFT"]["PRINT"].insert(
+                V_Hartree_Cube(
+                    keywords={
+                        'STRIDE': Keyword('STRIDE', *stride)
+                    }
+                )
+            )
 
     def print_e_density(self):
         """
@@ -617,18 +484,202 @@ class DftSet(Cp2kInputSet):
         """
         self["FORCE_EVAL"]["DFT"]['CHARGE'] = Keyword("CHARGE", charge)
 
-    def activate_fast_minimization(self):
+    def activate_hybrid(
+        self,
+        hybrid_functional: str = "PBE0",
+        hf_fraction: float = 0.25,
+        gga_x_fraction: float = 0.75,
+        gga_c_fraction: float = 1,
+        max_memory: int = 2000,
+        cutoff_radius: float = 8.,
+        potential_type: str = None,
+        omega: float = .2,
+        aux_basis: Union[Dict, None] = None,
+        admm: bool = True,
+        eps_schwarz: float = 1e-6,
+        eps_schwarz_forces: float = 1e-6,
+        screen_on_initial_p: bool = True,
+        screen_p_forces: bool = True
+    ):
+
+        """
+        Basic set for activating hybrid DFT calculation using Auxiliary Density Matrix Method.
+
+        Note 1: When running ADMM with cp2k, memory is very important. If the memory requirements exceed
+        what is available (see max_memory), then CP2K will have to calculate the 4-electron integrals
+        for HFX during each step of the SCF cycle. ADMM provides a huge speed up by making the memory
+        requirements *feasible* to fit into RAM, which means you only need to calculate the integrals
+        once each SCF cycle. But, this only works if it fits into memory. When setting up ADMM
+        calculations, we recommend doing whatever is possible to fit all the 4EI into memory.
+
+        Note 2: This set is designed for reliable high-throughput calculations, NOT for extreme
+        accuracy. Please review the in-line comments in this method if you want more control.
+
+        Args:
+            hybrid_functional (str): Type of hybrid functional. This set supports HSE (screened) and PBE0
+                (truncated). Default is PBE0, which converges easier in the GPW basis used by
+                cp2k.
+            hf_fraction (float): fraction of exact HF exchange energy to mix. Default: 0.25
+            gga_x_fraction (float): fraction of gga exchange energy to retain. Default: 0.75
+            gga_c_fraction (float): fraction of gga correlation energy to retain. Default: 1.0
+            max_memory (int): Maximum memory available to each MPI process (in Mb) in the calculation.
+                Most modern computing nodes will have ~2Gb per core, or 2048 Mb, but check for
+                your specific system. This value should be as large as possible while still leaving
+                some memory for the other parts of cp2k. Important: If this value is set larger
+                than the memory limits, CP2K will likely seg-fault.
+                Default: 2000
+            cutoff_radius (float): for truncated hybrid functional (i.e. PBE0), this is the cutoff
+                radius. The default is selected as that which generally gives convergence, but
+                maybe too low (if you want very high accuracy) or too high (if you want a quick
+                screening). Default: 8 angstroms
+            potential_type (str): what interaction potential to use for HFX. Available in CP2K are
+                COULOMB, GAUSSIAN, IDENTITY, LOGRANGE, MIX_CL, MIX_CL_TRUNC, MIX_LG, SHORTRANGE,
+                and TRUNCATED. Default is None, and it will be set automatically depending on the
+                named hybrid_functional that you use, but setting it to one of the acceptable
+                values will constitute a user-override.
+            omega (float): For HSE, this specifies the screening parameter. HSE06 sets this as
+                0.2, which is the default.
+            aux_basis (dict): If you want to specify the aux basis to use, specify it as a dict of
+                the form {'specie_1': 'AUX_BASIS_1', 'specie_2': 'AUX_BASIS_2'}
+            admm (bool): Whether or not to use the auxiliary density matrix method for the exact
+                HF exchange contribution. Highly recommended. Speed ups between 10x and aaa1000x are
+                possible when compared to non ADMM hybrid calculations. Default: True
+            eps_schwarz (float): Screening threshold for HFX, in Ha. Contributions smaller than this
+                will be screened. The smaller the value, the more accurate, but also the more
+                costly. Default value is 1e-6, which is quite aggressive. Aggressive screening
+                can also lead to convergence issues. 1e-7 should be a safe value if 1e-6 is too
+                aggressive.
+            eps_schwarz_forces (float): Same as for eps_schwarz, but for screening contributions to
+                forces. Convergence is not as sensitive with respect to eps_schwarz forces as
+                compared to eps_schwarz, and so 1e-6 should be good default.
+            screen_on_initial_p (bool): If an initial density matrix is provided, in the form of a
+                CP2K wfn restart file, then this initial density will be used for screening. This
+                is generally very computationally efficient, but, as with eps_schwarz, can lead to
+                instabilities if the initial density matrix is poor.
+            screen_p_forces (bool): Same as screen_on_initial_p, but for screening of forces.
+        """
+        if admm:
+            aux_basis = aux_basis if aux_basis else {}
+            aux_basis = {s: aux_basis[s] if s in aux_basis else None for s in self.structure.symbol_set}
+            basis = get_aux_basis(basis_type=aux_basis)
+            if isinstance(self["FORCE_EVAL"]["DFT"]['BASIS_SET_FILE_NAME'],
+                          KeywordList):
+                self["FORCE_EVAL"]["DFT"]['BASIS_SET_FILE_NAME'].extend(
+                    [Keyword("BASIS_SET_FILE_NAME", k) for k in ['BASIS_ADMM', 'BASIS_ADMM_MOLOPT']],
+                )
+
+            for k, v in self["FORCE_EVAL"]["SUBSYS"].subsections.items():
+                if "KIND" == v.name.upper():
+                    kind = v["ELEMENT"].values[0]
+                    v.keywords['BASIS_SET'] += Keyword("BASIS_SET", "AUX_FIT", basis[kind])
+
+            # Don't change unless you know what you're doing
+            # Use NONE for accurate eigenvalues (static calcs)
+            aux_matrix_params = {
+                "ADMM_PURIFICATION_METHOD": Keyword("ADMM_PURIFICATION_METHOD", "NONE"),
+                "METHOD": Keyword("METHOD", "BASIS_PROJECTION"),
+            }
+            aux_matrix = Section(
+                "AUXILIARY_DENSITY_MATRIX_METHOD",
+                keywords=aux_matrix_params,
+                subsections={},
+            )
+            self.subsections["FORCE_EVAL"]["DFT"].insert(aux_matrix)
+
+        # Define the GGA functional as PBE
+        pbe = PBE("ORIG", scale_c=gga_c_fraction, scale_x=gga_x_fraction)
+        xc_functional = XC_FUNCTIONAL("PBE", subsections={"PBE": pbe})
+
+        screening = Section(
+            "SCREENING",
+            subsections={},
+            keywords={
+                "EPS_SCHWARZ": Keyword("EPS_SCHWARZ", eps_schwarz),
+                "EPS_SCHWARZ_FORCES": Keyword("EPS_SCHWARZ_FORCES", eps_schwarz_forces),
+                "SCREEN_ON_INITIAL_P": Keyword("SCREEN_ON_INITIAL_P", screen_on_initial_p),
+                "SCREEN_P_FORCES": Keyword("SCREEN_P_FORCES", screen_p_forces),
+            },
+        )
+
+        ip_keywords = {}
+        if hybrid_functional == "HSE06":
+            potential_type = potential_type if potential_type else 'SHORTRANGE'
+            xc_functional.insert(
+                Section(
+                    "XWPBE",
+                    subsections={},
+                    keywords={
+                        "SCALE_X0": Keyword("SCALE_X0", 1),
+                        "SCALE_X": Keyword("SCALE_X", -hf_fraction),
+                        "OMEGA": Keyword("OMEGA", omega),
+                    },
+                )
+            )
+            ip_keywords.update(
+                {
+                    "POTENTIAL_TYPE": Keyword("POTENTIAL_TYPE", potential_type),
+                    "OMEGA": Keyword("OMEGA", omega),
+                }
+            )
+        elif hybrid_functional == "PBE0":
+            potential_type = potential_type if potential_type else 'TRUNCATED'
+            ip_keywords.update(
+                {
+                    "POTENTIAL_TYPE": Keyword("POTENTIAL_TYPE", potential_type),
+                    "CUTOFF_RADIUS": Keyword("CUTOFF_RADIUS", cutoff_radius),
+                    "T_C_G_DATA": Keyword("T_C_G_DATA", "t_c_g.dat"),
+                }
+            )
+        interaction_potential = Section(
+            "INTERACTION_POTENTIAL", subsections={}, keywords=ip_keywords
+        )
+
+        # Unlikely for users to override
+        load_balance = Section(
+            "LOAD_BALANCE",
+            keywords={"RANDOMIZE": Keyword("RANDOMIZE", True)},
+            subsections={},
+        )
+
+        # EPS_STORAGE_SCALING squashes the integrals for efficient storage
+        # Unlikely for users to override.
+        memory = Section(
+            "MEMORY",
+            subsections={},
+            keywords={
+                "EPS_STORAGE_SCALING": Keyword("EPS_STORAGE_SCALING", 0.1),
+                "MAX_MEMORY": Keyword("MAX_MEMORY", max_memory),
+            },
+        )
+        hf = Section(
+            "HF",
+            keywords={"FRACTION": Keyword("FRACTION", hf_fraction)},
+            subsections={
+                "SCREENING": screening,
+                "INTERACTION_POTENTIAL": interaction_potential,
+                "LOAD_BALANCE": load_balance,
+                "MEMORY": memory,
+            },
+        )
+        xc = Section(
+            "XC", subsections={"XC_FUNCTIONAL": xc_functional, "HF": hf}
+        )
+
+        self.subsections["FORCE_EVAL"]["DFT"].insert(xc)
+
+    def activate_fast_minimization(self, on):
         """
         Method to modify the set to use fast SCF minimization.
         """
-        ot = OrbitalTransformation(
-            minimizer="DIIS",
-            preconditioner="FULL_ALL",
-            algorithm="IRAC",
-            energy_gap=0.01,
-            linesearch="2PNT",
-        )
-        self.update({"FORCE_EVAL": {"DFT": {"SCF": {"OT": ot}}}})
+        if on:
+            ot = OrbitalTransformation(
+                minimizer="DIIS",
+                preconditioner="FULL_ALL",
+                algorithm="IRAC",
+                energy_gap=0.01,
+                linesearch="2PNT",
+            )
+            self.update({"FORCE_EVAL": {"DFT": {"SCF": {"OT": ot}}}})
 
     def activate_robust_minimization(self):
         """
@@ -636,7 +687,7 @@ class DftSet(Cp2kInputSet):
         """
         ot = OrbitalTransformation(
             minimizer="CG",
-            preconditioner="FULL_SINGLE_INVERSE",
+            preconditioner="FULL_ALL",
             algorithm="STRICT",
             energy_gap=0.05,
             linesearch="3PNT",
@@ -650,7 +701,7 @@ class DftSet(Cp2kInputSet):
         """
         ot = OrbitalTransformation(
             minimizer="CG",
-            preconditioner="FULL_SINGLE_INVERSE",
+            preconditioner="FULL_ALL",
             algorithm="STRICT",
             energy_gap=0.05,
             linesearch="GOLD",
@@ -660,14 +711,25 @@ class DftSet(Cp2kInputSet):
     def activate_nonperiodic(self):
         """
         Activates a calculation with non-periodic calculations by turning of PBC and
-        changing the poisson solver.
+        changing the poisson solver. Still requires a CELL to put the atoms
         """
-        self['FORCE_EVAL']['SUBSYS']['CELL'].keywords.apped(Keyword('PERIODIC', 'NONE'))
         kwds = {
             "POISSON_SOLVER": Keyword('POISSON_SOLVER', 'MT'),
             "PERIODIC": Keyword('PERIODIC', 'NONE')
         }
         self['FORCE_EVAL']['DFT'].insert(Section('POISSON', subsections={}, keywords=kwds))
+        if not self.check('FORCE_EVAL/SUBSYS/CELL'):
+            x = max([s.coord[0] for s in self.structure.sites])
+            y = max([s.coord[1] for s in self.structure.sites])
+            z = max([s.coord[2] for s in self.structure.sites])
+            self['FORCE_EVAL']['SUBSYS'].insert(
+                Cell(
+                    lattice=Lattice([[x, 0, 0],
+                                     [0, y, 0],
+                                     [0, 0, z]])
+                )
+            )
+        self['FORCE_EVAL']['SUBSYS']['CELL'] += Keyword('PERIODIC', 'NONE')
 
 
 class StaticSet(DftSet):
@@ -845,6 +907,10 @@ class HybridStaticSet(StaticSet):
         omega: float = .2,
         aux_basis: Union[Dict, None] = None,
         admm: bool = True,
+        eps_schwarz: float = 1e-6,
+        eps_schwarz_forces: float = 1e-6,
+        screen_on_initial_p: bool = True,
+        screen_p_forces: bool = True,
         **kwargs
     ):
         """
@@ -873,6 +939,10 @@ class HybridStaticSet(StaticSet):
         self.omega = omega
         self.aux_basis = aux_basis
         self.admm = admm
+        self.eps_schwarz = eps_schwarz
+        self.eps_schwarz_forces = eps_schwarz_forces
+        self.screen_on_initial_p = screen_on_initial_p
+        self.screen_p_forces = screen_p_forces
         self.kwargs = kwargs
 
         self.activate_hybrid(
@@ -884,7 +954,11 @@ class HybridStaticSet(StaticSet):
             cutoff_radius=cutoff_radius,
             omega=omega,
             aux_basis=aux_basis,
-            admm=admm
+            admm=admm,
+            eps_schwarz=eps_schwarz,
+            eps_schwarz_forces=eps_schwarz_forces,
+            screen_on_initial_p=screen_on_initial_p,
+            screen_p_forces=screen_p_forces
         )
         self.update(override_default_params)
 
@@ -900,7 +974,7 @@ class HybridRelaxSet(RelaxSet):
         structure: Union[Structure, Molecule],
         hybrid_functional: str = "PBE0",
         hf_fraction: float = 0.25,
-        project_name: str = "Hybrid-Static",
+        project_name: str = "Hybrid-Relax",
         gga_x_fraction: float = 0.75,
         gga_c_fraction: float = 1,
         override_default_params: Dict = {},
@@ -909,6 +983,10 @@ class HybridRelaxSet(RelaxSet):
         omega: float = .2,
         aux_basis: Union[Dict, None] = None,
         admm: bool = True,
+        eps_schwarz: float = 1e-6,
+        eps_schwarz_forces: float = 1e-6,
+        screen_on_initial_p: bool = True,
+        screen_p_forces: bool = True,
         **kwargs
     ):
         """
@@ -937,6 +1015,10 @@ class HybridRelaxSet(RelaxSet):
         self.omega = omega
         self.aux_basis = aux_basis
         self.admm = admm
+        self.eps_schwarz = eps_schwarz
+        self.eps_schwarz_forces = eps_schwarz_forces
+        self.screen_on_initial_p = screen_on_initial_p
+        self.screen_p_forces = screen_p_forces
         self.kwargs = kwargs
 
         self.activate_hybrid(
@@ -948,7 +1030,11 @@ class HybridRelaxSet(RelaxSet):
             cutoff_radius=cutoff_radius,
             omega=omega,
             aux_basis=aux_basis,
-            admm=admm
+            admm=admm,
+            eps_schwarz=eps_schwarz,
+            eps_schwarz_forces=eps_schwarz_forces,
+            screen_on_initial_p=screen_on_initial_p,
+            screen_p_forces=screen_p_forces
         )
         self.update(override_default_params)
 
@@ -964,7 +1050,7 @@ class HybridCellOptSet(CellOptSet):
         structure: Union[Structure, Molecule],
         hybrid_functional: str = "PBE0",
         hf_fraction: float = 0.25,
-        project_name: str = "Hybrid-Static",
+        project_name: str = "Hybrid-CellOpt",
         gga_x_fraction: float = 0.75,
         gga_c_fraction: float = 1,
         override_default_params: Dict = {},
@@ -973,6 +1059,10 @@ class HybridCellOptSet(CellOptSet):
         omega: float = .2,
         aux_basis: Union[Dict, None] = None,
         admm: bool = True,
+        eps_schwarz: float = 1e-6,
+        eps_schwarz_forces: float = 1e-6,
+        screen_on_initial_p: bool = True,
+        screen_p_forces: bool = True,
         **kwargs
     ):
         """
@@ -1001,6 +1091,10 @@ class HybridCellOptSet(CellOptSet):
         self.omega = omega
         self.aux_basis = aux_basis
         self.admm = admm
+        self.eps_schwarz = eps_schwarz
+        self.eps_schwarz_forces = eps_schwarz_forces
+        self.screen_on_initial_p = screen_on_initial_p
+        self.screen_p_forces = screen_p_forces
         self.kwargs = kwargs
 
         self.activate_hybrid(
@@ -1012,6 +1106,10 @@ class HybridCellOptSet(CellOptSet):
             cutoff_radius=cutoff_radius,
             omega=omega,
             aux_basis=aux_basis,
-            admm=admm
+            admm=admm,
+            eps_schwarz=eps_schwarz,
+            eps_schwarz_forces=eps_schwarz_forces,
+            screen_on_initial_p=screen_on_initial_p,
+            screen_p_forces=screen_p_forces
         )
         self.update(override_default_params)

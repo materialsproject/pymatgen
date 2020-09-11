@@ -7,6 +7,7 @@ import re
 import numpy as np
 from ruamel import yaml
 from monty.serialization import loadfn
+from monty.io import zopen
 from pathlib import Path
 
 from pymatgen import SETTINGS
@@ -22,27 +23,73 @@ def _postprocessor(s):
     s = s.rstrip()  # Remove leading/trailing whitespace
     s = s.replace(" ", "_")  # Remove whitespaces
 
-    if s.lower() == "no" or s.lower() == "none":
+    if s.lower() == "no":
         return False
+    elif s.lower() == "none":
+        return None
     elif s.lower() == "yes" or s.lower() == 'true':
         return True
     elif re.match(r"^-?\d+$", s):
         try:
             return int(s)
         except ValueError:
-            raise IOError("Error in parsing CP2K output file.")
+            raise IOError("Error in parsing CP2K file.")
     elif re.match(r"^[+\-]?(?=.)(?:0|[1-9]\d*)?(?:\.\d*)?(?:\d[eE][+\-]?\d+)?$", s):
         try:
             return float(s)
         except ValueError:
-            raise IOError("Error in parsing CP2K output file.")
+            raise IOError("Error in parsing CP2K file.")
     elif re.match(r"\*+", s):
         try:
             return np.NaN
         except ValueError:
-            raise IOError("Error in parsing CP2K output file.")
+            raise IOError("Error in parsing CP2K file.")
     else:
         return s
+
+
+def _preprocessor(s):
+    """
+    Cp2k contains internal preprocessor flags that are evaluated before
+    excecution. This helper function recognizes those preprocessor flags
+    and replacees them with an equivalent cp2k input (this way everything
+    is contained neatly in the cp2k input structure, even if the user
+    preferred to use the flags.
+
+    CP2K preprocessor flags (with arguments) are:
+
+        @INCLUDE FILENAME: Insert the contents of FILENAME into the file at
+            this location.
+        @SET VAR VALUE: set a variable, VAR, to have the value, VALUE.
+        $VAR or ${VAR}: replace these with the value of the variable, as set
+            by the @SET flag.
+        @IF/@ELIF: Not implemented yet.
+
+    Args:
+        s (str): string representation of cp2k input to preprocess
+    """
+    includes = re.findall(r"(@include.+)", s, re.IGNORECASE)
+    for incl in includes:
+        inc = incl.split()
+        assert len(inc) == 2  # @include filename
+        inc = inc[1].strip('\'')
+        inc = inc.strip('\"')
+        with zopen(inc) as f:
+            s = re.sub(r"{}".format(incl), f.read(), s)
+    variable_sets = re.findall(r"(@SET.+)", s, re.IGNORECASE)
+    for match in variable_sets:
+        v = match.split()
+        assert len(v) == 3  # @SET VAR value
+        var, value = v[1:]
+        s = re.sub(r"{}".format(match), "", s)
+        s = re.sub(r"\${?"+var+"}?", value, s)
+
+    c1 = re.findall(r"@IF", s, re.IGNORECASE)
+    c2 = re.findall(r"@ELIF", s, re.IGNORECASE)
+    if len(c1) > 0 or len(c2) > 0:
+        raise NotImplementedError("This cp2k input processer does not currently "
+                                  "support conditional blocks.")
+    return s
 
 
 def natural_keys(text):
@@ -53,7 +100,6 @@ def natural_keys(text):
     """
     def atoi(t):
         return int(t) if t.isdigit() else t
-
     return [atoi(c) for c in re.split(r'_(\d+)', text)]
 
 
@@ -125,7 +171,6 @@ def get_basis_and_potential(species, d, cardinality='DZVP', functional='PBE'):
         if len(p) == 0:
             raise LookupError('NO PSEUDOPOTENTIAL OF THAT TYPE AVAILABLE')
         if len(p) > 1:
-            print(p)
             raise LookupError('AMBIGUITY IN POTENTIAL. PLEASE SPECIFY FURTHER')
 
         basis_and_potential[s]['potential'] = p[0]
@@ -133,33 +178,41 @@ def get_basis_and_potential(species, d, cardinality='DZVP', functional='PBE'):
     return basis_and_potential
 
 
-def get_aux_basis(species, basis_type="cFIT"):
+def get_aux_basis(basis_type, default_basis_type='cFIT'):
     """
     Get auxiliary basis info for a list of species.
 
     Args:
-        species (list): list of species to get info for
-        basis_type (dict): default basis type to look for. Otherwise, follow defaults.
+        basis_type (dict): dict of auxiliary basis sets to use. i.e:
+            basis_type = {'Si': 'cFIT', 'O': 'cpFIT'}. Basis type needs to
+            exist for that species.
 
-        Basis types:
-            FIT
-            cFIT
-            pFIT
-            cpFIT
-            GTH-def2
-            aug-{FIT,cFIT,pFIT,cpFIT, GTH-def2}
+            Basis types:
+                FIT
+                cFIT
+                pFIT
+                cpFIT
+                GTH-def2
+                aug-{FIT,cFIT,pFIT,cpFIT, GTH-def2}
+
+        default_basis_type (str) default basis type if n
+
     """
-    basis_type = basis_type if basis_type else {s: 'cFIT' for s in species}
-    basis = {k: {} for k in species}
+    default_basis_type = default_basis_type or SETTINGS.get("PMG_CP2K_DEFAULT_AUX_BASIS_TYPE")
+    basis_type = {k: basis_type[k] if basis_type[k] else default_basis_type for k in basis_type}
+    basis = {k: {} for k in basis_type}
     aux_bases = loadfn(os.path.join(MODULE_DIR, 'aux_basis.yaml'))
-    for k in species:
-        if isinstance(aux_bases[k], list):
-            for i in aux_bases[k]:
-                if i.startswith(basis_type[k]):
-                    basis[k] = i
-                    break
-        else:
-            basis[k] = aux_bases[k]
+    for k in basis_type:
+        for i in aux_bases[k]:
+            if i.startswith(basis_type[k]):
+                basis[k] = i
+                break
+    for k in basis:
+        if not basis[k]:
+            if aux_bases[k]:
+                basis[k] = aux_bases[k][0]
+            else:
+                raise LookupError("NO BASIS OF THAT TYPE")
     return basis
 
 
