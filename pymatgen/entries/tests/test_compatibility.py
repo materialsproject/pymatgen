@@ -1903,7 +1903,7 @@ class TestMaterialsProjectAqueousCompatibility:
     def test_h_h2o_energy_with_args(self):
 
         compat = MaterialsProjectAqueousCompatibility(
-            o2_energy=-4.9276, h2o_energy=-5.195, h2o_adjustments=-0.234
+            o2_energy=-4.9276, h2o_energy=-5.195, h2o_adjustments=-0.234, solid_compat=None
         )
 
         h2o_entry_1 = ComputedEntry(Composition("H2O"), -16)
@@ -1932,7 +1932,7 @@ class TestMaterialsProjectAqueousCompatibility:
         with pytest.warns(
             UserWarning, match="You did not provide the required O2 and H2O energies."
         ):
-            compat = MaterialsProjectAqueousCompatibility()
+            compat = MaterialsProjectAqueousCompatibility(solid_compat=None)
 
         h2o_entry_1 = ComputedEntry(
             Composition("H2O"), (-5.195 + 0.234) * 3, correction=-0.234 * 3
@@ -1974,7 +1974,7 @@ class TestMaterialsProjectAqueousCompatibility:
 
     def test_compound_entropy(self):
         compat = MaterialsProjectAqueousCompatibility(
-            o2_energy=-10, h2o_energy=-20, h2o_adjustments=-0.5
+            o2_energy=-10, h2o_energy=-20, h2o_adjustments=-0.5, solid_compat=None
         )
 
         o2_entry_1 = ComputedEntry(Composition("O2"), -4.9276 * 2)
@@ -1989,7 +1989,7 @@ class TestMaterialsProjectAqueousCompatibility:
 
     def test_hydrate_adjustment(self):
         compat = MaterialsProjectAqueousCompatibility(
-            o2_energy=-10, h2o_energy=-20, h2o_adjustments=-0.5
+            o2_energy=-10, h2o_energy=-20, h2o_adjustments=-0.5, solid_compat=None
         )
 
         hydrate_entry = ComputedEntry(Composition("FeH4O2"), -10)

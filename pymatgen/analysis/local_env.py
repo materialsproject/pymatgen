@@ -802,7 +802,7 @@ class VoronoiNN(NearNeighbors):
         # Get the non-duplicates (using the site indices for numerical stability)
         indices = np.array(indices, dtype=np.int)
         indices, uniq_inds = np.unique(indices, return_index=True, axis=0)
-        sites = np.array(sites)[uniq_inds]
+        sites = [sites[i] for i in uniq_inds]
 
         # Sort array such that atoms in the root image are first
         #   Exploit the fact that the array is sorted by the unique operation such that
