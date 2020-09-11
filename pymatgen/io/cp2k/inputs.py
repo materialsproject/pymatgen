@@ -151,11 +151,11 @@ class Keyword(MSONable):
                        units=units[0],
                        description=description)
 
-    def silence(self):
+    def verbosity(self, v):
         """
-        Deactivate the printing of this keyword's description.
+        Change the printing of this keyword's description.
         """
-        self.verbose = False
+        self.verbose = v
 
 
 class KeywordList(MSONable, Sequence):
@@ -215,12 +215,12 @@ class KeywordList(MSONable, Sequence):
         """
         return " \n".join(["\t" * indent + k.__str__() for k in self.keywords])
 
-    def silence(self):
+    def verbosity(self, verbosity):
         """
         Silence all keywords in keyword list
         """
         for k in self.keywords:
-            k.silence()
+            k.verbosity(verbosity)
 
 
 class Section(MSONable):
@@ -380,12 +380,15 @@ class Section(MSONable):
         Delete section with name matching key OR delete all keywords
         with names matching this key
         """
-        if key in self.subsections:
-            del self.subsections[key]
-        elif key in self.keywords:
-            del self.keywords[key]
-        else:
-            raise KeyError("No section or keyword matching the given key.")
+        l = [s for s in self.subsections if s.upper() == key.upper()]
+        if l:
+            del self.subsections[l[0]]
+            return
+        l = [k for k in self.keywords if k.upper() == key.upper()]
+        if l:
+            del self.keywords[l[0]]
+            return
+        raise KeyError("No section or keyword matching the given key.")
 
     def __sub__(self, other):
         return self.__delitem__(other)
@@ -414,7 +417,7 @@ class Section(MSONable):
         Helper method for self.update(d) method (see above).
         """
         for k, v in d2.items():
-            if isinstance(v, (str, float, bool)):
+            if isinstance(v, (str, float, int, bool)):
                 d1[k] = Keyword(k, v)
             elif isinstance(v, (Keyword, KeywordList)):
                 d1[k] = v
@@ -424,6 +427,9 @@ class Section(MSONable):
                 return Section._update(d1.subsections[k], v)
             elif isinstance(v, Section):
                 d1.insert(v)
+            else:
+                print(type(v))
+                raise TypeError("Unrecognized type.")
 
     def set(self, d: dict):
         """
@@ -436,7 +442,7 @@ class Section(MSONable):
         Dict based deletion. Used by custodian.
         """
         for k, v in d.items():
-            if isinstance(v, (str, float, bool)):
+            if isinstance(v, (str, float, int, bool)):
                 del self[k][v]
             elif isinstance(v, (Keyword, Section, KeywordList)):
                 del self[k][v.name]
@@ -457,6 +463,7 @@ class Section(MSONable):
             elif isinstance(v, dict):
                 self[k].inc(v)
             else:
+                print()
                 TypeError("Can only add sections or keywords.")
 
     def insert(self, d):
@@ -536,16 +543,27 @@ class Section(MSONable):
 
         return string
 
+    def verbosity(self, verbosity):
+        """
+        Change the section verbossity recursively by turning on/off the printing of descriptions.
+        Turning off descriptions may reduce the appealing documentation of input files, but also
+        helps de-clutter them.
+        """
+        self.verbose = verbosity
+        for k, v in self.keywords.items():
+            v.verbosity(verbosity)
+        for k, v in self.subsections.items():
+            v.verbosity(verbosity)
+
     def silence(self):
         """
-        Silence the section recursively by turning off the printing of descriptions. This may reduce
-        the appealing documentation of input files, but also helps de-clutter them.
+        Recursively delete all print sections so that only defaults are printed out.
         """
-        self.verbose = False
-        for k, v in self.keywords.items():
-            v.silence()
-        for k, v in self.subsections.items():
-            v.silence()
+        if self.subsections:
+            if self.subsections.get('PRINT'):
+                del self.subsections['PRINT']
+            for _s in self.subsections:
+                self.subsections[_s].silence()
 
 
 class Cp2kInput(Section):
@@ -1258,6 +1276,50 @@ class Kind(Section):
             location=self.location,
             verbose=self.verbose,
             **self.kwargs
+        )
+
+
+class DftPlusU(Section):
+
+    """
+    Controls DFT+U for an atom kind
+    """
+
+    def __init__(self, eps_u_ramping=1e-5, init_u_ramping_each_scf=False, l=-1, u_minus_j=0, u_ramping=0):
+        """
+        Initialize the DftPlusU section.
+
+        Args:
+            eps_u_ramping: (float) SCF convergence threshold at which to start ramping the U value
+            init_u_ramping_each_scf: (bool) Whether or not to do u_ramping each scf cycle
+            l: (int) angular moment of the orbital to apply the +U correction
+            u_minus_j: (float) the effective U parameter, Ueff = U-J
+            u_ramping: (float) stepwise amount to increase during ramping until u_minus_j is reached
+        """
+
+        self.name = 'DFT_PLUS_U'
+        self.eps_u_ramping = 1e-5
+        self.init_u_ramping_each_scf = False
+        self.l = l
+        self.u_minus_j = u_minus_j
+        self.u_ramping = u_ramping
+
+        keywords = {
+            'EPS_U_RAMPING': Keyword('EPS_U_RAMPING', eps_u_ramping),
+            'INIT_U_RAMPING_EACH_SCF': Keyword('INIT_U_RAMPING_EACH_SCF', init_u_ramping_each_scf),
+            'L': Keyword('L', l),
+            'U_MINUS_J': Keyword('U_MINUS_J', u_minus_j),
+            'U_RAMPING': Keyword('U_RAMPING', u_ramping)
+        }
+
+        super(DftPlusU, self).__init__(
+            name=self.name,
+            subsections=None,
+            description=self.description,
+            keywords=keywords,
+            section_parameters=self.section_parameters,
+            alias=None,
+            location=None
         )
 
 

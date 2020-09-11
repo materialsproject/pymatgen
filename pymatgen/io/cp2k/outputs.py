@@ -22,7 +22,7 @@ from pymatgen.core.sites import Site
 from pymatgen.core.structure import Structure
 from pymatgen.core.units import bohr_to_angstrom as _bohr_to_angstrom_
 from pymatgen.electronic_structure.core import Spin, Orbital
-from pymatgen.electronic_structure.dos import Dos, add_densities
+from pymatgen.electronic_structure.dos import Dos, add_densities, CompleteDos
 from pymatgen.io.xyz import XYZ
 
 from pymatgen.io.cp2k.sets import Cp2kInput
@@ -100,6 +100,7 @@ class Cp2kOutput:
             self.parse_forces()  # get forces on all atoms (in order), if available
             self.parse_stresses()  # get stress tensor and total stress at each ionic step, if available
             self.parse_ionic_steps()  # collect energy, forces, and total stress into ionic steps variable
+            self.parse_dos()
 
             self.parse_mo_eigenvalues()  # Get the eigenvalues of the MOs (for finding gaps, VBM, CBM)
             self.parse_homo_lumo()  # Get the HOMO LUMO gap as printed after the mo eigenvalues
@@ -142,7 +143,7 @@ class Cp2kOutput:
         """
         What type of run (Energy, MD, etc.) was performed
         """
-        return self.data.get("global").get("run_type")
+        return self.data.get("global").get("Run_type")
 
     @property
     def project_name(self):
@@ -1109,148 +1110,78 @@ class Cp2kOutput:
         self.data['band_gap'] = bg
         self.band_gap = (bg[Spin.up][-1]+bg[Spin.down][-1])/2 if bg[Spin.up] and bg[Spin.down] else None
 
-    # TODO: Turn pdos and ldos functions into special instances of more general dos parser
-    def parse_ldos(self, ldos_files=None):
+    def parse_dos(self, pdos_files=None, ldos_files=None, sigma=0):
         """
-        Not implemented
-        """
-        raise NotImplementedError
-
-    # TODO: Pdos needs to be smeared when visualized (esp for Gamma point only DOS), but pymatgen smearing
-    # doesn't give correct looking DOS... Using in-method smearing until resolved.
-    # TODO: Turn pdos and ldos functions into special instances of more general dos parser
-    def parse_pdos(self, pdos_files=None, sigma=0.2):
-        """
-        Parse the pdos files created by cp2k, and assimilate them into a CompleteDos object.
-        Either provide a list of PDOS file paths, or use glob to find the .pdos extension in
+        Parse the pdos_ALPHA files created by cp2k, and assimilate them into a CompleteDos object.
+        Either provide a list of PDOS file paths, or use glob to find the .pdos_ALPHA extension in
         the calculation directory.
 
         Args:
-            pdos_files (list): list of pdos file paths
+            pdos_files (list): list of pdos file paths, otherwise they will be inferred
+            ldos_Files (list): list of ldos file paths, otherwise they will be inferred
+            sigma (float): Gaussian smearing parameter, if desired. Because cp2k is generally
+                used as a gamma-point only code, this is often needed to get smooth DOS that
+                are comparable to k-point averaged DOS
         """
         if pdos_files is None:
             pdos_files = self.filenames["PDOS"]
-            if len(pdos_files) == 0:
-                raise FileNotFoundError(
-                    "Unable to automatically located PDOS files in the calculation directory"
-                )
-        pdoss = {}
+
+        if ldos_files is None:
+            ldos_files = self.filenames["LDOS"]
+
+        # Parse specie projected dos
+        tdos, pdoss, ldoss = None, {}, {}
         for pdos_file in pdos_files:
-            if os.path.split(pdos_file)[-1].__contains__("BETA"):
-                spin = -1
+            _pdos, _tdos = parse_dos(pdos_file, total=True, sigma=sigma)
+            for k in _pdos:
+                if k in pdoss:
+                    for orbital in _pdos[k]:
+                        pdoss[k][orbital].densities.update(_pdos[k][orbital].densities)
+                else:
+                    pdoss.update(_pdos)
+            if not tdos:
+                tdos = _tdos
             else:
-                spin = 1
-            with zopen(pdos_file, "rt") as f:
-                lines = f.readlines()
-                kind = re.search(
-                    r"atomic kind\s(.*)\sat iter", lines[0]
-                ).groups()[0]
-                if kind not in pdoss.keys():
-                    pdoss[kind] = {}
-                efermi = float(lines[0].split()[-2]) * _hartree_to_ev_
-                header = re.split(r"\s{2,}", lines[1].replace("#", "").strip())
-                dat = np.loadtxt(pdos_file)
-                dat[:, 1] = dat[:, 1] * _hartree_to_ev_
-                for i in range(len(header)):
-                    if header[i] == "d-2":
-                        header[i] = "dxy"
-                    elif header[i] == "d-1":
-                        header[i] = "dyz"
-                    elif header[i] == "d0":
-                        header[i] = "dz2"
-                    elif header[i] == "d+1":
-                        header[i] = "dxz"
-                    elif header[i] == "d+2":
-                        header[i] = "dx2"
-                    elif header[i] == "f-3":
-                        header[i] = "f_3"
-                    elif header[i] == "f-2":
-                        header[i] = "f_2"
-                    elif header[i] == "f-1":
-                        header[i] = "f_1"
-                    elif header[i] == "f0":
-                        header[i] = "f0"
-                    elif header[i] == "f+1":
-                        header[i] = "f1"
-                    elif header[i] == "f+2":
-                        header[i] = "f2"
-                    elif header[i] == "f+3":
-                        header[i] = "f3"
-                energies = []
-                for i in range(2, len(header)):
-                    # TODO: How best to deal with this exception?
-                    # If you don't select "COMPONENTS" in PRINT/PDOS
-                    # then the names are not ang mom decomposed
-                    if header[i] == 'p':
-                        header[i] = 'px'
-                    elif header[i] == 'd':
-                        header[i] = 'dxy'
-                    elif header[i] == 'f':
-                        header[i] = 'f_3'
+                if not all([_tdos.densities.keys() == tdos.densities.keys()]):
+                    tdos.densities.update(_tdos.densities)
+                else:
+                    tdos.densities = add_densities(density1=_tdos.densities, density2=tdos.densities)
 
-                    if pdoss[kind].get(getattr(Orbital, header[i])):
-                        continue
-                    else:
-                        pdoss[kind][getattr(Orbital, header[i])] = {
-                            Spin.up: [],
-                            Spin.down: [],
-                        }
-                for r in dat:
-                    energies.append(float(r[1]))
-                    for i in range(3, len(r)):
-                        pdoss[kind][getattr(Orbital, header[i - 1])][
-                            Spin(spin)
-                        ].append(r[i])
-        tdos_densities = {
-            Spin.up: np.zeros(len(energies)),
-            Spin.down: np.zeros(len(energies)),
-        }
-        pdos_dict = {}
-        for el, orbitals in pdoss.items():
-            pdos_dict[el] = {}
-            pdos_densities = {
-                Spin.up: np.zeros(len(energies)),
-                Spin.down: np.zeros(len(energies)),
-            }
-            for orbital, d in orbitals.items():
-                if len(d[Spin.down]) == 0:
-                    d[Spin.down] = d[Spin.up].copy()
-                tdos_densities = add_densities(tdos_densities, d)
-                pdos_densities = add_densities(pdos_densities, d)
+        # parse any site-projected dos
+        for ldos_file in ldos_files:
+            _pdos = parse_dos(ldos_file)
+            for k in _pdos:
+                if k in ldoss:
+                    for orbital in _pdos[k]:
+                        ldoss[k][orbital].densities.update(_pdos[k][orbital].densities)
+                else:
+                    ldoss.update(parse_dos(ldos_file, sigma=sigma))
 
-            pdos_densities[Spin.up] = Cp2kOutput._gauss_smear(
-                pdos_densities[Spin.up], energies,
-                npts=len(energies), width=sigma)
-            pdos_densities[Spin.down] = Cp2kOutput._gauss_smear(
-                pdos_densities[Spin.down], energies,
-                npts=len(energies), width=sigma)
+        self.data['pdos'] = pdoss
+        self.data['ldos'] = ldoss
+        self.data['tdos'] = tdos
 
-            pdos_dict[el] = Dos(efermi=efermi,
-                                energies=np.linspace(min(energies), max(energies), len(energies)),
-                                densities=pdos_densities)
-
-        tdos_densities[Spin.up] = Cp2kOutput._gauss_smear(
-            tdos_densities[Spin.up], np.linspace(min(energies), max(energies), len(energies)),
-            npts=len(energies), width=sigma)
-        tdos_densities[Spin.down] = Cp2kOutput._gauss_smear(
-            tdos_densities[Spin.down], np.linspace(min(energies), max(energies), len(energies)),
-            npts=len(energies), width=sigma)
-
-        self.data["dos"] = Dos(
-            efermi=efermi, energies=energies, densities=tdos_densities
-        )
-        self.data[
-            "pdos"
-        ] = pdos_dict  # TODO pymatgen dos objects are supposed to be site decomposed
+        # If number of site-projected dos == number of sites, assume they are bijective
+        # and create the CompleteDos object
+        if len(ldoss) == len(self.initial_structure):
+            for k in ldoss:
+                ldoss[self.initial_structure[int(k)-1]] = ldoss.pop(k)
+            self.data['cdos'] = CompleteDos(self.structures, total_dos=tdos, pdoss=ldoss)
 
     @staticmethod
     def _gauss_smear(densities, energies, npts, width):
+
+        if not width:
+            return densities
+
         """Return a gaussian smeared DOS"""
         d = np.zeros(npts)
+        e_s = np.linspace(min(energies), max(energies), npts)
+
         for e, _pd in zip(energies, densities):
-            e_s = np.linspace(min(energies), max(energies), npts)
             weight = np.exp(-((e_s - e) / width) ** 2) / (np.sqrt(np.pi) * width)
             d += _pd * weight
+
         return d
 
     def read_pattern(
@@ -1417,7 +1348,130 @@ def parse_energy_file(energy_file):
     return d
 
 
-# TODO: Move to pymatgen.io?
+def parse_dos(dos_file=None, spin_channel=None, total=False, sigma=0):
+    """
+    Parse a single DOS file created by cp2k. Must contain one PDOS snapshot. i.e. you cannot
+    use this cannot deal with multiple concatenated dos files.
+
+    Args:
+        dos_file (list): list of pdos_ALPHA file paths
+        spin_channel (int): Which spin channel the file corresponds to. By default, CP2K will
+            write the file with ALPHA or BETA in the filename (for spin up or down), but
+            you can specify this here, in case you have a manual file name.
+            spin_channel == 1 --> spin up, spin_channel == -1 --> spin down.
+        total (bool): Whether to grab the total occupations, or the orbital decomposed ones.
+        sigma (float): width for gaussian smearing, if desired
+
+    Returns:
+        Everything necessary to create a dos object, in dict format:
+            (1) orbital decomposed DOS dict:
+                i.e. pdoss = {specie: {orbital.s: {Spin.up: ... }, orbital.px: {Spin.up: ... } ...}}
+            (2) energy levels of this dos file
+            (3) fermi energy (in eV).
+        DOS object is not created here
+
+    """
+    if spin_channel:
+        spin = Spin(spin_channel)
+    else:
+        spin = Spin.down if os.path.split(dos_file)[-1].__contains__("BETA") else Spin.up
+
+    with zopen(dos_file, "rt") as f:
+        lines = f.readlines()
+        kind = re.search(
+            r"atomic kind\s(.*)\sat iter", lines[0]
+        ) or re.search(
+            r"list\s(\d+)\s(.*)\sat iter", lines[0]
+        )
+        kind = kind.groups()[0]
+
+        efermi = float(lines[0].split()[-2]) * _hartree_to_ev_
+        header = re.split(r"\s{2,}", lines[1].replace("#", "").strip())[2:]
+        dat = np.loadtxt(dos_file)
+
+        def cp2k_to_pmg_labels(x):
+            if x == 'p':
+                return 'px'
+            elif x == 'd':
+                return 'dxy'
+            elif x == 'f':
+                return 'f_3'
+            elif x == "d-2":
+                return "dxy"
+            elif x == "d-1":
+                return "dyz"
+            elif x == "d0":
+                return "dz2"
+            elif x == "d+1":
+                return "dxz"
+            elif x == "d+2":
+                return "dx2"
+            elif x == "f-3":
+                return "f_3"
+            elif x == "f-2":
+                return "f_2"
+            elif x == "f-1":
+                return "f_1"
+            elif x == "f0":
+                return "f0"
+            elif x == "f+1":
+                return "f1"
+            elif x == "f+2":
+                return "f2"
+            elif x == "f+3":
+                return "f3"
+            return x
+
+        header = [cp2k_to_pmg_labels(h) for h in header]
+
+        data = dat[:, 1:]
+        data[:, 0] *= _hartree_to_ev_
+        energies = data[:, 0] * _hartree_to_ev_
+        data = gauss_smear(data, sigma)
+
+        pdos = {
+            kind: {
+                getattr(Orbital, h):
+                    Dos(
+                        efermi=efermi,
+                        energies=energies,
+                        densities={spin: data[:, i+2]}
+                    ) for i, h in enumerate(header)
+            }
+        }
+        if total:
+            tdos = Dos(
+                efermi=efermi,
+                energies=energies,
+                densities={spin: np.sum(data[:, 2:], axis=1)}
+            )
+            return pdos, tdos
+        else:
+            return pdos
+
+
+def gauss_smear(data, width):
+    """Return a gaussian smeared DOS"""
+
+    if not width:
+        return data
+
+    npts, nOrbitals = data.shape
+
+    e_s = np.linspace(np.min(data[:, 0]), np.max(data[:, 0]), data.shape[0])
+    grid = np.multiply(np.ones((npts, npts)), e_s).T
+
+    def foo(d):
+        return np.sum(
+            np.multiply(
+                np.exp(-(np.subtract(grid, data[:, 0]) / width) ** 2) / (np.sqrt(np.pi) * width),
+                d
+            ),
+            axis=1
+        )
+    return np.array([foo(data[:, i]) for i in range(1, nOrbitals)]).T
+
+
 class Cube:
     """
     From ERG Research Group with minor modifications.

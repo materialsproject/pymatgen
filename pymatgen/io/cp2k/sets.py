@@ -49,7 +49,7 @@ from pymatgen.io.cp2k.utils import (
     get_aux_basis,
     get_unique_site_indices,
 )
-from pymatgen import Element, Structure, Molecule
+from pymatgen import Element, Structure, Molecule, Lattice
 from typing import Dict, Union
 import warnings
 
@@ -711,13 +711,25 @@ class DftSet(Cp2kInputSet):
     def activate_nonperiodic(self):
         """
         Activates a calculation with non-periodic calculations by turning of PBC and
-        changing the poisson solver.
+        changing the poisson solver. Still requires a CELL to put the atoms
         """
         kwds = {
             "POISSON_SOLVER": Keyword('POISSON_SOLVER', 'MT'),
             "PERIODIC": Keyword('PERIODIC', 'NONE')
         }
         self['FORCE_EVAL']['DFT'].insert(Section('POISSON', subsections={}, keywords=kwds))
+        if not self.check('FORCE_EVAL/SUBSYS/CELL'):
+            x = max([s.coord[0] for s in self.structure.sites])
+            y = max([s.coord[1] for s in self.structure.sites])
+            z = max([s.coord[2] for s in self.structure.sites])
+            self['FORCE_EVAL']['SUBSYS'].insert(
+                Cell(
+                    lattice=Lattice([[x, 0, 0],
+                                     [0, y, 0],
+                                     [0, 0, z]])
+                )
+            )
+        self['FORCE_EVAL']['SUBSYS']['CELL'] += Keyword('PERIODIC', 'NONE')
 
 
 class StaticSet(DftSet):
