@@ -16,7 +16,7 @@ except (ImportError, RuntimeError):
 
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure import Lattice, Structure, Molecule
-from pymatgen.analysis.molecule_matcher import KabschMatcher, BruteForceOrderMatcher, HungarianOrderMatcher
+from pymatgen.analysis.molecule_matcher import KabschMatcher, BruteForceOrderMatcher, HungarianOrderMatcher, GeneticOrderMatcher
 
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
@@ -175,7 +175,7 @@ class KabschMatcherTest(unittest.TestCase):
 
         mm = KabschMatcher(mol1)
         _, _, rmsd = mm.match(mol2)
-        self.assertAlmostEqual(rmsd, 0.0028172956033732936, places=3)
+        self.assertAlmostEqual(rmsd, 0.0028172956033732936, places=8)
 
     def test_to_and_from_dict(self):
         mol1 = Molecule.from_file(os.path.join(test_dir, "t3.xyz"))
@@ -202,7 +202,7 @@ class KabschMatcherTest(unittest.TestCase):
 
         mm = KabschMatcher(mol1)
         _, rmsd = mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 0., places=3)
+        self.assertAlmostEqual(rmsd, 0., places=8)
 
     def test_mismatched_atom_composition(self):
 
@@ -240,14 +240,14 @@ class KabschMatcherTest(unittest.TestCase):
         mm = KabschMatcher(mol1)
 
         _, rmsd = mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 0.0028172956033732936, places=3)
+        self.assertAlmostEqual(rmsd, 0.0028172956033732936, places=8)
 
         mol1 = Molecule.from_file(os.path.join(test_dir, "oxygen1.xyz"))
         mol2 = Molecule.from_file(os.path.join(test_dir, "oxygen2.xyz"))
         mm = KabschMatcher(mol1)
 
         _, rmsd = mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 0.0, places=3)
+        self.assertAlmostEqual(rmsd, 0.0, places=8)
 
         mol1 = Molecule.from_file(os.path.join(test_dir, "t3.xyz"))
         mol2 = Molecule.from_file(os.path.join(test_dir, "t4.xyz"))
@@ -255,7 +255,7 @@ class KabschMatcherTest(unittest.TestCase):
         mm = KabschMatcher(mol1)
 
         _, rmsd = mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 0.0028172956033732936, places=3)
+        self.assertAlmostEqual(rmsd, 0.0028172956033732936, places=8)
 
 
 class HungarianOrderMatcherTest(unittest.TestCase):
@@ -267,7 +267,7 @@ class HungarianOrderMatcherTest(unittest.TestCase):
         mm = HungarianOrderMatcher(mol1)
 
         _, rmsd = mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 0.002825344731118855, places=3)
+        self.assertAlmostEqual(rmsd, 0.002825344731118855, places=8)
 
     def test_to_and_from_dict(self):
         mol1 = Molecule.from_file(os.path.join(test_dir, "t3.xyz"))
@@ -294,7 +294,7 @@ class HungarianOrderMatcherTest(unittest.TestCase):
 
         mm = HungarianOrderMatcher(mol1)
         _, rmsd = mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 0., places=3)
+        self.assertAlmostEqual(rmsd, 0., places=8)
 
     def test_mismatched_atom_composition(self):
 
@@ -313,56 +313,56 @@ class HungarianOrderMatcherTest(unittest.TestCase):
         mm = HungarianOrderMatcher(mol1)
 
         _, rmsd = mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 1.4171601659148593e-05, places=3)
+        self.assertAlmostEqual(rmsd, 1.4171601659148593e-05, places=8)
 
         mol1 = Molecule.from_file(os.path.join(test_dir, "c1.xyz"))
         mol2 = Molecule.from_file(os.path.join(test_dir, "c2.xyz"))
         mm = HungarianOrderMatcher(mol1)
 
         _, rmsd = mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 9.479012116064961e-05, places=3)
+        self.assertAlmostEqual(rmsd, 9.479012116064961e-05, places=8)
 
         mol1 = Molecule.from_file(os.path.join(test_dir, "t3.xyz"))
         mol2 = Molecule.from_file(os.path.join(test_dir, "t4.xyz"))
         mm = HungarianOrderMatcher(mol1)
 
         _, rmsd = mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 0.002825344731118855, places=3)
+        self.assertAlmostEqual(rmsd, 0.002825344731118855, places=8)
 
         mol1 = Molecule.from_file(os.path.join(test_dir, "j1.xyz"))
         mol2 = Molecule.from_file(os.path.join(test_dir, "j2.xyz"))
         mm = HungarianOrderMatcher(mol1)
 
         _, rmsd = mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 9.28245597473488e-05, places=3)
+        self.assertAlmostEqual(rmsd, 9.28245597473488e-05, places=8)
 
         mol1 = Molecule.from_file(os.path.join(test_dir, "ethene1.xyz"))
         mol2 = Molecule.from_file(os.path.join(test_dir, "ethene2.xyz"))
         mm = HungarianOrderMatcher(mol1)
 
         _, rmsd = mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 0.00021150729609276233, places=3)
+        self.assertAlmostEqual(rmsd, 0.00021150729609276233, places=8)
 
         mol1 = Molecule.from_file(os.path.join(test_dir, "toluene1.xyz"))
         mol2 = Molecule.from_file(os.path.join(test_dir, "toluene2.xyz"))
         mm = HungarianOrderMatcher(mol1)
 
         _, rmsd = mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 0.0001445787263551832, places=3)
+        self.assertAlmostEqual(rmsd, 0.0001445787263551832, places=8)
 
         mol1 = Molecule.from_file(os.path.join(test_dir, "cyclohexane1.xyz"))
         mol2 = Molecule.from_file(os.path.join(test_dir, "cyclohexane2.xyz"))
         mm = HungarianOrderMatcher(mol1)
 
         _, rmsd = mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 0.00012447269440740117, places=3)
+        self.assertAlmostEqual(rmsd, 0.00012447269440740117, places=8)
 
         mol1 = Molecule.from_file(os.path.join(test_dir, "oxygen1.xyz"))
         mol2 = Molecule.from_file(os.path.join(test_dir, "oxygen2.xyz"))
         mm = HungarianOrderMatcher(mol1)
 
         _, rmsd = mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 0., places=3)
+        self.assertAlmostEqual(rmsd, 0., places=8)
 
 
 class KabschMatcherSiTest(unittest.TestCase):
@@ -409,27 +409,25 @@ class KabschMatcherSiTest(unittest.TestCase):
             site.coords = op.operate(site.coords)
 
         _, rmsd = self.mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 0., places=3)
+        self.assertAlmostEqual(rmsd, 0., places=8)
 
     def test_perturbed_atom_position(self):
 
         mol2 = self.mol1.copy()
-        
         perturb(mol2, 0.3, seed=42)
 
         _, rmsd = self.mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 0.22322241270255758, places=3)
+        self.assertAlmostEqual(rmsd, 0.2680448948923887, places=8)
 
     def test_perturbed_atoms_order(self):
         # This test shows very poor rmsd result, because the `KabschMatcher`
         # is not capable to handle arbitrary atom's order
 
         mol2 = self.mol1.copy()
-        
         permute(mol2, seed=42)
 
         _, rmsd = self.mm.fit(mol2)
-        self.assertNotAlmostEqual(rmsd, 0.0, places=3)
+        self.assertNotAlmostEqual(rmsd, 0.0, places=8)
 
 
 class BruteForceOrderMatcherSmallSiTest(unittest.TestCase):
@@ -476,25 +474,23 @@ class BruteForceOrderMatcherSmallSiTest(unittest.TestCase):
             site.coords = op.operate(site.coords)
 
         _, rmsd = self.mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 0., places=3)
+        self.assertAlmostEqual(rmsd, 0., places=8)
 
     def test_perturbed_atom_position(self):
 
         mol2 = self.mol1.copy()
-        
         perturb(mol2, 0.3, seed=42)
 
         _, rmsd = self.mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 0.04525207199851348, places=3)
+        self.assertAlmostEqual(rmsd, 0.04525207199851348, places=8)
 
     def test_perturbed_atoms_order(self):
 
         mol2 = self.mol1.copy()
-        
         permute(mol2, seed=42)
 
         _, rmsd = self.mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 0.0, places=3)
+        self.assertAlmostEqual(rmsd, 0.0, places=8)
 
 
 class BruteForceOrderMatcherSiTest(unittest.TestCase):
@@ -515,7 +511,6 @@ class BruteForceOrderMatcherSiTest(unittest.TestCase):
     def test_perturbed_atoms_order(self):
 
         mol2 = self.mol1.copy()
-        
         permute(mol2, seed=42)
 
         # ValueError: The number of all possible permuataions (20922789888000) is not feasible to run this method!
@@ -567,25 +562,23 @@ class HungarianOrderMatcherSiTest(unittest.TestCase):
             site.coords = op.operate(site.coords)
 
         _, rmsd = self.mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 0., places=3)
+        self.assertAlmostEqual(rmsd, 0., places=8)
 
     def test_perturbed_atom_position(self):
 
         mol2 = self.mol1.copy()
-        
         perturb(mol2, 0.3, seed=42)
 
         _, rmsd = self.mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 0.2680448948923891, places=3)
+        self.assertAlmostEqual(rmsd, 0.2680448948923891, places=8)
 
     def test_perturbed_atoms_order(self):
 
         mol2 = self.mol1.copy()
-        
         permute(mol2, seed=42)
 
         _, rmsd = self.mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 0.0, places=3)
+        self.assertAlmostEqual(rmsd, 0.0, places=8)
 
 
 class KabschMatcherSiO2Test(unittest.TestCase):
@@ -613,23 +606,21 @@ class KabschMatcherSiO2Test(unittest.TestCase):
     def test_perturbed_atom_position(self):
 
         mol2 = self.mol1.copy()
-        
         perturb(mol2, 0.3, seed=42)
 
         _, rmsd = self.mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 0.25601134154581084, places=3)
+        self.assertAlmostEqual(rmsd, 0.28115706155171244, places=8)
 
     def test_perturbed_atoms_order(self):
         # This task should fail, because `KabschMatcher` is not capable
         # to handle arbitrary atom's order
 
         mol2 = self.mol1.copy()
-        
         permute(mol2, seed=42)
 
         with self.assertRaises(ValueError):
             _, rmsd = self.mm.fit(mol2)
-            self.assertAlmostEqual(rmsd, 0.0, places=3)
+            self.assertAlmostEqual(rmsd, 0.0, places=8)
 
 
 class BruteForceOrderMatcherSmallSiO2Test(unittest.TestCase):
@@ -657,20 +648,18 @@ class BruteForceOrderMatcherSmallSiO2Test(unittest.TestCase):
     def test_perturbed_atom_position(self):
 
         mol2 = self.mol1.copy()
-        
         perturb(mol2, 0.3, seed=42)
 
         _, rmsd = self.mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 0.1906105291112988, places=3)
+        self.assertAlmostEqual(rmsd, 0.1906105291112988, places=8)
 
     def test_perturbed_atoms_order(self):
 
         mol2 = self.mol1.copy()
-        
         permute(mol2, seed=42)
 
         _, rmsd = self.mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 0.0, places=3)
+        self.assertAlmostEqual(rmsd, 0.0, places=8)
 
 
 class HungarianOrderMatcherSiO2Test(unittest.TestCase):
@@ -698,21 +687,154 @@ class HungarianOrderMatcherSiO2Test(unittest.TestCase):
     def test_perturbed_atom_position(self):
 
         mol2 = self.mol1.copy()
-
-        
         perturb(mol2, 0.3, seed=42)
 
         _, rmsd = self.mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 0.2813160547386018, places=3)
+        self.assertAlmostEqual(rmsd, 0.2813160547386018, places=8)
 
     def test_perturbed_atoms_order(self):
 
         mol2 = self.mol1.copy()
-        
         permute(mol2, seed=42)
 
         _, rmsd = self.mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 0.0, places=3)
+        self.assertAlmostEqual(rmsd, 0.0, places=8)
+
+
+class GeneticOrderMatcherSiTest(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+
+        coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
+        lattice = Lattice.from_parameters(a=3.84, b=3.84, c=3.84, alpha=120, beta=90, gamma=60)
+
+        struct = Structure(lattice, ['Si', 'Si'], coords)
+        struct.make_supercell([2, 2, 2])
+
+        # Creating molecule for testing
+        cls.mol1 = Molecule.from_sites(struct)
+        cls.mm = GeneticOrderMatcher(cls.mol1, threshold=0.3)
+
+    def test_to_and_from_dict(self):
+
+        d = self.mm.as_dict()
+
+        mm = GeneticOrderMatcher.from_dict(d)
+        self.assertDictEqual(d, mm.as_dict())
+
+    def test_missmatched_atoms(self):
+
+        coords = [[0.000000, 0.000000, 0.000000],
+                  [0.000000, 0.000000, 1.089000],
+                  [1.026719, 0.000000, -0.363000],
+                  [-0.513360, -0.889165, -0.363000],
+                  [-0.513360, 0.889165, -0.363000]]
+
+        mol2 = Molecule(["C", "H", "H", "H", "H"], coords)
+
+        with self.assertRaises(ValueError):
+            res = self.mm.fit(mol2)
+
+    def test_rotated_molecule(self):
+
+        op = SymmOp.from_origin_axis_angle([0, 0, 0], [0.1, 0.2, 0.3], 60)
+
+        mol2 = self.mol1.copy()
+        for site in mol2:
+            site.coords = op.operate(site.coords)
+
+        res = self.mm.fit(mol2)
+
+        self.assertEqual(len(res), 1)
+        self.assertAlmostEqual(res[0][-1], 0., places=8)
+
+    def test_perturbed_atom_position(self):
+
+        mol2 = self.mol1.copy()
+        perturb(mol2, 0.3, seed=42)
+
+        res = self.mm.fit(mol2)
+        self.assertEqual(len(res), 1)
+        self.assertAlmostEqual(res[0][-1], 0.2680448948923887, places=8)
+
+    def test_perturbed_atoms_order(self):
+
+        mol2 = self.mol1.copy()
+        permute(mol2, seed=42)
+
+        res = self.mm.fit(mol2)
+        self.assertEqual(len(res), 1)
+        self.assertAlmostEqual(res[0][-1], 0.0, places=8)
+
+    def test_all(self):
+
+        mol2 = self.mol1.copy()
+        perturb(mol2, 0.3, seed=42)
+        permute(mol2, seed=42)
+
+        res = self.mm.fit(mol2)
+        self.assertEqual(len(res), 1)
+
+        self.assertAlmostEqual(res[0][-1], 0.2680448948923887, places=8)
+
+# @unittest.skip('because')
+
+
+class GeneticOrderMatcherSiO2Test(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+
+        coords = [
+            [0.625, 0.625, 0.625],
+            [0.625, 0.625, 0.125],
+            [0.625, 0.125, 0.625],
+            [0.125, 0.625, 0.625],
+            [0.500, 0.500, 0.500],
+            [0.750, 0.750, 0.750]
+        ]
+
+        lattice = Lattice.from_parameters(a=6.61657069, b=6.61657069, c=6.61657069, alpha=60, beta=60, gamma=60)
+        struct = Structure(lattice, ['Si', 'Si', 'Si', 'Si', 'O', 'O'], coords)
+        struct.make_supercell([2, 2, 2])
+
+        # Creating molecule for testing
+        cls.mol1 = Molecule.from_sites(struct)
+        cls.mm = GeneticOrderMatcher(cls.mol1, threshold=0.3)
+
+    def test_perturbed_atom_position(self):
+
+        mol2 = self.mol1.copy()
+        perturb(mol2, 0.3, seed=42)
+
+        res = self.mm.fit(mol2)
+        self.assertEqual(len(res), 3)
+        self.assertAlmostEqual(res[0][1], 0.28115706155171244, places=8)
+
+    def test_perturbed_atoms_order(self):
+
+        mol2 = self.mol1.copy()
+        permute(mol2, seed=42)
+
+        res = self.mm.fit(mol2)
+
+        self.assertEqual(len(res), 3)
+        self.assertAlmostEqual(res[0][1], 0.0, places=8)
+
+    def test_all(self):
+
+        mol2 = self.mol1.copy()
+        perturb(mol2, 0.3, seed=42)
+        permute(mol2, seed=42)
+
+        res = self.mm.match(mol2)
+
+        self.assertEqual(len(res), 3)
+        self.assertEqual(res[0][0], 
+                         [24, 8, 30, 27, 33, 12, 11, 43, 4, 46, 9, 21, 2, 26, 0, 25, 10, 6, 19, 15, 38, 45, 28, 18, 20,
+                          42, 16, 32, 40, 39, 7, 36, 22, 34, 14, 5, 29, 47, 35, 13, 1, 31, 37, 17, 44, 23, 3, 41])
+        self.assertAlmostEqual(res[0][-1], 0.28115706155171244, places=8)
 
 
 if __name__ == '__main__':
