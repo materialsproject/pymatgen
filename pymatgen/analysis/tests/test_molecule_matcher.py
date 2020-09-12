@@ -25,27 +25,27 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
 obalign_missing = (ob is None) or ('OBAlign' not in dir(ob))
 
 
-def perturb(self, scale, rng=np.random.default_rng()):
+def perturb(self, scale, seed):
     """
     Performs a random perturbation of the sites in a structure.
     Args:
         scale (float): Distance in angstroms by which to perturb each site.
         rng (np.random.Generator): Random generator object.
     """
-
-    dV = rng.normal(scale=scale, size=(len(self), 3))
+    np.random.seed(seed)
+    dV = np.random.normal(scale=scale, size=(len(self), 3))
     for site, dv in zip(self.sites, dV):
         site.coords += dv
 
 
-def permute(self, rng=np.random.default_rng()):
+def permute(self, seed):
     """
     Performs a random permutation of the sites in a structure.
     Args:
         rng (np.random.Generator): Random generator object.
     """
-
-    inds = rng.permutation(len(self))
+    np.random.seed(seed)
+    inds = np.random.permutation(len(self))
     self._sites = [self[i] for i in inds]
 
 
@@ -414,7 +414,8 @@ class KabschMatcherSiTest(unittest.TestCase):
     def test_perturbed_atom_position(self):
 
         mol2 = self.mol1.copy()
-        perturb(mol2, 0.3, rng=np.random.default_rng(seed=42))
+        
+        perturb(mol2, 0.3, seed=42)
 
         _, rmsd = self.mm.fit(mol2)
         self.assertAlmostEqual(rmsd, 0.22322241270255758, places=3)
@@ -424,7 +425,8 @@ class KabschMatcherSiTest(unittest.TestCase):
         # is not capable to handle arbitrary atom's order
 
         mol2 = self.mol1.copy()
-        permute(mol2, rng=np.random.default_rng(seed=42))
+        
+        permute(mol2, seed=42)
 
         _, rmsd = self.mm.fit(mol2)
         self.assertNotAlmostEqual(rmsd, 0.0, places=3)
@@ -479,15 +481,17 @@ class BruteForceOrderMatcherSmallSiTest(unittest.TestCase):
     def test_perturbed_atom_position(self):
 
         mol2 = self.mol1.copy()
-        perturb(mol2, 0.3, rng=np.random.default_rng(seed=42))
+        
+        perturb(mol2, 0.3, seed=42)
 
         _, rmsd = self.mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 0.03745037924928444, places=3)
+        self.assertAlmostEqual(rmsd, 0.04525207199851348, places=3)
 
     def test_perturbed_atoms_order(self):
 
         mol2 = self.mol1.copy()
-        permute(mol2, rng=np.random.default_rng(seed=42))
+        
+        permute(mol2, seed=42)
 
         _, rmsd = self.mm.fit(mol2)
         self.assertAlmostEqual(rmsd, 0.0, places=3)
@@ -511,7 +515,8 @@ class BruteForceOrderMatcherSiTest(unittest.TestCase):
     def test_perturbed_atoms_order(self):
 
         mol2 = self.mol1.copy()
-        permute(mol2, rng=np.random.default_rng(seed=42))
+        
+        permute(mol2, seed=42)
 
         # ValueError: The number of all possible permuataions (20922789888000) is not feasible to run this method!
         with self.assertRaises(ValueError):
@@ -567,15 +572,17 @@ class HungarianOrderMatcherSiTest(unittest.TestCase):
     def test_perturbed_atom_position(self):
 
         mol2 = self.mol1.copy()
-        perturb(mol2, 0.3, rng=np.random.default_rng(seed=42))
+        
+        perturb(mol2, 0.3, seed=42)
 
         _, rmsd = self.mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 0.2232224127025576, places=3)
+        self.assertAlmostEqual(rmsd, 0.2680448948923891, places=3)
 
     def test_perturbed_atoms_order(self):
 
         mol2 = self.mol1.copy()
-        permute(mol2, rng=np.random.default_rng(seed=42))
+        
+        permute(mol2, seed=42)
 
         _, rmsd = self.mm.fit(mol2)
         self.assertAlmostEqual(rmsd, 0.0, places=3)
@@ -606,7 +613,8 @@ class KabschMatcherSiO2Test(unittest.TestCase):
     def test_perturbed_atom_position(self):
 
         mol2 = self.mol1.copy()
-        perturb(mol2, 0.3, rng=np.random.default_rng(seed=42))
+        
+        perturb(mol2, 0.3, seed=42)
 
         _, rmsd = self.mm.fit(mol2)
         self.assertAlmostEqual(rmsd, 0.25601134154581084, places=3)
@@ -616,7 +624,8 @@ class KabschMatcherSiO2Test(unittest.TestCase):
         # to handle arbitrary atom's order
 
         mol2 = self.mol1.copy()
-        permute(mol2, rng=np.random.default_rng(seed=42))
+        
+        permute(mol2, seed=42)
 
         with self.assertRaises(ValueError):
             _, rmsd = self.mm.fit(mol2)
@@ -648,15 +657,17 @@ class BruteForceOrderMatcherSmallSiO2Test(unittest.TestCase):
     def test_perturbed_atom_position(self):
 
         mol2 = self.mol1.copy()
-        perturb(mol2, 0.3, rng=np.random.default_rng(seed=42))
+        
+        perturb(mol2, 0.3, seed=42)
 
         _, rmsd = self.mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 0.24340457368541538, places=3)
+        self.assertAlmostEqual(rmsd, 0.1906105291112988, places=3)
 
     def test_perturbed_atoms_order(self):
 
         mol2 = self.mol1.copy()
-        permute(mol2, rng=np.random.default_rng(seed=42))
+        
+        permute(mol2, seed=42)
 
         _, rmsd = self.mm.fit(mol2)
         self.assertAlmostEqual(rmsd, 0.0, places=3)
@@ -687,15 +698,18 @@ class HungarianOrderMatcherSiO2Test(unittest.TestCase):
     def test_perturbed_atom_position(self):
 
         mol2 = self.mol1.copy()
-        perturb(mol2, 0.3, rng=np.random.default_rng(seed=42))
+
+        
+        perturb(mol2, 0.3, seed=42)
 
         _, rmsd = self.mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 0.25602943781758114, places=3)
+        self.assertAlmostEqual(rmsd, 0.2813160547386018, places=3)
 
     def test_perturbed_atoms_order(self):
 
         mol2 = self.mol1.copy()
-        permute(mol2, rng=np.random.default_rng(seed=42))
+        
+        permute(mol2, seed=42)
 
         _, rmsd = self.mm.fit(mol2)
         self.assertAlmostEqual(rmsd, 0.0, places=3)
