@@ -417,7 +417,7 @@ class KabschMatcherSiTest(unittest.TestCase):
         perturb(mol2, 0.3, seed=42)
 
         _, rmsd = self.mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 0.2680448948923887, places=8)
+        self.assertAlmostEqual(rmsd, 0.2628450748567651, places=8)
 
     def test_perturbed_atoms_order(self):
         # This test shows very poor rmsd result, because the `KabschMatcher`
@@ -570,7 +570,7 @@ class HungarianOrderMatcherSiTest(unittest.TestCase):
         perturb(mol2, 0.3, seed=42)
 
         _, rmsd = self.mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 0.2680448948923891, places=8)
+        self.assertAlmostEqual(rmsd, 0.26284507485676495, places=8)
 
     def test_perturbed_atoms_order(self):
 
@@ -756,7 +756,7 @@ class GeneticOrderMatcherSiTest(unittest.TestCase):
 
         res = self.mm.fit(mol2)
         self.assertEqual(len(res), 1)
-        self.assertAlmostEqual(res[0][-1], 0.2680448948923887, places=8)
+        self.assertAlmostEqual(res[0][-1], 0.2628450748567651, places=8)
 
     def test_perturbed_atoms_order(self):
 
@@ -776,7 +776,7 @@ class GeneticOrderMatcherSiTest(unittest.TestCase):
         res = self.mm.fit(mol2)
         self.assertEqual(len(res), 1)
 
-        self.assertAlmostEqual(res[0][-1], 0.2680448948923887, places=8)
+        self.assertAlmostEqual(res[0][-1], 0.2628450748567651, places=8)
 
 # @unittest.skip('because')
 
