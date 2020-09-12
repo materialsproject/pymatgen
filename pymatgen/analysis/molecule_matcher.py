@@ -1214,20 +1214,20 @@ class GeneticOrderMatcher(KabschMatcher):
         of atoms from the same species.
     """
 
-    def __init__(self, target: Molecule, treshold: float):
+    def __init__(self, target: Molecule, threshold: float):
         """Constructor of the matcher object.
 
         Args:
             target: a `Molecule` object used as a target during the alignment
-            treshold: value used to match fragments and prune configuration
+            threshold: value used to match fragments and prune configuration
         """
         super().__init__(target)
-        self.threshold = treshold
+        self.threshold = threshold
         self.N = len(target)
 
     def match(self, p: Molecule):
         """Similar as `KabschMatcher.match` but this method also finds all of the
-        possible atomic orders according to the `treshold`.
+        possible atomic orders according to the `threshold`.
 
         Args:
             p: a `Molecule` object what will be matched with the target one.
@@ -1252,7 +1252,7 @@ class GeneticOrderMatcher(KabschMatcher):
 
     def fit(self, p: Molecule):
         """Order, rotate and transform all of the matched `p` molecule
-        according to the given `treshold`.
+        according to the given `threshold`.
 
         Args:
             p: a `Molecule` object what will be matched with the target one.
@@ -1398,7 +1398,7 @@ if __name__ == "__main__":
 
         print(rmsd)
 
-    mm = GeneticOrderMatcher(struct, treshold=0.3)
+    mm = GeneticOrderMatcher(struct, threshold=0.3)
     print(mm)
 
     # perturbing the atoms' position
