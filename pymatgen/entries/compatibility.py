@@ -1138,7 +1138,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
     """
 
     def __init__(self,
-                 solid_compat: Optional[Compatibility] = None,
+                 solid_compat: Optional[Compatibility] = MaterialsProjectCompatibility,
                  o2_energy: Optional[float] = None,
                  h2o_energy: Optional[float] = None,
                  h2o_adjustments: Optional[float] = None):
@@ -1147,12 +1147,14 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
 
         Note that this class requires as inputs the ground-state DFT energies of O2 and H2O, plus the value of any
         energy adjustments applied to an H2O molecule. If these parameters are not provided in __init__, they can
-        be automatically populated by included ComputedEntry for the ground state of O2 and H2O in a list of entries
+        be automatically populated by including ComputedEntry for the ground state of O2 and H2O in a list of entries
         passed to process_entries. process_entries will fail if one or the other is not provided.
 
         Args:
             solid_compat: Compatiblity scheme used to pre-process solid DFT energies prior to applying aqueous
-                energy adjustments. Default: MaterialsProjectCompatibility.
+                energy adjustments. May be passed as a class (e.g. MaterialsProjectCompatibility) or an instance
+                (e.g., MaterialsProjectCompatibility()). If None, solid DFT energies are used as-is.
+                Default: MaterialsProjectCompatibility
             o2_energy: The ground-state DFT energy of oxygen gas, including any adjustments or corrections, in eV/atom.
                 If not set, this value will be determined from any O2 entries passed to process_entries.
                 Default: None
@@ -1164,6 +1166,10 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
                 Default: None
         """
         self.solid_compat = solid_compat
+        if self.solid_compat:
+            if not isinstance(self.solid_compat, Compatibility):  # check whether solid_compat has been instantiated
+                self.solid_compat = solid_compat()
+
         self.o2_energy = o2_energy
         self.h2o_energy = h2o_energy
         self.h2o_adjustments = h2o_adjustments
