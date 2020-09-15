@@ -63,11 +63,11 @@ class DiffusionAnalyzer(MSONable):
 
     .. attribute: diffusivity_components
 
-        A vector with diffusivity in the a, b and c directions in cm^2 / s
+        A vector of diffusivity in the a, b and c directions in cm^2 / s
 
     .. attribute: conductivity_components
 
-        A vector with conductivity in the a, b and c directions in mS / cm
+        A vector of conductivity in the a, b and c directions in mS / cm
 
     .. attribute: diffusivity_std_dev
 
@@ -86,12 +86,12 @@ class DiffusionAnalyzer(MSONable):
 
     .. attribute: diffusivity_components_std_dev
 
-        A vector with std dev. in diffusivity in the a, b and c directions in
+        A vector with std dev in diffusivity in the a, b and c directions in
         cm^2 / cm. Note that this makes sense only for non-smoothed analyses.
 
     .. attribute: conductivity_components_std_dev
 
-        A vector with std dev. in conductivity in the a, b and c directions
+        A vector with std dev in conductivity in the a, b and c directions
         in mS / cm. Note that this makes sense only for non-smoothed analyses.
 
     .. attribute: max_framework_displacement
@@ -105,19 +105,19 @@ class DiffusionAnalyzer(MSONable):
 
     .. attribute: msd
 
-        nsteps x 1 array of the mean square displacement of specie.
+        nsteps x 1 array of the mean square displacement of the selected species.
 
     .. attribute: mscd
 
-        nsteps x 1 array of the mean square charge displacement of specie.
+        nsteps x 1 array of the mean square charge displacement of the selected species.
 
     .. attribute: msd_components
 
-        nsteps x 3 array of the MSD in each lattice direction of specie.
+        nsteps x 3 array of the MSD in each lattice direction of the selected species.
 
     .. attribute: sq_disp_ions
 
-        The square displacement of all ion (both specie and other ions) as a
+        The square displacement of all ions (both the selected species and other atoms) as an
         nions x nsteps array.
 
     .. attribute: dt
@@ -137,11 +137,11 @@ class DiffusionAnalyzer(MSONable):
         from_vaspruns and from_files).
 
         Given a matrix of displacements (see arguments below for expected
-        format), the diffusivity is given by::
+        format), the diffusivity is given by:
 
             D = 1 / 2dt * <mean square displacement>
 
-        where d is the dimensionality, t is the time. To obtain a reliable
+        where d is the dimensionality and t is the time. To obtain a reliable
         diffusion estimate, a least squares regression of the MSD against
         time to obtain the slope, which is then related to the diffusivity.
 
@@ -151,12 +151,12 @@ class DiffusionAnalyzer(MSONable):
             structure (Structure): Initial structure.
             displacements (array): Numpy array of with shape [site,
                 time step, axis]
-            specie (Element/Specie): Specie to calculate diffusivity for as a
-                String. E.g., "Li".
-            temperature (float): Temperature of the diffusion run in Kelvin.
+            specie (Element/Specie): Species to calculate diffusivity for as a
+                String, e.g., "Li".
+            temperature (float): Temperature of the diffusion run in kelvin.
             time_step (int): Time step between measurements.
-            step_skip (int): Sampling frequency of the displacements (
-                time_step is multiplied by this number to get the real time
+            step_skip (int): Sampling frequency of the displacements 
+                (time_step is multiplied by this number to get the real time
                 between measurements)
             smoothed (str): Whether to smooth the MSD, and what mode to smooth.
                 Supported modes are:
@@ -173,13 +173,13 @@ class DiffusionAnalyzer(MSONable):
 
             min_obs (int): Used with smoothed="max". Minimum number of
                 observations to have before including in the MSD vs dt
-                calculation. E.g. If a structure has 10 diffusing atoms,
+                calculation. E.g., if a structure has 10 diffusing atoms,
                 and min_obs = 30, the MSD vs dt will be
                 calculated up to dt = total_run_time / 3, so that each
                 diffusing atom is measured at least 3 uncorrelated times.
-                Only applies in smoothed="max".
+                Only applies when smoothed="max".
             avg_nsteps (int): Used with smoothed="constant". Determines the
-                number of time steps to average over to get the msd for each
+                number of time steps to average over to obtain the msd for each
                 timestep. Default of 1000 is usually pretty good.
             lattices (array): Numpy array of lattice matrix of every step. Used
                 for NPT-AIMD. For NVT-AIMD, the lattice at each time step is
@@ -371,9 +371,9 @@ class DiffusionAnalyzer(MSONable):
         Provides a summary of diffusion information.
 
         Args:
-            include_msd_t (bool): Whether to include mean square displace and
+            include_msd_t (bool): Whether to include mean square displacements and
                 time data with the data.
-            include_msd_t (bool): Whether to include mean square charge displace and
+            include_msd_t (bool): Whether to include mean square charge displacements and
                 time data with the data.
 
         Returns:
@@ -533,8 +533,8 @@ class DiffusionAnalyzer(MSONable):
 
         Args:
             filename (str): Filename. Supported formats are csv and dat. If
-                the extension is csv, a csv file is written. Otherwise,
-                a dat format is assumed.
+                the extension is csv, a csv file is written, otherwise
+                a simple columnar data format (extension .dat) is assumed.
         """
         fmt = "csv" if filename.lower().endswith(".csv") else "dat"
         delimiter = ", " if fmt == "csv" else " "
@@ -559,17 +559,17 @@ class DiffusionAnalyzer(MSONable):
         perform diffusion analysis.
 
         Args:
-            structures ([Structure]): list of Structure objects (must be
-                ordered in sequence of run). E.g., you may have performed
+            structures ([Structure]): List of Structure objects in same order
+                as run sequence, e.g., if you have performed
                 sequential VASP runs to obtain sufficient statistics.
-            specie (Element/Specie): Specie to calculate diffusivity for as a
-                String. E.g., "Li".
-            temperature (float): Temperature of the diffusion run in Kelvin.
+            specie (Element/Specie): Species to calculate diffusivity for as a
+                String, e.g., "Li".
+            temperature (float): Temperature of the diffusion run in kelvin.
             time_step (int): Time step between measurements.
-            step_skip (int): Sampling frequency of the displacements (
-                time_step is multiplied by this number to get the real time
+            step_skip (int): Sampling frequency of the displacements
+                (time_step is multiplied by this number to get the real time
                 between measurements)
-            initial_disp (np.ndarray): Sometimes, you need to iteratively
+            initial_disp (np.ndarray): Sometimes you need to iteratively
                 compute estimates of the diffusivity. This supplies an
                 initial displacement that will be added on to the initial
                 displacements. Note that this makes sense only when
@@ -623,12 +623,12 @@ class DiffusionAnalyzer(MSONable):
         perform diffusion analysis.
 
         Args:
-            vaspruns ([Vasprun]): List of Vaspruns (must be ordered  in
-                sequence of MD simulation). E.g., you may have performed
-                sequential VASP runs to obtain sufficient statistics.
-            specie (Element/Specie): Specie to calculate diffusivity for as a
-                String. E.g., "Li".
-            initial_disp (np.ndarray): Sometimes, you need to iteratively
+            vaspruns ([Vasprun]): List of Vaspruns in same order as 
+                run sequence, e.g., if you have performed sequential 
+                VASP runs to obtain sufficient statistics.
+            specie (Element/Specie): Species to calculate diffusivity for as a
+                String, e.g., "Li".
+            initial_disp (np.ndarray): Sometimes you need to iteratively
                 compute estimates of the diffusivity. This supplies an
                 initial displacement that will be added on to the initial
                 displacements. Note that this makes sense only when
@@ -679,26 +679,25 @@ class DiffusionAnalyzer(MSONable):
         perform diffusion analysis.
 
         Args:
-            filepaths ([str]): List of paths to vasprun.xml files of runs. (
-                must be ordered in sequence of MD simulation). For example,
-                you may have done sequential VASP runs and they are in run1,
-                run2, run3, etc. You should then pass in
-                ["run1/vasprun.xml", "run2/vasprun.xml", ...].
-            specie (Element/Specie): Specie to calculate diffusivity for as a
-                String. E.g., "Li".
-            step_skip (int): Sampling frequency of the displacements (
-                time_step is multiplied by this number to get the real time
+            filepaths ([str]): List of paths to vasprun.xml files of runs 
+                in same order as run sequence, e.g., if you have
+                sequential VASP runs in directories run1, run2, run3, etc., 
+                you should pass in ["run1/vasprun.xml", "run2/vasprun.xml", ...].
+            specie (Element/Specie): Species to calculate diffusivity for as a
+                String, e.g., "Li".
+            step_skip (int): Sampling frequency of the displacements 
+                (time_step is multiplied by this number to get the real time
                 between measurements)
             ncores (int): Numbers of cores to use for multiprocessing. Can
                 speed up vasprun parsing considerably. Defaults to None,
-                which means serial. It should be noted that if you want to
-                use multiprocessing, the number of ionic steps in all vasprun
-                .xml files should be a multiple of the ionic_step_skip.
-                Otherwise, inconsistent results may arise. Serial mode has no
+                which means serial. Note that if you want to use 
+                multiprocessing, the number of ionic steps in all vasprun
+                .xml files should be a multiple of the ionic_step_skip,
+                otherwise inconsistent results may arise. Serial mode has no
                 such restrictions.
-            initial_disp (np.ndarray): Sometimes, you need to iteratively
+            initial_disp (np.ndarray): Sometimes you need to iteratively
                 compute estimates of the diffusivity. This supplies an
-                initial displacement that will be added on to the initial
+                initial displacement that will be added to the initial
                 displacements. Note that this makes sense only when
                 smoothed=False.
             initial_structure (Structure): Like initial_disp, this is used
@@ -775,15 +774,15 @@ class DiffusionAnalyzer(MSONable):
 def get_conversion_factor(structure, species, temperature):
     """
     Conversion factor to convert between cm^2/s diffusivity measurements and
-    mS/cm conductivity measurements based on number of atoms of diffusing
+    mS/cm conductivity measurements based on number of atoms of the diffusing
     species. Note that the charge is based on the oxidation state of the
     species (where available), or else the number of valence electrons
-    (usually a good guess, esp for main group ions).
+    (usually a good guess, esp. for main group ions).
 
     Args:
         structure (Structure): Input structure.
         species (Element/Specie): Diffusing species.
-        temperature (float): Temperature of the diffusion run in Kelvin.
+        temperature (float): Temperature of the diffusion run in kelvin.
 
     Returns:
         Conversion factor.
@@ -815,9 +814,9 @@ def fit_arrhenius(temps, diffusivities):
         D = c * exp(-Ea/kT)
 
     Args:
-        temps ([float]): A sequence of temperatures. units: K
+        temps ([float]): A sequence of temperatures. Units: K
         diffusivities ([float]): A sequence of diffusivities (e.g.,
-            from DiffusionAnalyzer.diffusivity). units: cm^2/s
+            from DiffusionAnalyzer.diffusivity). Units: cm^2/s
     """
     t_1 = 1 / np.array(temps)
     logd = np.log(diffusivities)
@@ -841,8 +840,8 @@ def get_extrapolated_diffusivity(temps, diffusivities, new_temp):
     Args:
         temps ([float]): A sequence of temperatures. units: K
         diffusivities ([float]): A sequence of diffusivities (e.g.,
-            from DiffusionAnalyzer.diffusivity). units: cm^2/s
-        new_temp (float): desired temperature. units: K
+            from DiffusionAnalyzer.diffusivity). Units: cm^2/s
+        new_temp (float): Desired temperature. Units: K
 
     Returns:
         (float) Diffusivity at extrapolated temp in mS/cm.
@@ -857,12 +856,12 @@ def get_extrapolated_conductivity(temps, diffusivities, new_temp, structure,
     Returns extrapolated mS/cm conductivity.
 
     Args:
-        temps ([float]): A sequence of temperatures. units: K
+        temps ([float]): A sequence of temperatures. Units: K
         diffusivities ([float]): A sequence of diffusivities (e.g.,
-            from DiffusionAnalyzer.diffusivity). units: cm^2/s
-        new_temp (float): desired temperature. units: K
+            from DiffusionAnalyzer.diffusivity). Units: cm^2/s
+        new_temp (float): Desired temperature. Units: K
         structure (structure): Structure used for the diffusivity calculation
-        species (string/Specie): conducting species
+        species (string/Specie): Conducting species
 
     Returns:
         (float) Conductivity at extrapolated temp in mS/cm.
