@@ -540,7 +540,7 @@ class BandStructure:
 
     def as_dict(self):
         """
-        Json-serializable dict representation of BandStructureSymmLine.
+        Json-serializable dict representation of BandStructure.
         """
         d = {"@module": self.__class__.__module__,
              "@class": self.__class__.__name__,
@@ -550,7 +550,11 @@ class BandStructure:
         # the dict smaller and avoids the repetition of the lattice
         for k in self.kpoints:
             d["kpoints"].append(k.as_dict()["fcoords"])
-        d["bands"] = {str(int(spin)): self.bands[spin]
+
+        if hasattr(self,'branches'):
+            d["branches"] = self.branches
+            
+        d["bands"] = {str(int(spin)): self.bands[spin].tolist()
                       for spin in self.bands}
         d["is_metal"] = self.is_metal()
         vbm = self.get_vbm()
@@ -570,8 +574,12 @@ class BandStructure:
         d['band_gap'] = self.get_band_gap()
         d['labels_dict'] = {}
         d['is_spin_polarized'] = self.is_spin_polarized
+        
+        # MongoDB does not accept keys starting with $. Add a blanck space to fix the problem
         for c in self.labels_dict:
-            d['labels_dict'][c] = self.labels_dict[c].as_dict()['fcoords']
+            mongo_key = c if not c.startswith("$") else " " + c
+            d['labels_dict'][mongo_key] = self.labels_dict[c].as_dict()[
+                'fcoords']
         d['projections'] = {}
         if len(self.projections) != 0:
             d['structure'] = self.structure.as_dict()
@@ -590,7 +598,7 @@ class BandStructure:
         Returns:
             A BandStructure object
         """
-        labels_dict = d['labels_dict']
+        labels_dict = {k.strip(): v for k, v in d['labels_dict'].items()}
         projections = {}
         structure = None
         if isinstance(list(d['bands'].values())[0], dict):
@@ -598,16 +606,29 @@ class BandStructure:
                          for k in d['bands']}
         else:
             eigenvals = {Spin(int(k)): d['bands'][k] for k in d['bands']}
+
         if 'structure' in d:
             structure = Structure.from_dict(d['structure'])
-        if d.get('projections'):
-            projections = {Spin(int(spin)): np.array(v)
-                           for spin, v in d["projections"].items()}
 
-        return BandStructure(
-            d['kpoints'], eigenvals,
-            Lattice(d['lattice_rec']['matrix']), d['efermi'],
-            labels_dict, structure=structure, projections=projections)
+        try:            
+            if d.get('projections'):
+                if isinstance(d["projections"]['1'][0][0], dict):
+                    raise ValueError("Old band structure dict format detected!")
+                projections = {Spin(int(spin)): np.array(v)
+                               for spin, v in d["projections"].items()}
+
+            return cls(
+                d['kpoints'], eigenvals,
+                Lattice(d['lattice_rec']['matrix']), d['efermi'],
+                labels_dict, structure=structure, projections=projections)
+
+        except Exception:
+            warnings.warn("Trying from_dict failed. Now we are trying the old "
+                          "format. Please convert your BS dicts to the new "
+                          "format. The old format will be retired in pymatgen "
+                          "5.0.")
+            return cls.from_old_dict(d)
+        
 
     @classmethod
     def from_old_dict(cls, d):
@@ -840,126 +861,51 @@ class BandStructureSymmLine(BandStructure, MSONable):
             old_dict['efermi'] = old_dict['efermi'] + shift
         return self.from_dict(old_dict)
 
-    def as_dict(self):
-        """
-        Json-serializable dict representation of BandStructureSymmLine.
-        """
+    # def as_dict(self):
+    #     """
+    #     Json-serializable dict representation of BandStructureSymmLine.
+    #     """
+    #     d = {"@module": self.__class__.__module__,
+    #          "@class": self.__class__.__name__,
+    #          "lattice_rec": self.lattice_rec.as_dict(), "efermi": self.efermi,
+    #          "kpoints": []}
+    #     # kpoints are not kpoint objects dicts but are frac coords (this makes
+    #     # the dict smaller and avoids the repetition of the lattice
+    #     for k in self.kpoints:
+    #         d["kpoints"].append(k.as_dict()["fcoords"])
+    #     d["branches"] = self.branches
+    #     d["bands"] = {str(int(spin)): self.bands[spin].tolist()
+    #                   for spin in self.bands}
+    #     d["is_metal"] = self.is_metal()
+    #     vbm = self.get_vbm()
+    #     d["vbm"] = {"energy": vbm["energy"],
+    #                 "kpoint_index": vbm["kpoint_index"],
+    #                 "band_index": {str(int(spin)): vbm["band_index"][spin]
+    #                                for spin in vbm["band_index"]},
+    #                 'projections': {str(spin): v.tolist() for spin, v in vbm[
+    #                     'projections'].items()}}
+    #     cbm = self.get_cbm()
+    #     d['cbm'] = {'energy': cbm['energy'],
+    #                 'kpoint_index': cbm['kpoint_index'],
+    #                 'band_index': {str(int(spin)): cbm['band_index'][spin]
+    #                                for spin in cbm['band_index']},
+    #                 'projections': {str(spin): v.tolist() for spin, v in cbm[
+    #                     'projections'].items()}}
+    #     d['band_gap'] = self.get_band_gap()
+    #     d['labels_dict'] = {}
+    #     d['is_spin_polarized'] = self.is_spin_polarized
+    #     # MongoDB does not accept keys starting with $. Add a blanck space to fix the problem
+    #     for c in self.labels_dict:
+    #         mongo_key = c if not c.startswith("$") else " " + c
+    #         d['labels_dict'][mongo_key] = self.labels_dict[c].as_dict()[
+    #             'fcoords']
+    #     if len(self.projections) != 0:
+    #         d['structure'] = self.structure.as_dict()
+    #         d['projections'] = {str(int(spin)): np.array(v).tolist()
+    #                             for spin, v in self.projections.items()}
+    #     return d
 
-        d = {"@module": self.__class__.__module__,
-             "@class": self.__class__.__name__,
-             "lattice_rec": self.lattice_rec.as_dict(), "efermi": self.efermi,
-             "kpoints": []}
-        # kpoints are not kpoint objects dicts but are frac coords (this makes
-        # the dict smaller and avoids the repetition of the lattice
-        for k in self.kpoints:
-            d["kpoints"].append(k.as_dict()["fcoords"])
-        d["branches"] = self.branches
-        d["bands"] = {str(int(spin)): self.bands[spin].tolist()
-                      for spin in self.bands}
-        d["is_metal"] = self.is_metal()
-        vbm = self.get_vbm()
-        d["vbm"] = {"energy": vbm["energy"],
-                    "kpoint_index": vbm["kpoint_index"],
-                    "band_index": {str(int(spin)): vbm["band_index"][spin]
-                                   for spin in vbm["band_index"]},
-                    'projections': {str(spin): v.tolist() for spin, v in vbm[
-                        'projections'].items()}}
-        cbm = self.get_cbm()
-        d['cbm'] = {'energy': cbm['energy'],
-                    'kpoint_index': cbm['kpoint_index'],
-                    'band_index': {str(int(spin)): cbm['band_index'][spin]
-                                   for spin in cbm['band_index']},
-                    'projections': {str(spin): v.tolist() for spin, v in cbm[
-                        'projections'].items()}}
-        d['band_gap'] = self.get_band_gap()
-        d['labels_dict'] = {}
-        d['is_spin_polarized'] = self.is_spin_polarized
-        # MongoDB does not accept keys starting with $. Add a blanck space to fix the problem
-        for c in self.labels_dict:
-            mongo_key = c if not c.startswith("$") else " " + c
-            d['labels_dict'][mongo_key] = self.labels_dict[c].as_dict()[
-                'fcoords']
-        if len(self.projections) != 0:
-            d['structure'] = self.structure.as_dict()
-            d['projections'] = {str(int(spin)): np.array(v).tolist()
-                                for spin, v in self.projections.items()}
-        return d
-
-    @classmethod
-    def from_dict(cls, d):
-        """
-        Args:
-            d (dict): A dict with all data for a band structure symm line
-                object.
-
-        Returns:
-            A BandStructureSymmLine object
-        """
-        try:
-            # Strip the label to recover initial string (see trick used in as_dict to handle $ chars)
-            labels_dict = {k.strip(): v for k, v in d['labels_dict'].items()}
-            projections = {}
-            structure = None
-            if d.get('projections'):
-                if isinstance(d["projections"]['1'][0][0], dict):
-                    raise ValueError("Old band structure dict format detected!")
-                structure = Structure.from_dict(d['structure'])
-                projections = {Spin(int(spin)): np.array(v)
-                               for spin, v in d["projections"].items()}
-
-            return BandStructureSymmLine(
-                d['kpoints'], {Spin(int(k)): d['bands'][k]
-                               for k in d['bands']},
-                Lattice(d['lattice_rec']['matrix']), d['efermi'],
-                labels_dict, structure=structure, projections=projections)
-        except Exception:
-            warnings.warn("Trying from_dict failed. Now we are trying the old "
-                          "format. Please convert your BS dicts to the new "
-                          "format. The old format will be retired in pymatgen "
-                          "5.0.")
-            return BandStructureSymmLine.from_old_dict(d)
-
-    @classmethod
-    def from_old_dict(cls, d):
-        """
-        Args:
-            d (dict): A dict with all data for a band structure symm line
-                object.
-        Returns:
-            A BandStructureSymmLine object
-        """
-        # Strip the label to recover initial string (see trick used in as_dict to handle $ chars)
-        labels_dict = {k.strip(): v for k, v in d['labels_dict'].items()}
-        projections = {}
-        structure = None
-        if 'projections' in d and len(d['projections']) != 0:
-            structure = Structure.from_dict(d['structure'])
-            projections = {}
-            for spin in d['projections']:
-                dd = []
-                for i in range(len(d['projections'][spin])):
-                    ddd = []
-                    for j in range(len(d['projections'][spin][i])):
-                        dddd = []
-                        for k in range(len(d['projections'][spin][i][j])):
-                            ddddd = []
-                            orb = Orbital(k).name
-                            for l in range(len(d['projections'][spin][i][j][
-                                                   orb])):
-                                ddddd.append(d['projections'][spin][i][j][
-                                                 orb][l])
-                            dddd.append(np.array(ddddd))
-                        ddd.append(np.array(dddd))
-                    dd.append(np.array(ddd))
-                projections[Spin(int(spin))] = np.array(dd)
-
-        return BandStructureSymmLine(
-            d['kpoints'], {Spin(int(k)): d['bands'][k]
-                           for k in d['bands']},
-            Lattice(d['lattice_rec']['matrix']), d['efermi'],
-            labels_dict, structure=structure, projections=projections)
-
-
+ 
 class LobsterBandStructureSymmLine(BandStructureSymmLine):
     """
     Lobster subclass of BandStructure with customized functions.
