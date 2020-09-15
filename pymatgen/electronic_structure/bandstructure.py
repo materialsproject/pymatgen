@@ -619,9 +619,6 @@ class BandStructure:
         for k in self.kpoints:
             d["kpoints"].append(k.as_dict()["fcoords"])
 
-        if hasattr(self, "branches"):
-            d["branches"] = self.branches
-
         d["bands"] = {str(int(spin)): self.bands[spin].tolist() for spin in self.bands}
         d["is_metal"] = self.is_metal()
         vbm = self.get_vbm()
