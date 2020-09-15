@@ -111,10 +111,10 @@ class Fragmenter(MSONable):
                     if num_frags_prev_level == 0:
                         # Nothing left to fragment, so exit the loop:
                         break
-                    else:  # If not on the first level, and there are fragments present in the previous level, then
-                        # perform one level of fragmentation on all fragments present in the previous level:
-                        self.fragments_by_level[str(level)] = self._fragment_one_level(
-                            self.fragments_by_level[str(level-1)])
+                    # If not on the first level, and there are fragments present in the previous level, then
+                    # perform one level of fragmentation on all fragments present in the previous level:
+                    self.fragments_by_level[str(level)] = self._fragment_one_level(
+                        self.fragments_by_level[str(level-1)])
 
         if self.prev_unique_frag_dict == {}:
             self.new_unique_frag_dict = copy.deepcopy(self.all_unique_frag_dict)

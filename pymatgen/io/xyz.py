@@ -7,11 +7,12 @@ Module implementing an XYZ file object class.
 """
 
 import re
+from io import StringIO
+
+import pandas as pd
+from monty.io import zopen
 
 from pymatgen.core.structure import Molecule
-from monty.io import zopen
-from io import StringIO
-import pandas as pd
 
 
 class XYZ:

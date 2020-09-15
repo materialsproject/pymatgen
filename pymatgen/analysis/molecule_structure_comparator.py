@@ -26,7 +26,7 @@ __status__ = "Experimental"
 __date__ = "Jan 22, 2014"
 
 
-class CovalentRadius():
+class CovalentRadius:
     """
     Covalent Radius of the elements.
 
@@ -121,11 +121,9 @@ class MoleculeStructureComparator(MSONable):
         all_bond_pairs = list(itertools.combinations(priority_bonds, r=2))
         all_2_bond_atoms = [set(b1+b2) for b1, b2 in all_bond_pairs]
         all_13_bond_atoms = [a for a in all_2_bond_atoms if len(a) == 3]
-        all_2_and_13_bonds = set([tuple(sorted(b))
-                                  for b in
-                                  list(itertools.chain(*[list(itertools.combinations(p, 2))
-                                                         for p in all_13_bond_atoms]))])
-        bonds_13 = all_2_and_13_bonds - set([tuple(b) for b in priority_bonds])
+        all_2_and_13_bonds = {tuple(sorted(b))
+                              for b in itertools.chain(*[itertools.combinations(p, 2) for p in all_13_bond_atoms])}
+        bonds_13 = all_2_and_13_bonds - {tuple(b) for b in priority_bonds}
         return tuple(sorted(bonds_13))
 
     def _get_bonds(self, mol):

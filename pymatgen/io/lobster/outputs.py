@@ -673,7 +673,7 @@ class Lobsterout:
             raise IOError("lobsterout does not contain any data")
 
         # check if Lobster starts from a projection
-        self.is_restart_from_projection = self._starts_from_projection(data=data)
+        self.is_restart_from_projection = 'loading projection from projectionData.lobster...' in data
 
         self.lobster_version = self._get_lobster_version(data=data)
 
@@ -706,22 +706,23 @@ class Lobsterout:
         infos = self._get_all_info_lines(data=data)
         self.info_lines = infos
 
-        self.has_DOSCAR = self._has_DOSCAR(data=data)
-        self.has_COHPCAR = self._has_COOPCAR(data=data)
-        self.has_COOPCAR = self._has_COHPCAR(data=data)
-        self.has_CHARGE = self._has_CHARGE(data=data)
-        self.has_Projection = self._has_projection(data=data)
-        self.has_bandoverlaps = self._has_bandoverlaps(data=data)
+        self.has_DOSCAR = 'writing DOSCAR.lobster...' in data and 'SKIPPING writing DOSCAR.lobster...' not in data
+        self.has_COHPCAR = 'writing COOPCAR.lobster and ICOOPLIST.lobster...' in data and \
+            'SKIPPING writing COOPCAR.lobster and ICOOPLIST.lobster...' not in data
+        self.has_COOPCAR = 'writing COHPCAR.lobster and ICOHPLIST.lobster...' in data and \
+            'SKIPPING writing COHPCAR.lobster and ICOHPLIST.lobster...' not in data
+        self.has_CHARGE = 'SKIPPING writing CHARGE.lobster...' not in data
+        self.has_Projection = 'saving projection to projectionData.lobster...' in data
+        self.has_bandoverlaps = 'WARNING: I dumped the band overlap matrices to the file bandOverlaps.lobster.' in data
         self.has_fatbands = self._has_fatband(data=data)
-        self.has_grosspopulation = self._has_grosspopulation(data=data)
-        self.has_density_of_energies = self._has_density_of_energies(data=data)
+        self.has_grosspopulation = 'writing CHARGE.lobster and GROSSPOP.lobster...' in data
+        self.has_density_of_energies = "writing DensityOfEnergy.lobster..." in data
 
     def get_doc(self):
         """
 
         Returns: LobsterDict with all the information stored in lobsterout
         """
-
         LobsterDict = {}
         # check if Lobster starts from a projection
         LobsterDict['restart_from_projection'] = self.is_restart_from_projection
@@ -756,64 +757,17 @@ class Lobsterout:
 
         return LobsterDict
 
-    def _get_lobster_version(self, data):
+    @staticmethod
+    def _get_lobster_version(data):
         for row in data:
             splitrow = row.split()
             if len(splitrow) > 1:
                 if splitrow[0] == "LOBSTER":
                     return splitrow[1]
+        raise RuntimeError("Version not found.")
 
-    def _has_bandoverlaps(self, data):
-        if 'WARNING: I dumped the band overlap matrices to the file bandOverlaps.lobster.' in data:
-            return True
-        else:
-            return False
-
-    def _starts_from_projection(self, data):
-        if 'loading projection from projectionData.lobster...' in data:
-            return True
-        else:
-            return False
-
-    def _has_DOSCAR(self, data):
-        if 'writing DOSCAR.lobster...' in data and 'SKIPPING writing DOSCAR.lobster...' not in data:
-            return True
-        else:
-            return False
-
-    def _has_COOPCAR(self, data):
-        if 'writing COOPCAR.lobster and ICOOPLIST.lobster...' in data and \
-                'SKIPPING writing COOPCAR.lobster and ICOOPLIST.lobster...' not in data:
-            return True
-        else:
-            return False
-
-    def _has_COHPCAR(self, data):
-        if 'writing COHPCAR.lobster and ICOHPLIST.lobster...' in data and \
-                'SKIPPING writing COHPCAR.lobster and ICOHPLIST.lobster...' not in data:
-            return True
-        else:
-            return False
-
-    def _has_CHARGE(self, data):
-        if 'SKIPPING writing CHARGE.lobster...' not in data:
-            return True
-        else:
-            return False
-
-    def _has_grosspopulation(self, data):
-        if 'writing CHARGE.lobster and GROSSPOP.lobster...' in data:
-            return True
-        else:
-            return False
-
-    def _has_projection(self, data):
-        if 'saving projection to projectionData.lobster...' in data:
-            return True
-        else:
-            return False
-
-    def _has_fatband(self, data):
+    @staticmethod
+    def _has_fatband(data):
         for row in data:
             splitrow = row.split()
             if len(splitrow) > 1:
@@ -821,39 +775,36 @@ class Lobsterout:
                     return True
         return False
 
-    def _has_density_of_energies(self, data):
-        if "writing DensityOfEnergy.lobster..." in data:
-            return True
-        else:
-            return False
-
-    def _get_dft_program(self, data):
+    @staticmethod
+    def _get_dft_program(data):
         for row in data:
             splitrow = row.split()
             if len(splitrow) > 4:
                 if splitrow[3] == "program...":
                     return splitrow[4]
+        return None
 
-    def _get_number_of_spins(self, data):
+    @staticmethod
+    def _get_number_of_spins(data):
         if "spillings for spin channel 2" in data:
             return 2
-        else:
-            return 1
+        return 1
 
-    def _get_threads(self, data):
+    @staticmethod
+    def _get_threads(data):
         for row in data:
             splitrow = row.split()
             if len(splitrow) > 11:
                 if (splitrow[11]) == "threads" or (splitrow[11] == "thread"):
                     return splitrow[10]
+        raise ValueError("Threads not found.")
 
-    def _get_spillings(self, data, number_of_spins):
+    @staticmethod
+    def _get_spillings(data, number_of_spins):
         charge_spilling = []
         total_spilling = []
-
         for row in data:
             splitrow = row.split()
-
             if len(splitrow) > 2:
                 if splitrow[2] == 'spilling:':
                     if splitrow[1] == 'charge':
@@ -866,7 +817,8 @@ class Lobsterout:
 
         return charge_spilling, total_spilling
 
-    def _get_elements_basistype_basisfunctions(self, data):
+    @staticmethod
+    def _get_elements_basistype_basisfunctions(data):
         begin = False
         end = False
         elements = []
@@ -889,7 +841,8 @@ class Lobsterout:
                 begin = True
         return elements, basistype, basisfunctions
 
-    def _get_timing(self, data):
+    @staticmethod
+    def _get_timing(data):
         # will give back wall, user and sys time
         begin = False
         # end=False
@@ -913,7 +866,8 @@ class Lobsterout:
 
         return wall_time_dict, user_time_dict, sys_time_dict
 
-    def _get_warning_orthonormalization(self, data):
+    @staticmethod
+    def _get_warning_orthonormalization(data):
         orthowarning = []
         for row in data:
             splitrow = row.split()
@@ -921,24 +875,24 @@ class Lobsterout:
                 orthowarning.append(" ".join(splitrow[1:]))
         return orthowarning
 
-    def _get_all_warning_lines(self, data):
-        warnings = []
+    @staticmethod
+    def _get_all_warning_lines(data):
+        ws = []
         for row in data:
             splitrow = row.split()
             if len(splitrow) > 0:
                 if splitrow[0] == 'WARNING:':
-                    warnings.append(" ".join(splitrow[1:]))
+                    ws.append(" ".join(splitrow[1:]))
+        return ws
 
-        return warnings
-
-    def _get_all_info_lines(self, data):
+    @staticmethod
+    def _get_all_info_lines(data):
         infos = []
         for row in data:
             splitrow = row.split()
             if len(splitrow) > 0:
                 if splitrow[0] == 'INFO:':
                     infos.append(" ".join(splitrow[1:]))
-
         return infos
 
 
@@ -1045,12 +999,12 @@ class Fatband:
         # are there
         for key, items in atom_orbital_dict.items():
             if len(set(items)) != len(items):
-                raise (ValueError("The are two FATBAND files for the same atom and orbital. The program will stop."))
+                raise ValueError("The are two FATBAND files for the same atom and orbital. The program will stop.")
             split = []
             for item in items:
                 split.append(item.split("_")[0])
             for orb, number in collections.Counter(split).items():
-                if number != 1 and number != 3 and number != 5 and number != 7:
+                if number not in (1, 3, 5, 7):
                     raise ValueError(
                         "Make sure all relevant orbitals were generated and that no duplicates (2p and 2p_x) are "
                         "present")
@@ -1210,7 +1164,7 @@ class Bandoverlaps:
 
             else:
                 overlaps = []
-                for el in (line.split(" ")):
+                for el in line.split(" "):
                     if el not in [""]:
                         overlaps.append(float(el))
                 self.bandoverlapsdict[spin][" ".join(kpoint_array)]["matrix"].append(overlaps)

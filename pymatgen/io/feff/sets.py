@@ -10,18 +10,18 @@ structure without further user intervention. This ensures comparability across
 runs.
 """
 
-import sys
-import os
 import abc
-from copy import deepcopy
 import logging
+import os
+import sys
+from copy import deepcopy
 
-from monty.serialization import loadfn
+import numpy as np
 from monty.json import MSONable
 from monty.os.path import zpath
+from monty.serialization import loadfn
 
 from pymatgen.io.feff.inputs import Atoms, Tags, Potential, Header
-import numpy as np
 
 __author__ = "Kiran Mathew"
 __credits__ = "Alan Dozier, Anubhav Jain, Shyue Ping Ong"
@@ -168,7 +168,7 @@ class FEFFDictSet(AbstractFeffInputSet):
             del self.config_dict["_del"]
         # k-space feff only for small systems. The hardcoded system size in
         # feff is around 14 atoms.
-        self.small_system = True if (len(self.structure) < 14 and 'EXAFS' not in self.config_dict) else False
+        self.small_system = len(self.structure) < 14 and 'EXAFS' not in self.config_dict
 
     def header(self, source='', comment=''):
         """
@@ -299,6 +299,8 @@ class FEFFDictSet(AbstractFeffInputSet):
             return FEFFDictSet(absorber_index[0], sub_d['header'].struct, radius=radius,
                                config_dict=CONFIG, edge=sub_d["parameters"]["EDGE"],
                                nkpts=1000, user_tag_settings=sub_d["parameters"])
+
+        raise ValueError("Bad input directory.")
 
 
 class MPXANESSet(FEFFDictSet):

@@ -278,6 +278,7 @@ class CompositionTest(PymatgenTest):
         self.assertEqual(d['O'], correct_dict['O'])
         correct_dict = {'Fe': 2.0, 'O': 3.0}
         d = c.to_reduced_dict
+        self.assertIsInstance(d, dict)
         self.assertEqual(d['Fe'], correct_dict['Fe'])
         self.assertEqual(d['O'], correct_dict['O'])
 

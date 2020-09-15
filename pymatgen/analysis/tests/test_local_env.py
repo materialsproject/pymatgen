@@ -250,11 +250,11 @@ class JmolNNTest(PymatgenTest):
                 nsites_checked += 1
         self.assertEqual(nsites_checked, 12)
 
-        # Test a user override that would cause Li to show up as 6-coordinated
-        self.assertEqual(self.jmol_update.get_cn(s, 0), 6)
+        # Test a user override that would cause Li to show up as 2-coordinated
+        self.assertEqual(self.jmol_update.get_cn(s, 0), 2)
 
         # Verify get_nn function works
-        self.assertEqual(len(self.jmol_update.get_nn(s, 0)), 6)
+        self.assertEqual(len(self.jmol_update.get_nn(s, 0)), 2)
 
     def tearDown(self):
         del self.jmol

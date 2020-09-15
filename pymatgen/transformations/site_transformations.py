@@ -14,20 +14,13 @@ import itertools
 import logging
 import time
 
-from monty.json import MSONable
-
 import numpy as np
+
+from monty.json import MSONable
 
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.transformations.transformation_abc import AbstractTransformation
 from pymatgen.analysis.ewald import EwaldSummation, EwaldMinimizer
-
-__author__ = "Shyue Ping Ong, Will Richards"
-__copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "1.2"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Sep 23, 2011"
 
 
 class InsertSitesTransformation(AbstractTransformation):
@@ -465,8 +458,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
             struct = s.get_sorted_structure()
             all_structures.append(
                 {"energy": output[0],
-                 "energy_above_minimum": (output[0] - lowest_energy)
-                    / num_atoms,
+                 "energy_above_minimum": (output[0] - lowest_energy) / num_atoms,
                  "structure": struct})
 
         return all_structures
@@ -481,8 +473,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
                           in structure[ind].species.items()}
                 s[ind] = new_sp
         # Perform enumeration
-        from pymatgen.transformations.advanced_transformations import \
-            EnumerateStructureTransformation
+        from pymatgen.transformations.advanced_transformations import EnumerateStructureTransformation
         trans = EnumerateStructureTransformation()
         return trans.apply_transformation(s, 10000)
 
@@ -514,8 +505,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
             if abs(num_to_remove - int(round(num_to_remove))) > 1e-3:
                 raise ValueError("Fraction to remove must be consistent with "
                                  "integer amounts in structure.")
-            else:
-                num_to_remove = int(round(num_to_remove))
+            num_to_remove = int(round(num_to_remove))
             num_remove_dict[tuple(indices)] = num_to_remove
             n = len(indices)
             total_combis += int(round(math.factorial(n) /

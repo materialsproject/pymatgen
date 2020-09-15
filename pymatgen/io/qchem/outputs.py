@@ -6,24 +6,25 @@
 Parsers for Qchem output files.
 """
 
-import re
+import copy
 import logging
+import math
 import os
+import re
 import warnings
 from typing import List
-import math
-import copy
 
 import numpy as np
 
+import networkx as nx
+
 from monty.io import zopen
-from monty.json import jsanitize
 from monty.json import MSONable
-from pymatgen.core import Molecule
+from monty.json import jsanitize
 
 from pymatgen.analysis.graphs import MoleculeGraph
 from pymatgen.analysis.local_env import OpenBabelNN
-import networkx as nx
+from pymatgen.core import Molecule
 
 try:
     from openbabel import openbabel as ob
@@ -66,15 +67,12 @@ class QCOutput(MSONable):
                 "key": r"Job\s+\d+\s+of\s+(\d+)\s+"
             },
             terminate_on_match=True).get('key')
-        if not (self.data.get('multiple_outputs') is None
-                or self.data.get('multiple_outputs') == [['1']]):
-            print(
+        if not (self.data.get('multiple_outputs') is None or self.data.get('multiple_outputs') == [['1']]):
+            raise ValueError(
                 "ERROR: multiple calculation outputs found in file " +
                 filename +
                 ". Please instead call QCOutput.mulitple_outputs_from_file(QCOutput,'"
                 + filename + "')")
-            print("Exiting...")
-            exit()
 
         # Parse the molecular details: charge, multiplicity,
         # species, and initial geometry.
@@ -277,15 +275,9 @@ class QCOutput(MSONable):
                 self.data["opt_constraint"] = temp_constraint[0]
                 if float(self.data.get('opt_constraint')[5]) != float(
                         self.data.get('opt_constraint')[6]):
-                    if abs(float(self.data.get('opt_constraint')[5])) != abs(
-                            float(self.data.get('opt_constraint')[6])):
-                        raise ValueError(
-                            "ERROR: Opt section value and constraint should be the same!"
-                        )
-                    elif abs(float(
-                            self.data.get('opt_constraint')[5])) not in [
-                        0.0, 180.0
-                    ]:
+                    if abs(float(self.data.get('opt_constraint')[5])) != abs(float(self.data.get('opt_constraint')[6])):
+                        raise ValueError("ERROR: Opt section value and constraint should be the same!")
+                    if abs(float(self.data.get('opt_constraint')[5])) not in [0.0, 180.0]:
                         raise ValueError(
                             "ERROR: Opt section value and constraint can only differ by a sign at 0.0 and 180.0!"
                         )
@@ -1280,13 +1272,11 @@ def check_for_structure_changes(mol1: Molecule, mol2: Molecule) -> str:
     last_graph = last_mol_graph.graph
     if initial_mol_graph.isomorphic_to(last_mol_graph):
         return "no_change"
-    else:
-        if (nx.is_connected(initial_graph.to_undirected()) and
-                not nx.is_connected(last_graph.to_undirected())):
-            return "unconnected_fragments"
-        elif last_graph.number_of_edges() < initial_graph.number_of_edges():
-            return "fewer_bonds"
-        elif last_graph.number_of_edges() > initial_graph.number_of_edges():
-            return "more_bonds"
-        else:
-            return "bond_change"
+
+    if nx.is_connected(initial_graph.to_undirected()) and not nx.is_connected(last_graph.to_undirected()):
+        return "unconnected_fragments"
+    if last_graph.number_of_edges() < initial_graph.number_of_edges():
+        return "fewer_bonds"
+    if last_graph.number_of_edges() > initial_graph.number_of_edges():
+        return "more_bonds"
+    return "bond_change"

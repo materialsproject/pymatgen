@@ -30,20 +30,16 @@ stipulated by the COD developers)::
     Structure Database". American Mineralogist 88, 247-250.
 """
 
-import requests
 import subprocess
+import re
+
+import requests
+
 from monty.dev import requires
 from monty.os.path import which
 
-import re
 from pymatgen.core.composition import Composition
 from pymatgen.core.structure import Structure
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "1.0"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
 
 
 class COD:
@@ -55,7 +51,7 @@ class COD:
         """
         Blank __init__. No args required.
         """
-        pass
+        self.url = "www.crystallography.net"
 
     def query(self, sql: str) -> str:
         """
@@ -65,7 +61,7 @@ class COD:
         :return: Response from SQL query.
         """
         r = subprocess.check_output(["mysql", "-u", "cod_reader", "-h",
-                                     "www.crystallography.net", "-e",
+                                     self.url, "-e",
                                      sql, "cod"])
         return r.decode("utf-8")
 
@@ -107,7 +103,7 @@ class COD:
         Returns:
             A Structure.
         """
-        r = requests.get("http://www.crystallography.net/cod/%s.cif" % cod_id)
+        r = requests.get("http://%s/cod/%s.cif" % (self.url, cod_id))
         return Structure.from_str(r.text, fmt="cif", **kwargs)
 
     @requires(which("mysql"), "mysql must be installed to use this query.")

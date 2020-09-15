@@ -6,14 +6,16 @@
 This module provides classes to define everything related to band structures.
 """
 
-import numpy as np
 import re
 import math
 import itertools
 import collections
 import warnings
 
+import numpy as np
+
 from monty.json import MSONable
+
 from pymatgen.core.periodic_table import get_el_sp, Element
 from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
@@ -444,10 +446,8 @@ class BandStructure:
 
         result["energy"] = cbm["energy"] - vbm["energy"]
 
-        if (cbm["kpoint"].label is not None and cbm["kpoint"].label == vbm[
-            "kpoint"].label) \
-                or np.linalg.norm(cbm["kpoint"].cart_coords
-                                  - vbm["kpoint"].cart_coords) < 0.01:
+        if (cbm["kpoint"].label is not None and cbm["kpoint"].label == vbm["kpoint"].label) \
+                or np.linalg.norm(cbm["kpoint"].cart_coords - vbm["kpoint"].cart_coords) < 0.01:
             result["direct"] = True
 
         result["transition"] = "-".join(
@@ -537,6 +537,7 @@ class BandStructure:
         all_kpts = self.get_sym_eq_kpoints(kpoint, cartesian, tol=tol)
         if all_kpts is not None:
             return len(all_kpts)
+        return None
 
     def as_dict(self):
         """
@@ -655,10 +656,8 @@ class BandStructure:
                         for k in range(len(d['projections'][spin][i][j])):
                             ddddd = []
                             orb = Orbital(k).name
-                            for l in range(len(d['projections'][spin][i][j][
-                                                   orb])):
-                                ddddd.append(d['projections'][spin][i][j][
-                                                 orb][l])
+                            for l in range(len(d['projections'][spin][i][j][orb])):
+                                ddddd.append(d['projections'][spin][i][j][orb][l])
                             dddd.append(np.array(ddddd))
                         ddd.append(np.array(dddd))
                     dd.append(np.array(ddd))
@@ -860,50 +859,6 @@ class BandStructureSymmLine(BandStructure, MSONable):
                                 old_dict['bands'][spin][k][v] + shift
             old_dict['efermi'] = old_dict['efermi'] + shift
         return self.from_dict(old_dict)
-
-    # def as_dict(self):
-    #     """
-    #     Json-serializable dict representation of BandStructureSymmLine.
-    #     """
-    #     d = {"@module": self.__class__.__module__,
-    #          "@class": self.__class__.__name__,
-    #          "lattice_rec": self.lattice_rec.as_dict(), "efermi": self.efermi,
-    #          "kpoints": []}
-    #     # kpoints are not kpoint objects dicts but are frac coords (this makes
-    #     # the dict smaller and avoids the repetition of the lattice
-    #     for k in self.kpoints:
-    #         d["kpoints"].append(k.as_dict()["fcoords"])
-    #     d["branches"] = self.branches
-    #     d["bands"] = {str(int(spin)): self.bands[spin].tolist()
-    #                   for spin in self.bands}
-    #     d["is_metal"] = self.is_metal()
-    #     vbm = self.get_vbm()
-    #     d["vbm"] = {"energy": vbm["energy"],
-    #                 "kpoint_index": vbm["kpoint_index"],
-    #                 "band_index": {str(int(spin)): vbm["band_index"][spin]
-    #                                for spin in vbm["band_index"]},
-    #                 'projections': {str(spin): v.tolist() for spin, v in vbm[
-    #                     'projections'].items()}}
-    #     cbm = self.get_cbm()
-    #     d['cbm'] = {'energy': cbm['energy'],
-    #                 'kpoint_index': cbm['kpoint_index'],
-    #                 'band_index': {str(int(spin)): cbm['band_index'][spin]
-    #                                for spin in cbm['band_index']},
-    #                 'projections': {str(spin): v.tolist() for spin, v in cbm[
-    #                     'projections'].items()}}
-    #     d['band_gap'] = self.get_band_gap()
-    #     d['labels_dict'] = {}
-    #     d['is_spin_polarized'] = self.is_spin_polarized
-    #     # MongoDB does not accept keys starting with $. Add a blanck space to fix the problem
-    #     for c in self.labels_dict:
-    #         mongo_key = c if not c.startswith("$") else " " + c
-    #         d['labels_dict'][mongo_key] = self.labels_dict[c].as_dict()[
-    #             'fcoords']
-    #     if len(self.projections) != 0:
-    #         d['structure'] = self.structure.as_dict()
-    #         d['projections'] = {str(int(spin)): np.array(v).tolist()
-    #                             for spin, v in self.projections.items()}
-    #     return d
 
  
 class LobsterBandStructureSymmLine(BandStructureSymmLine):
@@ -1135,7 +1090,6 @@ def get_reconstructed_band_structure(list_bs, efermi=None):
                                      efermi, labels_dict,
                                      structure=list_bs[0].structure,
                                      projections=projections)
-    else:
-        return BandStructure(kpoints, eigenvals, rec_lattice, efermi,
-                             labels_dict, structure=list_bs[0].structure,
-                             projections=projections)
+    return BandStructure(kpoints, eigenvals, rec_lattice, efermi,
+                         labels_dict, structure=list_bs[0].structure,
+                         projections=projections)

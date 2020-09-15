@@ -72,7 +72,7 @@ class ExcitingInputTest(PymatgenTest):
         for l1, l2 in zip(input_string.split("\n"),
                           excin.write_string('unchanged').split("\n")):
             if not l1.strip().startswith("<crystal scale"):
-                self.assertEqual(l1, l2)
+                self.assertEqual(l1.strip(), l2.strip())
 
     def test_writebandstr(self):
         filepath = os.path.join(test_dir, 'CsI3Pb.cif')
