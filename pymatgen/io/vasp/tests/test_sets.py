@@ -1237,6 +1237,12 @@ class MPScanRelaxSetTest(PymatgenTest):
         self.assertEqual(incar["ISMEAR"], 2)
         self.assertEqual(incar["SIGMA"], 0.2)
 
+    def test_scan_substitute(self):
+        mp_scan_sub = MPScanRelaxSet(
+            self.struct, potcar_functional="PBE_52", user_incar_settings={"METAGGA": "SCAN"})
+        incar = mp_scan_sub.incar
+        self.assertEqual(incar["METAGGA"], "Scan")
+
     def test_nonmetal(self):
         # Test that KSPACING and ISMEAR change with a nonmetal structure
         file_path = self.TEST_FILES_DIR / "POSCAR.O2"

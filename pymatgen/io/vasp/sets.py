@@ -753,7 +753,7 @@ class MPScanRelaxSet(DictSet):
         1. This functional is currently not officially supported in VASP. Source
         code may be obtained by contacting the authors of the manuscript in the
         References section. The original SCAN functional, available from VASP 5.4.3
-        onwards, maybe used instead by passing `user_incar_settings={"METAGGA: SCAN"}`
+        onwards, maybe used instead by passing `user_incar_settings={"METAGGA": "SCAN"}`
         when instantiating this InputSet. r2SCAN and SCAN are expected to yield
         very similar results.
 
