@@ -213,11 +213,13 @@ class DiffusionAnalyzer(MSONable):
             self.conductivity_components = np.array([0., 0., 0.])
             self.max_framework_displacement = 0
         else:
-            framework_disp = self.disp[framework_indices]
-            drift = np.average(framework_disp, axis=0)[None, :, :]
-
-            # drift corrected position
-            dc = self.disp - drift
+            if framework_indices:
+                framework_disp = self.disp[framework_indices]
+                drift = np.average(framework_disp, axis=0)[None, :, :]
+                dc = self.disp - drift # Drift corrected position
+            else: # No framework atoms
+                dc = self.disp
+                drift = np.zeros(self.disp.shape)
 
             nions, nsteps, dim = dc.shape
 
@@ -332,8 +334,9 @@ class DiffusionAnalyzer(MSONable):
             self.corrected_displacements = dc
             self.max_ion_displacements = np.max(np.sum(
                 dc ** 2, axis=-1) ** 0.5, axis=1)
-            self.max_framework_displacement = \
-                np.max(self.max_ion_displacements[framework_indices])
+            if framework_indices:
+                self.max_framework_displacement = \
+                    np.max(self.max_ion_displacements[framework_indices])
             self.msd = msd
             self.mscd = mscd
             self.haven_ratio = self.diffusivity / self.chg_diffusivity
