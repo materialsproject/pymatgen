@@ -17,7 +17,6 @@ import itertools
 import logging
 from collections import defaultdict
 import copy
-
 import math
 from math import cos
 from math import sin
@@ -34,12 +33,6 @@ from pymatgen.core.structure import PeriodicSite
 from pymatgen.core.operations import SymmOp
 from pymatgen.util.coord import find_in_coord_list, pbc_diff
 
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "3.0"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "May 14, 2016"
 
 logger = logging.getLogger(__name__)
 
@@ -188,10 +181,9 @@ class SpacegroupAnalyzer:
         system = self.get_crystal_system()
         if n in [146, 148, 155, 160, 161, 166, 167]:
             return "rhombohedral"
-        elif system == "trigonal":
+        if system == "trigonal":
             return "hexagonal"
-        else:
-            return system
+        return system
 
     def get_symmetry_dataset(self):
         """
@@ -512,8 +504,8 @@ class SpacegroupAnalyzer:
                     transf[i][sorted_dic[i]['orig_index']] = 1
                 c = latt.abc[0]
             else:
-                for i in range(len(sorted_dic)):
-                    transf[i][sorted_dic[i]['orig_index']] = 1
+                for i, d in enumerate(sorted_dic):
+                    transf[i][d['orig_index']] = 1
                 a, b, c = sorted_lengths
             latt = Lattice.orthorhombic(a, b, c)
 
@@ -522,10 +514,10 @@ class SpacegroupAnalyzer:
             # it is basically the vector repeated two times
             transf = np.zeros(shape=(3, 3))
             a, b, c = sorted_lengths
-            for d in range(len(sorted_dic)):
-                transf[d][sorted_dic[d]['orig_index']] = 1
+            for i, d in enumerate(sorted_dic):
+                transf[i][d['orig_index']] = 1
 
-            if abs(b - c) < tol and abs(a - c) > tol:
+            if abs(b - c) < tol < abs(a - c):
                 a, c = c, a
                 transf = np.dot([[0, 0, 1], [0, 1, 0], [1, 0, 0]], transf)
             latt = Lattice.tetragonal(a, c)
@@ -583,7 +575,7 @@ class SpacegroupAnalyzer:
                                       [0, c * cos(alpha), c * sin(alpha)]]
                         continue
 
-                    elif angles[0] < 90:
+                    if angles[0] < 90:
                         transf = np.zeros(shape=(3, 3))
                         transf[0][t[0]] = 1
                         transf[1][t[1]] = 1
@@ -601,8 +593,9 @@ class SpacegroupAnalyzer:
                                   [0, b, 0],
                                   [0, 0, c]]
                     transf = np.zeros(shape=(3, 3))
-                    for c in range(len(sorted_dic)):
-                        transf[c][sorted_dic[c]['orig_index']] = 1
+                    transf[2] = [0, 0, 1]  # see issue #1929
+                    for i, d in enumerate(sorted_dic):
+                        transf[i][d['orig_index']] = 1
             # if not C-setting
             else:
                 # try all permutations of the axis
@@ -625,7 +618,7 @@ class SpacegroupAnalyzer:
                                       [0, b, 0],
                                       [0, c * cos(alpha), c * sin(alpha)]]
                         continue
-                    elif alpha < 90 and b < c:
+                    if alpha < 90 and b < c:
                         transf = np.zeros(shape=(3, 3))
                         transf[0][t[0]] = 1
                         transf[1][t[1]] = 1
@@ -641,8 +634,8 @@ class SpacegroupAnalyzer:
                                   [0, sorted_lengths[1], 0],
                                   [0, 0, sorted_lengths[2]]]
                     transf = np.zeros(shape=(3, 3))
-                    for c in range(len(sorted_dic)):
-                        transf[c][sorted_dic[c]['orig_index']] = 1
+                    for i, d in enumerate(sorted_dic):
+                        transf[i][d['orig_index']] = 1
 
             if international_monoclinic:
                 # The above code makes alpha the non-right angle.
@@ -1094,6 +1087,7 @@ class PointGroupAnalyzer:
                     self.symmops.append(op)
                     self.rot_sym.append((test_axis, 2))
                     return True
+        return None
 
     def _proc_sph_top(self):
         """
@@ -1513,20 +1507,20 @@ def generate_full_symmops(symmops, tol):
     if not generators:
         # C1 symmetry breaks assumptions in the algorithm afterwards
         return symmops
-    else:
-        full = list(generators)
 
-        for g in full:
-            for s in generators:
-                op = np.dot(g, s)
-                d = np.abs(full - op) < tol
-                if not np.any(np.all(np.all(d, axis=2), axis=1)):
-                    full.append(op)
+    full = list(generators)
 
-        d = np.abs(full - UNIT) < tol
-        if not np.any(np.all(np.all(d, axis=2), axis=1)):
-            full.append(UNIT)
-        return [SymmOp(op) for op in full]
+    for g in full:
+        for s in generators:
+            op = np.dot(g, s)
+            d = np.abs(full - op) < tol
+            if not np.any(np.all(np.all(d, axis=2), axis=1)):
+                full.append(op)
+
+    d = np.abs(full - UNIT) < tol
+    if not np.any(np.all(np.all(d, axis=2), axis=1)):
+        full.append(UNIT)
+    return [SymmOp(op) for op in full]
 
 
 class SpacegroupOperations(list):

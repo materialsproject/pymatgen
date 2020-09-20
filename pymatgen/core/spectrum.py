@@ -14,13 +14,6 @@ from monty.json import MSONable
 
 from pymatgen.util.coord import get_linear_interpolated_value
 
-__author__ = "Chen Zheng"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "2.0"
-__maintainer__ = "Chen Zheng"
-__email__ = "chz022@ucsd.edu"
-__date__ = "Aug 9, 2017"
-
 
 class Spectrum(MSONable):
     """

@@ -6,19 +6,16 @@
 Classes for reading/manipulating/writing exciting input files.
 """
 
-import numpy as np
-
-from monty.io import zopen
-
 import xml.etree.cElementTree as ET
 
+import numpy as np
 import scipy.constants as const
-
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Structure
-from pymatgen.core.periodic_table import Element
+from monty.io import zopen
 from monty.json import MSONable
 
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.periodic_table import Element
+from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 
@@ -117,7 +114,7 @@ class ExcitingInput(MSONable):
                 if atom.get('lockxyz') is not None:
                     lxyz = []
                     for l in atom.get('lockxyz').split():
-                        if l == 'True' or l == 'true':
+                        if l in ('True', 'true'):
                             lxyz.append(True)
                         else:
                             lxyz.append(False)
@@ -128,9 +125,9 @@ class ExcitingInput(MSONable):
         if 'cartesian' in root.find('structure').attrib.keys():
             if root.find('structure').attrib['cartesian']:
                 cartesian = True
-                for i in range(len(positions)):
+                for i, p in enumerate(positions):
                     for j in range(3):
-                        positions[i][j] = positions[i][j] * ExcitingInput.bohr2ang
+                        p[j] = p[j] * ExcitingInput.bohr2ang
                 print(positions)
         else:
             cartesian = False
@@ -295,7 +292,6 @@ class ExcitingInput(MSONable):
             tree.write(filename)
         except Exception:
             raise ValueError('Incorrect celltype!')
-        return
 
     # Missing PrerryPrint option in the current version of xml.etree.cElementTree
     @staticmethod
@@ -313,8 +309,8 @@ class ExcitingInput(MSONable):
                 elem.text = i + "  "
             if not elem.tail or not elem.tail.strip():
                 elem.tail = i
-            for elem in elem:
-                ExcitingInput.indent(elem, level + 1)
+            for el in elem:
+                ExcitingInput.indent(el, level + 1)
             if not elem.tail or not elem.tail.strip():
                 elem.tail = i
         else:

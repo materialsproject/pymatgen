@@ -438,8 +438,7 @@ class QCInput(MSONable):
             header_pattern=header,
             row_pattern=row,
             footer_pattern=footer)
-        rem = {key: val for key, val in rem_table[0]}
-        return rem
+        return dict(rem_table[0])
 
     @staticmethod
     def read_opt(string):
@@ -459,7 +458,7 @@ class QCInput(MSONable):
             "CONNECT": r"^\s*CONNECT"
         }
         opt_matches = read_pattern(string, patterns)
-        opt_sections = [key for key in opt_matches.keys()]
+        opt_sections = list(opt_matches.keys())
         opt = {}
         if "CONSTRAINT" in opt_sections:
             c_header = r"^\s*CONSTRAINT\n"
@@ -522,14 +521,13 @@ class QCInput(MSONable):
             header_pattern=header,
             row_pattern=row,
             footer_pattern=footer)
-        if pcm_table == []:
+        if not pcm_table:
             print(
                 "No valid PCM inputs found. Note that there should be no '=' chracters in PCM input lines."
             )
             return {}
-        else:
-            pcm = {key: val for key, val in pcm_table[0]}
-            return pcm
+
+        return dict(pcm_table[0])
 
     @staticmethod
     def read_solvent(string):
@@ -550,14 +548,13 @@ class QCInput(MSONable):
             header_pattern=header,
             row_pattern=row,
             footer_pattern=footer)
-        if solvent_table == []:
+        if not solvent_table:
             print(
                 "No valid solvent inputs found. Note that there should be no '=' chracters in solvent input lines."
             )
             return {}
-        else:
-            solvent = {key: val for key, val in solvent_table[0]}
-            return solvent
+
+        return dict(solvent_table[0])
 
     @staticmethod
     def read_smx(string):
@@ -578,13 +575,13 @@ class QCInput(MSONable):
             header_pattern=header,
             row_pattern=row,
             footer_pattern=footer)
-        if smx_table == []:
+        if not smx_table:
             print(
                 "No valid smx inputs found. Note that there should be no '=' chracters in smx input lines."
             )
             return {}
-        else:
-            smx = {key: val for key, val in smx_table[0]}
-            if smx["solvent"] == "tetrahydrofuran":
-                smx["solvent"] = "thf"
-            return smx
+
+        smx = dict(smx_table[0])
+        if smx["solvent"] == "tetrahydrofuran":
+            smx["solvent"] = "thf"
+        return smx

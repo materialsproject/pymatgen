@@ -7,17 +7,18 @@ This module provides classes for representing species substitution
 probabilities.
 """
 
-from collections import defaultdict
-from operator import mul
-from pymatgen.core.periodic_table import Specie, get_el_sp
-from monty.design_patterns import cached_class
-
 import functools
 import itertools
 import json
 import logging
 import math
 import os
+from collections import defaultdict
+from operator import mul
+
+from monty.design_patterns import cached_class
+
+from pymatgen.core.periodic_table import Specie, get_el_sp
 
 __author__ = "Will Richards, Geoffroy Hautier"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -159,8 +160,8 @@ class SubstitutionProbability:
         Returns: MSONAble dict
         """
         return {"name": self.__class__.__name__, "version": __version__,
-                "init_args": {"lambda_table": self._lambda_table,
-                              "alpha": self._alpha},
+                "init_args": {"lambda_table": self._l,
+                              "alpha": self.alpha},
                 "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__}
 
