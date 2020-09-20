@@ -1634,6 +1634,7 @@ class MPRester:
 
         # return a list of URLs for NoMaD Downloads containing the list of files
         # for every external_id in `task_ids`
+        # For reference, please visit https://nomad-lab.eu/prod/rae/api/
         prefix = "https://nomad-lab.eu/prod/rae/api/repo/query?"
         if file_patterns is not None:
             for file_pattern in file_patterns:
