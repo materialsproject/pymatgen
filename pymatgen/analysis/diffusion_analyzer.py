@@ -137,13 +137,13 @@ class DiffusionAnalyzer(MSONable):
         from_vaspruns and from_files).
 
         Given a matrix of displacements (see arguments below for expected
-        format), the diffusivity is given by:
+        format), the diffusivity is given by
 
             D = 1 / 2dt * <mean square displacement>
 
-        where d is the dimensionality and t is the time. To obtain a reliable
+        where d is the dimensionality and t is time. To obtain a reliable
         diffusion estimate, a least squares regression of the MSD against
-        time to obtain the slope, which is then related to the diffusivity.
+        time is performed to obtain the slope, which is then related to the diffusivity.
 
         For traditional analysis, use smoothed=False and weighted=False.
 
