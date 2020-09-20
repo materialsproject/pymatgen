@@ -491,7 +491,7 @@ class MPResterTest(PymatgenTest):
                 "mp-32800": [{"task_id": "mp-739635", "task_type": "GGA NSCF Uniform"}],
             },
         )
-        prefix = "http://labdev-nomad.esc.rzg.mpg.de/fairdi/nomad/mp/api/raw/query?"
+        prefix = "https://nomad-lab.eu/prod/rae/api/repo/query?"
         # previous test
         # ids = 'mp-23494,mp-688563,mp-32800,mp-746913'
         ids = "mp-1752825,mp-739635"
