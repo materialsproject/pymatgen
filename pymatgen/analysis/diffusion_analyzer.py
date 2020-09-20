@@ -622,11 +622,11 @@ class DiffusionAnalyzer(MSONable):
     def from_vaspruns(cls, vaspruns, specie, initial_disp=None,
                       initial_structure=None, **kwargs):
         r"""
-        Convenient constructor that takes in a list of Vasprun objects to
+        Convenient constructor that takes in a list of vasprun objects to
         perform diffusion analysis.
 
         Args:
-            vaspruns ([Vasprun]): List of Vaspruns in same order as 
+            vaspruns ([Vasprun]): List of vasprun.xml files in same order as 
                 run sequence, e.g., if you have performed sequential 
                 VASP runs to obtain sufficient statistics.
             specie (Element/Specie): Species to calculate diffusivity for as a
@@ -813,7 +813,7 @@ def _get_vasprun(args):
 
 def fit_arrhenius(temps, diffusivities):
     """
-    Returns Ea, c, standard error of Ea from the Arrhenius fit:
+    Returns Ea, c, standard error of Ea from the Arrhenius fit
         D = c * exp(-Ea/kT)
 
     Args:
@@ -841,13 +841,13 @@ def get_extrapolated_diffusivity(temps, diffusivities, new_temp):
     Returns (Arrhenius) extrapolated diffusivity at new_temp
 
     Args:
-        temps ([float]): A sequence of temperatures. units: K
+        temps ([float]): A sequence of temperatures. Units: K
         diffusivities ([float]): A sequence of diffusivities (e.g.,
             from DiffusionAnalyzer.diffusivity). Units: cm^2/s
         new_temp (float): Desired temperature. Units: K
 
     Returns:
-        (float) Diffusivity at extrapolated temp in mS/cm.
+        (float) Diffusivity at extrapolated temperature in mS/cm.
     """
     Ea, c, _ = fit_arrhenius(temps, diffusivities)
     return c * np.exp(-Ea / (const.k / const.e * new_temp))
@@ -856,7 +856,7 @@ def get_extrapolated_diffusivity(temps, diffusivities, new_temp):
 def get_extrapolated_conductivity(temps, diffusivities, new_temp, structure,
                                   species):
     """
-    Returns extrapolated mS/cm conductivity.
+    Returns extrapolated conductivity in mS/cm.
 
     Args:
         temps ([float]): A sequence of temperatures. Units: K
@@ -867,7 +867,7 @@ def get_extrapolated_conductivity(temps, diffusivities, new_temp, structure,
         species (string/Specie): Conducting species
 
     Returns:
-        (float) Conductivity at extrapolated temp in mS/cm.
+        (float) Conductivity at extrapolated temperature in mS/cm.
     """
     return get_extrapolated_diffusivity(temps, diffusivities, new_temp) \
         * get_conversion_factor(structure, species, new_temp)
@@ -888,7 +888,7 @@ def get_arrhenius_plot(temps, diffusivities, diffusivity_errors=None,
             Any keyword args supported by matplotlib.pyplot.plot.
 
     Returns:
-        A matplotlib.pyplot object. Do plt.show() to show the plot.
+        A matplotlib.pyplot object. Use plt.show() to show the plot.
     """
     Ea, c, _ = fit_arrhenius(temps, diffusivities)
 
@@ -909,7 +909,7 @@ def get_arrhenius_plot(temps, diffusivities, diffusivity_errors=None,
     ax = plt.axes()
     ax.set_yscale('log')
     plt.text(0.6, 0.85, "E$_a$ = {:.0f} meV".format(Ea * 1000),
-             fontsize=30, transform=plt.axes().transAxes)
+             fontsize=30, transform=ax.transAxes)
     plt.ylabel("D (cm$^2$/s)")
     plt.xlabel("1000/T (K$^{-1}$)")
     plt.tight_layout()
