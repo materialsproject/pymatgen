@@ -43,7 +43,7 @@ class SetChangeCheckTest(PymatgenTest):
             "MVLRelax52Set.yaml": "eb538ffb45c0cd13f13df48afc1e71c44d2e34b2",
             "MPHSERelaxSet.yaml": "2bb969e64b57ff049077c8ec10e64f94c9c97f42",
             "VASPIncarBase.yaml": "dbdbfe7d5c055a3f1e87223a031ae3ad58631395",
-            "MPSCANRelaxSet.yaml": "9b115af9415a422bdec784ff7f6ae5b18dec02b6",
+            "MPSCANRelaxSet.yaml": "2604952d387f6531bfc37641ac3b1ffcce9f1bc1",
             "MPRelaxSet.yaml": "4ea97d776fbdc7e168036f73e9176012a56c0a45",
             "MITRelaxSet.yaml": "1a0970f8cad9417ec810f7ab349dc854eaa67010",
             "vdW_parameters.yaml": "66541f58b221c8966109156f4f651b2ca8aa76da",
@@ -1227,14 +1227,21 @@ class MPScanRelaxSetTest(PymatgenTest):
 
     def test_incar(self):
         incar = self.mp_scan_set.incar
-        self.assertEqual(incar["METAGGA"], "Scan")
+        self.assertEqual(incar["METAGGA"], "R2scan")
         self.assertEqual(incar["LASPH"], True)
+        self.assertEqual(incar["ENAUG"], 1360)
         self.assertEqual(incar["ENCUT"], 680)
         self.assertEqual(incar["NSW"], 500)
         # the default POTCAR contains metals
         self.assertEqual(incar["KSPACING"], 0.22)
         self.assertEqual(incar["ISMEAR"], 2)
         self.assertEqual(incar["SIGMA"], 0.2)
+
+    def test_scan_substitute(self):
+        mp_scan_sub = MPScanRelaxSet(
+            self.struct, potcar_functional="PBE_52", user_incar_settings={"METAGGA": "SCAN"})
+        incar = mp_scan_sub.incar
+        self.assertEqual(incar["METAGGA"], "Scan")
 
     def test_nonmetal(self):
         # Test that KSPACING and ISMEAR change with a nonmetal structure
@@ -1287,7 +1294,7 @@ class MPScanRelaxSetTest(PymatgenTest):
         d = self.mp_scan_set.as_dict()
         v = dec.process_decoded(d)
         self.assertEqual(type(v), MPScanRelaxSet)
-        self.assertEqual(v._config_dict["INCAR"]["METAGGA"], "SCAN")
+        self.assertEqual(v._config_dict["INCAR"]["METAGGA"], "R2SCAN")
         self.assertEqual(v.user_incar_settings["NSW"], 500)
 
     def test_write_input(self):
@@ -1309,8 +1316,7 @@ class MPScanStaticSetTest(PymatgenTest):
         warnings.simplefilter("ignore")
 
     def test_init(self):
-        # test inheriting from a previous GGA relaxation
-        # (note: this test calc has different settings than our typical )
+        # test inheriting from a previous SCAN relaxation
         prev_run = self.TEST_FILES_DIR / "scan_relaxation"
 
         vis = MPScanStaticSet.from_prev_calc(prev_calc_dir=prev_run)
@@ -1322,8 +1328,8 @@ class MPScanStaticSetTest(PymatgenTest):
         self.assertEqual(vis.incar["ISMEAR"], -5)
         # Check that ENCUT and other INCAR settings were inherited.
         self.assertEqual(vis.incar["ENCUT"], 680)
-        self.assertEqual(vis.incar["METAGGA"], "Scan")
-        self.assertEqual(vis.incar["KSPACING"], 0.35099344)
+        self.assertEqual(vis.incar["METAGGA"], "R2scan")
+        self.assertEqual(vis.incar["KSPACING"], 0.34292842)
 
         # Check as from dict.
         # check that StaticSet settings were applied
@@ -1333,8 +1339,8 @@ class MPScanStaticSetTest(PymatgenTest):
         self.assertEqual(vis.incar["LVHAR"], True)
         # Check that ENCUT and KSPACING were inherited.
         self.assertEqual(vis.incar["ENCUT"], 680)
-        self.assertEqual(vis.incar["METAGGA"], "Scan")
-        self.assertEqual(vis.incar["KSPACING"], 0.35099344)
+        self.assertEqual(vis.incar["METAGGA"], "R2scan")
+        self.assertEqual(vis.incar["KSPACING"], 0.34292842)
 
         non_prev_vis = MPScanStaticSet(
             vis.structure, user_incar_settings={"ENCUT": 800, "LORBIT": 12, "LWAVE": True}
@@ -1345,7 +1351,7 @@ class MPScanStaticSetTest(PymatgenTest):
         self.assertEqual(non_prev_vis.incar["LVHAR"], True)
         self.assertEqual(vis.incar["ISMEAR"], -5)
         # Check that ENCUT and other INCAR settings were inherited.
-        self.assertEqual(non_prev_vis.incar["METAGGA"], "Scan")
+        self.assertEqual(non_prev_vis.incar["METAGGA"], "R2scan")
         # the KSPACING will have the default value here, since no previous calc
         self.assertEqual(non_prev_vis.incar["KSPACING"], 0.22)
         # Check that user incar settings are applied.
@@ -1385,8 +1391,8 @@ class MPScanStaticSetTest(PymatgenTest):
         self.assertEqual(vis.incar["ISMEAR"], -5)
         # Check that ENCUT and other INCAR settings were inherited.
         self.assertEqual(vis.incar["ENCUT"], 680)
-        self.assertEqual(vis.incar["METAGGA"], "Scan")
-        self.assertEqual(vis.incar["KSPACING"], 0.35099344)
+        self.assertEqual(vis.incar["METAGGA"], "R2scan")
+        self.assertEqual(vis.incar["KSPACING"], 0.34292842)
 
         # Check LCALCPOL flag
         lcalcpol_vis = MPScanStaticSet(_dummy_structure, lcalcpol=True)

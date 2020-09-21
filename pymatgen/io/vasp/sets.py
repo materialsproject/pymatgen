@@ -745,11 +745,17 @@ class MPRelaxSet(DictSet):
 
 class MPScanRelaxSet(DictSet):
     """
-    Class for writing a relax input set using Strongly Constrained and
-    Appropriately Normed (SCAN) semilocal density functional.
+    Class for writing a relaxation input set using the accurate and numerically
+    efficient r2SCAN variant of the Strongly Constrained and Appropriately Normed
+    (SCAN) metaGGA density functional.
 
     Notes:
-        1. This functional is only available from VASP.5.4.3 upwards.
+        1. This functional is currently not officially supported in VASP. Source
+        code may be obtained by contacting the authors of the manuscript in the
+        References section. The original SCAN functional, available from VASP 5.4.3
+        onwards, maybe used instead by passing `user_incar_settings={"METAGGA": "SCAN"}`
+        when instantiating this InputSet. r2SCAN and SCAN are expected to yield
+        very similar results.
 
         2. Meta-GGA calculations require POTCAR files that include
         information on the kinetic energy density of the core-electrons,
@@ -760,6 +766,11 @@ class MPScanRelaxSet(DictSet):
             kinetic energy-density
             mkinetic energy-density pseudized
             kinetic energy density (partial)
+
+    References:
+         James W. Furness, Aaron D. Kaplan, Jinliang Ning, John P. Perdew, and Jianwei Sun.
+         Accurate and Numerically Efficient r2SCAN Meta-Generalized Gradient Approximation.
+         The Journal of Physical Chemistry Letters 0, 11 DOI: 10.1021/acs.jpclett.0c02405
     """
 
     CONFIG = _load_yaml_config("MPSCANRelaxSet")
@@ -1071,7 +1082,9 @@ class MPStaticSet(MPRelaxSet):
 
 class MPScanStaticSet(MPScanRelaxSet):
     """
-    Creates input files for a static calculation using the SCAN metaGGA functional.
+    Creates input files for a static calculation using the accurate and numerically
+    efficient r2SCAN variant of the Strongly Constrainted and Appropriately Normed
+    (SCAN) metaGGA functional.
     """
 
     def __init__(
