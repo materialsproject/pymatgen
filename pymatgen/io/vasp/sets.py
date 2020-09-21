@@ -48,7 +48,7 @@ import warnings
 from copy import deepcopy
 from itertools import chain
 from pathlib import Path
-from typing import List, Union, Optional
+from typing import List, Tuple, Union, Optional
 from zipfile import ZipFile
 
 import numpy as np
@@ -234,7 +234,6 @@ class VaspInputSet(MSONable, metaclass=abc.ABCMeta):
         if verbosity == 1:
             d.pop("structure", None)
         return d
-
 
 def _load_yaml_config(fname):
     config = loadfn(str(MODULE_DIR / ("%s.yaml" % fname)))
@@ -695,6 +694,95 @@ class DictSet(VaspInputSet):
         for k, v in self.files_to_transfer.items():
             with zopen(v, "rb") as fin, zopen(str(Path(output_dir) / k), "wb") as fout:
                 shutil.copyfileobj(fin, fout)
+
+    def calculate_ng(self, max_prime_factor: int = 7) -> Tuple[float]:
+        """
+        Calculates the NGX, NGY, and NGZ values using the information availible in the INCAR and POTCAR
+        This is meant to help with making initial guess for the FFT grid so we can interact with the Charge density API
+
+        Args:
+            input_set (MPStaticSet): the Vasp input set to parse
+            max_prime_factor (int): the valid prime factors of the grid size in each direction
+                                    VASP has many different setting for this to handel many compiling options.
+                                    For typical MPI options all prime factors up to 7 are allowed
+        """
+
+        # TODO throw error for Ultrasoft potentials
+
+        _RYTOEV=13.605826
+        _AUTOA=0.529177249
+        _PI =3.141592653589793238
+        
+        # TODO Only do this for VASP 6 for now. Older version require more advanced logitc
+
+        # get the ENCUT val
+        if "ENCUT" in self.incar and self.incar["ENCUT"] > 0:
+            encut = self.incar["ENCUT"]
+        else:
+            encut = max([i_species.enmax for i_species in self.all_input["POTCAR"]])
+        # 
+        
+        _CUTOF = [np.sqrt(encut /_RYTOEV)/(2*_PI/(anorm/_AUTOA)) for anorm in mpss_si.poscar.structure.lattice.abc]
+        
+        _PREC = 'Normal'  # VASP default
+        if "PREC" in self.incar:
+            _PREC = self.incar["PREC"]
+        
+        if _PREC[0].lower() in {'l', 'm', 'h'}:
+            raise NotImplemented("PREC = LOW/MEDIUM/HIGH from VASP 4.x and not supported, Please use NORMA/SINGLE/ACCURATE")
+        
+        if _PREC[0].lower() in {"a", "s"}:  # TODO This only works in VASP 6.x
+            _WFACT = 4
+        else:
+            _WFACT = 3
+        
+        def next_g_size(cur_g_size):
+            g_size = int(_WFACT * cur_g_size + 0.5)
+            return next_num_with_prime_factors(g_size, max_prime_factor)
+        
+        ng_vec = [*map(next_g_size, _CUTOF)]
+        
+        if _PREC[0].lower() in {"a", "n"}:  #TODO This works for VASP 5.x and 6.x
+            finer_g_scale = 2
+        else:
+            finer_g_scale = 1
+        
+        return ng_vec, [ng_ * finer_g_scale for ng_ in ng_vec]
+
+### Helper funtions to determine valide FFT grids for VASP 
+def next_num_with_prime_factors(n:int, max_prime_factor:int) -> int:
+    """
+    Return the next number greater than or equal to n that only has the desired prime factors
+
+    Args:
+        n (int): Initial guess at the grid density
+        max_prime_factor (int): the maximum prime factor
+
+    Returns:
+        int: first product of of the prime_factors that is >= n
+    """
+    prime_factors = primes_less_than(max_prime_factor)
+    for new_val in range(n, np.prod(prime_factors) * n):
+        cur_val_ = new_val
+        for j in prime_factors:
+            while cur_val_ % j == 0:
+                print(cur_val_, j, cur_val_//j)
+                cur_val_ //= j
+        if cur_val_ == 1:
+            return new_val
+
+def primes_less_than(max_val: int) -> List[int]:
+    """
+    Get the primes less than or equal to the max value
+    """
+    res = []
+    for i in range(2, max_val):
+        for j in range(2, i):
+            if i % j==0:
+                break
+        else:
+            res.append(i)
+    return res
 
 
 class MITRelaxSet(DictSet):
