@@ -3,9 +3,9 @@
 # Distributed under the terms of the MIT License.
 
 """
-A module to perform diffusion analyses (e.g. calculating diffusivity from
-mean square displacements etc.). If you use this module, please consider
-citing the following papers::
+A module to perform diffusion analyses (e.g., calculating diffusivity from
+mean square displacements). If you use this module, please consider
+citing the following papers:
 
     Ong, S. P., Mo, Y., Richards, W. D., Miara, L., Lee, H. S., & Ceder, G.
     (2013). Phase stability, electrochemical stability and ionic conductivity
@@ -73,27 +73,27 @@ class DiffusionAnalyzer(MSONable):
 
     .. attribute: diffusivity_std_dev
 
-        Std dev in diffusivity in cm^2 / s. Note that this makes sense only
+        Std dev. in diffusivity in cm^2 / s. Note that this makes sense only
         for non-smoothed analyses.
 
     .. attribute: chg_diffusivity_std_dev
 
-        Std dev in charge diffusivity in cm^2 / s. Note that this makes sense only
+        Std dev. in charge diffusivity in cm^2 / s. Note that this makes sense only
         for non-smoothed analyses.
 
     .. attribute: conductivity_std_dev
 
-        Std dev in conductivity in mS / cm. Note that this makes sense only
+        Std dev. in conductivity in mS / cm. Note that this makes sense only
         for non-smoothed analyses.
 
     .. attribute: diffusivity_components_std_dev
 
-        A vector with std dev in diffusivity in the a, b and c directions in
+        A vector with std dev. in diffusivity in the a, b and c directions in
         cm^2 / cm. Note that this makes sense only for non-smoothed analyses.
 
     .. attribute: conductivity_components_std_dev
 
-        A vector with std dev in conductivity in the a, b and c directions
+        A vector with std dev. in conductivity in the a, b and c directions
         in mS / cm. Note that this makes sense only for non-smoothed analyses.
 
     .. attribute: max_framework_displacement
@@ -115,7 +115,7 @@ class DiffusionAnalyzer(MSONable):
 
     .. attribute: msd_components
 
-        nsteps x 3 array of the MSD in each lattice direction of the selected species.
+        nsteps x 3 array of the mean square displacement in each lattice direction of the selected species.
 
     .. attribute: sq_disp_ions
 
@@ -517,7 +517,7 @@ class DiffusionAnalyzer(MSONable):
 
     def plot_msd(self, mode="default"):
         """
-        Plot the smoothed msd vs time graph. Useful for checking convergence.
+        Plot the smoothed MSD vs time graph. Useful for checking convergence.
 
         Args:
             mode (str): Can be "default" (the default, shows only the MSD for
