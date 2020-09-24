@@ -1309,7 +1309,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         elif rform in self.cpd_entropies and rform != "H2O":
             adjustments.append(
                 TemperatureEnergyAdjustment(-1 * self.cpd_entropies[rform] / 298, 298,
-                                            comp.num_atoms, uncertainty_per_degK=np.nan,
+                                            comp.num_atoms, uncertainty_per_deg=np.nan,
                                             name="Compound entropy at room temperature",
                                             cls=self.as_dict(),
                                             description="Adds the entropy (T delta S) to energies of compounds that "
