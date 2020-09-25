@@ -6,13 +6,21 @@
 import os
 import unittest
 from pathlib import Path
+from monty.serialization import loadfn, dumpfn
+import os
+from pymatgen.core.periodic_table import Element
+from pymatgen.entries.entry_tools import (
+    group_entries_by_structure,
+    group_entries_by_composition,
+    EntrySet,
+)
+from pymatgen.entries.computed_entries import ComputedEntry
 
-from monty.serialization import dumpfn, loadfn
+test_dir = Path(__file__).absolute().parent / ".." / ".." / ".." / "test_files"
 
 from pymatgen.core.periodic_table import Element
 from pymatgen.entries.entry_tools import EntrySet, group_entries_by_structure
 from pymatgen.util.testing import PymatgenTest
-
 
 class FuncTest(unittest.TestCase):
     def test_group_entries_by_structure(self):
@@ -23,6 +31,25 @@ class FuncTest(unittest.TestCase):
         # Make sure no entries are left behind
         self.assertEqual(sum([len(g) for g in groups]), len(entries))
 
+    def test_group_entries_by_composition(self):
+        entries = [
+            ComputedEntry("Na", -2),
+            ComputedEntry("Na", -5),
+            ComputedEntry("Cl", -1),
+            ComputedEntry("Cl", -10),
+            ComputedEntry("NaCl", -20),
+            ComputedEntry("NaCl", -21),
+            ComputedEntry("Na2Cl2", -50),
+        ]
+
+        groups = group_entries_by_composition(entries)
+        self.assertEqual(sorted([len(g) for g in groups]), [2, 2, 3])
+        self.assertLess(len(groups), len(entries))
+        # Make sure no entries are left behind
+        self.assertEqual(sum([len(g) for g in groups]), len(entries))
+        # test sorting by energy
+        for g in groups:
+            assert g == sorted(g, key=lambda e: e.energy_per_atom)
 
 class EntrySetTest(unittest.TestCase):
     def setUp(self):
@@ -35,7 +62,9 @@ class EntrySetTest(unittest.TestCase):
     def test_get_subset(self):
         entries = self.entry_set.get_subset_in_chemsys(["Li", "O"])
         for e in entries:
-            self.assertTrue(set([Element.Li, Element.O]).issuperset(e.composition.keys()))
+            self.assertTrue(
+                set([Element.Li, Element.O]).issuperset(e.composition.keys())
+            )
         self.assertRaises(ValueError, self.entry_set.get_subset_in_chemsys, ["Fe", "F"])
 
     def test_remove_non_ground_states(self):
