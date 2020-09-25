@@ -1587,7 +1587,7 @@ class Specie(Species):
 
 class DummySpecie(DummySpecies):
     """
-    This maps the historical grammatically inaccurate DummySpecies to DummySpecies
+    This maps the historical grammatically inaccurate DummySpecie to DummySpecies
     to maintain backwards compatibility.
     """
     pass
