@@ -1216,6 +1216,7 @@ class MPStaticSet(MPRelaxSet):
         input_set = cls(_dummy_structure, **kwargs)
         return input_set.override_from_prev_calc(prev_calc_dir=prev_calc_dir)
 
+
 class MPScanStaticSet(MPScanRelaxSet):
     """
     Creates input files for a static calculation using the accurate and numerically
