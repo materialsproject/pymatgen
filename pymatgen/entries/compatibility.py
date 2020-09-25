@@ -199,6 +199,10 @@ class GasCorrection(Correction):
 
         # set error to 0 because old MPCompatibility doesn't have errors
 
+        # only correct GGA or GGA+U entries
+        if entry.parameters.get("run_type", None) not in ["GGA", "GGA+U"]:
+            return ufloat(0.0, 0.0)
+
         rform = entry.composition.reduced_formula
         if rform in self.cpd_energies:
             correction += self.cpd_energies[rform] * comp.num_atoms - entry.uncorrected_energy
@@ -241,6 +245,10 @@ class AnionCorrection(Correction):
             return ufloat(0.0, 0.0)
 
         correction = ufloat(0.0, 0.0)
+
+        # only correct GGA or GGA+U entries
+        if entry.parameters.get("run_type", None) not in ["GGA", "GGA+U"]:
+            return ufloat(0.0, 0.0)
 
         # Check for sulfide corrections
         if Element("S") in comp:
@@ -340,7 +348,13 @@ class AqueousCorrection(Correction):
         comp = entry.composition
         rform = comp.reduced_formula
         cpdenergies = self.cpd_energies
+
+        # only correct GGA or GGA+U entries
+        if entry.parameters.get("run_type", None) not in ["GGA", "GGA+U"]:
+            return ufloat(0.0, 0.0)
+
         correction = ufloat(0.0, 0.0)
+
         if rform in cpdenergies:
             if rform in ["H2", "H2O"]:
                 corr = cpdenergies[rform] * comp.num_atoms - entry.uncorrected_energy - entry.correction
@@ -381,6 +395,7 @@ class AqueousCorrection(Correction):
                 # next, add MU_H2O for each water molecule present
                 correction += ufloat(-1 * MU_H2O * nH2O, 0.0)
                 # correction += 0.5 * 2.46 * nH2O  # this is the old way this correction was calculated
+
         return correction
 
     def __str__(self):
@@ -471,6 +486,11 @@ class UCorrection(Correction):
         elements = sorted([el for el in comp.elements if comp[el] > 0], key=lambda el: el.X)
         most_electroneg = elements[-1].symbol
         correction = ufloat(0.0, 0.0)
+
+        # only correct GGA or GGA+U entries
+        if entry.parameters.get("run_type", None) not in ["GGA", "GGA+U"]:
+            return ufloat(0.0, 0.0)
+
         ucorr = self.u_corrections.get(most_electroneg, {})
         usettings = self.u_settings.get(most_electroneg, {})
         uerrors = self.u_errors.get(most_electroneg, defaultdict(float))

@@ -18,11 +18,11 @@ __date__ = "Mar 19, 2012"
 
 import os
 import unittest
+import pytest  # type: ignore
+
 from collections import defaultdict
 from math import sqrt
 from pathlib import Path
-
-import pytest
 from monty.json import MontyDecoder
 
 from pymatgen.core.composition import Composition
@@ -46,6 +46,84 @@ from pymatgen.entries.computed_entries import (
     ConstantEnergyAdjustment,
 )
 from pymatgen.util.testing import PymatgenTest
+
+
+class CorrectionSpecificityTest(unittest.TestCase):
+    """
+    Make sure corrections are only applied to GGA or GGA+U entries
+    """
+
+    def setUp(self):
+        warnings.simplefilter("ignore")
+        self.entry1 = ComputedEntry(
+            "Fe2O3",
+            -1,
+            0.0,
+            parameters={
+                "is_hubbard": True,
+                "hubbards": {"Fe": 5.3, "O": 0},
+                "run_type": "GGA+U",
+                "potcar_spec": [
+                    {
+                        "titel": "PAW_PBE Fe_pv 06Sep2000",
+                        "hash": "994537de5c4122b7f1b77fb604476db4",
+                    },
+                    {
+                        "titel": "PAW_PBE O 08Apr2002",
+                        "hash": "7a25bc5b9a5393f46600a4939d357982",
+                    },
+                ],
+            },
+        )
+        self.entry2 = ComputedEntry(
+            "FeS",
+            -1,
+            0.0,
+            parameters={
+                "is_hubbard": False,
+                "run_type": "GGA",
+                "potcar_spec": [
+                    {
+                        "titel": "PAW_PBE Fe_pv 06Sep2000",
+                        "hash": "994537de5c4122b7f1b77fb604476db4",
+                    },
+                    {
+                        "titel": "PAW_PBE S 08Apr2002",
+                        "hash": "7a25bc5b9a5393f46600a4939d357982",
+                    },
+                ],
+            },
+        )
+
+        self.entry3 = ComputedEntry(
+            "Fe2O3",
+            -1,
+            0.0,
+            parameters={
+                "is_hubbard": False,
+                "run_type": "SCAN",
+                "potcar_spec": [
+                    {
+                        "titel": "PAW_PBE Fe_pv 06Sep2000",
+                        "hash": "994537de5c4122b7f1b77fb604476db4",
+                    },
+                    {
+                        "titel": "PAW_PBE O 08Apr2002",
+                        "hash": "7a25bc5b9a5393f46600a4939d357982",
+                    },
+                ],
+            },
+        )
+        self.compat = MaterialsProjectCompatibility(check_potcar_hash=False)
+
+    def test_correction_specificity(self):
+        processed = self.compat.process_entries([self.entry1, self.entry2, self.entry3])
+
+        assert len(processed) == 2
+
+        assert self.entry1.correction != 0
+        assert self.entry2.correction != 0
+        assert self.entry3.correction == 0.0
 
 
 # abstract Compatibility tests
@@ -2037,21 +2115,21 @@ class AqueousCorrectionTest(unittest.TestCase):
         self.corr = AqueousCorrection(fp)
 
     def test_compound_energy(self):
-        O2_entry = self.corr.correct_entry(ComputedEntry(Composition("O2"), -4.9355 * 2))
-        H2_entry = self.corr.correct_entry(ComputedEntry(Composition("H2"), 3))
-        H2O_entry = self.corr.correct_entry(ComputedEntry(Composition("H2O"), 3))
+        O2_entry = self.corr.correct_entry(ComputedEntry(Composition("O2"), -4.9355 * 2, parameters={"run_type": "GGA"}))
+        H2_entry = self.corr.correct_entry(ComputedEntry(Composition("H2"), 3, parameters={"run_type": "GGA"}))
+        H2O_entry = self.corr.correct_entry(ComputedEntry(Composition("H2O"), 3, parameters={"run_type": "GGA"}))
         H2O_formation_energy = H2O_entry.energy - (H2_entry.energy + O2_entry.energy / 2.0)
         self.assertAlmostEqual(H2O_formation_energy, -2.46, 2)
 
-        entry = ComputedEntry(Composition("H2O"), -16)
+        entry = ComputedEntry(Composition("H2O"), -16, parameters={"run_type": "GGA"})
         entry = self.corr.correct_entry(entry)
         self.assertAlmostEqual(entry.energy, -14.916, 4)
 
-        entry = ComputedEntry(Composition("H2O"), -24)
+        entry = ComputedEntry(Composition("H2O"), -24, parameters={"run_type": "GGA"})
         entry = self.corr.correct_entry(entry)
         self.assertAlmostEqual(entry.energy, -14.916, 4)
 
-        entry = ComputedEntry(Composition("Cl"), -24)
+        entry = ComputedEntry(Composition("Cl"), -24, parameters={"run_type": "GGA"})
         entry = self.corr.correct_entry(entry)
         self.assertAlmostEqual(entry.energy, -24.344373, 4)
 
