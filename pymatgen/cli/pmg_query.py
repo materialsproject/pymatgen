@@ -7,11 +7,14 @@
 Implementation for `pmg query` CLI.
 """
 
-from pymatgen.ext.matproj import MPRester
 import json
-from monty.serialization import dumpfn
 import re
+
 from tabulate import tabulate
+
+from monty.serialization import dumpfn
+
+from pymatgen.ext.matproj import MPRester
 
 
 def do_query(args):

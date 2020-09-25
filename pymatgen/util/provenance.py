@@ -12,12 +12,14 @@ import datetime
 from collections import namedtuple
 import json
 from io import StringIO
+
+from pybtex.database.input import bibtex
+from pybtex import errors
+
 from monty.json import MontyDecoder, MontyEncoder
 from monty.string import remove_non_ascii
 
 from pymatgen.core.structure import Structure, Molecule
-from pybtex.database.input import bibtex
-from pybtex import errors
 
 
 __author__ = 'Anubhav Jain, Shyue Ping Ong'
@@ -27,7 +29,6 @@ __version__ = '0.1'
 __maintainer__ = 'Anubhav Jain'
 __email__ = 'ajain@lbl.gov'
 __date__ = 'Feb 11, 2013'
-
 
 MAX_HNODE_SIZE = 64000  # maximum size (bytes) of SNL HistoryNode
 MAX_DATA_SIZE = 256000  # maximum size (bytes) of SNL data field
@@ -115,12 +116,11 @@ class HistoryNode(namedtuple('HistoryNode', ['name', 'url', 'description'])):
         if isinstance(h_node, dict):
             return HistoryNode.from_dict(h_node)
 
-        else:
-            if len(h_node) != 3:
-                raise ValueError("Invalid History node, "
-                                 "should be dict or (name, version, "
-                                 "description) tuple: {}".format(h_node))
-            return HistoryNode(h_node[0], h_node[1], h_node[2])
+        if len(h_node) != 3:
+            raise ValueError("Invalid History node, "
+                             "should be dict or (name, version, "
+                             "description) tuple: {}".format(h_node))
+        return HistoryNode(h_node[0], h_node[1], h_node[2])
 
 
 class Author(namedtuple('Author', ['name', 'email'])):
@@ -178,13 +178,12 @@ class Author(namedtuple('Author', ['name', 'email'])):
             if not m or m.start() != 0 or m.end() != len(author):
                 raise ValueError("Invalid author format! {}".format(author))
             return Author(m.groups()[0], m.groups()[1])
-        elif isinstance(author, dict):
+        if isinstance(author, dict):
             return Author.from_dict(author)
-        else:
-            if len(author) != 2:
-                raise ValueError("Invalid author, should be String or (name, "
-                                 "email) tuple: {}".format(author))
-            return Author(author[0], author[1])
+        if len(author) != 2:
+            raise ValueError("Invalid author, should be String or (name, "
+                             "email) tuple: {}".format(author))
+        return Author(author[0], author[1])
 
 
 class StructureNL:
@@ -226,7 +225,7 @@ class StructureNL:
         self.structure = struct_or_mol
 
         # turn authors into list of Author objects
-        authors = authors.split(',')\
+        authors = authors.split(',') \
             if isinstance(authors, str) else authors
         self.authors = [Author.parse_author(a) for a in authors]
 
@@ -298,7 +297,7 @@ class StructureNL:
                       "remarks": self.remarks,
                       "history": [h.as_dict() for h in self.history],
                       "created_at": json.loads(json.dumps(self.created_at,
-                                               cls=MontyEncoder))}
+                                                          cls=MontyEncoder))}
         d["about"].update(json.loads(json.dumps(self.data,
                                                 cls=MontyEncoder)))
         return d

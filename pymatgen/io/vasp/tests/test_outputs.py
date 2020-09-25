@@ -1016,6 +1016,8 @@ class OutcarTest(PymatgenTest):
         self.assertEqual(len(matrices[0][Spin.up]), 7)
         self.assertEqual(len(matrices[0][Spin.up][0]), 7)
         self.assertTrue("onsite_density_matrices" in outcar.as_dict())
+        outcar = Outcar(self.TEST_FILES_DIR / "OUTCAR_merged_numbers2")
+        self.assertTrue("onsite_density_matrices" in outcar.as_dict())
 
     def test_nplwvs(self):
         outcar = Outcar(self.TEST_FILES_DIR / "OUTCAR")
@@ -1214,6 +1216,11 @@ class ElfcarTest(PymatgenTest):
         elfcar = Elfcar.from_file(self.TEST_FILES_DIR / 'ELFCAR.gz')
         alpha = elfcar.get_alpha()
         self.assertAlmostEqual(2.936678808979031, np.median(alpha.data["total"]))
+
+    def test_interpolation(self):
+        elfcar = Elfcar.from_file(self.TEST_FILES_DIR / 'ELFCAR.gz')
+        self.assertAlmostEqual(0.0918471, elfcar.value_at(0.4, 0.5, 0.6))
+        self.assertEqual(100, len(elfcar.linear_slice([0.0, 0.0, 0.0], [1.0, 1.0, 1.0])))
 
 
 class ProcarTest(PymatgenTest):
@@ -1511,14 +1518,6 @@ class WavecarTest(PymatgenTest):
         self.assertTrue('diff' not in c.data)
         self.assertEqual(np.prod(c.data['total'].shape), np.prod(w.ng * 2))
         self.assertFalse(np.all(c.data['total'] > 0.))
-
-        w.kpoints.append([0.2, 0.2, 0.2])
-        with warnings.catch_warnings(record=True) as wrns:
-            try:
-                c = w.get_parchg(poscar, 1, 0, spin=0, phase=True)
-            except IndexError:
-                pass
-            self.assertEqual(len(wrns), 1)
 
         w = Wavecar(self.TEST_FILES_DIR / 'WAVECAR.N2.spin')
         c = w.get_parchg(poscar, 0, 0, phase=False, scale=1)

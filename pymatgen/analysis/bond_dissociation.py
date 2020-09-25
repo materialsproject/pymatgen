@@ -8,6 +8,8 @@ Module for BondDissociationEnergies.
 
 import logging
 
+import networkx as nx
+
 from monty.json import MSONable
 
 from pymatgen.core.structure import Molecule
@@ -15,7 +17,7 @@ from pymatgen.analysis.graphs import MoleculeGraph, MolGraphSplitError
 from pymatgen.analysis.local_env import OpenBabelNN
 from pymatgen.analysis.fragmenter import open_ring
 from pymatgen.io.babel import BabelMolAdaptor
-import networkx as nx
+
 
 __author__ = "Samuel Blau"
 __copyright__ = "Copyright 2018, The Materials Project"
@@ -159,9 +161,9 @@ class BondDissociationEnergies(MSONable):
                         pbmol = bb.pybel_mol
                         smiles = pbmol.write(str("smi")).split()[0]
                         specie = nx.get_node_attributes(self.mol_graph.graph, "specie")
-                        print("Missing ring opening fragment resulting from the breakage of " + specie[
-                            bonds[0][0]] + " " + specie[bonds[0][1]] + " bond " + str(bonds[0][0]) + " " + str(
-                            bonds[0][1]) + " which would yield a molecule with this SMILES string: " + smiles)
+                        print("Missing ring opening fragment resulting from the breakage of " + specie[bonds[0][0]]
+                              + " " + specie[bonds[0][1]] + " bond " + str(bonds[0][0]) + " " + str(bonds[0][1])
+                              + " which would yield a molecule with this SMILES string: " + smiles)
                     elif len(good_entries) == 1:
                         # If we have only one good entry, format it and addd it to the list that will eventually return:
                         self.bond_dissociation_energies += [self.build_new_entry(good_entries, bonds)]
@@ -279,7 +281,7 @@ class BondDissociationEnergies(MSONable):
                                        str(self.molecule_entry["pcm_dielectric"]) +
                                        " but a fragment entry has no PCM dielectric! Please only pass fragment entries"
                                        " with PCM details consistent with the principle entry. Exiting...")
-                elif entry["pcm_dielectric"] != self.molecule_entry["pcm_dielectric"]:
+                if entry["pcm_dielectric"] != self.molecule_entry["pcm_dielectric"]:
                     raise RuntimeError("Principle molecule has a PCM dielectric of " +
                                        str(self.molecule_entry["pcm_dielectric"]) +
                                        " but a fragment entry has a different PCM dielectric! Please only pass"

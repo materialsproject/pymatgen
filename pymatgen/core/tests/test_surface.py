@@ -66,6 +66,21 @@ class SlabTest(PymatgenTest):
         self.assertEqual(zno_slab.oriented_unit_cell.composition, self.zno1.composition)
         self.assertEqual(len(zno_slab), 8)
 
+        # check reorient_lattice. get a slab not oriented and check that orientation
+        # works even with cartesian coordinates.
+        zno_not_or = SlabGenerator(self.zno1, [1, 0, 0], 5, 5, lll_reduce=False,
+                                   center_slab=False, reorient_lattice=False).get_slab()
+        zno_slab_cart = Slab(zno_not_or.lattice, zno_not_or.species,
+                             zno_not_or.cart_coords,
+                             zno_not_or.miller_index,
+                             zno_not_or.oriented_unit_cell,
+                             0, zno_not_or.scale_factor,
+                             coords_are_cartesian=True,
+                             reorient_lattice=True)
+        self.assertArrayAlmostEqual(zno_slab.frac_coords, zno_slab_cart.frac_coords)
+        c = zno_slab_cart.lattice.matrix[2]
+        self.assertArrayAlmostEqual([0, 0, np.linalg.norm(c)], c)
+
     def test_add_adsorbate_atom(self):
         zno_slab = Slab(self.zno55.lattice, self.zno55.species,
                         self.zno55.frac_coords,
@@ -136,7 +151,7 @@ class SlabTest(PymatgenTest):
             total_surf_sites = sum([len(surf_sites_dict[key])
                                     for key in surf_sites_dict.keys()])
             r2 = total_surf_sites / (2 * slab.surface_area)
-            self.assertArrayEqual(r1, r2)
+            self.assertArrayAlmostEqual(r1, r2)
 
     def test_symmetrization(self):
 
@@ -240,6 +255,24 @@ class SlabTest(PymatgenTest):
         ranges = get_slab_regions(slab)
         self.assertEqual(tuple(ranges[0]), (0, max(bottom_c)))
         self.assertEqual(tuple(ranges[1]), (min(top_c), 1))
+
+    def test_as_dict(self):
+        slabs = generate_all_slabs(self.ti, 1, 10, 10, bonds=None,
+                                   tol=1e-3, max_broken_bonds=0, lll_reduce=False, center_slab=False,
+                                   primitive=True)
+        slab = slabs[0]
+        s = json.dumps(slab.as_dict())
+        d = json.loads(s)
+        self.assertEqual(slab, Slab.from_dict(d))
+
+        # test initialising with a list scale_factor
+        slab = Slab(self.zno55.lattice, self.zno55.species,
+                    self.zno55.frac_coords, self.zno55.miller_index,
+                    self.zno55.oriented_unit_cell, 0,
+                    self.zno55.scale_factor.tolist())
+        s = json.dumps(slab.as_dict())
+        d = json.loads(s)
+        self.assertEqual(slab, Slab.from_dict(d))
 
 
 class SlabGeneratorTest(PymatgenTest):

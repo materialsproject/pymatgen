@@ -12,10 +12,11 @@ right away.
 
 import unittest
 import tempfile
-import numpy.testing as nptu
 from io import open
 from pathlib import Path
 import json
+
+import numpy.testing as nptu
 
 from monty.json import MontyDecoder
 from monty.serialization import loadfn
@@ -86,7 +87,7 @@ class PymatgenTest(unittest.TestCase):
                 return False
             v2 = desired[k]
             if isinstance(v, dict):
-                pass_test = PymatgenTest.assertDictArraysAlmostEqual(
+                pass_test = PymatgenTest.assertDictsAlmostEqual(
                     v, v2, decimal=decimal, err_msg=err_msg, verbose=verbose)
                 if not pass_test:
                     return False
@@ -146,9 +147,8 @@ class PymatgenTest(unittest.TestCase):
             protocols.
         """
         # Use the python version so that we get the traceback in case of errors
-        import pickle as pickle
-        from pymatgen.util.serialization import pmg_pickle_load, \
-            pmg_pickle_dump
+        import pickle
+        from pymatgen.util.serialization import pmg_pickle_load, pmg_pickle_dump
 
         # Build a list even when we receive a single object.
         got_single_object = False
@@ -199,20 +199,7 @@ class PymatgenTest(unittest.TestCase):
         # Return nested list so that client code can perform additional tests.
         if got_single_object:
             return [o[0] for o in objects_by_protocol]
-        else:
-            return objects_by_protocol
-
-    def tmpfile_write(self, string):
-        """
-        Write string to a temporary file. Returns the name of the temporary
-        file.
-        """
-        fd, tmpfile = tempfile.mkstemp(text=True)
-
-        with open(tmpfile, "w") as fh:
-            fh.write(string)
-
-        return tmpfile
+        return objects_by_protocol
 
     def assertMSONable(self, obj, test_if_subclass=True):
         """

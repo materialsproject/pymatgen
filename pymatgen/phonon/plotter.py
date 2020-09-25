@@ -438,7 +438,7 @@ class PhononBSPlotter:
                 previous_branch = this_branch
         return {'distance': tick_distance, 'label': tick_labels}
 
-    def plot_compare(self, other_plotter):
+    def plot_compare(self, other_plotter, units="thz"):
         """
         plot two band structure for comparison. One is in red the other in blue.
         The two band structures need to be defined on the same symmetry lines!
@@ -453,18 +453,21 @@ class PhononBSPlotter:
 
         """
 
+        u = freq_units(units)
+
         data_orig = self.bs_plot_data()
         data = other_plotter.bs_plot_data()
 
         if len(data_orig['distances']) != len(data['distances']):
             raise ValueError('The two objects are not compatible.')
 
-        plt = self.get_plot()
+        plt = self.get_plot(units=units)
         band_linewidth = 1
         for i in range(other_plotter._nb_bands):
             for d in range(len(data_orig['distances'])):
                 plt.plot(data_orig['distances'][d],
-                         [e[i] for e in data['frequency']][d],
+                         [data['frequency'][d][i][j] * u.factor
+                          for j in range(len(data_orig['distances'][d]))],
                          'r-', linewidth=band_linewidth)
 
         return plt

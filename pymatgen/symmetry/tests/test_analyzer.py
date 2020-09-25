@@ -18,17 +18,6 @@ from pymatgen.io.cif import CifParser
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.structure import Molecule, Structure
 
-"""
-Created on Mar 9, 2012
-"""
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Mar 9, 2012"
-
 test_dir_mol = Path(__file__).parent / ".." / ".." / ".." / 'test_files' / "molecules"
 
 test_dir = Path(__file__).parent / ".." / ".." / ".." / 'test_files'

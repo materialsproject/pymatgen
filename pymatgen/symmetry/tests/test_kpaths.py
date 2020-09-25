@@ -16,8 +16,15 @@ from monty.serialization import loadfn
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "test_files")
 
+try:
+    from seekpath import get_path  # type: ignore
+except ImportError:
+    get_path = None
+
 
 class HighSymmKpathTest(PymatgenTest):
+
+    @unittest.skipIf(get_path is None, "No seek path present.")
     def test_kpath_generation(self):
         triclinic = [1, 2]
         monoclinic = range(3, 16)

@@ -8,13 +8,14 @@ This module implements a neutron diffraction (ND) pattern calculator.
 
 from math import sin, cos, asin, pi, degrees, radians
 import os
-
-import numpy as np
 import json
 
+import numpy as np
+
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from .core import DiffractionPattern, AbstractDiffractionPatternCalculator, \
     get_unique_families
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
 
 __author__ = "Yuta Suzuki"
 __copyright__ = "Copyright 2018, The Materials Project"

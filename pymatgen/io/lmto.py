@@ -210,7 +210,7 @@ class LMTOCtrl:
                             "SITE": []}
 
         for cat in ["STRUC", "CLASS", "SITE"]:
-            fields = struc_lines[cat].split("=")
+            fields = struc_lines[cat].split("=")  # pylint: disable=E1101
             for f, field in enumerate(fields):
                 token = field.split()[-1]
                 if token == "ALAT":
