@@ -515,22 +515,28 @@ class DictSet(VaspInputSet):
                 incar[k] = mag
             elif k in ("LDAUU", "LDAUJ", "LDAUL"):
                 if hubbard_u:
-                    if isinstance(v, dict):
-                        if hasattr(structure[0], k.lower()):
-                            m = dict([(site.specie.symbol, getattr(site, k.lower()))
-                                      for site in structure])
-                            incar[k] = [m[sym] for sym in poscar.site_symbols]
+                    if hasattr(structure[0], k.lower()):
+                        m = {
+                            site.specie.symbol: getattr(site, k.lower())
+                            for site in structure
+                        }
+                        incar[k] = [m[sym] for sym in poscar.site_symbols]
                         # lookup specific LDAU if specified for most_electroneg atom
-                        elif isinstance(v, dict) and \
-                                most_electroneg in v.keys() and \
-                                isinstance(v[most_electroneg], dict):
-                            incar[k] = [v[most_electroneg].get(sym, 0)
-                                        for sym in poscar.site_symbols]
+                    elif most_electroneg in v.keys() and isinstance(
+                            v[most_electroneg], dict
+                    ):
+                        incar[k] = [
+                            v[most_electroneg].get(sym, 0)
+                            for sym in poscar.site_symbols
+                        ]
                         # else, use fallback LDAU value if it exists
-                        else:
-                            incar[k] = [v.get(sym, 0)
-                                        if isinstance(v.get(sym, 0), (float, int))
-                                        else 0 for sym in poscar.site_symbols]
+                    else:
+                        incar[k] = [
+                            v.get(sym, 0)
+                            if isinstance(v.get(sym, 0), (float, int))
+                            else 0
+                            for sym in poscar.site_symbols
+                        ]
             elif k.startswith("EDIFF") and k != "EDIFFG":
                 if "EDIFF" not in settings and k == "EDIFF_PER_ATOM":
                     incar["EDIFF"] = float(v) * structure.num_sites
@@ -538,9 +544,7 @@ class DictSet(VaspInputSet):
                     incar["EDIFF"] = float(settings["EDIFF"])
             else:
                 incar[k] = v
-        has_u = False
-        if ["LDAUU"] in list(incar.keys()):
-            has_u = hubbard_u and sum(incar['LDAUU']) > 0
+        has_u = hubbard_u and sum(incar["LDAUU"]) > 0
         if has_u:
             # modify LMAXMIX if LSDA+U and you have d or f electrons
             # note that if the user explicitly sets LMAXMIX in settings it will
@@ -1022,8 +1026,6 @@ class MPHSERelaxSet(DictSet):
         self.kwargs = kwargs
 
 
-
-
 class MPStaticSet(MPRelaxSet):
     """
     Creates input files for a static calculation.
@@ -1213,191 +1215,6 @@ class MPStaticSet(MPRelaxSet):
         """
         input_set = cls(_dummy_structure, **kwargs)
         return input_set.override_from_prev_calc(prev_calc_dir=prev_calc_dir)
-
-class LinearResponseUSet(MPRelaxSet):
-    def __init__(self, structure, prev_incar=None, prev_kpoints=None,
-                 lepsilon=False, lcalcpol=False, reciprocal_density=100,
-                 small_gap_multiply=None, **kwargs):
-        super().__init__(structure, **kwargs)
-        if isinstance(prev_incar, str):
-            prev_incar = Incar.from_file(prev_incar)
-        if isinstance(prev_kpoints, str):
-            prev_kpoints = Kpoints.from_file(prev_kpoints)
-
-        self.prev_incar = prev_incar
-        self.prev_kpoints = prev_kpoints
-        self.reciprocal_density = reciprocal_density
-        self.kwargs = kwargs
-        self.lepsilon = lepsilon
-        self.lcalcpol = lcalcpol
-        self.small_gap_multiply = small_gap_multiply
-
-    @property
-    def incar(self):
-        parent_incar = super().incar
-        print(parent_incar)
-        settings = dict(self._config_dict["INCAR"])
-        settings.pop("LDAUU")
-        settings.pop("LDAUJ")
-        settings.pop("LDAUL")
-
-        structure = self.structure
-        comp = structure.composition
-        elements = sorted([el for el in comp.elements if comp[el] > 0],
-                          key=lambda e: e.X)
-        most_electroneg = elements[-1].symbol
-        poscar = Poscar(structure)
-        hubbard_u = settings.get("LDAU", False)
-
-        incar = Incar(self.prev_incar) if self.prev_incar is not None else \
-            Incar(parent_incar)
-
-        incar.update(
-            {"IBRION": -1, "ISMEAR": -5, "LAECHG": True, "LCHARG": True,
-             "LORBIT": 11, "LVHAR": True, "LWAVE": False, "NSW": 0,
-             "ICHARG": 0, "ALGO": "Normal"})
-
-        if self.lepsilon:
-            incar["IBRION"] = 8
-            incar["LEPSILON"] = True
-
-            # LPEAD=T: numerical evaluation of overlap integral prevents
-            # LRF_COMMUTATOR errors and can lead to better expt. agreement
-            # but produces slightly different results
-            incar["LPEAD"] = True
-
-            # Note that DFPT calculations MUST unset NSW. NSW = 0 will fail
-            # to output ionic.
-            incar.pop("NSW", None)
-            incar.pop("NPAR", None)
-
-        if self.lcalcpol:
-            incar["LCALCPOL"] = True
-
-        for k, v in settings.items():
-            if k == "MAGMOM":
-                mag = []
-                for site in structure:
-                    if hasattr(site, 'magmom'):
-                        mag.append(site.magmom)
-                    elif hasattr(site.specie, 'spin'):
-                        mag.append(site.specie.spin)
-                    elif str(site.specie) in v:
-                        mag.append(v.get(str(site.specie)))
-                    else:
-                        mag.append(v.get(site.specie.symbol, 0.6))
-                incar[k] = mag
-            elif k.startswith("EDIFF") and k != "EDIFFG":
-                if "EDIFF" not in settings and k == "EDIFF_PER_ATOM":
-                    incar["EDIFF"] = float(v) * structure.num_sites
-                else:
-                    incar["EDIFF"] = float(settings["EDIFF"])
-            else:
-                incar[k] = v
-
-        for k in ["MAGMOM", "NUPDOWN"] + list(self.kwargs.get(
-                "user_incar_settings", {}).keys()):
-            # For these parameters as well as user specified settings, override
-            # the incar settings.
-            if parent_incar.get(k, None) is not None:
-                incar[k] = parent_incar[k]
-            else:
-                incar.pop(k, None)
-
-        # This is the method that should be changed - we don't want LDAU to update?
-        # if incar.get('LDAU'):
-        #     u = incar.get('LDAUU', [])
-        #     j = incar.get('LDAUJ', [])
-        #     if sum([u[x] - j[x] for x, y in enumerate(u)]) > 0:
-        #         for tag in ('LDAUU', 'LDAUL', 'LDAUJ'):
-        #             incar.update({tag: parent_incar[tag]})
-        #     # ensure to have LMAXMIX for GGA+U static run
-        #     if "LMAXMIX" not in incar:
-        #         incar.update({"LMAXMIX": parent_incar["LMAXMIX"]})
-
-        # Compare ediff between previous and staticinputset values,
-        # choose the tighter ediff
-
-        incar["EDIFF"] = min(incar.get("EDIFF", 1), parent_incar["EDIFF"])
-        if self.kwargs.get("user_incar_settings")["LDAUU"]:
-            print(1)
-            incar["LDAUL"] = self.kwargs.get("user_incar_settings")["LDAUL"]
-            incar["LDAUU"] = self.kwargs.get("user_incar_settings")["LDAUU"]
-            incar["LDAUJ"] = self.kwargs.get("user_incar_settings")["LDAUJ"]
-            incar["LDAU"] = self.kwargs.get("user_incar_settings")["LDAU"]
-            incar["LDAUTYPE"] = self.kwargs.get("user_incar_settings")["LDAUTYPE"]
-            incar["LDAUPRINT"] = self.kwargs.get("user_incar_settings")["LDAUPRINT"]
-            incar["LORBIT"] = self.kwargs.get("user_incar_settings")["LORBIT"]
-
-        return incar
-    @property
-    def kpoints(self):
-        self._config_dict["KPOINTS"]["reciprocal_density"] = \
-            self.reciprocal_density
-        kpoints = super().kpoints
-
-        # Prefer to use k-point scheme from previous run
-        # except for when lepsilon = True is specified
-        if self.prev_kpoints and self.prev_kpoints.style != kpoints.style:
-            if (self.prev_kpoints.style == Kpoints.supported_modes.Monkhorst) \
-                    and (not self.lepsilon):
-                k_div = [kp + 1 if kp % 2 == 1 else kp
-                         for kp in kpoints.kpts[0]]
-                kpoints = Kpoints.monkhorst_automatic(k_div)
-            else:
-                kpoints = Kpoints.gamma_automatic(kpoints.kpts[0])
-        return kpoints
-
-    def override_from_prev_calc(self, prev_calc_dir='.'):
-        """
-        Update the input set to include settings from a previous calculation.
-
-        Args:
-            prev_calc_dir (str): The path to the previous calculation directory.
-
-        Returns:
-            The input set with the settings (structure, k-points, incar, etc)
-            updated using the previous VASP run.
-        """
-        vasprun, outcar = get_vasprun_outcar(prev_calc_dir)
-
-        self.prev_incar = vasprun.incar
-        self.prev_kpoints = vasprun.kpoints
-
-        if self.standardize:
-            warnings.warn("Use of standardize=True with from_prev_run is not "
-                          "recommended as there is no guarantee the copied "
-                          "files will be appropriate for the standardized "
-                          "structure.")
-
-        self._structure = get_structure_from_prev_run(vasprun, outcar)
-
-        # multiply the reciprocal density if needed
-        if self.small_gap_multiply:
-            gap = vasprun.eigenvalue_band_properties[0]
-            if gap <= self.small_gap_multiply[0]:
-                self.reciprocal_density = (self.reciprocal_density *
-                                           self.small_gap_multiply[1])
-
-        return self
-
-    @classmethod
-    def from_prev_calc(cls, prev_calc_dir,  **kwargs):
-        """
-        Generate a set of Vasp input files for static calculations from a
-        directory of previous Vasp run.
-
-        Args:
-            prev_calc_dir (str): Directory containing the outputs(
-                vasprun.xml and OUTCAR) of previous vasp run.
-            **kwargs: All kwargs supported by MPStaticSet, other than prev_incar
-                and prev_structure and prev_kpoints which are determined from
-                the prev_calc_dir.
-        """
-        input_set = cls(_dummy_structure, **kwargs)
-        return input_set.override_from_prev_calc(prev_calc_dir=prev_calc_dir)
-
-
 
 class MPScanStaticSet(MPScanRelaxSet):
     """
