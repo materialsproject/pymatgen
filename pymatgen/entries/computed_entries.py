@@ -204,7 +204,7 @@ class CompositionEnergyAdjustment(EnergyAdjustment):
                 adjustment. (Default: None)
             description: str, human-readable explanation of the energy adjustment.
         """
-        self.adj_per_atom = adj_per_atom
+        self._adj_per_atom = adj_per_atom
         self.uncertainty_per_atom = uncertainty_per_atom
         self.n_atoms = n_atoms
         self.cls = cls if cls else {}
@@ -216,7 +216,7 @@ class CompositionEnergyAdjustment(EnergyAdjustment):
         """
         Return the value of the energy adjustment in eV.
         """
-        return self.adj_per_atom * self.n_atoms
+        return self._adj_per_atom * self.n_atoms
 
     @property
     def uncertainty(self):
@@ -231,7 +231,7 @@ class CompositionEnergyAdjustment(EnergyAdjustment):
         Return an explanaion of how the energy adjustment is calculated.
         """
         return self.description + " ({:.3f} eV/atom x {} atoms)".format(
-            self.adj_per_atom, self.n_atoms
+            self._adj_per_atom, self.n_atoms
         )
 
     def _normalize(self, factor):
@@ -267,7 +267,7 @@ class TemperatureEnergyAdjustment(EnergyAdjustment):
                 adjustment. (Default: None)
             description: str, human-readable explanation of the energy adjustment.
         """
-        self.adj_per_deg = adj_per_deg
+        self._adj_per_deg = adj_per_deg
         self.uncertainty_per_deg = uncertainty_per_deg
         self.temp = temp
         self.n_atoms = n_atoms
@@ -280,7 +280,7 @@ class TemperatureEnergyAdjustment(EnergyAdjustment):
         """
         Return the value of the energy correction in eV.
         """
-        return self.adj_per_deg * self.temp * self.n_atoms
+        return self._adj_per_deg * self.temp * self.n_atoms
 
     @property
     def uncertainty(self):
@@ -295,7 +295,7 @@ class TemperatureEnergyAdjustment(EnergyAdjustment):
         Return an explanaion of how the energy adjustment is calculated.
         """
         return self.description + " ({:.4f} eV/K/atom x {} K x {} atoms)".format(
-            self.adj_per_deg, self.temp, self.n_atoms
+            self._adj_per_deg, self.temp, self.n_atoms
         )
 
     def _normalize(self, factor):
