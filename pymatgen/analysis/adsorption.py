@@ -670,9 +670,9 @@ def plot_slab(slab, ax, scale=0.8, repeat=5, window=1.5,
     lattsum = verts[0] + verts[1]
     # inverse coords, sites, alphas, to show other side of slab
     if inverse:
-        alphas = np.array([x for x in reversed(alphas)])
-        sites = [x for x in reversed(sites)]
-        coords = np.array([x for x in reversed(coords)])
+        alphas = np.array(reversed(alphas))
+        sites = list(reversed(sites))
+        coords = np.array(reversed(coords))
     # Draw circles at sites and stack them accordingly
     for n, coord in enumerate(coords):
         r = sites[n].specie.atomic_radius * scale
