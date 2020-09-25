@@ -686,7 +686,7 @@ def plot_slab(slab, ax, scale=0.8, repeat=5, window=1.5,
         asf = AdsorbateSiteFinder(orig_slab)
         if inverse:
             inverse_slab = orig_slab.copy()
-            inverse_slab.make_supercell([1,1,-1])
+            inverse_slab.make_supercell([1, 1, -1])
             asf = AdsorbateSiteFinder(inverse_slab)
         ads_sites = asf.find_adsorption_sites()['all']
         sop = get_rot(orig_slab)
