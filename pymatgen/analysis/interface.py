@@ -58,7 +58,7 @@ class Interface(Structure):
                 lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].
             species ([Species]): Sequence of species on each site. Can take in
                 flexible input, including:
-                i.  A sequence of element / specie specified either as string
+                i.  A sequence of element / species specified either as string
                     symbols, e.g. ["Li", "Fe2+", "P", ...] or atomic numbers,
                     e.g., (3, 56, ...) or actual Element or Species objects.
                 ii. List of dict of elements/species and occupancies, e.g.,

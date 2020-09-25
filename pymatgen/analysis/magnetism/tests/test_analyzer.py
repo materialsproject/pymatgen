@@ -218,7 +218,7 @@ class CollinearMagneticStructureAnalyzerTest(unittest.TestCase):
                                                  overwrite_magmom_mode="replace_all_if_undefined")
         self.assertEqual(msa.number_of_magnetic_sites, 4)
         self.assertEqual(msa.number_of_unique_magnetic_sites(), 1)
-        self.assertEqual(msa.types_of_magnetic_specie, (Element.Ni,))
+        self.assertEqual(msa.types_of_magnetic_species, (Element.Ni,))
         self.assertEqual(msa.get_exchange_group_info(), ('Fm-3m', 225))
 
     def test_str(self):

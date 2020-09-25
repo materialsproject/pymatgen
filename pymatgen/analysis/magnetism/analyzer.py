@@ -462,7 +462,7 @@ class CollinearMagneticStructureAnalyzer:
         return np.array(self.structure.site_properties["magmom"])
 
     @property
-    def types_of_magnetic_specie(self) -> Tuple[Union[Element, Species, DummySpecies], ...]:
+    def types_of_magnetic_species(self) -> Tuple[Union[Element, Species, DummySpecies], ...]:
         """Equivalent to Structure.types_of_specie but only returns
         magnetic species.
 
@@ -471,9 +471,16 @@ class CollinearMagneticStructureAnalyzer:
         """
         if self.number_of_magnetic_sites > 0:
             structure = self.get_structure_with_only_magnetic_atoms()
-            return tuple(sorted(structure.types_of_specie))
+            return tuple(sorted(structure.types_of_species))
         else:
             return tuple()
+
+    @property
+    def types_of_magnetic_specie(self) -> Tuple[Union[Element, Species, DummySpecies], ...]:
+        """
+        Specie->Species rename. Used to maintain backwards compatibility.
+        """
+        return self.types_of_magnetic_species
 
     @property
     def magnetic_species_and_magmoms(self) -> Dict[str, Any]:
@@ -534,7 +541,7 @@ class CollinearMagneticStructureAnalyzer:
         num_unique_mag_sites = 0
 
         for group_of_sites in symm_structure.equivalent_sites:
-            if group_of_sites[0].specie in self.types_of_magnetic_specie:
+            if group_of_sites[0].specie in self.types_of_magnetic_species:
                 num_unique_mag_sites += 1
 
         return num_unique_mag_sites
@@ -863,7 +870,7 @@ class MagneticStructureEnumerator:
 
         mag_species_spin = analyzer.magnetic_species_and_magmoms
         types_mag_species = sorted(
-            analyzer.types_of_magnetic_specie,
+            analyzer.types_of_magnetic_species,
             key=lambda sp: analyzer.default_magmoms.get(str(sp), 0),
             reverse=True,
         )

@@ -207,10 +207,10 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
     @property
     def ntypesp(self) -> int:
         """Number of types of atoms."""
-        return len(self.types_of_specie)
+        return len(self.types_of_species)
 
     @property
-    def types_of_specie(self) -> Tuple[Union[Element, Species, DummySpecies]]:
+    def types_of_species(self) -> Tuple[Union[Element, Species, DummySpecies]]:
         """
         List of types of specie.
         """
@@ -222,9 +222,16 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
                     types.append(sp)
         return tuple(set(types))  # type: ignore
 
+    @property
+    def types_of_specie(self) -> Tuple[Union[Element, Species, DummySpecies]]:
+        """
+        Specie->Species rename. Maintained for backwards compatibility.
+        """
+        return self.types_of_species
+
     def group_by_types(self) -> Iterator[Union[Site, PeriodicSite]]:
         """Iterate over species grouped by type"""
-        for t in self.types_of_specie:
+        for t in self.types_of_species:
             for site in self:
                 if site.specie == t:
                     yield site
@@ -243,7 +250,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         Tuple with the set of chemical symbols.
         Note that len(symbol_set) == len(types_of_specie)
         """
-        return tuple(sorted(specie.symbol for specie in self.types_of_specie))  # type: ignore
+        return tuple(sorted(specie.symbol for specie in self.types_of_species))  # type: ignore
 
     @property  # type: ignore
     def atomic_numbers(self) -> Tuple[int]:
@@ -639,7 +646,7 @@ class IStructure(SiteCollection, MSONable):
             species ([Species]): Sequence of species on each site. Can take in
                 flexible input, including:
 
-                i.  A sequence of element / specie specified either as string
+                i.  A sequence of element / species specified either as string
                     symbols, e.g. ["Li", "Fe2+", "P", ...] or atomic numbers,
                     e.g., (3, 56, ...) or actual Element or Species objects.
 
@@ -766,7 +773,7 @@ class IStructure(SiteCollection, MSONable):
             species ([Species]): Sequence of species on each site. Can take in
                 flexible input, including:
 
-                i.  A sequence of element / specie specified either as string
+                i.  A sequence of element / species specified either as string
                     symbols, e.g. ["Li", "Fe2+", "P", ...] or atomic numbers,
                     e.g., (3, 56, ...) or actual Element or Species objects.
 
@@ -858,7 +865,7 @@ class IStructure(SiteCollection, MSONable):
                 introduced in a future version.
             species ([Species]): Sequence of species on each site. Can take in
                 flexible input, including:
-                i.  A sequence of element / specie specified either as string
+                i.  A sequence of element / species specified either as string
                 symbols, e.g. ["Li", "Fe2+", "P", ...] or atomic numbers,
                 e.g., (3, 56, ...) or actual Element or Species objects.
 
@@ -2986,7 +2993,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
             species: List of species on each site. Can take in flexible input,
                 including:
 
-                i.  A sequence of element / specie specified either as string
+                i.  A sequence of element / species specified either as string
                     symbols, e.g. ["Li", "Fe2+", "P", ...] or atomic numbers,
                     e.g., (3, 56, ...) or actual Element or Species objects.
 

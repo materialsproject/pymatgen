@@ -99,7 +99,7 @@ class Slab(Structure):
             species ([Species]): Sequence of species on each site. Can take in
                 flexible input, including:
 
-                i.  A sequence of element / specie specified either as string
+                i.  A sequence of element / species specified either as string
                     symbols, e.g. ["Li", "Fe2+", "P", ...] or atomic numbers,
                     e.g., (3, 56, ...) or actual Element or Species objects.
 
