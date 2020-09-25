@@ -1577,7 +1577,7 @@ class DummySpecies(Species):
         return output
 
 
-class Species(Species):
+class Specie(Species):
     """
     This maps the historical grammatically inaccurate Specie to Species
     to maintain backwards compatibility.
@@ -1585,7 +1585,7 @@ class Species(Species):
     pass
 
 
-class DummySpecies(DummySpecies):
+class DummySpecie(DummySpecies):
     """
     This maps the historical grammatically inaccurate DummySpecies to DummySpecies
     to maintain backwards compatibility.
