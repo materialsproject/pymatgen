@@ -18,7 +18,7 @@ from collections import namedtuple
 from scipy.stats import gaussian_kde
 from scipy.signal import argrelextrema
 
-from pymatgen.core.structure import Specie, Structure, Element, DummySpecie
+from pymatgen.core.structure import Species, Structure, Element, DummySpecies
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.transformations.standard_transformations import (
@@ -267,7 +267,7 @@ class CollinearMagneticStructureAnalyzer:
                 # look for species first, e.g. Fe2+
                 default_magmom = self.default_magmoms[site.species_string]
             elif (
-                isinstance(site.specie, Specie)
+                isinstance(site.specie, Species)
                 and str(site.specie.element) in self.default_magmoms
             ):
                 # look for element, e.g. Fe
@@ -462,11 +462,11 @@ class CollinearMagneticStructureAnalyzer:
         return np.array(self.structure.site_properties["magmom"])
 
     @property
-    def types_of_magnetic_specie(self) -> Tuple[Union[Element, Specie, DummySpecie], ...]:
+    def types_of_magnetic_specie(self) -> Tuple[Union[Element, Species, DummySpecies], ...]:
         """Equivalent to Structure.types_of_specie but only returns
         magnetic species.
 
-        Returns: types of Specie as a list
+        Returns: types of Species as a list
 
         """
         if self.number_of_magnetic_sites > 0:
@@ -814,7 +814,7 @@ class MagneticStructureEnumerator:
 
         # ... and strip out existing magmoms, which can cause conflicts
         # with later transformations otherwise since sites would end up
-        # with both magmom site properties and Specie spins defined
+        # with both magmom site properties and Species spins defined
         if "magmom" in input_structure.site_properties:
             input_structure.remove_site_property("magmom")
 

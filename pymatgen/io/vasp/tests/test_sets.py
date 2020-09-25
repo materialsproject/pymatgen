@@ -12,7 +12,7 @@ from _pytest.monkeypatch import MonkeyPatch  # type: ignore
 from monty.json import MontyDecoder
 
 from pymatgen import SETTINGS
-from pymatgen.core import Specie, Lattice, Structure
+from pymatgen.core import Species, Lattice, Structure
 from pymatgen.core.surface import SlabGenerator
 from pymatgen.io.vasp.inputs import Poscar, Kpoints
 from pymatgen.io.vasp.outputs import Vasprun
@@ -231,7 +231,7 @@ class MITMPRelaxSetTest(PymatgenTest):
         incar = MITRelaxSet(struct, sort_structure=False).incar
         self.assertEqual(incar["MAGMOM"], [5.2, -4.5])
 
-        struct = Structure(lattice, [Specie("Fe", 2, {"spin": 4.1}), "Mn"], coords)
+        struct = Structure(lattice, [Species("Fe", 2, {"spin": 4.1}), "Mn"], coords)
         incar = MPRelaxSet(struct).incar
         self.assertEqual(incar["MAGMOM"], [5, 4.1])
 

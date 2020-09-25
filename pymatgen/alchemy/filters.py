@@ -47,7 +47,7 @@ class ContainsSpecieFilter(AbstractStructureFilter):
     def __init__(self, species, strict_compare=False, AND=True, exclude=False):
         """
         Args:
-            species ([Specie/Element]): list of species to look for
+            species ([Species/Element]): list of species to look for
             AND: whether all species must be present to pass (or fail) filter.
             strict_compare: if true, compares objects by specie or element
                 object if false, compares atomic number
@@ -128,7 +128,7 @@ class SpecieProximityFilter(AbstractStructureFilter):
                 Angstrom away from each other. Multiple species criteria can be
                 applied. Note that the testing is done based on the actual object
                 . If you have a structure with Element, you must use {"Na":1}
-                instead to filter based on Element and not Specie.
+                instead to filter based on Element and not Species.
         """
         self.specie_and_min_dist = {get_el_sp(k): v
                                     for k, v
@@ -331,8 +331,8 @@ class SpeciesMaxDistFilter(AbstractStructureFilter):
     def __init__(self, sp1, sp2, max_dist):
         """
         Args:
-            sp1 (Specie): First specie
-            sp2 (Specie): Second specie
+            sp1 (Species): First specie
+            sp2 (Species): Second specie
             max_dist (float): Maximum distance between species.
         """
         self.sp1 = get_el_sp(sp1)

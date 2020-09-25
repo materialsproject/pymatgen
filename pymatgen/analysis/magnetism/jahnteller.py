@@ -16,7 +16,7 @@ from pymatgen.analysis.local_env import (
     get_neighbors_of_site_with_index,
 )
 from pymatgen.analysis.bond_valence import BVAnalyzer
-from pymatgen.core.periodic_table import Specie, get_el_sp
+from pymatgen.core.periodic_table import Species, get_el_sp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 import warnings
 
@@ -138,7 +138,7 @@ class JahnTellerAnalyzer:
 
             # only interested in sites with oxidation states
             if (
-                isinstance(site.specie, Specie)
+                isinstance(site.specie, Species)
                 and site.specie.element.is_transition_metal
             ):
 
@@ -381,12 +381,12 @@ class JahnTellerAnalyzer:
             return structure
 
     @staticmethod
-    def _get_number_of_d_electrons(species: Specie) -> float:
+    def _get_number_of_d_electrons(species: Species) -> float:
         """
         Get number of d electrons of a species.
 
         Args:
-          species: Specie object
+          species: Species object
 
         Returns: Number of d electrons.
         """
@@ -412,7 +412,7 @@ class JahnTellerAnalyzer:
         return nelectrons
 
     def get_magnitude_of_effect_from_species(
-        self, species: Union[str, Specie], spin_state: str, motif: str
+        self, species: Union[str, Species], spin_state: str, motif: str
     ) -> str:
         """
         Get magnitude of Jahn-Teller effect from provided species, spin state and motif.
@@ -430,8 +430,8 @@ class JahnTellerAnalyzer:
 
         sp = get_el_sp(species)
 
-        # has to be Specie; we need to know the oxidation state
-        if isinstance(sp, Specie) and sp.element.is_transition_metal:
+        # has to be Species; we need to know the oxidation state
+        if isinstance(sp, Species) and sp.element.is_transition_metal:
 
             d_electrons = self._get_number_of_d_electrons(sp)
 
@@ -482,7 +482,7 @@ class JahnTellerAnalyzer:
 
     @staticmethod
     def _estimate_spin_state(
-        species: Union[str, Specie], motif: str, known_magmom: float
+        species: Union[str, Species], motif: str, known_magmom: float
     ) -> str:
         """Simple heuristic to estimate spin state. If magnetic moment
         is sufficiently close to that predicted for a given spin state,
@@ -525,7 +525,7 @@ class JahnTellerAnalyzer:
 
     @staticmethod
     def mu_so(
-        species: Union[str, Specie], motif: str, spin_state: str
+        species: Union[str, Species], motif: str, spin_state: str
     ) -> Optional[float]:
         """Calculates the spin-only magnetic moment for a
         given species. Only supports transition metals.

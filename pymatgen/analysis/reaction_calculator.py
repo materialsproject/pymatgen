@@ -107,7 +107,7 @@ class BalancedReaction(MSONable):
         Another factor can be specified.
 
         Args:
-            element (Element/Specie): Element to normalize to.
+            element (Element/Species): Element to normalize to.
             factor (float): Factor to normalize to. Defaults to 1.
         """
         all_comp = self._all_comp
@@ -124,7 +124,7 @@ class BalancedReaction(MSONable):
         Returns the amount of the element in the reaction.
 
         Args:
-            element (Element/Specie): Element in the reaction
+            element (Element/Species): Element in the reaction
 
         Returns:
             Amount of that element in the reaction.

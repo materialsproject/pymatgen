@@ -57,7 +57,7 @@ from monty.io import zopen
 from monty.json import MSONable
 from monty.serialization import loadfn
 from pymatgen.analysis.structure_matcher import StructureMatcher
-from pymatgen.core.periodic_table import Specie, Element
+from pymatgen.core.periodic_table import Species, Element
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Structure
 from pymatgen.io.lobster import Lobsterin
@@ -1837,7 +1837,7 @@ class MPNMRSet(MPStaticSet):
             isotopes = {ist.split("-")[0]: ist for ist in self.isotopes}
 
             quad_efg = [
-                Specie(p).get_nmr_quadrupole_moment(isotopes.get(p, None))
+                Species(p).get_nmr_quadrupole_moment(isotopes.get(p, None))
                 for p in self.poscar.site_symbols
             ]
 

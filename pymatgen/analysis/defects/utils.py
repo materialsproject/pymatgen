@@ -798,7 +798,7 @@ class TopographyAnalyzer:
     def get_structure_with_nodes(self):
         """
         Get the modified structure with the voronoi nodes inserted. The
-        species is set as a DummySpecie X.
+        species is set as a DummySpecies X.
         """
         new_s = Structure.from_sites(self.structure)
         for v in self.vnodes:
@@ -1219,7 +1219,7 @@ class ChargeDensityAnalyzer:
                                  threshold_frac=None, threshold_abs=None):
         """
         Get the modified structure with the possible interstitial sites added.
-        The species is set as a DummySpecie X.
+        The species is set as a DummySpecies X.
 
         Args:
             find_min (bool): True to find local minimum else maximum, otherwise
@@ -1237,7 +1237,7 @@ class ChargeDensityAnalyzer:
                 `threshold_frac * tot_num_extrema` extrema fractional
                 coordinates based on highest/lowest intensity.
 
-                E.g. set 0.2 to insert DummySpecie atom at the extrema with 20%
+                E.g. set 0.2 to insert DummySpecies atom at the extrema with 20%
                 highest or lowest intensity.
                 Value range: 0 <= threshold_frac <= 1
 

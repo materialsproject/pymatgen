@@ -2,7 +2,7 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from pymatgen.core import Specie, Element, Lattice, Structure
+from pymatgen.core import Species, Element, Lattice, Structure
 from pymatgen.io.cif import CifParser
 from pymatgen.analysis.magnetism import *
 
@@ -94,7 +94,7 @@ class CollinearMagneticStructureAnalyzerTest(unittest.TestCase):
 
     def test_get_representations(self):
         # tests to convert between storing magnetic moment information
-        # on site_properties or on Specie 'spin' property
+        # on site_properties or on Species 'spin' property
 
         # test we store magnetic moments on site properties
         self.Fe.add_site_property('magmom', [5])
@@ -111,7 +111,7 @@ class CollinearMagneticStructureAnalyzerTest(unittest.TestCase):
         self.assertFalse('magmom' in Fe_spin.site_properties)
 
         # test with disorder on magnetic site
-        self.Fe[0] = {Specie('Fe', oxidation_state=0, properties={'spin': 5}): 0.5, 'Ni': 0.5}
+        self.Fe[0] = {Species('Fe', oxidation_state=0, properties={'spin': 5}): 0.5, 'Ni': 0.5}
         self.assertRaises(NotImplementedError, CollinearMagneticStructureAnalyzer, self.Fe)
 
     def test_matches(self):

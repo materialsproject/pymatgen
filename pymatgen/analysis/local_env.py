@@ -2819,7 +2819,7 @@ class LocalStructOrderParams:
                 to determine if a particular pair is
                 considered neighbors; this is relevant only in the case
                 when Voronoi polyhedra are used to determine coordination
-            target_spec (Specie): target species to be considered
+            target_spec (Species): target species to be considered
                 when calculating the order
                 parameters of site n; None includes all species of input
                 structure.

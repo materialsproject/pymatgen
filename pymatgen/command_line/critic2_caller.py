@@ -55,7 +55,7 @@ from monty.tempfile import ScratchDir
 from pymatgen.io.vasp.outputs import Chgcar, VolumetricData
 from pymatgen.io.vasp.inputs import Potcar
 from pymatgen.analysis.graphs import StructureGraph
-from pymatgen.core.periodic_table import DummySpecie
+from pymatgen.core.periodic_table import DummySpecies
 from pymatgen.command_line.bader_caller import get_filepath
 
 
@@ -459,7 +459,7 @@ class Critic2Analysis(MSONable):
         A StructureGraph object describing bonding information
         in the crystal.
         Args:
-            include_critical_points: add DummySpecie for
+            include_critical_points: add DummySpecies for
             the critical points themselves, a list of
             "nucleus", "bond", "ring", "cage", set to None
             to disable
@@ -478,7 +478,7 @@ class Critic2Analysis(MSONable):
             for idx, node in self.nodes.items():
                 cp = self.critical_points[node["unique_idx"]]
                 if cp.type.value in include_critical_points:
-                    specie = DummySpecie(
+                    specie = DummySpecies(
                         "X{}cp".format(cp.type.value[0]), oxidation_state=None
                     )
                     structure.append(
