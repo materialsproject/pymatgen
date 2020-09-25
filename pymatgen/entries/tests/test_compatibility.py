@@ -39,6 +39,7 @@ from pymatgen.entries.compatibility import (
     MaterialsProjectCompatibility,
     MITAqueousCompatibility,
     MITCompatibility,
+    MaterialsProjectScanCompatibility2020,
 )
 from pymatgen.entries.computed_entries import (
     ComputedEntry,
@@ -46,6 +47,8 @@ from pymatgen.entries.computed_entries import (
     ConstantEnergyAdjustment,
 )
 from pymatgen.util.testing import PymatgenTest
+from pymatgen.entries.entry_tools import EntrySet
+from pymatgen.analysis.phase_diagram import PhaseDiagram
 
 
 class CorrectionSpecificityTest(unittest.TestCase):
@@ -617,7 +620,889 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
         self.assertIsInstance(temp_compat, MaterialsProjectCompatibility)
 
 
-class MaterialsProject2020CompatibilityTest(unittest.TestCase):
+class MaterialsProjectScanCompatibility2020Test(unittest.TestCase):
+
+    def test_no_structure(self):
+        # If we try to process a regular ComputedEntry, should get a warning
+        lattice = Lattice.from_parameters(a=1, b=1, c=1, alpha=90, beta=90, gamma=60)
+        entries = [
+            ComputedEntry("Sn", 0, parameters={"run_type": "GGA"}),
+            ComputedEntry("Br", 0, parameters={"run_type": "GGA"}),
+            ComputedEntry("SnBr2", -10, parameters={"run_type": "SCAN"}),
+            ComputedEntry("SnBr2", -100, parameters={"run_type": "GGA"}),
+            ComputedStructureEntry(
+                Structure(
+                    lattice,
+                    ["Sn", "Br", "Br", "Br", "Br"],
+                    [
+                        [0, 0, 0],
+                        [0.2, 0.2, 0.2],
+                        [0.4, 0.4, 0.4],
+                        [0.7, 0.7, 0.7],
+                        [1, 1, 1],
+                    ],
+                ),
+                0,
+                parameters={"run_type": "GGA"},
+                correction=-20,
+            ),
+        ]
+
+        with pytest.warns(UserWarning, match="not a ComputedStructureEntry"):
+            MaterialsProjectScanCompatibility2020(gga_compat=None).process_entries(entries)
+
+    def test_empty_entries(self):
+        # Test behavior when either gga_entries or scan_entries passed to get_adjustments
+        # is empty
+        pass
+
+    def test_clean(self):
+        # make sure the clean=True arg to process_entries works
+        lattice = Lattice.from_parameters(a=1, b=1, c=1, alpha=90, beta=90, gamma=60)
+        entries = [
+            ComputedStructureEntry(
+                Structure(lattice, ["Sn"], [[0, 0, 0]]),
+                0,
+                parameters={"run_type": "GGA"},
+                correction=-20,
+            ),
+            ComputedStructureEntry(
+                Structure(lattice, ["Br"], [[0, 0, 0]]),
+                0,
+                parameters={"run_type": "GGA"},
+                correction=-20,
+            ),
+            ComputedStructureEntry(
+                Structure(
+                    lattice, ["Sn", "Br", "Br"], [[0, 0, 0], [0.5, 0.5, 0.5], [1, 1, 1]]
+                ),
+                0,
+                parameters={"run_type": "GGA"},
+                correction=-20,
+            ),
+            ComputedStructureEntry(
+                Structure(
+                    lattice,
+                    ["Sn", "Br", "Br", "Br", "Br"],
+                    [
+                        [0, 0, 0],
+                        [0.2, 0.2, 0.2],
+                        [0.4, 0.4, 0.4],
+                        [0.7, 0.7, 0.7],
+                        [1, 1, 1],
+                    ],
+                ),
+                0,
+                parameters={"run_type": "GGA"},
+                correction=-20,
+            ),
+        ]
+
+        compat = MaterialsProjectScanCompatibility2020(gga_compat=None)
+        compat.process_entries(entries, clean=False)
+        for e in entries:
+            assert e.correction == -20
+
+        compat.process_entries(entries, clean=True)
+        for e in entries:
+            assert e.correction == 0
+
+    def test_no_run_type(self):
+        # should raise a ValueError if any of the entries does not have a run_type
+        lattice = Lattice.from_parameters(a=1, b=1, c=1, alpha=90, beta=90, gamma=60)
+        entries = [
+            ComputedStructureEntry(
+                Structure(lattice, ["Sn"], [[0, 0, 0]]),
+                0,
+                parameters={"run_type": "SCAN"},
+            ),
+            ComputedStructureEntry(
+                Structure(lattice, ["Br"], [[0, 0, 0]]), 0, parameters={}
+            ),
+            ComputedStructureEntry(
+                Structure(
+                    lattice, ["Sn", "Br", "Br"], [[0, 0, 0], [0.5, 0.5, 0.5], [1, 1, 1]]
+                ),
+                0,
+                parameters={"run_type": "SCAN"},
+            ),
+            ComputedStructureEntry(
+                Structure(
+                    lattice,
+                    ["Sn", "Br", "Br", "Br", "Br"],
+                    [
+                        [0, 0, 0],
+                        [0.2, 0.2, 0.2],
+                        [0.4, 0.4, 0.4],
+                        [0.7, 0.7, 0.7],
+                        [1, 1, 1],
+                    ],
+                ),
+                0,
+                parameters={"run_type": "SCAN"},
+            ),
+        ]
+
+        with pytest.warns(UserWarning, match="missing parameters.run_type"):
+            MaterialsProjectScanCompatibility2020(gga_compat=None).process_entries(entries)
+
+    def test_no_single_entry(self):
+        # Raise CompatibilityError if process_entries is called on a single entry
+        # Raise CompatibilityError if get_adjustments is called on an entry
+        # that is not part of the list passed to process_entries
+        lattice = Lattice.from_parameters(a=1, b=1, c=1, alpha=90, beta=90, gamma=60)
+        entries = [
+            ComputedStructureEntry(
+                Structure(lattice, ["Sn"], [[0, 0, 0]]),
+                0,
+                parameters={"run_type": "SCAN"},
+            )
+        ]
+
+        compat = MaterialsProjectScanCompatibility2020(gga_compat=None)
+        with pytest.warns(UserWarning, match="cannot process single entries"):
+            compat.process_entries(entries)
+
+    def test_only_scan_entries(self):
+        # If all entries are SCAN, do nothing
+        lattice = Lattice.from_parameters(a=1, b=1, c=1, alpha=90, beta=90, gamma=60)
+        entries = [
+            ComputedStructureEntry(
+                Structure(lattice, ["Sn"], [[0, 0, 0]]),
+                0,
+                parameters={"run_type": "SCAN"},
+            ),
+            ComputedStructureEntry(
+                Structure(lattice, ["Br"], [[0, 0, 0]]),
+                0,
+                parameters={"run_type": "SCAN"},
+            ),
+            ComputedStructureEntry(
+                Structure(
+                    lattice, ["Sn", "Br", "Br"], [[0, 0, 0], [0.5, 0.5, 0.5], [1, 1, 1]]
+                ),
+                0,
+                parameters={"run_type": "SCAN"},
+            ),
+            ComputedStructureEntry(
+                Structure(
+                    lattice,
+                    ["Sn", "Br", "Br", "Br", "Br"],
+                    [
+                        [0, 0, 0],
+                        [0.2, 0.2, 0.2],
+                        [0.4, 0.4, 0.4],
+                        [0.7, 0.7, 0.7],
+                        [1, 1, 1],
+                    ],
+                ),
+                0,
+                parameters={"run_type": "SCAN"},
+            ),
+        ]
+
+        compat = MaterialsProjectScanCompatibility2020(gga_compat=None)
+        for e in entries:
+            assert compat.get_adjustments(e,
+                                          EntrySet([]),
+                                          EntrySet(entries),
+                                          EntrySet(entries).remove_non_ground_states(),
+                                          None,
+                                          [],
+                                          []
+                                          ) == []
+
+        compat.process_entries(entries)
+        for e in entries:
+            assert e.correction == 0
+
+    def test_only_gga_entries(self):
+        # If all entries are GGA(+U), do nothing
+        lattice = Lattice.from_parameters(a=1, b=1, c=1, alpha=90, beta=90, gamma=60)
+        entries = [
+            ComputedStructureEntry(
+                Structure(lattice, ["Sn"], [[0, 0, 0]]),
+                0,
+                parameters={"run_type": "GGA"},
+            ),
+            ComputedStructureEntry(
+                Structure(lattice, ["Br"], [[0, 0, 0]]),
+                0,
+                parameters={"run_type": "GGA"},
+            ),
+            ComputedStructureEntry(
+                Structure(
+                    lattice, ["Sn", "Br", "Br"], [[0, 0, 0], [0.5, 0.5, 0.5], [1, 1, 1]]
+                ),
+                -20,
+                parameters={"run_type": "GGA"},
+            ),
+            ComputedStructureEntry(
+                Structure(
+                    lattice,
+                    ["Sn", "Br", "Br", "Br", "Br"],
+                    [
+                        [0, 0, 0],
+                        [0.2, 0.2, 0.2],
+                        [0.4, 0.4, 0.4],
+                        [0.7, 0.7, 0.7],
+                        [1, 1, 1],
+                    ],
+                ),
+                -10,
+                parameters={"run_type": "GGA"},
+            ),
+        ]
+        compat = MaterialsProjectScanCompatibility2020(gga_compat=None)
+
+        for e in entries:
+            assert compat.get_adjustments(e,
+                                          EntrySet(entries),
+                                          EntrySet([]),
+                                          EntrySet(entries).remove_non_ground_states(),
+                                          PhaseDiagram(entries),
+                                          [False] * len(entries),
+                                          [False] * len(entries)
+                                          ) == []
+        compat.process_entries(entries)
+        for e in entries:
+            assert e.correction == 0
+
+    def test_incompatible_run_type(self):
+        # If entry.parameters.run_type is not "GGA", "GGA+U", or "SCAN", raise
+        # a CompatibilityError and ignore that entry
+        lattice = Lattice.from_parameters(a=1, b=1, c=1, alpha=90, beta=90, gamma=60)
+        lda_entry = ComputedStructureEntry(
+                                           Structure(lattice, ["Sn"], [[0, 0, 0]]),
+                                           0,
+                                           parameters={"run_type": "LDA"},
+        )
+        gga_entries = [
+            ComputedStructureEntry(
+                Structure(lattice, ["Br"], [[0, 0, 0]]),
+                0,
+                parameters={"run_type": "GGA"},
+            ),
+            ComputedStructureEntry(
+                Structure(
+                    lattice, ["Sn", "Br", "Br"], [[0, 0, 0], [0.5, 0.5, 0.5], [1, 1, 1]]
+                ),
+                0,
+                parameters={"run_type": "GGA"},
+            ),
+        ]
+        scan_entries = []
+
+        compat = MaterialsProjectScanCompatibility2020(gga_compat=None)
+        gga_gs = EntrySet(gga_entries)
+        gga_gs.remove_non_ground_states()
+        with pytest.raises(CompatibilityError, match="Invalid run type LDA"):
+            assert compat.get_adjustments(lda_entry,
+                                          EntrySet(gga_entries),
+                                          EntrySet(scan_entries),
+                                          gga_gs,
+                                          None,
+                                          [False] * len(gga_entries),
+                                          [False] * len(gga_entries)
+                                          ) == []
+
+        entries = compat.process_entries([lda_entry] + gga_entries + scan_entries)
+        assert len(entries) == 2
+
+    def test_incomplete_phase_diagram(self):
+        # Test behavior when GGA entries don't form a complete phase diagram
+        lattice = Lattice.from_parameters(a=1, b=1, c=1, alpha=90, beta=90, gamma=60)
+        gga_entries = [
+            ComputedStructureEntry(
+                Structure(lattice, ["Br"], [[0, 0, 0]]),
+                0,
+                parameters={"run_type": "GGA"},
+            ),
+            ComputedStructureEntry(
+                Structure(
+                    lattice, ["Sn", "Br", "Br"], [[0, 0, 0], [0.5, 0.5, 0.5], [1, 1, 1]]
+                ),
+                -10,
+                parameters={"run_type": "GGA"},
+            ),
+        ]
+        scan_entries = [
+            # SCAN entry with a composition not found in the GGA references
+            ComputedStructureEntry(
+                Structure(
+                    lattice,
+                    ["Sn", "Br", "Br", "Br", "Br"],
+                    [
+                        [0, 0, 0],
+                        [0.2, 0.2, 0.2],
+                        [0.4, 0.4, 0.4],
+                        [0.7, 0.7, 0.7],
+                        [1, 1, 1],
+                    ],
+                ),
+                0,
+                parameters={"run_type": "SCAN"},
+            ),
+        ]
+
+        compat = MaterialsProjectScanCompatibility2020(gga_compat=None)
+        with pytest.warns(UserWarning, match="do not form a complete PhaseDiagram!"):
+            compat.process_entries(gga_entries + scan_entries)
+
+    def test_majority_scan(self):
+        # If there are SCAN entries for all of the GGA structures, SCAN
+        # corrections should be zero and the GGA entries should raise
+        # CompatibilityError
+        lattice = Lattice.from_parameters(a=1, b=1, c=1, alpha=90, beta=90, gamma=60)
+        scan_entries = [
+            ComputedStructureEntry(
+                Structure(lattice, ["Sn"], [[0, 0, 0]]),
+                0,
+                parameters={"run_type": "SCAN"},
+            ),
+            ComputedStructureEntry(
+                Structure(lattice, ["Br"], [[0, 0, 0]]),
+                0,
+                parameters={"run_type": "SCAN"},
+            ),
+            ComputedStructureEntry(
+                Structure(
+                    lattice, ["Sn", "Br", "Br"], [[0, 0, 0], [0.5, 0.5, 0.5], [1, 1, 1]]
+                ),
+                0,
+                parameters={"run_type": "SCAN"},
+            ),
+            ComputedStructureEntry(
+                Structure(
+                    lattice,
+                    ["Sn", "Br", "Br", "Br", "Br"],
+                    [
+                        [0, 0, 0],
+                        [0.2, 0.2, 0.2],
+                        [0.4, 0.4, 0.4],
+                        [0.7, 0.7, 0.7],
+                        [1, 1, 1],
+                    ],
+                ),
+                0,
+                parameters={"run_type": "SCAN"},
+            ),
+        ]
+        gga_entries = [
+            # GGA entries with the same structures as SCAN entries
+            ComputedStructureEntry(
+                Structure(lattice, ["Br"], [[0, 0, 0]]),
+                0,
+                parameters={"run_type": "GGA"},
+            ),
+            ComputedStructureEntry(
+                Structure(
+                    lattice, ["Sn", "Br", "Br"], [[0, 0, 0], [0.5, 0.5, 0.5], [1, 1, 1]]
+                ),
+                0,
+                parameters={"run_type": "GGA"},
+            ),
+        ]
+
+        compat = MaterialsProjectScanCompatibility2020(gga_compat=None)
+        gga_gs = EntrySet(gga_entries)
+        gga_gs.remove_non_ground_states()
+        for e in scan_entries + gga_entries:
+            if e.parameters["run_type"] == "GGA":
+                with pytest.raises(CompatibilityError, match="already exists in SCAN"):
+                    assert compat.get_adjustments(e,
+                                                  EntrySet(gga_entries),
+                                                  EntrySet(scan_entries),
+                                                  gga_gs,
+                                                  None,
+                                                  [True] * len(gga_entries),
+                                                  []
+                                                  ) == []
+            elif e.parameters["run_type"] == "SCAN":
+                assert compat.get_adjustments(e,
+                                              EntrySet(gga_entries),
+                                              EntrySet(scan_entries),
+                                              gga_gs,
+                                              None,
+                                              [True] * len(gga_entries),
+                                              []
+                                              ) == []
+
+    def test_gga_correction_scan_hull(self):
+        # If there are SCAN entries for all of the stable GGA structures, SCAN
+        # corrections should be zero, stable GGA entries should raise
+        # CompatibilityError, and unstable GGA entries should be corrected
+        # to maintain the same energy above the SCAN hull
+        lattice = Lattice.from_parameters(a=1, b=1, c=1, alpha=90, beta=90, gamma=60)
+        lattice2 = Lattice.from_parameters(
+            a=1, b=1, c=0.8, alpha=120, beta=90, gamma=60
+        )
+        scan_entries = [
+            ComputedStructureEntry(
+                Structure(lattice, ["Sn"], [[0, 0, 0]]),
+                -25,
+                parameters={"run_type": "SCAN"},
+            ),
+            ComputedStructureEntry(
+                Structure(lattice, ["Br"], [[0, 0, 0]]),
+                -25,
+                parameters={"run_type": "SCAN"},
+            ),
+            ComputedStructureEntry(
+                Structure(
+                    lattice, ["Sn", "Br", "Br"], [[0, 0, 0], [0.5, 0.5, 0.5], [1, 1, 1]]
+                ),
+                -100,
+                parameters={"run_type": "SCAN"},
+            ),
+            ComputedStructureEntry(
+                Structure(
+                    lattice,
+                    ["Sn", "Br", "Br", "Br", "Br"],
+                    [
+                        [0, 0, 0],
+                        [0.2, 0.2, 0.2],
+                        [0.4, 0.4, 0.4],
+                        [0.7, 0.7, 0.7],
+                        [1, 1, 1],
+                    ],
+                ),
+                -150,
+                parameters={"run_type": "SCAN"},
+            ),
+        ]
+        gga_entries = [
+            # GGA entries with the same structures as SCAN entries
+            ComputedStructureEntry(
+                Structure(lattice, ["Sn"], [[0, 0, 0]]),
+                0,
+                parameters={"run_type": "GGA"},
+            ),
+            ComputedStructureEntry(
+                Structure(lattice, ["Br"], [[0, 0, 0]]),
+                -5,
+                parameters={"run_type": "GGA"},
+            ),
+            ComputedStructureEntry(
+                Structure(
+                    lattice, ["Sn", "Br", "Br"], [[0, 0, 0], [0.5, 0.5, 0.5], [1, 1, 1]]
+                ),
+                -10,
+                parameters={"run_type": "GGA"},
+            ),
+            ComputedStructureEntry(
+                Structure(
+                    lattice,
+                    ["Sn", "Br", "Br", "Br", "Br"],
+                    [
+                        [0, 0, 0],
+                        [0.2, 0.2, 0.2],
+                        [0.4, 0.4, 0.4],
+                        [0.7, 0.7, 0.7],
+                        [1, 1, 1],
+                    ],
+                ),
+                0,
+                parameters={"run_type": "GGA"},
+            ),
+            # unstable GGA entries without corresponding SCAN structures
+            # e above hull = 3 eV; final energy should be -25+3 = -22
+            ComputedStructureEntry(
+                Structure(lattice2, ["Br"], [[0, 0, 0]]),
+                -2,
+                parameters={"run_type": "GGA"},
+            ),
+            # e above hull = 6 eV; final energy should be -100+6 = -94 or 31.333 eV/atom
+            ComputedStructureEntry(
+                Structure(
+                    lattice2,
+                    ["Sn", "Br", "Br"],
+                    [[0, 0, 0], [0.5, 0.5, 0.5], [1, 1, 1]],
+                ),
+                -4,
+                parameters={"run_type": "GGA"},
+            ),
+        ]
+
+        compat = MaterialsProjectScanCompatibility2020(gga_compat=None)
+        gga_gs = EntrySet(gga_entries)
+        gga_gs.remove_non_ground_states()
+
+        assert compat.get_adjustments(gga_entries[-2],
+                                      EntrySet(gga_entries),
+                                      EntrySet(scan_entries),
+                                      gga_gs,
+                                      PhaseDiagram(gga_entries),
+                                      [True] * len(gga_entries),
+                                      [True] * len(gga_entries),
+                                      )[0].value == pytest.approx(-20)
+
+        assert compat.get_adjustments(gga_entries[-1],
+                                      EntrySet(gga_entries),
+                                      EntrySet(scan_entries),
+                                      gga_gs,
+                                      PhaseDiagram(gga_entries),
+                                      [True] * len(gga_entries),
+                                      [True] * len(gga_entries),
+                                      )[0].value == pytest.approx(-90)
+
+        assert compat.get_adjustments(scan_entries[2],
+                                      EntrySet(gga_entries),
+                                      EntrySet(scan_entries),
+                                      gga_gs,
+                                      PhaseDiagram(gga_entries),
+                                      [True] * len(gga_entries),
+                                      [True] * len(gga_entries),
+                                      ) == []
+
+        with pytest.raises(CompatibilityError, match="already exists in SCAN"):
+            assert compat.get_adjustments(gga_entries[-3],
+                                          EntrySet(gga_entries),
+                                          EntrySet(scan_entries),
+                                          gga_gs,
+                                          PhaseDiagram(gga_entries),
+                                          [True] * len(gga_entries),
+                                          [True] * len(gga_entries),
+                                          )[0].value
+
+    def test_missing_comp_gga(self):
+        # test the case where the only GGA entry is for a composition not covered
+        # by the SCAN calculations
+        pass
+
+    def test_missing_comp_scan(self):
+        # test the case where the only SCAN entry is for a composition not covered
+        # by the GGA calculations (i.e., there is no)
+        pass
+
+    def test_no_scan_references(self):
+        # test the case where none of the SCAN entries correspond to a GGA
+        # reference structure
+        lattice = Lattice.from_parameters(a=1, b=1, c=1, alpha=90, beta=90, gamma=60)
+        lattice2 = Lattice.from_parameters(
+            a=1, b=1, c=0.8, alpha=120, beta=90, gamma=60
+        )
+        gga_entries = [
+            ComputedStructureEntry(
+                Structure(lattice, ["Sn"], [[0, 0, 0]]),
+                0,
+                parameters={"run_type": "GGA"},
+            ),
+            ComputedStructureEntry(
+                Structure(lattice, ["Br"], [[0, 0, 0]]),
+                -5,
+                parameters={"run_type": "GGA"},
+            ),
+            ComputedStructureEntry(
+                Structure(
+                    lattice, ["Sn", "Br", "Br"], [[0, 0, 0], [0.5, 0.5, 0.5], [1, 1, 1]]
+                ),
+                -10,
+                parameters={"run_type": "GGA"},
+            ),
+            ComputedStructureEntry(
+                Structure(
+                    lattice,
+                    ["Sn", "Br", "Br", "Br", "Br"],
+                    [
+                        [0, 0, 0],
+                        [0.2, 0.2, 0.2],
+                        [0.4, 0.4, 0.4],
+                        [0.7, 0.7, 0.7],
+                        [1, 1, 1],
+                    ],
+                ),
+                0,
+                parameters={"run_type": "GGA"},
+            ),
+        ]
+        scan_entries = [
+            # SCAN entries without corresponding SCAN reference structures
+            ComputedStructureEntry(
+                Structure(lattice2, ["Sn"], [[0, 0, 0]]),
+                0,
+                parameters={"run_type": "SCAN"},
+            ),
+            ComputedStructureEntry(
+                Structure(
+                    lattice2,
+                    ["Sn", "Br", "Br"],
+                    [[0, 0, 0], [0.5, 0.5, 0.5], [1, 1, 1]],
+                ),
+                -100,
+                parameters={"run_type": "SCAN"},
+            ),
+        ]
+        compat = MaterialsProjectScanCompatibility2020(gga_compat=None)
+        gga_gs = EntrySet(gga_entries)
+        gga_gs.remove_non_ground_states()
+
+        assert compat.get_adjustments(gga_entries[0],
+                                      EntrySet(gga_entries),
+                                      EntrySet(scan_entries),
+                                      gga_gs,
+                                      PhaseDiagram(gga_entries),
+                                      [False] * len(gga_entries),
+                                      [False] * len(gga_entries),
+                                      ) == []
+
+        with pytest.raises(CompatibilityError, match="there are no SCAN reference"):
+            compat.get_adjustments(scan_entries[-1],
+                                   EntrySet(gga_entries),
+                                   EntrySet(scan_entries),
+                                   gga_gs,
+                                   PhaseDiagram(gga_entries),
+                                   [False] * len(gga_entries),
+                                   [False] * len(gga_entries),
+                                   )[0].value == pytest.approx(-20)
+
+            compat.get_adjustments(scan_entries[-2],
+                                   EntrySet(gga_entries),
+                                   EntrySet(scan_entries),
+                                   gga_gs,
+                                   PhaseDiagram(gga_entries),
+                                   [False] * len(gga_entries),
+                                   [False] * len(gga_entries),
+                                   )[0].value == pytest.approx(-20)
+
+    def test_scan_polymorph_pair(self):
+        # If we have a pair of SCAN calculations at a single composition, one of
+        # which corresponds to the GGA reference structure, we should correct
+        # the SCAN entry to GGA and discard the GGA entry
+        lattice = Lattice.from_parameters(a=1, b=1, c=1, alpha=90, beta=90, gamma=60)
+        lattice2 = Lattice.from_parameters(
+            a=1, b=1, c=0.8, alpha=120, beta=90, gamma=60
+        )
+        gga_entries = [
+            # GGA reference structures
+            ComputedStructureEntry(
+                Structure(lattice, ["Sn"], [[0, 0, 0]]),
+                0,
+                parameters={"run_type": "GGA"},
+            ),
+            ComputedStructureEntry(
+                Structure(lattice, ["Br"], [[0, 0, 0]]),
+                0,
+                parameters={"run_type": "GGA"},
+            ),
+            ComputedStructureEntry(
+                Structure(
+                    lattice, ["Sn", "Br", "Br"], [[0, 0, 0], [0.5, 0.5, 0.5], [1, 1, 1]]
+                ),
+                -10,
+                parameters={"run_type": "GGA"},
+            ),
+            # GGA unstable polymorph
+            ComputedStructureEntry(
+                Structure(
+                    lattice2,
+                    ["Sn", "Br", "Br"],
+                    [[0, 0, 0], [0.7, 0.7, 0.7], [1, 1, 1]],
+                ),
+                -9,
+                parameters={"run_type": "GGA"},
+            ),
+        ]
+        scan_entries = [
+            # SCAN reference structure
+            ComputedStructureEntry(
+                Structure(
+                    lattice, ["Sn", "Br", "Br"], [[0, 0, 0], [0.5, 0.5, 0.5], [1, 1, 1]]
+                ),
+                -100,
+                parameters={"run_type": "SCAN"},
+            ),
+            # SCAN unstable polymorph structure, e_above_hull = 2 eV
+            ComputedStructureEntry(
+                Structure(
+                    lattice2,
+                    ["Sn", "Br", "Br"],
+                    [[0, 0, 0], [0.7, 0.7, 0.7], [1, 1, 1]],
+                ),
+                -98,
+                parameters={"run_type": "SCAN"},
+            ),
+        ]
+
+        compat = MaterialsProjectScanCompatibility2020(gga_compat=None)
+        gga_gs = EntrySet(gga_entries)
+        gga_gs.remove_non_ground_states()
+        has_scan_ground_states = []
+        has_scan_hull_entries = []
+        for e in gga_gs:
+            if e.composition.reduced_formula == 'SnBr2':
+                has_scan_ground_states.append(True)
+                has_scan_hull_entries.append(True)
+            else:
+                has_scan_ground_states.append(False)
+                has_scan_hull_entries.append(False)
+
+        assert compat.get_adjustments(scan_entries[-1],
+                                      EntrySet(gga_entries),
+                                      EntrySet(scan_entries),
+                                      gga_gs,
+                                      PhaseDiagram(gga_entries),
+                                      has_scan_ground_states,
+                                      has_scan_hull_entries,
+                                      )[0].value == pytest.approx(90)
+
+        assert compat.get_adjustments(scan_entries[-2],
+                                      EntrySet(gga_entries),
+                                      EntrySet(scan_entries),
+                                      gga_gs,
+                                      PhaseDiagram(gga_entries),
+                                      has_scan_ground_states,
+                                      has_scan_hull_entries,
+                                      )[0].value == pytest.approx(90)
+
+        assert compat.get_adjustments(gga_entries[0],
+                                      EntrySet(gga_entries),
+                                      EntrySet(scan_entries),
+                                      gga_gs,
+                                      PhaseDiagram(gga_entries),
+                                      has_scan_ground_states,
+                                      has_scan_hull_entries,
+                                      ) == []
+
+        with pytest.raises(CompatibilityError, match="already exists in SCAN"):
+            assert compat.get_adjustments(gga_entries[2],
+                                          EntrySet(gga_entries),
+                                          EntrySet(scan_entries),
+                                          gga_gs,
+                                          PhaseDiagram(gga_entries),
+                                          has_scan_ground_states,
+                                          has_scan_hull_entries,
+                                          ) == []
+            assert compat.get_adjustments(gga_entries[3],
+                                          EntrySet(gga_entries),
+                                          EntrySet(scan_entries),
+                                          gga_gs,
+                                          PhaseDiagram(gga_entries),
+                                          has_scan_ground_states,
+                                          has_scan_hull_entries,
+                                          ) == []
+
+    def test_wrong_scan_references(self):
+        # Raise CompatibilityError if there is no SCAN reference structure
+        # for the chosen composition
+        lattice = Lattice.from_parameters(a=1, b=1, c=1, alpha=90, beta=90, gamma=60)
+        gga_entries = [
+            ComputedStructureEntry(
+                Structure(lattice, ["Sn"], [[0, 0, 0]]),
+                0,
+                parameters={"run_type": "GGA"},
+            ),
+            ComputedStructureEntry(
+                Structure(lattice, ["Br"], [[0, 0, 0]]),
+                0,
+                parameters={"run_type": "GGA"},
+            ),
+            ComputedStructureEntry(
+                Structure(
+                    lattice, ["Sn", "Br", "Br"], [[0, 0, 0], [0.5, 0.5, 0.5], [1, 1, 1]]
+                ),
+                -10,
+                parameters={"run_type": "GGA"},
+            ),
+        ]
+        scan_entries = [
+            # SCAN reference structure at a different composition
+            ComputedStructureEntry(
+                Structure(lattice, ["Sn"], [[0, 0, 0]]),
+                0,
+                parameters={"run_type": "SCAN"},
+            ),
+            # SCAN entry with a different structure than the GGA reference
+            ComputedStructureEntry(
+                Structure(
+                    lattice, ["Sn", "Br", "Br"], [[0, 0, 0], [0.7, 0.7, 0.7], [1, 1, 1]]
+                ),
+                0,
+                parameters={"run_type": "SCAN"},
+            ),
+        ]
+
+        compat = MaterialsProjectScanCompatibility2020(gga_compat=None)
+        gga_gs = EntrySet(gga_entries)
+        gga_gs.remove_non_ground_states()
+        has_scan_ground_states = []
+        has_scan_hull_entries = []
+        for e in gga_gs:
+            if e.composition.reduced_formula == 'Sn':
+                has_scan_ground_states.append(True)
+                has_scan_hull_entries.append(True)
+            else:
+                has_scan_ground_states.append(False)
+                has_scan_hull_entries.append(False)
+
+        with pytest.raises(CompatibilityError, match="there is no SCAN reference"):
+            compat.get_adjustments(scan_entries[-1],
+                                   EntrySet(gga_entries),
+                                   EntrySet(scan_entries),
+                                   gga_gs,
+                                   PhaseDiagram(gga_entries),
+                                   has_scan_ground_states,
+                                   has_scan_hull_entries,
+                                   )
+
+    def test_none_if_fewer_than_2_scan(self):
+        # Raise CompatibilityError if there are fewer than 2 SCAN entries
+        lattice = Lattice.from_parameters(a=1, b=1, c=1, alpha=90, beta=90, gamma=60)
+        gga_entries = [
+            ComputedStructureEntry(
+                Structure(lattice, ["Sn"], [[0, 0, 0]]),
+                0,
+                parameters={"run_type": "GGA"},
+            ),
+            ComputedStructureEntry(
+                Structure(lattice, ["Br"], [[0, 0, 0]]),
+                0,
+                parameters={"run_type": "GGA"},
+            ),
+            ComputedStructureEntry(
+                Structure(
+                    lattice, ["Sn", "Br", "Br"], [[0, 0, 0], [0.5, 0.5, 0.5], [1, 1, 1]]
+                ),
+                -10,
+                parameters={"run_type": "GGA"},
+            ),
+        ]
+        scan_entries = [
+            # one SCAN entry with the same structure than the GGA reference
+            ComputedStructureEntry(
+                Structure(
+                    lattice, ["Sn", "Br", "Br"], [[0, 0, 0], [0.5, 0.5, 0.5], [1, 1, 1]]
+                ),
+                0,
+                parameters={"run_type": "SCAN"},
+            ),
+        ]
+
+        compat = MaterialsProjectScanCompatibility2020(gga_compat=None)
+        gga_gs = EntrySet(gga_entries)
+        gga_gs.remove_non_ground_states()
+        has_scan_ground_states = []
+        has_scan_hull_entries = []
+        for e in gga_gs:
+            if e.composition.reduced_formula == 'Sn':
+                has_scan_ground_states.append(True)
+                has_scan_hull_entries.append(True)
+            else:
+                has_scan_ground_states.append(False)
+                has_scan_hull_entries.append(False)
+
+        with pytest.raises(CompatibilityError, match="fewer than 2 SCAN"):
+            compat.get_adjustments(scan_entries[0],
+                                   EntrySet(gga_entries),
+                                   EntrySet(scan_entries),
+                                   gga_gs,
+                                   PhaseDiagram(gga_entries),
+                                   has_scan_ground_states,
+                                   has_scan_hull_entries,
+                                   )
+
+
+class MaterialsProjectCompatibility2020Test(unittest.TestCase):
     def setUp(self):
         warnings.simplefilter("ignore")
         self.entry1 = ComputedEntry(
@@ -2203,20 +3088,13 @@ class MITAqueousCompatibilityTest(unittest.TestCase):
         ]
         struct = Structure(latt, elts, coords)
 
-        lioh_entry = ComputedStructureEntry(
-            struct,
-            -3,
-            parameters={
-                "is_hubbard": False,
-                "hubbards": None,
-                "run_type": "GGA",
-                "potcar_symbols": [
-                    "PAW_PBE Fe 17Jan2003",
-                    "PAW_PBE O 08Apr2002",
-                    "PAW_PBE H 15Jun2001",
-                ],
-            },
-        )
+        lioh_entry = ComputedStructureEntry(struct, -3,
+                                            parameters={'is_hubbard': False,
+                                                        'hubbards': None,
+                                                        'run_type': 'GGA',
+                                                        'potcar_symbols':
+                                                            ['PAW_PBE Fe 17Jan2003', 'PAW_PBE O 08Apr2002',
+                                                             'PAW_PBE H 15Jun2001']})
 
         self.assertIsNone(compat.process_entry(lioh_entry))
 
