@@ -88,8 +88,8 @@ class VacancyGenerator(DefectGenerator):
                 charge = -1 * self.struct_valences[site_index]
 
             return Vacancy(self.structure, vac_site[0], charge=charge)
-        else:
-            raise StopIteration
+
+        raise StopIteration
 
 
 class SubstitutionGenerator(DefectGenerator):
