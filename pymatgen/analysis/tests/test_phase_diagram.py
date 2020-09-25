@@ -455,6 +455,11 @@ class PhaseDiagramTest(unittest.TestCase):
             n_h_e = self.pd.get_hull_energy(entry.composition.fractional_composition)
             self.assertAlmostEqual(n_h_e, entry.energy_per_atom)
 
+    def test_get_hull_energy_per_atom(self):
+        for entry in self.pd.stable_entries:
+            h_e = self.pd.get_hull_energy_per_atom(entry.composition)
+            self.assertAlmostEqual(h_e, entry.energy_per_atom)
+
     def test_1d_pd(self):
         entry = PDEntry("H", 0)
         pd = PhaseDiagram([entry])
