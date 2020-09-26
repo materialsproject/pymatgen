@@ -521,15 +521,15 @@ class DictSet(VaspInputSet):
                             for site in structure
                         }
                         incar[k] = [m[sym] for sym in poscar.site_symbols]
-                    # lookup specific LDAU if specified for most_electroneg atom
+                        # lookup specific LDAU if specified for most_electroneg atom
                     elif most_electroneg in v.keys() and isinstance(
-                        v[most_electroneg], dict
+                            v[most_electroneg], dict
                     ):
                         incar[k] = [
                             v[most_electroneg].get(sym, 0)
                             for sym in poscar.site_symbols
                         ]
-                    # else, use fallback LDAU value if it exists
+                        # else, use fallback LDAU value if it exists
                     else:
                         incar[k] = [
                             v.get(sym, 0)
@@ -544,7 +544,6 @@ class DictSet(VaspInputSet):
                     incar["EDIFF"] = float(settings["EDIFF"])
             else:
                 incar[k] = v
-
         has_u = hubbard_u and sum(incar["LDAUU"]) > 0
         if has_u:
             # modify LMAXMIX if LSDA+U and you have d or f electrons
