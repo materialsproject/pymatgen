@@ -218,8 +218,8 @@ class DiffusionAnalyzer(MSONable):
             if framework_indices:
                 framework_disp = self.disp[framework_indices]
                 drift = np.average(framework_disp, axis=0)[None, :, :]
-                dc = self.disp - drift # Drift corrected position
-            else: # No framework atoms
+                dc = self.disp - drift  # Drift corrected position
+            else:  # No framework atoms
                 dc = self.disp
                 drift = np.zeros(self.disp.shape)
 
