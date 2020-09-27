@@ -62,12 +62,13 @@ class Trajectory(MSONable):
                 dicts should match number of frames in trajectory
                 Defaults to None for no properties.
             frame_properties (dict): Properties of the trajectory such as energy, pressure, etc. Each property should
-                have a length equal to the trajectory length, e.g., {'energy': [#, #, #, #], 'pressure': [0, 0.1, 0 0.02]}
+                have a length equal to the trajectory length, e.g., {'energy': [#, #, #, #], 
+                'pressure': [0, 0.1, 0 0.02]}
             constant_lattice (bool): Whether the lattice changes during the simulation, such as in an NPT MD simulation.
             coords_are_displacement (bool): Whether supplied coordinates are given in displacements (True) or
                 positions (False)
-            base_positions (Nx3 array): The starting positions of all atoms in the trajectory. Used to reconstruct positions
-                when converting from displacements to positions. Only needs to be specified if
+            base_positions (Nx3 array): The starting positions of all atoms in the trajectory. Used to reconstruct 
+                position when converting from displacements to positions. Only needs to be specified if
                 coords_are_displacement=True. Defaults to first index of frac_coords if coords_are_displacement=False.
         """
         # To support from_dict and as_dict
@@ -170,9 +171,9 @@ class Trajectory(MSONable):
 
     def __getitem__(self, frames):
         """
-        Gets a subset of the trajectory if a slice is given; if a single int is given, return a structure
+        Extracts a subset of the trajectory if a slice is given; if a single int is given, return a structure
         Args:
-            frames (int, slice): int or slice of trajectory to return
+            frames (int, slice): Index or slice of trajectory to return
         Return:
             (Trajectory, Structure) Subset of trajectory
         """
@@ -265,7 +266,7 @@ class Trajectory(MSONable):
         Note: Assumes no atoms removed during simulation
 
         Args:
-            structures (list): list of pymatgen Structure objects.
+            structures (list): List of pymatgen Structure objects.
             constant_lattice (bool): Whether the lattice changes during the simulation, such as in an NPT MD
                 simulation. True results in ...?
         Returns:
