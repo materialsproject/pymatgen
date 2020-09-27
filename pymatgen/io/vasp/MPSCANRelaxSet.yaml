@@ -20,7 +20,7 @@ INCAR:
   LELF: True  # Output ELFCAR
   LWAVE: False # Don't output WAVECAR
   LVTOT: True # Output LOCPOT
-  METAGGA: SCAN
+  METAGGA: R2SCAN
   NELM: 200
   NSW: 99
   PREC: Accurate
