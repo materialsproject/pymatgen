@@ -151,7 +151,7 @@ class BaderAnalysis:
             self.nelects = self.structure.site_properties.get('nelect', [])  # For cube, see if struc has nelects
 
         tmpfile = 'CHGCAR' if chgcar_filename else 'CUBE'
-        with ScratchDir(".") as temp_dir:
+        with ScratchDir("."):
             with zopen(fpath, 'rt') as f_in:
                 with open(tmpfile, "wt") as f_out:
                     shutil.copyfileobj(f_in, f_out)
@@ -320,6 +320,9 @@ class BaderAnalysis:
 
     @property
     def summary(self):
+        """
+        :return: Dict summary of key analysis, e.g., atomic volume, charge, etc.
+        """
 
         summary = {
             "min_dist": [d['min_dist'] for d in self.data],
@@ -394,6 +397,29 @@ class BaderAnalysis:
             chgref_filename = None
         return cls(chgcar_filename=chgcar_filename, potcar_filename=potcar_filename,
                    chgref_filename=chgref_filename)
+
+
+def get_filepath(filename, warning, path, suffix):
+    """
+    Args:
+        filename: Filename
+        warning: Warning message
+        path: Path to search
+        suffix: Suffixes to search.
+    """
+    paths = glob.glob(os.path.join(path, filename + suffix + '*'))
+    if not paths:
+        warnings.warn(warning)
+        return None
+    if len(paths) > 1:
+        # using reverse=True because, if multiple files are present,
+        # they likely have suffixes 'static', 'relax', 'relax2', etc.
+        # and this would give 'static' over 'relax2' over 'relax'
+        # however, better to use 'suffix' kwarg to avoid this!
+        paths.sort(reverse=True)
+        warnings.warn('Multiple files detected, using {}'.format(os.path.basename(path)))
+    path = paths[0]
+    return path
 
 
 def bader_analysis_from_path(path, suffix=''):
