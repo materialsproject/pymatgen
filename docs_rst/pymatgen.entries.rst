@@ -16,6 +16,7 @@ Submodules
 
    pymatgen.entries.compatibility
    pymatgen.entries.computed_entries
+   pymatgen.entries.correction_calculator
    pymatgen.entries.entry_tools
    pymatgen.entries.exp_entries
 

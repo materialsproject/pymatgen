@@ -593,6 +593,7 @@ class SpacegroupAnalyzer:
                                   [0, b, 0],
                                   [0, 0, c]]
                     transf = np.zeros(shape=(3, 3))
+                    transf[2] = [0, 0, 1]  # see issue #1929
                     for i, d in enumerate(sorted_dic):
                         transf[i][d['orig_index']] = 1
             # if not C-setting

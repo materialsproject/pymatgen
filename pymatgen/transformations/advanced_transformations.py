@@ -2227,8 +2227,14 @@ class SQSTransformation(AbstractTransformation):
         """
 
         if not return_ranked_list:
+            return_struc = sqs.bestsqs
+
+            # reduce structure
+            if reduction_algo:
+                return_struc = return_struc.get_reduced_structure(reduction_algo=reduction_algo)
+
             # return just the structure
-            return sqs.bestsqs
+            return return_struc
 
         strucs = []
         for d in sqs.allsqs:

@@ -6,22 +6,27 @@ This module implements Compatibility corrections for mixing runs of different
 functionals.
 """
 
-import os
 import abc
+import os
 import warnings
-
 from collections import defaultdict
-from typing import Sequence, Union, Optional
+from typing import Optional, Sequence, Union, List
+
+import numpy as np
 from monty.design_patterns import cached_class
-from monty.serialization import loadfn
+from monty.dev import deprecated
 from monty.json import MSONable
+from monty.serialization import loadfn
+from uncertainties import ufloat
 
-from pymatgen.io.vasp.sets import MITRelaxSet, MPRelaxSet
-from pymatgen.core.periodic_table import Element
 from pymatgen.analysis.structure_analyzer import oxide_type, sulfide_type
-from pymatgen.entries.computed_entries import ComputedEntry, \
-    ConstantEnergyAdjustment, CompositionEnergyAdjustment, TemperatureEnergyAdjustment
-
+from pymatgen.core.periodic_table import Element
+from pymatgen.entries.computed_entries import (CompositionEnergyAdjustment,
+                                               ComputedEntry,
+                                               ComputedStructureEntry,
+                                               ConstantEnergyAdjustment,
+                                               TemperatureEnergyAdjustment)
+from pymatgen.io.vasp.sets import MITRelaxSet, MPRelaxSet
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 MU_H2O = -2.4583  # Free energy of formation of water, eV/H2O, used by MaterialsProjectAqueousCompatibility
@@ -39,6 +44,7 @@ class CompatibilityError(Exception):
     Exception class for Compatibility. Raised by attempting correction
     on incompatible calculation
     """
+
     pass
 
 
@@ -53,13 +59,13 @@ class Correction(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def get_correction(self, entry):
         """
-        Returns correction for a single entry.
+        Returns correction and uncertainty for a single entry.
 
         Args:
             entry: A ComputedEntry object.
 
         Returns:
-            The energy correction to be applied.
+            The energy correction to be applied and the uncertainty of the correction.
 
         Raises:
             CompatibilityError if entry is not compatible.
@@ -79,7 +85,24 @@ class Correction(metaclass=abc.ABCMeta):
         Raises:
             CompatibilityError if entry is not compatible.
         """
-        entry.correction += self.get_correction(entry)
+        new_corr = self.get_correction(entry)
+        old_std_dev = entry.correction_uncertainty
+        if np.isnan(old_std_dev):
+            old_std_dev = 0
+        old_corr = ufloat(entry.correction, old_std_dev)
+        updated_corr = new_corr + old_corr
+
+        if updated_corr.nominal_value != 0 and updated_corr.std_dev == 0:
+            # if there are no error values available for the corrections applied,
+            # set correction uncertainty to not a number
+            uncertainty = np.nan
+        else:
+            uncertainty = updated_corr.std_dev
+
+        entry.energy_adjustments.append(ConstantEnergyAdjustment(updated_corr.nominal_value,
+                                                                 uncertainty)
+                                        )
+
         return entry
 
 
@@ -111,52 +134,44 @@ class PotcarCorrection(Correction):
             CombatibilityError if wrong potcar symbols
         """
         potcar_settings = input_set.CONFIG["POTCAR"]
-        if isinstance(list(potcar_settings.values())[-1],
-                      dict):
+        if isinstance(list(potcar_settings.values())[-1], dict):
             if check_hash:
-                self.valid_potcars = {k: d["hash"] for k, d in
-                                      potcar_settings.items()}
+                self.valid_potcars = {k: d["hash"] for k, d in potcar_settings.items()}
             else:
-                self.valid_potcars = {k: d["symbol"] for k, d in
-                                      potcar_settings.items()}
+                self.valid_potcars = {
+                    k: d["symbol"] for k, d in potcar_settings.items()
+                }
         else:
             if check_hash:
-                raise ValueError('Cannot check hashes of potcars,'
-                                 ' hashes are not set')
-            else:
-                self.valid_potcars = {k: d for k, d in
-                                      potcar_settings.items()}
+                raise ValueError(
+                    "Cannot check hashes of potcars, since hashes are not included in the entry."
+                )
+            self.valid_potcars = potcar_settings
 
         self.input_set = input_set
         self.check_hash = check_hash
 
-    def get_correction(self, entry) -> float:
+    def get_correction(self, entry) -> ufloat:
         """
         :param entry: A ComputedEntry/ComputedStructureEntry
-        :return: Correction.
+        :return: Correction, Uncertainty.
         """
         if self.check_hash:
             if entry.parameters.get("potcar_spec"):
-                psp_settings = set([d.get("hash")
-                                    for d in entry.parameters[
-                                        "potcar_spec"] if d])
+                psp_settings = {d.get("hash") for d in entry.parameters["potcar_spec"] if d}
             else:
-                raise ValueError('Cannot check hash '
-                                 'without potcar_spec field')
+                raise ValueError("Cannot check hash without potcar_spec field")
         else:
             if entry.parameters.get("potcar_spec"):
-                psp_settings = set([d.get("titel").split()[1]
-                                    for d in entry.parameters[
-                                        "potcar_spec"] if d])
+                psp_settings = {d.get("titel").split()[1] for d in entry.parameters["potcar_spec"] if d}
             else:
-                psp_settings = set([sym.split()[1]
-                                    for sym in entry.parameters[
-                                        "potcar_symbols"] if sym])
+                psp_settings = {sym.split()[1] for sym in entry.parameters["potcar_symbols"] if sym}
 
-        if {self.valid_potcars.get(str(el))
-                for el in entry.composition.elements} != psp_settings:
-            raise CompatibilityError('Incompatible potcar')
-        return 0
+        if {
+            self.valid_potcars.get(str(el)) for el in entry.composition.elements
+        } != psp_settings:
+            raise CompatibilityError("Incompatible potcar")
+        return ufloat(0.0, 0.0)
 
     def __str__(self):
         return "{} Potcar Correction".format(self.input_set.__name__)
@@ -167,6 +182,7 @@ class GasCorrection(Correction):
     """
     Correct gas energies to obtain the right formation energies. Note that
     this depends on calculations being run within the same input set.
+    For old MaterialsProjectCompatibility and MITCompatibility.
     """
 
     def __init__(self, config_file):
@@ -175,22 +191,27 @@ class GasCorrection(Correction):
             config_file: Path to the selected compatibility.yaml config file.
         """
         c = loadfn(config_file)
-        self.name = c['Name']
-        self.cpd_energies = c['Advanced']['CompoundEnergies']
+        self.name = c["Name"]
+        self.cpd_energies = c["Advanced"]["CompoundEnergies"]
 
-    def get_correction(self, entry) -> float:
+    def get_correction(self, entry) -> ufloat:
         """
         :param entry: A ComputedEntry/ComputedStructureEntry
         :return: Correction.
         """
         comp = entry.composition
 
+        correction = ufloat(0.0, 0.0)
+
+        # set error to 0 because old MPCompatibility doesn't have errors
+
         rform = entry.composition.reduced_formula
         if rform in self.cpd_energies:
-            return self.cpd_energies[rform] * comp.num_atoms \
-                   - entry.uncorrected_energy
+            correction += (
+                self.cpd_energies[rform] * comp.num_atoms - entry.uncorrected_energy
+            )
 
-        return 0
+        return correction
 
     def __str__(self):
         return "{} Gas Correction".format(self.name)
@@ -201,6 +222,8 @@ class AnionCorrection(Correction):
     """
     Correct anion energies to obtain the right formation energies. Note that
     this depends on calculations being run within the same input set.
+
+    For old MaterialsProjectCompatibility and MITCompatibility.
     """
 
     def __init__(self, config_file, correct_peroxide=True):
@@ -211,29 +234,36 @@ class AnionCorrection(Correction):
                 corrections are to be applied or not.
         """
         c = loadfn(config_file)
-        self.oxide_correction = c['OxideCorrections']
-        self.sulfide_correction = c.get('SulfideCorrections', defaultdict(
-            float))
-        self.name = c['Name']
+        self.oxide_correction = c["OxideCorrections"]
+        self.sulfide_correction = c.get("SulfideCorrections", defaultdict(float))
+        self.name = c["Name"]
         self.correct_peroxide = correct_peroxide
 
-    def get_correction(self, entry) -> float:
+    def get_correction(self, entry) -> ufloat:
         """
         :param entry: A ComputedEntry/ComputedStructureEntry
         :return: Correction.
         """
         comp = entry.composition
         if len(comp) == 1:  # Skip element entry
-            return 0
+            return ufloat(0.0, 0.0)
 
-        correction = 0
+        correction = ufloat(0.0, 0.0)
+
         # Check for sulfide corrections
         if Element("S") in comp:
             sf_type = "sulfide"
+
             if entry.data.get("sulfide_type"):
                 sf_type = entry.data["sulfide_type"]
             elif hasattr(entry, "structure"):
+                warnings.warn(sf_type)
                 sf_type = sulfide_type(entry.structure)
+
+            # use the same correction for polysulfides and sulfides
+            if sf_type == "polysulfide":
+                sf_type = "sulfide"
+
             if sf_type in self.sulfide_correction:
                 correction += self.sulfide_correction[sf_type] * comp["S"]
 
@@ -242,44 +272,38 @@ class AnionCorrection(Correction):
             if self.correct_peroxide:
                 if entry.data.get("oxide_type"):
                     if entry.data["oxide_type"] in self.oxide_correction:
-                        ox_corr = self.oxide_correction[
-                            entry.data["oxide_type"]]
+                        ox_corr = self.oxide_correction[entry.data["oxide_type"]]
                         correction += ox_corr * comp["O"]
                     if entry.data["oxide_type"] == "hydroxide":
                         ox_corr = self.oxide_correction["oxide"]
                         correction += ox_corr * comp["O"]
 
                 elif hasattr(entry, "structure"):
-                    ox_type, nbonds = oxide_type(entry.structure, 1.05,
-                                                 return_nbonds=True)
+                    ox_type, nbonds = oxide_type(
+                        entry.structure, 1.05, return_nbonds=True
+                    )
                     if ox_type in self.oxide_correction:
-                        correction += self.oxide_correction[ox_type] * \
-                                      nbonds
+                        correction += self.oxide_correction[ox_type] * nbonds
                     elif ox_type == "hydroxide":
-                        correction += self.oxide_correction["oxide"] * \
-                                      comp["O"]
+                        correction += self.oxide_correction["oxide"] * comp["O"]
                 else:
                     warnings.warn(
                         "No structure or oxide_type parameter present. Note "
                         "that peroxide/superoxide corrections are not as "
                         "reliable and relies only on detection of special"
-                        "formulas, e.g., Li2O2.")
+                        "formulas, e.g., Li2O2."
+                    )
                     rform = entry.composition.reduced_formula
                     if rform in UCorrection.common_peroxides:
-                        correction += self.oxide_correction["peroxide"] * \
-                                      comp["O"]
+                        correction += self.oxide_correction["peroxide"] * comp["O"]
                     elif rform in UCorrection.common_superoxides:
-                        correction += self.oxide_correction["superoxide"] * \
-                                      comp["O"]
+                        correction += self.oxide_correction["superoxide"] * comp["O"]
                     elif rform in UCorrection.ozonides:
-                        correction += self.oxide_correction["ozonide"] * \
-                                      comp["O"]
-                    elif Element("O") in comp.elements and len(comp.elements) \
-                            > 1:
-                        correction += self.oxide_correction['oxide'] * \
-                                      comp["O"]
+                        correction += self.oxide_correction["ozonide"] * comp["O"]
+                    elif Element("O") in comp.elements and len(comp.elements) > 1:
+                        correction += self.oxide_correction["oxide"] * comp["O"]
             else:
-                correction += self.oxide_correction['oxide'] * comp["O"]
+                correction += self.oxide_correction["oxide"] * comp["O"]
 
         return correction
 
@@ -294,32 +318,80 @@ class AqueousCorrection(Correction):
     and H2O.
     """
 
-    def __init__(self, config_file):
+    def __init__(self, config_file, error_file=None):
         """
         Args:
             config_file: Path to the selected compatibility.yaml config file.
+            error_file: Path to the selected compatibilityErrors.yaml config file.
         """
         c = loadfn(config_file)
-        self.cpd_energies = c['AqueousCompoundEnergies']
+        self.cpd_energies = c["AqueousCompoundEnergies"]
+        # there will either be a CompositionCorrections OR an OxideCorrections key,
+        # but not both, depending on the compatibility scheme we are using.
+        # TODO - the two lines below are specific to MaterialsProjectCompatibility
+        # and MaterialsProject2020Compatibility. Could be changed to be more general
+        # and/or streamlined if MaterialsProjectCompatibility is retired.
+        self.comp_correction = c.get("CompositionCorrections", defaultdict(float))
+        self.oxide_correction = c.get("OxideCorrections", defaultdict(float))
         self.name = c["Name"]
+        if error_file:
+            e = loadfn(error_file)
+            self.cpd_errors = e.get("AqueousCompoundEnergies", defaultdict(float))
+        else:
+            self.cpd_errors = defaultdict(float)
 
-    def get_correction(self, entry) -> float:
+    def get_correction(self, entry) -> ufloat:
         """
         :param entry: A ComputedEntry/ComputedStructureEntry
-        :return: Correction.
+        :return: Correction, Uncertainty.
         """
+        from pymatgen.analysis.pourbaix_diagram import MU_H2O
         comp = entry.composition
         rform = comp.reduced_formula
         cpdenergies = self.cpd_energies
-        correction = 0
+        correction = ufloat(0.0, 0.0)
         if rform in cpdenergies:
             if rform in ["H2", "H2O"]:
-                correction = cpdenergies[rform] * comp.num_atoms \
-                             - entry.uncorrected_energy - entry.correction
+                corr = (
+                    cpdenergies[rform] * comp.num_atoms
+                    - entry.uncorrected_energy
+                    - entry.correction
+                )
+                err = self.cpd_errors[rform] * comp.num_atoms
+
+                correction += ufloat(corr, err)
             else:
-                correction += cpdenergies[rform] * comp.num_atoms
+                corr = cpdenergies[rform] * comp.num_atoms
+                err = self.cpd_errors[rform] * comp.num_atoms
+
+                correction += ufloat(corr, err)
         if not rform == "H2O":
-            correction += 0.5 * 2.46 * min(comp["H"] / 2.0, comp["O"])
+            # if the composition contains water molecules (e.g. FeO.nH2O),
+            # correct the gibbs free energy such that the waters are assigned energy=MU_H2O
+            # in other words, we assume that the DFT energy of such a compound is really
+            # a superposition of the "real" solid DFT energy (FeO in this case) and the free
+            # energy of some water molecules
+            # e.g. that E_FeO.nH2O = E_FeO + n * g_H2O
+            # so, to get the most accurate gibbs free energy, we want to replace
+            # g_FeO.nH2O = E_FeO.nH2O + dE_Fe + (n+1) * dE_O + 2n dE_H
+            # with
+            # g_FeO = E_FeO.nH2O + dE_Fe + dE_O + n g_H2O
+            # where E is DFT energy, dE is an energy correction, and g is gibbs free energy
+            # This means we have to 1) remove energy corrections associated with H and O in water
+            # and then 2) remove the free energy of the water molecules
+
+            nH2O = int(min(comp["H"] / 2.0, comp["O"]))  # only count whole water molecules
+            if nH2O > 0:
+                # first, remove any H or O corrections already applied to H2O in the
+                # formation energy so that we don't double count them
+                # No. of H atoms not in a water
+                correction -= ufloat((comp["H"] - nH2O/2) * self.comp_correction["H"], 0.0)
+                # No. of O atoms not in a water
+                correction -= ufloat((comp["O"] - nH2O) * (self.comp_correction["oxide"]
+                                                           + self.oxide_correction["oxide"]), 0.0)
+                # next, add MU_H2O for each water molecule present
+                correction += ufloat(-1*MU_H2O * nH2O, 0.0)
+                # correction += 0.5 * 2.46 * nH2O  # this is the old way this correction was calculated
         return correction
 
     def __str__(self):
@@ -341,12 +413,23 @@ class UCorrection(Correction):
     interface using the pymatgen.matproj.rest package will automatically have
     these fields populated.
     """
-    common_peroxides = ["Li2O2", "Na2O2", "K2O2", "Cs2O2", "Rb2O2", "BeO2",
-                        "MgO2", "CaO2", "SrO2", "BaO2"]
+
+    common_peroxides = [
+        "Li2O2",
+        "Na2O2",
+        "K2O2",
+        "Cs2O2",
+        "Rb2O2",
+        "BeO2",
+        "MgO2",
+        "CaO2",
+        "SrO2",
+        "BaO2",
+    ]
     common_superoxides = ["LiO2", "NaO2", "KO2", "RbO2", "CsO2"]
     ozonides = ["LiO3", "NaO3", "KO3", "NaO5"]
 
-    def __init__(self, config_file, input_set, compat_type):
+    def __init__(self, config_file, input_set, compat_type, error_file=None):
         """
         Args:
             config_file: Path to the selected compatibility.yaml config file.
@@ -358,15 +441,15 @@ class UCorrection(Correction):
                 equivalent GGA entries excluded. For example, Fe oxides should
                 have a U value under the Advanced scheme. A GGA Fe oxide run
                 will therefore be excluded under the scheme.
+            error_file: Path to the selected compatibilityErrors.yaml config file.
         """
-        if compat_type not in ['GGA', 'Advanced']:
-            raise CompatibilityError("Invalid compat_type {}"
-                                     .format(compat_type))
+        if compat_type not in ["GGA", "Advanced"]:
+            raise CompatibilityError("Invalid compat_type {}".format(compat_type))
 
         c = loadfn(config_file)
 
         self.input_set = input_set
-        if compat_type == 'Advanced':
+        if compat_type == "Advanced":
             self.u_settings = self.input_set.CONFIG["INCAR"]["LDAUU"]
             self.u_corrections = c["Advanced"]["UCorrections"]
         else:
@@ -376,10 +459,16 @@ class UCorrection(Correction):
         self.name = c["Name"]
         self.compat_type = compat_type
 
-    def get_correction(self, entry) -> float:
+        if error_file:
+            e = loadfn(error_file)
+            self.u_errors = e["Advanced"]["UCorrections"]
+        else:
+            self.u_errors = {}
+
+    def get_correction(self, entry) -> ufloat:
         """
         :param entry: A ComputedEntry/ComputedStructureEntry
-        :return: Correction.
+        :return: Correction, Uncertainty.
         """
         if entry.parameters.get("run_type") not in ["GGA", "GGA+U"]:
             raise CompatibilityError('Entry {} has invalid run type {}. Discarding.'
@@ -390,21 +479,24 @@ class UCorrection(Correction):
         calc_u = defaultdict(int) if calc_u is None else calc_u
         comp = entry.composition
 
-        elements = sorted([el for el in comp.elements if comp[el] > 0],
-                          key=lambda el: el.X)
+        elements = sorted(
+            [el for el in comp.elements if comp[el] > 0], key=lambda el: el.X
+        )
         most_electroneg = elements[-1].symbol
-        correction = 0
+        correction = ufloat(0.0, 0.0)
         ucorr = self.u_corrections.get(most_electroneg, {})
         usettings = self.u_settings.get(most_electroneg, {})
+        uerrors = self.u_errors.get(most_electroneg, defaultdict(float))
 
         for el in comp.elements:
             sym = el.symbol
             # Check for bad U values
             if calc_u.get(sym, 0) != usettings.get(sym, 0):
-                raise CompatibilityError('Invalid U value of %s on %s' %
-                                         (calc_u.get(sym, 0), sym))
+                raise CompatibilityError(
+                    "Invalid U value of %s on %s" % (calc_u.get(sym, 0), sym)
+                )
             if sym in ucorr:
-                correction += float(ucorr[sym]) * comp[el]
+                correction += ufloat(ucorr[sym], uerrors[sym]) * comp[el]
 
         return correction
 
@@ -442,7 +534,8 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
 
     def process_entry(self, entry):
         """
-        Process a single entry with the chosen Corrections.
+        Process a single entry with the chosen Corrections. Note
+        that this method will change the data of the original entry.
 
         Args:
             entry: A ComputedEntry object.
@@ -452,18 +545,18 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
         """
         if self.process_entries(entry):
             return self.process_entries(entry)[0]
-        else:
-            return None
+        return None
 
-    def process_entries(self, entries: Union[ComputedEntry, list], clean: bool = False):
+    def process_entries(self, entries: Union[ComputedEntry, list], clean: bool = True):
         """
-        Process a sequence of entries with the chosen Compatibility scheme.
+        Process a sequence of entries with the chosen Compatibility scheme. Note
+        that this method will change the data of the original entries.
 
         Args:
             entries: ComputedEntry or [ComputedEntry]
             clean: bool, whether to remove any previously-applied energy adjustments.
                 If True, all EnergyAdjustment are removed prior to processing the Entry.
-                Default is False.
+                Default is True.
 
         Returns:
             A list of adjusted entries.  Entries in the original list which
@@ -477,10 +570,9 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
 
         for entry in entries:
             ignore_entry = False
-            # if clean is True, remove all previous adjustments, other than Manual adjustments, from the entry
+            # if clean is True, remove all previous adjustments from the entry
             if clean:
-                for ea in entry.energy_adjustments:
-                    entry.energy_adjustments.remove(ea)
+                entry.energy_adjustments = []
 
             # get the energy adjustments
             try:
@@ -516,7 +608,8 @@ class Compatibility(MSONable, metaclass=abc.ABCMeta):
 
         return processed_entry_list
 
-    def explain(self, entry):
+    @staticmethod
+    def explain(entry):
         """
         Prints an explanation of the energy adjustments applied by the
         Compatibility class. Inspired by the "explain" methods in many database
@@ -552,7 +645,7 @@ class CorrectionsList(Compatibility):
     The CorrectionsList class combines a list of corrections to be applied to
     an entry or a set of entries. Note that some of the Corrections have
     interdependencies. For example, PotcarCorrection must always be used
-    before any other compatibility. Also, GasCorrection("MP") must be used
+    before any other compatibility. Also, AnionCorrection("MP") must be used
     with PotcarCorrection("MP") (similarly with "MIT"). Typically,
     you should use the specific MaterialsProjectCompatibility and
     MITCompatibility subclasses instead.
@@ -571,10 +664,15 @@ class CorrectionsList(Compatibility):
         Get the list of energy adjustments to be applied to an entry.
         """
         adjustment_list = []
-        # try:
-        corrections = self.get_corrections_dict(entry)
+        corrections, uncertainties = self.get_corrections_dict(entry)
+
         for k, v in corrections.items():
+            if v != 0 and uncertainties[k] == 0:
+                uncertainty = np.nan
+            else:
+                uncertainty = uncertainties[k]
             adjustment_list.append(ConstantEnergyAdjustment(v,
+                                                            uncertainty=uncertainty,
                                                             name=k,
                                                             cls=self.as_dict(),
                                                             )
@@ -593,10 +691,13 @@ class CorrectionsList(Compatibility):
             ({correction_name: value})
         """
         corrections = {}
+        uncertainties = {}
         for c in self.corrections:
             val = c.get_correction(entry)
-            corrections[str(c)] = val
-        return corrections
+            if val != 0:
+                corrections[str(c)] = val.nominal_value
+                uncertainties[str(c)] = val.std_dev
+        return corrections, uncertainties
 
     def get_explanation_dict(self, entry):
         """
@@ -612,25 +713,38 @@ class CorrectionsList(Compatibility):
             {"Compatibility": "string",
             "Uncorrected_energy": float,
             "Corrected_energy": float,
+            "correction_uncertainty:" float,
             "Corrections": [{"Name of Correction": {
-            "Value": float, "Explanation": "string"}]}
+            "Value": float, "Explanation": "string", "Uncertainty": float}]}
         """
         centry = self.process_entry(entry)
         if centry is None:
             uncorrected_energy = entry.uncorrected_energy
             corrected_energy = None
+            correction_uncertainty = None
         else:
             uncorrected_energy = centry.uncorrected_energy
             corrected_energy = centry.energy
-        d = {"compatibility": self.__class__.__name__,
-             "uncorrected_energy": uncorrected_energy,
-             "corrected_energy": corrected_energy}
+            correction_uncertainty = centry.correction_uncertainty
+        d = {
+            "compatibility": self.__class__.__name__,
+            "uncorrected_energy": uncorrected_energy,
+            "corrected_energy": corrected_energy,
+            "correction_uncertainty": correction_uncertainty,
+        }
         corrections = []
-        corr_dict = self.get_corrections_dict(entry)
+        corr_dict, uncer_dict = self.get_corrections_dict(entry)
         for c in self.corrections:
-            cd = {"name": str(c),
-                  "description": c.__doc__.split("Args")[0].strip(),
-                  "value": corr_dict.get(str(c), 0)}
+            if corr_dict.get(str(c), 0) != 0 and uncer_dict.get(str(c), 0) == 0:
+                uncer = np.nan
+            else:
+                uncer = uncer_dict.get(str(c), 0)
+            cd = {
+                "name": str(c),
+                "description": c.__doc__.split("Args")[0].strip(),
+                "value": corr_dict.get(str(c), 0),
+                "uncertainty": uncer,
+            }
             corrections.append(cd)
         d["corrections"] = corrections
         return d
@@ -645,19 +759,27 @@ class CorrectionsList(Compatibility):
             entry: A ComputedEntry.
         """
         d = self.get_explanation_dict(entry)
-        print("The uncorrected value of the energy of %s is %f eV" %
-              (entry.composition, d["uncorrected_energy"]))
-        print("The following corrections / screening are applied for %s:\n" %
-              d["compatibility"])
+        print(
+            "The uncorrected value of the energy of %s is %f eV"
+            % (entry.composition, d["uncorrected_energy"])
+        )
+        print(
+            "The following corrections / screening are applied for %s:\n"
+            % d["compatibility"]
+        )
         for c in d["corrections"]:
-            print("%s correction: %s\n" % (c["name"],
-                                           c["description"]))
-            print("For the entry, this correction has the value %f eV." % c[
-                "value"])
+            print("%s correction: %s\n" % (c["name"], c["description"]))
+            print("For the entry, this correction has the value %f eV." % c["value"])
+            if c["uncertainty"] != 0 or c["value"] == 0:
+                print(
+                    "This correction has an uncertainty value of %f eV."
+                    % c["uncertainty"]
+                )
+            else:
+                print("This correction does not have uncertainty data available")
             print("-" * 30)
 
-        print("The final energy after corrections is %f" % d[
-            "corrected_energy"])
+        print("The final energy after corrections is %f" % d["corrected_energy"])
 
 
 class MaterialsProjectCompatibility(CorrectionsList):
@@ -669,8 +791,15 @@ class MaterialsProjectCompatibility(CorrectionsList):
     valid.
     """
 
-    def __init__(self, compat_type="Advanced", correct_peroxide=True,
-                 check_potcar_hash=False):
+    @deprecated(
+        message=(
+            "MaterialsProjectCompatibility will be updated with new correction classes "
+            "as well as new values of corrections and uncertainties in 2020"
+        )
+    )
+    def __init__(
+        self, compat_type="Advanced", correct_peroxide=True, check_potcar_hash=False
+    ):
         """
         Args:
             compat_type: Two options, GGA or Advanced.  GGA means all GGA+U
@@ -689,10 +818,257 @@ class MaterialsProjectCompatibility(CorrectionsList):
         self.check_potcar_hash = check_potcar_hash
         fp = os.path.join(MODULE_DIR, "MPCompatibility.yaml")
         super().__init__(
-            [PotcarCorrection(MPRelaxSet, check_hash=check_potcar_hash),
-             GasCorrection(fp),
-             AnionCorrection(fp, correct_peroxide=correct_peroxide),
-             UCorrection(fp, MPRelaxSet, compat_type)])
+            [
+                PotcarCorrection(MPRelaxSet, check_hash=check_potcar_hash),
+                GasCorrection(fp),
+                AnionCorrection(fp, correct_peroxide=correct_peroxide),
+                UCorrection(fp, MPRelaxSet, compat_type),
+            ]
+        )
+
+
+class MaterialsProject2020Compatibility(Compatibility):
+    """
+    This class implements the Materials Project 2020 energy correction scheme,
+    which incorporates uncertainty quantification and allows for mixing of GGA
+    and GGA+U entries (see References).
+
+    Note that this scheme should only be applied to VASP calculations that use the
+    Materials Project input set parameters (see pymatgen.io.vasp.sets.MPRelaxSet).
+    Using this compatibility scheme on calculations with different parameters is not
+    valid.
+    """
+
+    def __init__(
+        self,
+        compat_type="Advanced",
+        correct_peroxide=True,
+        check_potcar_hash=False,
+    ):
+        """
+        Args:
+            compat_type: Two options, GGA or Advanced.  GGA means all GGA+U
+                entries are excluded. Advanced means the GGA/GGA+U mixing scheme
+                of Jain et al. (see References) is implemented. In this case,
+                entries which are supposed to be calculated in GGA+U (i.e.,
+                transition metal oxides and fluorides) will have the corresponding
+                GGA entries excluded. For example, Fe oxides should
+                have a U value under the Advanced scheme. An Fe oxide run in GGA
+                will therefore be excluded.
+
+                To use the "Advanced" type, Entry.parameters must contain a "hubbards"
+                key which is a dict of all non-zero Hubbard U values used in the
+                calculation. For example, if you ran a Fe2O3 calculation with
+                Materials Project parameters, this would look like
+                entry.parameters["hubbards"] = {"Fe": 5.3}. If the "hubbards" key
+                is missing, a GGA run is assumed. Entries obtained from the
+                MaterialsProject database will automatically have these fields
+                populated.
+
+                (Default: "Advanced")
+            correct_peroxide: Specify whether peroxide/superoxide/ozonide
+                corrections are to be applied or not. If false, all oxygen-containing
+                compounds are assigned the 'oxide' correction. (Default: True)
+            check_potcar_hash (bool): Use potcar hash to verify POTCAR settings are
+                consistent with MPRelaxSet. If False, only the POTCAR symbols will
+                be used. (Default: False)
+
+        References:
+            Wang, A., et al. A framework for quantifying uncertainty in DFT energy corrections.
+                Under review.
+
+            Jain, A. et al. Formation enthalpies by mixing GGA and GGA + U calculations.
+                Phys. Rev. B - Condens. Matter Mater. Phys. 84, 1–10 (2011).
+        """
+        if compat_type not in ["GGA", "Advanced"]:
+            raise CompatibilityError("Invalid compat_type {}".format(compat_type))
+
+        self.compat_type = compat_type
+        self.correct_peroxide = correct_peroxide
+        self.check_potcar_hash = check_potcar_hash
+
+        # load corrections and uncertainties
+        self.config_file = os.path.join(MODULE_DIR, "MP2020Compatibility.yaml")
+        c = loadfn(self.config_file)
+        self.name = c["Name"]
+        self.comp_correction = c["Corrections"].get("CompositionCorrections", defaultdict(float))
+        self.comp_errors = c["Uncertainties"].get("CompositionCorrections", defaultdict(float))
+
+        if self.compat_type == "Advanced":
+            self.u_settings = MPRelaxSet.CONFIG["INCAR"]["LDAUU"]
+            self.u_corrections = c["Corrections"].get("GGAUMixingCorrections", defaultdict(float))
+            self.u_errors = c["Uncertainties"].get("GGAUMixingCorrections", defaultdict(float))
+        else:
+            self.u_settings = {}
+            self.u_corrections = {}
+            self.u_errors = {}
+
+    def get_adjustments(self, entry: Union[ComputedEntry, ComputedStructureEntry]):
+        """
+        Get the energy adjustments for a ComputedEntry or ComputedStructureEntry.
+
+        Energy corrections are implemented directly in this method instead of in
+        separate AnionCorrection, GasCorrection, or UCorrection classes which
+        were used in the legacy correction scheme.
+
+        Args:
+            entry: A ComputedEntry or ComputedStructureEntry object.
+
+        Returns:
+            [EnergyAdjustment]: A list of EnergyAdjustment to be applied to the
+                Entry.
+
+        Raises:
+            CompatibilityError if the entry is not compatible
+        """
+        if entry.parameters.get("run_type") not in ["GGA", "GGA+U"]:
+            raise CompatibilityError("Entry {} has invalid run type {}. Must be GGA or GGA+U. Discarding."
+                                     .format(entry.entry_id,
+                                             entry.parameters.get("run_type")))
+
+        # check the POTCAR symbols
+        # this should return ufloat(0, 0) or raise a CompatibilityError or ValueError
+        pc = PotcarCorrection(MPRelaxSet, check_hash=self.check_potcar_hash)
+        pc.get_correction(entry)
+
+        # apply energy adjustments
+        adjustments: List[CompositionEnergyAdjustment] = []
+
+        comp = entry.composition
+        rform = comp.reduced_formula
+        # sorted list of elements, ordered by electronegativity
+        elements = sorted([el for el in comp.elements if comp[el] > 0], key=lambda el: el.X)
+
+        # Skip single elements
+        if len(comp) == 1:
+            return adjustments
+
+        # Check for sulfide corrections
+        if Element("S") in comp:
+            sf_type = "sulfide"
+            if entry.data.get("sulfide_type"):
+                sf_type = entry.data["sulfide_type"]
+            elif hasattr(entry, "structure"):
+                sf_type = sulfide_type(entry.structure)
+
+            # use the same correction for polysulfides and sulfides
+            if sf_type == "polysulfide":
+                sf_type = "sulfide"
+
+            if sf_type == "sulfide":
+                adjustments.append(CompositionEnergyAdjustment(self.comp_correction["S"],
+                                                               comp["S"],
+                                                               uncertainty_per_atom=self.comp_errors["S"],
+                                                               name="MP2020 anion correction (S)"
+                                                               ))
+
+        # Check for oxide, peroxide, superoxide, and ozonide corrections.
+        if Element("O") in comp:
+            if self.correct_peroxide:
+                # determine the oxide_type
+                if entry.data.get("oxide_type"):
+                    ox_type = entry.data["oxide_type"]
+                elif hasattr(entry, "structure"):
+                    ox_type, nbonds = oxide_type(
+                        entry.structure, 1.05, return_nbonds=True
+                    )
+                else:
+                    warnings.warn(
+                        "No structure or oxide_type parameter present. Note "
+                        "that peroxide/superoxide corrections are not as "
+                        "reliable and relies only on detection of special"
+                        "formulas, e.g., Li2O2."
+                    )
+
+                    common_peroxides = [
+                            "Li2O2",
+                            "Na2O2",
+                            "K2O2",
+                            "Cs2O2",
+                            "Rb2O2",
+                            "BeO2",
+                            "MgO2",
+                            "CaO2",
+                            "SrO2",
+                            "BaO2",
+                        ]
+                    common_superoxides = ["LiO2", "NaO2", "KO2", "RbO2", "CsO2"]
+                    ozonides = ["LiO3", "NaO3", "KO3", "NaO5"]
+
+                    if rform in common_peroxides:
+                        ox_type = "peroxide"
+                    elif rform in common_superoxides:
+                        ox_type = "superoxide"
+                    elif rform in ozonides:
+                        ox_type = "ozonide"
+                    else:
+                        ox_type = "oxide"
+            else:
+                ox_type = "oxide"
+
+            if ox_type == "hydroxide":
+                ox_type = "oxide"
+
+            adjustments.append(
+                        CompositionEnergyAdjustment(self.comp_correction[ox_type],
+                                                    comp["O"],
+                                                    uncertainty_per_atom=self.comp_errors[ox_type],
+                                                    name="MP2020 anion correction ({})".format(ox_type)
+                                                    )
+                                )
+
+        # Check for anion corrections
+        for anion in ["Br", "I", "Se", "Si", "Sb", "Te", "H", "N", "F", "Cl"]:
+            if Element(anion) in comp and anion in self.comp_correction:
+                apply_correction = False
+                # only apply anion corrections if the element is an anion
+                # first check for a pre-populated oxidation states key
+                # the key is expected to comprise a dict corresponding to the first element output by
+                # Composition.oxi_state_guesses(), e.g. {'Al': 3.0, 'S': 2.0, 'O': -2.0} for 'Al2SO4'
+                if entry.data.get("oxidation_states"):
+                    if entry.data["oxidation_states"].get(anion, 0) < 0:
+                        apply_correction = True
+                else:
+                    # if the oxidation_states key is not populated, only apply the correction if the anion
+                    # is the most electronegative element
+                    most_electroneg = elements[-1].symbol
+
+                    if anion == most_electroneg:
+                        apply_correction = True
+
+                if apply_correction:
+                    adjustments.append(
+                            CompositionEnergyAdjustment(self.comp_correction[anion],
+                                                        comp[anion],
+                                                        uncertainty_per_atom=self.comp_errors[anion],
+                                                        name="MP2020 anion correction"
+                                                        )
+                                    )
+        # GGA / GGA+U mixing scheme corrections
+        calc_u = entry.parameters.get("hubbards", None)
+        calc_u = defaultdict(int) if calc_u is None else calc_u
+        most_electroneg = elements[-1].symbol
+        ucorr = self.u_corrections.get(most_electroneg, defaultdict(float))
+        usettings = self.u_settings.get(most_electroneg, defaultdict(float))
+        uerrors = self.u_errors.get(most_electroneg, defaultdict(float))
+
+        for el in comp.elements:
+            sym = el.symbol
+            # Check for bad U values
+            if calc_u.get(sym, 0) != usettings.get(sym, 0):
+                raise CompatibilityError(
+                    "Invalid U value of {:.1f} on {}".format(calc_u.get(sym, 0), sym)
+                )
+            if sym in ucorr:
+                adjustments.append(
+                            CompositionEnergyAdjustment(ucorr[sym],
+                                                        comp[el],
+                                                        uncertainty_per_atom=uerrors[sym],
+                                                        name="MP2020 GGA/GGA+U mixing correction ({})".format(sym)
+                                                        )
+                                    )
+
+        return adjustments
 
 
 class MITCompatibility(CorrectionsList):
@@ -703,8 +1079,9 @@ class MITCompatibility(CorrectionsList):
     this compatibility scheme on runs with different parameters is not valid.
     """
 
-    def __init__(self, compat_type="Advanced", correct_peroxide=True,
-                 check_potcar_hash=False):
+    def __init__(
+        self, compat_type="Advanced", correct_peroxide=True, check_potcar_hash=False
+    ):
         """
         Args:
             compat_type: Two options, GGA or Advanced.  GGA means all GGA+U
@@ -723,10 +1100,13 @@ class MITCompatibility(CorrectionsList):
         self.check_potcar_hash = check_potcar_hash
         fp = os.path.join(MODULE_DIR, "MITCompatibility.yaml")
         super().__init__(
-            [PotcarCorrection(MITRelaxSet, check_hash=check_potcar_hash),
-             GasCorrection(fp),
-             AnionCorrection(fp, correct_peroxide=correct_peroxide),
-             UCorrection(fp, MITRelaxSet, compat_type)])
+            [
+                PotcarCorrection(MITRelaxSet, check_hash=check_potcar_hash),
+                GasCorrection(fp),
+                AnionCorrection(fp, correct_peroxide=correct_peroxide),
+                UCorrection(fp, MITRelaxSet, compat_type),
+            ]
+        )
 
 
 class MITAqueousCompatibility(CorrectionsList):
@@ -737,8 +1117,9 @@ class MITAqueousCompatibility(CorrectionsList):
     this compatibility scheme on runs with different parameters is not valid.
     """
 
-    def __init__(self, compat_type="Advanced", correct_peroxide=True,
-                 check_potcar_hash=False):
+    def __init__(
+        self, compat_type="Advanced", correct_peroxide=True, check_potcar_hash=False
+    ):
         """
         Args:
             compat_type: Two options, GGA or Advanced.  GGA means all GGA+U
@@ -757,10 +1138,14 @@ class MITAqueousCompatibility(CorrectionsList):
         self.check_potcar_hash = check_potcar_hash
         fp = os.path.join(MODULE_DIR, "MITCompatibility.yaml")
         super().__init__(
-            [PotcarCorrection(MITRelaxSet, check_hash=check_potcar_hash),
-             GasCorrection(fp),
-             AnionCorrection(fp, correct_peroxide=correct_peroxide),
-             UCorrection(fp, MITRelaxSet, compat_type), AqueousCorrection(fp)])
+            [
+                PotcarCorrection(MITRelaxSet, check_hash=check_potcar_hash),
+                GasCorrection(fp),
+                AnionCorrection(fp, correct_peroxide=correct_peroxide),
+                UCorrection(fp, MITRelaxSet, compat_type),
+                AqueousCorrection(fp),
+            ]
+        )
 
 
 class MaterialsProjectAqueousCompatibility(Compatibility):
@@ -792,7 +1177,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
     """
 
     def __init__(self,
-                 solid_compat: Optional[Compatibility] = None,
+                 solid_compat: Optional[Compatibility] = MaterialsProjectCompatibility,
                  o2_energy: Optional[float] = None,
                  h2o_energy: Optional[float] = None,
                  h2o_adjustments: Optional[float] = None):
@@ -801,12 +1186,14 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
 
         Note that this class requires as inputs the ground-state DFT energies of O2 and H2O, plus the value of any
         energy adjustments applied to an H2O molecule. If these parameters are not provided in __init__, they can
-        be automatically populated by included ComputedEntry for the ground state of O2 and H2O in a list of entries
+        be automatically populated by including ComputedEntry for the ground state of O2 and H2O in a list of entries
         passed to process_entries. process_entries will fail if one or the other is not provided.
 
         Args:
             solid_compat: Compatiblity scheme used to pre-process solid DFT energies prior to applying aqueous
-                energy adjustments. Default: MaterialsProjectCompatibility.
+                energy adjustments. May be passed as a class (e.g. MaterialsProjectCompatibility) or an instance
+                (e.g., MaterialsProjectCompatibility()). If None, solid DFT energies are used as-is.
+                Default: MaterialsProjectCompatibility
             o2_energy: The ground-state DFT energy of oxygen gas, including any adjustments or corrections, in eV/atom.
                 If not set, this value will be determined from any O2 entries passed to process_entries.
                 Default: None
@@ -818,6 +1205,10 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
                 Default: None
         """
         self.solid_compat = solid_compat
+        if self.solid_compat:
+            if not isinstance(self.solid_compat, Compatibility):  # check whether solid_compat has been instantiated
+                self.solid_compat = solid_compat()
+
         self.o2_energy = o2_energy
         self.h2o_energy = h2o_energy
         self.h2o_adjustments = h2o_adjustments
@@ -890,7 +1281,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         # pin the energy of all H2 entries to h2_energy
         if rform == "H2":
             adjustments.append(
-                ConstantEnergyAdjustment(self.h2_energy * comp.num_atoms - entry.energy,
+                ConstantEnergyAdjustment(self.h2_energy * comp.num_atoms - entry.energy, uncertainty=np.nan,
                                          name="MP Aqueous H2 / H2O referencing",
                                          cls=self.as_dict(),
                                          description="Adjusts the H2 and H2O energy to reproduce the experimental "
@@ -901,7 +1292,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         # pin the energy of all H2O entries to fit_h2o_energy
         elif rform == "H2O":
             adjustments.append(
-                ConstantEnergyAdjustment(self.fit_h2o_energy * comp.num_atoms - entry.energy,
+                ConstantEnergyAdjustment(self.fit_h2o_energy * comp.num_atoms - entry.energy, uncertainty=np.nan,
                                          name="MP Aqueous H2 / H2O referencing",
                                          cls=self.as_dict(),
                                          description="Adjusts the H2 and H2O energy to reproduce the experimental "
@@ -914,7 +1305,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         elif rform in self.cpd_entropies and rform != "H2O":
             adjustments.append(
                 TemperatureEnergyAdjustment(-1 * self.cpd_entropies[rform] / 298, 298,
-                                            comp.num_atoms,
+                                            comp.num_atoms, uncertainty_per_degK=np.nan,
                                             name="Compound entropy at room temperature",
                                             cls=self.as_dict(),
                                             description="Adds the entropy (T delta S) to energies of compounds that "
@@ -949,8 +1340,8 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
 
                 adjustments.append(
                     CompositionEnergyAdjustment(
-                        hydrate_adjustment,
-                        nH2O,
+                        hydrate_adjustment, nH2O,
+                        uncertainty_per_atom=np.nan,
                         name="MP Aqueous hydrate",
                         cls=self.as_dict(),
                         description="Adjust the energy of solid hydrate compounds (compounds "
@@ -997,4 +1388,4 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
                 self.h2o_energy = h2o_entries[0].energy_per_atom
                 self.h2o_adjustments = h2o_entries[0].correction / h2o_entries[0].composition.num_atoms
 
-        return super().process_entries(entries)
+        return super().process_entries(entries, clean=clean)
