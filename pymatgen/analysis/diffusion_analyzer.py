@@ -153,7 +153,7 @@ class DiffusionAnalyzer(MSONable):
             structure (Structure): Initial structure.
             displacements (array): Numpy array of with shape [site,
                 time step, axis]
-            specie (Element/Specie): Specie to calculate diffusivity for as a
+            specie (Element/Species): Species to calculate diffusivity for as a
                 String. E.g., "Li".
             temperature (float): Temperature of the diffusion run in Kelvin.
             time_step (int): Time step between measurements.
@@ -559,7 +559,7 @@ class DiffusionAnalyzer(MSONable):
             structures ([Structure]): list of Structure objects (must be
                 ordered in sequence of run). E.g., you may have performed
                 sequential VASP runs to obtain sufficient statistics.
-            specie (Element/Specie): Specie to calculate diffusivity for as a
+            specie (Element/Species): Species to calculate diffusivity for as a
                 String. E.g., "Li".
             temperature (float): Temperature of the diffusion run in Kelvin.
             time_step (int): Time step between measurements.
@@ -623,7 +623,7 @@ class DiffusionAnalyzer(MSONable):
             vaspruns ([Vasprun]): List of Vaspruns (must be ordered  in
                 sequence of MD simulation). E.g., you may have performed
                 sequential VASP runs to obtain sufficient statistics.
-            specie (Element/Specie): Specie to calculate diffusivity for as a
+            specie (Element/Species): Species to calculate diffusivity for as a
                 String. E.g., "Li".
             initial_disp (np.ndarray): Sometimes, you need to iteratively
                 compute estimates of the diffusivity. This supplies an
@@ -681,7 +681,7 @@ class DiffusionAnalyzer(MSONable):
                 you may have done sequential VASP runs and they are in run1,
                 run2, run3, etc. You should then pass in
                 ["run1/vasprun.xml", "run2/vasprun.xml", ...].
-            specie (Element/Specie): Specie to calculate diffusivity for as a
+            specie (Element/Species): Species to calculate diffusivity for as a
                 String. E.g., "Li".
             step_skip (int): Sampling frequency of the displacements (
                 time_step is multiplied by this number to get the real time
@@ -776,7 +776,7 @@ def get_conversion_factor(structure, species, temperature):
 
     Args:
         structure (Structure): Input structure.
-        species (Element/Specie): Diffusing species.
+        species (Element/Species): Diffusing species.
         temperature (float): Temperature of the diffusion run in Kelvin.
 
     Returns:
@@ -855,7 +855,7 @@ def get_extrapolated_conductivity(temps, diffusivities, new_temp, structure,
             from DiffusionAnalyzer.diffusivity). units: cm^2/s
         new_temp (float): desired temperature. units: K
         structure (structure): Structure used for the diffusivity calculation
-        species (string/Specie): conducting species
+        species (string/Species): conducting species
 
     Returns:
         (float) Conductivity at extrapolated temp in mS/cm.

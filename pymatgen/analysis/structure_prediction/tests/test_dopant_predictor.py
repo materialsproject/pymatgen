@@ -5,7 +5,7 @@
 
 import unittest
 
-from pymatgen.core.periodic_table import Specie
+from pymatgen.core.periodic_table import Species
 from pymatgen.core.structure import Structure
 from pymatgen.analysis.local_env import CrystalNN
 
@@ -39,29 +39,29 @@ class DopantPredictionTest(unittest.TestCase):
         self.assertAlmostEqual(dopants['n_type'][0]['probability'],
                                0.06692682583342474)
         self.assertEqual(dopants['n_type'][0]['dopant_species'],
-                         Specie('F', -1))
+                         Species('F', -1))
         self.assertEqual(dopants['n_type'][0]['original_species'],
-                         Specie('O', -2))
+                         Species('O', -2))
 
         self.assertAlmostEqual(dopants['p_type'][0]['probability'],
                                0.023398867249112935)
         self.assertEqual(dopants['p_type'][0]['dopant_species'],
-                         Specie('Co', 2))
+                         Species('Co', 2))
         self.assertEqual(dopants['p_type'][0]['original_species'],
-                         Specie('Sn', 4))
+                         Species('Sn', 4))
 
         # test oxidation sign matching
         dopants = get_dopants_from_substitution_probabilities(
             self.tin_dioxide, num_dopants=15, match_oxi_sign=False)
         self.assertEqual(dopants['n_type'][14]['dopant_species'],
-                         Specie('Li', 1))
+                         Species('Li', 1))
         self.assertEqual(dopants['n_type'][14]['original_species'],
-                         Specie('O', -2))
+                         Species('O', -2))
 
         dopants = get_dopants_from_substitution_probabilities(
             self.tin_dioxide, num_dopants=15, match_oxi_sign=True)
         self.assertNotEqual(dopants['n_type'][14]['dopant_species'],
-                            Specie('Li', 1))
+                            Species('Li', 1))
 
     def test_dopants_from_shannon_radii(self):
         bonded_structure = CrystalNN().get_bonded_structure(self.tin_dioxide)
@@ -76,12 +76,12 @@ class DopantPredictionTest(unittest.TestCase):
         self.assertTrue(len(dopants['p_type']) <= 5)
 
         self.assertAlmostEqual(dopants['n_type'][0]['radii_diff'], 0.04)
-        self.assertEqual(dopants['n_type'][0]['dopant_species'], Specie('U', 6))
+        self.assertEqual(dopants['n_type'][0]['dopant_species'], Species('U', 6))
         self.assertEqual(dopants['n_type'][0]['original_species'],
-                         Specie('Sn', 4))
+                         Species('Sn', 4))
 
         self.assertAlmostEqual(dopants['p_type'][0]['radii_diff'], 0.)
         self.assertEqual(dopants['p_type'][0]['dopant_species'],
-                         Specie('Ni', 2))
+                         Species('Ni', 2))
         self.assertEqual(dopants['p_type'][0]['original_species'],
-                         Specie('Sn', 4))
+                         Species('Sn', 4))

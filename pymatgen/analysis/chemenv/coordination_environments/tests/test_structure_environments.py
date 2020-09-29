@@ -14,7 +14,7 @@ from pymatgen.util.testing import PymatgenTest
 
 from pymatgen.analysis.chemenv.coordination_environments.structure_environments import StructureEnvironments
 from pymatgen.analysis.chemenv.coordination_environments.structure_environments import LightStructureEnvironments
-from pymatgen.core.periodic_table import Specie
+from pymatgen.core.periodic_table import Species
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import SimplestChemenvStrategy
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import MultiWeightsChemenvStrategy
 
@@ -182,13 +182,13 @@ class StructureEnvironmentsTest(PymatgenTest):
             self.assertEqual(stats['coordination_environments_atom_present'], {'T:4': {'Si': 3.0}})
             self.assertEqual(stats['fraction_atom_coordination_environments_present'], {'Si': {'T:4': 1.0}})
 
-            site_info_ce = lse.get_site_info_for_specie_ce(specie=Specie('Si', 4), ce_symbol='T:4')
+            site_info_ce = lse.get_site_info_for_specie_ce(specie=Species('Si', 4), ce_symbol='T:4')
             np.testing.assert_array_almost_equal(site_info_ce['fractions'], [1.0, 1.0, 1.0])
             np.testing.assert_array_almost_equal(site_info_ce['csms'],
                                                  [0.009887784240541068, 0.009887786546730826, 0.009887787384385317])
             self.assertEqual(site_info_ce['isites'], [6, 7, 8])
 
-            site_info_allces = lse.get_site_info_for_specie_allces(specie=Specie('Si', 4))
+            site_info_allces = lse.get_site_info_for_specie_allces(specie=Species('Si', 4))
 
             self.assertEqual(site_info_allces['T:4'], site_info_ce)
 

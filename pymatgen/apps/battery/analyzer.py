@@ -11,7 +11,7 @@ import math
 
 import scipy.constants as const
 
-from pymatgen.core.periodic_table import Element, Specie
+from pymatgen.core.periodic_table import Element, Species
 from pymatgen.core.structure import Composition
 
 __author__ = "Anubhav Jain"
@@ -69,7 +69,7 @@ class BatteryAnalyzer:
         oxid_limit = oxid_pot / self.cation_charge
 
         # the number of A that exist in the structure for removal
-        num_cation = self.comp[Specie(self.cation.symbol, self.cation_charge)]
+        num_cation = self.comp[Species(self.cation.symbol, self.cation_charge)]
 
         return min(oxid_limit, num_cation)
 
@@ -165,7 +165,7 @@ class BatteryAnalyzer:
             numa = numa.union(self._get_int_removals_helper(self.comp.copy(), oxid_el, oxid_els, numa))
 
         # convert from num A in structure to num A removed
-        num_cation = self.comp[Specie(self.cation.symbol, self.cation_charge)]
+        num_cation = self.comp[Species(self.cation.symbol, self.cation_charge)]
         return {num_cation - a for a in numa}
 
     def _get_int_removals_helper(self, spec_amts_oxi, oxid_el, oxid_els, numa):
@@ -190,8 +190,8 @@ class BatteryAnalyzer:
             return numa
 
         # update the spec_amts_oxi map to reflect that the oxidation took place
-        spec_old = Specie(oxid_el.symbol, oxid_old)
-        spec_new = Specie(oxid_el.symbol, oxid_new)
+        spec_old = Species(oxid_el.symbol, oxid_old)
+        spec_new = Species(oxid_el.symbol, oxid_new)
         specamt = spec_amts_oxi[spec_old]
         spec_amts_oxi = {sp: amt for sp, amt in spec_amts_oxi.items() if sp != spec_old}
         spec_amts_oxi[spec_new] = specamt

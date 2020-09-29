@@ -605,7 +605,7 @@ class StructureGraph(MSONable):
         :param func_grp: Substituent molecule. There are two options:
 
             1. Providing an actual Molecule as the input. The first atom
-                must be a DummySpecie X, indicating the position of
+                must be a DummySpecies X, indicating the position of
                 nearest neighbor. The second atom must be the next
                 nearest atom. For example, for a methyl group
                 substitution, func_grp should be X-CH3, where X is the
@@ -1385,7 +1385,7 @@ class StructureGraph(MSONable):
         :param other: StructureGraph
         :param strict: if False, will compare bonds
             from different Structures, with node indices
-            replaced by Specie strings, will not count
+            replaced by Species strings, will not count
             number of occurrences of bonds
         :return:
         """
@@ -2154,7 +2154,7 @@ class MoleculeGraph(MSONable):
         :param func_grp: Substituent molecule. There are three options:
 
             1. Providing an actual molecule as the input. The first atom
-                must be a DummySpecie X, indicating the position of
+                must be a DummySpecies X, indicating the position of
                 nearest neighbor. The second atom must be the next
                 nearest atom. For example, for a methyl group
                 substitution, func_grp should be X-CH3, where X is the
@@ -2269,7 +2269,7 @@ class MoleculeGraph(MSONable):
         :param func_grp: Substituent molecule. There are three options:
 
             1. Providing an actual molecule as the input. The first atom
-               must be a DummySpecie X, indicating the position of
+               must be a DummySpecies X, indicating the position of
                nearest neighbor. The second atom must be the next
                nearest atom. For example, for a methyl group
                substitution, func_grp should be X-CH3, where X is the
@@ -2790,7 +2790,7 @@ class MoleculeGraph(MSONable):
         :param other: MoleculeGraph
         :param strict: if False, will compare bonds
             from different Molecules, with node indices
-            replaced by Specie strings, will not count
+            replaced by Species strings, will not count
             number of occurrences of bonds
         :return:
         """

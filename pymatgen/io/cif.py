@@ -26,7 +26,7 @@ from pymatgen.core.composition import Composition
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import MagSymmOp
 from pymatgen.core.operations import SymmOp
-from pymatgen.core.periodic_table import Element, Specie, get_el_sp, DummySpecie
+from pymatgen.core.periodic_table import Element, Species, get_el_sp, DummySpecies
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -970,9 +970,9 @@ class CifParser:
                     oxi_symbol = data["_atom_site_type_symbol"][i]
                     o_s = oxi_states.get(oxi_symbol, o_s)
                 try:
-                    el = Specie(symbol, o_s)
+                    el = Species(symbol, o_s)
                 except Exception:
-                    el = DummySpecie(symbol, o_s)
+                    el = DummySpecies(symbol, o_s)
             else:
                 el = get_el_sp(symbol)
 
@@ -1024,9 +1024,9 @@ class CifParser:
             for k, v in coord_to_magmoms.items():
                 if v is None:
                     # Proposed solution to this is to instead store magnetic
-                    # moments as Specie 'spin' property, instead of site
+                    # moments as Species 'spin' property, instead of site
                     # property, but this introduces ambiguities for end user
-                    # (such as unintended use of `spin` and Specie will have
+                    # (such as unintended use of `spin` and Species will have
                     # fictious oxidation state).
                     raise NotImplementedError(
                         'Disordered magnetic structures not currently supported.')

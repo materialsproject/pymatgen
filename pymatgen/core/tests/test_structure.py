@@ -10,7 +10,7 @@ import os
 import numpy as np
 
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.core.periodic_table import Element, Specie
+from pymatgen.core.periodic_table import Element, Species
 from pymatgen.core.composition import Composition
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure import IStructure, Structure, IMolecule, \
@@ -89,8 +89,8 @@ class IStructureTest(PymatgenTest):
         coords = list()
         coords.append([0, 0, 0])
         coords.append([0.75, 0.5, 0.75])
-        s = IStructure(self.lattice, [{Specie('O', -2): 1.0},
-                                      {Specie('Mg', 2): 0.8}], coords)
+        s = IStructure(self.lattice, [{Species('O', -2): 1.0},
+                                      {Species('Mg', 2): 0.8}], coords)
         self.assertEqual(s.composition.formula, 'Mg0.8 O1')
 
     def test_get_sorted_structure(self):
@@ -131,7 +131,7 @@ class IStructureTest(PymatgenTest):
                                "Distance calculated wrongly!")
 
     def test_as_dict(self):
-        si = Specie("Si", 4)
+        si = Species("Si", 4)
         mn = Element("Mn")
         coords = list()
         coords.append([0, 0, 0])
@@ -145,10 +145,10 @@ class IStructureTest(PymatgenTest):
         coords = list()
         coords.append([0, 0, 0])
         coords.append([0.75, 0.5, 0.75])
-        s = IStructure(self.lattice, [{Specie('O', -2,
-                                              properties={"spin": 3}): 1.0},
-                                      {Specie('Mg', 2,
-                                              properties={"spin": 2}): 0.8}],
+        s = IStructure(self.lattice, [{Species('O', -2,
+                                               properties={"spin": 3}): 1.0},
+                                      {Species('Mg', 2,
+                                               properties={"spin": 2}): 0.8}],
                        coords, site_properties={'magmom': [5, -5]})
         d = s.as_dict()
         self.assertEqual(d['sites'][0]['properties']['magmom'], 5)
@@ -718,8 +718,8 @@ class StructureTest(PymatgenTest):
     def test_remove_oxidation_states(self):
         co_elem = Element("Co")
         o_elem = Element("O")
-        co_specie = Specie("Co", 2)
-        o_specie = Specie("O", -2)
+        co_specie = Species("Co", 2)
+        o_specie = Species("O", -2)
         coords = list()
         coords.append([0, 0, 0])
         coords.append([0.75, 0.5, 0.75])
@@ -734,8 +734,8 @@ class StructureTest(PymatgenTest):
         s = PymatgenTest.get_structure("Li2O")
         s.add_oxidation_state_by_guess()
         for i in s:
-            self.assertTrue(i.specie in [Specie("Li", 1),
-                                         Specie("O", -2)])
+            self.assertTrue(i.specie in [Species("Li", 1),
+                                         Species("O", -2)])
 
     def test_add_remove_spin_states(self):
 

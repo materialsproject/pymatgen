@@ -27,7 +27,7 @@ from monty.serialization import loadfn
 from monty.dev import requires
 
 from pymatgen.util.coord import in_coord_list
-from pymatgen.core.periodic_table import Specie
+from pymatgen.core.periodic_table import Species
 from pymatgen.core.structure import Structure
 from pymatgen.core.sites import PeriodicSite
 
@@ -349,7 +349,7 @@ class StructureVis:
 
         for specie, occu in site.species.items():
             radius += occu * (specie.ionic_radius
-                              if isinstance(specie, Specie) and specie.ionic_radius
+                              if isinstance(specie, Species) and specie.ionic_radius
                               else specie.average_ionic_radius)
             total_occu += occu
 
@@ -1011,7 +1011,7 @@ class MultiStructuresVis(StructureVis):
                 radius = 0
                 for specie, occu in site.species.items():
                     radius += occu * (specie.ionic_radius
-                                      if isinstance(specie, Specie) and specie.ionic_radius
+                                      if isinstance(specie, Species) and specie.ionic_radius
                                       else specie.average_ionic_radius)
                     vis_radius = 0.2 + 0.002 * radius
                 struct_radii.append(radius)

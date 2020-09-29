@@ -7,7 +7,7 @@ This package contains core modules and classes for representing structures and
 operations on them.
 """
 
-from .periodic_table import Element, Specie, DummySpecie
+from .periodic_table import Element, Species, DummySpecies
 from .composition import Composition
 from .structure import Structure, IStructure, Molecule, IMolecule
 from .lattice import Lattice

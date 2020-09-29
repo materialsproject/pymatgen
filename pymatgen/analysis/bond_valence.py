@@ -16,7 +16,7 @@ import numpy as np
 
 from monty.serialization import loadfn
 
-from pymatgen.core.periodic_table import Element, Specie
+from pymatgen.core.periodic_table import Element, Species
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.core.periodic_table import get_el_sp
 
@@ -39,9 +39,9 @@ for k, v in loadfn(os.path.join(module_dir, "bvparam_1991.yaml")).items():
 
 # Read in yaml containing data-mined ICSD BV data.
 all_data = loadfn(os.path.join(module_dir, "icsd_bv.yaml"))
-ICSD_BV_DATA = {Specie.from_string(sp): data
+ICSD_BV_DATA = {Species.from_string(sp): data
                 for sp, data in all_data["bvsum"].items()}
-PRIOR_PROB = {Specie.from_string(sp): data
+PRIOR_PROB = {Species.from_string(sp): data
               for sp, data in all_data["occurrence"].items()}
 
 
@@ -506,7 +506,7 @@ def add_oxidation_state_by_site_fraction(structure, oxidation_states):
         for i, site in enumerate(structure):
             new_sp = collections.defaultdict(float)
             for j, (el, occu) in enumerate(get_z_ordered_elmap(site.species)):
-                specie = Specie(el.symbol, oxidation_states[i][j])
+                specie = Species(el.symbol, oxidation_states[i][j])
                 new_sp[specie] += occu
             structure[i] = new_sp
         return structure

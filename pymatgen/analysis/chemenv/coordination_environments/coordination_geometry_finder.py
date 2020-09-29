@@ -57,7 +57,7 @@ from pymatgen.analysis.chemenv.utils.defs_utils import chemenv_citations
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.core.periodic_table import Specie
+from pymatgen.core.periodic_table import Species
 
 debug = False
 DIST_TOLERANCES = [0.02, 0.05, 0.1, 0.2, 0.3]
@@ -557,7 +557,7 @@ class LocalGeometryFinder:
             firstsite = self.structure[0]
             try:
                 sp = firstsite.specie
-                if isinstance(sp, Specie):
+                if isinstance(sp, Species):
                     self.valences = [int(site.specie.oxi_state) for site in self.structure]
                 else:
                     self.valences = valences
