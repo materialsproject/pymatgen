@@ -443,11 +443,11 @@ class BSPlotter:
             least one band crossing the fermi level).
         """
 
-        if bs == None:
-            try:
+        if bs is None:
+            if type(self._bs) == list:
                 # if BSPlotter
                 bs = self._bs[0]
-            except:
+            elif type(self._bs) == BandstructureSymmLine
                 # if BSPlotterProjected
                 bs = self._bs
 
@@ -470,7 +470,7 @@ class BSPlotter:
         # and when bs and bs_ref have different points in branches.
         # Usually bs_ref is the first one in self._bs list is bs_ref
         distances = bs.distance
-        if bs_ref != None:
+        if bs_ref is not None:
             if bs_ref.branches != bs.branches:
                 distances = self._rescale_distances(bs_ref, bs)
 
@@ -2816,20 +2816,20 @@ class BSDOSPlotter:
                 for band_idx, band in enumerate(band_energies[spin]):
                     current_pos = 0
                     for x_distances in x_distances_list:
-                        sub_band = band[current_pos : current_pos + len(x_distances)]
+                        sub_band = band[current_pos:current_pos + len(x_distances)]
 
                         self._rgbline(
                             bs_ax,
                             x_distances,
                             sub_band,
                             colordata[spin][band_idx, :, 0][
-                                current_pos : current_pos + len(x_distances)
+                                current_pos:current_pos + len(x_distances)
                             ],
                             colordata[spin][band_idx, :, 1][
-                                current_pos : current_pos + len(x_distances)
+                                current_pos:current_pos + len(x_distances)
                             ],
                             colordata[spin][band_idx, :, 2][
-                                current_pos : current_pos + len(x_distances)
+                                current_pos:current_pos + len(x_distances)
                             ],
                             linestyles=linestyles,
                         )
@@ -2900,7 +2900,7 @@ class BSDOSPlotter:
             dos_xmin = (
                 0
                 if Spin.down not in dos.densities
-                else -max(dos.densities[Spin.down][emin_idx : emax_idx + 1] * 1.05)
+                else -max(dos.densities[Spin.down][emin_idx:emax_idx + 1] * 1.05)
             )
             dos_xmax = max(
                 [max(dos.densities[Spin.up][emin_idx:emax_idx]) * 1.05, abs(dos_xmin)]
