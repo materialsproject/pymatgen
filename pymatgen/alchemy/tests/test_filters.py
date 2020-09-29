@@ -7,7 +7,7 @@ from pymatgen.alchemy.filters import ContainsSpecieFilter, \
     SpecieProximityFilter, RemoveDuplicatesFilter, RemoveExistingFilter
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
-from pymatgen.core.periodic_table import Specie
+from pymatgen.core.periodic_table import Species
 from pymatgen.alchemy.transmuters import StandardTransmuter
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.util.testing import PymatgenTest
@@ -36,23 +36,23 @@ class ContainsSpecieFilterTest(PymatgenTest):
                        {"Si4+": 0.5, "O2-": 0.25, "P5+": 0.25},
                        {"Si4+": 0.5, "O2-": 0.25, "P5+": 0.25}], coords)
 
-        species1 = [Specie('Si', 5), Specie('Mg', 2)]
+        species1 = [Species('Si', 5), Species('Mg', 2)]
         f1 = ContainsSpecieFilter(species1, strict_compare=True, AND=False)
         self.assertFalse(f1.test(s), 'Incorrect filter')
         f2 = ContainsSpecieFilter(species1, strict_compare=False, AND=False)
         self.assertTrue(f2.test(s), 'Incorrect filter')
-        species2 = [Specie('Si', 4), Specie('Mg', 2)]
+        species2 = [Species('Si', 4), Species('Mg', 2)]
         f3 = ContainsSpecieFilter(species2, strict_compare=True, AND=False)
         self.assertTrue(f3.test(s), 'Incorrect filter')
         f4 = ContainsSpecieFilter(species2, strict_compare=False, AND=False)
         self.assertTrue(f4.test(s), 'Incorrect filter')
 
-        species3 = [Specie('Si', 5), Specie('O', -2)]
+        species3 = [Species('Si', 5), Species('O', -2)]
         f5 = ContainsSpecieFilter(species3, strict_compare=True, AND=True)
         self.assertFalse(f5.test(s), 'Incorrect filter')
         f6 = ContainsSpecieFilter(species3, strict_compare=False, AND=True)
         self.assertTrue(f6.test(s), 'Incorrect filter')
-        species4 = [Specie('Si', 4), Specie('Mg', 2)]
+        species4 = [Species('Si', 4), Species('Mg', 2)]
         f7 = ContainsSpecieFilter(species4, strict_compare=True, AND=True)
         self.assertFalse(f7.test(s), 'Incorrect filter')
         f8 = ContainsSpecieFilter(species4, strict_compare=False, AND=True)

@@ -20,7 +20,7 @@ __date__ = "Nov 10, 2012"
 
 import unittest
 
-from pymatgen.core.periodic_table import Element, Specie
+from pymatgen.core.periodic_table import Element, Species
 from pymatgen.core.composition import Composition, CompositionError, \
     ChemicalPotential
 
@@ -483,20 +483,20 @@ class CompositionTest(PymatgenTest):
     def test_oxi_state_decoration(self):
         # Basic test: Get compositions where each element is in a single charge state
         decorated = Composition("H2O").add_charges_from_oxi_state_guesses()
-        self.assertIn(Specie("H", 1), decorated)
-        self.assertEqual(2, decorated.get(Specie("H", 1)))
+        self.assertIn(Species("H", 1), decorated)
+        self.assertEqual(2, decorated.get(Species("H", 1)))
 
         # Test: More than one charge state per element
         decorated = Composition("Fe3O4").add_charges_from_oxi_state_guesses()
-        self.assertEqual(1, decorated.get(Specie("Fe", 2)))
-        self.assertEqual(2, decorated.get(Specie("Fe", 3)))
-        self.assertEqual(4, decorated.get(Specie("O", -2)))
+        self.assertEqual(1, decorated.get(Species("Fe", 2)))
+        self.assertEqual(2, decorated.get(Species("Fe", 3)))
+        self.assertEqual(4, decorated.get(Species("O", -2)))
 
         # Test: No possible charge states
         #   It should return an uncharged composition
         decorated = Composition("NiAl").add_charges_from_oxi_state_guesses()
-        self.assertEqual(1, decorated.get(Specie("Ni", 0)))
-        self.assertEqual(1, decorated.get(Specie("Al", 0)))
+        self.assertEqual(1, decorated.get(Species("Ni", 0)))
+        self.assertEqual(1, decorated.get(Species("Al", 0)))
 
     def test_Metallofullerene(self):
         # Test: Parse Metallofullerene formula (e.g. Y3N@C80)

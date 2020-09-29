@@ -84,7 +84,7 @@ class Substitutor(MSONable):
         Args:
             target_species:
                 a list of species with oxidation states
-                e.g., [Specie('Li',1),Specie('Ni',2), Specie('O',-2)]
+                e.g., [Species('Li',1),Species('Ni',2), Species('O',-2)]
 
             structures_list:
                 a list of dictionnary of the form {'structure':Structure object

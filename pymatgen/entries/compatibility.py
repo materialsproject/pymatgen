@@ -959,7 +959,8 @@ class MaterialsProject2020Compatibility(Compatibility):
                 adjustments.append(CompositionEnergyAdjustment(self.comp_correction["S"],
                                                                comp["S"],
                                                                uncertainty_per_atom=self.comp_errors["S"],
-                                                               name="MP2020 anion correction (S)"
+                                                               name="MP2020 anion correction (S)",
+                                                               cls=self.as_dict(),
                                                                ))
 
         # Check for oxide, peroxide, superoxide, and ozonide corrections.
@@ -1013,7 +1014,8 @@ class MaterialsProject2020Compatibility(Compatibility):
                         CompositionEnergyAdjustment(self.comp_correction[ox_type],
                                                     comp["O"],
                                                     uncertainty_per_atom=self.comp_errors[ox_type],
-                                                    name="MP2020 anion correction ({})".format(ox_type)
+                                                    name="MP2020 anion correction ({})".format(ox_type),
+                                                    cls=self.as_dict(),
                                                     )
                                 )
 
@@ -1041,7 +1043,8 @@ class MaterialsProject2020Compatibility(Compatibility):
                             CompositionEnergyAdjustment(self.comp_correction[anion],
                                                         comp[anion],
                                                         uncertainty_per_atom=self.comp_errors[anion],
-                                                        name="MP2020 anion correction"
+                                                        name="MP2020 anion correction",
+                                                        cls=self.as_dict(),
                                                         )
                                     )
         # GGA / GGA+U mixing scheme corrections
@@ -1064,7 +1067,8 @@ class MaterialsProject2020Compatibility(Compatibility):
                             CompositionEnergyAdjustment(ucorr[sym],
                                                         comp[el],
                                                         uncertainty_per_atom=uerrors[sym],
-                                                        name="MP2020 GGA/GGA+U mixing correction ({})".format(sym)
+                                                        name="MP2020 GGA/GGA+U mixing correction ({})".format(sym),
+                                                        cls=self.as_dict(),
                                                         )
                                     )
 
@@ -1305,7 +1309,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         elif rform in self.cpd_entropies and rform != "H2O":
             adjustments.append(
                 TemperatureEnergyAdjustment(-1 * self.cpd_entropies[rform] / 298, 298,
-                                            comp.num_atoms, uncertainty_per_degK=np.nan,
+                                            comp.num_atoms, uncertainty_per_deg=np.nan,
                                             name="Compound entropy at room temperature",
                                             cls=self.as_dict(),
                                             description="Adds the entropy (T delta S) to energies of compounds that "

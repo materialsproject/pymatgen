@@ -62,7 +62,7 @@ class EwaldSummation(MSONable):
 
         Args:
             structure (Structure): Input structure that must have proper
-                Specie on all sites, i.e. Element with oxidation state. Use
+                Species on all sites, i.e. Element with oxidation state. Use
                 Structure.add_oxidation_state... for example.
             real_space_cut (float): Real space cutoff radius dictating how
                 many terms are used in the real space sum. Defaults to None,

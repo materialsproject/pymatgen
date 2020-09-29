@@ -17,7 +17,7 @@ from monty.json import MontyDecoder, MontyEncoder
 from monty.dev import deprecated
 
 from pymatgen.core.lattice import Lattice
-from pymatgen.core.periodic_table import Element, Specie, DummySpecie, \
+from pymatgen.core.periodic_table import Element, Species, DummySpecies, \
     get_el_sp
 from pymatgen.util.coord import pbc_diff
 from pymatgen.core.composition import Composition
@@ -35,7 +35,7 @@ class Site(collections.abc.Hashable, MSONable):
     position_atol = 1e-5
 
     def __init__(self,
-                 species: Union[str, Element, Specie, DummySpecie, Dict, Composition],
+                 species: Union[str, Element, Species, DummySpecies, Dict, Composition],
                  coords: Union[Tuple, List, np.ndarray],
                  properties: dict = None,
                  skip_checks: bool = False):
@@ -44,9 +44,9 @@ class Site(collections.abc.Hashable, MSONable):
 
         :param species: Species on the site. Can be:
             i.  A Composition-type object (preferred)
-            ii. An  element / specie specified either as a string
+            ii. An  element / species specified either as a string
                 symbols, e.g. "Li", "Fe2+", "P" or atomic numbers,
-                e.g., 3, 56, or actual Element or Specie objects.
+                e.g., 3, 56, or actual Element or Species objects.
             iii.Dict of elements/species and occupancies, e.g.,
                 {"Fe" : 0.5, "Mn":0.5}. This allows the setup of
                 disordered structures.
@@ -178,9 +178,11 @@ class Site(collections.abc.Hashable, MSONable):
     @property
     def specie(self):
         """
-        The Specie/Element at the site. Only works for ordered sites. Otherwise
+        The Species/Element at the site. Only works for ordered sites. Otherwise
         an AttributeError is raised. Use this property sparingly.  Robust
-        design should make use of the property species_and_occu instead.
+        design should make use of the property species instead. Note that the
+        singular of species is also species. So the choice of this variable
+        name is governed by programmatic concerns as opposed to grammar.
 
         Raises:
             AttributeError if Site is not ordered.
@@ -283,9 +285,9 @@ class Site(collections.abc.Hashable, MSONable):
         for sp_occu in d["species"]:
             if "oxidation_state" in sp_occu and Element.is_valid_symbol(
                     sp_occu["element"]):
-                sp = Specie.from_dict(sp_occu)
+                sp = Species.from_dict(sp_occu)
             elif "oxidation_state" in sp_occu:
-                sp = DummySpecie.from_dict(sp_occu)
+                sp = DummySpecies.from_dict(sp_occu)
             else:
                 sp = Element(sp_occu["element"])
             atoms_n_occu[sp] = sp_occu["occu"]
@@ -303,7 +305,7 @@ class PeriodicSite(Site, MSONable):
     """
 
     def __init__(self,
-                 species: Union[str, Element, Specie, DummySpecie, Dict, Composition],
+                 species: Union[str, Element, Species, DummySpecies, Dict, Composition],
                  coords: Union[Tuple, List, np.ndarray],
                  lattice: Lattice,
                  to_unit_cell: bool = False,
@@ -315,9 +317,9 @@ class PeriodicSite(Site, MSONable):
 
         :param species: Species on the site. Can be:
             i.  A Composition-type object (preferred)
-            ii. An  element / specie specified either as a string
+            ii. An  element / species specified either as a string
                 symbols, e.g. "Li", "Fe2+", "P" or atomic numbers,
-                e.g., 3, 56, or actual Element or Specie objects.
+                e.g., 3, 56, or actual Element or Species objects.
             iii.Dict of elements/species and occupancies, e.g.,
                 {"Fe" : 0.5, "Mn":0.5}. This allows the setup of
                 disordered structures.
@@ -646,9 +648,9 @@ class PeriodicSite(Site, MSONable):
         for sp_occu in d["species"]:
             if "oxidation_state" in sp_occu and Element.is_valid_symbol(
                     sp_occu["element"]):
-                sp = Specie.from_dict(sp_occu)
+                sp = Species.from_dict(sp_occu)
             elif "oxidation_state" in sp_occu:
-                sp = DummySpecie.from_dict(sp_occu)
+                sp = DummySpecies.from_dict(sp_occu)
             else:
                 sp = Element(sp_occu["element"])
             species[sp] = sp_occu["occu"]

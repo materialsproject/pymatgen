@@ -9,7 +9,7 @@ import numpy as np
 from pymatgen.analysis.structure_prediction.substitution_probability import \
     SubstitutionPredictor
 
-from pymatgen.core.periodic_table import Specie, Element
+from pymatgen.core.periodic_table import Species, Element
 
 
 def get_dopants_from_substitution_probabilities(structure, num_dopants=5,
@@ -81,8 +81,8 @@ def get_dopants_from_shannon_radii(bonded_structure, num_dopants=5,
         - "dopant_spcies": The dopant species.
         - "original_species": The substituted species.
     """
-    # get a list of all Specie for all elements in all their common oxid states
-    all_species = [Specie(el, oxi) for el in Element
+    # get a list of all Species for all elements in all their common oxid states
+    all_species = [Species(el, oxi) for el in Element
                    for oxi in el.common_oxidation_states]
 
     # get a series of tuples with (coordination number, specie)
@@ -150,7 +150,7 @@ def _shannon_radii_from_cn(species_list, cn_roman, radius_to_compare=0):
     Args:
         species_list (list): A list of Species to get the Shannon radii for.
         cn_roman (str): The coordination number as a roman numeral. See
-            Specie.get_shannon_radius for more details.
+            Species.get_shannon_radius for more details.
         radius_to_compare (float, optional): If set, the data will be returned
             with a "radii_diff" key, containing the difference between the
             shannon radii and this radius.

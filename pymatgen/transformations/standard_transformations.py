@@ -431,7 +431,7 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
     def __init__(self, specie_to_remove, fraction_to_remove, algo=ALGO_FAST):
         """
         Args:
-            specie_to_remove: Specie to remove. Must have oxidation state E.g.,
+            specie_to_remove: Species to remove. Must have oxidation state E.g.,
                 "Li+"
             fraction_to_remove: Fraction of specie to remove. E.g., 0.5
             algo: This parameter allows you to choose the algorithm to perform

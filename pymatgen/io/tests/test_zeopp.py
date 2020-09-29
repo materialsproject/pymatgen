@@ -14,7 +14,7 @@ import unittest
 import os
 import re
 
-from pymatgen.core.periodic_table import Specie
+from pymatgen.core.periodic_table import Species
 from pymatgen.core.structure import Structure, Molecule
 from pymatgen.io.cif import CifParser
 from pymatgen.io.zeopp import ZeoCssr, ZeoVoronoiXYZ, get_voronoi_nodes, \
@@ -165,7 +165,7 @@ class GetVoronoiNodesTest(unittest.TestCase):
         valence_dict = dict(zip(el, valences))
         self.rad_dict = {}
         for k, v in valence_dict.items():
-            self.rad_dict[k] = float(Specie(k, v).ionic_radius)
+            self.rad_dict[k] = float(Species(k, v).ionic_radius)
 
         assert len(self.rad_dict) == len(self.structure.composition)
 
@@ -212,7 +212,7 @@ class GetHighAccuracyVoronoiNodesTest(unittest.TestCase):
         valence_dict = dict(zip(el, valences))
         self.rad_dict = {}
         for k, v in valence_dict.items():
-            self.rad_dict[k] = float(Specie(k, v).ionic_radius)
+            self.rad_dict[k] = float(Species(k, v).ionic_radius)
 
         assert len(self.rad_dict) == len(self.structure.composition)
 
@@ -240,7 +240,7 @@ class GetVoronoiNodesMultiOxiTest(unittest.TestCase):
         radii = []
         for i in range(len(valences)):
             el = self.structure.sites[i].specie.symbol
-            radius = Specie(el, valences[i]).ionic_radius
+            radius = Species(el, valences[i]).ionic_radius
             radii.append(radius)
         el = [site.species_string for site in self.structure.sites]
         self.rad_dict = dict(zip(el, radii))
@@ -267,7 +267,7 @@ class GetVoidVolumeSurfaceTest(unittest.TestCase):
         self._radii = {}
         for k, v in val_dict.items():
             k1 = re.sub(r'[1-9,+,\-]', '', k)
-            self._radii[k1] = float(Specie(k1, v).ionic_radius)
+            self._radii[k1] = float(Species(k1, v).ionic_radius)
         p.remove(0)
         self._vac_struct = p
 
