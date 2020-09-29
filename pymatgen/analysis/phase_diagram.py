@@ -95,8 +95,9 @@ class PDEntry(Entry):
         return False
 
     def __hash__(self):
-
-        return hash((self.composition.fractional_composition, self.energy_per_atom))
+        # NOTE Comprhys: This hashing operation means that equivalent entries
+        # hash to different values.
+        return id(self)
 
     @classmethod
     def from_dict(cls, d):
@@ -377,6 +378,7 @@ class PhaseDiagram(MSONable):
 
         self.simplexes = [Simplex(qhull_data[f, :-1]) for f in self.facets]
         self.all_entries = all_entries
+        self.unique_entries = [x for i, x in enumerate(all_entries) if i == all_entries.index(x)]
         self.qhull_data = qhull_data
         self.dim = dim
         self.el_refs = el_refs
@@ -423,7 +425,7 @@ class PhaseDiagram(MSONable):
         Entries that are unstable in the phase diagram. Includes positive
         formation energy entries.
         """
-        return [e for e in self.all_entries if e not in self.stable_entries]
+        return [e for e in self.all_entries if e not in list(self.stable_entries)]
 
     @property
     def stable_entries(self):
@@ -675,7 +677,7 @@ class PhaseDiagram(MSONable):
             fractional composition. The energy is given per atom.
         """
         # For unstable materials use simplex approach
-        if entry not in self.stable_entries:
+        if entry not in list(self.stable_entries):
             return self.get_decomp_and_e_above_hull(entry, allow_negative=True)
 
         if stable_only:
@@ -745,7 +747,7 @@ class PhaseDiagram(MSONable):
             unstable entries should have energies > 0.
         """
         # Handle unstable materials
-        if entry not in self.stable_entries:
+        if entry not in list(self.stable_entries):
             return self.get_decomp_and_e_above_hull(entry, allow_negative=True)[1]
 
         # Handle stable elemental materials
