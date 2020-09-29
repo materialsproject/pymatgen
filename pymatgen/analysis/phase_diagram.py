@@ -13,6 +13,7 @@ import math
 import logging
 import os
 import json
+import copy
 from functools import lru_cache
 from monty.json import MSONable, MontyDecoder
 
@@ -406,7 +407,6 @@ class PhaseDiagram(MSONable):
 
         self.simplexes = [Simplex(qhull_data[f, :-1]) for f in self.facets]
         self.all_entries = all_entries
-        self.unique_entries = [x for i, x in enumerate(all_entries) if i == all_entries.index(x)]
         self.qhull_data = qhull_data
         self.dim = dim
         self.el_refs = el_refs
@@ -452,8 +452,8 @@ class PhaseDiagram(MSONable):
     @property
     def unstable_entries(self):
         """
-        Entries that are unstable in the phase diagram. Includes positive
-        formation energy entries.
+        Returns a list of Entries that are unstable in the phase diagram. 
+        Includes positive formation energy entries.
         """
         # NOTE this uses hash equality and so duplicates of stable_entries will
         # end up in the unstable_entries.
@@ -462,9 +462,16 @@ class PhaseDiagram(MSONable):
     @property
     def stable_entries(self):
         """
-        Returns the stable entries in the phase diagram.
+        Returns the set stable entries in the phase diagram.
         """
         return self._stable_entries
+
+    @property
+    def stable_entries_normed(self):
+        """
+        Returns a list of normalized stable entries in the phase diagram.
+        """
+        return [e.normalize(inplace=False) for e in self._stable_entries]
 
     def get_form_energy(self, entry):
         """
@@ -657,7 +664,7 @@ class PhaseDiagram(MSONable):
             Equilibrium reaction energy of entry. Stable entries should have
             equilibrium reaction energy <= 0. The energy is given per atom.
         """
-        if entry not in list(self.stable_entries):
+        if entry.normalize(inplace=False) not in self.stable_entries_normed:
             # NOTE scaled duplicates of stable_entries will trigger this error possible
             # solution would be to normalize as in get_decomp_and_quasi_e_to_hull.
             raise ValueError(
@@ -667,7 +674,7 @@ class PhaseDiagram(MSONable):
         if entry.is_element:
             return 0
 
-        entries = [e for e in self.stable_entries if e != entry]
+        entries = [e for e in self.stable_entries if e.normalize(inplace=False) != entry.normalize(inplace=False)]
         modpd = PhaseDiagram(entries, self.elements)
         return modpd.get_decomp_and_e_above_hull(entry, allow_negative=True)[1]
 
@@ -720,8 +727,7 @@ class PhaseDiagram(MSONable):
             fractional composition. The energy is given per atom.
         """
         # For unstable materials use simplex approach
-        # TODO repition of normalization may be wasteful on large phase diagrams
-        if entry.normalize() not in [e.normalize() for e in self.stable_entries]:
+        if entry.normalize(inplace=False) not in self.stable_entries_normed:
             return self.get_decomp_and_e_above_hull(entry, allow_negative=True)
 
         if stable_only:
@@ -730,7 +736,7 @@ class PhaseDiagram(MSONable):
             compare_entries = self.qhull_entries
 
         # take entries with negative formation enthalpies as competing entries
-        competing_entries = [c for c in compare_entries if c != entry
+        competing_entries = [c for c in compare_entries if c.normalize(inplace=False) != entry.normalize(inplace=False)
                              if set(c.composition.elements).issubset(entry.composition.elements)]
 
         # NOTE SLSQP optimizer doesn't scale well for > 300 competing entries. As a
@@ -791,8 +797,7 @@ class PhaseDiagram(MSONable):
             unstable entries should have energies > 0.
         """
         # Handle unstable materials
-        # TODO repition of normalization may be wasteful on large phase diagrams
-        if entry.normalize() not in [e.normalize() for e in self.stable_entries]:
+        if entry.normalize(inplace=False) not in self.stable_entries_normed:
             return self.get_decomp_and_e_above_hull(entry, allow_negative=True)[1]
 
         # Handle stable elemental materials

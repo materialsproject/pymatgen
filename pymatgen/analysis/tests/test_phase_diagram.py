@@ -4,6 +4,7 @@
 
 
 import os
+import copy
 import unittest
 import warnings
 import numpy as np
@@ -264,14 +265,14 @@ class PhaseDiagramTest(unittest.TestCase):
     def test_get_quasi_e_to_hull(self):
         for entry in self.pd.unstable_entries:
             # catch duplicated stable entries
-            if entry.normalize not in [e.normalize for e in self.pd.stable_entries]:
-                self.assertGreaterEqual(
-                    self.pd.get_quasi_e_to_hull(entry), 0,
-                    "Unstable entries should have positive decomposition energy!")
-            else:
+            if entry.normalize(inplace=False) in self.pd.stable_entries_normed:
                 self.assertLessEqual(
                     self.pd.get_quasi_e_to_hull(entry), 0,
                     "Duplicated stable entries should have negative decomposition energy!")
+            else:
+                self.assertGreaterEqual(
+                    self.pd.get_quasi_e_to_hull(entry), 0,
+                    "Unstable entries should have positive decomposition energy!")
 
         for entry in self.pd.stable_entries:
             if entry.composition.is_element:
