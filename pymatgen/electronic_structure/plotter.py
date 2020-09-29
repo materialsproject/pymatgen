@@ -1042,7 +1042,8 @@ class BSPlotterProjected(BSPlotter):
             character for the corresponding element and orbital.
         """
         band_linewidth = 1.0
-        fig_number = sum([len(v) for v in dictio.values()])
+        fig_cols = len(dictio) * 100
+        fig_rows = max([len(v) for v in dictio.values()]) * 10
         proj = self._get_projections_by_branches(dictio)
         data = self.bs_plot_data(zero_to_efermi)
         plt = pretty_plot(12, 8)
@@ -1055,26 +1056,20 @@ class BSPlotterProjected(BSPlotter):
 
         for el in dictio:
             for o in dictio[el]:
-                plt.subplot(100 * math.ceil(fig_number / 2) + 20 + count)
+                plt.subplot(fig_rows+fig_cols+count)
                 self._maketicks(plt)
                 for b in range(len(data["distances"])):
                     for i in range(self._nb_bands):
                         plt.plot(
                             data["distances"][b],
-                            [
-                                data["energy"][str(Spin.up)][b][i][j]
-                                for j in range(len(data["distances"][b]))
-                            ],
+                            data["energy"][str(Spin.up)][b][i],
                             "b-",
                             linewidth=band_linewidth,
                         )
                         if self._bs.is_spin_polarized:
                             plt.plot(
                                 data["distances"][b],
-                                [
-                                    data["energy"][str(Spin.down)][b][i][j]
-                                    for j in range(len(data["distances"][b]))
-                                ],
+                                data["energy"][str(Spin.down)][b][i],
                                 "r--",
                                 linewidth=band_linewidth,
                             )
