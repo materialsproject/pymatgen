@@ -102,13 +102,14 @@ class PDEntry(Entry):
         return return_dict
 
     def __eq__(self, other):
+        # NOTE Scaled duplicates are not equal unless normalized separately
         if isinstance(other, self.__class__):
             return self.as_dict() == other.as_dict()
         return False
 
     def __hash__(self):
-        # NOTE Comprhys: This hashing operation means that equivalent entries
-        # hash to different values.
+        # NOTE This hashing operation means that equivalent entries
+        # hash to different values. This has implications on set equality.
         return id(self)
 
     @classmethod
@@ -454,7 +455,9 @@ class PhaseDiagram(MSONable):
         Entries that are unstable in the phase diagram. Includes positive
         formation energy entries.
         """
-        return [e for e in self.all_entries if e not in list(self.stable_entries)]
+        # NOTE this uses hash equality and so duplicates of stable_entries will
+        # end up in the unstable_entries.
+        return [e for e in self.all_entries if e not in self.stable_entries]
 
     @property
     def stable_entries(self):
@@ -605,9 +608,11 @@ class PhaseDiagram(MSONable):
             (decomp, energy above convex hull). The decomposition is provided
                 as a dict of {PDEntry: amount} where amount is the amount of the
                 fractional composition. Stable entries should have energy above
-                convex hull of 0.
+                convex hull of 0. The energy is given per atom.
         """
-        if entry in self.stable_entries:
+        # Avoid computation for stable_entries. Note that scaled duplicates of
+        # stable_entries will not be caught.
+        if entry in list(self.stable_entries):
             return {entry: 1}, 0
 
         comp = entry.composition
@@ -635,7 +640,7 @@ class PhaseDiagram(MSONable):
 
         Returns:
             Energy above convex hull of entry. Stable entries should have
-            energy above hull of 0.
+            energy above hull of 0. The energy is given per atom.
         """
         return self.get_decomp_and_e_above_hull(entry)[1]
 
@@ -650,12 +655,15 @@ class PhaseDiagram(MSONable):
 
         Returns:
             Equilibrium reaction energy of entry. Stable entries should have
-            equilibrium reaction energy <= 0.
+            equilibrium reaction energy <= 0. The energy is given per atom.
         """
-        if entry not in self.stable_entries:
+        if entry not in list(self.stable_entries):
+            # NOTE scaled duplicates of stable_entries will trigger this error possible
+            # solution would be to normalize as in get_decomp_and_quasi_e_to_hull.
             raise ValueError(
-                "Equilibrium reaction energy is available only " "for stable entries."
+                "Equilibrium reaction energy is available only for stable entries."
             )
+
         if entry.is_element:
             return 0
 
@@ -712,7 +720,8 @@ class PhaseDiagram(MSONable):
             fractional composition. The energy is given per atom.
         """
         # For unstable materials use simplex approach
-        if entry not in list(self.stable_entries):
+        # TODO repition of normalization may be wasteful on large phase diagrams
+        if entry.normalize() not in [e.normalize() for e in self.stable_entries]:
             return self.get_decomp_and_e_above_hull(entry, allow_negative=True)
 
         if stable_only:
@@ -782,7 +791,8 @@ class PhaseDiagram(MSONable):
             unstable entries should have energies > 0.
         """
         # Handle unstable materials
-        if entry not in list(self.stable_entries):
+        # TODO repition of normalization may be wasteful on large phase diagrams
+        if entry.normalize() not in [e.normalize() for e in self.stable_entries]:
             return self.get_decomp_and_e_above_hull(entry, allow_negative=True)[1]
 
         # Handle stable elemental materials

@@ -246,11 +246,12 @@ class PhaseDiagramTest(unittest.TestCase):
                 1e-11,
                 "Stable entries should have e above hull of zero!",
             )
+
         for entry in self.pd.all_entries:
             if entry not in self.pd.stable_entries:
                 e_ah = self.pd.get_e_above_hull(entry)
-                self.assertGreaterEqual(e_ah, 0)
                 self.assertTrue(isinstance(e_ah, Number))
+                self.assertGreaterEqual(e_ah, 0)
 
     def test_get_equilibrium_reaction_energy(self):
         for entry in self.pd.stable_entries:
@@ -262,9 +263,15 @@ class PhaseDiagramTest(unittest.TestCase):
 
     def test_get_quasi_e_to_hull(self):
         for entry in self.pd.unstable_entries:
-            self.assertGreaterEqual(
-                self.pd.get_quasi_e_to_hull(entry), 0,
-                "Unstable entries should have positive decomposition energy!")
+            # catch duplicated stable entries
+            if entry.normalize not in [e.normalize for e in self.pd.stable_entries]:
+                self.assertGreaterEqual(
+                    self.pd.get_quasi_e_to_hull(entry), 0,
+                    "Unstable entries should have positive decomposition energy!")
+            else:
+                self.assertLessEqual(
+                    self.pd.get_quasi_e_to_hull(entry), 0,
+                    "Duplicated stable entries should have negative decomposition energy!")
 
         for entry in self.pd.stable_entries:
             if entry.composition.is_element:
@@ -287,10 +294,15 @@ class PhaseDiagramTest(unittest.TestCase):
             "Novel unstable entries should have positive decomposition energy!")
 
         duplicate_entry = PDEntry("Li2O", -14.31361175)
+        scaled_dup_entry = PDEntry("Li4O2", -14.31361175*2)
         stable_entry = [e for e in self.pd.stable_entries if e.name == "Li2O"][0]
 
         self.assertEqual(
             self.pd.get_quasi_e_to_hull(duplicate_entry), self.pd.get_quasi_e_to_hull(stable_entry),
+            "Novel duplicates of stable entries should have same decomposition energy!")
+        
+        self.assertEqual(
+            self.pd.get_quasi_e_to_hull(scaled_dup_entry), self.pd.get_quasi_e_to_hull(stable_entry),
             "Novel duplicates of stable entries should have same decomposition energy!")
 
     def test_get_decomposition(self):
