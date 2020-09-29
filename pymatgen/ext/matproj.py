@@ -1645,9 +1645,18 @@ class MPRester:
         nmax = int((2000 - len(prefix)) / 11)  # mp-<7-digit> + , = 11
         task_ids = [t["task_id"] for tl in meta.values() for t in tl]
         nomad_exist_task_ids = self._check_get_download_info_url_by_task_id(prefix=prefix, task_ids=task_ids)
+        if len(nomad_exist_task_ids) != len(task_ids):
+            self._print_help_message(nomad_exist_task_ids, task_ids, file_patterns, task_types)
         chunks = get_chunks(nomad_exist_task_ids, size=nmax)
         urls = [prefix + ",".join(tids) for tids in chunks]
         return meta, urls
+
+    @staticmethod
+    def _print_help_message(nomad_exist_task_ids, task_ids, file_patterns, task_types):
+        non_exist_ids = set(task_ids) - set(nomad_exist_task_ids)
+        warnings.warn(f"For file patterns [{file_patterns}] and task_types [{task_types}], \n"
+                      f"the following ids are not found on NOMAD [{list(non_exist_ids)}]. \n"
+                      f"If you need to upload them, please contact Patrick Huck at phuck@lbl.gov")
 
     def _check_get_download_info_url_by_task_id(self, prefix, task_ids) -> List[str]:
         nomad_exist_task_ids: List[str] = []
@@ -1656,8 +1665,6 @@ class MPRester:
             url = prefix + task_id
             if self._check_nomad_exist(url):
                 nomad_exist_task_ids.append(url)
-            else:
-                print(f"NOMAD has no record with [{url}]")
         return nomad_exist_task_ids
 
     @staticmethod
