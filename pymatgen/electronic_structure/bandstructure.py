@@ -975,6 +975,14 @@ class BandStructureSymmLine(BandStructure, MSONable):
             old_dict["efermi"] = old_dict["efermi"] + shift
         return self.from_dict(old_dict)
 
+    def as_dict(self):
+        """
+        Json-serializable dict representation of BandStructureSymmLine.
+        """
+        d = super().as_dict()
+        d["branches"] = self.branches
+        return d
+
 
 class LobsterBandStructureSymmLine(BandStructureSymmLine):
     """
