@@ -692,7 +692,7 @@ class MaterialsProject2020CompatibilityTest(unittest.TestCase):
     def test_correction_values(self):
         # test_corrections
         self.assertAlmostEqual(
-            self.compat.process_entry(self.entry1).correction, -2.181 * 2 - 0.738 * 3
+            self.compat.process_entry(self.entry1).correction, -2.182 * 2 - 0.74 * 3
         )
 
         entry = ComputedEntry(
@@ -719,11 +719,11 @@ class MaterialsProject2020CompatibilityTest(unittest.TestCase):
 
         # Check actual correction
         self.assertAlmostEqual(
-            self.compat.process_entry(entry).correction, -0.481 * 3 + -2.181
+            self.compat.process_entry(entry).correction, -0.485 * 3 + -2.182
         )
 
         self.assertAlmostEqual(
-            self.compat.process_entry(self.entry_sulfide).correction, -0.637
+            self.compat.process_entry(self.entry_sulfide).correction, -0.639
         )
 
     def test_oxdiation_by_electronegativity(self):
@@ -785,7 +785,7 @@ class MaterialsProject2020CompatibilityTest(unittest.TestCase):
         self.assertAlmostEqual(self.compat.process_entry(entry1).correction, -0.406 * 2)
 
         # SiO2; only corrections should be oxide
-        self.assertAlmostEqual(self.compat.process_entry(entry2).correction, -0.738 * 4)
+        self.assertAlmostEqual(self.compat.process_entry(entry2).correction, -0.74 * 4)
 
     def test_oxdiation(self):
         # make sure anion corrections are only applied when the element has
@@ -850,7 +850,7 @@ class MaterialsProject2020CompatibilityTest(unittest.TestCase):
         self.assertAlmostEqual(self.compat.process_entry(entry1).correction, -0.406 * 2)
 
         # SiO2; only corrections should be oxide
-        self.assertAlmostEqual(self.compat.process_entry(entry2).correction, -0.738 * 4)
+        self.assertAlmostEqual(self.compat.process_entry(entry2).correction, -0.74 * 4)
 
     def test_U_values(self):
         # Wrong U value
@@ -1015,41 +1015,49 @@ class MaterialsProject2020CompatibilityTest(unittest.TestCase):
         d = compat.get_explanation_dict(entry)
         self.assertEqual("MPRelaxSet Potcar Correction", d["corrections"][0]["name"])
 
-    def test_get_corrections_dict(self):
+    def test_energy_adjustments(self):
         compat = MaterialsProject2020Compatibility(check_potcar_hash=False)
         ggacompat = MaterialsProject2020Compatibility("GGA", check_potcar_hash=False)
 
-        # Correct parameters
-        entry = ComputedEntry(
-            "Fe2O3",
-            -1,
-            correction=0.0,
-            parameters={
-                "is_hubbard": True,
-                "hubbards": {"Fe": 5.3, "O": 0},
-                "run_type": "GGA+U",
-                "potcar_spec": [
-                    {
-                        "titel": "PAW_PBE Fe_pv 06Sep2000",
-                        "hash": "994537de5c4122b7f1b77fb604476db4",
-                    },
-                    {
-                        "titel": "PAW_PBE O 08Apr2002",
-                        "hash": "7a25bc5b9a5393f46600a4939d357982",
-                    },
-                ],
-            },
-        )
-        c, e = compat.get_corrections_dict(entry)
-        self.assertAlmostEqual(c["MP2020 Composition Correction"], -0.738 * 3)
-        self.assertAlmostEqual(c["MP2020 Advanced Correction"], -2.181 * 2)
-        self.assertAlmostEqual(e["MP2020 Composition Correction"], 0.0017 * 3)
-        self.assertAlmostEqual(e["MP2020 Advanced Correction"], 0.009 * 2)
+        # Fe 4 Co 2 O 8 (Fe2CoO4)
+        entry = {'@module': 'pymatgen.entries.computed_entries',
+                 '@class': 'ComputedEntry',
+                 'energy': -91.94962744,
+                 'composition': defaultdict(float, {'Fe': 4.0, 'Co': 2.0, 'O': 8.0}),
+                 'energy_adjustments': [],
+                 'parameters': {'run_type': 'GGA+U',
+                                'is_hubbard': True,
+                                'pseudo_potential': {'functional': 'PBE',
+                                                     'labels': ['Fe_pv', 'Co', 'O'],
+                                                     'pot_type': 'paw'},
+                                'hubbards': {'Fe': 5.3, 'Co': 3.32, 'O': 0.0},
+                                'potcar_symbols': ['PBE Fe_pv', 'PBE Co', 'PBE O'],
+                                'oxide_type': 'oxide'},
+                 'data': {'oxide_type': 'oxide'},
+                 'entry_id': 'mp-753222',
+                 'correction': 0}
+        entry = ComputedEntry.from_dict(entry)
+        
+        c = compat.process_entry(entry)
+        assert "MP2020 anion correction (oxide)" in [ea.name for ea in c.energy_adjustments]
+        assert "MP2020 GGA/GGA+U mixing correction (Fe)" in [ea.name for ea in c.energy_adjustments]
+        assert "MP2020 GGA/GGA+U mixing correction (Co)" in [ea.name for ea in c.energy_adjustments]
+
+        for ea in c.energy_adjustments:
+            if ea.name == "MP2020 GGA/GGA+U mixing correction (Fe)":
+                self.assertAlmostEqual(ea.value, -2.182 * 4)
+                self.assertAlmostEqual(ea.uncertainty, 0.009 * 4)
+            elif ea.name == "MP2020 GGA/GGA+U mixing correction (Co)":
+                self.assertAlmostEqual(ea.value, -1.535 * 2)
+                self.assertAlmostEqual(ea.uncertainty, 0.0059 * 2)
+            elif ea.name == "MP2020 anion correction (oxide)":
+                self.assertAlmostEqual(ea.value, -0.74 * 8)
+                self.assertAlmostEqual(ea.uncertainty, 0.0017 * 8)
 
         entry.parameters["is_hubbard"] = False
         del entry.parameters["hubbards"]
-        c, e = ggacompat.get_corrections_dict(entry)
-        self.assertNotIn("test Advanced Correction", c)
+        c = ggacompat.process_entry(entry)
+        self.assertNotIn("MP2020 GGA/GGA+U mixing correction", [ea.name for ea in c.energy_adjustments])
 
     def test_process_entries(self):
         entries = self.compat.process_entries([self.entry1, self.entry2, self.entry3])
