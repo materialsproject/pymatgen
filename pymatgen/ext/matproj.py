@@ -41,6 +41,7 @@ from pymatgen.entries.compatibility import (
 from pymatgen.entries.exp_entries import ExpEntry
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.sequence import get_chunks, PBar
+from typing import List
 
 
 @unique
@@ -129,11 +130,11 @@ class MPRester:
     )
 
     def __init__(
-        self,
-        api_key=None,
-        endpoint=None,
-        notify_db_version=True,
-        include_user_agent=True,
+            self,
+            api_key=None,
+            endpoint=None,
+            notify_db_version=True,
+            include_user_agent=True,
     ):
         """
         Args:
@@ -469,13 +470,13 @@ class MPRester:
             raise MPRestError(str(ex))
 
     def get_entries(
-        self,
-        chemsys_formula_id_criteria,
-        compatible_only=True,
-        inc_structure=None,
-        property_data=None,
-        conventional_unit_cell=False,
-        sort_by_e_above_hull=False,
+            self,
+            chemsys_formula_id_criteria,
+            compatible_only=True,
+            inc_structure=None,
+            property_data=None,
+            conventional_unit_cell=False,
+            sort_by_e_above_hull=False,
     ):
         """
         Get a list of ComputedEntries or ComputedStructureEntries corresponding
@@ -584,7 +585,7 @@ class MPRester:
         return entries
 
     def get_pourbaix_entries(
-        self, chemsys, solid_compat=MaterialsProjectCompatibility
+            self, chemsys, solid_compat=MaterialsProjectCompatibility
     ):
         """
         A helper function to get all entries necessary to generate
@@ -646,8 +647,8 @@ class MPRester:
             stable_ref = sorted(refs, key=lambda x: x.data["e_above_hull"])[0]
             rf = stable_ref.composition.get_reduced_composition_and_factor()[1]
             solid_diff = (
-                ion_ref_pd.get_form_energy(stable_ref)
-                - i_d["Reference solid energy"] * rf
+                    ion_ref_pd.get_form_energy(stable_ref)
+                    - i_d["Reference solid energy"] * rf
             )
             elt = i_d["Major_Elements"][0]
             correction_factor = ion.composition[elt] / stable_ref.composition[elt]
@@ -657,16 +658,16 @@ class MPRester:
 
         # Construct the solid pourbaix entries from filtered ion_ref entries
         extra_elts = (
-            set(ion_ref_elts)
-            - {Element(s) for s in chemsys}
-            - {Element("H"), Element("O")}
+                set(ion_ref_elts)
+                - {Element(s) for s in chemsys}
+                - {Element("H"), Element("O")}
         )
         for entry in ion_ref_entries:
             entry_elts = set(entry.composition.elements)
             # Ensure no OH chemsys or extraneous elements from ion references
             if not (
-                entry_elts <= {Element("H"), Element("O")}
-                or extra_elts.intersection(entry_elts)
+                    entry_elts <= {Element("H"), Element("O")}
+                    or extra_elts.intersection(entry_elts)
             ):
                 # Create new computed entry
                 form_e = ion_ref_pd.get_form_energy(entry)
@@ -679,7 +680,7 @@ class MPRester:
         return pbx_entries
 
     def get_structure_by_material_id(
-        self, material_id, final=True, conventional_unit_cell=False
+            self, material_id, final=True, conventional_unit_cell=False
     ):
         """
         Get a Structure corresponding to a material_id.
@@ -725,12 +726,12 @@ class MPRester:
         return data[0][prop]
 
     def get_entry_by_material_id(
-        self,
-        material_id,
-        compatible_only=True,
-        inc_structure=None,
-        property_data=None,
-        conventional_unit_cell=False,
+            self,
+            material_id,
+            compatible_only=True,
+            inc_structure=None,
+            property_data=None,
+            conventional_unit_cell=False,
     ):
         """
         Get a ComputedEntry corresponding to a material_id.
@@ -839,12 +840,12 @@ class MPRester:
         return self._make_request("/materials/{}/abinit_ddb".format(material_id))
 
     def get_entries_in_chemsys(
-        self,
-        elements,
-        compatible_only=True,
-        inc_structure=None,
-        property_data=None,
-        conventional_unit_cell=False,
+            self,
+            elements,
+            compatible_only=True,
+            inc_structure=None,
+            property_data=None,
+            conventional_unit_cell=False,
     ):
         """
         Helper method to get a list of ComputedEntries in a chemical system.
@@ -923,12 +924,12 @@ class MPRester:
         return ExpEntry(Composition(formula), self.get_exp_thermo_data(formula))
 
     def query(
-        self,
-        criteria,
-        properties,
-        chunk_size=500,
-        max_tries_per_chunk=5,
-        mp_decode=True,
+            self,
+            criteria,
+            properties,
+            chunk_size=500,
+            max_tries_per_chunk=5,
+            mp_decode=True,
     ):
         r"""
 
@@ -1055,15 +1056,15 @@ class MPRester:
         return data
 
     def submit_structures(
-        self,
-        structures,
-        authors,
-        projects=None,
-        references="",
-        remarks=None,
-        data=None,
-        histories=None,
-        created_at=None,
+            self,
+            structures,
+            authors,
+            projects=None,
+            references="",
+            remarks=None,
+            data=None,
+            histories=None,
+            created_at=None,
     ):
         """
         Submits a list of structures to the Materials Project as SNL files.
@@ -1238,16 +1239,16 @@ class MPRester:
             raise MPRestError(str(ex))
 
     def submit_vasp_directory(
-        self,
-        rootdir,
-        authors,
-        projects=None,
-        references="",
-        remarks=None,
-        master_data=None,
-        master_history=None,
-        created_at=None,
-        ncpus=None,
+            self,
+            rootdir,
+            authors,
+            projects=None,
+            references="",
+            remarks=None,
+            master_data=None,
+            master_history=None,
+            created_at=None,
+            ncpus=None,
     ):
         """
         Assimilates all vasp run directories beneath a particular
@@ -1488,14 +1489,14 @@ class MPRester:
         return WulffShape(lattice, millers, energies)
 
     def get_gb_data(
-        self,
-        material_id=None,
-        pretty_formula=None,
-        chemsys=None,
-        sigma=None,
-        gb_plane=None,
-        rotation_axis=None,
-        include_work_of_separation=False,
+            self,
+            material_id=None,
+            pretty_formula=None,
+            chemsys=None,
+            sigma=None,
+            gb_plane=None,
+            rotation_axis=None,
+            include_work_of_separation=False,
     ):
         """
         Gets grain boundary data for a material.
@@ -1544,7 +1545,7 @@ class MPRester:
                     material_id=material_id, miller_index=gb_plane_int
                 )["surface_energy"]
                 wsep = (
-                    2 * surface_energy - gb_energy
+                        2 * surface_energy - gb_energy
                 )  # calculate the work of separation
                 gb_dict["work_of_separation"] = wsep
             return list_of_gbs
@@ -1552,12 +1553,12 @@ class MPRester:
         return self._make_request("/grain_boundaries", payload=payload)
 
     def get_interface_reactions(
-        self,
-        reactant1,
-        reactant2,
-        open_el=None,
-        relative_mu=None,
-        use_hull_energy=False,
+            self,
+            reactant1,
+            reactant2,
+            open_el=None,
+            relative_mu=None,
+            use_hull_energy=False,
     ):
         """
         Gets critical reactions between two reactants.
@@ -1619,9 +1620,8 @@ class MPRester:
 
         meta = defaultdict(list)
         for doc in self.query(
-            {"material_id": {"$in": material_ids}}, ["material_id", "blessed_tasks"]
+                {"material_id": {"$in": material_ids}}, ["material_id", "blessed_tasks"]
         ):
-
             for task_type, task_id in doc["blessed_tasks"].items():
                 if task_types and task_type not in task_types:
                     continue
@@ -1635,7 +1635,7 @@ class MPRester:
         # return a list of URLs for NoMaD Downloads containing the list of files
         # for every external_id in `task_ids`
         # For reference, please visit https://nomad-lab.eu/prod/rae/api/
-        prefix = "https://nomad-lab.eu/prod/rae/api/repo/query?"
+        prefix = "https://nomad-lab.eu/prod/rae/api/raw/query?"
         if file_patterns is not None:
             for file_pattern in file_patterns:
                 prefix += f"file_pattern={file_pattern}&"
@@ -1644,9 +1644,32 @@ class MPRester:
         # NOTE: IE has 2kb URL char limit
         nmax = int((2000 - len(prefix)) / 11)  # mp-<7-digit> + , = 11
         task_ids = [t["task_id"] for tl in meta.values() for t in tl]
-        chunks = get_chunks(task_ids, size=nmax)
+        nomad_exist_task_ids = self._check_get_download_info_url_by_task_id(prefix=prefix, task_ids=task_ids)
+        chunks = get_chunks(nomad_exist_task_ids, size=nmax)
         urls = [prefix + ",".join(tids) for tids in chunks]
         return meta, urls
+
+    def _check_get_download_info_url_by_task_id(self, prefix, task_ids) -> List[str]:
+        nomad_exist_task_ids: List[str] = []
+        prefix = prefix.replace("/raw/query", "/repo/")
+        for task_id in task_ids:
+            url = prefix + task_id
+            if self._check_nomad_exist(url):
+                nomad_exist_task_ids.append(url)
+            else:
+                print(f"NOMAD has no record with [{url}]")
+        return nomad_exist_task_ids
+
+    @staticmethod
+    def _check_nomad_exist(url) -> bool:
+        response = requests.get(url=url)
+        if response.status_code is not 200:
+            return False
+        else:
+            content = json.loads(response.text)
+            if content["pagination"]["total"] == 0:
+                return False
+            return True
 
     @staticmethod
     def parse_criteria(criteria_string):
