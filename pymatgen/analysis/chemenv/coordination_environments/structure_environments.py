@@ -23,7 +23,7 @@ import numpy as np
 from collections import OrderedDict
 from pymatgen.core.sites import PeriodicSite
 from monty.json import MSONable, MontyDecoder
-from pymatgen.core.periodic_table import Element, Specie
+from pymatgen.core.periodic_table import Element, Species
 from pymatgen.core.structure import Structure
 from monty.json import jsanitize
 from pymatgen.analysis.chemenv.coordination_environments.voronoi import DetailedVoronoiContainer
@@ -1458,7 +1458,7 @@ class LightStructureEnvironments(MSONable):
             if self.valences != 'undefined':
                 for sp, occ in site.species.items():
                     valence = self.valences[isite]
-                    strspecie = str(Specie(sp.symbol, valence))
+                    strspecie = str(Species(sp.symbol, valence))
                     if valence < 0:
                         specielist = self.statistics_dict['anion_list']
                         atomlist = self.statistics_dict['anion_atom_list']
@@ -1567,7 +1567,7 @@ class LightStructureEnvironments(MSONable):
         Get list of indices that have the given specie with a given Coordination environment.
 
         Args:
-            specie: Specie to get.
+            specie: Species to get.
             ce_symbol: Symbol of the coordination environment to get.
 
         Returns: Dictionary with the list of indices in the structure that have the given specie in the given
@@ -1593,7 +1593,7 @@ class LightStructureEnvironments(MSONable):
         Get list of indices that have the given specie.
 
         Args:
-            specie: Specie to get.
+            specie: Species to get.
 
         Returns: Dictionary with the list of coordination environments for the given species, the indices of the sites
             in which they appear, their fractions and continuous symmetry measures.

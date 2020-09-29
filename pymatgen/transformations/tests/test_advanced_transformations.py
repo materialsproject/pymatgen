@@ -8,7 +8,7 @@ import json
 import warnings
 import numpy as np
 
-from pymatgen import Lattice, Structure, Specie, Molecule
+from pymatgen import Lattice, Structure, Species, Molecule
 from pymatgen.transformations.standard_transformations import (
     OxidationStateDecorationTransformation,
     SubstitutionTransformation,
@@ -627,8 +627,8 @@ class DopingTransformationTest(PymatgenTest):
         self.assertEqual(trans.max_structures_per_enum, 1)
 
     def test_find_codopant(self):
-        self.assertEqual(_find_codopant(Specie("Fe", 2), 1), Specie("Cu", 1))
-        self.assertEqual(_find_codopant(Specie("Fe", 2), 3), Specie("In", 3))
+        self.assertEqual(_find_codopant(Species("Fe", 2), 1), Species("Cu", 1))
+        self.assertEqual(_find_codopant(Species("Fe", 2), 3), Species("In", 3))
 
 
 class SlabTransformationTest(PymatgenTest):

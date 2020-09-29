@@ -126,8 +126,8 @@ def obtain_all_bond_lengths(sp1, sp2, default_bl=None):
     Obtain bond lengths for all bond orders from bond length database
 
     Args:
-        sp1 (Specie): First specie.
-        sp2 (Specie): Second specie.
+        sp1 (Species): First specie.
+        sp2 (Species): Second specie.
         default_bl: If a particular type of bond does not exist, use this
             bond length as a default value (bond order = 1).
             If None, a ValueError will be thrown.
@@ -152,8 +152,8 @@ def get_bond_order(sp1, sp2, dist, tol=0.2, default_bl=None):
     Calculate the bond order given the distance of 2 species
 
     Args:
-        sp1 (Specie): First specie.
-        sp2 (Specie): Second specie.
+        sp1 (Species): First specie.
+        sp2 (Species): Second specie.
         dist: Their distance in angstrom
         tol (float): Relative tolerance to test. Basically, the code
             checks if the distance between the sites is larger than
@@ -196,8 +196,8 @@ def get_bond_length(sp1, sp2, bond_order=1):
     Get the bond length between two species.
 
     Args:
-        sp1 (Specie): First specie.
-        sp2 (Specie): Second specie.
+        sp1 (Species): First specie.
+        sp2 (Species): Second specie.
         bond_order: For species with different possible bond orders,
             this allows one to obtain the bond length for a particular bond
             order. For example, to get the C=C bond length instead of the

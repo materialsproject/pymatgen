@@ -66,12 +66,12 @@ class IsingModelTest(unittest.TestCase):
 
     def test_get_energy(self):
         m = IsingModel(5, 6)
-        from pymatgen.core.periodic_table import Specie
+        from pymatgen.core.periodic_table import Species
         s = Structure.from_file(os.path.join(test_dir, "LiFePO4.cif"))
-        s.replace_species({"Fe": Specie("Fe", 2, {"spin": 4})})
+        s.replace_species({"Fe": Species("Fe", 2, {"spin": 4})})
         self.assertAlmostEqual(m.get_energy(s), 172.81260515787977)
-        s[4] = Specie("Fe", 2, {"spin": -4})
-        s[5] = Specie("Fe", 2, {"spin": -4})
+        s[4] = Species("Fe", 2, {"spin": -4})
+        s[5] = Species("Fe", 2, {"spin": -4})
         self.assertAlmostEqual(m.get_energy(s), 51.97424405382921)
 
     def test_to_from_dict(self):

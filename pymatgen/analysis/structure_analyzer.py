@@ -18,7 +18,7 @@ import numpy as np
 from scipy.spatial import Voronoi
 from monty.dev import deprecated
 
-from pymatgen import Element, Specie, Composition
+from pymatgen import Element, Species, Composition
 from pymatgen import PeriodicSite
 from pymatgen.analysis.local_env import VoronoiNN, JmolNN
 from pymatgen.core.surface import SlabGenerator
@@ -521,7 +521,7 @@ class OxideType:
 
         if isinstance(structure.composition.elements[0], Element):
             comp = structure.composition
-        elif isinstance(structure.composition.elements[0], Specie):
+        elif isinstance(structure.composition.elements[0], Species):
             elmap = collections.defaultdict(float)
             for site in structure:
                 for species, occu in site.species.items():
