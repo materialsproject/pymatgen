@@ -427,7 +427,7 @@ class BSPlotter:
             ticks: A dict with the 'distances' at which there is a kpoint (the
             x axis) and the labels (None if no label).
             energy: A dict storing bands for spin up and spin down data
-            [{Spin:[band_index][k_point_index]}] as a list of discontinuous kpath
+            {Spin:[np.array(nb_bands,kpoints),...]} as a list of discontinuous kpath
             of energies. The energy of multiple continuous branches are stored together.
             vbm: A list of tuples (distance,energy) marking the vbms. The
             energies are shifted with respect to the fermi level is the
@@ -447,7 +447,7 @@ class BSPlotter:
             if type(self._bs) == list:
                 # if BSPlotter
                 bs = self._bs[0]
-            elif type(self._bs) == BandstructureSymmLine
+            else:
                 # if BSPlotterProjected
                 bs = self._bs
 
@@ -803,7 +803,7 @@ class BSPlotter:
             ticks should be set and 'label': a list of label for each of those
             ticks.
         """
-        bs = self._bs[0]
+        bs = self._bs[0] if type(self._bs) == list else self._bs
         ticks, distance = [], []
         for br in bs.branches:
             s, e = br["start_index"], br["end_index"]
@@ -973,7 +973,7 @@ class BSPlotterProjected(BSPlotter):
 
         if len(bs.projections) == 0:
             raise ValueError(
-                "try to plot projections" " on a band structure without any"
+                "try to plot projections on a band structure without any"
             )
 
         self._bs = bs
@@ -1062,7 +1062,7 @@ class BSPlotterProjected(BSPlotter):
                         plt.plot(
                             data["distances"][b],
                             [
-                                data["energy"][b][str(Spin.up)][i][j]
+                                data["energy"][str(Spin.up)][b][i][j]
                                 for j in range(len(data["distances"][b]))
                             ],
                             "b-",
@@ -1072,24 +1072,24 @@ class BSPlotterProjected(BSPlotter):
                             plt.plot(
                                 data["distances"][b],
                                 [
-                                    data["energy"][b][str(Spin.down)][i][j]
+                                    data["energy"][str(Spin.down)][b][i][j]
                                     for j in range(len(data["distances"][b]))
                                 ],
                                 "r--",
                                 linewidth=band_linewidth,
                             )
-                            for j in range(len(data["energy"][b][str(Spin.up)][i])):
+                            for j in range(len(data["energy"][str(Spin.up)][b][i])):
                                 plt.plot(
                                     data["distances"][b][j],
-                                    data["energy"][b][str(Spin.down)][i][j],
+                                    data["energy"][str(Spin.down)][b][i][j],
                                     "ro",
                                     markersize=proj[b][str(Spin.down)][i][j][str(el)][o]
                                     * 15.0,
                                 )
-                        for j in range(len(data["energy"][b][str(Spin.up)][i])):
+                        for j in range(len(data["energy"][str(Spin.up)][b][i])):
                             plt.plot(
                                 data["distances"][b][j],
-                                data["energy"][b][str(Spin.up)][i][j],
+                                data["energy"][str(Spin.up)][b][i][j],
                                 "bo",
                                 markersize=proj[b][str(Spin.up)][i][j][str(el)][o]
                                 * 15.0,
@@ -1150,10 +1150,7 @@ class BSPlotterProjected(BSPlotter):
                 for i in range(self._nb_bands):
                     plt.plot(
                         data["distances"][b],
-                        [
-                            data["energy"][b][str(Spin.up)][i][j]
-                            for j in range(len(data["distances"][b]))
-                        ],
+                        data["energy"][str(Spin.up)][b][i],
                         "-",
                         color=[192 / 255, 192 / 255, 192 / 255],
                         linewidth=band_linewidth,
@@ -1161,15 +1158,12 @@ class BSPlotterProjected(BSPlotter):
                     if self._bs.is_spin_polarized:
                         plt.plot(
                             data["distances"][b],
-                            [
-                                data["energy"][b][str(Spin.down)][i][j]
-                                for j in range(len(data["distances"][b]))
-                            ],
+                            data["energy"][str(Spin.down)][b][i],
                             "--",
                             color=[128 / 255, 128 / 255, 128 / 255],
                             linewidth=band_linewidth,
                         )
-                        for j in range(len(data["energy"][b][str(Spin.up)][i])):
+                        for j in range(len(data["energy"][str(Spin.up)][b][i])):
                             markerscale = sum(
                                 [
                                     proj[b][str(Spin.down)][i][j][str(el)][o]
@@ -1178,7 +1172,7 @@ class BSPlotterProjected(BSPlotter):
                             )
                             plt.plot(
                                 data["distances"][b][j],
-                                data["energy"][b][str(Spin.down)][i][j],
+                                data["energy"][str(Spin.down)][b][i][j],
                                 "bo",
                                 markersize=markerscale * 15.0,
                                 color=[
@@ -1187,7 +1181,7 @@ class BSPlotterProjected(BSPlotter):
                                     0.4 * markerscale,
                                 ],
                             )
-                    for j in range(len(data["energy"][b][str(Spin.up)][i])):
+                    for j in range(len(data["energy"][str(Spin.up)][b][i])):
                         markerscale = sum(
                             [
                                 proj[b][str(Spin.up)][i][j][str(el)][o]
@@ -1196,7 +1190,7 @@ class BSPlotterProjected(BSPlotter):
                         )
                         plt.plot(
                             data["distances"][b][j],
-                            data["energy"][b][str(Spin.up)][i][j],
+                            data["energy"][str(Spin.up)][b][i][j],
                             "o",
                             markersize=markerscale * 15.0,
                             color=[markerscale, 0.3 * markerscale, 0.4 * markerscale],
@@ -1259,7 +1253,7 @@ class BSPlotterProjected(BSPlotter):
         for s in spins:
             for b in range(len(data["distances"])):
                 for i in range(self._nb_bands):
-                    for j in range(len(data["energy"][b][str(s)][i]) - 1):
+                    for j in range(len(data["energy"][str(s)][b][i]) - 1):
                         sum_e = 0.0
                         for el in elt_ordered:
                             sum_e = sum_e + sum(
@@ -1291,8 +1285,8 @@ class BSPlotterProjected(BSPlotter):
                         plt.plot(
                             [data["distances"][b][j], data["distances"][b][j + 1]],
                             [
-                                data["energy"][b][str(s)][i][j],
-                                data["energy"][b][str(s)][i][j + 1],
+                                data["energy"][str(s)][b][i][j],
+                                data["energy"][str(s)][b][i][j + 1],
                             ],
                             sign,
                             color=color,
@@ -1871,7 +1865,7 @@ class BSPlotterProjected(BSPlotter):
                                     map(lambda x: x - shift[br], data["distances"][b])
                                 ),
                                 [
-                                    data["energy"][b][str(Spin.up)][i][j]
+                                    data["energy"][str(Spin.up)][b][i][j]
                                     for j in range(len(data["distances"][b]))
                                 ],
                                 "b-",
@@ -1887,16 +1881,16 @@ class BSPlotterProjected(BSPlotter):
                                         )
                                     ),
                                     [
-                                        data["energy"][b][str(Spin.down)][i][j]
+                                        data["energy"][str(Spin.down)][b][i][j]
                                         for j in range(len(data["distances"][b]))
                                     ],
                                     "r--",
                                     linewidth=band_linewidth,
                                 )
-                                for j in range(len(data["energy"][b][str(Spin.up)][i])):
+                                for j in range(len(data["energy"][str(Spin.up)][b][i])):
                                     plt.plot(
                                         data["distances"][b][j] - shift[br],
-                                        data["energy"][b][str(Spin.down)][i][j],
+                                        data["energy"][str(Spin.down)][b][i][j],
                                         "co",
                                         markersize=proj_br_d[br][str(Spin.down)][i][j][
                                             elt + numa
@@ -1904,10 +1898,10 @@ class BSPlotterProjected(BSPlotter):
                                         * 15.0,
                                     )
 
-                            for j in range(len(data["energy"][b][str(Spin.up)][i])):
+                            for j in range(len(data["energy"][str(Spin.up)][b][i])):
                                 plt.plot(
                                     data["distances"][b][j] - shift[br],
-                                    data["energy"][b][str(Spin.up)][i][j],
+                                    data["energy"][str(Spin.up)][b][i][j],
                                     "go",
                                     markersize=proj_br_d[br][str(Spin.up)][i][j][
                                         elt + numa
@@ -2201,20 +2195,22 @@ class BSPlotterProjected(BSPlotter):
                                 dictpa[elt] = indices
                                 print("You want to consider all '%s' atoms." % elt)
                                 break
-                            raise ValueError(
+                            else:
+                                raise ValueError(
                                 "You put wrong site numbers in 'dictpa[%s]': %s."
                                 % (elt, str(number))
                             )
-                        if isinstance(number, int):
+                        elif isinstance(number, int):
                             if number not in indices:
                                 raise ValueError(
                                     "You put wrong site numbers in 'dictpa[%s]': %s."
                                     % (elt, str(number))
                                 )
-                        raise ValueError(
-                            "You put wrong site numbers in 'dictpa[%s]': %s."
-                            % (elt, str(number))
-                        )
+                        else:
+                            raise ValueError(
+                                "You put wrong site numbers in 'dictpa[%s]': %s."
+                                % (elt, str(number))
+                            )
                     nelems = Counter(dictpa[elt]).values()
                     if sum(nelems) > len(nelems):
                         raise ValueError(
@@ -2553,7 +2549,7 @@ class BSPlotterProjected(BSPlotter):
             if i == 0:
                 uniq_d.append(t[0])
                 uniq_l.append(t[1])
-                logger.debug("Adding label {l} at {d}".format(l=t[i][0], d=t[1]))
+                logger.debug("Adding label {l} at {d}".format(l=t[0], d=t[1]))
             else:
                 if t[1] == temp_ticks[i - 1][1]:
                     logger.debug("Skipping label {i}".format(i=t[1]))
