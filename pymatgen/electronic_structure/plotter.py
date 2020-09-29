@@ -2192,9 +2192,9 @@ class BSPlotterProjected(BSPlotter):
                                 break
                             else:
                                 raise ValueError(
-                                "You put wrong site numbers in 'dictpa[%s]': %s."
-                                % (elt, str(number))
-                            )
+                                    "You put wrong site numbers in 'dictpa[%s]': %s."
+                                    % (elt, str(number))
+                                )
                         elif isinstance(number, int):
                             if number not in indices:
                                 raise ValueError(
