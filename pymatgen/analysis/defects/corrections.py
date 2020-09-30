@@ -387,7 +387,7 @@ class KumagaiCorrection(DefectCorrection):
                         bulk and defect site structures EXCLUDING the defect site itself
                         (e.g., [[bulk structure site index, defect structure"s corresponding site index], ... ]
 
-                    initial_defect_structure (Structure): The un-relaxed defect structure as a Pymatgen Structure object.
+                    initial_defect_structure (Structure): The unrelaxed defect structure as a Pymatgen Structure object.
 
                     defect_frac_sc_coords (array): Position of the defect in the supercell in fractional coordinates as
                         given in bulk_structure.
