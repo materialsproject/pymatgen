@@ -73,7 +73,7 @@ class Entry(MSONable, metaclass=ABCMeta):
     def __str__(self):
         return self.__repr__()
 
-    def normalize(self, mode: str = "formula_unit", inplace=True) -> None:
+    def normalize(self, mode: str = "formula_unit", inplace=True) -> Optional[Entry]:
         """
         Normalize the entry's composition and energy.
 
