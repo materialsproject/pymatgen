@@ -457,7 +457,7 @@ class KumagaiCorrection(DefectCorrection):
 
     def perform_es_corr(self, gamma, prec, lattice, charge):
         """
-        Peform Electrostatic Kumagai Correction
+        Peform Electrostatic Kumagai Correction.
         Args:
             gamma (float): Ewald parameter.
             prec (int): Precision parameter for reciprical/real lattice vector generation.
@@ -582,7 +582,7 @@ class KumagaiCorrection(DefectCorrection):
 
     def get_real_summation(self, gamma, real_vectors):
         """
-        Return real summation term from list of real-space vectors
+        Return real summation term from list of real-space vectors.
         """
         real_part = 0
         invepsilon = np.linalg.inv(self.dielectric)
@@ -600,7 +600,7 @@ class KumagaiCorrection(DefectCorrection):
 
     def get_recip_summation(self, gamma, recip_vectors, volume, r=[0., 0., 0.]):
         """
-        Return Reciprocal summation term from list of reciprocal-space vectors
+        Return Reciprocal summation term from list of reciprocal-space vectors.
         """
         recip_part = 0
 
@@ -640,7 +640,7 @@ class KumagaiCorrection(DefectCorrection):
     def plot(self, title=None, saved=False):
         """
         Plots the AtomicSite electrostatic potential against the long-range and short-range models
-        from Kumagai and Oba (doi: 10.1103/PhysRevB.89.195205)
+        from Kumagai and Oba (doi: 10.1103/PhysRevB.89.195205).
         """
         if "pot_plot_data" not in self.metadata.keys():
             raise ValueError("Cannot plot potential alignment before running correction!")
