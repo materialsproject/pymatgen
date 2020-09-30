@@ -15,7 +15,6 @@ import copy
 import numpy as np
 from monty.json import jsanitize
 from monty.dev import requires
-import itertools as it
 import matplotlib.lines as mlines
 import scipy.interpolate as scint
 
