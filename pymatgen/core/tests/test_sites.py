@@ -9,7 +9,7 @@ import timeit
 
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.electronic_structure.core import Magmom
-from pymatgen.core.periodic_table import Element, Specie
+from pymatgen.core.periodic_table import Element, Species
 from pymatgen.core.sites import Site, PeriodicSite
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.composition import Composition
@@ -93,7 +93,7 @@ class PeriodicSiteTest(PymatgenTest):
         self.assertEqual(self.site2.species,
                          Composition({Element('Si'): 0.5}),
                          "Inconsistent site created!")
-        self.propertied_site = PeriodicSite(Specie("Fe", 2),
+        self.propertied_site = PeriodicSite(Species("Fe", 2),
                                             [0.25, 0.35, 0.45],
                                             self.lattice,
                                             properties={'magmom': 5.1,

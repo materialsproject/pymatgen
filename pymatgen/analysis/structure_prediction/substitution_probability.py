@@ -18,7 +18,7 @@ from operator import mul
 
 from monty.design_patterns import cached_class
 
-from pymatgen.core.periodic_table import Specie, get_el_sp
+from pymatgen.core.periodic_table import Species, get_el_sp
 
 __author__ = "Will Richards, Geoffroy Hautier"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -64,8 +64,8 @@ class SubstitutionProbability:
         self.species = set()
         for row in self._lambda_table:
             if 'D1+' not in row:
-                s1 = Specie.from_string(row[0])
-                s2 = Specie.from_string(row[1])
+                s1 = Species.from_string(row[0])
+                s2 = Species.from_string(row[1])
                 self.species.add(s1)
                 self.species.add(s2)
                 self._l[frozenset([s1, s2])] = float(row[2])
@@ -95,7 +95,7 @@ class SubstitutionProbability:
     def get_px(self, sp):
         """
         Args:
-            sp (Specie/Element): Species
+            sp (Species/Element): Species
 
         Returns:
             Probability

@@ -18,7 +18,7 @@ import numpy as np
 from monty.dev import deprecated
 
 from pymatgen.analysis.local_env import JmolNN
-from pymatgen.core.periodic_table import Specie
+from pymatgen.core.periodic_table import Species
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 __author__ = "Gowoon Cheon"
@@ -54,7 +54,7 @@ def find_connected_atoms(struct, tolerance=0.45, ldict=JmolNN().el_radius):
     # in case of charged species
     for i, item in enumerate(species):
         if item not in ldict.keys():
-            species[i] = str(Specie.from_string(item).element)
+            species[i] = str(Species.from_string(item).element)
     latmat = struct.lattice.matrix
     connected_list = []
 

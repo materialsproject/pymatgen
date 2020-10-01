@@ -20,7 +20,7 @@ from monty.dev import requires
 from monty.fractions import lcm
 from monty.json import MSONable
 
-from pymatgen.core.periodic_table import Element, Specie, get_el_sp, DummySpecie
+from pymatgen.core.periodic_table import Element, Species, get_el_sp, DummySpecies
 from pymatgen.io.ase import AseAtomsAdaptor
 from pymatgen.transformations.transformation_abc import AbstractTransformation
 from pymatgen.transformations.standard_transformations import (
@@ -612,7 +612,7 @@ class MagOrderParameterConstraint(MSONable):
         :param order_parameter (float): any number from 0.0 to 1.0,
             typically 0.5 (antiferromagnetic) or 1.0 (ferromagnetic)
         :param species_constraint (list): str or list of strings
-            of Specie symbols that the constraint should apply to
+            of Species symbols that the constraint should apply to
         :param site_constraint_name (str): name of the site property
             that the constraint should apply to, e.g. "coordination_no"
         :param site_constraints (list): list of values of the site
@@ -769,7 +769,7 @@ class MagOrderingTransformation(AbstractTransformation):
             retrieve the original site after enumeration is
             performed (this approach is preferred over a simple
             mapping since multiple species may have the same
-            DummySpecie, depending on the constraints specified).
+            DummySpecies, depending on the constraints specified).
             This approach can also preserve site properties even after
             enumeration.
         """
@@ -778,7 +778,7 @@ class MagOrderingTransformation(AbstractTransformation):
 
         def generate_dummy_specie():
             """
-            Generator which returns DummySpecie symbols Mma, Mmb, etc.
+            Generator which returns DummySpecies symbols Mma, Mmb, etc.
             """
             subscript_length = 1
             while True:
@@ -794,10 +794,10 @@ class MagOrderingTransformation(AbstractTransformation):
         ]
         dummy_species = [
             {
-                DummySpecie(
+                DummySpecies(
                     symbol, properties={"spin": Spin.up}
                 ): constraint.order_parameter,
-                DummySpecie(symbol, properties={"spin": Spin.down}): 1 - constraint.order_parameter,
+                DummySpecies(symbol, properties={"spin": Spin.down}): 1 - constraint.order_parameter,
             }
             for symbol, constraint in zip(dummy_species_symbols, order_parameters)
         ]
@@ -835,7 +835,7 @@ class MagOrderingTransformation(AbstractTransformation):
         sites_to_remove = []
         logger.debug("Dummy species structure:\n{}".format(str(structure)))
         for idx, site in enumerate(structure):
-            if isinstance(site.specie, DummySpecie):
+            if isinstance(site.specie, DummySpecies):
                 sites_to_remove.append(idx)
                 spin = site.specie._properties.get("spin", None)
                 neighbors = structure.get_neighbors(
@@ -850,7 +850,7 @@ class MagOrderingTransformation(AbstractTransformation):
                     )
                 orig_site_idx = neighbors[0][2]
                 orig_specie = structure[orig_site_idx].specie
-                new_specie = Specie(
+                new_specie = Species(
                     orig_specie.symbol,
                     getattr(orig_specie, "oxi_state", None),
                     properties={"spin": spin},
@@ -884,7 +884,7 @@ class MagOrderingTransformation(AbstractTransformation):
                     new_properties.update(
                         {"spin": sign * self.mag_species_spin.get(sp, 0)}
                     )
-                    new_specie = Specie(
+                    new_specie = Species(
                         site.specie.symbol,
                         getattr(site.specie, "oxi_state", None),
                         new_properties,
@@ -1012,13 +1012,13 @@ def _find_codopant(target, oxidation_state, allowed_elements=None):
     "oxidation state" and (ii) is closest in ionic radius to the target specie
 
     Args:
-        target: (Specie) provides target ionic radius.
+        target: (Species) provides target ionic radius.
         oxidation_state: (float) codopant oxidation state.
         allowed_elements: ([str]) List of allowed elements. If None,
             all elements are tried.
 
     Returns:
-        (Specie) with oxidation_state that has ionic radius closest to
+        (Species) with oxidation_state that has ionic radius closest to
         target.
     """
     ref_radius = target.ionic_radius
@@ -1028,7 +1028,7 @@ def _find_codopant(target, oxidation_state, allowed_elements=None):
         try:
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
-                sp = Specie(sym, oxidation_state)
+                sp = Species(sym, oxidation_state)
                 r = sp.ionic_radius
                 if r is not None:
                     candidates.append((r, sp))
@@ -1055,7 +1055,7 @@ class DopingTransformation(AbstractTransformation):
     ):
         r"""
         Args:
-            dopant (Specie-like): E.g., Al3+. Must have oxidation state.
+            dopant (Species-like): E.g., Al3+. Must have oxidation state.
             ionic_radius_tol (float): E.g., Fractional allowable ionic radii
                 mismatch for dopant to fit into a site. Default of inf means
                 that any dopant with the right oxidation state is allowed.

@@ -11,7 +11,7 @@ import numpy as np
 from numbers import Number
 from pathlib import Path
 from pymatgen.entries.computed_entries import ComputedEntry
-from pymatgen.core.periodic_table import Element, DummySpecie
+from pymatgen.core.periodic_table import Element, DummySpecies
 from pymatgen.core.composition import Composition
 from pymatgen.entries.entry_tools import EntrySet
 from pymatgen.analysis.phase_diagram import (
@@ -96,7 +96,7 @@ class TransformedPDEntryTest(unittest.TestCase):
         comp = Composition("LiFeO2")
         entry = PDEntry(comp, 53)
         self.transformed_entry = TransformedPDEntry(
-            {DummySpecie("Xa"): 1, DummySpecie("Xb"): 1}, entry
+            {DummySpecies("Xa"): 1, DummySpecies("Xb"): 1}, entry
         )
 
     def test_get_energy(self):
@@ -111,7 +111,7 @@ class TransformedPDEntryTest(unittest.TestCase):
 
     def test_get_composition(self):
         comp = self.transformed_entry.composition
-        expected_comp = Composition({DummySpecie("Xa"): 1, DummySpecie("Xb"): 1})
+        expected_comp = Composition({DummySpecies("Xa"): 1, DummySpecies("Xb"): 1})
         self.assertEqual(comp, expected_comp, "Wrong composition!")
 
     def test_is_element(self):

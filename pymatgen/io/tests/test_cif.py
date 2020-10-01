@@ -10,7 +10,7 @@ import numpy as np
 
 from pymatgen.io.cif import CifParser, CifWriter, CifBlock
 from pymatgen.io.vasp.inputs import Poscar
-from pymatgen import Element, Specie, Lattice, Structure, Composition, DummySpecie
+from pymatgen import Element, Species, Lattice, Structure, Composition, DummySpecies
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.electronic_structure.core import Magmom
@@ -660,9 +660,9 @@ loop_
             self.assertEqual(l1.strip(), l2.strip())
 
     def test_specie_cifwriter(self):
-        si4 = Specie("Si", 4)
-        si3 = Specie("Si", 3)
-        n = DummySpecie("X", -3)
+        si4 = Species("Si", 4)
+        si3 = Species("Si", 3)
+        n = DummySpecies("X", -3)
         coords = list()
         coords.append(np.array([0.5, 0.5, 0.5]))
         coords.append(np.array([0.75, 0.5, 0.75]))

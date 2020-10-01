@@ -23,7 +23,7 @@ from scipy.optimize import minimize
 import plotly.graph_objs as go
 
 from pymatgen.core.composition import Composition
-from pymatgen.core.periodic_table import Element, DummySpecie, get_el_sp
+from pymatgen.core.periodic_table import Element, DummySpecies, get_el_sp
 from pymatgen.util.coord import Simplex, in_coord_list
 from pymatgen.util.string import latexify
 from pymatgen.util.plotting import pretty_plot
@@ -1305,7 +1305,7 @@ class CompoundPhaseDiagram(PhaseDiagram):
         # Map terminal compositions to unique dummy species.
         sp_mapping = collections.OrderedDict()
         for i, comp in enumerate(fractional_comp):
-            sp_mapping[comp] = DummySpecie("X" + chr(102 + i))
+            sp_mapping[comp] = DummySpecies("X" + chr(102 + i))
 
         for entry in entries:
             try:

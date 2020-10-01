@@ -31,7 +31,7 @@ from pymatgen.analysis.graphs import MoleculeGraph, StructureGraph
 from pymatgen.analysis.local_env import JmolNN
 from pymatgen.analysis.structure_analyzer import get_max_bond_lengths
 from pymatgen.core.lattice import get_integer_index
-from pymatgen.core.periodic_table import Specie
+from pymatgen.core.periodic_table import Species
 from pymatgen.core.structure import Structure, Molecule
 from pymatgen.core.surface import SlabGenerator
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -421,7 +421,7 @@ def find_connected_atoms(struct, tolerance=0.45, ldict=JmolNN().el_radius):
     # in case of charged species
     for i, item in enumerate(species):
         if item not in ldict.keys():
-            species[i] = str(Specie.from_string(item).element)
+            species[i] = str(Species.from_string(item).element)
     latmat = struct.lattice.matrix
     connected_matrix = np.zeros((n_atoms, n_atoms))
 

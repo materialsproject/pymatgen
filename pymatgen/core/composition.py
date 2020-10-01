@@ -20,7 +20,7 @@ from monty.serialization import loadfn
 from monty.fractions import gcd, gcd_float
 from monty.json import MSONable
 
-from pymatgen.core.periodic_table import get_el_sp, Element, Specie, DummySpecie
+from pymatgen.core.periodic_table import get_el_sp, Element, Species, DummySpecies
 from pymatgen.util.string import formula_double_format
 from pymatgen.core.units import Mass
 
@@ -40,10 +40,10 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
     type. Composition is written to be immutable and hashable,
     unlike a standard Python dict.
 
-    Note that the key can be either an Element or a Specie. Elements and Specie
-    are treated differently. i.e., a Fe2+ is not the same as a Fe3+ Specie and
+    Note that the key can be either an Element or a Species. Elements and Species
+    are treated differently. i.e., a Fe2+ is not the same as a Fe3+ Species and
     would be put in separate keys. This differentiation is deliberate to
-    support using Composition to determine the fraction of a particular Specie.
+    support using Composition to determine the fraction of a particular Species.
 
     Works almost completely like a standard python dictionary, except that
     __getitem__ is overridden to return 0 when an element is not found.
@@ -95,7 +95,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
         Args:
             Any form supported by the Python built-in dict() function.
 
-            1. A dict of either {Element/Specie: amount},
+            1. A dict of either {Element/Species: amount},
 
                {string symbol:amount}, or {atomic number:amount} or any mixture
                of these. E.g., {Element("Li"):2 ,Element("O"):1},
@@ -490,10 +490,10 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
 
     def get_atomic_fraction(self, el):
         """
-        Calculate atomic fraction of an Element or Specie.
+        Calculate atomic fraction of an Element or Species.
 
         Args:
-            el (Element/Specie): Element or Specie to get fraction for.
+            el (Element/Species): Element or Species to get fraction for.
 
         Returns:
             Atomic fraction for element el in Composition
@@ -502,10 +502,10 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
 
     def get_wt_fraction(self, el):
         """
-        Calculate weight fraction of an Element or Specie.
+        Calculate weight fraction of an Element or Species.
 
         Args:
-            el (Element/Specie): Element or Specie to get fraction for.
+            el (Element/Species): Element or Species to get fraction for.
 
         Returns:
             Weight fraction for element el in Composition
@@ -620,7 +620,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
         Returns True if Composition contains valid elements or species and
         False if the Composition contains any dummy species.
         """
-        return not any([isinstance(el, DummySpecie) for el in self.elements])
+        return not any([isinstance(el, DummySpecies) for el in self.elements])
 
     def __repr__(self):
         return "Comp: " + self.formula
@@ -765,12 +765,12 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
 
         # Special case: No charged compound is possible
         if not oxidation_states:
-            return Composition(dict((Specie(e, 0), f) for e, f in self.items()))
+            return Composition(dict((Species(e, 0), f) for e, f in self.items()))
 
         # Generate the species
         species = []
         for el, charges in oxidation_states[0].items():
-            species.extend([Specie(el, c) for c in charges])
+            species.extend([Species(el, c) for c in charges])
 
         # Return the new object
         return Composition(collections.Counter(species))
@@ -853,7 +853,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
                                       dirname(os.path.abspath(__file__)))
             all_data = loadfn(os.path.join(module_dir, "..",
                                            "analysis", "icsd_bv.yaml"))
-            Composition.oxi_prob = {Specie.from_string(sp): data
+            Composition.oxi_prob = {Species.from_string(sp): data
                                     for sp, data in
                                     all_data["occurrence"].items()}
         oxi_states_override = oxi_states_override or {}
@@ -892,7 +892,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable):
                     el_sums[idx].append(oxid_sum)
 
                 # Determine how probable is this combo?
-                score = sum([Composition.oxi_prob.get(Specie(el, o), 0) for
+                score = sum([Composition.oxi_prob.get(Species(el, o), 0) for
                              o in oxid_combo])
 
                 # If it is the most probable combo for a certain sum,
