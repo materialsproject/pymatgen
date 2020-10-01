@@ -300,7 +300,7 @@ class PhaseDiagramTest(unittest.TestCase):
         self.assertEqual(
             self.pd.get_quasi_e_to_hull(duplicate_entry), self.pd.get_quasi_e_to_hull(stable_entry),
             "Novel duplicates of stable entries should have same decomposition energy!")
-        
+
         self.assertEqual(
             self.pd.get_quasi_e_to_hull(scaled_dup_entry), self.pd.get_quasi_e_to_hull(stable_entry),
             "Novel scaled duplicates of stable entries should have same decomposition energy!")

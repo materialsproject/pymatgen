@@ -451,7 +451,7 @@ class PhaseDiagram(MSONable):
     @property
     def unstable_entries(self):
         """
-        Returns a list of Entries that are unstable in the phase diagram. 
+        Returns a list of Entries that are unstable in the phase diagram.
         Includes positive formation energy entries.
         """
         # NOTE this uses hash equality and so duplicates of stable_entries will
@@ -467,7 +467,7 @@ class PhaseDiagram(MSONable):
 
     def get_stable_entries_normed(self, mode="formula_unit"):
         """
-        Returns a list of normalized stable entries in the phase diagram. 
+        Returns a list of normalized stable entries in the phase diagram.
         """
         return [e.normalize(mode, inplace=False) for e in self._stable_entries]
 

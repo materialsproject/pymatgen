@@ -3,18 +3,19 @@
 # Distributed under the terms of the MIT License.
 
 """
-Entries are containers for calculated information, which is used in 
-many analyses. This module contains entry related tools and implements 
-the base Entry class, which is the basic entity that can be used to 
-store calculated information. Other Entry classes such as ComputedEntry 
+Entries are containers for calculated information, which is used in
+many analyses. This module contains entry related tools and implements
+the base Entry class, which is the basic entity that can be used to
+store calculated information. Other Entry classes such as ComputedEntry
 and PDEntry inherit from this class.
 """
 
 import copy
-from pymatgen.core.composition import Composition
-from monty.json import MSONable
 from abc import ABCMeta, abstractmethod
 from typing import Optional
+from monty.json import MSONable
+
+from pymatgen.core.composition import Composition
 
 __author__ = "Shyue Ping Ong, Anubhav Jain, Ayush Gupta"
 __copyright__ = "Copyright 2020, The Materials Project"
@@ -27,9 +28,9 @@ __date__ = "Mar 03, 2020"
 
 class Entry(MSONable, metaclass=ABCMeta):
     """
-    A lightweight object containing the energy associated with 
-    a specific chemical composition. This base class is not 
-    intended to be instantiated directly. Note that classes 
+    A lightweight object containing the energy associated with
+    a specific chemical composition. This base class is not
+    intended to be instantiated directly. Note that classes
     which inherit from Entry must define a .energy property.
 
     """
