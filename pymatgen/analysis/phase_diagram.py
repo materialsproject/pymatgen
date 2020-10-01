@@ -465,10 +465,9 @@ class PhaseDiagram(MSONable):
         """
         return self._stable_entries
 
-    @property
-    def stable_entries_normed(self, mode="formula_unit"):
+    def get_stable_entries_normed(self, mode="formula_unit"):
         """
-        Returns a list of normalized stable entries in the phase diagram.
+        Returns a list of normalized stable entries in the phase diagram. 
         """
         return [e.normalize(mode, inplace=False) for e in self._stable_entries]
 
@@ -663,7 +662,7 @@ class PhaseDiagram(MSONable):
             Equilibrium reaction energy of entry. Stable entries should have
             equilibrium reaction energy <= 0. The energy is given per atom.
         """
-        if entry.normalize(inplace=False) not in self.stable_entries_normed:
+        if entry.normalize(inplace=False) not in self.get_stable_entries_normed():
             raise ValueError(
                 "{} is unstable, the equilibrium reaction energy is"
                 "available only for stable entries.".format(entry)
@@ -725,7 +724,7 @@ class PhaseDiagram(MSONable):
             fractional composition. The energy is given per atom.
         """
         # For unstable or novel materials use simplex approach
-        if entry.normalize(inplace=False) not in self.stable_entries_normed:
+        if entry.normalize(inplace=False) not in self.get_stable_entries_normed():
             return self.get_decomp_and_e_above_hull(entry, allow_negative=True)
 
         if stable_only:
@@ -797,7 +796,7 @@ class PhaseDiagram(MSONable):
             unstable entries should have energies > 0.
         """
         # Handle unstable and novel materials
-        if entry.normalize(inplace=False) not in self.stable_entries_normed:
+        if entry.normalize(inplace=False) not in self.get_stable_entries_normed():
             return self.get_decomp_and_e_above_hull(entry, allow_negative=True)[1]
 
         # Handle stable elemental materials

@@ -264,7 +264,7 @@ class PhaseDiagramTest(unittest.TestCase):
     def test_get_quasi_e_to_hull(self):
         for entry in self.pd.unstable_entries:
             # catch duplicated stable entries
-            if entry.normalize(inplace=False) in self.pd.stable_entries_normed:
+            if entry.normalize(inplace=False) in self.pd.get_stable_entries_normed():
                 self.assertLessEqual(
                     self.pd.get_quasi_e_to_hull(entry), 0,
                     "Duplicated stable entries should have negative decomposition energy!")
