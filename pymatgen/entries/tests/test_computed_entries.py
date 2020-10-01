@@ -160,14 +160,14 @@ class ComputedEntryTest(unittest.TestCase):
         ealist = [ManualEnergyAdjustment(5),
                   ConstantEnergyAdjustment(5),
                   CompositionEnergyAdjustment(1, 5, uncertainty_per_atom=0, name="Na"),
-                  TemperatureEnergyAdjustment(0.005, 100, 10, uncertainty_per_degK=0)
+                  TemperatureEnergyAdjustment(0.005, 100, 10, uncertainty_per_deg=0)
                   ]
         entry = ComputedEntry("Na5Cl5", 6.9, energy_adjustments=ealist)
 
         normed_entry = entry.normalize(inplace=False)
         entry.normalize()
 
-        self.assertEqual(normed_entry, entry.as_dict())
+        self.assertEqual(normed_entry.as_dict(), entry.as_dict())
 
     def test_to_from_dict(self):
         d = self.entry.as_dict()
