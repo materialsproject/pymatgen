@@ -10,11 +10,12 @@ structure codes. For example, ComputedEntries can be used as inputs for phase
 diagram analysis.
 """
 
-import abc
-from itertools import combinations
-import json
 import os
-from typing import List
+import abc
+import json
+import copy
+from itertools import combinations
+from typing import List, Optional
 
 import numpy as np
 from scipy.interpolate import interp1d
@@ -400,7 +401,7 @@ class ComputedEntry(Entry):
         """
         return self.correction_uncertainty / self.composition.num_atoms
 
-    def normalize(self, mode: str = "formula_unit") -> None:
+    def normalize(self, mode: str = "formula_unit", inplace: bool = True) -> Optional["ComputedEntry"]:
         """
         Normalize the entry's composition and energy.
 
@@ -408,12 +409,23 @@ class ComputedEntry(Entry):
             mode: "formula_unit" is the default, which normalizes to
                 composition.reduced_formula. The other option is "atom", which
                 normalizes such that the composition amounts sum to 1.
+            inplace: "True" is the default which normalises the current Entry object.
+                Setting inplace to "False" returns a normalized copy of the Entry object.
         """
-        factor = self._normalization_factor(mode)
-        self.uncorrected_energy /= factor
-        for ea in self.energy_adjustments:
-            ea._normalize(factor)
-        super().normalize(mode)
+        if inplace:
+            factor = self._normalization_factor(mode)
+            self.uncorrected_energy /= factor
+            for ea in self.energy_adjustments:
+                ea._normalize(factor)
+            super().normalize(mode, inplace)
+            return None
+        else:
+            entry = copy.deepcopy(self)
+            factor = entry._normalization_factor(mode)
+            entry.uncorrected_energy /= factor
+            for ea in entry.energy_adjustments:
+                ea._normalize(factor)
+            return super(ComputedEntry, entry).normalize(mode, inplace)
 
     def __repr__(self):
         n_atoms = self.composition.num_atoms

@@ -13,7 +13,6 @@ import math
 import logging
 import os
 import json
-import copy
 from functools import lru_cache
 from monty.json import MSONable, MontyDecoder
 
@@ -462,16 +461,16 @@ class PhaseDiagram(MSONable):
     @property
     def stable_entries(self):
         """
-        Returns the set stable entries in the phase diagram.
+        Returns the set of stable entries in the phase diagram.
         """
         return self._stable_entries
 
     @property
-    def stable_entries_normed(self):
+    def stable_entries_normed(self, mode="formula_unit"):
         """
         Returns a list of normalized stable entries in the phase diagram.
         """
-        return [e.normalize(inplace=False) for e in self._stable_entries]
+        return [e.normalize(mode, inplace=False) for e in self._stable_entries]
 
     def get_form_energy(self, entry):
         """
@@ -665,10 +664,9 @@ class PhaseDiagram(MSONable):
             equilibrium reaction energy <= 0. The energy is given per atom.
         """
         if entry.normalize(inplace=False) not in self.stable_entries_normed:
-            # NOTE scaled duplicates of stable_entries will trigger this error possible
-            # solution would be to normalize as in get_decomp_and_quasi_e_to_hull.
             raise ValueError(
-                "Equilibrium reaction energy is available only for stable entries."
+                "{} is unstable, the equilibrium reaction energy is"
+                "available only for stable entries.".format(entry)
             )
 
         if entry.is_element:
@@ -682,7 +680,7 @@ class PhaseDiagram(MSONable):
         self,
         entry,
         space_limit=200,
-        stable_only=True,
+        stable_only=False,
         tol=1e-10,
         maxiter=1000
     ):
@@ -726,7 +724,7 @@ class PhaseDiagram(MSONable):
             for all entries in the decomp reaction where amount is the amount of the
             fractional composition. The energy is given per atom.
         """
-        # For unstable materials use simplex approach
+        # For unstable or novel materials use simplex approach
         if entry.normalize(inplace=False) not in self.stable_entries_normed:
             return self.get_decomp_and_e_above_hull(entry, allow_negative=True)
 
@@ -736,8 +734,10 @@ class PhaseDiagram(MSONable):
             compare_entries = self.qhull_entries
 
         # take entries with negative formation enthalpies as competing entries
-        competing_entries = [c for c in compare_entries if c.normalize(inplace=False) != entry.normalize(inplace=False)
-                             if set(c.composition.elements).issubset(entry.composition.elements)]
+        competing_entries = [
+            c for c in compare_entries if c.normalize(inplace=False) != entry.normalize(inplace=False)
+            if set(c.composition.elements).issubset(entry.composition.elements)
+        ]
 
         # NOTE SLSQP optimizer doesn't scale well for > 300 competing entries. As a
         # result in phase diagrams where we have too many competing entries we can
@@ -796,7 +796,7 @@ class PhaseDiagram(MSONable):
             energies <= 0, Stable elemental entries should have energies = 0 and
             unstable entries should have energies > 0.
         """
-        # Handle unstable materials
+        # Handle unstable and novel materials
         if entry.normalize(inplace=False) not in self.stable_entries_normed:
             return self.get_decomp_and_e_above_hull(entry, allow_negative=True)[1]
 

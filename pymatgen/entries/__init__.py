@@ -14,6 +14,7 @@ import copy
 from pymatgen.core.composition import Composition
 from monty.json import MSONable
 from abc import ABCMeta, abstractmethod
+from typing import Optional
 
 __author__ = "Shyue Ping Ong, Anubhav Jain, Ayush Gupta"
 __copyright__ = "Copyright 2020, The Materials Project"
@@ -73,7 +74,7 @@ class Entry(MSONable, metaclass=ABCMeta):
     def __str__(self):
         return self.__repr__()
 
-    def normalize(self, mode: str = "formula_unit", inplace=True) -> None:
+    def normalize(self, mode: str = "formula_unit", inplace: bool = True) -> Optional["Entry"]:
         """
         Normalize the entry's composition and energy.
 
@@ -81,16 +82,17 @@ class Entry(MSONable, metaclass=ABCMeta):
             mode: "formula_unit" is the default, which normalizes to
                 composition.reduced_formula. The other option is "atom", which
                 normalizes such that the composition amounts sum to 1.
-            inplace: "True" is default which normalises the current Entry object.
-                Setting inplace to "False" returns a normalized copy of the 
-                Entry object.
+            inplace: "True" is the default which normalises the current Entry object.
+                Setting inplace to "False" returns a normalized copy of the Entry object.
         """
-        factor = self._normalization_factor(mode)
         if inplace:
+            factor = self._normalization_factor(mode)
             self.composition /= factor
             self._energy /= factor
+            return None
         else:
             entry = copy.deepcopy(self)
+            factor = entry._normalization_factor(mode)
             entry.composition /= factor
             entry._energy /= factor
             return entry
