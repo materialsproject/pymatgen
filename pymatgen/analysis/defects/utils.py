@@ -461,6 +461,7 @@ class StructureMotifInterstitial:
                                                       len(include),
                                                       len(include) - len(
                                                           discard)))
+
         for i in include:
             if i not in discard:
                 self._defect_sites.append(
@@ -821,6 +822,7 @@ class TopographyAnalyzer:
             all_dist = [dist[i, j] for i in range(n) for j in range(i + 1, n)]
             return min(all_dist)
 
+        # NOTE self.vertices is not defined should this be vnodes?
         voro = [s[1] for s in self.vertices]
         print("Min dist between voronoi vertices centers = %.4f" % get_min_dist(
             voro))
@@ -1388,7 +1390,7 @@ def generate_R_and_G_vecs(gamma, prec_set, lattice, epsilon):
     lattice: Lattice object of supercell in question
 
     """
-    if type(prec_set) != list:
+    if not isinstance(prec_set, list):
         prec_set = [prec_set]
 
     [a1, a2, a3] = lattice.matrix  # Angstrom
