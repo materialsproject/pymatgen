@@ -22,43 +22,42 @@ __maintainer__ = "David Waroquiers"
 __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
 
-import time
-import logging
 import itertools
-from random import shuffle
+import logging
+import time
 from collections import OrderedDict
+from random import shuffle
 
 import numpy as np
 from numpy.linalg import norm
 from numpy.linalg import svd
-
+from pymatgen.analysis.bond_valence import BVAnalyzer
+from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import \
+    MultiWeightsChemenvStrategy
+from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import \
+    AllCoordinationGeometries
+from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import \
+    EXPLICIT_PERMUTATIONS
+from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import \
+    SEPARATION_PLANE
+from pymatgen.analysis.chemenv.coordination_environments.structure_environments import \
+    ChemicalEnvironments
+from pymatgen.analysis.chemenv.coordination_environments.structure_environments import \
+    LightStructureEnvironments
+from pymatgen.analysis.chemenv.coordination_environments.structure_environments import \
+    StructureEnvironments
+from pymatgen.analysis.chemenv.coordination_environments.voronoi import \
+    DetailedVoronoiContainer
+from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import Plane
+from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import \
+    collinear, separation_in_list
+from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import \
+    sort_separation, sort_separation_tuple
+from pymatgen.analysis.chemenv.utils.defs_utils import chemenv_citations
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.core.periodic_table import Species
-from pymatgen.analysis.bond_valence import BVAnalyzer
-from pymatgen.analysis.chemenv.utils.defs_utils import chemenv_citations
-from pymatgen.analysis.chemenv.coordination_environments.voronoi import \
-    DetailedVoronoiContainer
-from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import \
-    MultiWeightsChemenvStrategy
-from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import (
-    AllCoordinationGeometries,
-    EXPLICIT_PERMUTATIONS,
-    SEPARATION_PLANE,
-)
-from pymatgen.analysis.chemenv.coordination_environments.structure_environments import (
-    ChemicalEnvironments,
-    LightStructureEnvironments,
-    StructureEnvironments,
-)
-from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import (
-    Plane,
-    collinear,
-    separation_in_list,
-    sort_separation,
-    sort_separation_tuple,
-)
 
 debug = False
 DIST_TOLERANCES = [0.02, 0.05, 0.1, 0.2, 0.3]
@@ -873,7 +872,7 @@ class LocalGeometryFinder:
         """
         if symbol_type == 'IUPAC':
             cg = self.allcg.get_geometry_from_IUPAC_symbol(symbol)
-        elif symbol_type in ('MP', 'mp_symbol'):
+        elif symbol_type == 'MP' or symbol_type == 'mp_symbol':
             cg = self.allcg.get_geometry_from_mp_symbol(symbol)
         elif symbol_type == 'CoordinationGeometry':
             cg = symbol

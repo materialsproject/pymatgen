@@ -19,20 +19,17 @@ __maintainer__ = "David Waroquiers"
 __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
 
-from collections import OrderedDict
-
 import numpy as np
-
-from monty.json import MSONable, MontyDecoder
-from monty.json import jsanitize
-
+from collections import OrderedDict
 from pymatgen.core.sites import PeriodicSite
-from pymatgen.core.structure import Structure
+from monty.json import MSONable, MontyDecoder
 from pymatgen.core.periodic_table import Element, Species
-from pymatgen.analysis.chemenv.utils.chemenv_errors import ChemenvError
-from pymatgen.analysis.chemenv.utils.defs_utils import AdditionalConditions
+from pymatgen.core.structure import Structure
+from monty.json import jsanitize
 from pymatgen.analysis.chemenv.coordination_environments.voronoi import DetailedVoronoiContainer
+from pymatgen.analysis.chemenv.utils.chemenv_errors import ChemenvError
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
+from pymatgen.analysis.chemenv.utils.defs_utils import AdditionalConditions
 
 allcg = AllCoordinationGeometries()
 symbol_cn_mapping = allcg.get_symbol_cn_mapping()
@@ -672,7 +669,6 @@ class StructureEnvironments(MSONable):
             from matplotlib.gridspec import GridSpec
         except ImportError:
             print('Plotting Chemical Environments requires matplotlib ... exiting "plot" function')
-            # NOTE pylint issue due to mismatched return statements from function
             return
 
         if symmetry_measure_type is None:
@@ -822,7 +818,6 @@ class StructureEnvironments(MSONable):
             from matplotlib.patches import Polygon
         except ImportError:
             print('Plotting Chemical Environments requires matplotlib ... exiting "plot" function')
-            # NOTE pylint issue due to mismatched return statements from function
             return
 
         # Initializes the figure
@@ -1812,7 +1807,7 @@ class LightStructureEnvironments(MSONable):
         other_sites = [ss['site'] for ss in other._all_nbs_sites]
         this_indices = [ss['index'] for ss in self._all_nbs_sites]
         other_indices = [ss['index'] for ss in other._all_nbs_sites]
-        return is_equal and this_sites == other_sites and this_indices == other_indices
+        return (is_equal and this_sites == other_sites and this_indices == other_indices)
 
     def __ne__(self, other):
         return not self == other

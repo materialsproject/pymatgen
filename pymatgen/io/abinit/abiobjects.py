@@ -5,23 +5,21 @@
 Low-level objects providing an abstraction for the objects involved in the calculation.
 """
 
-import abc
 import collections
-from enum import Enum
-from pprint import pformat
-
+import abc
 import numpy as np
+import pymatgen.core.units as units
 
+from pprint import pformat
 from monty.design_patterns import singleton
 from monty.collections import AttrDict
+from enum import Enum
 from monty.json import MSONable
-from monty.json import MontyEncoder, MontyDecoder
-
-import pymatgen.core.units as units
 from pymatgen.core.units import ArrayWithUnit
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.util.serialization import pmg_serialize
+from monty.json import MontyEncoder, MontyDecoder
 
 
 def lattice_from_abivars(cls=None, *args, **kwargs):
@@ -154,7 +152,7 @@ def structure_from_abivars(cls=None, *args, **kwargs):
         typat = [typat]
 
     if len(typat) != len(coords):
-        raise ValueError("len(typat) != len(coords):\ntypat: {}\ncoords: {}".format(typat, coords))
+        raise ValueError("len(typat) != len(coords):\ntypat: %s\ncoords: %s" % (typat, coords))
 
     # Note conversion to int and Fortran --> C indexing
     typat = np.array(typat, dtype=np.int)
@@ -169,12 +167,10 @@ def structure_to_abivars(structure, **kwargs):
     Receives a structure and returns a dictionary with the ABINIT variables.
     """
     if not structure.is_ordered:
-        raise ValueError(
-            "Received disordered structure with partial occupancies that cannot be "
-            "converted into an Abinit input. Please use OrderDisorderedStructureTransformation "
-            "or EnumerateStructureTransformation to build an appropriate supercell from partial "
-            "occupancies or alternatively use the Virtual Crystal Approximation."
-        )
+        raise ValueError("""\
+Received disordered structure with partial occupancies that cannot be converted into an Abinit input
+Please use OrderDisorderedStructureTransformation or EnumerateStructureTransformation
+to build an appropriate supercell from partial occupancies or alternatively use the Virtual Crystal Approximation.""")
 
     types_of_specie = structure.types_of_species
     natom = structure.num_sites
@@ -227,7 +223,7 @@ def structure_to_abivars(structure, **kwargs):
             angdeg=angdeg,
         )
     else:
-        raise ValueError("Wrong value for geomode: {}".format(geomode))
+        raise ValueError("Wrong value for geomode: %s" % geomode)
 
     return d
 
@@ -326,20 +322,10 @@ class SpinMode(collections.namedtuple('SpinMode', "mode nsppol nspinor nspden"),
 
     @pmg_serialize
     def as_dict(self):
-        """
-        Returns:
-            MSONable dict
-        """
         return {k: getattr(self, k) for k in self._fields}
 
     @classmethod
     def from_dict(cls, d):
-        """
-        args:
-            d (dictionary)
-        Returns:
-            Instance of `SpinMode` class
-        """
         return cls(**{k: d[k] for k in d if k in cls._fields})
 
 
@@ -441,19 +427,11 @@ class Smearing(AbivarAble, MSONable):
 
     @pmg_serialize
     def as_dict(self):
-        """
-        Returns:
-            MSONable dict representation of Smearing"""
+        """json friendly dict representation of Smearing"""
         return {"occopt": self.occopt, "tsmear": self.tsmear}
 
     @staticmethod
     def from_dict(d):
-        """
-        args:
-            d (dictionary)
-        Returns:
-            Instance of `Smearing` class
-        """
         return Smearing(d["occopt"], d["tsmear"])
 
 
@@ -477,20 +455,10 @@ class ElectronsAlgorithm(dict, AbivarAble, MSONable):
 
     @pmg_serialize
     def as_dict(self):
-        """
-        Returns:
-            MSONable dict
-        """
         return self.copy()
 
     @classmethod
     def from_dict(cls, d):
-        """
-        args:
-            d (dictionary)
-        Returns:
-            Instance of `ElectronsAlgorithm` class
-        """
         d = d.copy()
         d.pop("@module", None)
         d.pop("@class", None)
@@ -532,31 +500,21 @@ class Electrons(AbivarAble, MSONable):
         return self.spin_mode.nspden
 
     def as_dict(self):
-        """
-        Returns:
-            MSONable dict
-        """
-        d = {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
-            "spin_mode": self.spin_mode.as_dict(),
-            "smearing": self.smearing.as_dict(),
-            "algorithm": self.algorithm.as_dict() if self.algorithm else None,
-            "nband": self.nband,
-            "fband": self.fband,
-            "charge": self.charge,
-            "comment": self.comment,
-        }
+        "json friendly dict representation"
+        d = {}
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        d["spin_mode"] = self.spin_mode.as_dict()
+        d["smearing"] = self.smearing.as_dict()
+        d["algorithm"] = self.algorithm.as_dict() if self.algorithm else None
+        d["nband"] = self.nband
+        d["fband"] = self.fband
+        d["charge"] = self.charge
+        d["comment"] = self.comment
         return d
 
     @classmethod
     def from_dict(cls, d):
-        """
-        args:
-            d (dictionary)
-        Returns:
-            Instance of `Electrons` class
-        """
         d = d.copy()
         d.pop("@module", None)
         d.pop("@class", None)
@@ -863,10 +821,6 @@ class KSampling(AbivarAble, MSONable):
         return self.abivars
 
     def as_dict(self):
-        """
-        Returns:
-            MSONable dict
-        """
         enc = MontyEncoder()
         return {'mode': self.mode.name, 'comment': self.comment,
                 'num_kpts': self.num_kpts,
@@ -877,12 +831,6 @@ class KSampling(AbivarAble, MSONable):
 
     @classmethod
     def from_dict(cls, d):
-        """
-        args:
-            d (dictionary)
-        Returns:
-            Instance of `KSampling` class
-        """
         d = d.copy()
         d.pop('@module', None)
         d.pop('@class', None)
@@ -997,10 +945,6 @@ class RelaxationMethod(AbivarAble, MSONable):
         return out_vars
 
     def as_dict(self):
-        """
-        Returns:
-            MSONable dict
-        """
         d = dict(self._default_vars)
         d['@module'] = self.__class__.__module__
         d['@class'] = self.__class__.__name__
@@ -1008,12 +952,6 @@ class RelaxationMethod(AbivarAble, MSONable):
 
     @classmethod
     def from_dict(cls, d):
-        """
-        args:
-            d (dictionary)
-        Returns:
-            Instance of `RelaxationMethod` class
-        """
         d = d.copy()
         d.pop('@module', None)
         d.pop('@class', None)
@@ -1104,22 +1042,12 @@ class PPModel(AbivarAble, MSONable):
         return cls(mode="noppmodel", plasmon_freq=None)
 
     def as_dict(self):
-        """
-        Returns:
-            MSONable dict
-        """
         return {"mode": self.mode.name, "plasmon_freq": self.plasmon_freq,
                 "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__}
 
     @staticmethod
     def from_dict(d):
-        """
-        args:
-            d (dictionary)
-        Returns:
-            Instance of `PPModel` class
-        """
         return PPModel(mode=d["mode"], plasmon_freq=d["plasmon_freq"])
 
 

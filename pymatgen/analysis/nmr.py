@@ -6,14 +6,15 @@
 A module for NMR analysis
 """
 
+from pymatgen.core.tensors import SquareTensor
 from collections import namedtuple
 
-import numpy as np
-
-from pymatgen.core.tensors import SquareTensor
 from pymatgen.core.units import FloatWithUnit
+
 from pymatgen.core.periodic_table import Species
 from pymatgen.core.structure import Site
+
+import numpy as np
 
 
 __author__ = "Shyam Dwaraknath"

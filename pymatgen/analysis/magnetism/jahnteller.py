@@ -6,20 +6,21 @@
 JahnTeller distortion analysis.
 """
 
-import os
-import warnings
-from typing import Dict, Tuple, Union, Optional, Any
 
+import os
 import numpy as np
 
 from pymatgen.core.structure import Structure
-from pymatgen.analysis.bond_valence import BVAnalyzer
-from pymatgen.core.periodic_table import Species, get_el_sp
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.analysis.local_env import (
     LocalStructOrderParams,
     get_neighbors_of_site_with_index,
 )
+from pymatgen.analysis.bond_valence import BVAnalyzer
+from pymatgen.core.periodic_table import Species, get_el_sp
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+import warnings
+
+from typing import Dict, Tuple, Union, Optional, Any
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
