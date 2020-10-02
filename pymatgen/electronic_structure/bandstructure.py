@@ -528,7 +528,7 @@ class BandStructure:
         """
         if self.is_metal():
             raise ValueError(
-                "get_direct_band_gap_dict should" "only be used with non-metals"
+                "get_direct_band_gap_dict should only be used with non-metals"
             )
         direct_gap_dict = {}
         for spin, v in self.bands.items():

@@ -304,7 +304,7 @@ class BSPlotter:
         """
         Method to add bands objects to the BSPlotter
         """
-        if type(bs) != list:
+        if isinstance(bs, list):
             bs = [bs]
 
         if self._check_bs_kpath(bs):
@@ -443,7 +443,7 @@ class BSPlotter:
         """
 
         if bs is None:
-            if type(self._bs) == list:
+            if isinstance(self._bs, list):
                 # if BSPlotter
                 bs = self._bs[0]
             else:
@@ -627,7 +627,7 @@ class BSPlotter:
         """
         plt = pretty_plot(12, 8)
 
-        if type(smooth) == bool:
+        if isinstance(smooth, bool):
             smooth = [smooth] * len(self._bs)
 
         handles = []
@@ -685,7 +685,7 @@ class BSPlotter:
                     )
                     # join all branches together
                     distances = np.hstack(distances)
-                    energies = np.hstack([e for e in energies])
+                    energies = np.hstack(energies)
                     # split only discontinuous branches
                     steps = self._get_branch_steps(bs.branches)[1:-1]
                     distances = np.split(distances, steps)
@@ -802,7 +802,7 @@ class BSPlotter:
             ticks should be set and 'label': a list of label for each of those
             ticks.
         """
-        bs = self._bs[0] if type(self._bs) == list else self._bs
+        bs = self._bs[0] if isinstance(self._bs, list) else self._bs
         ticks, distance = [], []
         for br in bs.branches:
             s, e = br["start_index"], br["end_index"]
@@ -936,20 +936,20 @@ class BSPlotter:
 
         # get labels and lines
         labels = {}
-        for k in self._bs.kpoints:
+        for k in self._bs[0].kpoints:
             if k.label:
                 labels[k.label] = k.frac_coords
 
         lines = []
-        for b in self._bs.branches:
+        for b in self._bs[0].branches:
             lines.append(
                 [
-                    self._bs.kpoints[b["start_index"]].frac_coords,
-                    self._bs.kpoints[b["end_index"]].frac_coords,
+                    self._bs[0].kpoints[b["start_index"]].frac_coords,
+                    self._bs[0].kpoints[b["end_index"]].frac_coords,
                 ]
             )
 
-        plot_brillouin_zone(self._bs.lattice_rec, lines=lines, labels=labels)
+        plot_brillouin_zone(self._bs[0].lattice_rec, lines=lines, labels=labels)
 
 
 class BSPlotterProjected(BSPlotter):
@@ -963,7 +963,7 @@ class BSPlotterProjected(BSPlotter):
         Args:
             bs: A BandStructureSymmLine object with projections.
         """
-        if type(bs) == list:
+        if isinstance(bs, list):
             warnings.warn(
                 "Multiple bands are not handled by BSPlotterProjected."
                 "The first band in the list will be considered"
