@@ -2153,7 +2153,7 @@ class PDPlotter:
         plot_args = dict(
             mode="lines",
             hoverinfo="none",
-            line={"color": "rgba (0, 0, 0, 1)", "dash": "solid", "width": 3.0},
+            line={"color": "rgba(0,0,0,1.0)", "width": 7.0},
             showlegend=False,
         )
 
@@ -2447,10 +2447,8 @@ class PDPlotter:
                     y=stable_props["x"],
                     z=stable_props["z"],
                     name="Stable",
-                    opacity=0.9,
-                    marker=dict(
-                        color="darkgreen", size=8.5, line=dict(color="black", width=3)
-                    ),
+                    marker=dict(color="black", size=12, opacity=0.8,
+                                line=dict(color="black", width=3)),
                     hovertext=stable_props["texts"],
                     error_z=dict(
                         array=stable_props["uncertainties"],
@@ -2472,7 +2470,7 @@ class PDPlotter:
                     marker=dict(
                         color=unstable_props["energies"],
                         colorscale=plotly_layouts["unstable_colorscale"],
-                        size=4.2,
+                        size=6,
                         symbol="diamond",
                         colorbar=dict(
                             title="Energy Above Hull<br>(eV/atom)", x=0.05, len=0.75
