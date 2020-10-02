@@ -881,7 +881,7 @@ class Vasprun(MSONable):
         """
         def get_potcar_in_path(p):
             for fn in os.listdir(os.path.abspath(p)):
-                if fn.startswith('POTCAR'):
+                if fn.startswith('POTCAR') and ".spec" not in fn:
                     pc = Potcar.from_file(os.path.join(p, fn))
                     if {d.header for d in pc} == set(self.potcar_symbols):
                         return pc
