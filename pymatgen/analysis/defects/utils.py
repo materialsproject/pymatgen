@@ -7,31 +7,35 @@ Utilities for defects module.
 """
 
 import math
+import itertools
+import logging
+from copy import deepcopy
 
+from monty.dev import requires
 from monty.json import MSONable
 
-import itertools
 import pandas as pd
 import numpy as np
 from numpy.linalg import norm
-import logging
 
 from collections import defaultdict
 from scipy.spatial import Voronoi
 from scipy.spatial.distance import squareform
 from scipy.cluster.hierarchy import linkage, fcluster
-from pymatgen.analysis.local_env import LocalStructOrderParams, \
-    MinimumDistanceNN, cn_opt_params
-from pymatgen.core.periodic_table import Element, get_el_sp
+
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Structure
+from pymatgen.core.periodic_table import Element, get_el_sp
 from pymatgen.io.vasp.outputs import Chgcar
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.analysis.phase_diagram import get_facets
 from pymatgen.util.coord import pbc_diff
 from pymatgen.vis.structure_vtk import StructureVis
-from monty.dev import requires
-from copy import deepcopy
+from pymatgen.analysis.local_env import (
+    LocalStructOrderParams,
+    MinimumDistanceNN,
+    cn_opt_params
+)
 
 try:
     from skimage.feature import peak_local_max
