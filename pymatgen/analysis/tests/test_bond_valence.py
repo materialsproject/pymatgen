@@ -8,7 +8,7 @@ import os
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.structure import Structure
-from pymatgen.core.periodic_table import Specie
+from pymatgen.core.periodic_table import Species
 from pymatgen.analysis.bond_valence import BVAnalyzer, calculate_bv_sum, \
     calculate_bv_sum_unordered
 from pymatgen.util.testing import PymatgenTest
@@ -47,8 +47,8 @@ class BVAnalyzerTest(PymatgenTest):
     def test_get_oxi_state_structure(self):
         s = Structure.from_file(os.path.join(test_dir, "LiMn2O4.json"))
         news = self.analyzer.get_oxi_state_decorated_structure(s)
-        self.assertIn(Specie("Mn", 3), news.composition.elements)
-        self.assertIn(Specie("Mn", 4), news.composition.elements)
+        self.assertIn(Species("Mn", 3), news.composition.elements)
+        self.assertIn(Species("Mn", 4), news.composition.elements)
 
 
 class BondValenceSumTest(PymatgenTest):

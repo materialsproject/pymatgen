@@ -10,7 +10,7 @@ import math
 import numpy as np
 
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.core.periodic_table import Element, Specie, DummySpecie, get_el_sp
+from pymatgen.core.periodic_table import Element, Species, DummySpecies, get_el_sp
 from pymatgen.core.composition import Composition
 from copy import deepcopy
 
@@ -229,18 +229,18 @@ class ElementTestCase(PymatgenTest):
 class SpecieTestCase(PymatgenTest):
 
     def setUp(self):
-        self.specie1 = Specie.from_string("Fe2+")
-        self.specie2 = Specie("Fe", 3)
-        self.specie3 = Specie("Fe", 2)
-        self.specie4 = Specie("Fe", 2, {"spin": 5})
+        self.specie1 = Species.from_string("Fe2+")
+        self.specie2 = Species("Fe", 3)
+        self.specie3 = Species("Fe", 2)
+        self.specie4 = Species("Fe", 2, {"spin": 5})
 
     def test_init(self):
-        self.assertRaises(ValueError, Specie, "Fe", 2, {"magmom": 5})
+        self.assertRaises(ValueError, Species, "Fe", 2, {"magmom": 5})
 
     def test_ionic_radius(self):
         self.assertEqual(self.specie2.ionic_radius, 78.5 / 100)
         self.assertEqual(self.specie3.ionic_radius, 92 / 100)
-        self.assertAlmostEqual(Specie("Mn", 4).ionic_radius, 0.67)
+        self.assertAlmostEqual(Species("Mn", 4).ionic_radius, 0.67)
 
     def test_eq(self):
         self.assertEqual(self.specie1, self.specie3,
@@ -253,7 +253,7 @@ class SpecieTestCase(PymatgenTest):
 
     def test_cmp(self):
         self.assertLess(self.specie1, self.specie2, "Fe2+ should be < Fe3+")
-        self.assertLess(Specie("C", 1), Specie("Se", 1))
+        self.assertLess(Species("C", 1), Species("Se", 1))
 
     def test_attr(self):
         self.assertEqual(self.specie1.Z, 26,
@@ -261,8 +261,8 @@ class SpecieTestCase(PymatgenTest):
         self.assertEqual(self.specie4.spin, 5)
 
     def test_deepcopy(self):
-        el1 = Specie("Fe", 4)
-        el2 = Specie("Na", 1)
+        el1 = Species("Fe", 4)
+        el2 = Species("Na", 1)
         ellist = [el1, el2]
         self.assertEqual(ellist, deepcopy(ellist),
                          "Deepcopy operation doesn't produce exact copy.")
@@ -271,8 +271,8 @@ class SpecieTestCase(PymatgenTest):
         self.assertEqual(self.specie1, pickle.loads(pickle.dumps(self.specie1)))
         for i in range(1, 5):
             self.serialize_with_pickle(getattr(self, "specie%d" % i), test_eq=True)
-        cs = Specie("Cs", 1)
-        cl = Specie("Cl", 1)
+        cs = Species("Cs", 1)
+        cl = Species("Cl", 1)
 
         with open('cscl.pickle', 'wb') as f:
             pickle.dump((cs, cl), f)
@@ -285,43 +285,43 @@ class SpecieTestCase(PymatgenTest):
         os.remove('cscl.pickle')
 
     def test_get_crystal_field_spin(self):
-        self.assertEqual(Specie("Fe", 2).get_crystal_field_spin(), 4)
-        self.assertEqual(Specie("Fe", 3).get_crystal_field_spin(), 5)
-        self.assertEqual(Specie("Fe", 4).get_crystal_field_spin(), 4)
-        self.assertEqual(Specie("Co", 3).get_crystal_field_spin(
+        self.assertEqual(Species("Fe", 2).get_crystal_field_spin(), 4)
+        self.assertEqual(Species("Fe", 3).get_crystal_field_spin(), 5)
+        self.assertEqual(Species("Fe", 4).get_crystal_field_spin(), 4)
+        self.assertEqual(Species("Co", 3).get_crystal_field_spin(
             spin_config="low"), 0)
-        self.assertEqual(Specie("Co", 4).get_crystal_field_spin(
+        self.assertEqual(Species("Co", 4).get_crystal_field_spin(
             spin_config="low"), 1)
-        self.assertEqual(Specie("Ni", 3).get_crystal_field_spin(
+        self.assertEqual(Species("Ni", 3).get_crystal_field_spin(
             spin_config="low"), 1)
-        self.assertEqual(Specie("Ni", 4).get_crystal_field_spin(
+        self.assertEqual(Species("Ni", 4).get_crystal_field_spin(
             spin_config="low"), 0)
 
         self.assertRaises(AttributeError,
-                          Specie("Li", 1).get_crystal_field_spin)
+                          Species("Li", 1).get_crystal_field_spin)
         self.assertRaises(AttributeError,
-                          Specie("Ge", 4).get_crystal_field_spin)
+                          Species("Ge", 4).get_crystal_field_spin)
         self.assertRaises(AttributeError,
-                          Specie("H", 1).get_crystal_field_spin)
+                          Species("H", 1).get_crystal_field_spin)
         self.assertRaises(AttributeError,
-                          Specie("Fe", 10).get_crystal_field_spin)
-        self.assertRaises(ValueError, Specie("Fe", 2).get_crystal_field_spin,
+                          Species("Fe", 10).get_crystal_field_spin)
+        self.assertRaises(ValueError, Species("Fe", 2).get_crystal_field_spin,
                           "hex")
 
-        s = Specie("Co", 3).get_crystal_field_spin("tet", spin_config="low")
+        s = Species("Co", 3).get_crystal_field_spin("tet", spin_config="low")
         self.assertEqual(s, 2)
 
     def test_get_nmr_mom(self):
-        self.assertEqual(Specie("H").get_nmr_quadrupole_moment(), 2.860)
-        self.assertEqual(Specie("Li").get_nmr_quadrupole_moment(), -0.808)
-        self.assertEqual(Specie("Li").get_nmr_quadrupole_moment("Li-7"), -40.1)
-        self.assertEqual(Specie("Si").get_nmr_quadrupole_moment(), 0.0)
-        self.assertRaises(ValueError, Specie("Li").get_nmr_quadrupole_moment,
+        self.assertEqual(Species("H").get_nmr_quadrupole_moment(), 2.860)
+        self.assertEqual(Species("Li").get_nmr_quadrupole_moment(), -0.808)
+        self.assertEqual(Species("Li").get_nmr_quadrupole_moment("Li-7"), -40.1)
+        self.assertEqual(Species("Si").get_nmr_quadrupole_moment(), 0.0)
+        self.assertRaises(ValueError, Species("Li").get_nmr_quadrupole_moment,
                           "Li-109")
 
     def test_get_shannon_radius(self):
-        self.assertEqual(Specie("Li", 1).get_shannon_radius("IV"), 0.59)
-        mn2 = Specie("Mn", 2)
+        self.assertEqual(Species("Li", 1).get_shannon_radius("IV"), 0.59)
+        mn2 = Species("Mn", 2)
         self.assertEqual(mn2.get_shannon_radius("IV", "High Spin"), 0.66)
         self.assertEqual(mn2.get_shannon_radius("V", "High Spin"), 0.75)
 
@@ -341,73 +341,73 @@ class SpecieTestCase(PymatgenTest):
 
     def test_sort(self):
         els = map(get_el_sp, ["N3-", "Si4+", "Si3+"])
-        self.assertEqual(sorted(els), [Specie("Si", 3), Specie("Si", 4),
-                                       Specie("N", -3)])
+        self.assertEqual(sorted(els), [Species("Si", 3), Species("Si", 4),
+                                       Species("N", -3)])
 
     def test_to_from_string(self):
-        fe3 = Specie("Fe", 3, {"spin": 5})
+        fe3 = Species("Fe", 3, {"spin": 5})
         self.assertEqual(str(fe3), "Fe3+,spin=5")
-        fe = Specie.from_string("Fe3+,spin=5")
+        fe = Species.from_string("Fe3+,spin=5")
         self.assertEqual(fe.spin, 5)
-        mo0 = Specie("Mo", 0, {"spin": 5})
+        mo0 = Species("Mo", 0, {"spin": 5})
         self.assertEqual(str(mo0), "Mo0+,spin=5")
-        mo = Specie.from_string("Mo0+,spin=4")
+        mo = Species.from_string("Mo0+,spin=4")
         self.assertEqual(mo.spin, 4)
-        fe_no_ox = Specie("Fe", oxidation_state=None, properties={"spin": 5})
-        fe_no_ox_from_str = Specie.from_string("Fe,spin=5")
+        fe_no_ox = Species("Fe", oxidation_state=None, properties={"spin": 5})
+        fe_no_ox_from_str = Species.from_string("Fe,spin=5")
         self.assertEqual(fe_no_ox, fe_no_ox_from_str)
 
     def test_no_oxidation_state(self):
-        mo0 = Specie("Mo", None, {"spin": 5})
+        mo0 = Species("Mo", None, {"spin": 5})
         self.assertEqual(str(mo0), "Mo,spin=5")
 
 
 class DummySpecieTestCase(unittest.TestCase):
 
     def test_init(self):
-        self.specie1 = DummySpecie("X")
-        self.assertRaises(ValueError, DummySpecie, "Xe")
-        self.assertRaises(ValueError, DummySpecie, "Xec")
-        self.assertRaises(ValueError, DummySpecie, "Vac")
-        self.specie2 = DummySpecie("X", 2, {"spin": 3})
+        self.specie1 = DummySpecies("X")
+        self.assertRaises(ValueError, DummySpecies, "Xe")
+        self.assertRaises(ValueError, DummySpecies, "Xec")
+        self.assertRaises(ValueError, DummySpecies, "Vac")
+        self.specie2 = DummySpecies("X", 2, {"spin": 3})
         self.assertEqual(self.specie2.spin, 3)
 
     def test_eq(self):
-        self.assertFalse(DummySpecie("Xg") == DummySpecie("Xh"))
-        self.assertFalse(DummySpecie("Xg") == DummySpecie("Xg", 3))
-        self.assertTrue(DummySpecie("Xg", 3) == DummySpecie("Xg", 3))
+        self.assertFalse(DummySpecies("Xg") == DummySpecies("Xh"))
+        self.assertFalse(DummySpecies("Xg") == DummySpecies("Xg", 3))
+        self.assertTrue(DummySpecies("Xg", 3) == DummySpecies("Xg", 3))
 
     def test_from_string(self):
-        sp = DummySpecie.from_string("X")
+        sp = DummySpecies.from_string("X")
         self.assertEqual(sp.oxi_state, 0)
-        sp = DummySpecie.from_string("X2+")
+        sp = DummySpecies.from_string("X2+")
         self.assertEqual(sp.oxi_state, 2)
-        sp = DummySpecie.from_string("X2+spin=5")
+        sp = DummySpecies.from_string("X2+spin=5")
         self.assertEqual(sp.oxi_state, 2)
         self.assertEqual(sp.spin, 5)
 
     def test_pickle(self):
-        el1 = DummySpecie("X", 3)
+        el1 = DummySpecies("X", 3)
         o = pickle.dumps(el1)
         self.assertEqual(el1, pickle.loads(o))
 
     def test_sort(self):
-        r = sorted([Element.Fe, DummySpecie("X")])
-        self.assertEqual(r, [DummySpecie("X"), Element.Fe])
-        self.assertTrue(DummySpecie("X", 3) < DummySpecie("X", 4))
+        r = sorted([Element.Fe, DummySpecies("X")])
+        self.assertEqual(r, [DummySpecies("X"), Element.Fe])
+        self.assertTrue(DummySpecies("X", 3) < DummySpecies("X", 4))
 
 
 class FuncTest(unittest.TestCase):
 
     def test_get_el_sp(self):
-        self.assertEqual(get_el_sp("Fe2+"), Specie("Fe", 2))
+        self.assertEqual(get_el_sp("Fe2+"), Species("Fe", 2))
         self.assertEqual(get_el_sp("3"), Element.Li)
         self.assertEqual(get_el_sp("3.0"), Element.Li)
         self.assertEqual(get_el_sp("U"), Element.U)
-        self.assertEqual(get_el_sp("X2+"), DummySpecie("X", 2))
-        self.assertEqual(get_el_sp("Mn3+"), Specie("Mn", 3))
+        self.assertEqual(get_el_sp("X2+"), DummySpecies("X", 2))
+        self.assertEqual(get_el_sp("Mn3+"), Species("Mn", 3))
         self.assertEqual(get_el_sp(["Li+", "Mn3+"]),
-                         [Specie("Li", 1), Specie("Mn", 3)])
+                         [Species("Li", 1), Species("Mn", 3)])
 
 
 if __name__ == "__main__":
