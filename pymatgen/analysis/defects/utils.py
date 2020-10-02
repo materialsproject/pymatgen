@@ -10,6 +10,7 @@ import math
 import itertools
 import logging
 from copy import deepcopy
+from collections import defaultdict
 
 from monty.dev import requires
 from monty.json import MSONable
@@ -18,7 +19,6 @@ import pandas as pd
 import numpy as np
 from numpy.linalg import norm
 
-from collections import defaultdict
 from scipy.spatial import Voronoi
 from scipy.spatial.distance import squareform
 from scipy.cluster.hierarchy import linkage, fcluster
