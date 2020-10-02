@@ -304,7 +304,7 @@ class BSPlotter:
         """
         Method to add bands objects to the BSPlotter
         """
-        if isinstance(bs, list):
+        if not isinstance(bs, list):
             bs = [bs]
 
         if self._check_bs_kpath(bs):
@@ -577,7 +577,6 @@ class BSPlotter:
             elif len(dist) == 1:
                 warnings.warn("Skipping single point branch")
                 continue
-
 
             int_distances.append(np.linspace(dist[0], dist[-1], smooth_np))
 
