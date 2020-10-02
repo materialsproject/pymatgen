@@ -25,28 +25,123 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
 obalign_missing = (ob is None) or ('OBAlign' not in dir(ob))
 
 
-def perturb(self, scale, seed):
+def rotate(mol, seed):
+    """Performs a random rotation of the sites in a structure.
+
+    Args:
+        mol (Molecule): The Molecule object which will be tranformed.
+        seed (int): The seed value for the random generator.
     """
-    Performs a random perturbation of the sites in a structure.
+    rng = np.random.default_rng(seed=seed)
+
+    op = SymmOp.from_origin_axis_angle([0, 0, 0], rng.random(3), 360 * rng.random())
+    for site in mol:
+        site.coords = op.operate(site.coords)
+
+
+def perturb(mol, scale, seed):
+    """Performs a random perturbation of the sites in a structure.
+
     Args:
         scale (float): Distance in angstroms by which to perturb each site.
-        rng (np.random.Generator): Random generator object.
+        seed (int): The seed value for the random generator.
     """
-    np.random.seed(seed)
-    dV = np.random.normal(scale=scale, size=(len(self), 3))
-    for site, dv in zip(self.sites, dV):
+    rng = np.random.default_rng(seed=seed)
+
+    dV = rng.normal(scale=scale, size=(len(mol), 3))
+    for site, dv in zip(mol.sites, dV):
         site.coords += dv
 
 
-def permute(self, seed):
-    """
-    Performs a random permutation of the sites in a structure.
+def permute(mol, seed):
+    """Performs a random permutation of the sites in a structure.
+
     Args:
-        rng (np.random.Generator): Random generator object.
+        seed (int): The seed value for the random generator.
     """
-    np.random.seed(seed)
-    inds = np.random.permutation(len(self))
-    self._sites = [self[i] for i in inds]
+    rng = np.random.default_rng(seed=seed)
+
+    inds = rng.permutation(len(mol))
+    mol._sites = [mol[i] for i in inds]
+
+
+def generate_Si_cluster():
+    from pymatgen.io.xyz import XYZ
+
+    coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
+    lattice = Lattice.from_parameters(a=3.84, b=3.84, c=3.84, alpha=120, beta=90, gamma=60)
+
+    struct = Structure(lattice, ['Si', 'Si'], coords)
+    struct.make_supercell([2, 2, 2])
+
+    # Creating molecule for testing
+    mol = Molecule.from_sites(struct)
+    XYZ(mol).write_file(os.path.join(test_dir, "Si_cluster.xyz"))
+
+    # Rorate the whole molecule
+    mol_rotated = mol.copy()
+    rotate(mol_rotated, seed=42)
+    XYZ(mol_rotated).write_file(os.path.join(test_dir, "Si_cluster_rotated.xyz"))
+
+    # Perturbing the atom positions
+    mol_perturbed = mol.copy()
+    perturb(mol_perturbed, 0.3, seed=42)
+    XYZ(mol_perturbed).write_file(os.path.join(test_dir, "Si_cluster_perturbed.xyz"))
+
+    # Permuting the order of the atoms
+    mol_permuted = mol.copy()
+    permute(mol_permuted, seed=42)
+    XYZ(mol_permuted).write_file(os.path.join(test_dir, "Si_cluster_permuted.xyz"))
+
+    # All-in-one
+    mol2 = mol.copy()
+    rotate(mol2, seed=42)
+    perturb(mol2, 0.3, seed=42)
+    permute(mol2, seed=42)
+    XYZ(mol2).write_file(os.path.join(test_dir, "Si_cluster_2.xyz"))
+
+
+def generate_Si2O_cluster():
+    from pymatgen.io.xyz import XYZ
+
+    coords = [
+        [0.625, 0.625, 0.625],
+        [0.625, 0.625, 0.125],
+        [0.625, 0.125, 0.625],
+        [0.125, 0.625, 0.625],
+        [0.500, 0.500, 0.500],
+        [0.750, 0.750, 0.750]
+    ]
+
+    lattice = Lattice.from_parameters(a=6.61657069, b=6.61657069, c=6.61657069, alpha=60, beta=60, gamma=60)
+    struct = Structure(lattice, ['Si', 'Si', 'Si', 'Si', 'O', 'O'], coords)
+    # struct.make_supercell([2, 2, 2])
+
+    # Creating molecule for testing
+    mol = Molecule.from_sites(struct)
+    XYZ(mol).write_file(os.path.join(test_dir, "Si2O_cluster.xyz"))
+
+    # Rorate the whole molecule
+    mol_rotated = mol.copy()
+    rotate(mol_rotated, seed=42)
+    XYZ(mol_rotated).write_file(os.path.join(test_dir, "Si2O_cluster_rotated.xyz"))
+
+    # Perturbing the atom positions
+    mol_perturbed = mol.copy()
+    perturb(mol_perturbed, 0.3, seed=42)
+    XYZ(mol_perturbed).write_file(os.path.join(test_dir, "Si2O_cluster_perturbed.xyz"))
+
+    # Permuting the order of the atoms
+    mol_permuted = mol.copy()
+    permute(mol_permuted, seed=42)
+    XYZ(mol_permuted).write_file(os.path.join(test_dir, "Si2O_cluster_permuted.xyz"))
+
+    # All-in-one
+    mol2 = mol.copy()
+    rotate(mol2, seed=42)
+    perturb(mol2, 0.3, seed=42)
+    permute(mol2, seed=42)
+    XYZ(mol2).write_file(os.path.join(test_dir, "Si2O_cluster_2.xyz"))
 
 
 @unittest.skipIf(obalign_missing, "OBAlign is missing, Skipping")
@@ -175,7 +270,7 @@ class KabschMatcherTest(unittest.TestCase):
 
         mm = KabschMatcher(mol1)
         _, _, rmsd = mm.match(mol2)
-        self.assertAlmostEqual(rmsd, 0.0028172956033732936, places=8)
+        self.assertAlmostEqual(rmsd, 0.0028172956033732936, places=6)
 
     def test_to_and_from_dict(self):
         mol1 = Molecule.from_file(os.path.join(test_dir, "t3.xyz"))
@@ -202,7 +297,7 @@ class KabschMatcherTest(unittest.TestCase):
 
         mm = KabschMatcher(mol1)
         _, rmsd = mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 0., places=8)
+        self.assertAlmostEqual(rmsd, 0., places=6)
 
     def test_mismatched_atom_composition(self):
 
@@ -240,22 +335,14 @@ class KabschMatcherTest(unittest.TestCase):
         mm = KabschMatcher(mol1)
 
         _, rmsd = mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 0.0028172956033732936, places=8)
+        self.assertAlmostEqual(rmsd, 0.0028172956033732936, places=6)
 
         mol1 = Molecule.from_file(os.path.join(test_dir, "oxygen1.xyz"))
         mol2 = Molecule.from_file(os.path.join(test_dir, "oxygen2.xyz"))
         mm = KabschMatcher(mol1)
 
         _, rmsd = mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 0.0, places=8)
-
-        mol1 = Molecule.from_file(os.path.join(test_dir, "t3.xyz"))
-        mol2 = Molecule.from_file(os.path.join(test_dir, "t4.xyz"))
-
-        mm = KabschMatcher(mol1)
-
-        _, rmsd = mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 0.0028172956033732936, places=8)
+        self.assertAlmostEqual(rmsd, 0.0, places=6)
 
 
 class HungarianOrderMatcherTest(unittest.TestCase):
@@ -267,7 +354,7 @@ class HungarianOrderMatcherTest(unittest.TestCase):
         mm = HungarianOrderMatcher(mol1)
 
         _, rmsd = mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 0.002825344731118855, places=8)
+        self.assertAlmostEqual(rmsd, 0.002825344731118855, places=6)
 
     def test_to_and_from_dict(self):
         mol1 = Molecule.from_file(os.path.join(test_dir, "t3.xyz"))
@@ -294,7 +381,7 @@ class HungarianOrderMatcherTest(unittest.TestCase):
 
         mm = HungarianOrderMatcher(mol1)
         _, rmsd = mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 0., places=8)
+        self.assertAlmostEqual(rmsd, 0., places=6)
 
     def test_mismatched_atom_composition(self):
 
@@ -313,205 +400,214 @@ class HungarianOrderMatcherTest(unittest.TestCase):
         mm = HungarianOrderMatcher(mol1)
 
         _, rmsd = mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 1.4171601659148593e-05, places=8)
+        self.assertAlmostEqual(rmsd, 1.4171601659148593e-05, places=6)
 
         mol1 = Molecule.from_file(os.path.join(test_dir, "c1.xyz"))
         mol2 = Molecule.from_file(os.path.join(test_dir, "c2.xyz"))
         mm = HungarianOrderMatcher(mol1)
 
         _, rmsd = mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 9.479012116064961e-05, places=8)
+        self.assertAlmostEqual(rmsd, 9.479012116064961e-05, places=6)
 
         mol1 = Molecule.from_file(os.path.join(test_dir, "t3.xyz"))
         mol2 = Molecule.from_file(os.path.join(test_dir, "t4.xyz"))
         mm = HungarianOrderMatcher(mol1)
 
         _, rmsd = mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 0.002825344731118855, places=8)
+        self.assertAlmostEqual(rmsd, 0.002825344731118855, places=6)
 
         mol1 = Molecule.from_file(os.path.join(test_dir, "j1.xyz"))
         mol2 = Molecule.from_file(os.path.join(test_dir, "j2.xyz"))
         mm = HungarianOrderMatcher(mol1)
 
         _, rmsd = mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 9.28245597473488e-05, places=8)
+        self.assertAlmostEqual(rmsd, 9.28245597473488e-05, places=6)
 
         mol1 = Molecule.from_file(os.path.join(test_dir, "ethene1.xyz"))
         mol2 = Molecule.from_file(os.path.join(test_dir, "ethene2.xyz"))
         mm = HungarianOrderMatcher(mol1)
 
         _, rmsd = mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 0.00021150729609276233, places=8)
+        self.assertAlmostEqual(rmsd, 0.00021150729609276233, places=6)
 
         mol1 = Molecule.from_file(os.path.join(test_dir, "toluene1.xyz"))
         mol2 = Molecule.from_file(os.path.join(test_dir, "toluene2.xyz"))
         mm = HungarianOrderMatcher(mol1)
 
         _, rmsd = mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 0.0001445787263551832, places=8)
+        self.assertAlmostEqual(rmsd, 0.0001445787263551832, places=6)
 
         mol1 = Molecule.from_file(os.path.join(test_dir, "cyclohexane1.xyz"))
         mol2 = Molecule.from_file(os.path.join(test_dir, "cyclohexane2.xyz"))
         mm = HungarianOrderMatcher(mol1)
 
         _, rmsd = mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 0.00012447269440740117, places=8)
+        self.assertAlmostEqual(rmsd, 0.00012447269440740117, places=6)
 
         mol1 = Molecule.from_file(os.path.join(test_dir, "oxygen1.xyz"))
         mol2 = Molecule.from_file(os.path.join(test_dir, "oxygen2.xyz"))
         mm = HungarianOrderMatcher(mol1)
 
         _, rmsd = mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 0., places=8)
+        self.assertAlmostEqual(rmsd, 0., places=6)
+
+
+class GeneticOrderMatcherTest(unittest.TestCase):
+
+    def test_get_rmsd(self):
+        mol1 = Molecule.from_file(os.path.join(test_dir, "t3.xyz"))
+        mol2 = Molecule.from_file(os.path.join(test_dir, "t4.xyz"))
+
+        mm = GeneticOrderMatcher(mol1, threshold=0.3)
+
+        _, rmsd = mm.fit(mol2)[0]
+        self.assertAlmostEqual(rmsd, 0.0028172956033734615, places=6)
+
+    def test_to_and_from_dict(self):
+        mol1 = Molecule.from_file(os.path.join(test_dir, "t3.xyz"))
+
+        mm_source = GeneticOrderMatcher(mol1, threshold=0.3)
+        d_source = mm_source.as_dict()
+
+        mm_target = GeneticOrderMatcher.from_dict(d_source)
+        self.assertDictEqual(d_source, mm_target.as_dict())
+
+    def test_rotated_molecule(self):
+
+        coords = [[0.000000, 0.000000, 0.000000],
+                  [0.000000, 0.000000, 1.089000],
+                  [1.026719, 0.000000, -0.363000],
+                  [-0.513360, -0.889165, -0.363000],
+                  [-0.513360, 0.889165, -0.363000]]
+
+        op = SymmOp.from_origin_axis_angle([0, 0, 0], [0.1, 0.2, 0.3], 60)
+        rotcoords = [op.operate(c) for c in coords]
+
+        mol1 = Molecule(["C", "H", "H", "H", "H"], coords)
+        mol2 = Molecule(["C", "H", "H", "H", "H"], rotcoords)
+
+        mm = GeneticOrderMatcher(mol1, threshold=0.3)
+        _, rmsd = mm.fit(mol2)[0]
+        self.assertAlmostEqual(rmsd, 0., places=6)
+
+    def test_mismatched_atom_composition(self):
+
+        mol1 = Molecule.from_file(os.path.join(test_dir, "benzene1.xyz"))
+        mol2 = Molecule.from_file(os.path.join(test_dir, "t2.xyz"))
+        mm = GeneticOrderMatcher(mol1, threshold=0.3)
+
+        with self.assertRaises(ValueError):
+            _, rmsd = mm.fit(mol2)[0]
+
+    def test_fit(self):
+
+        mol1 = Molecule.from_file(os.path.join(test_dir, "benzene1.xyz"))
+        mol2 = Molecule.from_file(os.path.join(test_dir, "benzene2.xyz"))
+
+        mm = GeneticOrderMatcher(mol1, threshold=0.01)
+
+        _, rmsd = mm.fit(mol2)[0]
+        self.assertAlmostEqual(rmsd, 7.061017534055039e-05, places=6)
+
+        mol1 = Molecule.from_file(os.path.join(test_dir, "c1.xyz"))
+        mol2 = Molecule.from_file(os.path.join(test_dir, "c2.xyz"))
+        mm = GeneticOrderMatcher(mol1, threshold=0.01)
+
+        _, rmsd = mm.fit(mol2)[0]
+        self.assertAlmostEqual(rmsd, 9.459575146593829e-05, places=6)
+
+        mol1 = Molecule.from_file(os.path.join(test_dir, "t3.xyz"))
+        mol2 = Molecule.from_file(os.path.join(test_dir, "t4.xyz"))
+        mm = GeneticOrderMatcher(mol1, threshold=0.01)
+
+        _, rmsd = mm.fit(mol2)[0]
+        self.assertAlmostEqual(rmsd, 0.0028172956033734615, places=6)
+
+        mol1 = Molecule.from_file(os.path.join(test_dir, "j1.xyz"))
+        mol2 = Molecule.from_file(os.path.join(test_dir, "j2.xyz"))
+        mm = GeneticOrderMatcher(mol1, threshold=0.01)
+
+        _, rmsd = mm.fit(mol2)[0]
+        self.assertAlmostEqual(rmsd, 9.28245597473488e-05, places=6)
+
+        mol1 = Molecule.from_file(os.path.join(test_dir, "ethene1.xyz"))
+        mol2 = Molecule.from_file(os.path.join(test_dir, "ethene2.xyz"))
+        mm = GeneticOrderMatcher(mol1, threshold=0.01)
+
+        _, rmsd = mm.fit(mol2)[0]
+        self.assertAlmostEqual(rmsd, 0.00019757961816426042, places=6)
+
+        mol1 = Molecule.from_file(os.path.join(test_dir, "toluene1.xyz"))
+        mol2 = Molecule.from_file(os.path.join(test_dir, "toluene2.xyz"))
+        mm = GeneticOrderMatcher(mol1, threshold=0.1)
+
+        _, rmsd = mm.fit(mol2)[0]
+        self.assertAlmostEqual(rmsd, 0.0001398867874149986, places=6)
+
+        mol1 = Molecule.from_file(os.path.join(test_dir, "cyclohexane1.xyz"))
+        mol2 = Molecule.from_file(os.path.join(test_dir, "cyclohexane2.xyz"))
+        mm = GeneticOrderMatcher(mol1, threshold=0.01)
+
+        _, rmsd = mm.fit(mol2)[0]
+        self.assertAlmostEqual(rmsd, 0.00012190586696474853, places=6)
+
+        mol1 = Molecule.from_file(os.path.join(test_dir, "oxygen1.xyz"))
+        mol2 = Molecule.from_file(os.path.join(test_dir, "oxygen2.xyz"))
+        mm = GeneticOrderMatcher(mol1, threshold=0.01)
+
+        _, rmsd = mm.fit(mol2)[0]
+        self.assertAlmostEqual(rmsd, 0., places=6)
 
 
 class KabschMatcherSiTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-
-        coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
-        lattice = Lattice.from_parameters(a=3.84, b=3.84, c=3.84, alpha=120, beta=90, gamma=60)
-
-        struct = Structure(lattice, ['Si', 'Si'], coords)
-        struct.make_supercell([2, 2, 2])
-
-        # Creating molecule for testing
-        cls.mol1 = Molecule.from_sites(struct)
+        cls.mol1 = Molecule.from_file(os.path.join(test_dir, "Si_cluster.xyz"))
         cls.mm = KabschMatcher(cls.mol1)
 
     def test_to_and_from_dict(self):
-
         d = self.mm.as_dict()
-
         mm = KabschMatcher.from_dict(d)
         self.assertDictEqual(d, mm.as_dict())
 
     def test_missmatched_atoms(self):
-
-        coords = [[0.000000, 0.000000, 0.000000],
-                  [0.000000, 0.000000, 1.089000],
-                  [1.026719, 0.000000, -0.363000],
-                  [-0.513360, -0.889165, -0.363000],
-                  [-0.513360, 0.889165, -0.363000]]
-
-        mol2 = Molecule(["C", "H", "H", "H", "H"], coords)
-
+        mol2 = Molecule.from_file(os.path.join(test_dir, "Si2O_cluster.xyz"))
         with self.assertRaises(ValueError):
             _, rmsd = self.mm.fit(mol2)
 
     def test_rotated_molecule(self):
-
-        op = SymmOp.from_origin_axis_angle([0, 0, 0], [0.1, 0.2, 0.3], 60)
-
-        mol2 = self.mol1.copy()
-        for site in mol2:
-            site.coords = op.operate(site.coords)
-
+        mol2 = Molecule.from_file(os.path.join(test_dir, "Si_cluster_rotated.xyz"))
         _, rmsd = self.mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 0., places=8)
+        self.assertAlmostEqual(rmsd, 0., places=6)
 
     def test_perturbed_atom_position(self):
-
-        mol2 = self.mol1.copy()
-        perturb(mol2, 0.3, seed=42)
-
+        mol2 = Molecule.from_file(os.path.join(test_dir, "Si_cluster_perturbed.xyz"))
         _, rmsd = self.mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 0.2628450748567651, places=8)
+        self.assertAlmostEqual(rmsd, 0.2232223954240079, places=6)
 
-    def test_perturbed_atoms_order(self):
+    def test_permuted_atoms_order(self):
         # This test shows very poor rmsd result, because the `KabschMatcher`
         # is not capable to handle arbitrary atom's order
-
-        mol2 = self.mol1.copy()
-        permute(mol2, seed=42)
-
+        mol2 = Molecule.from_file(os.path.join(test_dir, "Si_cluster_permuted.xyz"))
         _, rmsd = self.mm.fit(mol2)
-        self.assertNotAlmostEqual(rmsd, 0.0, places=8)
-
-
-class BruteForceOrderMatcherSmallSiTest(unittest.TestCase):
-
-    @classmethod
-    def setUpClass(cls):
-
-        coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
-        lattice = Lattice.from_parameters(a=3.84, b=3.84, c=3.84, alpha=120, beta=90, gamma=60)
-
-        struct = Structure(lattice, ['Si', 'Si'], coords)
-        # struct.make_supercell([2, 2, 2])
-
-        # Creating molecule for testing
-        cls.mol1 = Molecule.from_sites(struct)
-        cls.mm = BruteForceOrderMatcher(cls.mol1)
-
-    def test_to_and_from_dict(self):
-
-        d = self.mm.as_dict()
-
-        mm = BruteForceOrderMatcher.from_dict(d)
-        self.assertDictEqual(d, mm.as_dict())
-
-    def test_missmatched_atoms(self):
-
-        coords = [[0.000000, 0.000000, 0.000000],
-                  [0.000000, 0.000000, 1.089000],
-                  [1.026719, 0.000000, -0.363000],
-                  [-0.513360, -0.889165, -0.363000],
-                  [-0.513360, 0.889165, -0.363000]]
-
-        mol2 = Molecule(["C", "H", "H", "H", "H"], coords)
-
-        with self.assertRaises(ValueError):
-            _, rmsd = self.mm.fit(mol2)
-
-    def test_rotated_molecule(self):
-
-        op = SymmOp.from_origin_axis_angle([0, 0, 0], [0.1, 0.2, 0.3], 60)
-
-        mol2 = self.mol1.copy()
-        for site in mol2:
-            site.coords = op.operate(site.coords)
-
-        _, rmsd = self.mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 0., places=8)
-
-    def test_perturbed_atom_position(self):
-
-        mol2 = self.mol1.copy()
-        perturb(mol2, 0.3, seed=42)
-
-        _, rmsd = self.mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 0.04525207199851348, places=8)
-
-    def test_perturbed_atoms_order(self):
-
-        mol2 = self.mol1.copy()
-        permute(mol2, seed=42)
-
-        _, rmsd = self.mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 0.0, places=8)
+        self.assertAlmostEqual(rmsd, 2.7962454578966454, places=6)
 
 
 class BruteForceOrderMatcherSiTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-
-        coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
-        lattice = Lattice.from_parameters(a=3.84, b=3.84, c=3.84, alpha=120, beta=90, gamma=60)
-
-        struct = Structure(lattice, ['Si', 'Si'], coords)
-        struct.make_supercell([2, 2, 2])
-
-        # Creating molecule for testing
-        cls.mol1 = Molecule.from_sites(struct)
+        cls.mol1 = Molecule.from_file(os.path.join(test_dir, "Si_cluster.xyz"))
         cls.mm = BruteForceOrderMatcher(cls.mol1)
 
-    def test_perturbed_atoms_order(self):
+    def test_to_and_from_dict(self):
+        d = self.mm.as_dict()
+        mm = BruteForceOrderMatcher.from_dict(d)
+        self.assertDictEqual(d, mm.as_dict())
 
-        mol2 = self.mol1.copy()
-        permute(mol2, seed=42)
+    def test_random_match(self):
+        mol2 = Molecule.from_file(os.path.join(test_dir, "Si_cluster_2.xyz"))
 
         # ValueError: The number of all possible permuataions (20922789888000) is not feasible to run this method!
         with self.assertRaises(ValueError):
@@ -522,320 +618,217 @@ class HungarianOrderMatcherSiTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-
-        coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
-        lattice = Lattice.from_parameters(a=3.84, b=3.84, c=3.84, alpha=120, beta=90, gamma=60)
-
-        struct = Structure(lattice, ['Si', 'Si'], coords)
-        struct.make_supercell([2, 2, 2])
-
-        # Creating molecule for testing
-        cls.mol1 = Molecule.from_sites(struct)
+        cls.mol1 = Molecule.from_file(os.path.join(test_dir, "Si_cluster.xyz"))
         cls.mm = HungarianOrderMatcher(cls.mol1)
 
     def test_to_and_from_dict(self):
-
         d = self.mm.as_dict()
-
         mm = HungarianOrderMatcher.from_dict(d)
         self.assertDictEqual(d, mm.as_dict())
 
     def test_missmatched_atoms(self):
-
-        coords = [[0.000000, 0.000000, 0.000000],
-                  [0.000000, 0.000000, 1.089000],
-                  [1.026719, 0.000000, -0.363000],
-                  [-0.513360, -0.889165, -0.363000],
-                  [-0.513360, 0.889165, -0.363000]]
-
-        mol2 = Molecule(["C", "H", "H", "H", "H"], coords)
-
+        mol2 = Molecule.from_file(os.path.join(test_dir, "Si2O_cluster_rotated.xyz"))
         with self.assertRaises(ValueError):
             _, rmsd = self.mm.fit(mol2)
 
     def test_rotated_molecule(self):
-
-        op = SymmOp.from_origin_axis_angle([0, 0, 0], [0.1, 0.2, 0.3], 60)
-
-        mol2 = self.mol1.copy()
-        for site in mol2:
-            site.coords = op.operate(site.coords)
-
+        mol2 = Molecule.from_file(os.path.join(test_dir, "Si_cluster_rotated.xyz"))
         _, rmsd = self.mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 0., places=8)
+        # TODO: very bad result
+        self.assertAlmostEqual(rmsd, 1.025066171481399, places=6)
 
     def test_perturbed_atom_position(self):
-
-        mol2 = self.mol1.copy()
-        perturb(mol2, 0.3, seed=42)
-
+        mol2 = Molecule.from_file(os.path.join(test_dir, "Si_cluster_perturbed.xyz"))
         _, rmsd = self.mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 0.26284507485676495, places=8)
+        self.assertAlmostEqual(rmsd, 0.2232223954240077, places=6)
 
-    def test_perturbed_atoms_order(self):
-
-        mol2 = self.mol1.copy()
-        permute(mol2, seed=42)
-
+    def test_permuted_atoms_order(self):
+        mol2 = Molecule.from_file(os.path.join(test_dir, "Si_cluster_permuted.xyz"))
         _, rmsd = self.mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 0.0, places=8)
+        self.assertAlmostEqual(rmsd, 0.0, places=6)
 
-
-class KabschMatcherSiO2Test(unittest.TestCase):
-
-    @classmethod
-    def setUpClass(cls):
-
-        coords = [
-            [0.625, 0.625, 0.625],
-            [0.625, 0.625, 0.125],
-            [0.625, 0.125, 0.625],
-            [0.125, 0.625, 0.625],
-            [0.500, 0.500, 0.500],
-            [0.750, 0.750, 0.750]
-        ]
-
-        lattice = Lattice.from_parameters(a=6.61657069, b=6.61657069, c=6.61657069, alpha=60, beta=60, gamma=60)
-        struct = Structure(lattice, ['Si', 'Si', 'Si', 'Si', 'O', 'O'], coords)
-        struct.make_supercell([2, 2, 2])
-
-        # Creating molecule for testing
-        cls.mol1 = Molecule.from_sites(struct)
-        cls.mm = KabschMatcher(cls.mol1)
-
-    def test_perturbed_atom_position(self):
-
-        mol2 = self.mol1.copy()
-        perturb(mol2, 0.3, seed=42)
-
+    def test_random_match(self):
+        mol2 = Molecule.from_file(os.path.join(test_dir, "Si_cluster_2.xyz"))
         _, rmsd = self.mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 0.28115706155171244, places=8)
-
-    def test_perturbed_atoms_order(self):
-        # This task should fail, because `KabschMatcher` is not capable
-        # to handle arbitrary atom's order
-
-        mol2 = self.mol1.copy()
-        permute(mol2, seed=42)
-
-        with self.assertRaises(ValueError):
-            _, rmsd = self.mm.fit(mol2)
-            self.assertAlmostEqual(rmsd, 0.0, places=8)
-
-
-class BruteForceOrderMatcherSmallSiO2Test(unittest.TestCase):
-
-    @classmethod
-    def setUpClass(cls):
-
-        coords = [
-            [0.625, 0.625, 0.625],
-            [0.625, 0.625, 0.125],
-            [0.625, 0.125, 0.625],
-            [0.125, 0.625, 0.625],
-            [0.500, 0.500, 0.500],
-            [0.750, 0.750, 0.750]
-        ]
-
-        lattice = Lattice.from_parameters(a=6.61657069, b=6.61657069, c=6.61657069, alpha=60, beta=60, gamma=60)
-        struct = Structure(lattice, ['Si', 'Si', 'Si', 'Si', 'O', 'O'], coords)
-        # struct.make_supercell([2, 2, 2])
-
-        # Creating molecule for testing
-        cls.mol1 = Molecule.from_sites(struct)
-        cls.mm = BruteForceOrderMatcher(cls.mol1)
-
-    def test_perturbed_atom_position(self):
-
-        mol2 = self.mol1.copy()
-        perturb(mol2, 0.3, seed=42)
-
-        _, rmsd = self.mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 0.1906105291112988, places=8)
-
-    def test_perturbed_atoms_order(self):
-
-        mol2 = self.mol1.copy()
-        permute(mol2, seed=42)
-
-        _, rmsd = self.mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 0.0, places=8)
-
-
-class HungarianOrderMatcherSiO2Test(unittest.TestCase):
-
-    @classmethod
-    def setUpClass(cls):
-
-        coords = [
-            [0.625, 0.625, 0.625],
-            [0.625, 0.625, 0.125],
-            [0.625, 0.125, 0.625],
-            [0.125, 0.625, 0.625],
-            [0.500, 0.500, 0.500],
-            [0.750, 0.750, 0.750]
-        ]
-
-        lattice = Lattice.from_parameters(a=6.61657069, b=6.61657069, c=6.61657069, alpha=60, beta=60, gamma=60)
-        struct = Structure(lattice, ['Si', 'Si', 'Si', 'Si', 'O', 'O'], coords)
-        struct.make_supercell([2, 2, 2])
-
-        # Creating molecule for testing
-        cls.mol1 = Molecule.from_sites(struct)
-        cls.mm = HungarianOrderMatcher(cls.mol1)
-
-    def test_perturbed_atom_position(self):
-
-        mol2 = self.mol1.copy()
-        perturb(mol2, 0.3, seed=42)
-
-        _, rmsd = self.mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 0.2813160547386018, places=8)
-
-    def test_perturbed_atoms_order(self):
-
-        mol2 = self.mol1.copy()
-        permute(mol2, seed=42)
-
-        _, rmsd = self.mm.fit(mol2)
-        self.assertAlmostEqual(rmsd, 0.0, places=8)
+        # TODO: very bad result
+        self.assertAlmostEqual(rmsd, 1.0177241485450828, places=6)
 
 
 class GeneticOrderMatcherSiTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-
-        coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
-        lattice = Lattice.from_parameters(a=3.84, b=3.84, c=3.84, alpha=120, beta=90, gamma=60)
-
-        struct = Structure(lattice, ['Si', 'Si'], coords)
-        struct.make_supercell([2, 2, 2])
-
-        # Creating molecule for testing
-        cls.mol1 = Molecule.from_sites(struct)
+        cls.mol1 = Molecule.from_file(os.path.join(test_dir, "Si_cluster.xyz"))
         cls.mm = GeneticOrderMatcher(cls.mol1, threshold=0.3)
 
     def test_to_and_from_dict(self):
-
         d = self.mm.as_dict()
-
         mm = GeneticOrderMatcher.from_dict(d)
         self.assertDictEqual(d, mm.as_dict())
 
     def test_missmatched_atoms(self):
-
-        coords = [[0.000000, 0.000000, 0.000000],
-                  [0.000000, 0.000000, 1.089000],
-                  [1.026719, 0.000000, -0.363000],
-                  [-0.513360, -0.889165, -0.363000],
-                  [-0.513360, 0.889165, -0.363000]]
-
-        mol2 = Molecule(["C", "H", "H", "H", "H"], coords)
-
+        mol2 = Molecule.from_file(os.path.join(test_dir, "Si2O_cluster.xyz"))
         with self.assertRaises(ValueError):
             res = self.mm.fit(mol2)
 
     def test_rotated_molecule(self):
-
-        op = SymmOp.from_origin_axis_angle([0, 0, 0], [0.1, 0.2, 0.3], 60)
-
-        mol2 = self.mol1.copy()
-        for site in mol2:
-            site.coords = op.operate(site.coords)
-
+        mol2 = Molecule.from_file(os.path.join(test_dir, "Si_cluster_rotated.xyz"))
         res = self.mm.fit(mol2)
-
-        self.assertEqual(len(res), 1)
-        self.assertAlmostEqual(res[0][-1], 0., places=8)
+        self.assertAlmostEqual(res[0][-1], 0., places=6)
 
     def test_perturbed_atom_position(self):
-
-        mol2 = self.mol1.copy()
-        perturb(mol2, 0.3, seed=42)
-
+        mol2 = Molecule.from_file(os.path.join(test_dir, "Si_cluster_perturbed.xyz"))
         res = self.mm.fit(mol2)
-        self.assertEqual(len(res), 1)
-        self.assertAlmostEqual(res[0][-1], 0.2628450748567651, places=8)
+        self.assertAlmostEqual(res[0][-1], 0.2232223954240079, places=6)
 
-    def test_perturbed_atoms_order(self):
-
-        mol2 = self.mol1.copy()
-        permute(mol2, seed=42)
-
+    def test_permuted_atoms_order(self):
+        mol2 = Molecule.from_file(os.path.join(test_dir, "Si_cluster_permuted.xyz"))
         res = self.mm.fit(mol2)
-        self.assertEqual(len(res), 1)
-        self.assertAlmostEqual(res[0][-1], 0.0, places=8)
+        self.assertAlmostEqual(res[0][-1], 0.0, places=6)
 
-    def test_all(self):
-
-        mol2 = self.mol1.copy()
-        perturb(mol2, 0.3, seed=42)
-        permute(mol2, seed=42)
-
+    def test_random_match(self):
+        mol2 = Molecule.from_file(os.path.join(test_dir, "Si_cluster_2.xyz"))
         res = self.mm.fit(mol2)
-        self.assertEqual(len(res), 1)
-
-        self.assertAlmostEqual(res[0][-1], 0.2628450748567651, places=8)
-
-# @unittest.skip('because')
+        self.assertAlmostEqual(res[0][-1], 0.22163169511782, places=6)
 
 
-class GeneticOrderMatcherSiO2Test(unittest.TestCase):
+class KabschMatcherSi2OTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
 
-        coords = [
-            [0.625, 0.625, 0.625],
-            [0.625, 0.625, 0.125],
-            [0.625, 0.125, 0.625],
-            [0.125, 0.625, 0.625],
-            [0.500, 0.500, 0.500],
-            [0.750, 0.750, 0.750]
-        ]
+        cls.mol1 = Molecule.from_file(os.path.join(test_dir, "Si2O_cluster.xyz"))
+        cls.mm = KabschMatcher(cls.mol1)
 
-        lattice = Lattice.from_parameters(a=6.61657069, b=6.61657069, c=6.61657069, alpha=60, beta=60, gamma=60)
-        struct = Structure(lattice, ['Si', 'Si', 'Si', 'Si', 'O', 'O'], coords)
-        struct.make_supercell([2, 2, 2])
+    def test_missmatched_atoms(self):
+        mol2 = Molecule.from_file(os.path.join(test_dir, "Si_cluster_rotated.xyz"))
+        with self.assertRaises(ValueError):
+            _, rmsd = self.mm.fit(mol2)
 
-        # Creating molecule for testing
-        cls.mol1 = Molecule.from_sites(struct)
-        cls.mm = GeneticOrderMatcher(cls.mol1, threshold=0.3)
+    def test_rotated_molecule(self):
+        mol2 = Molecule.from_file(os.path.join(test_dir, "Si2O_cluster_rotated.xyz"))
+        _, rmsd = self.mm.fit(mol2)
+        self.assertAlmostEqual(rmsd, 0., places=6)
 
     def test_perturbed_atom_position(self):
+        mol2 = Molecule.from_file(os.path.join(test_dir, "Si2O_cluster_perturbed.xyz"))
+        _, rmsd = self.mm.fit(mol2)
+        self.assertAlmostEqual(rmsd, 0.24340452336622473, places=6)
 
-        mol2 = self.mol1.copy()
-        perturb(mol2, 0.3, seed=42)
+    def test_permuted_atoms_order(self):
+        # This task should fail, because `KabschMatcher` is not capable
+        # to handle arbitrary atom's order
+        mol2 = Molecule.from_file(os.path.join(test_dir, "Si2O_cluster_permuted.xyz"))
+        with self.assertRaises(ValueError):
+            _, rmsd = self.mm.fit(mol2)
 
+
+class BruteForceOrderMatcherSi2OTest(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.mol1 = Molecule.from_file(os.path.join(test_dir, "Si2O_cluster.xyz"))
+        cls.mm = BruteForceOrderMatcher(cls.mol1)
+
+    def test_missmatched_atoms(self):
+        mol2 = Molecule.from_file(os.path.join(test_dir, "Si_cluster_rotated.xyz"))
+        with self.assertRaises(ValueError):
+            _, rmsd = self.mm.fit(mol2)
+
+    def test_rotated_molecule(self):
+        mol2 = Molecule.from_file(os.path.join(test_dir, "Si2O_cluster_rotated.xyz"))
+        _, rmsd = self.mm.fit(mol2)
+        self.assertAlmostEqual(rmsd, 0., places=6)
+
+    def test_perturbed_atom_position(self):
+        mol2 = Molecule.from_file(os.path.join(test_dir, "Si2O_cluster_perturbed.xyz"))
+        _, rmsd = self.mm.fit(mol2)
+        self.assertAlmostEqual(rmsd, 0.2434045087608993, places=6)
+
+    def test_permuted_atoms_order(self):
+        mol2 = Molecule.from_file(os.path.join(test_dir, "Si2O_cluster_permuted.xyz"))
+        _, rmsd = self.mm.fit(mol2)
+        self.assertAlmostEqual(rmsd, 0.0, places=6)
+
+    def test_random_match(self):
+        mol2 = Molecule.from_file(os.path.join(test_dir, "Si2O_cluster_2.xyz"))
+        _, rmsd = self.mm.fit(mol2)
+        self.assertAlmostEqual(rmsd, 0.23051587697194997, places=6)
+
+
+class HungarianOrderMatcherSi2OTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+
+        cls.mol1 = Molecule.from_file(os.path.join(test_dir, "Si2O_cluster.xyz"))
+        cls.mm = HungarianOrderMatcher(cls.mol1)
+
+    def test_missmatched_atoms(self):
+        mol2 = Molecule.from_file(os.path.join(test_dir, "Si_cluster_rotated.xyz"))
+        with self.assertRaises(ValueError):
+            _, rmsd = self.mm.fit(mol2)
+
+    def test_rotated_molecule(self):
+        mol2 = Molecule.from_file(os.path.join(test_dir, "Si2O_cluster_rotated.xyz"))
+        _, rmsd = self.mm.fit(mol2)
+        self.assertAlmostEqual(rmsd, 0., places=6)
+
+    def test_perturbed_atom_position(self):
+        mol2 = Molecule.from_file(os.path.join(test_dir, "Si2O_cluster_perturbed.xyz"))
+        _, rmsd = self.mm.fit(mol2)
+        self.assertAlmostEqual(rmsd, 0.24474957657894614, places=6)
+
+    def test_permuted_atoms_order(self):
+        mol2 = Molecule.from_file(os.path.join(test_dir, "Si2O_cluster_permuted.xyz"))
+        _, rmsd = self.mm.fit(mol2)
+        self.assertAlmostEqual(rmsd, 0.0, places=6)
+
+    def test_random_match(self):
+        mol2 = Molecule.from_file(os.path.join(test_dir, "Si2O_cluster_2.xyz"))
+        _, rmsd = self.mm.fit(mol2)
+        self.assertAlmostEqual(rmsd, 0.23231038877573124, places=6)
+
+
+class GeneticOrderMatcherSi2OTest(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.mol1 = Molecule.from_file(os.path.join(test_dir, "Si2O_cluster.xyz"))
+        cls.mm = GeneticOrderMatcher(cls.mol1, threshold=0.3)
+
+    def test_missmatched_atoms(self):
+        mol2 = Molecule.from_file(os.path.join(test_dir, "Si_cluster.xyz"))
+        with self.assertRaises(ValueError):
+            res = self.mm.fit(mol2)
+
+    def test_rotated_molecule(self):
+        mol2 = Molecule.from_file(os.path.join(test_dir, "Si2O_cluster_rotated.xyz"))
+        res = self.mm.fit(mol2)
+        self.assertAlmostEqual(res[0][1], 0., places=6)
+
+    def test_perturbed_atom_position(self):
+        mol2 = Molecule.from_file(os.path.join(test_dir, "Si2O_cluster_perturbed.xyz"))
         res = self.mm.fit(mol2)
         self.assertEqual(len(res), 3)
-        self.assertAlmostEqual(res[0][1], 0.28115706155171244, places=8)
+        self.assertAlmostEqual(res[0][1], 0.24340452336622473, places=6)
 
-    def test_perturbed_atoms_order(self):
-
-        mol2 = self.mol1.copy()
-        permute(mol2, seed=42)
-
+    def test_permuted_atoms_order(self):
+        mol2 = Molecule.from_file(os.path.join(test_dir, "Si2O_cluster_permuted.xyz"))
         res = self.mm.fit(mol2)
-
         self.assertEqual(len(res), 3)
-        self.assertAlmostEqual(res[0][1], 0.0, places=8)
+        self.assertAlmostEqual(res[0][1], 0.0, places=6)
 
-    def test_all(self):
-
-        mol2 = self.mol1.copy()
-        perturb(mol2, 0.3, seed=42)
-        permute(mol2, seed=42)
-
+    def test_random_match(self):
+        mol2 = Molecule.from_file(os.path.join(test_dir, "Si2O_cluster_2.xyz"))
         res = self.mm.match(mol2)
-
         self.assertEqual(len(res), 3)
-        self.assertEqual(res[0][0], 
-                         [24, 8, 30, 27, 33, 12, 11, 43, 4, 46, 9, 21, 2, 26, 0, 25, 10, 6, 19, 15, 38, 45, 28, 18, 20,
-                          42, 16, 32, 40, 39, 7, 36, 22, 34, 14, 5, 29, 47, 35, 13, 1, 31, 37, 17, 44, 23, 3, 41])
-        self.assertAlmostEqual(res[0][-1], 0.28115706155171244, places=8)
+        self.assertEqual(res[0][0], [5, 0, 4, 1, 3, 2])
+        self.assertAlmostEqual(res[0][-1], 0.2305159973457393, places=6)
 
 
 if __name__ == '__main__':
+    # Run the following code to generate test cases:
+    # generate_Si_cluster()
+    # generate_Si2O_cluster()
+
     unittest.main()
