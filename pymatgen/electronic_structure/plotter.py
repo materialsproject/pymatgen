@@ -297,7 +297,7 @@ class BSPlotter:
                     f"which have the same kpath. \n{bs} has a different kpath!"
                 )
                 raise ValueError(msg)
-            
+
         return True
 
     def add_bs(self, bs):
@@ -569,14 +569,15 @@ class BSPlotter:
             )
 
             # skip single point branches
-            if len(dist) == 1:
-                warnings.warn("Skipping single point branch")
-                continue
-            elif len(dist) in (2, 3):
+            if len(dist) in (2, 3):
                 # reducing smooth_k when the number
                 # of points are fewer then k
                 smooth_k = len(dist) - 1
                 warnings.warn(warning_m_fewer_k)
+            elif len(dist) == 1:
+                warnings.warn("Skipping single point branch")
+                continue
+
 
             int_distances.append(np.linspace(dist[0], dist[-1], smooth_np))
 
@@ -2189,10 +2190,10 @@ class BSPlotterProjected(BSPlotter):
                                 dictpa[elt] = indices
                                 print("You want to consider all '%s' atoms." % elt)
                                 break
-                            else:
-                                raise ValueError(
-                                    "You put wrong site numbers in 'dictpa[%s]': %s."
-                                    % (elt, str(number))
+                            
+                            raise ValueError(
+                                "You put wrong site numbers in 'dictpa[%s]': %s."
+                                % (elt, str(number))
                                 )
                         elif isinstance(number, int):
                             if number not in indices:
