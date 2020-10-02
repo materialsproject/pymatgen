@@ -207,7 +207,7 @@ class CorrectionCalculator:
                     break
 
             # filter out compounds that are unstable
-            if isinstance(self.allow_unstable, float):
+            if type(self.allow_unstable) == float:
                 try:
                     eah = compound.data["e_above_hull"]
                 except KeyError:
@@ -389,7 +389,12 @@ class CorrectionCalculator:
         diffs_cpy = self.diffs.copy()
         num = len(labels_species)
 
-        if specie in ("oxide", "peroxide", "superoxide", "S"):
+        if (
+            specie == "oxide"
+            or specie == "peroxide"
+            or specie == "superoxide"
+            or specie == "S"
+        ):
             if specie == "oxide":
                 compounds = self.oxides
             elif specie == "peroxide":

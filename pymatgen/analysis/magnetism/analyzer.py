@@ -12,9 +12,8 @@ import warnings
 import logging
 from enum import Enum, unique
 from collections import namedtuple
-from typing import Union, List, Dict, Tuple, Optional, Any
-
 from monty.serialization import loadfn
+from typing import Union, List, Dict, Tuple, Optional, Any
 
 import numpy as np
 

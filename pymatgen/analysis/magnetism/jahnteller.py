@@ -154,7 +154,7 @@ class JahnTellerAnalyzer:
                     motif = "unknown"
                     motif_order_parameter = None
 
-                if motif in ("oct", "tet"):
+                if motif == "oct" or motif == "tet":
 
                     # guess spin of metal ion
                     if guesstimate_spin and "magmom" in site.properties:
