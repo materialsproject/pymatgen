@@ -1035,7 +1035,7 @@ class HungarianOrderMatcher(KabschMatcher):
 
         return inds, U, V, rmsd
 
-    def fit(self, q: Molecule):
+    def fit(self, p: Molecule):
         """Order, rotate and transform `p` molecule according to the best match.
 
         Args:
@@ -1046,8 +1046,7 @@ class HungarianOrderMatcher(KabschMatcher):
             rmsd: Root-mean-square-deviation between `p_prime` and the `target`
         """
 
-        p = self.target
-        inds, U, V, rmsd = self.match(q)
+        inds, U, V, rmsd = self.match(p)
 
         # Translate and rotate `mol1` unto `mol2` using Kabsch algorithm.
         p_prime = Molecule.from_sites([p[i] for i in inds])
@@ -1185,7 +1184,7 @@ class HungarianOrderMatcher(KabschMatcher):
         s = np.linalg.norm(v)
         c = np.vdot(v1, v2)
 
-        vx = np.array([[0., -v[2], v[1]], [v[2], 0., -v[0]], [-v[1], v[0],  0.]])
+        vx = np.array([[0., -v[2], v[1]], [v[2], 0., -v[0]], [-v[1], v[0], 0.]])
 
         return np.eye(3) + vx + np.dot(vx, vx) * ((1. - c) / (s * s))
 
@@ -1346,75 +1345,3 @@ class GeneticOrderMatcher(KabschMatcher):
                         'number of possible matches: {}'.format(i + 1, len(matches)))
 
         return matches
-
-
-if __name__ == "__main__":
-    import random
-    from pymatgen import Structure, Lattice  # pylint: disable=ungrouped-imports
-
-    coords = np.array([[0, 0, 0], [0.75, 0.5, 0.75]])
-    lattice = Lattice.from_parameters(a=3.84, b=3.84, c=3.84, alpha=120, beta=90, gamma=60)
-    struct = Structure(lattice, ["Si", "Si"], coords)
-    struct.make_supercell([2, 2, 2])
-
-    # Creating molecule for testing
-    struct = Molecule.from_sites(struct)
-
-    N = 10
-    mm = MoleculeMatcher(tolerance=2000., mapper=InchiMolAtomMapper())
-
-    # perturbing the atoms' position
-    for i in range(N):
-        struct2 = struct.copy()
-        struct_perturbed = struct.copy()
-        struct_perturbed.perturb(0.3)
-        print(mm.get_rmsd(struct2, struct_perturbed))
-
-    # perturbing the atoms' order
-    for i in range(N):
-        struct2 = struct.copy()
-        struct_perturbed = struct.copy()
-        random.shuffle(struct_perturbed)
-
-        print(mm.get_rmsd(struct2, struct_perturbed))
-
-    mm = HungarianOrderMatcher(struct)
-
-    # perturbing the atoms' position
-    for i in range(N):
-        struct2 = struct.copy()
-        struct_perturbed = struct.copy()
-        struct_perturbed.perturb(0.3)
-        _, _, _, rmsd = mm.match(struct_perturbed)
-        print(rmsd)
-
-    # perturbing the atoms' order
-    for i in range(N):
-        struct2 = struct.copy()
-        struct_perturbed = struct.copy()
-        random.shuffle(struct_perturbed)
-
-        _, _, _, rmsd = mm.match(struct_perturbed)
-
-        print(rmsd)
-
-    mm = GeneticOrderMatcher(struct, threshold=0.3)
-    print(mm)
-
-    # perturbing the atoms' position
-    for i in range(N):
-        struct2 = struct.copy()
-        struct_perturbed = struct.copy()
-        struct_perturbed.perturb(0.3)
-        res = mm.match(struct_perturbed)
-        print(res[0][-1])
-
-    # perturbing the atoms' order
-    for i in range(N):
-        struct2 = struct.copy()
-        struct_perturbed = struct.copy()
-        random.shuffle(struct_perturbed)
-
-        res = mm.match(struct_perturbed)
-
-        print(res[0][-1])

@@ -16,8 +16,11 @@ except (ImportError, RuntimeError):
 
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure import Lattice, Structure, Molecule
-from pymatgen.analysis.molecule_matcher import KabschMatcher, BruteForceOrderMatcher, HungarianOrderMatcher, GeneticOrderMatcher
 
+from pymatgen.analysis.molecule_matcher import KabschMatcher
+from pymatgen.analysis.molecule_matcher import BruteForceOrderMatcher
+from pymatgen.analysis.molecule_matcher import HungarianOrderMatcher
+from pymatgen.analysis.molecule_matcher import GeneticOrderMatcher
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files', "molecules", "molecule_matcher")
@@ -632,9 +635,9 @@ class HungarianOrderMatcherSiTest(unittest.TestCase):
             _, rmsd = self.mm.fit(mol2)
 
     def test_rotated_molecule(self):
+        # TODO: Checking the cause of the large deviation
         mol2 = Molecule.from_file(os.path.join(test_dir, "Si_cluster_rotated.xyz"))
         _, rmsd = self.mm.fit(mol2)
-        # TODO: very bad result
         self.assertAlmostEqual(rmsd, 1.025066171481399, places=6)
 
     def test_perturbed_atom_position(self):
@@ -648,9 +651,9 @@ class HungarianOrderMatcherSiTest(unittest.TestCase):
         self.assertAlmostEqual(rmsd, 0.0, places=6)
 
     def test_random_match(self):
+        # TODO: Checking the cause of the large deviation
         mol2 = Molecule.from_file(os.path.join(test_dir, "Si_cluster_2.xyz"))
         _, rmsd = self.mm.fit(mol2)
-        # TODO: very bad result
         self.assertAlmostEqual(rmsd, 1.0177241485450828, places=6)
 
 
