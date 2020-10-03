@@ -2159,7 +2159,6 @@ class PDPlotter:
 
         if self._dim == 2:
             line_plot = go.Scatter(x=x, y=y, **plot_args)
-
         elif self._dim == 3:
             line_plot = go.Scatter3d(x=y, y=x, z=z, **plot_args)
         elif self._dim == 4:
@@ -2375,7 +2374,8 @@ class PDPlotter:
                         hasattr(entry, "correction_uncertainty_per_atom")
                         and label_uncertainties
                     ):
-                        uncertainty = entry.correction_uncertainty_per_atom
+                        uncertainty = round(entry.correction_uncertainty_per_atom, 4)
+                        label += f"<br> (Error: +/- {uncertainty} eV/atom)"
 
                     uncertainties.append(uncertainty)
                     energies.append(energy)
