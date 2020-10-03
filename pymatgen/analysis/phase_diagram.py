@@ -2176,8 +2176,8 @@ class PDPlotter:
         x, y, z, text, textpositions = [], [], [], [], []
         stable_labels_plot = None
         min_energy_x = None
-        offset_2d = 0.01  # extra distance to offset label position for clarity
-        offset_3d = 0.02
+        offset_2d = 0.005  # extra distance to offset label position for clarity
+        offset_3d = 0.01
 
         energy_offset = -0.1*self._min_energy
 
@@ -2552,7 +2552,7 @@ class PDPlotter:
     def _create_plotly_uncertainty_shading(self, stable_marker_plot):
         """
         Creates shaded uncertainty region for stable entries. Currently only works
-        for binary phase diagrams.
+        for binary (dim=2) phase diagrams.
 
         :param stable_marker_plot: go.Scatter object with stable markers and their
             error bars.
@@ -2564,15 +2564,26 @@ class PDPlotter:
         x = stable_marker_plot.x
         y = stable_marker_plot.y
 
+        transformed = False
+        if hasattr(self._pd, "original_entries") or hasattr(self._pd,
+                                                            "chempots"):
+            transformed = True
+
         if self._dim == 2:
             error = stable_marker_plot.error_y["array"]
+
             points = np.append(x, [y, error]).reshape(3, -1).T
             points = points[points[:, 0].argsort()]  # sort by composition  # pylint: disable=E1136
 
             # these steps trace out the boundary pts of the uncertainty window
             outline = points[:, :2].copy()
             outline[:, 1] = outline[:, 1] + points[:, 2]
-            flipped_points = np.flip(points[:-1, :].copy(), 0)
+
+            last = -1
+            if transformed:
+                last = None  # allows for uncertainty in terminal compounds
+
+            flipped_points = np.flip(points[:last, :].copy(), axis=0)
             flipped_points[:, 1] = flipped_points[:, 1] - flipped_points[:, 2]
             outline = np.vstack((outline, flipped_points[:, :2]))
 
