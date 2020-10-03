@@ -14,11 +14,11 @@ import logging
 import os
 import json
 from functools import lru_cache
+from monty.json import MSONable, MontyDecoder
 
 import numpy as np
 from scipy.spatial import ConvexHull
-
-from monty.json import MSONable, MontyDecoder
+from scipy.optimize import minimize
 
 import plotly.graph_objs as go
 
@@ -102,11 +102,14 @@ class PDEntry(Entry):
         return return_dict
 
     def __eq__(self, other):
+        # NOTE Scaled duplicates are not equal unless normalized separately
         if isinstance(other, self.__class__):
             return self.as_dict() == other.as_dict()
         return False
 
     def __hash__(self):
+        # NOTE This hashing operation means that equivalent entries
+        # hash to different values. This has implications on set equality.
         return id(self)
 
     @classmethod
@@ -417,6 +420,13 @@ class PhaseDiagram(MSONable):
         The phase diagram is generated in a reduced dimensional space
         (n_elements - 1). This function returns the coordinates in that space.
         These coordinates are compatible with the stored simplex objects.
+
+        Args:
+            comp (Composition): A composition
+
+        Returns:
+            The coordinates for a given composition in the PhaseDiagram's basis
+
         """
         if set(comp.elements).difference(self.elements):
             raise ValueError(
@@ -441,17 +451,25 @@ class PhaseDiagram(MSONable):
     @property
     def unstable_entries(self):
         """
-        Entries that are unstable in the phase diagram. Includes positive
-        formation energy entries.
+        Returns a list of Entries that are unstable in the phase diagram.
+        Includes positive formation energy entries.
         """
+        # NOTE this uses hash equality and so duplicates of stable_entries will
+        # end up in the unstable_entries.
         return [e for e in self.all_entries if e not in self.stable_entries]
 
     @property
     def stable_entries(self):
         """
-        Returns the stable entries in the phase diagram.
+        Returns the set of stable entries in the phase diagram.
         """
         return self._stable_entries
+
+    def get_stable_entries_normed(self, mode="formula_unit"):
+        """
+        Returns a list of normalized stable entries in the phase diagram.
+        """
+        return [e.normalize(mode, inplace=False) for e in self._stable_entries]
 
     def get_form_energy(self, entry):
         """
@@ -459,7 +477,7 @@ class PhaseDiagram(MSONable):
         elemental references.
 
         Args:
-            entry: A PDEntry-like object.
+            entry (PDEntry): A PDEntry-like object.
 
         Returns:
             Formation energy from the elemental references.
@@ -475,7 +493,7 @@ class PhaseDiagram(MSONable):
         elemental references.
 
         Args:
-            entry: An PDEntry-like object
+            entry (PDEntry): An PDEntry-like object
 
         Returns:
             Formation energy **per atom** from the elemental references.
@@ -520,6 +538,10 @@ class PhaseDiagram(MSONable):
         """
         Get any facet that a composition falls into. Cached so successive
         calls at same composition are fast.
+
+        Args:
+            comp (Composition): A composition
+
         """
         c = self.pd_coords(comp)
         for f, s in zip(self.facets, self.simplexes):
@@ -535,7 +557,7 @@ class PhaseDiagram(MSONable):
             facet: Facet of the phase diagram.
 
         Returns:
-            { element: chempot } for all elements in the phase diagram.
+            {element: chempot} for all elements in the phase diagram.
         """
         complist = [self.qhull_entries[i].composition for i in facet]
         energylist = [self.qhull_entries[i].energy_per_atom for i in facet]
@@ -548,10 +570,11 @@ class PhaseDiagram(MSONable):
         Provides the decomposition at a particular composition.
 
         Args:
-            comp: A composition
+            comp (Composition): A composition
 
         Returns:
-            Decomposition as a dict of {Entry: amount}
+            Decomposition as a dict of {PDEntry: amount} where amount
+            is the amount of the fractional composition.
         """
         facet, simplex = self._get_facet_and_simplex(comp)
         decomp_amts = simplex.bary_coords(self.pd_coords(comp))
@@ -568,7 +591,7 @@ class PhaseDiagram(MSONable):
 
         Returns:
             Energy of lowest energy equilibrium at desired composition. Not
-            normalized by atoms, i.e. E(Li4O2) = 2 * E(Li2O)
+                normalized by atoms, i.e. E(Li4O2) = 2 * E(Li2O)
         """
         e = 0
         for k, v in self.get_decomposition(comp).items():
@@ -582,16 +605,19 @@ class PhaseDiagram(MSONable):
         are processed together.
 
         Args:
-            entry: A PDEntry like object
-            allow_negative: Whether to allow negative e_above_hulls. Used to
+            entry (PDEntry): A PDEntry like object
+            allow_negative (bool): Whether to allow negative e_above_hulls. Used to
                 calculate equilibrium reaction energies. Defaults to False.
 
         Returns:
-            (decomp, energy above convex hull)  Stable entries should have
-            energy above hull of 0. The decomposition is provided as a dict of
-            {Entry: amount}.
+            (decomp, energy above convex hull). The decomposition is provided
+                as a dict of {PDEntry: amount} where amount is the amount of the
+                fractional composition. Stable entries should have energy above
+                convex hull of 0. The energy is given per atom.
         """
-        if entry in self.stable_entries:
+        # Avoid computation for stable_entries. Note that scaled duplicates of
+        # stable_entries will not be caught.
+        if entry in list(self.stable_entries):
             return {entry: 1}, 0
 
         comp = entry.composition
@@ -604,20 +630,22 @@ class PhaseDiagram(MSONable):
         }
         energies = [self.qhull_entries[i].energy_per_atom for i in facet]
         ehull = entry.energy_per_atom - np.dot(decomp_amts, energies)
+
         if allow_negative or ehull >= -PhaseDiagram.numerical_tol:
             return decomp, ehull
-        raise ValueError("No valid decomp found!")
+
+        raise ValueError("No valid decomp found for {}!".format(entry))
 
     def get_e_above_hull(self, entry):
         """
         Provides the energy above convex hull for an entry
 
         Args:
-            entry: A PDEntry like object
+            entry (PDEntry): A PDEntry like object
 
         Returns:
             Energy above convex hull of entry. Stable entries should have
-            energy above hull of 0.
+            energy above hull of 0. The energy is given per atom.
         """
         return self.get_decomp_and_e_above_hull(entry)[1]
 
@@ -628,21 +656,155 @@ class PhaseDiagram(MSONable):
         hull).
 
         Args:
-            entry: A PDEntry like object
+            entry (PDEntry): A PDEntry like object
 
         Returns:
             Equilibrium reaction energy of entry. Stable entries should have
-            equilibrium reaction energy <= 0.
+            equilibrium reaction energy <= 0. The energy is given per atom.
         """
-        if entry not in self.stable_entries:
+        if entry.normalize(inplace=False) not in self.get_stable_entries_normed():
             raise ValueError(
-                "Equilibrium reaction energy is available only " "for stable entries."
+                "{} is unstable, the equilibrium reaction energy is"
+                "available only for stable entries.".format(entry)
             )
+
         if entry.is_element:
             return 0
-        entries = [e for e in self.stable_entries if e != entry]
+
+        entries = [e for e in self.stable_entries if e.normalize(inplace=False) != entry.normalize(inplace=False)]
         modpd = PhaseDiagram(entries, self.elements)
         return modpd.get_decomp_and_e_above_hull(entry, allow_negative=True)[1]
+
+    def get_decomp_and_quasi_e_to_hull(
+        self,
+        entry,
+        space_limit=200,
+        stable_only=False,
+        tol=1e-10,
+        maxiter=1000
+    ):
+        """
+        Provides the combination of entries in the PhaseDiagram that gives the
+        lowest formation enthalpy with the same composition as the given entry
+        and the energy difference per atom between the given entry and the energy
+        of the combination found.
+
+        For unstable entries (or novel entries) this is simply the energy above
+        (or below) the convex hull.
+
+        For stable entries when `stable_only` is `False` (Default) allows for entries
+        not previously on the convect hull to be considered in the combination.
+        In this case the energy returned is what is referred to as the decomposition
+        enthalpy in:
+
+        1. Bartel, C., Trewartha, A., Wang, Q., Dunn, A., Jain, A., Ceder, G.,
+            A critical examination of compound stability predictions from
+            machine-learned formation energies, npj Computational Materials 6, 97 (2020)
+
+        For stable entries setting `stable_only` to `True` returns the same energy
+        as `get_equilibrium_reaction_energy`. This function is based on a constrained
+        optimisation rather than recalculation of the convex hull making it
+        algorithmically cheaper. However, if `tol` is too loose there is potential
+        for this algorithm to converge to a different solution.
+
+        Args:
+            entry (PDEntry): A PDEntry like object.
+            space_limit (int): The maximum number of competing entries to consider
+                before calculating a second convex hull to reducing the complexity
+                of the optimization.
+            stable_only (bool): Only use stable materials as competing entries.
+            tol (float): The tolerence for convergence of the SLSQP optimization
+                when finding the equilibrium reaction.
+            maxiter (int): The maximum number of iterations of the SLSQP optimizer
+                when finding the equilibrium reaction.
+
+        Returns:
+            (decomp, energy). The decompostion  is given as a dict of {PDEntry, amount}
+            for all entries in the decomp reaction where amount is the amount of the
+            fractional composition. The energy is given per atom.
+        """
+        # For unstable or novel materials use simplex approach
+        if entry.normalize(inplace=False) not in self.get_stable_entries_normed():
+            return self.get_decomp_and_e_above_hull(entry, allow_negative=True)
+
+        if stable_only:
+            compare_entries = self.stable_entries
+        else:
+            compare_entries = self.qhull_entries
+
+        # take entries with negative formation enthalpies as competing entries
+        competing_entries = [
+            c for c in compare_entries if c.normalize(inplace=False) != entry.normalize(inplace=False)
+            if set(c.composition.elements).issubset(entry.composition.elements)
+        ]
+
+        # NOTE SLSQP optimizer doesn't scale well for > 300 competing entries. As a
+        # result in phase diagrams where we have too many competing entries we can
+        # reduce the number by looking at the first and second convex hulls. This
+        # requires computing the convex hull of a second (hopefully smallish) space
+        # and so is not done by default
+        if len(competing_entries) > space_limit and not stable_only:
+            inner_hull = PhaseDiagram(list(set.intersection(
+                set(competing_entries),  # same chemical space
+                set(self.qhull_entries),  # negative E_f
+                set(self.unstable_entries),  # not already on hull
+            )) + list(self.el_refs.values()))  # terminal points
+
+            competing_entries = list(self.stable_entries.union(inner_hull.stable_entries))
+            competing_entries = [c for c in competing_entries if c != entry]
+
+        solution = _slsqp_decomp_solution(entry, competing_entries, tol, maxiter)
+
+        if solution.success:
+            decomp_amts = solution.x
+            decomp = {c: amt for c, amt
+                      in zip(competing_entries, decomp_amts)
+                      if amt > PhaseDiagram.numerical_tol}
+
+            # find the minimum alternative formation energy for the decomposition
+            decomp_enthalpy = np.sum([c.energy_per_atom * amt for c, amt in decomp.items()])
+
+            decomp_enthalpy = entry.energy_per_atom - decomp_enthalpy
+
+            return decomp, decomp_enthalpy
+
+        raise ValueError("No valid decomp found for {}!".format(entry))
+
+    def get_quasi_e_to_hull(self, entry, **kwargs):
+        """
+        Provides the energy to the convex hull for the given entry. For stable entries
+        already in the phase diagram the algorithm provides a quasi energy to the convex
+        hull which is refered to as the decomposition enthalpy in:
+
+        1. Bartel, C., Trewartha, A., Wang, Q., Dunn, A., Jain, A., Ceder, G.,
+            A critical examination of compound stability predictions from
+            machine-learned formation energies, npj Computational Materials 6, 97 (2020)
+
+        Args:
+            entry (PDEntry): A PDEntry like object
+            **kwargs: Keyword args passed to `get_decomp_and_decomp_energy`
+                space_limit (int): The maximum number of competing entries to consider.
+                stable_only (bool): Only use stable materials as competing entries
+                tol (float): The tolerence for convergence of the SLSQP optimization
+                    when finding the equilibrium reaction.
+                maxiter (int): The maximum number of iterations of the SLSQP optimizer
+                    when finding the equilibrium reaction.
+
+        Returns:
+            Decomposition energy per atom of entry. Stable entries should have
+            energies <= 0, Stable elemental entries should have energies = 0 and
+            unstable entries should have energies > 0.
+        """
+        # Handle unstable and novel materials
+        if entry.normalize(inplace=False) not in self.get_stable_entries_normed():
+            return self.get_decomp_and_e_above_hull(entry, allow_negative=True)[1]
+
+        # Handle stable elemental materials
+        if entry.is_element:
+            return 0
+
+        # Handle stable compounds
+        return self.get_decomp_and_quasi_e_to_hull(entry, **kwargs)[1]
 
     def get_composition_chempots(self, comp):
         """
@@ -661,8 +823,9 @@ class PhaseDiagram(MSONable):
         :param comp: Composition
         :return: Chemical potentials.
         """
-        # note the top part takes from format of _get_facet_and_simplex,
-        #   but wants to return all facets rather than the first one that meets this criteria
+        # NOTE the top part takes from format of _get_facet_and_simplex,
+        # but wants to return all facets rather than the first one that
+        # meets this criteria
         c = self.pd_coords(comp)
         allfacets = []
         for f, s in zip(self.facets, self.simplexes):
@@ -1415,6 +1578,70 @@ def get_facets(qhull_data, joggle=False):
     if joggle:
         return ConvexHull(qhull_data, qhull_options="QJ i").simplices
     return ConvexHull(qhull_data, qhull_options="Qt i").simplices
+
+
+def _slsqp_decomp_solution(entry, competing_entries, tol, maxiter):
+    """
+    Finds the amounts of competing compositions that minimize the energy of a
+    given composition
+
+    The algorithm is based on the work in the following paper:
+
+    1. Bartel, C., Trewartha, A., Wang, Q., Dunn, A., Jain, A., Ceder, G.,
+        A critical examination of compound stability predictions from
+        machine-learned formation energies, npj Computational Materials 6, 97 (2020)
+
+    Args:
+        entry (PDEntry): A PDEntry like entry to analyze
+        competing_entries ([PDEntry]): List of entries to consider for decomposition
+
+    Returns:
+        scipy.optimize.minimize result. If sucessful this gives the linear combination of
+            competing entrys that minimizes the competing formation energy
+    """
+    # Elemental amount present in given entry
+    amts = entry.composition.fractional_composition.get_el_amt_dict()
+    chemical_space = tuple(amts.keys())
+    b = np.array([amts[el] for el in chemical_space])
+
+    # Elemental amounts present in competing entries
+    A_transpose = np.zeros((len(chemical_space), len(competing_entries)))
+    for j, comp_entry in enumerate(competing_entries):
+        amts = comp_entry.composition.fractional_composition.get_el_amt_dict()
+        for i, el in enumerate(chemical_space):
+            A_transpose[i, j] = amts[el]
+
+    # Energies of competing entries
+    Es = np.array([comp_entry.energy_per_atom for comp_entry in competing_entries])
+
+    molar_constraint = {
+        "type": "eq",
+        "fun": lambda x: np.dot(A_transpose, x)-b,
+        "jac": lambda x: A_transpose
+    }
+
+    options = {
+        "maxiter": maxiter,
+        "disp": False
+    }
+
+    max_bound = entry.composition.num_atoms
+    bounds = [(0, max_bound)] * len(competing_entries)
+    x0 = [1/len(competing_entries)] * len(competing_entries)
+
+    # NOTE the tolerence needs to be tight to stop the optimization
+    # from exiting before convergence is reached. Issues observed for
+    # tol > 1e-7 in the fractional composition (default 1e-10).
+    solution = minimize(fun=lambda x: np.dot(x, Es),
+                        x0=x0,
+                        method="SLSQP",
+                        jac=lambda x: Es,
+                        bounds=bounds,
+                        constraints=[molar_constraint],
+                        tol=tol,
+                        options=options)
+
+    return solution
 
 
 class PDPlotter:

@@ -156,6 +156,19 @@ class ComputedEntryTest(unittest.TestCase):
         for ea in entry.energy_adjustments:
             assert ea.value == 1
 
+    def test_normalize_not_in_place(self):
+        ealist = [ManualEnergyAdjustment(5),
+                  ConstantEnergyAdjustment(5),
+                  CompositionEnergyAdjustment(1, 5, uncertainty_per_atom=0, name="Na"),
+                  TemperatureEnergyAdjustment(0.005, 100, 10, uncertainty_per_deg=0)
+                  ]
+        entry = ComputedEntry("Na5Cl5", 6.9, energy_adjustments=ealist)
+
+        normed_entry = entry.normalize(inplace=False)
+        entry.normalize()
+
+        self.assertEqual(normed_entry.as_dict(), entry.as_dict())
+
     def test_to_from_dict(self):
         d = self.entry.as_dict()
         e = ComputedEntry.from_dict(d)
