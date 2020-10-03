@@ -945,7 +945,7 @@ class BruteForceOrderMatcher(KabschMatcher):
         """Order, rotate and transform `p` molecule according to the best match.
 
         A `ValueError` will be raised when the total number of possible combinations
-        become unfeasible (more than a million combination).
+        become unfeasible (more than a million combinations).
 
         Args:
             p: a `Molecule` object what will be matched with the target one.
@@ -980,7 +980,7 @@ class HungarianOrderMatcher(KabschMatcher):
     axis and then re-orders the input atom list using the Hungarian method.
 
     Notes:
-        This method cannot guarante the best match but very fast.
+        This method cannot guarantee the best match but is very fast.
 
         When aligning molecules, the atoms of the two molecules **must** have same number
         of atoms from the same species.
@@ -1197,20 +1197,20 @@ class GeneticOrderMatcher(KabschMatcher):
     The main idea here is that in each iteration (generation) we can check the match of all possible
     fragments and ignore those which are not feasible.
 
-    Although in worst case this method has N! complexity (same as the brute force one)
-    but in practice it performs much faster.
-    because many of the combination can be eliminated during the fragment matching.
+    Although in the worst case this method has N! complexity (same as the brute force one), 
+    in practice it performs much faster because many of the combination can be eliminated 
+    during the fragment matching.
 
     Notes:
         This method very robust and returns with all the possible orders.
 
-        There is a well nonce weakness/ corner case: The case when there is
+        There is a well known weakness/corner case: The case when there is
         a outlier with large deviation with a small index might be ignored.
-        This happens due to the nature ov the avarage function
+        This happens due to the nature of the average function
         used to calculate the RMSD for the fragments.
 
-        When aligning molecules, the atoms of the two molecules **must** have same number
-        of atoms from the same species.
+        When aligning molecules, the atoms of the two molecules **must** have the 
+        same number of atoms from the same species.
     """
 
     def __init__(self, target: Molecule, threshold: float):
