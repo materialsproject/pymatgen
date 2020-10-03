@@ -521,7 +521,7 @@ class PhaseDiagram(MSONable):
         elements = [Element.from_dict(dd) for dd in d["elements"]]
         return cls(entries, elements)
 
-    def _pd_coords(self, comp):
+    def pd_coords(self, comp):
         """
         The phase diagram is generated in a reduced dimensional space
         (n_elements - 1). This function returns the coordinates in that space.
@@ -551,7 +551,7 @@ class PhaseDiagram(MSONable):
             comp (Composition): A composition
 
         """
-        c = self._pd_coords(comp)
+        c = self.pd_coords(comp)
         for f, s in zip(self.facets, self.simplexes):
             if s.in_simplex(c, PhaseDiagram.numerical_tol / 10):
                 return f, s
@@ -585,7 +585,7 @@ class PhaseDiagram(MSONable):
             is the amount of the fractional composition.
         """
         facet, simplex = self._get_facet_and_simplex(comp)
-        decomp_amts = simplex.bary_coords(self._pd_coords(comp))
+        decomp_amts = simplex.bary_coords(self.pd_coords(comp))
         return {
             self.qhull_entries[f]: amt
             for f, amt in zip(facet, decomp_amts)
@@ -630,7 +630,7 @@ class PhaseDiagram(MSONable):
 
         comp = entry.composition
         facet, simplex = self._get_facet_and_simplex(comp)
-        decomp_amts = simplex.bary_coords(self._pd_coords(comp))
+        decomp_amts = simplex.bary_coords(self.pd_coords(comp))
         decomp = {
             self.qhull_entries[f]: amt
             for f, amt in zip(facet, decomp_amts)
@@ -819,7 +819,7 @@ class PhaseDiagram(MSONable):
         Get the chemical potentials for all elements at a given composition.
 
         Args:
-            comp (PDEntry): Composition
+            comp (Composition): Composition
 
         Returns:
             Dictionary of chemical potentials.
@@ -832,7 +832,7 @@ class PhaseDiagram(MSONable):
         Get chemical potentials at a given compositon.
 
         Args:
-            comp (PDEntry): Composition
+            comp (Composition): Composition
 
         Returns:
             Chemical potentials.
@@ -840,7 +840,7 @@ class PhaseDiagram(MSONable):
         # NOTE the top part takes from format of _get_facet_and_simplex,
         # but wants to return all facets rather than the first one that
         # meets this criteria
-        c = self._pd_coords(comp)
+        c = self.pd_coords(comp)
         allfacets = []
         for f, s in zip(self.facets, self.simplexes):
             if s.in_simplex(c, PhaseDiagram.numerical_tol / 10):
@@ -909,8 +909,8 @@ class PhaseDiagram(MSONable):
 
         # the reduced dimensionality Simplexes don't use the
         # first element in the PD
-        c1 = self._pd_coords(comp1)
-        c2 = self._pd_coords(comp2)
+        c1 = self.pd_coords(comp1)
+        c2 = self.pd_coords(comp2)
 
         # none of the projections work if c1 == c2, so just return *copies*
         # of the inputs
@@ -1390,17 +1390,6 @@ class PatchedPhaseDiagram(PhaseDiagram):
     smaller chemical spaces which can be computed much more quickly due to having
     both reduced dimensionality and data set sizes.
 
-    Args:
-        entries ([PDEntry, ]): A list of PDEntry-like objects having an
-            energy, energy_per_atom and composition.
-        elements ([Element, ], optional): Optional list of elements in the phase
-            diagram. If set to None, the elements are determined from
-            the the entries themselves and are sorted alphabetically.
-            If specified, element ordering (e.g. for pd coordinates)
-            is preserved.
-        workers (int): Number of workers to share computation of PhaseDiagrams
-            between
-
     Attributes:
         subspaces ({str: {Element, }}): Dictionary of the sets of elements for each of the
             PhaseDiagrams within the PatchedPhaseDiagram.
@@ -1419,7 +1408,18 @@ class PatchedPhaseDiagram(PhaseDiagram):
 
     """
     def __init__(self, entries, elements=None, workers=1):
-
+        """
+        Args:
+            entries ([PDEntry, ]): A list of PDEntry-like objects having an
+                energy, energy_per_atom and composition.
+            elements ([Element, ], optional): Optional list of elements in the phase
+                diagram. If set to None, the elements are determined from
+                the the entries themselves and are sorted alphabetically.
+                If specified, element ordering (e.g. for pd coordinates)
+                is preserved.
+            workers (int): Number of workers to share computation of PhaseDiagrams
+                between
+        """
         if elements is None:
             elements = set()
             for entry in entries:
