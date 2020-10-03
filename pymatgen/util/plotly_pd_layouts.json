@@ -277,7 +277,7 @@
   "default_ternary_marker_settings": {
     "mode": "markers",
     "marker": {
-      "size": 8,
+      "size": 7,
       "line": {
         "width": 4,
         "color": "black"

@@ -25,9 +25,9 @@ class BaderAnalysisTest(unittest.TestCase):
                                 'test_files')
 
         # test with reference file
-        analysis = BaderAnalysis(os.path.join(test_dir, "CHGCAR.Fe3O4"),
-                                 os.path.join(test_dir, "POTCAR.Fe3O4"),
-                                 os.path.join(test_dir, "CHGCAR.Fe3O4_ref"))
+        analysis = BaderAnalysis(chgcar_filename=os.path.join(test_dir, "CHGCAR.Fe3O4"),
+                                 potcar_filename=os.path.join(test_dir, "POTCAR.Fe3O4"),
+                                 chgref_filename=os.path.join(test_dir, "CHGCAR.Fe3O4_ref"))
         self.assertEqual(len(analysis.data), 14)
         self.assertAlmostEqual(analysis.data[0]["charge"], 6.6136782, 3)
         self.assertAlmostEqual(analysis.nelectrons, 96)
@@ -40,8 +40,12 @@ class BaderAnalysisTest(unittest.TestCase):
         self.assertAlmostEqual(s[0].specie.oxi_state, 1.3863218, 3)
 
         # make sure bader still runs without reference file
-        analysis = BaderAnalysis(os.path.join(test_dir, "CHGCAR.Fe3O4"))
+        analysis = BaderAnalysis(chgcar_filename=os.path.join(test_dir, "CHGCAR.Fe3O4"))
         self.assertEqual(len(analysis.data), 14)
+
+        # Test Cube file format parsing
+        analysis = BaderAnalysis(cube_filename=os.path.join(test_dir, 'bader/elec.cube.gz'))
+        self.assertEqual(len(analysis.data), 9)
 
     def test_from_path(self):
         test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
@@ -91,9 +95,9 @@ class BaderAnalysisTest(unittest.TestCase):
                                 'test_files')
 
         # test with reference file
-        analysis = BaderAnalysis(os.path.join(test_dir, "CHGCAR.Fe3O4"),
-                                 os.path.join(test_dir, "POTCAR.Fe3O4"),
-                                 os.path.join(test_dir, "CHGCAR.Fe3O4_ref"),
+        analysis = BaderAnalysis(chgcar_filename=os.path.join(test_dir, "CHGCAR.Fe3O4"),
+                                 potcar_filename=os.path.join(test_dir, "POTCAR.Fe3O4"),
+                                 chgref_filename=os.path.join(test_dir, "CHGCAR.Fe3O4_ref"),
                                  parse_atomic_densities=True)
 
         self.assertEqual(len(analysis.atomic_densities), len(analysis.chgcar.structure))

@@ -144,7 +144,7 @@ class DefectCompatibility(MSONable):
                 frey_meta = defect_entry.parameters['freysoldt_meta']
                 frey_corr = frey_meta["freysoldt_electrostatic"] + frey_meta["freysoldt_potential_alignment_correction"]
                 corrections.update({'charge_correction': frey_corr})
-            elif ('kumagai_meta' in defect_entry.parameters.keys()):
+            elif 'kumagai_meta' in defect_entry.parameters.keys():
                 kumagai_meta = defect_entry.parameters['kumagai_meta']
                 kumagai_corr = kumagai_meta["kumagai_electrostatic"] + \
                     kumagai_meta["kumagai_potential_alignment_correction"]
@@ -175,7 +175,7 @@ class DefectCompatibility(MSONable):
             })
         else:
             corrections.update({'bandedgeshifting_correction': 0.})
-            if (type(defect_entry.parameters['vbm']) == float) and (type(defect_entry.parameters['cbm']) == float):
+            if isinstance(defect_entry.parameters['vbm'], float) and isinstance(defect_entry.parameters['cbm'], float):
                 # still want to have vbm and gap ready for phase diagram
                 defect_entry.parameters.update({
                     'phasediagram_meta': {
@@ -267,7 +267,8 @@ class DefectCompatibility(MSONable):
 
         return defect_entry
 
-    def perform_freysoldt(self, defect_entry):
+    @staticmethod
+    def perform_freysoldt(defect_entry):
         """
         Perform Freysoldt correction.
 
@@ -287,7 +288,8 @@ class DefectCompatibility(MSONable):
         defect_entry.parameters.update({'freysoldt_meta': freysoldt_meta})
         return defect_entry
 
-    def perform_kumagai(self, defect_entry):
+    @staticmethod
+    def perform_kumagai(defect_entry):
         """
         Perform Kumagai correction.
 
@@ -305,14 +307,15 @@ class DefectCompatibility(MSONable):
                                sampling_radius=sampling_radius, gamma=gamma)
         kumagaicorr = KC.get_correction(defect_entry)
 
-        kumagai_meta = {k: v for k, v in KC.metadata.items()}
+        kumagai_meta = dict(KC.metadata.items())
         kumagai_meta["kumagai_potalign"] = defect_entry.parameters["potalign"]
         kumagai_meta["kumagai_electrostatic"] = kumagaicorr["kumagai_electrostatic"]
         kumagai_meta["kumagai_potential_alignment_correction"] = kumagaicorr["kumagai_potential_alignment"]
         defect_entry.parameters.update({'kumagai_meta': kumagai_meta})
         return defect_entry
 
-    def perform_bandfilling(self, defect_entry):
+    @staticmethod
+    def perform_bandfilling(defect_entry):
         """
         Perform bandfilling correction.
 
@@ -333,7 +336,8 @@ class DefectCompatibility(MSONable):
                                         'num_elec_cbm': bandfilling_meta['num_elec_cbm']})
         return defect_entry
 
-    def perform_band_edge_shifting(self, defect_entry):
+    @staticmethod
+    def perform_band_edge_shifting(defect_entry):
         """
         Perform band edge shifting correction.
 
@@ -390,9 +394,8 @@ class DefectCompatibility(MSONable):
 
         req_struct_delocal_params = ["final_defect_structure", "initial_defect_structure",
                                      "sampling_radius", "defect_frac_sc_coords"]
-        run_struct_delocal = True if \
-            len(set(defect_entry.parameters.keys()).intersection(req_struct_delocal_params)) \
-            == len(req_struct_delocal_params) else False
+        run_struct_delocal = len(set(defect_entry.parameters.keys()).intersection(req_struct_delocal_params)) \
+            == len(req_struct_delocal_params)
         if run_struct_delocal:
             defect_entry = self.check_final_relaxed_structure_delocalized(defect_entry)
         else:
@@ -416,9 +419,9 @@ class DefectCompatibility(MSONable):
         for ax in range(3):
             freystats = defect_entry.parameters['freysoldt_meta']['pot_corr_uncertainty_md'][ax]['stats']
 
-            frey_variance_compatible = True if freystats['variance'] <= self.plnr_avg_var_tol else False
+            frey_variance_compatible = freystats['variance'] <= self.plnr_avg_var_tol
             frey_window = abs(freystats['minmax'][1] - freystats['minmax'][0])
-            frey_minmax_compatible = True if frey_window <= self.plnr_avg_minmax_tol else False
+            frey_minmax_compatible = frey_window <= self.plnr_avg_minmax_tol
 
             plnr_avg_analyze_meta.update({ax: {'frey_variance_compatible': frey_variance_compatible,
                                                'frey_variance': freystats['variance'],
@@ -455,9 +458,9 @@ class DefectCompatibility(MSONable):
         atomic_site_analyze_meta = {}
         kumagaistats = defect_entry.parameters['kumagai_meta']['pot_corr_uncertainty_md']['stats']
 
-        kumagai_variance_compatible = True if kumagaistats['variance'] <= self.atomic_site_var_tol else False
+        kumagai_variance_compatible = kumagaistats['variance'] <= self.atomic_site_var_tol
         kumagai_window = abs(kumagaistats['minmax'][1] - kumagaistats['minmax'][0])
-        kumagai_minmax_compatible = True if kumagai_window <= self.atomic_site_minmax_tol else False
+        kumagai_minmax_compatible = kumagai_window <= self.atomic_site_minmax_tol
 
         atomic_site_analyze_meta.update({'kumagai_variance_compatible': kumagai_variance_compatible,
                                          'kumagai_variance': kumagaistats['variance'],
@@ -466,8 +469,7 @@ class DefectCompatibility(MSONable):
                                          'kumagai_minmax_window': kumagai_window,
                                          'plnr_avg_minmax_tol': self.atomic_site_minmax_tol})
 
-        atomic_site_allows_compatible = True if (
-                kumagai_variance_compatible and kumagai_minmax_compatible) else False
+        atomic_site_allows_compatible = kumagai_variance_compatible and kumagai_minmax_compatible
 
         if 'delocalization_meta' not in defect_entry.parameters.keys():
             defect_entry.parameters['delocalization_meta'] = {}
@@ -506,12 +508,12 @@ class DefectCompatibility(MSONable):
             if site.distance_and_image_from_frac_coords(def_frac_coords)[0] < 0.01:
                 defindex = ind
                 continue
-            else:
-                totpert += distmatrix[ind, ind]
-                # append [distance to defect, distance traveled, index in structure]
-                distance_to_defect = \
-                    initial_defect_structure.lattice.get_distance_and_image(def_frac_coords, initsites[ind])[0]
-                distdata.append([distance_to_defect, distmatrix[ind, ind], int(ind)])
+
+            totpert += distmatrix[ind, ind]
+            # append [distance to defect, distance traveled, index in structure]
+            distance_to_defect = \
+                initial_defect_structure.lattice.get_distance_and_image(def_frac_coords, initsites[ind])[0]
+            distdata.append([distance_to_defect, distmatrix[ind, ind], int(ind)])
 
         if defindex is None and not isinstance(defect_entry.defect, Vacancy):
             raise ValueError("fractional coordinate for defect could not be "
@@ -520,16 +522,15 @@ class DefectCompatibility(MSONable):
         distdata.sort()
         tot_relax_outside_rad = 0.
         perc_relax_outside_rad = 0.
-        for newind in range(len(distdata)):
-            perc_relax = 100 * distdata[newind][1] / totpert if totpert else 0.
-            distdata[newind].append(perc_relax)  # percentage contribution to total relaxation
-            if distdata[newind][0] > radius_to_sample:
-                tot_relax_outside_rad += distdata[newind][1]
-                perc_relax_outside_rad += distdata[newind][3]
+        for newind, d in enumerate(distdata):
+            perc_relax = 100 * d[1] / totpert if totpert else 0.
+            d.append(perc_relax)  # percentage contribution to total relaxation
+            if d[0] > radius_to_sample:
+                tot_relax_outside_rad += d[1]
+                perc_relax_outside_rad += d[3]
 
-        structure_tot_relax_compatible = True if tot_relax_outside_rad <= self.tot_relax_tol else False
-        structure_perc_relax_compatible = False if (
-                    perc_relax_outside_rad > self.perc_relax_tol and totpert >= 1.) else True
+        structure_tot_relax_compatible = tot_relax_outside_rad <= self.tot_relax_tol
+        structure_perc_relax_compatible = not (perc_relax_outside_rad > self.perc_relax_tol and totpert >= 1.)
         structure_relax_analyze_meta.update({'structure_tot_relax_compatible': structure_tot_relax_compatible,
                                              'tot_relax_outside_rad': tot_relax_outside_rad,
                                              'tot_relax_tol': self.tot_relax_tol,
@@ -539,8 +540,7 @@ class DefectCompatibility(MSONable):
                                              'full_structure_relax_data': distdata,
                                              'defect_index': defindex})
 
-        structure_relax_allows_compatible = True if (
-                structure_tot_relax_compatible and structure_perc_relax_compatible) else False
+        structure_relax_allows_compatible = structure_tot_relax_compatible and structure_perc_relax_compatible
 
         # NEXT: do single defect delocalization analysis (requires similar data, so might as well run in tandem
         # with structural delocalization)
@@ -551,7 +551,7 @@ class DefectCompatibility(MSONable):
                                                   'defect_tot_relax_tol': self.defect_tot_relax_tol})
         else:
             defect_relax_amount = distmatrix[defindex, defindex]
-            defectsite_relax_allows_compatible = True if defect_relax_amount <= self.defect_tot_relax_tol else False
+            defectsite_relax_allows_compatible = defect_relax_amount <= self.defect_tot_relax_tol
             defectsite_relax_analyze_meta.update({'relax_amount': defect_relax_amount,
                                                   'defect_tot_relax_tol': self.defect_tot_relax_tol})
 

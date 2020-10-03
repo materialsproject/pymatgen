@@ -47,7 +47,7 @@ from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.core.periodic_table import DummySpecie
+from pymatgen.core.periodic_table import DummySpecies
 
 logger = logging.getLogger(__name__)
 
@@ -183,7 +183,7 @@ class EnumlibAdaptor:
                 if sum(species.values()) < 1 - EnumlibAdaptor.amount_tol:
                     # Let us first make add a dummy element for every single
                     # site whose total occupancies don't sum to 1.
-                    species[DummySpecie("X")] = 1 - sum(species.values())
+                    species[DummySpecies("X")] = 1 - sum(species.values())
                 for sp in species.keys():
                     if sp not in index_species:
                         index_species.append(sp)
