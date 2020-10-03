@@ -97,11 +97,11 @@ class BaderAnalysis:
               " Please download the library at http://theory.cm.utexas"
               ".edu/vasp/bader/ and compile the executable.")
     def __init__(self,
-                 cube_filename=None,
                  chgcar_filename=None,
                  potcar_filename=None,
                  chgref_filename=None,
-                 parse_atomic_densities=False):
+                 parse_atomic_densities=False,
+                 cube_filename=None):
         """
         Initializes the Bader caller.
 
