@@ -2178,7 +2178,9 @@ class PDPlotter:
         stable_labels_plot = None
         min_energy_x = None
         offset_2d = 0.01  # extra distance to offset label position for clarity
-        offset_3d = 0.015
+        offset_3d = 0.02
+
+        energy_offset = -0.1*self._min_energy
 
         if self._dim == 2:
             min_energy_x = min(list(self.pd_plot_data[1].keys()), key=lambda c: c[1])[0]
@@ -2209,7 +2211,7 @@ class PDPlotter:
                 else:
                     y_coord += offset_3d
 
-                z.append(self._pd.get_form_energy_per_atom(entry) + 3 * offset_3d)
+                z.append(self._pd.get_form_energy_per_atom(entry) + energy_offset)
 
             elif self._dim == 4:
                 x_coord = x_coord - offset_3d
@@ -2221,7 +2223,11 @@ class PDPlotter:
             y.append(y_coord)
             textpositions.append(textposition)
 
-            formula = list(entry.composition.reduced_formula)
+            comp = entry.composition
+            if hasattr(entry, "original_entry"):
+                comp = entry.original_entry.composition
+
+            formula = list(comp.reduced_formula)
             text.append(self._htmlize_formula(formula))
 
         visible = True
@@ -2270,6 +2276,10 @@ class PDPlotter:
 
             if entry.composition.is_element:
                 clean_formula = str(entry.composition.elements[0])
+                if hasattr(entry, "original_entry"):
+                    orig_comp = entry.original_entry.composition
+                    clean_formula = self._htmlize_formula(orig_comp.reduced_formula)
+
                 font_dict = {"color": "#000000", "size": 24.0}
                 opacity = 1.0
 
@@ -2290,7 +2300,7 @@ class PDPlotter:
                     if self._dim == 3:
                         annotation.update({"x": y, "y": x})
                         if entry.composition.is_element:
-                            z = self._min_energy + 0.2  # shifts element ref name
+                            z = 0.9*self._min_energy  # place label 10% above base
 
                 annotation.update({"z": z})
 
@@ -2344,7 +2354,12 @@ class PDPlotter:
                 energy = round(self._pd.get_form_energy_per_atom(entry), 3)
 
                 entry_id = getattr(entry, "entry_id", "no ID")
-                formula = entry.composition.reduced_formula
+                comp = entry.composition
+
+                if hasattr(entry, "original_entry"):
+                    comp = entry.original_entry.composition
+
+                formula = comp.reduced_formula
                 clean_formula = self._htmlize_formula(formula)
                 label = f"{clean_formula} ({entry_id}) <br> " f"{energy} eV/atom"
 
