@@ -13,7 +13,8 @@ import math
 import logging
 import os
 import json
-from functools import lru_cache
+from multiprocessing import Pool
+from functools import lru_cache, partial
 from typing import Set, List, Tuple, Optional
 from monty.json import MSONable, MontyDecoder
 
@@ -1384,7 +1385,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
         elements ([Element, ]): List of elements in the phase diagram.
 
     """
-    def __init__(self, entries, elements=None, workers=1):
+    def __init__(self, entries, elements=None, use_multiprocessing=True, ncores=None):
         """
         Args:
             entries ([PDEntry, ]): A list of PDEntry-like objects having an
@@ -1394,8 +1395,11 @@ class PatchedPhaseDiagram(PhaseDiagram):
                 the the entries themselves and are sorted alphabetically.
                 If specified, element ordering (e.g. for pd coordinates)
                 is preserved.
-            workers (int): Number of workers to share computation of PhaseDiagrams
-                between
+            use_multiprocessing (bool): Whether to use multiprocessing to accellerate
+                the computation of the patch PhaseDiagrams. Default is True.
+            ncores (int): Number of cores to use for applying transformations.
+                Uses multiprocessing.Pool. Default is None, which implies
+                serial.
         """
         if elements is None:
             elements = set()
@@ -1416,19 +1420,22 @@ class PatchedPhaseDiagram(PhaseDiagram):
                 "There are no entries associated with a terminal element!."
             )
 
-        spaces = [e.composition.chemical_system for e in entries if not e.is_element]
+        spaces = sorted(list(set([e.composition.chemical_system for e in entries if not e.is_element])), key=len)
 
         pds = {}
 
-        for space in spaces:
-            if space not in pds.keys():
-                # TODO parallelise this for-loop to accelerate pd computation
-                space_entries = [
-                    e for e in all_entries if set(space.split("-")).issuperset(
-                        e.composition.chemical_system.split("-")
-                    )
-                ]
-                pds[space] = PhaseDiagram(space_entries)
+        # NOTE there might be problems if ncore is zero/negative/more than cores
+        if ncores in (1, None):
+            for space in spaces:
+                pds[space] = _get_pd_for_space(space, all_entries)
+        else:
+            with Pool(ncores) as p:
+                # NOTE imap might be slower than alternatives for parallelisation
+                results = p.imap(
+                    func=partial(_get_pd_for_space, **{"all_entries": all_entries}),
+                    iterable=spaces
+                )
+                pds = dict(zip(spaces, results))
 
         self.pds = pds
         self.all_entries = all_entries
@@ -1444,8 +1451,26 @@ class PatchedPhaseDiagram(PhaseDiagram):
         ]
         return "".join(output)
 
+    @classmethod
+    def from_dict(cls, d, use_multiprocessing=True, ncores=None):
+        """
+        Args:
+            d (dict): dictionary representation of PatchedPhaseDiagram
+            use_multiprocessing (bool): Whether to use multiprocessing to accellerate
+                the computation of the patch PhaseDiagrams. Default is True.
+            ncores (int): Number of cores to use for applying transformations.
+                Uses multiprocessing.Pool. Default is None, which implies
+                serial.
+
+        Returns:
+            PatchedPhaseDiagram
+        """
+        entries = [MontyDecoder().process_decoded(dd) for dd in d["all_entries"]]
+        elements = [Element.from_dict(dd) for dd in d["elements"]]
+        return cls(entries, elements, use_multiprocessing, ncores)
+
     # NOTE the following could be inhereted directly from PhaseDiagram without needing
-    # to be changed: __repr__, as_dict, from_dict, all_entries_hulldata, unstable_entries,
+    # to be changed: __repr__, as_dict, all_entries_hulldata, unstable_entries,
     # stable_entries, get_stable_entries_normed, get_form_energy, get_form_energy_per_atom
 
     def get_pds_for_entry(self, entry):
@@ -1470,6 +1495,10 @@ class PatchedPhaseDiagram(PhaseDiagram):
                 entry_pds[space] = self.pds[space]
 
         if not entry_pds:
+            # TODO find all the relevant pds to stitch together once StitchedPhaseDiagram
+            # is implemented.
+            # NOTE due to the above we want to keep small phase diagrams as patches even if
+            # they are subsets of larger phase diagrams.
             raise ValueError("No suitable PhaseDiagrams found for {}".format(entry))
 
         return entry_pds
@@ -1624,6 +1653,8 @@ class PatchedPhaseDiagram(PhaseDiagram):
 
         return pd.get_quasi_e_to_hull(entry, **kwargs)
 
+    # NOTE the following functions are not implemented for PatchedPhaseDiagram
+
     def get_composition_chempots(self, comp):
         """
         See PhaseDiagram
@@ -1634,7 +1665,9 @@ class PatchedPhaseDiagram(PhaseDiagram):
         Returns:
             Dict of chemical potentials.
         """
-        raise NotImplementedError("`get_composition_chempots` not implemented for PatchedPhaseDiagram")
+        raise NotImplementedError(
+            "`get_composition_chempots` not implemented for PatchedPhaseDiagram"
+        )
 
     def get_all_chempots(self, comp):
         """
@@ -1646,7 +1679,9 @@ class PatchedPhaseDiagram(PhaseDiagram):
         Returns:
             Chemical potentials.
         """
-        raise NotImplementedError("`get_all_chempots` not implemented for PatchedPhaseDiagram")
+        raise NotImplementedError(
+            "`get_all_chempots` not implemented for PatchedPhaseDiagram"
+        )
 
     def get_transition_chempots(self, element):
         """
@@ -1659,7 +1694,9 @@ class PatchedPhaseDiagram(PhaseDiagram):
             A sorted sequence of critical chemical potentials, from less
             negative to more negative.
         """
-        raise NotImplementedError("`get_transition_chempots` not implemented for PatchedPhaseDiagram")
+        raise NotImplementedError(
+            "`get_transition_chempots` not implemented for PatchedPhaseDiagram"
+        )
 
     def get_critical_compositions(self, comp1, comp2):
         """
@@ -1672,7 +1709,9 @@ class PatchedPhaseDiagram(PhaseDiagram):
             [(Composition)]: list of critical compositions. All are of
                 the form x * comp1 + (1-x) * comp2
         """
-        raise NotImplementedError("`get_critical_compositions` not implemented for PatchedPhaseDiagram")
+        raise NotImplementedError(
+            "`get_critical_compositions` not implemented for PatchedPhaseDiagram"
+        )
 
     def get_element_profile(self, element, comp, comp_tol=1e-5):
         """
@@ -1690,7 +1729,9 @@ class PatchedPhaseDiagram(PhaseDiagram):
             [ {'chempot': -10.487582010000001, 'evolution': -2.0,
             'reaction': Reaction Object], ...]
         """
-        raise NotImplementedError("`get_element_profile` not implemented for PatchedPhaseDiagram")
+        raise NotImplementedError(
+            "`get_element_profile` not implemented for PatchedPhaseDiagram"
+        )
 
     def get_chempot_range_map(self, elements, referenced=True, joggle=True):
         """
@@ -1711,7 +1752,9 @@ class PatchedPhaseDiagram(PhaseDiagram):
             simplices are the sides of the N-1 dim polytope bounding the
             allowable chemical potential range of each entry.
         """
-        raise NotImplementedError("`get_chempot_range_map` not implemented for PatchedPhaseDiagram")
+        raise NotImplementedError(
+            "`get_chempot_range_map` not implemented for PatchedPhaseDiagram"
+        )
 
     def getmu_vertices_stability_phase(self, target_comp, dep_elt, tol_en=1e-2):
         """
@@ -1729,7 +1772,9 @@ class PatchedPhaseDiagram(PhaseDiagram):
              which each element has a chemical potential set to a given
              value. "absolute" values (i.e., not referenced to element energies)
         """
-        raise NotImplementedError("`getmu_vertices_stability_phase` not implemented for PatchedPhaseDiagram")
+        raise NotImplementedError(
+            "`getmu_vertices_stability_phase` not implemented for PatchedPhaseDiagram"
+        )
 
     def get_chempot_range_stability_phase(self, target_comp, open_elt):
         """
@@ -1743,16 +1788,18 @@ class PatchedPhaseDiagram(PhaseDiagram):
              {Element:(mu_min,mu_max)}: Chemical potentials are given in
              "absolute" values (i.e., not referenced to 0)
         """
-        raise NotImplementedError("`get_chempot_range_stability_phase` not implemented for PatchedPhaseDiagram")
+        raise NotImplementedError(
+            "`get_chempot_range_stability_phase` not implemented for PatchedPhaseDiagram"
+        )
 
 
 class StitchedPhaseDiagram(MSONable):
     """
     A StitchedPhaseDiagram is constructed by stitching together smaller PhaseDiagram
-    patches. The reason for doing this is that it is much cheaper to carry out the
-    calculations to get the convex hull on the smaller patches.
+    patches and stray entries. The reason for doing this is that it is much cheaper to
+    carry out the calculations to get the convex hull on the smaller patches.
     """
-    def __init__(self, pds: List[PhaseDiagram], entries: Optional[List[PDEntry]] = None):
+    def __init__(self, pds: List[PhaseDiagram], entries: List[PDEntry] = []):
         """
 
         Args:
@@ -1763,6 +1810,8 @@ class StitchedPhaseDiagram(MSONable):
                 or in cases where we watch to add additional elements to the phase diagram:
         """
         self.pds = pds
+
+        # TODO assert that the stray entries are not already inside other PhaseDiagrams.
 
         el_refs, min_entries, all_entries = _get_useful_entries(entries)
         elements = sorted(list(set().union([els for e in entries for els in e.composition.elements])))
@@ -1776,7 +1825,8 @@ class StitchedPhaseDiagram(MSONable):
         if len(self.el_refs) != self.dim:
             raise ValueError(
                 "Some elements have multiple references, StitchedPhaseDiagram "
-                "requires consistent references across the PhaseDiagram."
+                "requires consistent references across the input PhaseDiagrams and "
+                "stray entries."
             )
 
         self.all_entries = list(set().union([pd.all_entries for pd in self.pds] + all_entries))
@@ -2133,6 +2183,24 @@ def _get_useful_entries(entries: List[PDEntry]) -> Tuple[Set["PDEntry"], List["P
 
     # NOTE all_entries is just entries? can we remove it?
     return el_refs, min_entries, all_entries
+
+
+def _get_pd_for_space(space, all_entries):
+    """
+    Args:
+        space (str): chemical space of the form A-B-X
+        all_entries ([PDEntry, ]): list of all entries to consider as
+            potentially being in the PhaseDiagram
+
+    Returns:
+        PhaseDiagram for the given chemical space
+    """
+    space_entries = [
+        e for e in all_entries if set(space.split("-")).issuperset(
+            e.composition.chemical_system.split("-")
+        )
+    ]
+    return PhaseDiagram(space_entries)
 
 
 class PDPlotter:
