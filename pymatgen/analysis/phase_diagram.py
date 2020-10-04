@@ -14,6 +14,7 @@ import logging
 import os
 import json
 from functools import lru_cache
+from typing import Set, List, Tuple, Optional
 from monty.json import MSONable, MontyDecoder
 
 import numpy as np
@@ -39,29 +40,26 @@ with open(
     plotly_layouts = json.load(f)
 
 
+class PhaseDiagramError(Exception):
+    """
+    An exception class for Phase Diagram generation.
+    """
+    pass
+
+
 class PDEntry(Entry):
     """
     An object encompassing all relevant data for phase diagrams.
 
-    .. attribute:: composition
-
-        The composition associated with the PDEntry.
-
-    .. attribute:: energy
-
-        The energy associated with the entry.
-
-    .. attribute:: name
-
-        A name for the entry. This is the string shown in the phase diagrams.
-        By default, this is the reduced formula for the composition, but can be
-        set to some other string for display purposes.
-
-    .. attribute:: attribute
-
-        A arbitrary attribute. Can be used to specify that the entry is a newly
-        found compound, or to specify a particular label for the entry, etc.
-        An attribute can be anything but must be MSONable.
+    Attributes:
+        composition (Composition): The composition associated with the PDEntry.
+        energy (float): The energy associated with the entry.
+        name (str):  A name for the entry. This is the string shown in the phase diagrams.
+            By default, this is the reduced formula for the composition, but can be
+            set to some other string for display purposes.
+        attribute (MSONable): A arbitrary attribute. Can be used to specify that the
+            entry is a newly found compound, or to specify a particular label for
+            the entry, etc. An attribute can be anything but must be MSONable.
     """
 
     def __init__(
@@ -93,14 +91,6 @@ class PDEntry(Entry):
     def __repr__(self):
         return "PDEntry : {} with energy = {:.4f}".format(self.composition, self.energy)
 
-    def as_dict(self):
-        """
-        :return: MSONable dict.
-        """
-        return_dict = super().as_dict()
-        return_dict.update({"name": self.name, "attribute": self.attribute})
-        return return_dict
-
     def __eq__(self, other):
         # NOTE Scaled duplicates are not equal unless normalized separately
         if isinstance(other, self.__class__):
@@ -109,14 +99,26 @@ class PDEntry(Entry):
 
     def __hash__(self):
         # NOTE This hashing operation means that equivalent entries
-        # hash to different values. This has implications on set equality.
+        # hash to different values. This has implications on set membership.
         return id(self)
+
+    def as_dict(self):
+        """
+        Returns:
+            MSONable dictionary representation of PDEntry
+        """
+        return_dict = super().as_dict()
+        return_dict.update({"name": self.name, "attribute": self.attribute})
+        return return_dict
 
     @classmethod
     def from_dict(cls, d):
         """
-        :param d: Dict representation
-        :return: PDEntry
+        Args:
+            d (dict): dictionary representation of PDEntry
+
+        Returns:
+            PDEntry
         """
         return cls(
             Composition(d["composition"]),
@@ -129,7 +131,7 @@ class PDEntry(Entry):
 class GrandPotPDEntry(PDEntry):
     """
     A grand potential pd entry object encompassing all relevant data for phase
-    diagrams.  Chemical potentials are given as a element-chemical potential
+    diagrams. Chemical potentials are given as a element-chemical potential
     dict.
     """
 
@@ -171,9 +173,18 @@ class GrandPotPDEntry(PDEntry):
     def __str__(self):
         return self.__repr__()
 
+    def __getattr__(self, a):
+        """
+        Delegate attribute to original entry if available.
+        """
+        if hasattr(self.original_entry, a):
+            return getattr(self.original_entry, a)
+        raise AttributeError(a)
+
     def as_dict(self):
         """
-        :return: MSONAble dict
+        Returns:
+            MSONable dictionary representation of PDStructureEntry
         """
         return {
             "@module": self.__class__.__module__,
@@ -186,20 +197,15 @@ class GrandPotPDEntry(PDEntry):
     @classmethod
     def from_dict(cls, d):
         """
-        :param d: Dict representation
-        :return: PDStructureEntry
+        Args:
+            d (dict): dictionary representation of PDStructureEntry
+
+        Returns:
+            PDStructureEntry
         """
         chempots = {Element(symbol): u for symbol, u in d["chempots"].items()}
         entry = MontyDecoder().process_decoded(d["entry"])
         return cls(entry, chempots, d["name"])
-
-    def __getattr__(self, a):
-        """
-        Delegate attribute to original entry if available.
-        """
-        if hasattr(self.original_entry, a):
-            return getattr(self.original_entry, a)
-        raise AttributeError(a)
 
 
 class TransformedPDEntry(PDEntry):
@@ -241,7 +247,8 @@ class TransformedPDEntry(PDEntry):
 
     def as_dict(self):
         """
-        :return: MSONable dict
+        Returns:
+            MSONable dictionary representation of TransformedPDEntry
         """
         return {
             "@module": self.__class__.__module__,
@@ -253,8 +260,11 @@ class TransformedPDEntry(PDEntry):
     @classmethod
     def from_dict(cls, d):
         """
-        :param d: Dict representation
-        :return: TransformedPDEntry
+        Args:
+            d (dict): dictionary representation of TransformedPDEntry
+
+        Returns:
+            TransformedPDEntry
         """
         entry = MontyDecoder().process_decoded(d["entry"])
         return cls(d["composition"], entry)
@@ -274,48 +284,26 @@ class PhaseDiagram(MSONable):
        principles calculations. Electrochem. Comm., 2010, 12(3), 427-430.
        doi:10.1016/j.elecom.2010.01.010
 
-    .. attribute: elements:
-
-        Elements in the phase diagram.
-
-    ..attribute: all_entries
-
-        All entries provided for Phase Diagram construction. Note that this
-        does not mean that all these entries are actually used in the phase
-        diagram. For example, this includes the positive formation energy
-        entries that are filtered out before Phase Diagram construction.
-
-    .. attribute: qhull_data
-
-        Data used in the convex hull operation. This is essentially a matrix of
-        composition data and energy per atom values created from qhull_entries.
-
-    .. attribute: qhull_entries:
-
-        Actual entries used in convex hull. Excludes all positive formation
-        energy entries.
-
-    .. attribute: dim
-
-        The dimensionality of the phase diagram.
-
-    .. attribute: facets
-
-        Facets of the phase diagram in the form of  [[1,2,3],[4,5,6]...].
-        For a ternary, it is the indices (references to qhull_entries and
-        qhull_data) for the vertices of the phase triangles. Similarly
-        extended to higher D simplices for higher dimensions.
-
-    .. attribute: el_refs:
-
-        List of elemental references for the phase diagrams. These are
-        entries corresponding to the lowest energy element entries for simple
-        compositional phase diagrams.
-
-    .. attribute: simplices:
-
-        The simplices of the phase diagram as a list of np.ndarray, i.e.,
-        the list of stable compositional coordinates in the phase diagram.
+    Attributes:
+        dim (int): The dimensionality of the phase diagram.
+        elements: Elements in the phase diagram.
+        el_refs: List of elemental references for the phase diagrams. These are
+            entries corresponding to the lowest energy element entries for simple
+            compositional phase diagrams.
+        all_entries: All entries provided for Phase Diagram construction. Note that this
+            does not mean that all these entries are actually used in the phase
+            diagram. For example, this includes the positive formation energy
+            entries that are filtered out before Phase Diagram construction.
+        qhull_entries: Actual entries used in convex hull. Excludes all positive formation
+            energy entries.
+        qhull_data: Data used in the convex hull operation. This is essentially a matrix of
+            composition data and energy per atom values created from qhull_entries.
+        facets: Facets of the phase diagram in the form of  [[1,2,3],[4,5,6]...].
+            For a ternary, it is the indices (references to qhull_entries and
+            qhull_data) for the vertices of the phase triangles. Similarly
+            extended to higher D simplices for higher dimensions.
+        simplices: The simplices of the phase diagram as a list of np.ndarray, i.e.,
+            the list of stable compositional coordinates in the phase diagram.
     """
 
     # Tolerance for determining if formation energy is positive.
@@ -336,28 +324,16 @@ class PhaseDiagram(MSONable):
                 is preserved.
         """
         if elements is None:
-            elements = set()
-            for entry in entries:
-                elements.update(entry.composition.elements)
-            elements = sorted(list(elements))
+            elements = sorted(list(set().union(
+                [els for e in entries for els in e.composition.elements]
+            )))
 
         elements = list(elements)
         dim = len(elements)
 
         entries = sorted(entries, key=lambda e: e.composition.reduced_composition)
 
-        el_refs = {}
-        min_entries = []
-        all_entries = []
-        for c, g in itertools.groupby(
-            entries, key=lambda e: e.composition.reduced_composition
-        ):
-            g = list(g)
-            min_entry = min(g, key=lambda e: e.energy_per_atom)
-            if c.is_element:
-                el_refs[c.elements[0]] = min_entry
-            min_entries.append(min_entry)
-            all_entries.extend(g)
+        el_refs, min_entries, all_entries = _get_useful_entries(entries)
 
         if len(el_refs) != dim:
             raise PhaseDiagramError(
@@ -499,7 +475,7 @@ class PhaseDiagram(MSONable):
     def as_dict(self):
         """
         Returns:
-            MSONable Dictionary Representation of PhaseDiagram
+            MSONable dictionary representation of PhaseDiagram
         """
         return {
             "@module": self.__class__.__module__,
@@ -512,7 +488,7 @@ class PhaseDiagram(MSONable):
     def from_dict(cls, d):
         """
         Args:
-            d (Dict): Dictionary Representation of PhaseDiagram
+            d (dict): dictionary representation of PhaseDiagram
 
         Returns:
             PhaseDiagram
@@ -1115,6 +1091,7 @@ class PhaseDiagram(MSONable):
                                 break
                         if not already_in:
                             all_coords.append(res)
+
         return all_coords
 
     def get_chempot_range_stability_phase(self, target_comp, open_elt):
@@ -1239,7 +1216,7 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
     def as_dict(self):
         """
         Returns:
-            MSONable Dictionary Representation of CompoundPhaseDiagram
+            MSONable dictionary representation of CompoundPhaseDiagram
         """
         return {
             "@module": self.__class__.__module__,
@@ -1253,7 +1230,7 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
     def from_dict(cls, d):
         """
         Args:
-            d (Dict): Dictionary Representation of GrandPotentialPhaseDiagram
+            d (dict): dictionary representation of GrandPotentialPhaseDiagram
 
         Returns:
             GrandPotentialPhaseDiagram
@@ -1358,7 +1335,7 @@ class CompoundPhaseDiagram(PhaseDiagram):
     def as_dict(self):
         """
         Returns:
-            MSONable Dictionary Representation of CompoundPhaseDiagram
+            MSONable dictionary representation of CompoundPhaseDiagram
         """
         return {
             "@module": self.__class__.__module__,
@@ -1372,7 +1349,7 @@ class CompoundPhaseDiagram(PhaseDiagram):
     def from_dict(cls, d):
         """
         Args:
-            d (Dict): Dictionary Representation of CompoundPhaseDiagram
+            d (dict): dictionary representation of CompoundPhaseDiagram
 
         Returns:
             CompoundPhaseDiagram
@@ -1432,37 +1409,27 @@ class PatchedPhaseDiagram(PhaseDiagram):
 
         entries = sorted(entries, key=lambda e: e.composition.reduced_composition)
 
-        el_refs = {}
-        min_entries = []
-        all_entries = []
-        for c, g in itertools.groupby(
-            entries, key=lambda e: e.composition.reduced_composition
-        ):
-            g = list(g)
-            min_entry = min(g, key=lambda e: e.energy_per_atom)
-            if c.is_element:
-                el_refs[c.elements[0]] = min_entry
-            min_entries.append(min_entry)
-            all_entries.extend(g)
+        el_refs, min_entries, all_entries = _get_useful_entries(entries)
 
         if len(el_refs) != dim:
             raise PhaseDiagramError(
                 "There are no entries associated with a terminal element!."
             )
 
-        spaces = [(e.composition.chemical_system, e.composition.elements) for e in entries if not e.is_element]
+        spaces = [e.composition.chemical_system for e in entries if not e.is_element]
 
-        subspaces = []
         pds = {}
 
-        for space, el_set in spaces:
+        for space in spaces:
             if space not in pds.keys():
                 # TODO parallelise this for-loop to accelerate pd computation
-                space_entries = [e for e in all_entries if set(el_set).issuperset(e.composition.elements)]
+                space_entries = [
+                    e for e in all_entries if set(space.split("-")).issuperset(
+                        e.composition.chemical_system.split("-")
+                    )
+                ]
                 pds[space] = PhaseDiagram(space_entries)
-                subspaces.append((space, set(el_set)))
 
-        self.subspaces = subspaces
         self.pds = pds
         self.all_entries = all_entries
         self.min_entries = min_entries
@@ -1472,13 +1439,13 @@ class PatchedPhaseDiagram(PhaseDiagram):
 
     def __str__(self):
         output = [
-            "PatchedPhaseDiagram\nSub-Spaces: ".format(len(self.stable_entries)),
-            ", ".join([x for x,_ in self.subspaces])
+            "{}\nSub-Spaces: ".format(self.__class__.__name__),
+            ", ".join(list(self.pds.keys()))
         ]
         return "".join(output)
 
     # NOTE the following could be inhereted directly from PhaseDiagram without needing
-    # to be changed: __str__, as_dict, from_dict, all_entries_hulldata, unstable_entries,
+    # to be changed: __repr__, as_dict, from_dict, all_entries_hulldata, unstable_entries,
     # stable_entries, get_stable_entries_normed, get_form_energy, get_form_energy_per_atom
 
     def get_pds_for_entry(self, entry):
@@ -1492,14 +1459,14 @@ class PatchedPhaseDiagram(PhaseDiagram):
             Dictionary of {space: PhaseDiagram} that the entry is part of
         """
         if isinstance(entry, Composition):
-            entry_el_set = entry.elements
+            entry_space = entry.chemical_system
         else:
-            entry_el_set = entry.composition.elements
+            entry_space = entry.composition.chemical_system
 
         entry_pds = {}
 
-        for (space, el_set) in self.subspaces:
-            if el_set.issuperset(entry_el_set):
+        for space in self.pds.keys():
+            if set(space.split("-")).issuperset(entry_space.split("-")):
                 entry_pds[space] = self.pds[space]
 
         if not entry_pds:
@@ -1778,6 +1745,87 @@ class PatchedPhaseDiagram(PhaseDiagram):
         """
         raise NotImplementedError("`get_chempot_range_stability_phase` not implemented for PatchedPhaseDiagram")
 
+
+class StitchedPhaseDiagram(MSONable):
+    """
+    A StitchedPhaseDiagram is constructed by stitching together smaller PhaseDiagram
+    patches. The reason for doing this is that it is much cheaper to carry out the
+    calculations to get the convex hull on the smaller patches.
+    """
+    def __init__(self, pds: List[PhaseDiagram], entries: Optional[List[PDEntry]] = None):
+        """
+
+        Args:
+            pds ([PhaseDiagram, ]): a list of PhaseDiagrams to combine
+            entries ([PDEntry, ]): a list of Entries to add into the StitchedPhaseDiagram.
+                This is useful in cases where we either have very low numbers of high rank
+                entries to include as it allows for smaller PhaseDiagrams to be calculated
+                or in cases where we watch to add additional elements to the phase diagram:
+        """
+        self.pds = pds
+
+        el_refs, min_entries, all_entries = _get_useful_entries(entries)
+        elements = sorted(list(set().union([els for e in entries for els in e.composition.elements])))
+
+        self.el_refs = list(set().union([pd.el_refs for pd in self.pds] + el_refs))
+        self.elements = list(set().union([pd.elements for pd in self.pds] + elements))
+        self.dim = len(self.elements)
+
+        # NOTE if the different phase diagrams have different elemental references
+        # for the same reference this will cause a problem.
+        if len(self.el_refs) != self.dim:
+            raise ValueError(
+                "Some elements have multiple references, StitchedPhaseDiagram "
+                "requires consistent references across the PhaseDiagram."
+            )
+
+        self.all_entries = list(set().union([pd.all_entries for pd in self.pds] + all_entries))
+        self.min_entries = list(set().union([pd.all_entries for pd in self.pds] + min_entries))
+        self.qhull_entries = list(set().union([pd.qhull_entries for pd in self.pds] + min_entries))
+        self._stable_entries = set().union([pd.stable_entries for pd in self.pds] + min_entries)
+
+        # TODO map old facets onto new co-ordinate system.
+        # TODO iteratively add new simplicies to the merge the convex hulls
+        self.qhull_data = qhull_data
+        self.facets = finalfacets
+        self.simplexes = [Simplex(qhull_data[f, :-1]) for f in self.facets]
+
+        def __str__(self):
+            output = [
+                "{}\nSub-Spaces: ".format(self.__class__.__name__),
+                ", ".join(list(self.pds.keys()))
+            ]
+            return "".join(output)
+
+    def as_dict(self):
+        """
+        Returns:
+            MSONable dictionary representation of StitchedPhaseDiagram
+        """
+        # TODO return a dictionary that would let us construct the
+        # patches and then combine them
+        # return {
+        #     "@module": self.__class__.__module__,
+        #     "@class": self.__class__.__name__,
+        #     "all_entries": [e.as_dict() for e in self.all_entries],
+        #     "elements": [e.as_dict() for e in self.elements],
+        # }
+
+    @classmethod
+    def from_dict(cls, d):
+        """
+        Args:
+            d (dict): dictionary representation of StitchedPhaseDiagram
+
+        Returns:
+            StitchedPhaseDiagram
+        """
+        # TODO decode the individual Phasediagrams and then call StitchedPhaseDiagram
+        # entries = [MontyDecoder().process_decoded(dd) for dd in d["all_entries"]]
+        # elements = [Element.from_dict(dd) for dd in d["elements"]]
+        # return cls(entries, elements)
+
+
 class ReactionDiagram:
     """
     Analyzes the possible reactions between a pair of compounds, e.g.,
@@ -1972,14 +2020,6 @@ class ReactionDiagram:
         return cpd
 
 
-class PhaseDiagramError(Exception):
-    """
-    An exception class for Phase Diagram generation.
-    """
-
-    pass
-
-
 def get_facets(qhull_data, joggle=False):
     """
     Get the simplex facets for the Convex hull.
@@ -2061,6 +2101,38 @@ def _slsqp_decomp_solution(entry, competing_entries, tol, maxiter):
                         options=options)
 
     return solution
+
+
+def _get_useful_entries(entries: List[PDEntry]) -> Tuple[Set["PDEntry"], List["PDEntry"], List["PDEntry"]]:
+    """
+    Given a list of entries return the elemental references, minimum energy entries
+    and a list of all entries.
+
+    Args:
+        entries ([PDEntry, ]): a list of entries
+
+    Returns:
+        el_refs ({PDEntry, }): a set of the lowest lying elemental entries
+        min_entries ([PDEntry, ]): a list of the lowest lying entries for
+            each reduced composition.
+        all_entries ([PDEntry, ]): a list of all entries after the compositions
+            have been reduced.
+    """
+    el_refs = {}
+    min_entries = []
+    all_entries = []
+    for c, g in itertools.groupby(
+        entries, key=lambda e: e.composition.reduced_composition
+    ):
+        g = list(g)
+        min_entry = min(g, key=lambda e: e.energy_per_atom)
+        if c.is_element:
+            el_refs[c.elements[0]] = min_entry
+        min_entries.append(min_entry)
+        all_entries.extend(g)
+
+    # NOTE all_entries is just entries? can we remove it?
+    return el_refs, min_entries, all_entries
 
 
 class PDPlotter:
