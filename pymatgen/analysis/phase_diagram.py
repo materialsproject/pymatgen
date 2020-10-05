@@ -370,6 +370,8 @@ class PhaseDiagram(MSONable):
         if dim == 1:
             self.facets = [qhull_data.argmin(axis=0)]
         else:
+            # NOTE these facets aren't facets they are sets of verticies for
+            # the simplicies.
             facets = get_facets(qhull_data)
             finalfacets = []
             for facet in facets:
@@ -580,10 +582,8 @@ class PhaseDiagram(MSONable):
             Energy of lowest energy equilibrium at desired composition. Not
                 normalized by atoms, i.e. E(Li4O2) = 2 * E(Li2O)
         """
-        e = 0
-        for k, v in self.get_decomposition(comp).items():
-            e += k.energy_per_atom * v
-        return e * comp.num_atoms
+        decomp = self.get_decomposition(comp)
+        return comp.num_atoms * sum([e.energy_per_atom * n for e, n in decomp.items()])
 
     def get_decomp_and_e_above_hull(self, entry, allow_negative=False):
         """
@@ -597,8 +597,8 @@ class PhaseDiagram(MSONable):
                 calculate equilibrium reaction energies. Defaults to False.
 
         Returns:
-            (decomp, energy above convex hull). The decomposition is provided
-                as a dict of {PDEntry: amount} where amount is the amount of the
+            (decomp, energy_above_hull). The decomposition is provided
+                as a dict of {PDEntry: amount, } where amount is the amount of the
                 fractional composition. Stable entries should have energy above
                 convex hull of 0. The energy is given per atom.
         """
@@ -607,21 +607,13 @@ class PhaseDiagram(MSONable):
         if entry in list(self.stable_entries):
             return {entry: 1}, 0
 
-        comp = entry.composition
-        facet, simplex = self._get_facet_and_simplex(comp)
-        decomp_amts = simplex.bary_coords(self.pd_coords(comp))
-        decomp = {
-            self.qhull_entries[f]: amt
-            for f, amt in zip(facet, decomp_amts)
-            if abs(amt) > PhaseDiagram.numerical_tol
-        }
-        energies = [self.qhull_entries[i].energy_per_atom for i in facet]
-        ehull = entry.energy_per_atom - np.dot(decomp_amts, energies)
+        decomp = self.get_decomposition(entry.composition)
+        e_above_hull = entry.energy_per_atom - sum([e.energy_per_atom * n for e, n in decomp.items()])
 
-        if allow_negative or ehull >= -PhaseDiagram.numerical_tol:
-            return decomp, ehull
+        if allow_negative or e_above_hull >= -PhaseDiagram.numerical_tol:
+            return decomp, e_above_hull
 
-        raise ValueError("No valid decomp found for {}!".format(entry))
+        raise ValueError("No valid decomp found for {}! (e {})".format(entry, e_above_hull))
 
     def get_e_above_hull(self, entry):
         """
@@ -1467,6 +1459,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
         self.min_entries = min_entries
         self.el_refs = el_refs
         self.elements = elements
+        self.qhull_entries = set().union(*[pd.qhull_entries for pd in pds.values()])
         self._stable_entries = set().union(*[pd.stable_entries for pd in pds.values()])
 
     def __str__(self):
@@ -1494,9 +1487,11 @@ class PatchedPhaseDiagram(PhaseDiagram):
         elements = [Element.from_dict(dd) for dd in d["elements"]]
         return cls(entries, elements, use_multiprocessing, ncores)
 
-    # NOTE the following could be inhereted directly from PhaseDiagram without needing
-    # to be changed: __repr__, as_dict, all_entries_hulldata, unstable_entries,
-    # stable_entries, get_stable_entries_normed, get_form_energy, get_form_energy_per_atom
+    # NOTE the following could be inheretd unchanged from PhaseDiagram:  __repr__,
+    # as_dict, all_entries_hulldata, unstable_entries, stable_entries,
+    # get_stable_entries_normed(), get_form_energy(), get_form_energy_per_atom(),
+    # get_hull_energy(), get_e_above_hull(), get_decomp_and_e_above_hull(),
+    # get_decomp_and_quasi_e_to_hull() and get_quasi_e_to_hull()
 
     def get_pds_for_entry(self, entry):
         """
@@ -1568,62 +1563,13 @@ class PatchedPhaseDiagram(PhaseDiagram):
             ]
             return _get_slsqp_decomp(comp, competing_entries)
 
-    # NOTE we can inheret get_hull_energy
-
-    # def get_hull_energy(self, comp):
-    #     """
-    #     See PhaseDiagram
-
-    #     Args:
-    #         comp (Composition): Input composition
-
-    #     Returns:
-    #         Energy of lowest energy equilibrium at desired composition. Not
-    #             normalized by atoms, i.e. E(Li4O2) = 2 * E(Li2O)
-    #     """
-    #     pd = self.get_smallest_pd_for_entry(comp)
-
-    #     return pd.get_hull_energy(comp)
-
-    def get_decomp_and_e_above_hull(self, entry, allow_negative=False):
-        """
-        See PhaseDiagram
-
-        Args:
-            entry (PDEntry): A PDEntry like object
-            allow_negative (bool): Whether to allow negative e_above_hulls. Used to
-                calculate equilibrium reaction energies. Defaults to False.
-
-        Returns:
-            (decomp, energy above convex hull). The decomposition is provided
-                as a dict of {PDEntry: amount} where amount is the amount of the
-                fractional composition. Stable entries should have energy above
-                convex hull of 0. The energy is given per atom.
-        """
-        pd = self.get_smallest_pd_for_entry(entry)
-
-        return pd.get_decomp_and_e_above_hull(entry, allow_negative)
-
-    # NOTE we can inheret get_e_above_hull
-
-    # def get_e_above_hull(self, entry):
-    #     """
-    #     See PhaseDiagram
-
-    #     Args:
-    #         entry (PDEntry): A PDEntry like object
-
-    #     Returns:
-    #         Energy above convex hull of entry. Stable entries should have
-    #         energy above hull of 0. The energy is given per atom.
-    #     """
-    #     pd = self.get_smallest_pd_for_entry(entry)
-
-    #     return pd.get_e_above_hull(entry)
-
     def get_equilibrium_reaction_energy(self, entry):
         """
         See PhaseDiagram
+
+        NOTE this is only approximately the same as the what we would get from
+        a full phase diagram as we make use of the slsqp approach from
+        get_quasi_e_to_hull().
 
         Args:
             entry (PDEntry): A PDEntry like object
@@ -1632,68 +1578,46 @@ class PatchedPhaseDiagram(PhaseDiagram):
             Equilibrium reaction energy of entry. Stable entries should have
             equilibrium reaction energy <= 0. The energy is given per atom.
         """
-        pd = self.get_smallest_pd_for_entry(entry)
-
-        return pd.get_equilibrium_reaction_energy(entry)
-
-    def get_decomp_and_quasi_e_to_hull(
-        self,
-        entry,
-        space_limit=200,
-        stable_only=False,
-        tol=1e-10,
-        maxiter=1000
-    ):
-        """
-        See PhaseDiagram
-
-        Args:
-            entry (PDEntry): A PDEntry like object.
-            space_limit (int): The maximum number of competing entries to consider
-                before calculating a second convex hull to reducing the complexity
-                of the optimization.
-            stable_only (bool): Only use stable materials as competing entries.
-            tol (float): The tolerence for convergence of the SLSQP optimization
-                when finding the equilibrium reaction.
-            maxiter (int): The maximum number of iterations of the SLSQP optimizer
-                when finding the equilibrium reaction.
-
-        Returns:
-            (decomp, energy). The decompostion  is given as a dict of {PDEntry, amount}
-            for all entries in the decomp reaction where amount is the amount of the
-            fractional composition. The energy is given per atom.
-        """
-        pd = self.get_smallest_pd_for_entry(entry)
-
-        return pd.get_decomp_and_quasi_e_to_hull(entry, space_limit, stable_only, tol, maxiter)
-
-    # NOTE we can inherit get_quasi_e_to_hull
-
-    # def get_quasi_e_to_hull(self, entry, **kwargs):
-    #     """
-    #     See PhaseDiagram
-
-    #     Args:
-    #         entry (PDEntry): A PDEntry like object
-    #         **kwargs: Keyword args passed to `get_decomp_and_decomp_energy`
-    #             space_limit (int): The maximum number of competing entries to consider.
-    #             stable_only (bool): Only use stable materials as competing entries
-    #             tol (float): The tolerence for convergence of the SLSQP optimization
-    #                 when finding the equilibrium reaction.
-    #             maxiter (int): The maximum number of iterations of the SLSQP optimizer
-    #                 when finding the equilibrium reaction.
-
-    #     Returns:
-    #         Decomposition energy per atom of entry. Stable entries should have
-    #         energies <= 0, Stable elemental entries should have energies = 0 and
-    #         unstable entries should have energies > 0.
-    #     """
-    #     return self.get_decomp_and_quasi_e_to_hull(entry, **kwargs)[1]
+        return self.get_quasi_e_to_hull(entry, stable_only=True)
 
     # NOTE the following functions are not implemented for PatchedPhaseDiagram
 
+    @lru_cache(1)
+    def _get_facet_and_simplex(self, comp):
+        """
+        Not Implemented
+
+        Get any facet that a composition falls into. Cached so successive
+        calls at same composition are fast.
+
+        Args:
+            comp (Composition): A composition
+
+        """
+        raise NotImplementedError(
+            "`_get_facet_and_simplex` not implemented for PatchedPhaseDiagram"
+        )
+
+    def _get_facet_chempots(self, facet):
+        """
+        Not Implemented
+
+        Calculates the chemical potentials for each element within a facet.
+
+        Args:
+            facet: Facet of the phase diagram.
+
+        Returns:
+            {element: chempot} for all elements in the phase diagram.
+        """
+        raise NotImplementedError(
+            "`_get_facet_chempots` not implemented for PatchedPhaseDiagram"
+        )
+
     def get_composition_chempots(self, comp):
         """
+        Not Implemented
+
         See PhaseDiagram
 
         Args:
@@ -1708,6 +1632,8 @@ class PatchedPhaseDiagram(PhaseDiagram):
 
     def get_all_chempots(self, comp):
         """
+        Not Implemented
+
         See PhaseDiagram
 
         Args:
@@ -1722,6 +1648,8 @@ class PatchedPhaseDiagram(PhaseDiagram):
 
     def get_transition_chempots(self, element):
         """
+        Not Implemented
+
         See PhaseDiagram
 
         Args:
@@ -1737,6 +1665,8 @@ class PatchedPhaseDiagram(PhaseDiagram):
 
     def get_critical_compositions(self, comp1, comp2):
         """
+        Not Implemented
+
         See PhaseDiagram
 
         Args:
@@ -1752,6 +1682,8 @@ class PatchedPhaseDiagram(PhaseDiagram):
 
     def get_element_profile(self, element, comp, comp_tol=1e-5):
         """
+        Not Implemented
+
         See PhaseDiagram
 
         Args:
@@ -1772,6 +1704,8 @@ class PatchedPhaseDiagram(PhaseDiagram):
 
     def get_chempot_range_map(self, elements, referenced=True, joggle=True):
         """
+        Not Implemented
+
         See PhaseDiagram
 
         Args:
@@ -1795,6 +1729,8 @@ class PatchedPhaseDiagram(PhaseDiagram):
 
     def getmu_vertices_stability_phase(self, target_comp, dep_elt, tol_en=1e-2):
         """
+        Not Implemented
+
         See PhaseDiagram
 
         Args:
@@ -1815,6 +1751,8 @@ class PatchedPhaseDiagram(PhaseDiagram):
 
     def get_chempot_range_stability_phase(self, target_comp, open_elt):
         """
+        Not Implemented
+
         See PhaseDiagram
 
         Args:
