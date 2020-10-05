@@ -1378,7 +1378,14 @@ class PatchedPhaseDiagram(PhaseDiagram):
         elements ([Element, ]): List of elements in the phase diagram.
 
     """
-    def __init__(self, entries, elements=None, use_multiprocessing=True, ncores=None):
+    def __init__(
+        self,
+        entries,
+        elements=None,
+        keep_all_spaces=False,
+        use_multiprocessing=True,
+        ncores=None
+    ):
         """
         Args:
             entries ([PDEntry, ]): A list of PDEntry-like objects having an
@@ -1388,6 +1395,10 @@ class PatchedPhaseDiagram(PhaseDiagram):
                 the the entries themselves and are sorted alphabetically.
                 If specified, element ordering (e.g. for pd coordinates)
                 is preserved.
+            keep_all_spaces (bool): Boolean control on whether to keep chemical spaces
+                that are subspaces of other spaces.
+                NOTE in the event that we can implement StitchedPhaseDiagram keeping
+                even very small spaces could in principle be helpful.
             use_multiprocessing (bool): Whether to use multiprocessing to accellerate
                 the computation of the patch PhaseDiagrams. Default is True.
             ncores (int): Number of cores to use for applying transformations.
@@ -1413,7 +1424,14 @@ class PatchedPhaseDiagram(PhaseDiagram):
                 "There are no entries associated with a terminal element!."
             )
 
-        spaces = sorted(list(set([e.composition.chemical_system for e in entries if not e.is_element])), key=len)
+        spaces = list(set([e.composition.chemical_system for e in entries if not e.is_element]))
+
+        if not keep_all_spaces:
+            spaces = [s for s in spaces if not any(
+                [set(s.split("-")).issubset(sp.split("-")) for sp in spaces if sp != s]
+            )]
+
+        spaces.sort(key=len)
 
         pds = {}
 
@@ -1491,8 +1509,8 @@ class PatchedPhaseDiagram(PhaseDiagram):
         if not entry_pds:
             # TODO find all the relevant pds to stitch together once StitchedPhaseDiagram
             # is implemented.
-            # NOTE due to the above we want to keep small phase diagrams as patches even if
-            # they are subsets of larger phase diagrams.
+            # NOTE due to the above we may want to keep small phase diagrams as patches
+            # even if they are subsets of larger phase diagrams.
             raise ValueError("No suitable PhaseDiagrams found for {}.".format(entry))
 
         return entry_pds
