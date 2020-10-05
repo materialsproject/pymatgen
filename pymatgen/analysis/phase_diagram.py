@@ -1537,7 +1537,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
             ]
             return _get_slsqp_decomp(comp, competing_entries)
 
-    # NOTE we can inheret get hull energy
+    # NOTE we can inheret get_hull_energy
 
     # def get_hull_energy(self, comp):
     #     """
@@ -1573,20 +1573,22 @@ class PatchedPhaseDiagram(PhaseDiagram):
 
         return pd.get_decomp_and_e_above_hull(entry, allow_negative)
 
-    def get_e_above_hull(self, entry):
-        """
-        See PhaseDiagram
+    # NOTE we can inheret get_e_above_hull
 
-        Args:
-            entry (PDEntry): A PDEntry like object
+    # def get_e_above_hull(self, entry):
+    #     """
+    #     See PhaseDiagram
 
-        Returns:
-            Energy above convex hull of entry. Stable entries should have
-            energy above hull of 0. The energy is given per atom.
-        """
-        pd = self.get_smallest_pd_for_entry(entry)
+    #     Args:
+    #         entry (PDEntry): A PDEntry like object
 
-        return pd.get_e_above_hull(entry)
+    #     Returns:
+    #         Energy above convex hull of entry. Stable entries should have
+    #         energy above hull of 0. The energy is given per atom.
+    #     """
+    #     pd = self.get_smallest_pd_for_entry(entry)
+
+    #     return pd.get_e_above_hull(entry)
 
     def get_equilibrium_reaction_energy(self, entry):
         """
