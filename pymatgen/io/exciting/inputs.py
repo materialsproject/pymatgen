@@ -167,7 +167,7 @@ class ExcitingInput(MSONable):
         return ExcitingInput.from_string(data)
 
     def write_etree(self, celltype, paramdict=None, cartesian=False, 
-            bandstr=False, symprec=0.4, angle_tolerance=5):
+                    bandstr=False, symprec=0.4, angle_tolerance=5):
         """
         Writes the exciting input parameters to an xml object.
         
@@ -271,14 +271,14 @@ class ExcitingInput(MSONable):
             raise ValueError("Bandstructure is only implemented for the \
                               standard primitive unit cell!")
         
-        #write parameters from paramdict if provided
-        if paramdict != None:
+        # write parameters from paramdict if provided
+        if paramdict is not None:
             self._dicttoxml(paramdict, root)
 
         return root
 
     def write_string(self, celltype, paramdict=None, cartesian=False, 
-            bandstr=False, symprec=0.4, angle_tolerance=5):
+                    bandstr=False, symprec=0.4, angle_tolerance=5):
         """
         Writes exciting input.xml as a string.
         
@@ -307,7 +307,7 @@ class ExcitingInput(MSONable):
         """
         try:
             root = self.write_etree(celltype, paramdict, cartesian, bandstr, 
-                    symprec, angle_tolerance)
+                                    symprec, angle_tolerance)
             self.indent(root)
             # output should be a string not a bytes object
             string = ET.tostring(root).decode('UTF-8')
@@ -316,7 +316,8 @@ class ExcitingInput(MSONable):
         return string
 
     def write_file(self, celltype, filename, paramdict=None, 
-            cartesian=False, bandstr=False, symprec=0.4, angle_tolerance=5):
+                    cartesian=False, bandstr=False, symprec=0.4, 
+                    angle_tolerance=5):
         """
         Writes exciting input file.
         
@@ -344,7 +345,7 @@ class ExcitingInput(MSONable):
         """
         try:
             root = self.write_etree(celltype, paramdict, cartesian, bandstr, 
-                    symprec, angle_tolerance)
+                                    symprec, angle_tolerance)
             self.indent(root)
             tree = ET.ElementTree(root)
             tree.write(filename)
@@ -385,9 +386,9 @@ class ExcitingInput(MSONable):
                 for item in value:                     
                     self._dicttoxml(item, ET.SubElement(element, key))             
             elif (isinstance(value, dict)):                 
-                    if(element.findall(key) == []):                     
-                        self._dicttoxml(value, ET.SubElement(element, key))                 
-                    else:                     
-                        self._dicttoxml(value, element.findall(key)[0])             
+                if(element.findall(key) == []):                     
+                    self._dicttoxml(value, ET.SubElement(element, key))                 
+                else:                     
+                    self._dicttoxml(value, element.findall(key)[0])             
             else:                 
                 print('cannot deal with', key, '=', value)
