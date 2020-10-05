@@ -29,7 +29,7 @@ class ExcitingInputTest(PymatgenTest):
     def test_fromfile(self):
         # Test for the import of a structure directly from an exciting
         # input file
-        filepath = os.path.join(test_dir, 'input1.xml')
+        filepath = os.path.join(test_dir, 'input_exciting1.xml')
         excin = ExcitingInput.from_file(filepath)
         lattice = [[0.0, 2.81, 2.81], [2.81, 0.0, 2.81], [2.81, 2.81, 0.0]]
         atoms = ['Na', 'Cl']
@@ -101,7 +101,26 @@ class ExcitingInputTest(PymatgenTest):
                 label.append(point.get('label'))
         self.assertEqual(label, label_ref)
         self.assertEqual(coord, coord_ref)
+    
+    def test_paramdict(self):
+        coords=[[0.0, 0.0, 0.0], [0.75, 0.5, 0.75]]
+        lattice=Lattice.from_parameters(a=3.84, b=3.84, c=3.84, alpha=120,
+                beta=90, gamma=60)
+        struct=Structure(lattice, ['Si','Si'], coords)
+        paradir={'grst':{'do':'fromscratch','ngridk':'8 8 8', 
+            'xctype':'GGA_PBE_SOL','gmaxvr':'14.0'},
+            'xs':{'xstype':'BSE','ngridk':'4 4 4','ngridq':'4 4 4',
+                'nempty':'30','gqmax':'3.0','broad':'0.07','tevout':'true', 
+               'energywindow':{'intv':'0.0 1.0','points':'1200'},
+               'screening':{'screentype':'full','nempty':'100'},
+               'BSE':{'bsetype':'singlet','nstlbse':'1 5 1 4'}}}
+        
+        test_input=ExcitingInput(struct)
+        test_string=test_input.write_string('unchanged',paramdict=paradir)
 
+        ref_string='<input xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://xml.exciting-code.org/excitinginput.xsd">\n  <title>Si2</title>\n  <structure speciespath="./">\n    <crystal scale="1.8897543760313331">\n      <basevect>      3.84000000       0.00000000       0.00000000</basevect>\n      <basevect>      1.92000000       2.71529004      -1.92000000</basevect>\n      <basevect>      0.00000000       0.00000000       3.84000000</basevect>\n      </crystal>\n    <species speciesfile="Si.xml">\n      <atom coord="      0.00000000       0.00000000       0.00000000" />\n      <atom coord="      0.75000000       0.50000000       0.75000000" />\n      </species>\n    </structure>\n  <grst do="fromscratch" ngridk="8 8 8" xctype="GGA_PBE_SOL" gmaxvr="14.0" />\n  <xs xstype="BSE" ngridk="4 4 4" ngridq="4 4 4" nempty="30" gqmax="3.0" broad="0.07" tevout="true">\n    <energywindow intv="0.0 1.0" points="1200" />\n    <screening screentype="full" nempty="100" />\n    <BSE bsetype="singlet" nstlbse="1 5 1 4" />\n    </xs>\n  </input>\n'
+        
+        self.assertEqual(ref_string.strip(), test_string.strip())
 
 if __name__ == "__main__":
     unittest.main()
