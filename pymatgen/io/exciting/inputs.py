@@ -278,7 +278,7 @@ class ExcitingInput(MSONable):
         return root
 
     def write_string(self, celltype, paramdict=None, cartesian=False, 
-                    bandstr=False, symprec=0.4, angle_tolerance=5):
+                     bandstr=False, symprec=0.4, angle_tolerance=5):
         """
         Writes exciting input.xml as a string.
         
@@ -316,8 +316,8 @@ class ExcitingInput(MSONable):
         return string
 
     def write_file(self, celltype, filename, paramdict=None, 
-                    cartesian=False, bandstr=False, symprec=0.4, 
-                    angle_tolerance=5):
+                   cartesian=False, bandstr=False, symprec=0.4, 
+                   angle_tolerance=5):
         """
         Writes exciting input file.
         
