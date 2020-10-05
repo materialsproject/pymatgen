@@ -489,8 +489,16 @@ class DictSet(VaspInputSet):
                     elif hasattr(site.specie, "spin"):
                         mag.append(site.specie.spin)
                     elif str(site.specie) in v:
+                        if site.specie.symbol == "Co":
+                            warnings.warn("Co without oxidation state is initialized low spin by default. If this is "
+                                          "not desired, please set the spin on the magmom on the site directly to "
+                                          "ensure correct initialization")
                         mag.append(v.get(str(site.specie)))
                     else:
+                        if site.specie.symbol == "Co":
+                            warnings.warn("Co without oxidation state is initialized low spin by default. If this is "
+                                          "not desired, please set the spin on the magmom on the site directly to "
+                                          "ensure correct initialization")
                         mag.append(v.get(site.specie.symbol, 0.6))
                 incar[k] = mag
             elif k in ("LDAUU", "LDAUJ", "LDAUL"):
