@@ -495,6 +495,7 @@ class PhaseDiagram(MSONable):
         Returns:
             PhaseDiagram
         """
+        # NOTE this wastes computation as we don't store the facets and simplexes
         entries = [MontyDecoder().process_decoded(dd) for dd in d["all_entries"]]
         elements = [Element.from_dict(dd) for dd in d["elements"]]
         return cls(entries, elements)
@@ -1108,17 +1109,21 @@ class PhaseDiagram(MSONable):
         muref = np.array(
             [self.el_refs[e].energy_per_atom for e in self.elements if e != open_elt]
         )
+
         chempot_ranges = self.get_chempot_range_map(
             [e for e in self.elements if e != open_elt]
         )
+
         for e in self.elements:
             if e not in target_comp.elements:
                 target_comp = target_comp + Composition({e: 0.0})
+
         coeff = [-target_comp[e] for e in self.elements if e != open_elt]
         max_open = -float("inf")
         min_open = float("inf")
         max_mus = None
         min_mus = None
+
         for e in chempot_ranges.keys():
             if e.composition.reduced_composition == target_comp.reduced_composition:
                 multiplicator = e.composition[open_elt] / target_comp[open_elt]
@@ -1141,11 +1146,16 @@ class PhaseDiagram(MSONable):
                                 open_elt
                             ]
                             min_mus = v
+
         elts = [e for e in self.elements if e != open_elt]
+
         res = {}
+
         for i, el in enumerate(elts):
             res[el] = (min_mus[i] + muref[i], max_mus[i] + muref[i])
+
         res[open_elt] = (min_open, max_open)
+
         return res
 
 
@@ -1188,12 +1198,15 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
             elements = set()
             for entry in entries:
                 elements.update(entry.composition.elements)
+
         self.chempots = {get_el_sp(el): u for el, u in chempots.items()}
         elements = set(elements).difference(self.chempots.keys())
+
         all_entries = []
         for e in entries:
             if len(set(e.composition.elements).intersection(set(elements))) > 0:
                 all_entries.append(GrandPotPDEntry(e, self.chempots))
+
         super().__init__(all_entries, elements)
 
     def __str__(self):
@@ -1654,28 +1667,28 @@ class PatchedPhaseDiagram(PhaseDiagram):
 
         return pd.get_decomp_and_quasi_e_to_hull(entry, space_limit, stable_only, tol, maxiter)
 
-    def get_quasi_e_to_hull(self, entry, **kwargs):
-        """
-        See PhaseDiagram
+    # NOTE we can inherit get_quasi_e_to_hull
 
-        Args:
-            entry (PDEntry): A PDEntry like object
-            **kwargs: Keyword args passed to `get_decomp_and_decomp_energy`
-                space_limit (int): The maximum number of competing entries to consider.
-                stable_only (bool): Only use stable materials as competing entries
-                tol (float): The tolerence for convergence of the SLSQP optimization
-                    when finding the equilibrium reaction.
-                maxiter (int): The maximum number of iterations of the SLSQP optimizer
-                    when finding the equilibrium reaction.
+    # def get_quasi_e_to_hull(self, entry, **kwargs):
+    #     """
+    #     See PhaseDiagram
 
-        Returns:
-            Decomposition energy per atom of entry. Stable entries should have
-            energies <= 0, Stable elemental entries should have energies = 0 and
-            unstable entries should have energies > 0.
-        """
-        pd = self.get_smallest_pd_for_entry(entry)
+    #     Args:
+    #         entry (PDEntry): A PDEntry like object
+    #         **kwargs: Keyword args passed to `get_decomp_and_decomp_energy`
+    #             space_limit (int): The maximum number of competing entries to consider.
+    #             stable_only (bool): Only use stable materials as competing entries
+    #             tol (float): The tolerence for convergence of the SLSQP optimization
+    #                 when finding the equilibrium reaction.
+    #             maxiter (int): The maximum number of iterations of the SLSQP optimizer
+    #                 when finding the equilibrium reaction.
 
-        return pd.get_quasi_e_to_hull(entry, **kwargs)
+    #     Returns:
+    #         Decomposition energy per atom of entry. Stable entries should have
+    #         energies <= 0, Stable elemental entries should have energies = 0 and
+    #         unstable entries should have energies > 0.
+    #     """
+    #     return self.get_decomp_and_quasi_e_to_hull(entry, **kwargs)[1]
 
     # NOTE the following functions are not implemented for PatchedPhaseDiagram
 
