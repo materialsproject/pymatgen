@@ -282,6 +282,12 @@ class PhaseDiagramTest(unittest.TestCase):
                 self.assertLessEqual(
                     self.pd.get_quasi_e_to_hull(entry), 0,
                     "Stable entries should have negative decomposition energy!")
+                self.assertAlmostEqual(
+                    self.pd.get_quasi_e_to_hull(entry, stable_only=True),
+                    self.pd.get_equilibrium_reaction_energy(entry), 7,
+                    ("Using `stable_only=True` should give decomposition energy equal to "
+                        "equilibrium reaction energy!")
+                )
 
         novel_stable_entry = PDEntry("Li5FeO4", -999)
         self.assertLess(
