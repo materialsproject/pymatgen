@@ -34,7 +34,6 @@ def test_energyadjustment():
     ea = EnergyAdjustment(10)
     assert ea.name == "Manual adjustment"
     assert ea.cls == {}
-    assert ea.description == ""
     ead = ea.as_dict()
     ea2 = EnergyAdjustment.from_dict(ead)
     assert str(ead) == str(ea2.as_dict())
@@ -44,14 +43,20 @@ def test_manual_energy_adjustment():
     ea = ManualEnergyAdjustment(10)
     assert ea.name == "Manual energy adjustment"
     assert ea.value == 10
-    assert ea.description == "Manual energy adjustment (10.000 eV)"
+    assert ea.explain == "Manual energy adjustment (10.000 eV)"
+    ead = ea.as_dict()
+    ea2 = ManualEnergyAdjustment.from_dict(ead)
+    assert str(ead) == str(ea2.as_dict())
 
 
 def test_constant_energy_adjustment():
     ea = ConstantEnergyAdjustment(8)
     assert ea.name == "Constant energy adjustment"
     assert ea.value == 8
-    assert ea.description == "Constant energy adjustment (8.000 eV)"
+    assert ea.explain == "Constant energy adjustment (8.000 eV)"
+    ead = ea.as_dict()
+    ea2 = ConstantEnergyAdjustment.from_dict(ead)
+    assert str(ead) == str(ea2.as_dict())
 
 
 def test_composition_energy_adjustment():
@@ -59,21 +64,27 @@ def test_composition_energy_adjustment():
     assert ea.name == "H"
     assert ea.value == 4
     assert (
-        ea.description
+        ea.explain
         == "Composition-based energy adjustment (2.000 eV/atom x 2 atoms)"
     )
+    ead = ea.as_dict()
+    ea2 = CompositionEnergyAdjustment.from_dict(ead)
+    assert str(ead) == str(ea2.as_dict())
 
 
 def test_temp_energy_adjustment():
-    ea = TemperatureEnergyAdjustment(-0.1, 298, 5, uncertainty_per_degK=0, name="entropy")
+    ea = TemperatureEnergyAdjustment(-0.1, 298, 5, uncertainty_per_deg=0, name="entropy")
     assert ea.name == "entropy"
     assert ea.value == -0.1 * 298 * 5
     assert ea.n_atoms == 5
     assert ea.temp == 298
     assert (
-        ea.description
+        ea.explain
         == "Temperature-based energy adjustment (-0.1000 eV/K/atom x 298 K x 5 atoms)"
     )
+    ead = ea.as_dict()
+    ea2 = TemperatureEnergyAdjustment.from_dict(ead)
+    assert str(ead) == str(ea2.as_dict())
 
 
 class ComputedEntryTest(unittest.TestCase):
@@ -136,7 +147,7 @@ class ComputedEntryTest(unittest.TestCase):
         ealist = [ManualEnergyAdjustment(5),
                   ConstantEnergyAdjustment(5),
                   CompositionEnergyAdjustment(1, 5, uncertainty_per_atom=0, name="Na"),
-                  TemperatureEnergyAdjustment(0.005, 100, 10, uncertainty_per_degK=0)
+                  TemperatureEnergyAdjustment(0.005, 100, 10, uncertainty_per_deg=0)
                   ]
         entry = ComputedEntry("Na5Cl5", 6.9, energy_adjustments=ealist)
         assert entry.correction == 20
@@ -144,6 +155,19 @@ class ComputedEntryTest(unittest.TestCase):
         assert entry.correction == 4
         for ea in entry.energy_adjustments:
             assert ea.value == 1
+
+    def test_normalize_not_in_place(self):
+        ealist = [ManualEnergyAdjustment(5),
+                  ConstantEnergyAdjustment(5),
+                  CompositionEnergyAdjustment(1, 5, uncertainty_per_atom=0, name="Na"),
+                  TemperatureEnergyAdjustment(0.005, 100, 10, uncertainty_per_deg=0)
+                  ]
+        entry = ComputedEntry("Na5Cl5", 6.9, energy_adjustments=ealist)
+
+        normed_entry = entry.normalize(inplace=False)
+        entry.normalize()
+
+        self.assertEqual(normed_entry.as_dict(), entry.as_dict())
 
     def test_to_from_dict(self):
         d = self.entry.as_dict()
