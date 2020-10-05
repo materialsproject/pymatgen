@@ -13,6 +13,7 @@ import math
 import logging
 import os
 import json
+import warnings
 from multiprocessing import Pool
 from functools import lru_cache, partial
 from typing import Set, List, Tuple, Optional
@@ -738,22 +739,14 @@ class PhaseDiagram(MSONable):
             competing_entries = list(self.stable_entries.union(inner_hull.stable_entries))
             competing_entries = [c for c in competing_entries if c != entry]
 
-        solution = _slsqp_decomp_solution(entry, competing_entries, tol, maxiter)
+        decomp = _get_slsqp_decomp(entry, competing_entries, tol, maxiter)
 
-        if solution.success:
-            decomp_amts = solution.x
-            decomp = {c: amt for c, amt
-                      in zip(competing_entries, decomp_amts)
-                      if amt > PhaseDiagram.numerical_tol}
+        # find the minimum alternative formation energy for the decomposition
+        decomp_enthalpy = np.sum([c.energy_per_atom * amt for c, amt in decomp.items()])
 
-            # find the minimum alternative formation energy for the decomposition
-            decomp_enthalpy = np.sum([c.energy_per_atom * amt for c, amt in decomp.items()])
+        decomp_enthalpy = entry.energy_per_atom - decomp_enthalpy
 
-            decomp_enthalpy = entry.energy_per_atom - decomp_enthalpy
-
-            return decomp, decomp_enthalpy
-
-        raise ValueError("No valid decomp found for {}!".format(entry))
+        return decomp, decomp_enthalpy
 
     def get_quasi_e_to_hull(self, entry, **kwargs):
         """
@@ -1437,6 +1430,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
                 )
                 pds = dict(zip(spaces, results))
 
+        self.spaces = spaces
         self.pds = pds
         self.all_entries = all_entries
         self.min_entries = min_entries
@@ -1447,7 +1441,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
     def __str__(self):
         output = [
             "{}\nSub-Spaces: ".format(self.__class__.__name__),
-            ", ".join(list(self.pds.keys()))
+            ", ".join(list(self.spaces))
         ]
         return "".join(output)
 
@@ -1499,7 +1493,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
             # is implemented.
             # NOTE due to the above we want to keep small phase diagrams as patches even if
             # they are subsets of larger phase diagrams.
-            raise ValueError("No suitable PhaseDiagrams found for {}".format(entry))
+            raise ValueError("No suitable PhaseDiagrams found for {}.".format(entry))
 
         return entry_pds
 
@@ -1531,24 +1525,34 @@ class PatchedPhaseDiagram(PhaseDiagram):
             Decomposition as a dict of {PDEntry: amount} where amount
             is the amount of the fractional composition.
         """
-        pd = self.get_smallest_pd_for_entry(comp)
+        try:
+            pd = self.get_smallest_pd_for_entry(comp)
+            return pd.get_decomposition(comp)
+        except ValueError as e:
+            # NOTE just warn for the time being to show stitching is working
+            warnings.warn(str(e) + " Using SLSQP to find decomposition")
+            competing_entries = [
+                c for c in self.stable_entries
+                if set(c.composition.elements).issubset(comp.elements)
+            ]
+            return _get_slsqp_decomp(comp, competing_entries)
 
-        return pd.get_decomposition(comp)
+    # NOTE we can inheret get hull energy
 
-    def get_hull_energy(self, comp):
-        """
-        See PhaseDiagram
+    # def get_hull_energy(self, comp):
+    #     """
+    #     See PhaseDiagram
 
-        Args:
-            comp (Composition): Input composition
+    #     Args:
+    #         comp (Composition): Input composition
 
-        Returns:
-            Energy of lowest energy equilibrium at desired composition. Not
-                normalized by atoms, i.e. E(Li4O2) = 2 * E(Li2O)
-        """
-        pd = self.get_smallest_pd_for_entry(comp)
+    #     Returns:
+    #         Energy of lowest energy equilibrium at desired composition. Not
+    #             normalized by atoms, i.e. E(Li4O2) = 2 * E(Li2O)
+    #     """
+    #     pd = self.get_smallest_pd_for_entry(comp)
 
-        return pd.get_hull_energy(comp)
+    #     return pd.get_hull_energy(comp)
 
     def get_decomp_and_e_above_hull(self, entry, allow_negative=False):
         """
@@ -1810,6 +1814,7 @@ class StitchedPhaseDiagram(MSONable):
                 or in cases where we watch to add additional elements to the phase diagram:
         """
         self.pds = pds
+        self.spaces = list(pds.keys())
 
         # TODO assert that the stray entries are not already inside other PhaseDiagrams.
 
@@ -1843,7 +1848,7 @@ class StitchedPhaseDiagram(MSONable):
         def __str__(self):
             output = [
                 "{}\nSub-Spaces: ".format(self.__class__.__name__),
-                ", ".join(list(self.pds.keys()))
+                ", ".join(self.spaces)
             ]
             return "".join(output)
 
@@ -2089,7 +2094,7 @@ def get_facets(qhull_data, joggle=False):
     return ConvexHull(qhull_data, qhull_options="Qt i").simplices
 
 
-def _slsqp_decomp_solution(entry, competing_entries, tol, maxiter):
+def _get_slsqp_decomp(comp, competing_entries, tol=1e-10, maxiter=1000):
     """
     Finds the amounts of competing compositions that minimize the energy of a
     given composition
@@ -2101,15 +2106,18 @@ def _slsqp_decomp_solution(entry, competing_entries, tol, maxiter):
         machine-learned formation energies, npj Computational Materials 6, 97 (2020)
 
     Args:
-        entry (PDEntry): A PDEntry like entry to analyze
+        comp (Composition/PDEntry): A Composition/PDEntry like entry to analyze
         competing_entries ([PDEntry]): List of entries to consider for decomposition
 
     Returns:
         scipy.optimize.minimize result. If sucessful this gives the linear combination of
             competing entrys that minimizes the competing formation energy
     """
+    if not isinstance(comp, Composition):
+        comp = comp.composition
+
     # Elemental amount present in given entry
-    amts = entry.composition.fractional_composition.get_el_amt_dict()
+    amts = comp.fractional_composition.get_el_amt_dict()
     chemical_space = tuple(amts.keys())
     b = np.array([amts[el] for el in chemical_space])
 
@@ -2134,7 +2142,8 @@ def _slsqp_decomp_solution(entry, competing_entries, tol, maxiter):
         "disp": False
     }
 
-    max_bound = entry.composition.num_atoms
+    # NOTE max_bound needs to be larger than 1
+    max_bound = comp.num_atoms
     bounds = [(0, max_bound)] * len(competing_entries)
     x0 = [1/len(competing_entries)] * len(competing_entries)
 
@@ -2150,7 +2159,14 @@ def _slsqp_decomp_solution(entry, competing_entries, tol, maxiter):
                         tol=tol,
                         options=options)
 
-    return solution
+    if solution.success:
+        decomp_amts = solution.x
+        decomp = {c: amt for c, amt
+                    in zip(competing_entries, decomp_amts)
+                    if amt > PhaseDiagram.numerical_tol}
+        return decomp
+    else:
+        raise ValueError("No valid decomp found for {}!".format(entry))
 
 
 def _get_useful_entries(entries: List[PDEntry]) -> Tuple[Set["PDEntry"], List["PDEntry"], List["PDEntry"]]:
