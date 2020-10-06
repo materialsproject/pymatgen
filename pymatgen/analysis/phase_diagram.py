@@ -920,7 +920,7 @@ class PhaseDiagram(MSONable):
         proj = proj[
             np.logical_and(
                 proj > -self.numerical_tol,
-                proj < proj[1] + self.numerical_tol
+                proj < proj[1] + self.numerical_tol  # proj[1] is |c2-c1|
             )
         ]
         proj.sort()
@@ -1009,33 +1009,34 @@ class PhaseDiagram(MSONable):
             simplices are the sides of the N-1 dim polytope bounding the
             allowable chemical potential range of each entry.
         """
+        # NOTE code to get all_chempots list is duplicated in get_transition_chempots
         all_chempots = []
-        pd = self
-        facets = pd.facets
-        for facet in facets:
+        for facet in self.facets:
             chempots = self._get_facet_chempots(facet)
-            all_chempots.append([chempots[el] for el in pd.elements])
+            all_chempots.append([chempots[el] for el in self.elements])
 
-        inds = [pd.elements.index(el) for el in elements]
-        el_energies = {el: 0.0 for el in elements}
+        inds = [self.elements.index(el) for el in elements]
 
         if referenced:
-            el_energies = {el: pd.el_refs[el].energy_per_atom for el in elements}
+            el_energies = {el: self.el_refs[el].energy_per_atom for el in elements}
+        else:
+            el_energies = {el: 0.0 for el in elements}
 
         chempot_ranges = collections.defaultdict(list)
         vertices = [list(range(len(self.elements)))]
 
+        # TODO explain what this step does
         if len(all_chempots) > len(self.elements):
             vertices = get_facets(all_chempots, joggle=joggle)
 
         for ufacet in vertices:
             for combi in itertools.combinations(ufacet, 2):
-                data1 = facets[combi[0]]
-                data2 = facets[combi[1]]
+                data1 = self.facets[combi[0]]
+                data2 = self.facets[combi[1]]
                 common_ent_ind = set(data1).intersection(set(data2))
                 if len(common_ent_ind) == len(elements):
-                    common_entries = [pd.qhull_entries[i] for i in common_ent_ind]
-                    data = np.array([[all_chempots[i][j] - el_energies[pd.elements[j]]
+                    common_entries = [self.qhull_entries[i] for i in common_ent_ind]
+                    data = np.array([[all_chempots[i][j] - el_energies[self.elements[j]]
                                     for j in inds] for i in combi])
                     sim = Simplex(data)
                     for entry in common_entries:
