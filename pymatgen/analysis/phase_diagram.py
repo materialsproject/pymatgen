@@ -370,10 +370,8 @@ class PhaseDiagram(MSONable):
         if dim == 1:
             self.facets = [qhull_data.argmin(axis=0)]
         else:
-            # NOTE these facets aren't facets they are sets of verticies for
-            # the simplicies.
             facets = get_facets(qhull_data)
-            finalfacets = []
+            final_facets = []
             for facet in facets:
                 # Skip facets that include the extra point
                 if max(facet) == len(qhull_data) - 1:
@@ -381,8 +379,8 @@ class PhaseDiagram(MSONable):
                 m = qhull_data[facet]
                 m[:, -1] = 1
                 if abs(np.linalg.det(m)) > 1e-14:
-                    finalfacets.append(facet)
-            self.facets = finalfacets
+                    final_facets.append(facet)
+            self.facets = final_facets
 
         self.simplexes = [Simplex(qhull_data[f, :-1]) for f in self.facets]
         self.all_entries = all_entries
@@ -881,12 +879,12 @@ class PhaseDiagram(MSONable):
         n2 = comp2.num_atoms
         pd_els = self.elements
 
-        # the reduced dimensionality Simplexes don't use the
+        # NOTE the reduced dimensionality Simplexes don't use the
         # first element in the PD
         c1 = self.pd_coords(comp1)
         c2 = self.pd_coords(comp2)
 
-        # none of the projections work if c1 == c2, so just return *copies*
+        # None of the projections work if c1 == c2, so just return *copies*
         # of the inputs
         if np.all(c1 == c2):
             return [comp1.copy(), comp2.copy()]
@@ -904,7 +902,8 @@ class PhaseDiagram(MSONable):
         # only take compositions between endpoints
         proj = proj[
             np.logical_and(
-                proj > -self.numerical_tol, proj < proj[1] + self.numerical_tol
+                proj > -self.numerical_tol,
+                proj < proj[1] + self.numerical_tol
             )
         ]
         proj.sort()
@@ -2139,12 +2138,13 @@ def _get_slsqp_decomp(comp, competing_entries, tol=1e-10, maxiter=1000):
 
     if solution.success:
         decomp_amts = solution.x
-        decomp = {c: amt for c, amt
-                    in zip(competing_entries, decomp_amts)
-                    if amt > PhaseDiagram.numerical_tol}
-        return decomp
+        return {
+            c: amt for c, amt
+            in zip(competing_entries, decomp_amts)
+            if amt > PhaseDiagram.numerical_tol
+        }
     else:
-        raise ValueError("No valid decomp found for {}!".format(entry))
+        raise ValueError("No valid decomp found for {}!".format(comp))
 
 
 def _get_useful_entries(entries: List[PDEntry]) -> Tuple[Set["PDEntry"], List["PDEntry"], List["PDEntry"]]:
@@ -2179,18 +2179,18 @@ def _get_useful_entries(entries: List[PDEntry]) -> Tuple[Set["PDEntry"], List["P
     return el_refs, min_entries, all_entries
 
 
-def _get_pd_for_space(space, all_entries):
+def _get_pd_for_space(space, entries):
     """
     Args:
         space (str): chemical space of the form A-B-X
-        all_entries ([PDEntry, ]): list of all entries to consider as
+        entries ([PDEntry, ]): list of all entries to consider as
             potentially being in the PhaseDiagram
 
     Returns:
         PhaseDiagram for the given chemical space
     """
     space_entries = [
-        e for e in all_entries if set(space.split("-")).issuperset(
+        e for e in entries if set(space.split("-")).issuperset(
             e.composition.chemical_system.split("-")
         )
     ]
