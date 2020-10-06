@@ -338,7 +338,6 @@ class MITMPRelaxSetTest(PymatgenTest):
         mpr = MPRelaxSet(struct)
         self.assertEqual(mpr.incar["MAGMOM"], [1, 0.6])
 
-
     def test_get_kpoints(self):
         kpoints = MPRelaxSet(self.structure).kpoints
         self.assertEqual(kpoints.kpts, [[2, 4, 5]])
