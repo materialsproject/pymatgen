@@ -536,7 +536,27 @@ class PhaseDiagram(MSONable):
         for f, s in zip(self.facets, self.simplexes):
             if s.in_simplex(c, PhaseDiagram.numerical_tol / 10):
                 return f, s
+
         raise RuntimeError("No facet found for comp = {}".format(comp))
+
+    def _get_all_facets_and_simplexes(self, comp):
+        """
+        Get all facets that a composition falls into.
+
+        Args:
+            comp (Composition): A composition
+
+        """
+        c = self.pd_coords(comp)
+        all_facets = []
+        for f, s in zip(self.facets, self.simplexes):
+            if s.in_simplex(c, PhaseDiagram.numerical_tol / 10):
+                all_facets.append(f)
+
+        if not len(all_facets):
+            raise RuntimeError("No facets found for comp = {}".format(comp))
+
+        return all_facets
 
     def _get_facet_chempots(self, facet):
         """
@@ -602,8 +622,8 @@ class PhaseDiagram(MSONable):
                 fractional composition. Stable entries should have energy above
                 convex hull of 0. The energy is given per atom.
         """
-        # Avoid computation for stable_entries. Note that scaled duplicates of
-        # stable_entries will not be caught.
+        # Avoid computation for stable_entries.
+        # NOTE scaled duplicates of stable_entries will not be caught.
         if entry in list(self.stable_entries):
             return {entry: 1}, 0
 
@@ -800,23 +820,14 @@ class PhaseDiagram(MSONable):
         Returns:
             Chemical potentials.
         """
-        # NOTE the top part takes from format of _get_facet_and_simplex,
-        # but wants to return all facets rather than the first one that
-        # meets this criteria
-        c = self.pd_coords(comp)
-        allfacets = []
-        for f, s in zip(self.facets, self.simplexes):
-            if s.in_simplex(c, PhaseDiagram.numerical_tol / 10):
-                allfacets.append(f)
-
-        if not len(allfacets):
-            raise RuntimeError("No facets found for comp = {}".format(comp))
+        all_facets = self._get_all_facets_and_simplexes(comp)
 
         chempots = {}
-        for facet in allfacets:
+        for facet in all_facets:
             facet_elt_list = [self.qhull_entries[j].name for j in facet]
             facet_name = "-".join(facet_elt_list)
             chempots[facet_name] = self._get_facet_chempots(facet)
+
         return chempots
 
     def get_transition_chempots(self, element):
