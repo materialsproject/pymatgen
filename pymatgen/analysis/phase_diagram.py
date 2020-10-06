@@ -16,7 +16,7 @@ import json
 import warnings
 from multiprocessing import Pool
 from functools import lru_cache, partial
-from typing import Set, List, Tuple, Optional
+from typing import Set, List, Tuple
 from monty.json import MSONable, MontyDecoder
 
 import numpy as np
@@ -25,13 +25,13 @@ from scipy.optimize import minimize
 
 import plotly.graph_objs as go
 
-from pymatgen.core.composition import Composition
-from pymatgen.core.periodic_table import Element, DummySpecies, get_el_sp
+from pymatgen.entries import Entry
 from pymatgen.util.coord import Simplex, in_coord_list
 from pymatgen.util.string import latexify
 from pymatgen.util.plotting import pretty_plot
+from pymatgen.core.composition import Composition
+from pymatgen.core.periodic_table import Element, DummySpecies, get_el_sp
 from pymatgen.analysis.reaction_calculator import Reaction, ReactionError
-from pymatgen.entries import Entry
 
 logger = logging.getLogger(__name__)
 
@@ -988,14 +988,19 @@ class PhaseDiagram(MSONable):
         for facet in facets:
             chempots = self._get_facet_chempots(facet)
             all_chempots.append([chempots[el] for el in pd.elements])
+
         inds = [pd.elements.index(el) for el in elements]
         el_energies = {el: 0.0 for el in elements}
+
         if referenced:
             el_energies = {el: pd.el_refs[el].energy_per_atom for el in elements}
+
         chempot_ranges = collections.defaultdict(list)
         vertices = [list(range(len(self.elements)))]
+
         if len(all_chempots) > len(self.elements):
             vertices = get_facets(all_chempots, joggle=joggle)
+
         for ufacet in vertices:
             for combi in itertools.combinations(ufacet, 2):
                 data1 = facets[combi[0]]
@@ -1003,15 +1008,8 @@ class PhaseDiagram(MSONable):
                 common_ent_ind = set(data1).intersection(set(data2))
                 if len(common_ent_ind) == len(elements):
                     common_entries = [pd.qhull_entries[i] for i in common_ent_ind]
-                    data = np.array(
-                        [
-                            [
-                                all_chempots[i][j] - el_energies[pd.elements[j]]
-                                for j in inds
-                            ]
-                            for i in combi
-                        ]
-                    )
+                    data = np.array([[all_chempots[i][j] - el_energies[pd.elements[j]]
+                                    for j in inds] for i in combi])
                     sim = Simplex(data)
                     for entry in common_entries:
                         chempot_ranges[entry].append(sim)
@@ -1051,7 +1049,9 @@ class PhaseDiagram(MSONable):
         for e in self.elements:
             if e not in target_comp.elements:
                 target_comp = target_comp + Composition({e: 0.0})
+
         coeff = [-target_comp[e] for e in self.elements if e != dep_elt]
+
         for e in chempot_ranges.keys():
             if e.composition.reduced_composition == target_comp.reduced_composition:
                 multiplicator = e.composition[dep_elt] / target_comp[dep_elt]
@@ -1063,19 +1063,22 @@ class PhaseDiagram(MSONable):
                         res = {}
                         for i, el in enumerate(elts):
                             res[el] = v[i] + muref[i]
-                        res[dep_elt] = (np.dot(v + muref, coeff) + ef) / target_comp[
-                            dep_elt
-                        ]
+
+                        res[dep_elt] = (np.dot(v + muref, coeff) + ef) / \
+                            target_comp[dep_elt]
                         already_in = False
+
                         for di in all_coords:
                             dict_equals = True
                             for k in di:
                                 if abs(di[k] - res[k]) > tol_en:
                                     dict_equals = False
                                     break
+
                             if dict_equals:
                                 already_in = True
                                 break
+
                         if not already_in:
                             all_coords.append(res)
 
@@ -1124,19 +1127,12 @@ class PhaseDiagram(MSONable):
                 for s in chempot_ranges[e]:
                     for v in s._coords:
                         all_coords.append(v)
-                        if (np.dot(v + muref, coeff) + ef) / target_comp[
-                            open_elt
-                        ] > max_open:
-                            max_open = (np.dot(v + muref, coeff) + ef) / target_comp[
-                                open_elt
-                            ]
+                        test_open = (np.dot(v + muref, coeff) + ef) / target_comp[open_elt]
+                        if test_open > max_open:
+                            max_open = test_open
                             max_mus = v
-                        if (np.dot(v + muref, coeff) + ef) / target_comp[
-                            open_elt
-                        ] < min_open:
-                            min_open = (np.dot(v + muref, coeff) + ef) / target_comp[
-                                open_elt
-                            ]
+                        if test_open < min_open:
+                            min_open = test_open
                             min_mus = v
 
         elts = [e for e in self.elements if e != open_elt]
