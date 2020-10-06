@@ -572,6 +572,26 @@ class PhaseDiagram(MSONable):
         chempots = np.linalg.solve(m, energylist)
         return dict(zip(self.elements, chempots))
 
+    def _get_simplex_intersections(self, c1, c2):
+        """
+        Returns co-ordinates of the itersection of the tie line between two compositions
+        and the simplexes of the PhaseDiagram.
+
+        Args:
+            c1: Reduced dimension co-ordinates of first composition
+            c2: Reduced dimension co-ordinates of second composition
+
+        Returns:
+            Array of the intersections between the tie line and the simplexes of
+            the PhaseDiagram
+        """
+
+        intersections = [c1, c2]
+        for sc in self.simplexes:
+            intersections.extend(sc.line_intersection(c1, c2))
+
+        return np.array(intersections)
+
     def get_decomposition(self, comp):
         """
         Provides the decomposition at a particular composition.
@@ -889,14 +909,11 @@ class PhaseDiagram(MSONable):
         if np.all(c1 == c2):
             return [comp1.copy(), comp2.copy()]
 
-        intersections = [c1, c2]
-        for sc in self.simplexes:
-            intersections.extend(sc.line_intersection(c1, c2))
-        intersections = np.array(intersections)
+        intersections = self._get_simplex_intersections(c1, c2)
 
         # find position along line
         l = c2 - c1
-        l /= np.sum(l ** 2) ** 0.5
+        l /= np.sqrt(l.dot(l))
         proj = np.dot(intersections - c1, l)
 
         # only take compositions between endpoints
@@ -1593,8 +1610,21 @@ class PatchedPhaseDiagram(PhaseDiagram):
         """
         Not Implemented
 
-        Get any facet that a composition falls into. Cached so successive
-        calls at same composition are fast.
+        See PhaseDiagram
+
+        Args:
+            comp (Composition): A composition
+
+        """
+        raise NotImplementedError(
+            "`_get_facet_and_simplex` not implemented for PatchedPhaseDiagram"
+        )
+
+    def _get_all_facets_and_simplexes(self, comp):
+        """
+        Not Implemented
+
+        See PhaseDiagram
 
         Args:
             comp (Composition): A composition
@@ -1608,7 +1638,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
         """
         Not Implemented
 
-        Calculates the chemical potentials for each element within a facet.
+        See PhaseDiagram
 
         Args:
             facet: Facet of the phase diagram.
@@ -1618,6 +1648,25 @@ class PatchedPhaseDiagram(PhaseDiagram):
         """
         raise NotImplementedError(
             "`_get_facet_chempots` not implemented for PatchedPhaseDiagram"
+        )
+
+    def _get_simplex_intersections(self, c1, c2):
+        """
+        Not Implemented
+
+        See PhaseDiagram
+
+        Args:
+            c1: Reduced dimension co-ordinates of first composition
+            c2: Reduced dimension co-ordinates of second composition
+
+        Returns:
+            Array of the intersections between the tie line and the simplexes of
+            the PhaseDiagram
+        """
+
+        raise NotImplementedError(
+            "`_get_simplex_intersections` not implemented for PatchedPhaseDiagram"
         )
 
     def get_composition_chempots(self, comp):
