@@ -883,7 +883,6 @@ class MPRelaxSet(DictSet):
         :param kwargs: Same as those supported by DictSet.
         """
         super().__init__(structure, MPRelaxSet.CONFIG, **kwargs)
-        self.kwargs = kwargs
 
 
 class MPScanRelaxSet(DictSet):
@@ -949,7 +948,6 @@ class MPScanRelaxSet(DictSet):
         """
         super().__init__(structure, MPScanRelaxSet.CONFIG, **kwargs)
         self.bandgap = bandgap
-        self.kwargs = kwargs
 
         if self.potcar_functional not in ["PBE_52", "PBE_54"]:
             raise ValueError("SCAN calculations require PBE_52 or PBE_54!")
@@ -972,13 +970,13 @@ class MPScanRelaxSet(DictSet):
             updates["SIGMA"] = 0.05
 
         # Don't overwrite things the user has supplied
-        if kwargs.get("user_incar_settings", {}).get("KSPACING"):
+        if self.user_incar_settings.get("KSPACING"):
             del updates["KSPACING"]
 
-        if kwargs.get("user_incar_settings", {}).get("ISMEAR"):
+        if self.user_incar_settings.get("ISMEAR"):
             del updates["ISMEAR"]
 
-        if kwargs.get("user_incar_settings", {}).get("SIGMA"):
+        if self.user_incar_settings.get("SIGMA"):
             del updates["SIGMA"]
 
         if self.vdw:
@@ -1015,7 +1013,6 @@ class MPMetalRelaxSet(MPRelaxSet):
         super().__init__(structure, **kwargs)
         self._config_dict["INCAR"].update({"ISMEAR": 1, "SIGMA": 0.2})
         self._config_dict["KPOINTS"].update({"reciprocal_density": 200})
-        self.kwargs = kwargs
 
 
 class MPHSERelaxSet(DictSet):
@@ -1031,7 +1028,6 @@ class MPHSERelaxSet(DictSet):
         :param kwargs: Same as those supported by DictSet.
         """
         super().__init__(structure, MPHSERelaxSet.CONFIG, **kwargs)
-        self.kwargs = kwargs
 
 
 class MPStaticSet(MPRelaxSet):
@@ -1076,7 +1072,6 @@ class MPStaticSet(MPRelaxSet):
         self.prev_incar = prev_incar
         self.prev_kpoints = prev_kpoints
         self.reciprocal_density = reciprocal_density
-        self.kwargs = kwargs
         self.lepsilon = lepsilon
         self.lcalcpol = lcalcpol
         self.small_gap_multiply = small_gap_multiply
@@ -1124,9 +1119,7 @@ class MPStaticSet(MPRelaxSet):
         if self.lcalcpol:
             incar["LCALCPOL"] = True
 
-        for k in ["MAGMOM", "NUPDOWN"] + list(
-            self.kwargs.get("user_incar_settings", {}).keys()
-        ):
+        for k in ["MAGMOM", "NUPDOWN"] + list(self.user_incar_settings.keys()):
             # For these parameters as well as user specified settings, override
             # the incar settings.
             if parent_incar.get(k, None) is not None:
@@ -1258,7 +1251,6 @@ class MPScanStaticSet(MPScanRelaxSet):
             prev_incar = Incar.from_file(prev_incar)
 
         self.prev_incar = prev_incar
-        self.kwargs = kwargs
         self.lepsilon = lepsilon
         self.lcalcpol = lcalcpol
 
@@ -1295,7 +1287,7 @@ class MPScanStaticSet(MPScanRelaxSet):
         if self.lcalcpol:
             incar["LCALCPOL"] = True
 
-        for k in list(self.kwargs.get("user_incar_settings", {}).keys()):
+        for k in list(self.user_incar_settings.keys()):
             # For user specified settings, override
             # the incar settings.
             if parent_incar.get(k, None) is not None:
@@ -1578,7 +1570,6 @@ class MPNonSCFSet(MPRelaxSet):
         if isinstance(prev_incar, str):
             prev_incar = Incar.from_file(prev_incar)
         self.prev_incar = prev_incar
-        self.kwargs = kwargs
         self.nedos = nedos
         self.dedos = dedos
         self.reciprocal_density = reciprocal_density
@@ -1634,7 +1625,7 @@ class MPNonSCFSet(MPRelaxSet):
             # is incompatible with ISMEAR = -5.
             incar.update({"ISMEAR": 0, "SIGMA": 0.01})
 
-        incar.update(self.kwargs.get("user_incar_settings", {}))
+        incar.update(self.user_incar_settings)
 
         if self.mode.lower() in "uniform":
             # Set smaller steps for DOS and optics output
@@ -1653,7 +1644,7 @@ class MPNonSCFSet(MPRelaxSet):
         :return: Kpoints
         """
         # override pymatgen kpoints if provided
-        user_kpoints = self.kwargs.get("user_kpoints_settings", None)
+        user_kpoints = self.user_kpoints_settings
         if isinstance(user_kpoints, Kpoints):
             return user_kpoints
 
@@ -1757,7 +1748,7 @@ class MPNonSCFSet(MPRelaxSet):
                     self.kpoints_line_density * self.small_gap_multiply[1]
                 )
 
-        # automatic setting of nedos using the total energy range and the energy step dedos
+        # automatic setting of nedos using the energy range and the energy step dedos
         if self.nedos == 0:
             emax = max([eigs.max() for eigs in vasprun.eigenvalues.values()])
             emin = min([eigs.min() for eigs in vasprun.eigenvalues.values()])
@@ -1844,7 +1835,7 @@ class MPSOCSet(MPStaticSet):
         incar.update(
             {"ISYM": -1, "LSORBIT": "T", "ICHARG": 11, "SAXIS": list(self.saxis)}
         )
-        incar.update(self.kwargs.get("user_incar_settings", {}))
+        incar.update(self.user_incar_settings)
 
         return incar
 
@@ -2017,7 +2008,7 @@ class MPNMRSet(MPStaticSet):
                     "SIGMA": 0.01,
                 }
             )
-        incar.update(self.kwargs.get("user_incar_settings", {}))
+        incar.update(self.user_incar_settings)
 
         return incar
 
