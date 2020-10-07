@@ -883,6 +883,7 @@ class MPRelaxSet(DictSet):
         :param kwargs: Same as those supported by DictSet.
         """
         super().__init__(structure, MPRelaxSet.CONFIG, **kwargs)
+        self.kwargs = kwargs
 
 
 class MPScanRelaxSet(DictSet):
@@ -948,6 +949,7 @@ class MPScanRelaxSet(DictSet):
         """
         super().__init__(structure, MPScanRelaxSet.CONFIG, **kwargs)
         self.bandgap = bandgap
+        self.kwargs = kwargs
 
         if self.potcar_functional not in ["PBE_52", "PBE_54"]:
             raise ValueError("SCAN calculations require PBE_52 or PBE_54!")
@@ -1013,6 +1015,7 @@ class MPMetalRelaxSet(MPRelaxSet):
         super().__init__(structure, **kwargs)
         self._config_dict["INCAR"].update({"ISMEAR": 1, "SIGMA": 0.2})
         self._config_dict["KPOINTS"].update({"reciprocal_density": 200})
+        self.kwargs = kwargs
 
 
 class MPHSERelaxSet(DictSet):
@@ -1028,6 +1031,7 @@ class MPHSERelaxSet(DictSet):
         :param kwargs: Same as those supported by DictSet.
         """
         super().__init__(structure, MPHSERelaxSet.CONFIG, **kwargs)
+        self.kwargs = kwargs
 
 
 class MPStaticSet(MPRelaxSet):
@@ -1072,6 +1076,7 @@ class MPStaticSet(MPRelaxSet):
         self.prev_incar = prev_incar
         self.prev_kpoints = prev_kpoints
         self.reciprocal_density = reciprocal_density
+        self.kwargs = kwargs
         self.lepsilon = lepsilon
         self.lcalcpol = lcalcpol
         self.small_gap_multiply = small_gap_multiply
@@ -1251,6 +1256,7 @@ class MPScanStaticSet(MPScanRelaxSet):
             prev_incar = Incar.from_file(prev_incar)
 
         self.prev_incar = prev_incar
+        self.kwargs = kwargs
         self.lepsilon = lepsilon
         self.lcalcpol = lcalcpol
 
@@ -1570,6 +1576,7 @@ class MPNonSCFSet(MPRelaxSet):
         if isinstance(prev_incar, str):
             prev_incar = Incar.from_file(prev_incar)
         self.prev_incar = prev_incar
+        self.kwargs = kwargs
         self.nedos = nedos
         self.dedos = dedos
         self.reciprocal_density = reciprocal_density
