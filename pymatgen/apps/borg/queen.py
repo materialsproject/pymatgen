@@ -8,23 +8,13 @@ This module defines the BorgQueen class, which manages drones to assimilate
 data using Python's multiprocessing.
 """
 
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "1.0"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Mar 18, 2012"
-
-
 import os
 import json
 import logging
+from multiprocessing import Manager, Pool
 
 from monty.io import zopen
 from monty.json import MontyEncoder, MontyDecoder
-
-from multiprocessing import Manager, Pool
 
 logger = logging.getLogger("BorgQueen")
 

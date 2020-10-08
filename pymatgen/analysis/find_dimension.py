@@ -11,18 +11,19 @@ Chen, Y.; Reed, E. J. Data Mining for New Two- and One-Dimensional Weakly
 Bonded Solids and Lattice-Commensurate Heterostructures. Nano Lett. 2017.
 """
 
+import copy
+import itertools
+
+import numpy as np
+from monty.dev import deprecated
+
+from pymatgen.analysis.local_env import JmolNN
+from pymatgen.core.periodic_table import Species
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
 __author__ = "Gowoon Cheon"
 __version__ = "1.0"
 __email__ = "gcheon@stanford.edu"
-
-import numpy as np
-import itertools
-import copy
-
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.analysis.local_env import JmolNN
-from pymatgen.core.periodic_table import Specie
-from monty.dev import deprecated
 
 
 @deprecated(message=("find_connected_atoms has been moved to "
@@ -53,7 +54,7 @@ def find_connected_atoms(struct, tolerance=0.45, ldict=JmolNN().el_radius):
     # in case of charged species
     for i, item in enumerate(species):
         if item not in ldict.keys():
-            species[i] = str(Specie.from_string(item).element)
+            species[i] = str(Species.from_string(item).element)
     latmat = struct.lattice.matrix
     connected_list = []
 
@@ -184,5 +185,5 @@ def find_dimension(structure_raw, tolerance=0.45, ldict=JmolNN().el_radius, stan
                 if dim == int(dim):
                     dim = str(int(dim)) + 'D'
                 else:
-                    return
+                    return None
     return dim

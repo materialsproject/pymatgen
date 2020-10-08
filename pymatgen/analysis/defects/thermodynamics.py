@@ -387,7 +387,7 @@ class DefectPhaseDiagram(MSONable):
                     # consider if transition level is within
                     # tolerance of band edges
                     suggest_bigger_supercell = True
-                    for tl, chgset in self.transition_level_map.items():
+                    for tl, chgset in self.transition_level_map[def_type].items():
                         sorted_chgset = list(chgset)
                         sorted_chgset.sort(reverse=True)
                         if charge == sorted_chgset[0] and tl < tolerance:

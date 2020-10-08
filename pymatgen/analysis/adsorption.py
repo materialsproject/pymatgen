@@ -8,13 +8,18 @@ This module provides classes used to enumerate surface sites
 and to find adsorption sites on slabs
 """
 
-import numpy as np
-from pymatgen import Structure, vis
 import itertools
 import os
-from monty.serialization import loadfn
+
+import numpy as np
 from scipy.spatial import Delaunay
 
+from matplotlib import patches
+from matplotlib.path import Path
+
+from monty.serialization import loadfn
+
+from pymatgen import Structure, vis
 from pymatgen.core.operations import SymmOp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.coord import in_coord_list_pbc
@@ -22,8 +27,6 @@ from pymatgen.analysis.local_env import VoronoiNN
 from pymatgen.core.surface import generate_all_slabs
 from pymatgen.analysis.structure_matcher import StructureMatcher
 
-from matplotlib import patches
-from matplotlib.path import Path
 
 __author__ = "Joseph Montoya"
 __copyright__ = "Copyright 2016, The Materials Project"
@@ -189,8 +192,8 @@ class AdsorbateSiteFinder:
         """
         if 'surface_properties' in slab.site_properties.keys():
             return slab
-        else:
-            surf_sites = self.find_surface_sites_by_height(slab, height)
+
+        surf_sites = self.find_surface_sites_by_height(slab, height)
         surf_props = ['surface' if site in surf_sites
                       else 'subsurface' for site in slab.sites]
         return slab.copy(
@@ -350,7 +353,8 @@ class AdsorbateSiteFinder:
         return [self.slab.lattice.get_cartesian_coords(coords)
                 for coords in unique_coords]
 
-    def ensemble_center(self, site_list, indices, cartesian=True):
+    @classmethod
+    def ensemble_center(cls, site_list, indices, cartesian=True):
         """
         Finds the center of an ensemble of sites selected from
         a list of sites.  Helper method for the find_adsorption_sites
@@ -364,11 +368,9 @@ class AdsorbateSiteFinder:
                 cartesian coordinate
         """
         if cartesian:
-            return np.average([site_list[i].coords for i in indices],
-                              axis=0)
-        else:
-            return np.average([site_list[i].frac_coords for i in indices],
-                              axis=0)
+            return np.average([site_list[i].coords for i in indices], axis=0)
+
+        return np.average([site_list[i].frac_coords for i in indices], axis=0)
 
     def add_adsorbate(self, molecule, ads_coord, repeat=None, translate=True,
                       reorient=True):
@@ -416,7 +418,8 @@ class AdsorbateSiteFinder:
                           properties=site.properties)
         return struct
 
-    def assign_selective_dynamics(self, slab):
+    @classmethod
+    def assign_selective_dynamics(cls, slab):
         """
         Helper function to assign selective dynamics site_properties
         based on surface, subsurface site properties
@@ -635,7 +638,8 @@ color_dict = {el: [j / 256.001 for j in colors["Jmol"][el]]
 
 
 def plot_slab(slab, ax, scale=0.8, repeat=5, window=1.5,
-              draw_unit_cell=True, decay=0.2, adsorption_sites=True):
+              draw_unit_cell=True, decay=0.2, adsorption_sites=True,
+              inverse=False):
     """
     Function that helps visualize the slab in a 2-D plot, for
     convenient viewing of output of AdsorbateSiteFinder.
@@ -649,6 +653,7 @@ def plot_slab(slab, ax, scale=0.8, repeat=5, window=1.5,
             a fraction of the unit cell limits
         draw_unit_cell (bool): flag indicating whether or not to draw cell
         decay (float): how the alpha-value decays along the z-axis
+        inverse (bool): invert z axis to plot opposite surface
     """
     orig_slab = slab.copy()
     slab = reorient_z(slab)
@@ -663,6 +668,11 @@ def plot_slab(slab, ax, scale=0.8, repeat=5, window=1.5,
     corner = slab.lattice.get_cartesian_coords(corner)[:2]
     verts = orig_cell[:2, :2]
     lattsum = verts[0] + verts[1]
+    # inverse coords, sites, alphas, to show other side of slab
+    if inverse:
+        alphas = np.array(reversed(alphas))
+        sites = list(reversed(sites))
+        coords = np.array(reversed(coords))
     # Draw circles at sites and stack them accordingly
     for n, coord in enumerate(coords):
         r = sites[n].specie.atomic_radius * scale
@@ -675,6 +685,10 @@ def plot_slab(slab, ax, scale=0.8, repeat=5, window=1.5,
     # Adsorption sites
     if adsorption_sites:
         asf = AdsorbateSiteFinder(orig_slab)
+        if inverse:
+            inverse_slab = orig_slab.copy()
+            inverse_slab.make_supercell([1, 1, -1])
+            asf = AdsorbateSiteFinder(inverse_slab)
         ads_sites = asf.find_adsorption_sites()['all']
         sop = get_rot(orig_slab)
         ads_sites = [sop.operate(ads_site)[:2].tolist()

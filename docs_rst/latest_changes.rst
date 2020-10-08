@@ -1,13 +1,15 @@
 Change log
 ==========
 
-v2020.3.13
+v2020.9.14
 ----------
-* Added angle_tolerance to CifWriter.
-* Change default float precision in CifWriter to 8. Adds float_prec kwarg to 
-  allow setting of arbitrary precision. 
-* Rudimentary pymatgen.io.vasp.help.VaspDoc class for obtaining help from VASP wiki.
-* Massive documentation cleanup.
-* Reorganization of Entry, ComputedEntry (@ayushsgupta).
-* Bug fix for PourbaixDiagram (@montoyjh).
-* Read WAVECAR from gamma-point only VASP executable. (@bernstei)
+* New Plotly backend for PhaseDiagram plotting (@mattmcdermott, #1936)
+* New reporting and logging of Materials Project database version in MPRester (@mkhorton, #1945)
+* Improvements and bug fixes with mcsqs integration (@rwoodsrobinson, #1942)
+* Improvements to PackmolRunner (@rkingsbury, #1947)
+* Improvements to ComputerEntry (@rkingsbury, #1948)
+* Improvements for MPScanSet (@rkingsbury, #1940)
+* Bug fix for Surface and Composition (@gpetretto, #1937)
+* Bug fix for EwaldSummation serialization (@lbluque, #1932)
+* Bug fix for SeeK k-path (@Ian496, #1930)
+* Fix for deprecation warning in MPRester (@rkingsbury, #1951)

@@ -584,7 +584,7 @@ def determine_convergence(xs, ys, name, tol=0.0001, extra='', verbose=False, mod
                 x_value = float('inf')
         if n_value is None:
             return [conv, x_value, y_value, n_value, popt[0], None]
-        else:
-            return [conv, x_value, y_value, n_value, popt[0], ds[n_value]]
-    else:
-        return [conv, x_value, y_value, n_value, popt[0], None]
+
+        return [conv, x_value, y_value, n_value, popt[0], ds[n_value]]
+
+    return [conv, x_value, y_value, n_value, popt[0], None]

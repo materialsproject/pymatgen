@@ -7,21 +7,13 @@ This module defines filters for Transmuter object.
 """
 
 import abc
-
-from pymatgen.core.periodic_table import get_el_sp
-from monty.json import MSONable
-from pymatgen.analysis.structure_matcher import StructureMatcher, \
-    ElementComparator
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-
 from collections import defaultdict
 
-__author__ = "Will Richards, Shyue Ping Ong, Stephen Dacek"
-__copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "1.0"
-__maintainer__ = "Will Richards"
-__email__ = "wrichards@mit.edu"
-__date__ = "Sep 25, 2012"
+from monty.json import MSONable
+
+from pymatgen.core.periodic_table import get_el_sp
+from pymatgen.analysis.structure_matcher import StructureMatcher, ElementComparator
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 
 class AbstractStructureFilter(MSONable, metaclass=abc.ABCMeta):
@@ -55,7 +47,7 @@ class ContainsSpecieFilter(AbstractStructureFilter):
     def __init__(self, species, strict_compare=False, AND=True, exclude=False):
         """
         Args:
-            species ([Specie/Element]): list of species to look for
+            species ([Species/Element]): list of species to look for
             AND: whether all species must be present to pass (or fail) filter.
             strict_compare: if true, compares objects by specie or element
                 object if false, compares atomic number
@@ -76,8 +68,8 @@ class ContainsSpecieFilter(AbstractStructureFilter):
         # set up lists to compare
         if not self._strict:
             # compare by atomic number
-            filter_set = set([sp.Z for sp in self._species])
-            structure_set = set([sp.Z for sp in structure.composition.elements])
+            filter_set = {sp.Z for sp in self._species}
+            structure_set = {sp.Z for sp in structure.composition.elements}
         else:
             # compare by specie or element object
             filter_set = set(self._species)
@@ -86,12 +78,11 @@ class ContainsSpecieFilter(AbstractStructureFilter):
         if self._AND and filter_set <= structure_set:
             # return true if we aren't excluding since all are in structure
             return not self._exclude
-        elif (not self._AND) and filter_set & structure_set:
+        if (not self._AND) and filter_set & structure_set:
             # return true if we aren't excluding since one is in structure
             return not self._exclude
-        else:
-            # return false if we aren't excluding otherwise
-            return self._exclude
+        # return false if we aren't excluding otherwise
+        return self._exclude
 
     def __repr__(self):
         return "\n".join(["ContainsSpecieFilter with parameters:",
@@ -104,7 +95,7 @@ class ContainsSpecieFilter(AbstractStructureFilter):
         """
         Returns: MSONAble dict
         """
-        return {"version": __version__, "@module": self.__class__.__module__,
+        return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "init_args": {"species": [str(sp) for sp in self._species],
                               "strict_compare": self._strict,
@@ -137,7 +128,7 @@ class SpecieProximityFilter(AbstractStructureFilter):
                 Angstrom away from each other. Multiple species criteria can be
                 applied. Note that the testing is done based on the actual object
                 . If you have a structure with Element, you must use {"Na":1}
-                instead to filter based on Element and not Specie.
+                instead to filter based on Element and not Species.
         """
         self.specie_and_min_dist = {get_el_sp(k): v
                                     for k, v
@@ -172,7 +163,7 @@ class SpecieProximityFilter(AbstractStructureFilter):
         """
         Returns: MSONable dict
         """
-        return {"version": __version__, "@module": self.__class__.__module__,
+        return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "init_args": {"specie_and_min_dist_dict": {str(sp): v
                                                            for sp, v in self.specie_and_min_dist.items()}}}
@@ -295,7 +286,7 @@ class RemoveExistingFilter(AbstractStructureFilter):
         """
         Returns: MSONable dict
         """
-        return {"version": __version__, "@module": self.__class__.__module__,
+        return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "init_args": {"structure_matcher": self.structure_matcher.as_dict()}}
 
@@ -323,10 +314,7 @@ class ChargeBalanceFilter(AbstractStructureFilter):
 
         Returns: True if structure is neutral.
         """
-        if structure.charge == 0.0:
-            return True
-        else:
-            return False
+        return structure.charge == 0.0
 
 
 class SpeciesMaxDistFilter(AbstractStructureFilter):
@@ -343,8 +331,8 @@ class SpeciesMaxDistFilter(AbstractStructureFilter):
     def __init__(self, sp1, sp2, max_dist):
         """
         Args:
-            sp1 (Specie): First specie
-            sp2 (Specie): Second specie
+            sp1 (Species): First specie
+            sp2 (Species): Second specie
             max_dist (float): Maximum distance between species.
         """
         self.sp1 = get_el_sp(sp1)

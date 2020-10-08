@@ -7,7 +7,7 @@ import unittest
 import os
 import json
 
-from pymatgen.core.periodic_table import Specie
+from pymatgen.core.periodic_table import Species
 from pymatgen.core.composition import Composition
 from pymatgen.analysis.structure_prediction.substitutor import Substitutor
 from pymatgen.util.testing import PymatgenTest
@@ -34,7 +34,7 @@ class SubstitutorTest(PymatgenTest):
                              alpha=-5.)
 
     def test_substitutor(self):
-        s_list = [Specie('O', -2), Specie('Li', 1)]
+        s_list = [Species('O', -2), Species('Li', 1)]
         subs = self.s.pred_from_list(s_list)
         self.assertEqual(len(subs), 4, 'incorrect number of substitutions')
         c = Composition({'O2-': 1, 'Li1+': 2})

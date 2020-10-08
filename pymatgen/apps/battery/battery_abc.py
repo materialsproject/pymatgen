@@ -14,9 +14,9 @@ these common definitions to allow sharing of common logic between them.
 from collections.abc import Sequence
 import abc
 
-from monty.json import MSONable
-
 from scipy.constants import N_A
+
+from monty.json import MSONable
 
 __author__ = "Anubhav Jain, Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"

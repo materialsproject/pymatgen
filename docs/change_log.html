@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Change log &mdash; pymatgen 2020.3.13 documentation</title>
+  <title>Change log &mdash; pymatgen 2020.9.14 documentation</title>
   
 
   
@@ -23,11 +23,11 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -71,7 +71,7 @@
             
             
               <div class="version">
-                2020.3.13
+                2020.9.14
               </div>
             
           
@@ -99,6 +99,17 @@
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Change log</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#v2020-9-14">v2020.9.14</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2020-8-13">v2020.8.13</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2020-8-3">v2020.8.3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2020-7-18">v2020.7.18</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2020-7-16">v2020.7.16</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2020-7-14">v2020.7.14</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2020-7-10">v2020.7.10</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2020-7-3">v2020.7.3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2020-6-8">v2020.6.8</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2020-4-29">v2020.4.29</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v2020-4-2">v2020.4.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v2020-3-13">v2020.3.13</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v2020-3-2">v2020.3.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#v2020-1-28">v2020.1.28</a></li>
@@ -419,6 +430,118 @@
             
   <div class="section" id="change-log">
 <h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="v2020-9-14">
+<h2>v2020.9.14<a class="headerlink" href="#v2020-9-14" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>New Plotly backend for PhaseDiagram plotting (&#64;mattmcdermott, #1936)</p></li>
+<li><p>New reporting and logging of Materials Project database version in MPRester (&#64;mkhorton, #1945)</p></li>
+<li><p>Improvements and bug fixes with mcsqs integration (&#64;rwoodsrobinson, #1942)</p></li>
+<li><p>Improvements to PackmolRunner (&#64;rkingsbury, #1947)</p></li>
+<li><p>Improvements to ComputerEntry (&#64;rkingsbury, #1948)</p></li>
+<li><p>Improvements for MPScanSet (&#64;rkingsbury, #1940)</p></li>
+<li><p>Bug fix for Surface and Composition (&#64;gpetretto, #1937)</p></li>
+<li><p>Bug fix for EwaldSummation serialization (&#64;lbluque, #1932)</p></li>
+<li><p>Bug fix for SeeK k-path (&#64;Ian496, #1930)</p></li>
+<li><p>Fix for deprecation warning in MPRester (&#64;rkingsbury, #1951)</p></li>
+</ul>
+</div>
+<div class="section" id="v2020-8-13">
+<h2>v2020.8.13<a class="headerlink" href="#v2020-8-13" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>New GibbsComputedStructureEntry (&#64;mattmcdermott, #1921)</p></li>
+<li><p>Changes to MPScanRelaxSet and new MPScanStaticSet (&#64;rkingsbury, #1917)</p></li>
+<li><p>Changes to LobsterSet (&#64;JaGeo, #1928)</p></li>
+<li><p>Bug fix and change for MPRelaxSet (&#64;mkhorton, 9eb3ac2)</p></li>
+<li><p>Bug fix for JMolNN (&#64;utf, #1920)</p></li>
+<li><p>Bug fix for Element valences (&#64;rkurchin, #1926)</p></li>
+<li><p>Bug fix for BabelMolAdaptor (&#64;smheidrich, #1924)</p></li>
+<li><p>Bug fix for Gaussion IO (&#64;eimrek, #1918)</p></li>
+</ul>
+</div>
+<div class="section" id="v2020-8-3">
+<h2>v2020.8.3<a class="headerlink" href="#v2020-8-3" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Change neighbor-finding algorithm extension to C instead of C++ for better cross-platform robustness (&#64;chc273)</p></li>
+<li><p>Add I/O for JARVIS Atoms (&#64;knc6)</p></li>
+</ul>
+</div>
+<div class="section" id="v2020-7-18">
+<h2>v2020.7.18<a class="headerlink" href="#v2020-7-18" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Add validation and extrapolation for stitching XAS (&#64;yimingcheng)</p></li>
+<li><p>Better error handling and possibly verbose warning to get_structure_by_material_id</p></li>
+</ul>
+</div>
+<div class="section" id="v2020-7-16">
+<h2>v2020.7.16<a class="headerlink" href="#v2020-7-16" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Bug fix for boltztrap2 spin support. (&#64;fraricci)</p></li>
+</ul>
+</div>
+<div class="section" id="v2020-7-14">
+<h2>v2020.7.14<a class="headerlink" href="#v2020-7-14" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>EwaldSummation is now MSONAble (&#64;lbluque).</p></li>
+<li><p>Fix for QChem freq parsing (&#64;samblau)</p></li>
+<li><p>Much improved linting and workflows.</p></li>
+</ul>
+</div>
+<div class="section" id="v2020-7-10">
+<h2>v2020.7.10<a class="headerlink" href="#v2020-7-10" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Bug fix: serialization of slabs (&#64;utf)</p></li>
+<li><p>Bug fix: enumlib url (&#64;wsyxbcl)</p></li>
+<li><p>Bug fix: change in tolerance for Lattice comparison (&#64;mbjumar)</p></li>
+<li><p>Bug fix: k-path division by zero (&#64;mfherbst)</p></li>
+<li><p>New: support for openbabel 3.0 (&#64;orioncohen)</p></li>
+</ul>
+</div>
+<div class="section" id="v2020-7-3">
+<h2>v2020.7.3<a class="headerlink" href="#v2020-7-3" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Make Slabs properly serializable in as_dict. Fixes #1892.</p></li>
+<li><p>Fixes for Critic2Caller (&#64;yuuukuma)</p></li>
+<li><p>Add cost data for He, H, Ar, Ne, Kr, Tc (&#64;computron)</p></li>
+<li><p>Parse scientific notation in OUTCAR (possibly without spaces in between)</p></li>
+<li><p>Spin support for boltztrap2 (&#64;fraricci)</p></li>
+<li><p>New static method to generate basis functions Lobster (&#64;JaGeo)</p></li>
+<li><p>SLME and spillage analysis (&#64;knc6)</p></li>
+</ul>
+</div>
+<div class="section" id="v2020-6-8">
+<h2>v2020.6.8<a class="headerlink" href="#v2020-6-8" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>New: Support for parsing WAVECARS with spin-orbit coupling (&#64;mturiansky, #1861)</p></li>
+<li><p>New: Support to convert WAVECAR to wannier90 UNK files (&#64;mturiansky, #1861)</p></li>
+<li><p>New: Site-weighted XAS spectrum (&#64;yimingchen95, #1837)</p></li>
+<li><p>Fixed: Elfcar serialization (&#64;ayushgupta, #1859)</p></li>
+<li><p>Fixed: Units in label for phonon plot (&#64;ab5424, #1857)</p></li>
+<li><p>Fixed: StructureMatcher serialization (&#64;lbluque, #1850)</p></li>
+<li><p>Fixed: Comment string in KPOINTS file (&#64;arosen93, #1842)</p></li>
+<li><p>Fixed: parsing of dielectric function in VASP output (&#64;computron, #1836)</p></li>
+</ul>
+</div>
+<div class="section" id="v2020-4-29">
+<h2>v2020.4.29<a class="headerlink" href="#v2020-4-29" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Improved SQS caller. (&#64;rwoodsrobinson)</p></li>
+<li><p>VolumetricData speedup (&#64;mturiansk)</p></li>
+<li><p>Misc bug fixes</p></li>
+</ul>
+</div>
+<div class="section" id="v2020-4-2">
+<h2>v2020.4.2<a class="headerlink" href="#v2020-4-2" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>New high-symmetry k-path algorithm (&#64;munrojm, &#64;kt-latimer)</p></li>
+<li><p>New TEM diffraction calculator (&#64;welltemperedpaprika, &#64;thefrankwan, &#64;shyamd)</p></li>
+<li><p>New plotly plotting option for Wulff shapes (&#64;richardtran415)</p></li>
+<li><p>Improvements to SQS caller (&#64;rwoodsrobinson)</p></li>
+<li><p>Various bug fixes and improvements (&#64;mfherbst, &#64;chc273,
+&#64;jacksund, &#64;espottesmith, &#64;hongyi-zhao, &#64;montoyjh,
+&#64;dongsenfo, &#64;dynikon) including significant BrunnerNN, EconNN fixes (&#64;utf),
+see individual pull requests for details.</p></li>
+</ul>
+</div>
 <div class="section" id="v2020-3-13">
 <h2>v2020.3.13<a class="headerlink" href="#v2020-3-13" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
@@ -2241,7 +2364,7 @@ json and had bad hash function.</p></li>
 <h2>v2.9.1<a class="headerlink" href="#v2-9-1" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>Structure/Molecule now supports Pythonic list-like API for replacing and
-removing sites. See <a class="reference internal" href="introduction.html#quick-start"><span class="std std-ref">Quick start</span></a> for examples.</p></li>
+removing sites. See <span class="xref std std-ref">quick_start</span> for examples.</p></li>
 </ul>
 </div>
 <div class="section" id="v2-9-0">

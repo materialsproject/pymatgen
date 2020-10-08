@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.analysis.quasiharmonic module &mdash; pymatgen 2020.3.13 documentation</title>
+  <title>pymatgen.analysis.quasiharmonic module &mdash; pymatgen 2020.9.14 documentation</title>
   
 
   
@@ -23,11 +23,11 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -40,7 +40,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.analysis.reaction_calculator module" href="pymatgen.analysis.reaction_calculator.html" />
-    <link rel="prev" title="pymatgen.analysis.pourbaix_diagram module" href="pymatgen.analysis.pourbaix_diagram.html" />
+    <link rel="prev" title="pymatgen.analysis.prototypes module" href="pymatgen.analysis.prototypes.html" />
  
 <script type="text/javascript">
   var _gaq = _gaq || [];
@@ -71,7 +71,7 @@
             
             
               <div class="version">
-                2020.3.13
+                2020.9.14
               </div>
             
           
@@ -211,9 +211,9 @@ be used to compute thermal properties.</p>
 <div><p><a class="reference external" href="http://doi.org/10.1016/j.comphy.2003.12.001">http://doi.org/10.1016/j.comphy.2003.12.001</a> (2004)
 <a class="reference external" href="http://doi.org/10.1103/PhysRevB.90.174107">http://doi.org/10.1103/PhysRevB.90.174107</a> (2014)</p>
 </div></blockquote>
-<dl class="class">
+<dl class="py class">
 <dt id="pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox">
-<em class="property">class </em><code class="sig-name descname">QuasiharmonicDebyeApprox</code><span class="sig-paren">(</span><em class="sig-param">energies</em>, <em class="sig-param">volumes</em>, <em class="sig-param">structure</em>, <em class="sig-param">t_min=300.0</em>, <em class="sig-param">t_step=100</em>, <em class="sig-param">t_max=300.0</em>, <em class="sig-param">eos='vinet'</em>, <em class="sig-param">pressure=0.0</em>, <em class="sig-param">poisson=0.25</em>, <em class="sig-param">use_mie_gruneisen=False</em>, <em class="sig-param">anharmonic_contribution=False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/quasiharmonic.py#L32-L331"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">QuasiharmonicDebyeApprox</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">energies</span></em>, <em class="sig-param"><span class="n">volumes</span></em>, <em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">t_min</span><span class="o">=</span><span class="default_value">300.0</span></em>, <em class="sig-param"><span class="n">t_step</span><span class="o">=</span><span class="default_value">100</span></em>, <em class="sig-param"><span class="n">t_max</span><span class="o">=</span><span class="default_value">300.0</span></em>, <em class="sig-param"><span class="n">eos</span><span class="o">=</span><span class="default_value">'vinet'</span></em>, <em class="sig-param"><span class="n">pressure</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">poisson</span><span class="o">=</span><span class="default_value">0.25</span></em>, <em class="sig-param"><span class="n">use_mie_gruneisen</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">anharmonic_contribution</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/quasiharmonic.py#L32-L331"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Quasiharmonic approximation.</p>
 <dl class="field-list simple">
@@ -244,9 +244,9 @@ use_mie_gruneisen. Defaults to False.</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.debye_integral">
-<em class="property">static </em><code class="sig-name descname">debye_integral</code><span class="sig-paren">(</span><em class="sig-param">y</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/quasiharmonic.py#L217-L236"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.debye_integral" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">debye_integral</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">y</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/quasiharmonic.py#L217-L236"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.debye_integral" title="Permalink to this definition">¶</a></dt>
 <dd><p>Debye integral. Eq(5) in  doi.org/10.1016/j.comphy.2003.12.001</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -261,9 +261,9 @@ use_mie_gruneisen. Defaults to False.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.debye_temperature">
-<code class="sig-name descname">debye_temperature</code><span class="sig-paren">(</span><em class="sig-param">volume</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/quasiharmonic.py#L187-L215"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.debye_temperature" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">debye_temperature</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">volume</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/quasiharmonic.py#L187-L215"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.debye_temperature" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the debye temperature.
 Eq(6) in doi.org/10.1016/j.comphy.2003.12.001. Thanks to Joey.</p>
 <p>Eq(6) above is equivalent to Eq(3) in doi.org/10.1103/PhysRevB.37.790
@@ -286,15 +286,15 @@ to True or False in the QuasiharmonicDebyeApprox constructor.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.get_summary_dict">
-<code class="sig-name descname">get_summary_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/quasiharmonic.py#L314-L331"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.get_summary_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_summary_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/quasiharmonic.py#L314-L331"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.get_summary_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a dict with a summary of the computed properties.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.gruneisen_parameter">
-<code class="sig-name descname">gruneisen_parameter</code><span class="sig-paren">(</span><em class="sig-param">temperature</em>, <em class="sig-param">volume</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/quasiharmonic.py#L238-L289"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.gruneisen_parameter" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">gruneisen_parameter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">temperature</span></em>, <em class="sig-param"><span class="n">volume</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/quasiharmonic.py#L238-L289"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.gruneisen_parameter" title="Permalink to this definition">¶</a></dt>
 <dd><dl>
 <dt>Slater-gamma formulation(the default):</dt><dd><dl>
 <dt>gruneisen paramter = - d log(theta)/ d log(V)</dt><dd><p>= - ( 1/6 + 0.5 d log(B)/ d log(V) )
@@ -333,9 +333,9 @@ Eq(7) in Blanco et. al. Joumal of Molecular Structure (Theochem)</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.optimize_gibbs_free_energy">
-<code class="sig-name descname">optimize_gibbs_free_energy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/quasiharmonic.py#L94-L118"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.optimize_gibbs_free_energy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">optimize_gibbs_free_energy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/quasiharmonic.py#L94-L118"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.optimize_gibbs_free_energy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluate the gibbs free energy as a function of V, T and P i.e
 G(V, T, P), minimize G(V, T, P) wrt V for each T and store the
 optimum values.</p>
@@ -345,9 +345,9 @@ optimum values.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.optimizer">
-<code class="sig-name descname">optimizer</code><span class="sig-paren">(</span><em class="sig-param">temperature</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/quasiharmonic.py#L120-L153"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.optimizer" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">optimizer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">temperature</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/quasiharmonic.py#L120-L153"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.optimizer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluate G(V, T, P) at the given temperature(and pressure) and
 minimize it wrt V.</p>
 <ol class="arabic simple">
@@ -377,9 +377,9 @@ minimize it wrt V.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.thermal_conductivity">
-<code class="sig-name descname">thermal_conductivity</code><span class="sig-paren">(</span><em class="sig-param">temperature</em>, <em class="sig-param">volume</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/quasiharmonic.py#L291-L312"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.thermal_conductivity" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">thermal_conductivity</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">temperature</span></em>, <em class="sig-param"><span class="n">volume</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/quasiharmonic.py#L291-L312"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.thermal_conductivity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Eq(17) in 10.1103/PhysRevB.90.174107</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -397,9 +397,9 @@ minimize it wrt V.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.vibrational_free_energy">
-<code class="sig-name descname">vibrational_free_energy</code><span class="sig-paren">(</span><em class="sig-param">temperature</em>, <em class="sig-param">volume</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/quasiharmonic.py#L155-L169"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.vibrational_free_energy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">vibrational_free_energy</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">temperature</span></em>, <em class="sig-param"><span class="n">volume</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/quasiharmonic.py#L155-L169"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.vibrational_free_energy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Vibrational Helmholtz free energy, A_vib(V, T).
 Eq(4) in doi.org/10.1016/j.comphy.2003.12.001</p>
 <dl class="field-list simple">
@@ -418,9 +418,9 @@ Eq(4) in doi.org/10.1016/j.comphy.2003.12.001</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.vibrational_internal_energy">
-<code class="sig-name descname">vibrational_internal_energy</code><span class="sig-paren">(</span><em class="sig-param">temperature</em>, <em class="sig-param">volume</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.3.13/pymatgen/analysis/quasiharmonic.py#L171-L185"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.vibrational_internal_energy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">vibrational_internal_energy</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">temperature</span></em>, <em class="sig-param"><span class="n">volume</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/analysis/quasiharmonic.py#L171-L185"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.quasiharmonic.QuasiharmonicDebyeApprox.vibrational_internal_energy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Vibrational internal energy, U_vib(V, T).
 Eq(4) in doi.org/10.1016/j.comphy.2003.12.001</p>
 <dl class="field-list simple">

@@ -15,22 +15,22 @@ Fast computation of many-element Pourbaix diagrams:
 """
 
 import logging
-import numpy as np
 import itertools
 import re
 from copy import deepcopy
-from functools import cmp_to_key, partial, lru_cache
-from monty.json import MSONable, MontyDecoder
-
-from multiprocessing import Pool
 import warnings
+from multiprocessing import Pool
 
+from functools import cmp_to_key, partial, lru_cache
+import numpy as np
+from monty.json import MSONable, MontyDecoder
 from scipy.spatial import ConvexHull, HalfspaceIntersection
-
 try:
     from scipy.special import comb
 except ImportError:
     from scipy.misc import comb
+from tqdm import tqdm
+
 from pymatgen.util.coord import Simplex
 from pymatgen.util.string import latexify
 from pymatgen.util.plotting import pretty_plot
@@ -38,9 +38,9 @@ from pymatgen.core.periodic_table import Element
 from pymatgen.core.composition import Composition
 from pymatgen.core.ion import Ion
 from pymatgen.entries.computed_entries import ComputedEntry
+from pymatgen.entries.compatibility import MU_H2O
 from pymatgen.analysis.reaction_calculator import Reaction, ReactionError
 from pymatgen.analysis.phase_diagram import PhaseDiagram, PDEntry
-from tqdm import tqdm
 
 __author__ = "Sai Jayaraman"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -53,7 +53,6 @@ __date__ = "Nov 1, 2012"
 
 logger = logging.getLogger(__name__)
 
-MU_H2O = -2.4583
 PREFAC = 0.0591
 
 
@@ -127,8 +126,8 @@ class PourbaixEntry(MSONable):
         """
         if self.phase_type == "Solid":
             return self.entry.composition.reduced_formula + "(s)"
-        elif self.phase_type == "Ion":
-            return self.entry.name
+
+        return self.entry.name
 
     @property
     def energy(self):
@@ -307,9 +306,11 @@ class MultiEntry(PourbaixEntry):
                 start = 0
             return sum([getattr(e, item) * w
                         for e, w in zip(self.entry_list, self.weights)], start)
+
         # Attributes that are just lists of entry attributes
-        elif item in ["entry_id", "phase_type"]:
+        if item in ["entry_id", "phase_type"]:
             return [getattr(e, item) for e in self.entry_list]
+
         # normalization_factor, num_atoms should work from superclass
         return self.__getattribute__(item)
 
@@ -374,7 +375,7 @@ class IonEntry(PDEntry):
         self.ion = ion
         # Auto-assign name
         name = name if name else self.ion.reduced_formula
-        super(IonEntry, self).__init__(
+        super().__init__(
             composition=ion.composition, energy=energy, name=name,
             attribute=attribute)
 
@@ -754,8 +755,8 @@ class PourbaixDiagram(MSONable):
             # All reactant/product coefficients must be positive nonzero
             if all([coeff > coeff_threshold for coeff in all_coeffs]):
                 return MultiEntry(entry_list, weights=react_coeffs)
-            else:
-                return None
+
+            return None
         except ReactionError:
             return None
 
@@ -1128,8 +1129,8 @@ def generate_entry_label(entry):
     """
     if isinstance(entry, MultiEntry):
         return " + ".join([latexify_ion(latexify(e.name)) for e in entry.entry_list])
-    else:
-        return latexify_ion(latexify(entry.name))
+
+    return latexify_ion(latexify(entry.name))
 
 
 def latexify_ion(formula):

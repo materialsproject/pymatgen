@@ -90,7 +90,6 @@ class LarsenDimensionalityTest(PymatgenTest):
             self.cscl, 0, inc_vertices=True)
         self.assertEqual(dimen, 3)
         self.assertEqual(len(vertices), 4)
-        self.assertEqual(vertices[0], (-1, 1, 0))
 
     def test_zero_d_to_molecule_graph(self):
         comp_graphs = [self.mol_structure.graph.subgraph(c) for c in

@@ -20,7 +20,7 @@ __date__ = "Nov 10, 2012"
 
 import unittest
 
-from pymatgen.core.periodic_table import Element, Specie
+from pymatgen.core.periodic_table import Element, Species
 from pymatgen.core.composition import Composition, CompositionError, \
     ChemicalPotential
 
@@ -154,8 +154,8 @@ class CompositionTest(PymatgenTest):
         correct_formulas = [["Co1"], ["Co1", "C1 O1"], ["Co2 O3", "C1 O5"],
                             ["N1 Ca1 Lu1", "U1 Al1 C1 N1"],
                             ["N1 Ca1 Lu1", "U1 Al1 C1 N1"],
-                            ["Li1 Co1 P2 N1 O10", "Li1 P2 C1 N1 O11",
-                             "Li1 Co1 Po8 N1 O2", "Li1 Po8 C1 N1 O3"],
+                            ["Li1 Co1 P2 N1 O10", "Li1 Co1 Po8 N1 O2",
+                             "Li1 P2 C1 N1 O11", "Li1 Po8 C1 N1 O3"],
                             ["Co2 P4 O4", "Co2 Po4", "P4 C2 O6",
                              "Po4 C2 O2"], []]
         for i, c in enumerate(correct_formulas):
@@ -278,6 +278,7 @@ class CompositionTest(PymatgenTest):
         self.assertEqual(d['O'], correct_dict['O'])
         correct_dict = {'Fe': 2.0, 'O': 3.0}
         d = c.to_reduced_dict
+        self.assertIsInstance(d, dict)
         self.assertEqual(d['Fe'], correct_dict['Fe'])
         self.assertEqual(d['O'], correct_dict['O'])
 
@@ -285,6 +286,11 @@ class CompositionTest(PymatgenTest):
         for c in self.comp:
             self.serialize_with_pickle(c, test_eq=True)
             self.serialize_with_pickle(c.to_data_dict, test_eq=True)
+
+    def test_to_data_dict(self):
+        comp = Composition('Fe0.00009Ni0.99991')
+        d = comp.to_data_dict
+        self.assertAlmostEqual(d["reduced_cell_composition"]["Fe"], 9e-5)
 
     def test_add(self):
         self.assertEqual((self.comp[0] + self.comp[2]).formula,
@@ -477,20 +483,20 @@ class CompositionTest(PymatgenTest):
     def test_oxi_state_decoration(self):
         # Basic test: Get compositions where each element is in a single charge state
         decorated = Composition("H2O").add_charges_from_oxi_state_guesses()
-        self.assertIn(Specie("H", 1), decorated)
-        self.assertEqual(2, decorated.get(Specie("H", 1)))
+        self.assertIn(Species("H", 1), decorated)
+        self.assertEqual(2, decorated.get(Species("H", 1)))
 
         # Test: More than one charge state per element
         decorated = Composition("Fe3O4").add_charges_from_oxi_state_guesses()
-        self.assertEqual(1, decorated.get(Specie("Fe", 2)))
-        self.assertEqual(2, decorated.get(Specie("Fe", 3)))
-        self.assertEqual(4, decorated.get(Specie("O", -2)))
+        self.assertEqual(1, decorated.get(Species("Fe", 2)))
+        self.assertEqual(2, decorated.get(Species("Fe", 3)))
+        self.assertEqual(4, decorated.get(Species("O", -2)))
 
         # Test: No possible charge states
         #   It should return an uncharged composition
         decorated = Composition("NiAl").add_charges_from_oxi_state_guesses()
-        self.assertEqual(1, decorated.get(Specie("Ni", 0)))
-        self.assertEqual(1, decorated.get(Specie("Al", 0)))
+        self.assertEqual(1, decorated.get(Species("Ni", 0)))
+        self.assertEqual(1, decorated.get(Species("Al", 0)))
 
     def test_Metallofullerene(self):
         # Test: Parse Metallofullerene formula (e.g. Y3N@C80)

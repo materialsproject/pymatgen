@@ -31,10 +31,8 @@ def get_dos_plot(args):
     structure = v.final_structure
 
     if args.site:
-        for i in range(len(structure)):
-            site = structure[i]
-            all_dos["Site " + str(i) + " " + site.specie.symbol] = \
-                dos.get_site_dos(site)
+        for i, site in enumerate(structure):
+            all_dos["Site " + str(i) + " " + site.specie.symbol] = dos.get_site_dos(site)
 
     if args.element:
         syms = [tok.strip() for tok in args.element[0].split(",")]

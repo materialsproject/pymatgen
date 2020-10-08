@@ -52,33 +52,6 @@ class Cohp(MSONable):
         self.cohp = cohp
         self.icohp = icohp
 
-    def __add__(self, other):
-        """
-        Adds two COHP together. Checks that energy scales are the same.
-        Otherwise, it raises a ValueError. It also adds ICOHP if present.
-        If ICOHP is only present in one object, it displays a warning and
-        will not add ICOHP.
-
-        Args:
-            other: Another COHP object.
-
-        Returns:
-            Sum of the two COHPs as a COHP object.
-        """
-        if not all(np.equal(self.energies, other.energies)):
-            raise ValueError("Energies of both COHP are not compatible.")
-        populations = {spin: self.populations[spin] + other.populations[spin]
-                       for spin in self.cohp}
-        if self.icohp is not None and other.icohp is not None:
-            int_pop = {spin: self.icohp[spin] + other.icohp[spin]
-                       for spin in self.icohp}
-        else:
-            if self.icohp is not None or other.icohp is not None:
-                warnings.warn("One of the COHP objects does not contain "
-                              "ICOHPs. Setting ICOHP to None.")
-            int_pop = None
-        return Cohp(self.efermi, self.energies, populations, icohp=int_pop)
-
     def __repr__(self):
         return self.__str__()
 
@@ -647,6 +620,7 @@ class CompleteCohp(Cohp):
             # may not be present when the cohpgenerator keyword is used
             # in LOBSTER versions 2.2.0 and earlier.
             # TODO: Test this more extensively
+            # pylint: disable=E1133,E1136
             for label in orb_res_cohp:
                 if cohp_file.cohp_data[label]["COHP"] is None:
                     # print(label)

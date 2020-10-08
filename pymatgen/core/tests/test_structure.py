@@ -10,13 +10,17 @@ import os
 import numpy as np
 
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.core.periodic_table import Element, Specie
+from pymatgen.core.periodic_table import Element, Species
 from pymatgen.core.composition import Composition
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure import IStructure, Structure, IMolecule, \
     StructureError, Molecule
 from pymatgen.core.lattice import Lattice
 from pymatgen.electronic_structure.core import Magmom
+from monty.os.path import which
+
+enum_cmd = which('enum.x') or which('multienum.x')
+mcsqs_cmd = which("mcsqs")
 
 
 class IStructureTest(PymatgenTest):
@@ -39,6 +43,27 @@ class IStructureTest(PymatgenTest):
         self.propertied_structure = IStructure(
             self.lattice, ["Si"] * 2, coords,
             site_properties={'magmom': [5, -5]})
+
+    @unittest.skipIf(not (mcsqs_cmd and enum_cmd), "enumlib or mcsqs executable not present")
+    def test_get_orderings(self):
+        ordered = Structure.from_spacegroup("Im-3m", Lattice.cubic(3), ["Fe"], [[0, 0, 0]])
+        self.assertEqual(ordered.get_orderings()[0], ordered)
+        disordered = Structure.from_spacegroup("Im-3m", Lattice.cubic(3), [Composition("Fe0.5Mn0.5")], [[0, 0, 0]])
+        orderings = disordered.get_orderings()
+        self.assertEqual(len(orderings), 1)
+        super_cell = disordered * 2
+        orderings = super_cell.get_orderings()
+        self.assertEqual(len(orderings), 59)
+        sqs = disordered.get_orderings(mode="sqs", scaling=[2, 2, 2])
+        self.assertEqual(sqs[0].formula, "Mn8 Fe8")
+
+        sqs = super_cell.get_orderings(mode="sqs")
+        self.assertEqual(sqs[0].formula, "Mn8 Fe8")
+
+    def test_as_dataframe(self):
+        df = self.propertied_structure.as_dataframe()
+        self.assertEqual(df.attrs["Reduced Formula"], "Si")
+        self.assertEqual(df.shape, (2, 8))
 
     def test_matches(self):
         ss = self.struct * 2
@@ -64,8 +89,8 @@ class IStructureTest(PymatgenTest):
         coords = list()
         coords.append([0, 0, 0])
         coords.append([0.75, 0.5, 0.75])
-        s = IStructure(self.lattice, [{Specie('O', -2): 1.0},
-                                      {Specie('Mg', 2): 0.8}], coords)
+        s = IStructure(self.lattice, [{Species('O', -2): 1.0},
+                                      {Species('Mg', 2): 0.8}], coords)
         self.assertEqual(s.composition.formula, 'Mg0.8 O1')
 
     def test_get_sorted_structure(self):
@@ -106,7 +131,7 @@ class IStructureTest(PymatgenTest):
                                "Distance calculated wrongly!")
 
     def test_as_dict(self):
-        si = Specie("Si", 4)
+        si = Species("Si", 4)
         mn = Element("Mn")
         coords = list()
         coords.append([0, 0, 0])
@@ -120,10 +145,10 @@ class IStructureTest(PymatgenTest):
         coords = list()
         coords.append([0, 0, 0])
         coords.append([0.75, 0.5, 0.75])
-        s = IStructure(self.lattice, [{Specie('O', -2,
-                                              properties={"spin": 3}): 1.0},
-                                      {Specie('Mg', 2,
-                                              properties={"spin": 2}): 0.8}],
+        s = IStructure(self.lattice, [{Species('O', -2,
+                                               properties={"spin": 3}): 1.0},
+                                      {Species('Mg', 2,
+                                               properties={"spin": 2}): 0.8}],
                        coords, site_properties={'magmom': [5, -5]})
         d = s.as_dict()
         self.assertEqual(d['sites'][0]['properties']['magmom'], 5)
@@ -411,46 +436,47 @@ class IStructureTest(PymatgenTest):
         p_indices1, p_indices2, p_offsets, p_distances = s._get_neighbor_list_py(3)
         self.assertArrayAlmostEqual(sorted(c_distances), sorted(p_distances))
 
-    @unittest.skipIf(not os.environ.get("CI"), "Only run this in CI tests.")
-    def test_get_all_neighbors_crosscheck_old(self):
-        warnings.simplefilter("ignore")
-        for i in range(100):
-            alpha, beta = np.random.rand(2) * 90
-            a, b, c = 3 + np.random.rand(3) * 5
-            species = ["H"] * 5
-            frac_coords = np.random.rand(5, 3)
-            try:
-                latt = Lattice.from_parameters(a, b, c, alpha, beta, 90)
-                s = Structure.from_spacegroup("P1", latt,
-                                              species, frac_coords)
-                for nn_new, nn_old in zip(s.get_all_neighbors(4),
-                                          s.get_all_neighbors_old(4)):
-                    sites1 = [i[0] for i in nn_new]
-                    sites2 = [i[0] for i in nn_old]
-                    self.assertEqual(set(sites1), set(sites2))
-                break
-            except Exception as ex:
-                pass
-        else:
-            raise ValueError("No valid structure tested.")
-
-        from pymatgen.electronic_structure.core import Spin
-        d = {'@module': 'pymatgen.core.structure', '@class': 'Structure', 'charge': None, 'lattice': {
-            'matrix': [[0.0, 0.0, 5.5333], [5.7461, 0.0, 3.518471486290303e-16],
-                       [-4.692662837312786e-16, 7.6637, 4.692662837312786e-16]], 'a': 5.5333, 'b': 5.7461, 'c': 7.6637,
-            'alpha': 90.0, 'beta': 90.0, 'gamma': 90.0, 'volume': 243.66653780778103}, 'sites': [
-            {'species': [{'element': 'Mn', 'oxidation_state': 0, 'properties': {'spin': Spin.down}, 'occu': 1}],
-             'abc': [0.0, 0.5, 0.5], 'xyz': [2.8730499999999997, 3.83185, 4.1055671618015446e-16],
-             'label': 'Mn0+,spin=-1',
-             'properties': {}},
-            {'species': [{'element': 'Mn', 'oxidation_state': None, 'occu': 1.0}],
-             'abc': [1.232595164407831e-32, 0.5, 0.5],
-             'xyz': [2.8730499999999997, 3.83185, 4.105567161801545e-16], 'label': 'Mn', 'properties': {}}]}
-        struct = Structure.from_dict(d)
-        self.assertEqual(set([i[0] for i in struct.get_neighbors(struct[0], 0.05)]),
-                         set([i[0] for i in struct.get_neighbors_old(struct[0], 0.05)]))
-
-        warnings.simplefilter("default")
+    # @unittest.skipIf(not os.environ.get("CI"), "Only run this in CI tests.")
+    # def test_get_all_neighbors_crosscheck_old(self):
+    #     warnings.simplefilter("ignore")
+    #     for i in range(100):
+    #         alpha, beta = np.random.rand(2) * 90
+    #         a, b, c = 3 + np.random.rand(3) * 5
+    #         species = ["H"] * 5
+    #         frac_coords = np.random.rand(5, 3)
+    #         try:
+    #             latt = Lattice.from_parameters(a, b, c, alpha, beta, 90)
+    #             s = Structure.from_spacegroup("P1", latt,
+    #                                           species, frac_coords)
+    #             for nn_new, nn_old in zip(s.get_all_neighbors(4),
+    #                                       s.get_all_neighbors_old(4)):
+    #                 sites1 = [i[0] for i in nn_new]
+    #                 sites2 = [i[0] for i in nn_old]
+    #                 self.assertEqual(set(sites1), set(sites2))
+    #             break
+    #         except Exception as ex:
+    #             pass
+    #     else:
+    #         raise ValueError("No valid structure tested.")
+    #
+    #     from pymatgen.electronic_structure.core import Spin
+    #     d = {'@module': 'pymatgen.core.structure', '@class': 'Structure', 'charge': None, 'lattice': {
+    #         'matrix': [[0.0, 0.0, 5.5333], [5.7461, 0.0, 3.518471486290303e-16],
+    #                    [-4.692662837312786e-16, 7.6637, 4.692662837312786e-16]], 'a': 5.5333, 'b': 5.7461,
+    #                    'c': 7.6637,
+    #         'alpha': 90.0, 'beta': 90.0, 'gamma': 90.0, 'volume': 243.66653780778103}, 'sites': [
+    #         {'species': [{'element': 'Mn', 'oxidation_state': 0, 'properties': {'spin': Spin.down}, 'occu': 1}],
+    #          'abc': [0.0, 0.5, 0.5], 'xyz': [2.8730499999999997, 3.83185, 4.1055671618015446e-16],
+    #          'label': 'Mn0+,spin=-1',
+    #          'properties': {}},
+    #         {'species': [{'element': 'Mn', 'oxidation_state': None, 'occu': 1.0}],
+    #          'abc': [1.232595164407831e-32, 0.5, 0.5],
+    #          'xyz': [2.8730499999999997, 3.83185, 4.105567161801545e-16], 'label': 'Mn', 'properties': {}}]}
+    #     struct = Structure.from_dict(d)
+    #     self.assertEqual(set([i[0] for i in struct.get_neighbors(struct[0], 0.05)]),
+    #                      set([i[0] for i in struct.get_neighbors_old(struct[0], 0.05)]))
+    #
+    #     warnings.simplefilter("default")
 
     def test_get_all_neighbors_outside_cell(self):
         s = Structure(Lattice.cubic(2), ['Li', 'Li', 'Li', 'Si'],
@@ -692,8 +718,8 @@ class StructureTest(PymatgenTest):
     def test_remove_oxidation_states(self):
         co_elem = Element("Co")
         o_elem = Element("O")
-        co_specie = Specie("Co", 2)
-        o_specie = Specie("O", -2)
+        co_specie = Species("Co", 2)
+        o_specie = Species("O", -2)
         coords = list()
         coords.append([0, 0, 0])
         coords.append([0.75, 0.5, 0.75])
@@ -708,8 +734,8 @@ class StructureTest(PymatgenTest):
         s = PymatgenTest.get_structure("Li2O")
         s.add_oxidation_state_by_guess()
         for i in s:
-            self.assertTrue(i.specie in [Specie("Li", 1),
-                                         Specie("O", -2)])
+            self.assertTrue(i.specie in [Species("Li", 1),
+                                         Species("O", -2)])
 
     def test_add_remove_spin_states(self):
 

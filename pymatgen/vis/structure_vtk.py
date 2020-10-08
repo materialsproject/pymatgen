@@ -7,13 +7,6 @@
 This module contains classes to wrap Python VTK to make nice molecular plots.
 """
 
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Nov 27, 2011"
-
 import os
 import itertools
 import math
@@ -34,7 +27,7 @@ from monty.serialization import loadfn
 from monty.dev import requires
 
 from pymatgen.util.coord import in_coord_list
-from pymatgen.core.periodic_table import Specie
+from pymatgen.core.periodic_table import Species
 from pymatgen.core.structure import Structure
 from pymatgen.core.sites import PeriodicSite
 
@@ -356,7 +349,7 @@ class StructureVis:
 
         for specie, occu in site.species.items():
             radius += occu * (specie.ionic_radius
-                              if isinstance(specie, Specie) and specie.ionic_radius
+                              if isinstance(specie, Species) and specie.ionic_radius
                               else specie.average_ionic_radius)
             total_occu += occu
 
@@ -475,8 +468,8 @@ class StructureVis:
         """
         points = vtk.vtkPoints()
         conv = vtk.vtkConvexPointSet()
-        for i in range(len(neighbors)):
-            x, y, z = neighbors[i].coords
+        for i, n in enumerate(neighbors):
+            x, y, z = n.coords
             points.InsertPoint(i, x, y, z)
             conv.GetPointIds().InsertId(i, i)
         grid = vtk.vtkUnstructuredGrid()
@@ -636,10 +629,10 @@ class StructureVis:
                 for site in face:
                     center += site
                 center /= np.float(len(face))
-                for ii in range(len(face)):
+                for ii, f in enumerate(face):
                     points = vtk.vtkPoints()
                     triangle = vtk.vtkTriangle()
-                    points.InsertNextPoint(face[ii][0], face[ii][1], face[ii][2])
+                    points.InsertNextPoint(f[0], f[1], f[2])
                     ii2 = np.mod(ii + 1, len(face))
                     points.InsertNextPoint(face[ii2][0], face[ii2][1], face[ii2][2])
                     points.InsertNextPoint(center[0], center[1], center[2])
@@ -834,7 +827,6 @@ class StructureInteractorStyle(vtkInteractorStyleTrackballCamera):
         """
         self.mouse_motion = 0
         self.OnLeftButtonDown()
-        return
 
     def mouseMoveEvent(self, obj, event):
         """
@@ -844,7 +836,6 @@ class StructureInteractorStyle(vtkInteractorStyleTrackballCamera):
         """
         self.mouse_motion = 1
         self.OnMouseMove()
-        return
 
     def leftButtonReleaseEvent(self, obj, event):
         """
@@ -858,7 +849,6 @@ class StructureInteractorStyle(vtkInteractorStyleTrackballCamera):
             pos = iren.GetEventPosition()
             iren.GetPicker().Pick(pos[0], pos[1], 0, ren)
         self.OnLeftButtonUp()
-        return
 
     def keyPressEvent(self, obj, event):
         """
@@ -1021,7 +1011,7 @@ class MultiStructuresVis(StructureVis):
                 radius = 0
                 for specie, occu in site.species.items():
                     radius += occu * (specie.ionic_radius
-                                      if isinstance(specie, Specie) and specie.ionic_radius
+                                      if isinstance(specie, Species) and specie.ionic_radius
                                       else specie.average_ionic_radius)
                     vis_radius = 0.2 + 0.002 * radius
                 struct_radii.append(radius)

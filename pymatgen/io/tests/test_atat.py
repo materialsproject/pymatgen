@@ -4,15 +4,15 @@
 
 import os
 from pymatgen.util.testing import PymatgenTest
-
 from pymatgen.io.atat import Mcsqs
+from pymatgen.core.structure import Structure
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                        'test_files', "atat")
+test_dir = os.path.join(
+    os.path.dirname(__file__), "..", "..", "..", "test_files", "mcsqs"
+)
 
 
-class McsqsTest(PymatgenTest):
-
+class AtatTest(PymatgenTest):
     def test_mcsqs_import(self):
         test_string = """1.000000 0.000000 0.000000
 0.000000 1.000000 0.000000
@@ -70,8 +70,8 @@ class McsqsTest(PymatgenTest):
         self.assertAlmostEqual(s.lattice.c, 1.73205080757)
 
     def test_mcsqs_export(self):
-        s = self.get_structure('SrTiO3')
-        s.replace_species({'Sr2+': {'Sr2+': 0.5, 'Ca2+': 0.5}})
+        s = self.get_structure("SrTiO3")
+        s.replace_species({"Sr2+": {"Sr2+": 0.5, "Ca2+": 0.5}})
 
         ref_string = """3.905000 0.000000 0.000000
 -0.000000 3.905000 0.000000
@@ -79,10 +79,39 @@ class McsqsTest(PymatgenTest):
 1.0 0.0 0.0
 0.0 1.0 0.0
 0.0 0.0 1.0
-0.500000 0.500000 0.500000 Sr=0.5,Ca=0.5
-0.000000 0.000000 0.000000 Ti=1.0
-0.000000 0.000000 0.500000 O=1.0
-0.000000 0.500000 0.000000 O=1.0
-0.500000 0.000000 0.000000 O=1.0"""
+0.500000 0.500000 0.500000 Sr2+=0.5,Ca2+=0.5
+0.000000 0.000000 0.000000 Ti4+=1.0
+0.000000 0.000000 0.500000 O2-=1.0
+0.000000 0.500000 0.000000 O2-=1.0
+0.500000 0.000000 0.000000 O2-=1.0"""
 
         self.assertEqual(Mcsqs(s).to_string(), ref_string)
+
+    def test_mcsqs_cif_nacl(self):
+
+        # cif file from str2cif (utility distributed with atat)
+        struc_from_cif = Structure.from_file(os.path.join(test_dir, "bestsqs_nacl.cif"))
+
+        # output file directly from mcsqs
+        struc_from_out = Structure.from_file(os.path.join(test_dir, "bestsqs_nacl.out"))
+
+        self.assertTrue(struc_from_cif.matches(struc_from_out))
+        self.assertArrayAlmostEqual(
+            struc_from_out.lattice.parameters,
+            struc_from_cif.lattice.parameters,
+            decimal=4,
+        )
+
+    def test_mcsqs_cif_pzt(self):
+        # cif file from str2cif (utility distributed with atat)
+        struc_from_cif = Structure.from_file(os.path.join(test_dir, "bestsqs_pzt.cif"))
+
+        # output file directly from mcsqs
+        struc_from_out = Structure.from_file(os.path.join(test_dir, "bestsqs_pzt.out"))
+
+        self.assertTrue(struc_from_cif.matches(struc_from_out))
+        self.assertArrayAlmostEqual(
+            struc_from_out.lattice.parameters,
+            struc_from_cif.lattice.parameters,
+            decimal=4,
+        )

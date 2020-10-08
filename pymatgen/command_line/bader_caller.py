@@ -23,6 +23,7 @@ import warnings
 import glob
 import numpy as np
 
+from pymatgen.io.cube import Cube
 from pymatgen.io.vasp.outputs import Chgcar
 from pymatgen.io.vasp.inputs import Potcar
 from monty.dev import requires
@@ -42,7 +43,7 @@ BADEREXE = which("bader") or which("bader.exe")
 
 class BaderAnalysis:
     """
-    Bader analysis for a CHGCAR.
+    Bader analysis for Cube files and VASP outputs.
 
     .. attribute: data
 
@@ -77,16 +78,6 @@ class BaderAnalysis:
 
         Chgcar object associated with input CHGCAR file.
 
-    .. attribute: potcar
-
-        Potcar object associated with POTCAR used for calculation (used for
-        calculating charge transferred).
-
-    .. attribute: chgcar_ref
-
-        Chgcar reference which calculated by AECCAR0 + AECCAR2.
-        (See http://theory.cm.utexas.edu/henkelman/code/bader/ for details.)
-
     .. attribute: atomic_densities
 
         list of charge densities for each atom centered on the atom
@@ -105,19 +96,18 @@ class BaderAnalysis:
               "BaderAnalysis requires the executable bader to be in the path."
               " Please download the library at http://theory.cm.utexas"
               ".edu/vasp/bader/ and compile the executable.")
-    def __init__(self, chgcar_filename, potcar_filename=None,
-                 chgref_filename=None, parse_atomic_densities=False):
+    def __init__(self,
+                 chgcar_filename=None,
+                 potcar_filename=None,
+                 chgref_filename=None,
+                 parse_atomic_densities=False,
+                 cube_filename=None):
         """
         Initializes the Bader caller.
 
         Args:
             chgcar_filename (str): The filename of the CHGCAR.
-            potcar_filename (str): Optional: the filename of the corresponding
-                POTCAR file. Used for calculating the charge transfer. If
-                None, the get_charge_transfer method will raise a ValueError.
-            chgref_filename (str): Optional. The filename of the reference
-                CHGCAR, which calculated by AECCAR0 + AECCAR2. (See
-                http://theory.cm.utexas.edu/henkelman/code/bader/ for details.)
+
             parse_atomic_densities (bool): Optional. turns on atomic partition of the charge density
                 charge densities are atom centered
 
@@ -127,19 +117,45 @@ class BaderAnalysis:
                 "BaderAnalysis requires the executable bader to be in the path."
                 " Please download the library at http://theory.cm.utexas"
                 ".edu/vasp/bader/ and compile the executable.")
-        self.chgcar = Chgcar.from_file(chgcar_filename)
-        self.potcar = Potcar.from_file(potcar_filename) \
-            if potcar_filename is not None else None
-        self.natoms = self.chgcar.poscar.natoms
-        chgcarpath = os.path.abspath(chgcar_filename)
-        chgrefpath = os.path.abspath(chgref_filename) if chgref_filename else None
-        self.reference_used = True if chgref_filename else False
+
+        if not (cube_filename or chgcar_filename):
+            raise ValueError("You must provide a file! Either a cube file or a CHGCAR")
+        if cube_filename and chgcar_filename:
+            raise ValueError("You cannot parse a cube and a CHGCAR at the same time!")
+
         self.parse_atomic_densities = parse_atomic_densities
+
+        if chgcar_filename:
+            fpath = os.path.abspath(chgcar_filename)
+            self.is_vasp = True
+            self.chgcar = Chgcar.from_file(chgcar_filename)
+            self.structure = self.chgcar.structure
+            self.potcar = Potcar.from_file(potcar_filename) \
+                if potcar_filename is not None else None
+            self.natoms = self.chgcar.poscar.natoms
+            chgrefpath = os.path.abspath(chgref_filename) if chgref_filename else None
+            self.reference_used = True if chgref_filename else False
+
+            # List of nelects for each atom from potcar
+            potcar_indices = []
+            for i, v in enumerate(self.natoms):
+                potcar_indices += [i] * v
+            self.nelects = [self.potcar[potcar_indices[i]].nelectrons for i in range(len(self.structure))] \
+                if self.potcar else []
+
+        else:
+            fpath = os.path.abspath(cube_filename)
+            self.is_vasp = False
+            self.cube = Cube(fpath)
+            self.structure = self.cube.structure
+            self.nelects = self.structure.site_properties.get('nelect', [])  # For cube, see if struc has nelects
+
+        tmpfile = 'CHGCAR' if chgcar_filename else 'CUBE'
         with ScratchDir("."):
-            with zopen(chgcarpath, 'rt') as f_in:
-                with open("CHGCAR", "wt") as f_out:
+            with zopen(fpath, 'rt') as f_in:
+                with open(tmpfile, "wt") as f_out:
                     shutil.copyfileobj(f_in, f_out)
-            args = [BADEREXE, "CHGCAR"]
+            args = [BADEREXE, tmpfile]
             if chgref_filename:
                 with zopen(chgrefpath, 'rt') as f_in:
                     with open("CHGCAR_ref", "wt") as f_out:
@@ -158,7 +174,7 @@ class BaderAnalysis:
 
             try:
                 self.version = float(stdout.split()[5])
-            except Exception:
+            except ValueError:
                 self.version = -1  # Unknown
             if self.version < 1.0:
                 warnings.warn('Your installed version of Bader is outdated, '
@@ -171,10 +187,10 @@ class BaderAnalysis:
                 raw.pop(0)
                 raw.pop(0)
                 while True:
-                    line = raw.pop(0).strip()
-                    if line.startswith("-"):
+                    l = raw.pop(0).strip()
+                    if l.startswith("-"):
                         break
-                    vals = map(float, line.split()[1:])
+                    vals = map(float, l.split()[1:])
                     data.append(dict(zip(headers, vals)))
                 for l in raw:
                     toks = l.strip().split(":")
@@ -233,7 +249,9 @@ class BaderAnalysis:
 
     def get_charge(self, atom_index):
         """
-        Convenience method to get the charge on a particular atom.
+        Convenience method to get the charge on a particular atom. If the cube file
+        is a spin-density file, then this will return the spin density per atom with
+        positive being spin up and negative being spin down.
 
         Args:
             atom_index:
@@ -258,28 +276,47 @@ class BaderAnalysis:
             Given by final charge on atom - nelectrons in POTCAR for
             associated atom.
         """
-        if self.potcar is None:
-            raise ValueError("POTCAR must be supplied in order to calculate "
-                             "charge transfer!")
-        potcar_indices = []
-        for i, v in enumerate(self.natoms):
-            potcar_indices += [i] * v
-        nelect = self.potcar[potcar_indices[atom_index]].nelectrons
-        return self.data[atom_index]["charge"] - nelect
+        if not self.nelects:
+            raise ValueError("No NELECT info! Need POTCAR for VASP, or a structure object"
+                             "with nelect as a site property.")
+        return self.data[atom_index]["charge"] - self.nelects[atom_index]
+
+    def get_charge_decorated_structure(self):
+        """
+        Returns an charge decorated structure
+
+        Note, this assumes that the Bader analysis was correctly performed on a file
+        with electron densities
+
+        """
+        charges = [-self.get_charge(i) for i in range(len(self.structure))]
+        struc = self.structure.copy()
+        struc.add_site_property('charge', charges)
+        return struc
 
     def get_oxidation_state_decorated_structure(self):
         """
-        Returns an oxidation state decorated structure.
+        Returns an oxidation state decorated structure based on bader analysis results.
 
-        Returns:
-            Returns an oxidation state decorated structure. Requires POTCAR
-            to be supplied.
+        Note, this assumes that the Bader analysis was correctly performed on a file
+        with electron densities
         """
-        structure = self.chgcar.structure
-        charges = [-self.get_charge_transfer(i)
-                   for i in range(len(structure))]
-        structure.add_oxidation_state_by_site(charges)
-        return structure
+        charges = [-self.get_charge_transfer(i) for i in range(len(self.structure))]
+        struc = self.structure.copy()
+        struc.add_oxidation_state_by_site(charges)
+        return struc
+
+    def get_spin_state_decorated_structure(self):
+        """
+        Returns a structure decorated with spins.
+
+        Note, this assumes that the Bader analysis was correctly performed on a file
+        with spin densities
+        """
+        spins = [self.get_charge(i) for i in range(len(self.structure))]
+        struc = self.structure.copy()
+        struc.add_spin_by_site(spins)
+        return struc
 
     @property
     def summary(self):
@@ -358,265 +395,31 @@ class BaderAnalysis:
             chgref.write_file(chgref_filename)
         else:
             chgref_filename = None
-        return cls(chgcar_filename, potcar_filename=potcar_filename,
+        return cls(chgcar_filename=chgcar_filename, potcar_filename=potcar_filename,
                    chgref_filename=chgref_filename)
 
 
-class BaderCubeAnalysis:
+def get_filepath(filename, warning, path, suffix):
     """
-    Bader analysis for a Cube file.
-
-    .. attribute: data
-
-        Atomic data parsed from bader analysis. Essentially a list of dicts
-        of the form::
-
-        [
-            {
-                "atomic_vol": 8.769,
-                "min_dist": 0.8753,
-                "charge": 7.4168,
-                "y": 1.1598,
-                "x": 0.0079,
-                "z": 0.8348
-            },
-            ...
-        ]
-
-    .. attribute: vacuum_volume
-
-        Vacuum volume of the Bader analysis.
-
-    .. attribute: vacuum_charge
-
-        Vacuum charge of the Bader analysis.
-
-    .. attribute: nelectrons
-
-        Number of electrons of the Bader analysis.
-
-    .. attribute: chgcar
-
-        Chgcar object associated with input CHGCAR file.
-
-    .. attribute: atomic_densities
-
-        list of charge densities for each atom centered on the atom
-        excess 0's are removed from the array to reduce the size of the array
-        the charge densities are dicts with the charge density map,
-        the shift vector applied to move the data to the center, and the original dimension of the charge density map
-        charge:
-            {
-            "data": charge density array
-            "shift": shift used to center the atomic charge density
-            "dim": dimension of the original charge density map
-            }
+    Args:
+        filename: Filename
+        warning: Warning message
+        path: Path to search
+        suffix: Suffixes to search.
     """
-
-    @requires(which("bader") or which("bader.exe"),
-              "BaderAnalysis requires the executable bader to be in the path."
-              " Please download the library at http://theory.cm.utexas"
-              ".edu/vasp/bader/ and compile the executable.")
-
-    def __init__(self, cube_filename, structure=None, parse_atomic_densities=False):
-        """
-        Initializes the Bader caller.
-
-        Args:
-            chgcar_filename (str): The filename of the CHGCAR.
-
-            parse_atomic_densities (bool): Optional. turns on atomic partition of the charge density
-                charge densities are atom centered
-
-        """
-        if not BADEREXE:
-            raise RuntimeError(
-                "BaderAnalysis requires the executable bader to be in the path."
-                " Please download the library at http://theory.cm.utexas"
-                ".edu/vasp/bader/ and compile the executable.")
-
-        cubepath = os.path.abspath(cube_filename)
-
-        self.parse_atomic_densities = parse_atomic_densities
-        self.structure = structure
-
-        with ScratchDir(".") as temp_dir:
-            with zopen(cubepath, 'rt') as f_in:
-                with open("CUBE", "wt") as f_out:
-                    shutil.copyfileobj(f_in, f_out)
-            args = [BADEREXE, "CUBE"]
-            rs = subprocess.Popen(args,
-                                  stdout=subprocess.PIPE,
-                                  stdin=subprocess.PIPE, close_fds=True)
-            stdout, stderr = rs.communicate()
-            if rs.returncode != 0:
-                raise RuntimeError("bader exited with return code %d. "
-                                   "Please check your bader installation."
-                                   % rs.returncode)
-
-            try:
-                self.version = float(stdout.split()[5])
-            except:
-                self.version = -1  # Unknown
-            if self.version < 1.0:
-                warnings.warn('Your installed version of Bader is outdated, '
-                              'calculation of vacuum charge may be incorrect.')
-
-            data = []
-            with open("ACF.dat") as f:
-                raw = f.readlines()
-                headers = ('x', 'y', 'z', 'charge', 'min_dist', 'atomic_vol')
-                raw.pop(0)
-                raw.pop(0)
-                while True:
-                    l = raw.pop(0).strip()
-                    if l.startswith("-"):
-                        break
-                    vals = map(float, l.split()[1:])
-                    data.append(dict(zip(headers, vals)))
-                for l in raw:
-                    toks = l.strip().split(":")
-                    if toks[0] == "VACUUM CHARGE":
-                        self.vacuum_charge = float(toks[1])
-                    elif toks[0] == "VACUUM VOLUME":
-                        self.vacuum_volume = float(toks[1])
-                    elif toks[0] == "NUMBER OF ELECTRONS":
-                        self.nelectrons = float(toks[1])
-            self.data = data
-
-    def get_charge(self, atom_index):
-        """
-        Convenience method to get the charge on a particular atom. If the cube file
-        is a spin-density file, then this will return the spin density per atom with
-        positive being spin up and negative being spin down.
-
-        Args:
-            atom_index:
-                Index of atom.
-
-        Returns:
-            Charge associated with atom from the Bader analysis.
-        """
-        return self.data[atom_index]["charge"]
-
-    # TODO
-    def get_charge_transfer(self, atom_index):
-        """
-        Returns the charge transferred for a particular atom. Requires POTCAR
-        to be supplied.
-
-        Args:
-            atom_index:
-                Index of atom.
-
-        Returns:
-            Charge transfer associated with atom from the Bader analysis.
-            Given by final charge on atom - nelectrons in POTCAR for
-            associated atom.
-        """
-
-        nelect = self.potcar[potcar_indices[atom_index]].nelectrons
-        return self.data[atom_index]["charge"] - nelect
-
-
-    def get_charge_decorated_structure(self):
-        """
-        Returns an oxidation state decorated structure.
-
-        Returns:
-            Returns an oxidation state decorated structure. Requires POTCAR
-            to be supplied.
-        """
-        charges = [-self.get_charge(i) for i in range(len(structure))]
-        self.structure.add_site_property('charge', charges)
-
-    def get_oxidation_state_decorated_structure(self):
-        """
-
-        """
-        charges = [-self.get_charge_transfer(i) for i in range(len(structure))]
-        self.structure.add_oxidation_state_by_site(charges)
-
-    def get_spin_state_decorated_structure(self):
-        spins = [self.get_charge(i) for i in range(len(structure))]
-        self.structure.add_spin_by_site(spins)
-
-    @property
-    def summary(self):
-
-        summary = {
-            "min_dist": [d['min_dist'] for d in self.data],
-            "charge": [d['charge'] for d in self.data],
-            "atomic_volume": [d['atomic_vol'] for d in self.data],
-            "vacuum_charge": self.vacuum_charge,
-            "vacuum_volume": self.vacuum_volume,
-            "reference_used": self.reference_used,
-            "bader_version": self.version,
-        }
-
-        if self.parse_atomic_densities:
-            summary["charge_densities"] = self.atomic_densities
-
-        if self.potcar:
-            charge_transfer = [self.get_charge_transfer(i) for i in range(len(self.data))]
-            summary['charge_transfer'] = charge_transfer
-
-        return summary
-
-    @classmethod
-    def from_path(cls, path, suffix=""):
-        """
-        Convenient constructor that takes in the path name of VASP run
-        to perform Bader analysis.
-
-        Args:
-            path (str): Name of directory where VASP output files are
-                stored.
-            suffix (str): specific suffix to look for (e.g. '.relax1'
-                for 'CHGCAR.relax1.gz').
-
-        """
-
-        def _get_filepath(filename):
-            name_pattern = filename + suffix + '*' if filename != 'POTCAR' \
-                else filename + '*'
-            paths = glob.glob(os.path.join(path, name_pattern))
-            fpath = None
-            if len(paths) >= 1:
-                # using reverse=True because, if multiple files are present,
-                # they likely have suffixes 'static', 'relax', 'relax2', etc.
-                # and this would give 'static' over 'relax2' over 'relax'
-                # however, better to use 'suffix' kwarg to avoid this!
-                paths.sort(reverse=True)
-                warning_msg = "Multiple files detected, using %s" \
-                              % os.path.basename(paths[0]) if len(paths) > 1 \
-                    else None
-                fpath = paths[0]
-            else:
-                warning_msg = "Could not find %s" % filename
-                if filename in ['AECCAR0', 'AECCAR2']:
-                    warning_msg += ", cannot calculate charge transfer."
-                elif filename == "POTCAR":
-                    warning_msg += ", interpret Bader results with caution."
-            if warning_msg:
-                warnings.warn(warning_msg)
-            return fpath
-
-        chgcar_filename = _get_filepath("CHGCAR")
-        if chgcar_filename is None:
-            raise IOError("Could not find CHGCAR!")
-        potcar_filename = _get_filepath("POTCAR")
-        aeccar0 = _get_filepath("AECCAR0")
-        aeccar2 = _get_filepath("AECCAR2")
-        if (aeccar0 and aeccar2):
-            # `chgsum.pl AECCAR0 AECCAR2` equivalent to obtain chgref_file
-            chgref = Chgcar.from_file(aeccar0) + Chgcar.from_file(aeccar2)
-            chgref_filename = "CHGREF"
-            chgref.write_file(chgref_filename)
-        else:
-            chgref_filename = None
-        return cls(chgcar_filename, potcar_filename=potcar_filename,
-                   chgref_filename=chgref_filename)
+    paths = glob.glob(os.path.join(path, filename + suffix + '*'))
+    if not paths:
+        warnings.warn(warning)
+        return None
+    if len(paths) > 1:
+        # using reverse=True because, if multiple files are present,
+        # they likely have suffixes 'static', 'relax', 'relax2', etc.
+        # and this would give 'static' over 'relax2' over 'relax'
+        # however, better to use 'suffix' kwarg to avoid this!
+        paths.sort(reverse=True)
+        warnings.warn('Multiple files detected, using {}'.format(os.path.basename(path)))
+    path = paths[0]
+    return path
 
 
 def bader_analysis_from_path(path, suffix=''):
@@ -706,7 +509,7 @@ def bader_analysis_from_objects(chgcar, potcar=None, aeccar0=None, aeccar2=None)
         else:
             potcar_path = None
 
-        ba = BaderAnalysis(chgcar_path, potcar_filename=potcar_path, chgref_filename=chgref_path)
+        ba = BaderAnalysis(chgcar_filename=chgcar_path, potcar_filename=potcar_path, chgref_filename=chgref_path)
 
         summary = {
             "min_dist": [d['min_dist'] for d in ba.data],
@@ -729,7 +532,9 @@ def bader_analysis_from_objects(chgcar, potcar=None, aeccar0=None, aeccar2=None)
             chgcar.write_file('CHGCAR_mag')
 
             chgcar_mag_path = os.path.join(temp_dir, 'CHGCAR_mag')
-            ba = BaderAnalysis(chgcar_mag_path, potcar_filename=potcar_path, chgref_filename=chgref_path)
+            ba = BaderAnalysis(chgcar_filename=chgcar_mag_path,
+                               potcar_filename=potcar_path,
+                               chgref_filename=chgref_path)
             summary["magmom"] = [d['charge'] for d in ba.data]
 
         return summary

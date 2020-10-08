@@ -29,22 +29,13 @@ from monty.json import MSONable
 
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.lattice import Lattice, get_points_in_spheres
-from pymatgen.core.periodic_table import Element, Specie, get_el_sp, DummySpecie
+from pymatgen.core.periodic_table import Element, Species, get_el_sp, DummySpecies
 from pymatgen.core.sites import Site, PeriodicSite
 from pymatgen.core.bonds import CovalentBond, get_bond_length
 from pymatgen.core.composition import Composition
 from pymatgen.util.coord import get_angle, all_distances, \
     lattice_points_in_supercell
 from pymatgen.core.units import Mass, Length
-
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "2.0"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__status__ = "Production"
-__date__ = "Sep 23, 2011"
 
 
 class Neighbor(Site):
@@ -202,7 +193,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         Disordered structures will raise an AttributeError.
 
         Returns:
-            ([Specie]) List of species at each site of the structure.
+            ([Species]) List of species at each site of the structure.
         """
         return [site.specie for site in self]
 
@@ -216,24 +207,31 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
     @property
     def ntypesp(self) -> int:
         """Number of types of atoms."""
-        return len(self.types_of_specie)
+        return len(self.types_of_species)
 
     @property
-    def types_of_specie(self) -> Tuple[Union[Element, Specie, DummySpecie]]:
+    def types_of_species(self) -> Tuple[Union[Element, Species, DummySpecies]]:
         """
         List of types of specie.
         """
         # Cannot use set since we want a deterministic algorithm.
-        types = []  # type: List[Union[Element, Specie, DummySpecie]]
+        types = []  # type: List[Union[Element, Species, DummySpecies]]
         for site in self:
             for sp, v in site.species.items():
                 if v != 0:
                     types.append(sp)
         return tuple(set(types))  # type: ignore
 
+    @property
+    def types_of_specie(self) -> Tuple[Union[Element, Species, DummySpecies]]:
+        """
+        Specie->Species rename. Maintained for backwards compatibility.
+        """
+        return self.types_of_species
+
     def group_by_types(self) -> Iterator[Union[Site, PeriodicSite]]:
         """Iterate over species grouped by type"""
-        for t in self.types_of_specie:
+        for t in self.types_of_species:
             for site in self:
                 if site.specie == t:
                     yield site
@@ -252,7 +250,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         Tuple with the set of chemical symbols.
         Note that len(symbol_set) == len(types_of_specie)
         """
-        return tuple(sorted(specie.symbol for specie in self.types_of_specie))  # type: ignore
+        return tuple(sorted(specie.symbol for specie in self.types_of_species))  # type: ignore
 
     @property  # type: ignore
     def atomic_numbers(self) -> Tuple[int]:
@@ -317,7 +315,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
         """
         (Composition) Returns the composition
         """
-        elmap = collections.defaultdict(float)  # type: Dict[Specie, float]
+        elmap = collections.defaultdict(float)  # type: Dict[Species, float]
         for site in self:
             for species, occu in site.species.items():
                 elmap[species] += occu
@@ -492,7 +490,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
                 new_sp = {}
                 for el, occu in site.species.items():
                     sym = el.symbol
-                    new_sp[Specie(sym, oxidation_states[sym])] = occu
+                    new_sp[Species(sym, oxidation_states[sym])] = occu
                 site.species = Composition(new_sp)
         except KeyError:
             raise ValueError("Oxidation state of all elements must be "
@@ -513,7 +511,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
             new_sp = {}
             for el, occu in site.species.items():
                 sym = el.symbol
-                new_sp[Specie(sym, ox)] = occu
+                new_sp[Species(sym, ox)] = occu
             site.species = Composition(new_sp)
 
     def remove_oxidation_states(self):
@@ -552,8 +550,8 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
             for sp, occu in site.species.items():
                 sym = sp.symbol
                 oxi_state = getattr(sp, "oxi_state", None)
-                new_sp[Specie(sym, oxidation_state=oxi_state,
-                              properties={'spin': spins.get(str(sp), spins.get(sym, None))})] = occu
+                new_sp[Species(sym, oxidation_state=oxi_state,
+                               properties={'spin': spins.get(str(sp), spins.get(sym, None))})] = occu
             site.species = Composition(new_sp)
 
     def add_spin_by_site(self, spins: List[float]):
@@ -573,8 +571,8 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
             for sp, occu in site.species.items():
                 sym = sp.symbol
                 oxi_state = getattr(sp, "oxi_state", None)
-                new_sp[Specie(sym, oxidation_state=oxi_state,
-                              properties={'spin': spin})] = occu
+                new_sp[Species(sym, oxidation_state=oxi_state,
+                               properties={'spin': spin})] = occu
             site.species = Composition(new_sp)
 
     def remove_spin(self):
@@ -585,7 +583,7 @@ class SiteCollection(collections.abc.Sequence, metaclass=ABCMeta):
             new_sp = collections.defaultdict(float)
             for sp, occu in site.species.items():
                 oxi_state = getattr(sp, "oxi_state", None)
-                new_sp[Specie(sp.symbol, oxidation_state=oxi_state)] += occu
+                new_sp[Species(sp.symbol, oxidation_state=oxi_state)] += occu
             site.species = new_sp
 
     def extract_cluster(self, target_sites: List[Site], **kwargs):
@@ -629,7 +627,7 @@ class IStructure(SiteCollection, MSONable):
 
     def __init__(self,
                  lattice: Union[List, np.ndarray, Lattice],
-                 species: Sequence[Union[str, Element, Specie, DummySpecie, Composition]],
+                 species: Sequence[Union[str, Element, Species, DummySpecies, Composition]],
                  coords: Sequence[Sequence[float]],
                  charge: float = None,
                  validate_proximity: bool = False,
@@ -645,12 +643,12 @@ class IStructure(SiteCollection, MSONable):
                 simply as any 2D array. Each row should correspond to a lattice
                 vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
                 lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].
-            species ([Specie]): Sequence of species on each site. Can take in
+            species ([Species]): Sequence of species on each site. Can take in
                 flexible input, including:
 
-                i.  A sequence of element / specie specified either as string
+                i.  A sequence of element / species specified either as string
                     symbols, e.g. ["Li", "Fe2+", "P", ...] or atomic numbers,
-                    e.g., (3, 56, ...) or actual Element or Specie objects.
+                    e.g., (3, 56, ...) or actual Element or Species objects.
 
                 ii. List of dict of elements/species and occupancies, e.g.,
                     [{"Fe" : 0.5, "Mn":0.5}, ...]. This allows the setup of
@@ -749,7 +747,7 @@ class IStructure(SiteCollection, MSONable):
     def from_spacegroup(cls,
                         sg: str,
                         lattice: Union[List, np.ndarray, Lattice],
-                        species: Sequence[Union[str, Element, Specie, DummySpecie, Composition]],
+                        species: Sequence[Union[str, Element, Species, DummySpecies, Composition]],
                         coords: Sequence[Sequence[float]],
                         site_properties: Dict[str, Sequence] = None,
                         coords_are_cartesian: bool = False,
@@ -772,12 +770,12 @@ class IStructure(SiteCollection, MSONable):
                 Note that no attempt is made to check that the lattice is
                 compatible with the spacegroup specified. This may be
                 introduced in a future version.
-            species ([Specie]): Sequence of species on each site. Can take in
+            species ([Species]): Sequence of species on each site. Can take in
                 flexible input, including:
 
-                i.  A sequence of element / specie specified either as string
+                i.  A sequence of element / species specified either as string
                     symbols, e.g. ["Li", "Fe2+", "P", ...] or atomic numbers,
-                    e.g., (3, 56, ...) or actual Element or Specie objects.
+                    e.g., (3, 56, ...) or actual Element or Species objects.
 
                 ii. List of dict of elements/species and occupancies, e.g.,
                     [{"Fe" : 0.5, "Mn":0.5}, ...]. This allows the setup of
@@ -822,7 +820,7 @@ class IStructure(SiteCollection, MSONable):
 
         props = {} if site_properties is None else site_properties
 
-        all_sp = []  # type: List[Union[str, Element, Specie, DummySpecie, Composition]]
+        all_sp = []  # type: List[Union[str, Element, Species, DummySpecies, Composition]]
         all_coords = []  # type: List[List[float]]
         all_site_properties = collections.defaultdict(list)  # type: Dict[str, List]
         for i, (sp, c) in enumerate(zip(species, frac_coords)):
@@ -838,9 +836,9 @@ class IStructure(SiteCollection, MSONable):
     @classmethod
     def from_magnetic_spacegroup(
             cls,
-            msg: Union[str, 'MagneticSpaceGroup'],  # type: ignore
+            msg: Union[str, 'MagneticSpaceGroup'],  # type: ignore  # noqa: F821
             lattice: Union[List, np.ndarray, Lattice],
-            species: Sequence[Union[str, Element, Specie, DummySpecie, Composition]],
+            species: Sequence[Union[str, Element, Species, DummySpecies, Composition]],
             coords: Sequence[Sequence[float]],
             site_properties: Dict[str, Sequence],
             coords_are_cartesian: bool = False,
@@ -865,11 +863,11 @@ class IStructure(SiteCollection, MSONable):
                 Note that no attempt is made to check that the lattice is
                 compatible with the spacegroup specified. This may be
                 introduced in a future version.
-            species ([Specie]): Sequence of species on each site. Can take in
+            species ([Species]): Sequence of species on each site. Can take in
                 flexible input, including:
-                i.  A sequence of element / specie specified either as string
+                i.  A sequence of element / species specified either as string
                 symbols, e.g. ["Li", "Fe2+", "P", ...] or atomic numbers,
-                e.g., (3, 56, ...) or actual Element or Specie objects.
+                e.g., (3, 56, ...) or actual Element or Species objects.
 
                 ii. List of dict of elements/species and occupancies, e.g.,
                     [{"Fe" : 0.5, "Mn":0.5}, ...]. This allows the setup of
@@ -925,7 +923,7 @@ class IStructure(SiteCollection, MSONable):
 
         frac_coords = coords if not coords_are_cartesian else latt.get_fractional_coords(coords)
 
-        all_sp = []  # type: List[Union[str, Element, Specie, DummySpecie, Composition]]
+        all_sp = []  # type: List[Union[str, Element, Species, DummySpecies, Composition]]
         all_coords = []  # type: List[List[float]]
         all_magmoms = []  # type: List[float]
         all_site_properties = collections.defaultdict(list)  # type: Dict[str, List]
@@ -1267,7 +1265,7 @@ class IStructure(SiteCollection, MSONable):
                     offsets.append(n.image)
                     distances.append(n.nn_distance)
         return tuple((np.array(center_indices), np.array(points_indices),
-                     np.array(offsets), np.array(distances)))
+                      np.array(offsets), np.array(distances)))
 
     def get_neighbor_list(self, r: float,
                           sites: List[PeriodicSite] = None,
@@ -1319,7 +1317,7 @@ class IStructure(SiteCollection, MSONable):
                 self_pair = (center_indices == points_indices) & (distances <= numerical_tol)
                 cond = ~self_pair
             return tuple((center_indices[cond], points_indices[cond],
-                         images[cond], distances[cond]))
+                          images[cond], distances[cond]))
 
     def get_all_neighbors(self, r: float,
                           include_index: bool = False,
@@ -2040,6 +2038,50 @@ class IStructure(SiteCollection, MSONable):
                              ))
         return "\n".join(outs)
 
+    def get_orderings(self, mode: str = "enum", **kwargs):
+        r"""
+        Returns list of orderings for a disordered structure. If structure
+        does not contain disorder, the default structure is returned.
+
+        Args:
+            mode (str): Either "enum" or "sqs". If enum,
+                the enumlib will be used to return all distinct
+                orderings. If sqs, mcsqs will be used to return
+                an sqs structure.
+            kwargs: kwargs passed to either
+                pymatgen.command_line..enumlib_caller.EnumlibAdaptor
+                or pymatgen.command_line.mcsqs_caller.run_mcsqs.
+                For run_mcsqs, a default cluster search of 2 cluster interactions
+                with 1NN distance and 3 cluster interactions with 2NN distance
+                is set.
+
+        Returns:
+            List[Structure]
+        """
+        if self.is_ordered:
+            return [self]
+        if mode.startswith("enum"):
+            from pymatgen.command_line.enumlib_caller import EnumlibAdaptor
+            adaptor = EnumlibAdaptor(self, **kwargs)
+            adaptor.run()
+            return adaptor.structures
+        if mode == "sqs":
+            from pymatgen.command_line.mcsqs_caller import run_mcsqs
+            if "clusters" not in kwargs:
+                disordered_sites = [site for site in self if not site.is_ordered]
+                subset_structure = Structure.from_sites(disordered_sites)
+                dist_matrix = subset_structure.distance_matrix
+                dists = sorted(set(dist_matrix.ravel()))
+                unique_dists = []
+                for i in range(1, len(dists)):
+                    if dists[i] - dists[i-1] > 0.1:
+                        unique_dists.append(dists[i])
+                clusters = {(i+2): d + 0.01 for i, d in enumerate(unique_dists) if i < 2}
+                kwargs["clusters"] = clusters
+            print(kwargs["clusters"])
+            return [run_mcsqs(self, **kwargs).bestsqs]
+        raise ValueError()
+
     def as_dict(self, verbosity=1, fmt=None, **kwargs):
         """
         Dict representation of Structure.
@@ -2080,6 +2122,28 @@ class IStructure(SiteCollection, MSONable):
             del site_dict["@class"]
             d["sites"].append(site_dict)
         return d
+
+    def as_dataframe(self):
+        """
+        Returns a Pandas dataframe of the sites. Structure level attributes are stored in DataFrame.attrs. Example:
+
+        Species    a    b             c    x             y             z  magmom
+        0    (Si)  0.0  0.0  0.000000e+00  0.0  0.000000e+00  0.000000e+00       5
+        1    (Si)  0.0  0.0  1.000000e-07  0.0 -2.217138e-07  3.135509e-07      -5
+        """
+        data = []
+        site_properties = self.site_properties
+        prop_keys = list(site_properties.keys())
+        for site in self:
+            row = [site.species] + list(site.frac_coords) + list(site.coords)
+            for k in prop_keys:
+                row.append(site.properties.get(k))
+            data.append(row)
+        import pandas as pd
+        df = pd.DataFrame(data, columns=["Species", "a", "b", "c", "x", "y", "z"] + prop_keys)
+        df.attrs["Reduced Formula"] = self.composition.reduced_formula
+        df.attrs["Lattice"] = self.lattice
+        return df
 
     @classmethod
     def from_dict(cls, d, fmt=None):
@@ -2299,9 +2363,7 @@ class IStructure(SiteCollection, MSONable):
                                 merge_tol=merge_tol)
         elif fnmatch(fname, "input*.xml"):
             return ExcitingInput.from_file(fname).structure
-        elif fnmatch(fname, "*rndstr.in*") \
-                or fnmatch(fname, "*lat.in*") \
-                or fnmatch(fname, "*bestsqs*"):
+        elif fnmatch(fname, "*rndstr.in*") or fnmatch(fname, "*lat.in*") or fnmatch(fname, "*bestsqs*"):
             return cls.from_str(contents, fmt="mcsqs",
                                 primitive=primitive, sort=sort,
                                 merge_tol=merge_tol)
@@ -2331,7 +2393,7 @@ class IMolecule(SiteCollection, MSONable):
     """
 
     def __init__(self,
-                 species: Sequence[Union[str, Element, Specie, DummySpecie, Composition]],
+                 species: Sequence[Union[str, Element, Species, DummySpecies, Composition]],
                  coords: Sequence[Sequence[float]],
                  charge: float = 0.0,
                  spin_multiplicity: float = None,
@@ -2343,7 +2405,7 @@ class IMolecule(SiteCollection, MSONable):
         Args:
             species: list of atomic species. Possible kinds of input include a
                 list of dict of elements/species and occupancies, a List of
-                elements/specie specified as actual Element/Specie, Strings
+                elements/specie specified as actual Element/Species, Strings
                 ("Fe", "Fe2+") or atomic numbers (1,56).
             coords (3x1 array): list of cartesian coordinates of each species.
             charge (float): Charge for the molecule. Defaults to 0.
@@ -2364,7 +2426,7 @@ class IMolecule(SiteCollection, MSONable):
                                   "coordinates."))
 
         sites = []
-        for i in range(len(species)):
+        for i, _ in enumerate(species):
             prop = None
             if site_properties:
                 prop = {k: v[i] for k, v in site_properties.items()}
@@ -2379,7 +2441,7 @@ class IMolecule(SiteCollection, MSONable):
         nelectrons = 0.0
         for site in sites:
             for sp, amt in site.species.items():
-                if not isinstance(sp, DummySpecie):
+                if not isinstance(sp, DummySpecies):
                     nelectrons += sp.Z * amt  # type: ignore
         nelectrons -= charge
         self._nelectrons = nelectrons
@@ -2752,10 +2814,10 @@ class IMolecule(SiteCollection, MSONable):
             return cls(lattice, self.species * nimages, coords,
                        coords_are_cartesian=True,
                        site_properties=sprops).get_sorted_structure()
-        else:
-            return cls(lattice, self.species * nimages, coords,
-                       coords_are_cartesian=True,
-                       site_properties=sprops)
+
+        return cls(lattice, self.species * nimages, coords,
+                   coords_are_cartesian=True,
+                   site_properties=sprops)
 
     def get_centered_molecule(self):
         """
@@ -2828,7 +2890,7 @@ class IMolecule(SiteCollection, MSONable):
         return str(writer)
 
     @classmethod
-    def from_str(cls, input_string, fmt):
+    def from_str(cls, input_string: str, fmt: str):
         """
         Reads the molecule from a string.
 
@@ -2913,7 +2975,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
     def __init__(self,
                  lattice: Union[List, np.ndarray, Lattice],
-                 species: Sequence[Union[str, Element, Specie, DummySpecie, Composition]],
+                 species: Sequence[Union[str, Element, Species, DummySpecies, Composition]],
                  coords: Sequence[Sequence[float]],
                  charge: float = None,
                  validate_proximity: bool = False,
@@ -2931,9 +2993,9 @@ class Structure(IStructure, collections.abc.MutableSequence):
             species: List of species on each site. Can take in flexible input,
                 including:
 
-                i.  A sequence of element / specie specified either as string
+                i.  A sequence of element / species specified either as string
                     symbols, e.g. ["Li", "Fe2+", "P", ...] or atomic numbers,
-                    e.g., (3, 56, ...) or actual Element or Specie objects.
+                    e.g., (3, 56, ...) or actual Element or Species objects.
 
                 ii. List of dict of elements/species and occupancies, e.g.,
                     [{"Fe" : 0.5, "Mn":0.5}, ...]. This allows the setup of
@@ -2967,10 +3029,10 @@ class Structure(IStructure, collections.abc.MutableSequence):
         Modify a site in the structure.
 
         Args:
-            i (int, [int], slice, Specie-like): Indices to change. You can
+            i (int, [int], slice, Species-like): Indices to change. You can
                 specify these as an int, a list of int, or a species-like
                 string.
-            site (PeriodicSite/Specie/Sequence): Three options exist. You
+            site (PeriodicSite/Species/Sequence): Three options exist. You
                 can provide a PeriodicSite directly (lattice will be
                 checked). Or more conveniently, you can provide a
                 specie-like object or a tuple of up to length 3.
@@ -3002,7 +3064,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         if isinstance(i, int):
             indices = [i]
-        elif isinstance(i, (str, Element, Specie)):
+        elif isinstance(i, (str, Element, Species)):
             self.replace_species({i: site})
             return
         elif isinstance(i, slice):
@@ -3142,7 +3204,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
             func_grp: Substituent molecule. There are two options:
 
                 1. Providing an actual Molecule as the input. The first atom
-                   must be a DummySpecie X, indicating the position of
+                   must be a DummySpecies X, indicating the position of
                    nearest neighbor. The second atom must be the next
                    nearest atom. For example, for a methyl group
                    substitution, func_grp should be X-CH3, where X is the
@@ -3194,7 +3256,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         try:
             bl = get_bond_length(non_terminal_nn.specie, func_grp[1].specie,
                                  bond_order=bond_order)
-        # Catches for case of incompatibility between Element(s) and Specie(s)
+        # Catches for case of incompatibility between Element(s) and Species(s)
         except TypeError:
             bl = None
 
@@ -3547,7 +3609,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
     __hash__ = None  # type: ignore
 
     def __init__(self,
-                 species: Sequence[Union[str, Element, Specie, DummySpecie, Composition]],
+                 species: Sequence[Union[str, Element, Species, DummySpecies, Composition]],
                  coords: Sequence[Sequence[float]],
                  charge: float = 0.0,
                  spin_multiplicity: float = None,
@@ -3559,7 +3621,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         Args:
             species: list of atomic species. Possible kinds of input include a
                 list of dict of elements/species and occupancies, a List of
-                elements/specie specified as actual Element/Specie, Strings
+                elements/specie specified as actual Element/Species, Strings
                 ("Fe", "Fe2+") or atomic numbers (1,56).
             coords (3x1 array): list of cartesian coordinates of each species.
             charge (float): Charge for the molecule. Defaults to 0.
@@ -3585,18 +3647,18 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         Modify a site in the molecule.
 
         Args:
-            i (int, [int], slice, Specie-like): Indices to change. You can
+            i (int, [int], slice, Species-like): Indices to change. You can
                 specify these as an int, a list of int, or a species-like
                 string.
-            site (PeriodicSite/Specie/Sequence): Three options exist. You can
+            site (PeriodicSite/Species/Sequence): Three options exist. You can
                 provide a Site directly, or for convenience, you can provide
-                simply a Specie-like string/object, or finally a (Specie,
+                simply a Species-like string/object, or finally a (Species,
                 coords) sequence, e.g., ("Fe", [0.5, 0.5, 0.5]).
         """
 
         if isinstance(i, int):
             indices = [i]
-        elif isinstance(i, (str, Element, Specie)):
+        elif isinstance(i, (str, Element, Species)):
             self.replace_species({i: site})
             return
         elif isinstance(i, slice):
@@ -3659,7 +3721,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         nelectrons = 0.0
         for site in self._sites:
             for sp, amt in site.species.items():
-                if not isinstance(sp, DummySpecie):
+                if not isinstance(sp, DummySpecies):
                     nelectrons += sp.Z * amt
         nelectrons -= charge
         self._nelectrons = nelectrons
@@ -3835,7 +3897,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             func_grp: Substituent molecule. There are two options:
 
                 1. Providing an actual molecule as the input. The first atom
-                   must be a DummySpecie X, indicating the position of
+                   must be a DummySpecies X, indicating the position of
                    nearest neighbor. The second atom must be the next
                    nearest atom. For example, for a methyl group
                    substitution, func_grp should be X-CH3, where X is the
