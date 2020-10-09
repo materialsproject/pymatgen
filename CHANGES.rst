@@ -1,6 +1,18 @@
 Change log
 ==========
 
+v2020.10.9
+----------
+* Cube parsing and Cube integration to Bader (@nwinner, #1967)
+* Improvements to PhaseDiagram (@CompRhys, #1899)
+* Improvements to VASP sets to calculate NGX/Y/Z, NGX/Y/ZF (@jmmshn, #1959)
+* Changes to MPRelaxSet, default to low spin for Co (@shyuep, #1976)
+* Changes to MPScanSet (@rkingsbury, #1952)
+* Rename of `Specie` to `Species`, `Specie` will be retained for backwards compatibility (@shyuep, #1963)
+* Bug fix for VASP sets (@utf, #1979)
+* Bug fix for PDPlotter (@mattmcdermott, #1973)
+* Bug fix for EnergyAdjustment (@rkingsbury, #1960)
+
 v2020.9.14
 ----------
 
