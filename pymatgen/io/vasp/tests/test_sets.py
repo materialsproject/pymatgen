@@ -338,6 +338,15 @@ class MITMPRelaxSetTest(PymatgenTest):
         mpr = MPRelaxSet(struct)
         self.assertEqual(mpr.incar["MAGMOM"], [1, 0.6])
 
+        # test passing user_incar_settings and user_kpoint_settings of None
+        sets = [
+            MPRelaxSet(struct, user_incar_settings=None, user_kpoints_settings=None),
+            MPStaticSet(struct, user_incar_settings=None, user_kpoints_settings=None),
+            MPNonSCFSet(struct, user_incar_settings=None, user_kpoints_settings=None)
+        ]
+        for mp_set in sets:
+            self.assertNotEqual(mp_set.kpoints, None)
+            self.assertNotEqual(mp_set.incar, None)
 
     def test_get_kpoints(self):
         kpoints = MPRelaxSet(self.structure).kpoints

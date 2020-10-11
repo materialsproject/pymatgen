@@ -46,9 +46,6 @@ jobs:
     - name: pydocstyle
       run: |
         pydocstyle --count pymatgen
-    - name: Lint with pylint
-      run: |
-        source pylint_mod.sh
     - name: pytest
       run: |
         pytest pymatgen --color=yes
@@ -56,8 +53,6 @@ jobs:
       env:
         TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
         TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
-        PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
-        MPLBACKEND: "Agg"
       run: |
         pip install setuptools wheel twine
         python setup.py sdist bdist_wheel
