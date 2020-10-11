@@ -72,6 +72,11 @@ class NDCalculatorTest(PymatgenTest):
         self.assertAlmostEqual(nd.x[2], 44.39599754)
         self.assertAlmostEqual(nd.y[2], 39.471514740)
 
+    def test_get_plot(self):
+        s = self.get_structure("Graphite")
+        c = NDCalculator(wavelength=1.54184, debye_waller_factors={'C': 1})
+        c.get_plot(s, two_theta_range=(0, 90))
+
 
 if __name__ == '__main__':
     unittest.main()

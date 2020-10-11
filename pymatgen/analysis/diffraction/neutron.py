@@ -194,7 +194,7 @@ class NDCalculator(AbstractDiffractionPatternCalculator):
             if v[0] / max_intensity * 100 > self.SCALED_INTENSITY_TOL:
                 x.append(k)
                 y.append(v[0])
-                hkls.append(fam)
+                hkls.append([{"hkl": hkl, "multiplicity": mult} for hkl, mult in fam.items()])
                 d_hkls.append(v[2])
         nd = DiffractionPattern(x, y, hkls, d_hkls)
         if scaled:
