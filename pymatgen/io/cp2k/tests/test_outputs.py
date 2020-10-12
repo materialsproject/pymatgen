@@ -8,13 +8,12 @@ from pathlib import Path
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.cp2k.outputs import Cp2kOutput
 
-MODULE_DIR = Path(__file__).resolve().parent
-
 
 class SetTest(PymatgenTest):
 
     def setUp(self):
-        self.out = Cp2kOutput(filename='../test_files/cp2k.out', auto_load=True)
+        self.TEST_FILES_DIR = Path.joinpath(self.TEST_FILES_DIR, 'cp2k')
+        self.out = Cp2kOutput(Path.joinpath(self.TEST_FILES_DIR, "cp2k.out"), auto_load=True)
 
     def test_files(self):
         self.out.parse_files()

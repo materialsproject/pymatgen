@@ -13,8 +13,6 @@ from pymatgen.io.cp2k.sets import \
 from pymatgen.io.cp2k.inputs import Cp2kInput
 from pymatgen import Structure, Molecule
 
-MODULE_DIR = Path(__file__).resolve().parent
-
 Si_structure = Structure(lattice=[[0, 2.734364, 2.734364],
                                   [2.734364, 0, 2.734364],
                                   [2.734364, 2.734364, 0]],

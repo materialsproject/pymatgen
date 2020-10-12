@@ -11,8 +11,6 @@ from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.cp2k.inputs import Keyword, KeywordList, Cp2kInput, Coord, Kind
 from pymatgen import Structure, Molecule
 
-MODULE_DIR = Path(__file__).resolve().parent
-
 Si_structure = Structure(lattice=[[0, 2.734364, 2.734364],
                                   [2.734364, 0, 2.734364],
                                   [2.734364, 2.734364, 0]],
@@ -28,8 +26,8 @@ molecule = Molecule(species=['C', 'H'], coords=[[0, 0, 0], [1, 1, 1]])
 class InputTest(PymatgenTest):
 
     def setUp(self):
-        file_name = MODULE_DIR / ".." / "test_files/cp2k.inp"
-        self.ci = Cp2kInput.from_file(file_name)
+        self.TEST_FILES_DIR = Path.joinpath(self.TEST_FILES_DIR, 'cp2k')
+        self.ci = Cp2kInput.from_file(Path.joinpath(self.TEST_FILES_DIR, "cp2k.inp"))
 
     def test_basic_sections(self):
         s = """
