@@ -166,8 +166,8 @@ class ExcitingInput(MSONable):
             data = f.read().replace('\n', '')
         return ExcitingInput.from_string(data)
 
-    def write_etree(self, celltype, paramdict=None, cartesian=False, 
-                    bandstr=False, symprec=0.4, angle_tolerance=5):
+    def write_etree(self, celltype, cartesian=False, 
+                    bandstr=False, symprec=0.4, angle_tolerance=5, **kwargs):
         """
         Writes the exciting input parameters to an xml object.
         
@@ -175,9 +175,6 @@ class ExcitingInput(MSONable):
             celltype (str): Choice of unit cell. Can be either the unit cell
             from self.structure ("unchanged"), the conventional cell
             ("conventional"), or the primitive unit cell ("primitive").
-            
-            paramdict (dict): Additional parameters for the input file. Default
-            is False.
             
             cartesian (bool): Whether the atomic positions are provided in
             Cartesian or unit-cell coordinates. Default is False.
@@ -272,13 +269,13 @@ class ExcitingInput(MSONable):
                               standard primitive unit cell!")
         
         # write parameters from paramdict if provided
-        if paramdict is not None:
-            self._dicttoxml(paramdict, root)
+        if kwargs.get('paramdict') is not None:
+            self._dicttoxml(kwargs.get('paramdict'), root)
 
         return root
 
-    def write_string(self, celltype, paramdict=None, cartesian=False, 
-                     bandstr=False, symprec=0.4, angle_tolerance=5):
+    def write_string(self, celltype, cartesian=False, 
+                     bandstr=False, symprec=0.4, angle_tolerance=5, **kwargs):
         """
         Writes exciting input.xml as a string.
         
@@ -286,9 +283,6 @@ class ExcitingInput(MSONable):
             celltype (str): Choice of unit cell. Can be either the unit cell
             from self.structure ("unchanged"), the conventional cell
             ("conventional"), or the primitive unit cell ("primitive").
-            
-            paramdict (dict): Additional parameters for the input file. Default
-            is False.
             
             cartesian (bool): Whether the atomic positions are provided in
             Cartesian or unit-cell coordinates. Default is False.
@@ -306,18 +300,17 @@ class ExcitingInput(MSONable):
             String
         """
         try:
-            root = self.write_etree(celltype, paramdict, cartesian, bandstr, 
-                                    symprec, angle_tolerance)
-            self.indent(root)
+            root = self.write_etree(celltype, cartesian, bandstr, 
+                                    symprec, angle_tolerance, **kwargs)
+            self._indent(root)
             # output should be a string not a bytes object
             string = ET.tostring(root).decode('UTF-8')
         except Exception:
             raise ValueError('Incorrect celltype!')
         return string
 
-    def write_file(self, celltype, filename, paramdict=None, 
-                   cartesian=False, bandstr=False, symprec=0.4, 
-                   angle_tolerance=5):
+    def write_file(self, celltype, filename, cartesian=False, bandstr=False, 
+                   symprec=0.4, angle_tolerance=5, **kwargs):
         """
         Writes exciting input file.
         
@@ -328,9 +321,6 @@ class ExcitingInput(MSONable):
             
             filename (str): Filename for exciting input.
 
-            paramdict (dict): Additional parameters for the input file. Default
-            is False.
-            
             cartesian (bool): Whether the atomic positions are provided in
             Cartesian or unit-cell coordinates. Default is False.
 
@@ -344,9 +334,9 @@ class ExcitingInput(MSONable):
             Default is 5.
         """
         try:
-            root = self.write_etree(celltype, paramdict, cartesian, bandstr, 
-                                    symprec, angle_tolerance)
-            self.indent(root)
+            root = self.write_etree(celltype, cartesian, bandstr, 
+                                    symprec, angle_tolerance, **kwargs)
+            self._indent(root)
             tree = ET.ElementTree(root)
             tree.write(filename)
         except Exception:
@@ -354,7 +344,7 @@ class ExcitingInput(MSONable):
 
     # Missing PrettyPrint option in the current version of xml.etree.cElementTree
     @staticmethod
-    def indent(elem, level=0):
+    def _indent(elem, level=0):
         """
         Helper method to indent elements.
 
@@ -369,7 +359,7 @@ class ExcitingInput(MSONable):
             if not elem.tail or not elem.tail.strip():
                 elem.tail = i
             for el in elem:
-                ExcitingInput.indent(el, level + 1)
+                ExcitingInput._indent(el, level + 1)
             if not elem.tail or not elem.tail.strip():
                 elem.tail = i
         else:
