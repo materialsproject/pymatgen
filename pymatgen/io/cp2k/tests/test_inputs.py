@@ -11,7 +11,7 @@ from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.cp2k.inputs import Keyword, KeywordList, Cp2kInput, Coord, Kind
 from pymatgen import Structure, Molecule
 
-TEST_FILES = PATH(__file__).parent.parent.joinpath("test_files").resolve()
+TEST_FILES = Path(__file__).parent.parent.joinpath("test_files").resolve()
 
 Si_structure = Structure(lattice=[[0, 2.734364, 2.734364],
                                   [2.734364, 0, 2.734364],
