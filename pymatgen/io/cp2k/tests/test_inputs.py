@@ -5,9 +5,10 @@
 import unittest
 import numpy as np
 from pathlib import Path
+from typing import Sequence
 
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.io.cp2k.inputs import *
+from pymatgen.io.cp2k.inputs import Keyword, KeywordList, Cp2kInput, Coord, Kind
 from pymatgen import Structure, Molecule
 
 MODULE_DIR = Path(__file__).resolve().parent

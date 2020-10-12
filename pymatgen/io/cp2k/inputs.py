@@ -502,7 +502,7 @@ class Section(MSONable):
             _path = _path[1:]
         s = self
         for p in _path:
-            s = s[p]
+            s = s.subsections[p]  # only search subsections in case of repeat name
         return s
 
     def get_string(self):
