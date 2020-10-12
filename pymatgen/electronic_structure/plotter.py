@@ -2189,12 +2189,12 @@ class BSPlotterProjected(BSPlotter):
                                 dictpa[elt] = indices
                                 print("You want to consider all '%s' atoms." % elt)
                                 break
-                            
+
                             raise ValueError(
                                 "You put wrong site numbers in 'dictpa[%s]': %s."
                                 % (elt, str(number))
                                 )
-                        elif isinstance(number, int):
+                        if isinstance(number, int):
                             if number not in indices:
                                 raise ValueError(
                                     "You put wrong site numbers in 'dictpa[%s]': %s."
