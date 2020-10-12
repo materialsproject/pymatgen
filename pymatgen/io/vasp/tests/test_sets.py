@@ -1523,7 +1523,7 @@ class MVLRelax52SetTest(PymatgenTest):
         )
 
     def test_potcar_functional_warning(self):
-        with pytest.warns(DeprecationWarning, match="argument is deprecated"):
+        with pytest.warns(FutureWarning, match="argument is deprecated"):
             test_potcar_set_1 = MVLRelax52Set(self.struct, potcar_functional="PBE_52")
 
     def test_as_from_dict(self):
