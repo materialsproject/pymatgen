@@ -430,7 +430,7 @@ class DictSet(VaspInputSet):
             warnings.warn(
                 "'potcar_functional' argument is deprecated. Use "
                 "'user_potcar_functional' instead.",
-                DeprecationWarning,
+                FutureWarning,
             )
             self.potcar_functional = potcar_functional
         elif user_potcar_functional:
