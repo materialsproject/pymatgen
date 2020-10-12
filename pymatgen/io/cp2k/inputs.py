@@ -324,19 +324,19 @@ class Section(MSONable):
 
     def __getitem__(self, d):
         for k in self.keywords:
-            if k.upper() == d.upper():
+            if str(k).upper() == str(d).upper():
                 return self.keywords[k]
         for k in self.subsections:
-            if k.upper() == d.upper():
+            if str(k).upper() == str(d).upper():
                 return self.subsections[k]
         raise KeyError
 
     def __add__(self, other):
         if isinstance(other, (Keyword, KeywordList)):
-            if other.name in self:
+            if other.name in self.keywords:
                 self[other.name] += other
             else:
-                self[other] = other
+                self[other.name] = other
         elif isinstance(other, Section):
             self.insert(other)
         else:
@@ -353,10 +353,10 @@ class Section(MSONable):
              default: what to return if d is not found
         """
         for k in self.keywords:
-            if k.upper() == d.upper():
+            if str(k).upper() == str(d).upper():
                 return self.keywords[k]
         for k in self.subsections:
-            if k.upper() == d.upper():
+            if str(k).upper() == str(d).upper():
                 return self.subsections[k]
         return default
 
