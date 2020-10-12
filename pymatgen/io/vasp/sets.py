@@ -430,7 +430,7 @@ class DictSet(VaspInputSet):
             warnings.warn(
                 "'potcar_functional' argument is deprecated. Use "
                 "'user_potcar_functional' instead.",
-                DeprecationWarning,
+                FutureWarning,
             )
             self.potcar_functional = potcar_functional
         elif user_potcar_functional:
@@ -972,13 +972,13 @@ class MPScanRelaxSet(DictSet):
             updates["SIGMA"] = 0.05
 
         # Don't overwrite things the user has supplied
-        if kwargs.get("user_incar_settings", {}).get("KSPACING"):
+        if self.user_incar_settings.get("KSPACING"):
             del updates["KSPACING"]
 
-        if kwargs.get("user_incar_settings", {}).get("ISMEAR"):
+        if self.user_incar_settings.get("ISMEAR"):
             del updates["ISMEAR"]
 
-        if kwargs.get("user_incar_settings", {}).get("SIGMA"):
+        if self.user_incar_settings.get("SIGMA"):
             del updates["SIGMA"]
 
         if self.vdw:
@@ -1124,9 +1124,7 @@ class MPStaticSet(MPRelaxSet):
         if self.lcalcpol:
             incar["LCALCPOL"] = True
 
-        for k in ["MAGMOM", "NUPDOWN"] + list(
-            self.kwargs.get("user_incar_settings", {}).keys()
-        ):
+        for k in ["MAGMOM", "NUPDOWN"] + list(self.user_incar_settings.keys()):
             # For these parameters as well as user specified settings, override
             # the incar settings.
             if parent_incar.get(k, None) is not None:
@@ -1295,7 +1293,7 @@ class MPScanStaticSet(MPScanRelaxSet):
         if self.lcalcpol:
             incar["LCALCPOL"] = True
 
-        for k in list(self.kwargs.get("user_incar_settings", {}).keys()):
+        for k in list(self.user_incar_settings.keys()):
             # For user specified settings, override
             # the incar settings.
             if parent_incar.get(k, None) is not None:
@@ -1634,7 +1632,7 @@ class MPNonSCFSet(MPRelaxSet):
             # is incompatible with ISMEAR = -5.
             incar.update({"ISMEAR": 0, "SIGMA": 0.01})
 
-        incar.update(self.kwargs.get("user_incar_settings", {}))
+        incar.update(self.user_incar_settings)
 
         if self.mode.lower() in "uniform":
             # Set smaller steps for DOS and optics output
@@ -1653,7 +1651,7 @@ class MPNonSCFSet(MPRelaxSet):
         :return: Kpoints
         """
         # override pymatgen kpoints if provided
-        user_kpoints = self.kwargs.get("user_kpoints_settings", None)
+        user_kpoints = self.user_kpoints_settings
         if isinstance(user_kpoints, Kpoints):
             return user_kpoints
 
@@ -1757,7 +1755,7 @@ class MPNonSCFSet(MPRelaxSet):
                     self.kpoints_line_density * self.small_gap_multiply[1]
                 )
 
-        # automatic setting of nedos using the total energy range and the energy step dedos
+        # automatic setting of nedos using the energy range and the energy step dedos
         if self.nedos == 0:
             emax = max([eigs.max() for eigs in vasprun.eigenvalues.values()])
             emin = min([eigs.min() for eigs in vasprun.eigenvalues.values()])
@@ -1844,7 +1842,7 @@ class MPSOCSet(MPStaticSet):
         incar.update(
             {"ISYM": -1, "LSORBIT": "T", "ICHARG": 11, "SAXIS": list(self.saxis)}
         )
-        incar.update(self.kwargs.get("user_incar_settings", {}))
+        incar.update(self.user_incar_settings)
 
         return incar
 
@@ -2017,7 +2015,7 @@ class MPNMRSet(MPStaticSet):
                     "SIGMA": 0.01,
                 }
             )
-        incar.update(self.kwargs.get("user_incar_settings", {}))
+        incar.update(self.user_incar_settings)
 
         return incar
 
