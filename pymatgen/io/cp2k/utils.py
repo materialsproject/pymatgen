@@ -48,7 +48,7 @@ def _postprocessor(s):
         return s
 
 
-def _preprocessor(s):
+def _preprocessor(s, d='.'):
     """
     Cp2k contains internal preprocessor flags that are evaluated before
     excecution. This helper function recognizes those preprocessor flags
@@ -74,7 +74,7 @@ def _preprocessor(s):
         assert len(inc) == 2  # @include filename
         inc = inc[1].strip('\'')
         inc = inc.strip('\"')
-        with zopen(inc) as f:
+        with zopen(os.path.join(d, inc)) as f:
             s = re.sub(r"{}".format(incl), f.read(), s)
     variable_sets = re.findall(r"(@SET.+)", s, re.IGNORECASE)
     for match in variable_sets:

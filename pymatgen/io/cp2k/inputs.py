@@ -624,14 +624,14 @@ class Cp2kInput(Section):
         Initialize from a file
         """
         with zopen(file, "rt") as f:
-            return Cp2kInput.from_string(f.read())
+            txt = _preprocessor(f.read(), os.path.dirname(f.name))
+            return Cp2kInput.from_string(txt)
 
     @staticmethod
     def from_string(s: str):
         """
         Initialize from a string
         """
-        s = _preprocessor(s)
         lines = s.splitlines()
         lines = [line.replace("\t", "") for line in lines]
         lines = [line.strip() for line in lines]

@@ -1,4 +1,4 @@
-@include ../../../../test_files/cp2k/include.inc
+@include include.inc
 @SET METHOD QS
 @SET MAX_SCF 20
 
