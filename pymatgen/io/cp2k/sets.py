@@ -436,7 +436,7 @@ class DftSet(Cp2kInputSet):
                 LDOS(i+1, alias="LDOS {}".format(i+1), verbose=False)
             )
 
-    def print_mo_cubes(self, write_cube=False, nlumo=1, nhomo=1):
+    def print_mo_cubes(self, write_cube=False, nlumo=-1, nhomo=-1):
         """
         Activate printing of molecular orbitals.
 
@@ -731,6 +731,36 @@ class DftSet(Cp2kInputSet):
             )
         self['FORCE_EVAL']['SUBSYS']['CELL'] += Keyword('PERIODIC', 'NONE')
 
+    def modify_dft_print_iters(self, iters, add_last='no'):
+        """
+        Modify all DFT print iterations at once. Common use is to set iters to the max
+        number of iterations + 1 and then set add_last to numeric. This would have the
+        effect of printing only the first and last iteration, which might be useful for
+        speeding up/saving space on GEO_OPT or MD runs where you don't need the intermediate
+        values.
+
+        Args
+            iters (int): print each "iters" iterations.
+            add_last (str): Whether to explicitly include the last iteration, and how to mark it.
+                numeric: mark last iteration with the iteration number
+                symbolic: mark last iteration with the letter "l"
+                no: do not explicitly include the last iteration
+        """
+        assert add_last.lower() in ['no', 'numeric', 'symbolic']
+        if self.check('FORCE_EVAL/DFT/PRINT'):
+            run_type = self['global'].get('run_type', Keyword('run_type', 'energy')).values[0]
+            for k, v in self['force_eval']['dft']['print'].subsections.items():
+
+                if v.name.upper() in [
+                    'ACTIVE_SPACE', 'BAND_STRUCTURE',
+                    'GAPW', 'IMPLICIT_PSOLVER', 'SCCS', 'WFN_MIX'
+                ]:
+                    continue
+
+                v.insert(Section('EACH', subsections=None,
+                                 keywords={run_type: Keyword(run_type, iters)}))
+                v.keywords['ADD_LAST'] = Keyword('ADD_LAST', add_last)
+
 
 class StaticSet(DftSet):
 
@@ -828,11 +858,10 @@ class RelaxSet(DftSet):
             "OPTIMIZER": Keyword("OPTIMIZER", optimizer),
         }
         geo_opt = Section("GEO_OPT", subsections={}, keywords=geo_opt_params)
-
+        self.modify_dft_print_iters(max_iter+1, add_last='numeric')
         if not self.check("MOTION"):
             self.insert(Section("MOTION", subsections={}))
         self["MOTION"].insert(geo_opt)
-
         self.insert(global_section)
         self.update(override_default_params)
 
@@ -881,7 +910,7 @@ class CellOptSet(DftSet):
         self.project_name = project_name
         self.override_default_params = override_default_params
         self.kwargs = kwargs
-
+        self.modify_dft_print_iters(self.get('max_iter', 200) + 1, add_last='numeric')
         global_section = Global(project_name=project_name, run_type="CELL_OPT")
         self.insert(global_section)
         self.update(override_default_params)
