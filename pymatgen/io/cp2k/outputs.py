@@ -573,12 +573,12 @@ class Cp2kOutput:
 
         self.data["dft"]["cutoffs"] = {}
         self.data["dft"]["cutoffs"]["density"] = self.data["dft"].pop(
-            "Cutoffs:_density"
+            "Cutoffs:_density", None
         )
         self.data["dft"]["cutoffs"]["gradient"] = self.data["dft"].pop(
-            "gradient"
+            "gradient", None
         )
-        self.data["dft"]["cutoffs"]["tau"] = self.data["dft"].pop("tau")
+        self.data["dft"]["cutoffs"]["tau"] = self.data["dft"].pop("tau", None)
 
         # Functional
         functional = re.compile(r"\s+FUNCTIONAL\|\s+(.+):")
@@ -589,7 +589,7 @@ class Cp2kOutput:
             reverse=False,
         )
         self.data["dft"]["functional"] = [
-            item for sublist in self.data.pop("functional") for item in sublist
+            item for sublist in self.data.pop("functional", None) for item in sublist
         ]
 
         # HF exchange info
@@ -628,8 +628,8 @@ class Cp2kOutput:
             reverse=False,
         )
         self.data["scf"] = {}
-        self.data["scf"]["max_scf"] = self.data.pop("max_scf")[0][0] if self.data['max_scf'] else None
-        self.data["scf"]["eps_scf"] = self.data.pop("eps_scf")[0][0] if self.data['eps_scf'] else None
+        self.data["scf"]["max_scf"] = self.data.pop("max_scf", [[None]])[0][0]
+        self.data["scf"]["eps_scf"] = self.data.pop("eps_scf", [[None]])[0][0]
 
     def parse_cell_params(self):
         """
@@ -760,8 +760,10 @@ class Cp2kOutput:
 
         self.data["electronic_steps"] = []
         self.data['convergence'] = []
+        self.data['scf_time'] = []
         for i in scfs:
-            self.data['convergence'].append([[float(j[-3]) for j in i if j[-3] != 'None']])
+            self.data['scf_time'].append([float(j[-4]) for j in i])
+            self.data['convergence'].append([float(j[-3]) for j in i if j[-3] != 'None'])
             self.data["electronic_steps"].append([float(j[-2]) for j in i])
 
     def parse_timing(self):

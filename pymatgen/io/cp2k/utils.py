@@ -51,7 +51,7 @@ def _postprocessor(s):
 def _preprocessor(s, d='.'):
     """
     Cp2k contains internal preprocessor flags that are evaluated before
-    excecution. This helper function recognizes those preprocessor flags
+    execution. This helper function recognizes those preprocessor flags
     and replacees them with an equivalent cp2k input (this way everything
     is contained neatly in the cp2k input structure, even if the user
     preferred to use the flags.
