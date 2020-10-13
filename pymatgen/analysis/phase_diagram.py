@@ -570,6 +570,7 @@ class PhaseDiagram(MSONable):
         energylist = [self.qhull_entries[i].energy_per_atom for i in facet]
         m = [[c.get_atomic_fraction(e) for e in self.elements] for c in complist]
         chempots = np.linalg.solve(m, energylist)
+
         return dict(zip(self.elements, chempots))
 
     def _get_simplex_intersections(self, c1, c2):
@@ -653,7 +654,7 @@ class PhaseDiagram(MSONable):
 
         raise ValueError("No valid decomp found for {}! (e {})".format(entry, e_above_hull))
 
-    def get_e_above_hull(self, entry):
+    def get_e_above_hull(self, entry, **kwargs):
         """
         Provides the energy above convex hull for an entry
 
@@ -664,7 +665,7 @@ class PhaseDiagram(MSONable):
             Energy above convex hull of entry. Stable entries should have
             energy above hull of 0. The energy is given per atom.
         """
-        return self.get_decomp_and_e_above_hull(entry)[1]
+        return self.get_decomp_and_e_above_hull(entry, **kwargs)[1]
 
     def get_equilibrium_reaction_energy(self, entry):
         """
@@ -761,14 +762,21 @@ class PhaseDiagram(MSONable):
         # requires computing the convex hull of a second (hopefully smallish) space
         # and so is not done by default
         if len(competing_entries) > space_limit and not stable_only:
-            inner_hull = PhaseDiagram(list(set.intersection(
+            reduced_space = list(set.intersection(
                 set(competing_entries),  # same chemical space
                 set(self.qhull_entries),  # negative E_f
                 set(self.unstable_entries),  # not already on hull
-            )) + list(self.el_refs.values()))  # terminal points
+            )) + list(self.el_refs.values())
+            inner_hull = PhaseDiagram(reduced_space)  # terminal points
 
             competing_entries = list(self.stable_entries.union(inner_hull.stable_entries))
             competing_entries = [c for c in competing_entries if c != entry]
+
+            if len(competing_entries) > space_limit:
+                warnings.warn((
+                    f"After reduction {len(competing_entries)} competing entries remain - "
+                    "Using SLSQP to find decomposition likely to be very slow"
+                ))
 
         decomp = _get_slsqp_decomp(entry, competing_entries, tol, maxiter)
 
@@ -842,8 +850,7 @@ class PhaseDiagram(MSONable):
 
         chempots = {}
         for facet in all_facets:
-            facet_elt_list = [self.qhull_entries[j].name for j in facet]
-            facet_name = "-".join(facet_elt_list)
+            facet_name = "-".join([self.qhull_entries[j].name for j in facet])
             chempots[facet_name] = self._get_facet_chempots(facet)
 
         return chempots
@@ -1009,7 +1016,6 @@ class PhaseDiagram(MSONable):
             simplices are the sides of the N-1 dim polytope bounding the
             allowable chemical potential range of each entry.
         """
-        # NOTE code to get all_chempots list is duplicated in get_transition_chempots
         all_chempots = []
         for facet in self.facets:
             chempots = self._get_facet_chempots(facet)
@@ -1058,8 +1064,7 @@ class PhaseDiagram(MSONable):
         Args:
             target_comp: A Composition object
             dep_elt: the element for which the chemical potential is computed
-                from the energy of
-            the stable phase at the target composition
+                from the energy of the stable phase at the target composition
             tol_en: a tolerance on the energy to set
 
         Returns:
@@ -1317,30 +1322,30 @@ class CompoundPhaseDiagram(PhaseDiagram):
         """
         new_entries = []
         if self.normalize_terminals:
-            fractional_comp = [c.fractional_composition for c in terminal_compositions]
+            fractional_comps = [c.fractional_composition for c in terminal_compositions]
         else:
-            fractional_comp = terminal_compositions
+            fractional_comps = terminal_compositions
 
         # Map terminal compositions to unique dummy species.
         sp_mapping = collections.OrderedDict()
-        for i, comp in enumerate(fractional_comp):
+        for i, comp in enumerate(fractional_comps):
             sp_mapping[comp] = DummySpecies("X" + chr(102 + i))
 
         for entry in entries:
             try:
-                rxn = Reaction(fractional_comp, [entry.composition])
+                rxn = Reaction(fractional_comps, [entry.composition])
                 rxn.normalize_to(entry.composition)
                 # We only allow reactions that have positive amounts of
                 # reactants.
                 if all(
                     [
                         rxn.get_coeff(comp) <= CompoundPhaseDiagram.amount_tol
-                        for comp in fractional_comp
+                        for comp in fractional_comps
                     ]
                 ):
                     newcomp = {
                         sp_mapping[comp]: -rxn.get_coeff(comp)
-                        for comp in fractional_comp
+                        for comp in fractional_comps
                     }
                     newcomp = {
                         k: v
@@ -1353,6 +1358,7 @@ class CompoundPhaseDiagram(PhaseDiagram):
                 # If the reaction can't be balanced, the entry does not fall
                 # into the phase space. We ignore them.
                 pass
+
         return new_entries, sp_mapping
 
     def as_dict(self):
