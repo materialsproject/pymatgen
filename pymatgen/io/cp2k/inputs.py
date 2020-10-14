@@ -428,9 +428,12 @@ class Section(MSONable):
             elif isinstance(v, (Keyword, KeywordList)):
                 d1[k] = v
             elif isinstance(v, dict):
-                if k not in list(d1.subsections.keys()):
+                tmp = [_ for _ in d1.subsections if k.upper() == _.upper()]
+                if not tmp:
                     d1.insert(Section(k, subsections={}))
-                return Section._update(d1.subsections[k], v)
+                    Section._update(d1.subsections[k], v)
+                else:
+                    Section._update(d1.subsections[tmp[0]], v)
             elif isinstance(v, Section):
                 d1.insert(v)
             else:

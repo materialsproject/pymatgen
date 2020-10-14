@@ -143,8 +143,9 @@ class InputTest(PymatgenTest):
         s.unset({'GLOBAL': 'RUN_TYPE'})
         self.assertFalse('RUN_TYPE' in s['global'].keywords)
 
-        s.set({'GLOBAL': {'SUBSEC': {'TEST2': 2}}})
+        s.set({'GLOBAL': {'SUBSEC': {'TEST2': 2}, 'SUBSEC2': {'Test2': 1}}})
         self.assertTrue(s.check('global/SUBSEC'))
+        self.assertTrue(s.check('global/subsec2'))
 
 
 
