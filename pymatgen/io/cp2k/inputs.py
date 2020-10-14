@@ -334,13 +334,20 @@ class Section(MSONable):
     def __add__(self, other):
         if isinstance(other, (Keyword, KeywordList)):
             if other.name in self.keywords:
-                self[other.name] += other
+                self.keywords[other.name] += other
             else:
-                self[other.name] = other
+                self.keywords[other.name] = other
         elif isinstance(other, Section):
             self.insert(other)
         else:
             TypeError("Can only add sections or keywords.")
+
+    def add(self, other):
+        """
+        Add another keyword to the current section
+        """
+        assert isinstance(other, (Keyword, KeywordList))
+        self.__add__(other)
 
     def get(self, d, default=None):
         """
@@ -369,11 +376,10 @@ class Section(MSONable):
         else:
             if not isinstance(value, (Keyword, KeywordList)):
                 value = Keyword(key, value)
-            elif isinstance(value, (Keyword, KeywordList)):
-                match = [k for k in self.keywords if key.upper() == k.upper()]
-                if match:
-                    del self.keywords[match[0]]
-                self.keywords[key] = value
+            match = [k for k in self.keywords if key.upper() == k.upper()]
+            if match:
+                del self.keywords[match[0]]
+            self.keywords[key] = value
 
     def __delitem__(self, key):
         """
@@ -456,20 +462,20 @@ class Section(MSONable):
         Mongo style dict modification. Include.
         """
         for k, v in d.items():
-            if isinstance(v, (str, float, bool)):
+            if isinstance(v, (str, float, bool, int)):
                 v = Keyword(k, v)
             if isinstance(v, (Keyword, Section, KeywordList)):
-                self[k] += v
+                self.add(v)
             elif isinstance(v, dict):
                 self[k].inc(v)
             else:
-                print()
                 TypeError("Can only add sections or keywords.")
 
     def insert(self, d):
         """
         Insert a new section as a subsection of the current one
         """
+        assert isinstance(d, Section)
         self.subsections[d.alias or d.name] = d.__deepcopy__()
 
     def check(self, path: str):
@@ -483,8 +489,9 @@ class Section(MSONable):
         _path = path.split("/")
         s = self.subsections
         for p in _path:
-            if p in s.keys():
-                s = s[p].subsections
+            tmp = [_ for _ in s if p.upper() == _.upper()]
+            if tmp:
+                s = s[tmp[0]].subsections
             else:
                 return False
         return True

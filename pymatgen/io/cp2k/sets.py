@@ -729,7 +729,7 @@ class DftSet(Cp2kInputSet):
                                      [0, 0, z]])
                 )
             )
-        self['FORCE_EVAL']['SUBSYS']['CELL'] += Keyword('PERIODIC', 'NONE')
+        self['FORCE_EVAL']['SUBSYS']['CELL'].add(Keyword('PERIODIC', 'NONE'))
 
     def modify_dft_print_iters(self, iters, add_last='no'):
         """
@@ -858,11 +858,11 @@ class RelaxSet(DftSet):
             "OPTIMIZER": Keyword("OPTIMIZER", optimizer),
         }
         geo_opt = Section("GEO_OPT", subsections={}, keywords=geo_opt_params)
-        self.modify_dft_print_iters(max_iter+1, add_last='numeric')
         if not self.check("MOTION"):
             self.insert(Section("MOTION", subsections={}))
         self["MOTION"].insert(geo_opt)
         self.insert(global_section)
+        self.modify_dft_print_iters(max_iter+1, add_last='numeric')
         self.update(override_default_params)
 
 
@@ -910,9 +910,9 @@ class CellOptSet(DftSet):
         self.project_name = project_name
         self.override_default_params = override_default_params
         self.kwargs = kwargs
-        self.modify_dft_print_iters(self.get('max_iter', 200) + 1, add_last='numeric')
         global_section = Global(project_name=project_name, run_type="CELL_OPT")
         self.insert(global_section)
+        self.modify_dft_print_iters(self.get('max_iter', 200) + 1, add_last='numeric')
         self.update(override_default_params)
 
 

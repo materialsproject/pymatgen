@@ -628,8 +628,8 @@ class Cp2kOutput:
             reverse=False,
         )
         self.data["scf"] = {}
-        self.data["scf"]["max_scf"] = self.data.pop("max_scf", [[None]])[0][0]
-        self.data["scf"]["eps_scf"] = self.data.pop("eps_scf", [[None]])[0][0]
+        self.data["scf"]["max_scf"] = self.data.pop("max_scf")[0][0] if self.data['max_scf'] else None
+        self.data["scf"]["eps_scf"] = self.data.pop("eps_scf")[0][0] if self.data['eps_scf'] else None
 
     def parse_cell_params(self):
         """

@@ -129,6 +129,24 @@ class InputTest(PymatgenTest):
         self.assertEqual(self.ci['FORCE_EVAL']['METHOD'], Keyword('METHOD', 'QS'))
         self.assertEqual(self.ci['FORCE_EVAL']['DFT']['SCF']['MAX_SCF'], Keyword('MAX_SCF', 20))
 
+    def test_mongo(self):
+        s = """
+        &GLOBAL
+            RUN_TYPE ENERGY
+            PROJECT_NAME CP2K ! default name
+        &END
+        """
+        s = Cp2kInput.from_string(s)
+        s.inc({'GLOBAL': {'TEST': 1}})
+        self.assertEqual(s['global']['test'], Keyword('TEST', 1))
+
+        s.unset({'GLOBAL': 'RUN_TYPE'})
+        self.assertFalse('RUN_TYPE' in s['global'].keywords)
+
+        s.set({'GLOBAL': {'SUBSEC': {'TEST2': 2}}})
+        self.assertTrue(s.check('global/SUBSEC'))
+
+
 
 if __name__ == "__main__":
     unittest.main()
