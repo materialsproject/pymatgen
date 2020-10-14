@@ -148,6 +148,5 @@ class InputTest(PymatgenTest):
         self.assertTrue(s.check('global/subsec2'))
 
 
-
 if __name__ == "__main__":
     unittest.main()
