@@ -64,7 +64,6 @@ class XTBOutput(MSONable):
         self._read_setup()
         self._read_parameters()
 
-
         # Need some condition to see if this is an opt job
 
     def _read_setup(self):
@@ -94,12 +93,12 @@ class XTBOutput(MSONable):
         parser.add_argument("-P", "--parallel", nargs=1, type=int)
 
         temp_dict = read_pattern(
-        self.text, {
-            "program_call": r"\s+program call\s+:\s+xtb (.+)\n",
-            "coordinate file": r"\s+coordinate file\s+:\s+([:\\\.\-/_0-9a-zA-Z]+)\n",
-            "charge": r"\s+charge\s+:\s+([\-0-9]+)\n",
-            "spin": r"\s+spin\s+:\s+([\.0-9]+)\n"
-        })
+            self.text, {
+                "program_call": r"\s+program call\s+:\s+xtb (.+)\n",
+                "coordinate file": r"\s+coordinate file\s+:\s+([:\\\.\-/_0-9a-zA-Z]+)\n",
+                "charge": r"\s+charge\s+:\s+([\-0-9]+)\n",
+                "spin": r"\s+spin\s+:\s+([\.0-9]+)\n"
+            })
 
         if temp_dict.get("program_call") is None:
             self.data["setup"]["input"]["program_call"] = None
@@ -107,7 +106,6 @@ class XTBOutput(MSONable):
             namespace = parser.parse_args(temp_dict.get("program_call")[0][0].split())
 
             self.data["input"]["accuracy"] = namespace.acc
-
 
             if namespace.gbsa is None:
                 self.data["input"]["gbsa"] = None
@@ -122,11 +120,6 @@ class XTBOutput(MSONable):
                     self.data["input"]["gbsa"]["solvent"] = namespace.gbsa[0]
                     self.data["input"]["gbsa"]["grid"] = namespace.gbsa[1]
                     self.data["input"]["gbsa"]["other"] = namespace.gbsa[2:]
-
-
-
-
-
 
 
 class VibspectrumOutput(MSONable):
@@ -148,6 +141,7 @@ class FakeGaussOutput(MSONable):
     Class to parse "g98" files from xTB frequency output.
     """
     pass
+
 
 class CRESTOutput(MSONable):
 
@@ -206,7 +200,7 @@ class CRESTOutput(MSONable):
                 self.properly_terminated = True
 
         if self.properly_terminated:
-            self.lowest_energy_structure = Molecule.from_file(self.path+'/'+'crest_best.xyz')
+            self.lowest_energy_structure = Molecule.from_file(self.path + '/' + 'crest_best.xyz')
 
             rotamer_structures = XYZ.from_file(os.path.join(self.path, 'crest_conformers.xyz')).all_molecules
 
@@ -228,13 +222,11 @@ class CRESTOutput(MSONable):
             start = 0
             for n, d in enumerate(conformer_degeneracies):
                 self.sorted_structures_energies.append([])
-                for i in range(start,start+d):
-                   self.sorted_structures_energies[n].append([rotamer_structures[i], energies[i]])
+                for i in range(start, start + d):
+                    self.sorted_structures_energies[n].append([rotamer_structures[i], energies[i]])
                 start = i
 
-
-
- # def parse_xtb_output(file_path="xtb.out"):
+# def parse_xtb_output(file_path="xtb.out"):
 #     """
 #     Things we need to parse:
 #     - Final energy
@@ -278,3 +270,4 @@ class CRESTOutput(MSONable):
 #                 "enthalpy": enthalpy,
 #                 "cp": heat_capacity,
 #                 "entropy": entropy}
+
