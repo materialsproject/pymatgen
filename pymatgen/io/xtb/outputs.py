@@ -6,7 +6,6 @@ import logging
 import argparse
 import os
 
-import numpy as np
 import re
 
 from monty.json import MSONable
@@ -14,11 +13,7 @@ from monty.io import zopen
 
 from pymatgen.core import Molecule
 from pymatgen.io.xyz import XYZ
-from pymatgen.analysis.graphs import MoleculeGraph
-from pymatgen.analysis.local_env import OpenBabelNN
-from pymatgen.io.qchem.utils import (read_table_pattern,
-                                     read_pattern,
-                                     lower_and_check_unique)
+from pymatgen.io.qchem.utils import (read_pattern)
 
 # Classes for reading/manipulating/writing QChem output files.
 
@@ -62,7 +57,7 @@ class XTBOutput(MSONable):
         self.data["output"] = dict()
 
         self._read_setup()
-        self._read_parameters()
+        #self._read_parameters()
 
         # Need some condition to see if this is an opt job
 
@@ -172,6 +167,7 @@ class CRESTOutput(MSONable):
 
         crest_cmd = None
         with open(output_filepath, 'r') as xtbout_file:
+            # noinspection PyTypeChecker
             for line in xtbout_file:
                 if '> crest' in line:
                     crest_cmd = line.strip()[8:]
@@ -182,7 +178,6 @@ class CRESTOutput(MSONable):
         self.input_structure = Molecule.from_file(filename=self.coord_file)
         for i, entry in enumerate(split_cmd):
             value = None
-            option = None
             if entry:
                 if '-' in entry:
                     option = entry[1:]
@@ -211,6 +206,7 @@ class CRESTOutput(MSONable):
             conformer_degeneracies = []
             energies = []
             with open(output_filepath, 'r') as xtbout_file:
+                # noinspection PyTypeChecker
                 for line in xtbout_file:
                     conformer_match = conformer_pattern.match(line)
                     rotamer_match = rotamer_pattern.match(line)
@@ -222,6 +218,9 @@ class CRESTOutput(MSONable):
             start = 0
             for n, d in enumerate(conformer_degeneracies):
                 self.sorted_structures_energies.append([])
+                # noinspection PyArgumentList
+                i = 0
+                # noinspection PyArgumentList
                 for i in range(start, start + d):
                     self.sorted_structures_energies[n].append([rotamer_structures[i], energies[i]])
                 start = i
@@ -270,4 +269,3 @@ class CRESTOutput(MSONable):
 #                 "enthalpy": enthalpy,
 #                 "cp": heat_capacity,
 #                 "entropy": entropy}
-
