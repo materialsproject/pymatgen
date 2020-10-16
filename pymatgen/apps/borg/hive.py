@@ -223,6 +223,7 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
         files = os.listdir(path)
         try:
             files_to_parse = {}
+            filenames = {"INCAR", "POTCAR", "CONTCAR", "OSZICAR", "POSCAR", "DYNMAT"}
             if "relax1" in files and "relax2" in files:
                 for filename in ("INCAR", "POTCAR", "POSCAR"):
                     search_str = os.path.join(path, "relax1", filename + "*")
@@ -231,72 +232,49 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
                     search_str = os.path.join(path, "relax2", filename + "*")
                     files_to_parse[filename] = glob.glob(search_str)[-1]
             else:
-                for filename in (
-                        "INCAR", "POTCAR", "CONTCAR", "OSZICAR", "POSCAR", "DYNMAT"
-                ):
+                for filename in filenames:
                     files = sorted(glob.glob(os.path.join(path, filename + "*")))
-                    if len(files) < 1:
-                        continue
-                    if len(files) == 1 or filename == "INCAR" or \
-                            filename == "POTCAR" or filename == "DYNMAT":
-                        files_to_parse[filename] = files[-1] \
-                            if filename == "POTCAR" else files[0]
+                    if len(files) == 1 or filename in ("INCAR", "POTCAR", "DYNMAT"):
+                        files_to_parse[filename] = files[0]
                     elif len(files) > 1:
                         # Since multiple files are ambiguous, we will always
                         # use the first one for POSCAR and the last one
                         # alphabetically for CONTCAR and OSZICAR.
 
-                        if filename == "POSCAR":
-                            files_to_parse[filename] = files[0]
-                        else:
-                            files_to_parse[filename] = files[-1]
+                        files_to_parse[filename] = files[0] if filename == "POSCAR" else files[-1]
                         warnings.warn(
                             "%d files found. %s is being parsed." %
                             (len(files), files_to_parse[filename]))
 
-            poscar, contcar, incar, potcar, oszicar, dynmat = [None] * 6
-            if 'POSCAR' in files_to_parse:
-                poscar = Poscar.from_file(files_to_parse["POSCAR"])
-            if 'CONTCAR' in files_to_parse:
-                contcar = Poscar.from_file(files_to_parse["CONTCAR"])
-            if 'INCAR' in files_to_parse:
-                incar = Incar.from_file(files_to_parse["INCAR"])
-            if 'POTCAR' in files_to_parse:
-                potcar = Potcar.from_file(files_to_parse["POTCAR"])
-            if 'OSZICAR' in files_to_parse:
-                oszicar = Oszicar(files_to_parse["OSZICAR"])
-            if 'DYNMAT' in files_to_parse:
-                dynmat = Dynmat(files_to_parse["DYNMAT"])
+            if not set(files_to_parse.keys()).issuperset({"INCAR", "POTCAR", "CONTCAR", "OSZICAR", "POSCAR"}):
+                raise ValueError("Unable to parse %s as not all necessary files are present! "
+                                 "SimpleVaspToComputedEntryDrone requires INCAR, POTCAR, CONTCAR, OSZICAR, POSCAR "
+                                 "to be present. Only %s detected" % str(files_to_parse.keys()))
+
+            poscar = Poscar.from_file(files_to_parse["POSCAR"])
+            contcar = Poscar.from_file(files_to_parse["CONTCAR"])
+            incar = Incar.from_file(files_to_parse["INCAR"])
+            potcar = Potcar.from_file(files_to_parse["POTCAR"])
+            oszicar = Oszicar(files_to_parse["OSZICAR"])
 
             param = {"hubbards": {}}
-            if poscar is not None and incar is not None and "LDAUU" in incar:
+            if "LDAUU" in incar:
                 param["hubbards"] = dict(zip(poscar.site_symbols, incar["LDAUU"]))
-            param["is_hubbard"] = (incar.get("LDAU", True) and sum(param["hubbards"].values()) > 0) \
-                if incar is not None else False
+            param["is_hubbard"] = (incar.get("LDAU", True) and sum(param["hubbards"].values()) > 0)
             param["run_type"] = None
-            param["potcar_spec"] = potcar.spec if potcar is not None else None
-            energy = oszicar.final_energy if oszicar is not None else Vasprun.final_energy
-            structure = contcar.structure if contcar is not None \
-                else poscar.structure
-            initial_vol = poscar.structure.volume if poscar is not None else \
-                None
-            final_vol = contcar.structure.volume if contcar is not None else \
-                None
-            delta_volume = None
-            if initial_vol is not None and final_vol is not None:
-                delta_volume = (final_vol / initial_vol - 1)
+            param["potcar_spec"] = potcar.spec
+            energy = oszicar.final_energy
+            structure = contcar.structure
+            initial_vol = poscar.structure.volume
+            final_vol = contcar.structure.volume
+            delta_volume = (final_vol / initial_vol - 1)
             data = {"filename": path, "delta_volume": delta_volume}
-            if dynmat is not None:
+            if 'DYNMAT' in files_to_parse:
+                dynmat = Dynmat(files_to_parse["DYNMAT"])
                 data['phonon_frequencies'] = dynmat.get_phonon_frequencies()
             if self._inc_structure:
-                entry = ComputedStructureEntry(
-                    structure, energy, parameters=param, data=data
-                )
-            else:
-                entry = ComputedEntry(
-                    structure.composition, energy, parameters=param, data=data
-                )
-            return entry
+                return ComputedStructureEntry(structure, energy, parameters=param, data=data)
+            return ComputedEntry(structure.composition, energy, parameters=param, data=data)
 
         except Exception as ex:
             logger.debug("error in {}: {}".format(path, ex))
