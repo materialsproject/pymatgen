@@ -34,7 +34,10 @@ if sys.platform.startswith('win') and platform.machine().endswith('64'):
     
 # thanks https://stackoverflow.com/a/36693250
 def package_files(directory, extensions):
-    """Walk package directory to make sure we include all relevant files in package."""
+    """
+    Walk package directory to make sure we include all relevant files in 
+    package.
+    """
     paths = []
     for (path, directories, filenames) in os.walk(directory):
         for filename in filenames:
@@ -146,9 +149,8 @@ setup(
               "crystal"],
     classifiers=[
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.5",
-        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
         "Development Status :: 4 - Beta",
         "Intended Audience :: Science/Research",
         "License :: OSI Approved :: MIT License",
