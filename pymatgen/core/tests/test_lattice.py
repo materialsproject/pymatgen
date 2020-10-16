@@ -518,6 +518,23 @@ class LatticeTestCase(PymatgenTest):
                                     lattice=lattice)
         self.assertEqual(len(nns[0]), 4)
 
+    
+    def test_selling_dist():
+        np.testing.assert_(selling_dist(Lattice.cubic(5), Lattice.cubic(5)) == 0)
+        hex_lattice = Lattice.hexagonal(5, 8)
+        triclinic_lattice = Lattice.from_parameters(4, 10, 11, 100, 110, 80)
+        np.testing.assert_allclose(selling_dist(hex_lattice, triclinic_lattice), 76, rtol=0.1)
+        np.testing.assert_allclose(selling_dist(Lattice.tetragonal(10, 12), Lattice.tetragonal(10.1, 11.9)), 3.7, rtol=0.1)
+        np.testing.assert_allclose(selling_dist(Lattice.cubic(5), Lattice.from_parameters(8, 10, 12, 80, 90, 95)), 115.6, rtol=0.1)
+
+    def test_selling_vector():
+        a1 = 10
+        np.testing.assert_array_equal(selling_vector(Lattice.cubic(a1)), np.array([0, 0, 0, -a1**2, -a1**2, -a1**2]).reshape(1,6))
+        a2, c2, = 5, 8
+        np.testing.assert_array_almost_equal(selling_vector(Lattice.tetragonal(a2, c2)), np.array([0, 0, 0, -a2**2, -a2**2, -c2**2]).reshape(1,6))
+        a3, b3, c3 = 4, 6, 7
+        np.testing.assert_array_almost_equal(selling_vector(Lattice.orthorhombic(a3, b3, c3)), np.array([0, 0, 0, -b3**2, -a3**2, -c3**2]).reshape(1,6))
+
 
 if __name__ == '__main__':
     import unittest
