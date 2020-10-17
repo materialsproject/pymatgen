@@ -117,7 +117,7 @@ class ExcitingInputTest(PymatgenTest):
                           'BSE': {'bsetype': 'singlet', 'nstlbse': '1 5 1 4'}}}
         
         test_input = ExcitingInput(struct)
-        test_string = test_input.write_string('unchanged', paramdict=paradir)
+        test_string = test_input.write_string('unchanged', **paradir)
         
         # read reference file
         filepath = os.path.join(test_dir, 'input_exciting2.xml')
