@@ -531,12 +531,11 @@ class MPResterTest(PymatgenTest):
         crit = MPRester.parse_criteria("POPO2")
         self.assertIn("P2O3", crit["pretty_formula"]["$in"])
 
-    @unittest.skipIf(True, "Bypass this for now.")
     def test_include_user_agent(self):
         headers = self.rester.session.headers
         self.assertIn("user-agent", headers, msg="Include user-agent header by default")
         m = re.match(
-            r"pymatgen/(\d+)\.(\d+)\.(\d+) \(Python/(\d+)\.(\d)+\.(\d+) ([^\/]*)/([^\)]*)\)",
+            r"pymatgen/(\d+)\.(\d+)\.(\d+)\.?(\d+)? \(Python/(\d+)\.(\d)+\.(\d+) ([^\/]*)/([^\)]*)\)",
             headers["user-agent"],
         )
         self.assertIsNotNone(
