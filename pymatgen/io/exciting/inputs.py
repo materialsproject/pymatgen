@@ -187,6 +187,8 @@ class ExcitingInput(MSONable):
 
             angle_tolerance (float): Angle tolerance for the symmetry finding.
             Default is 5.
+            
+            **kwargs: Additional parameters for the input file.
         
         Returns:
             ET.Element containing the input XML structure
@@ -268,9 +270,8 @@ class ExcitingInput(MSONable):
             raise ValueError("Bandstructure is only implemented for the \
                               standard primitive unit cell!")
         
-        # write parameters from paramdict if provided
-        if kwargs.get('paramdict') is not None:
-            self._dicttoxml(kwargs.get('paramdict'), root)
+        # write extra parameters from kwargs if provided
+        self._dicttoxml(kwargs, root)
 
         return root
 
@@ -295,6 +296,8 @@ class ExcitingInput(MSONable):
 
             angle_tolerance (float): Angle tolerance for the symmetry finding.
             Default is 5.
+            
+            **kwargs: Additional parameters for the input file.
         
         Returns:
             String
@@ -332,6 +335,8 @@ class ExcitingInput(MSONable):
 
             angle_tolerance (float): Angle tolerance for the symmetry finding.
             Default is 5.
+
+            **kwargs: Additional parameters for the input file.
         """
         try:
             root = self.write_etree(celltype, cartesian, bandstr, 
