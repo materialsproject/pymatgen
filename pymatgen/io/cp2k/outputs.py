@@ -1161,10 +1161,11 @@ class Cp2kOutput:
 
         # If number of site-projected dos == number of sites, assume they are bijective
         # and create the CompleteDos object
+        _ldoss = {}
         if len(ldoss) == len(self.initial_structure):
             for k in ldoss:
-                ldoss[self.initial_structure[int(k)-1]] = ldoss.pop(k)
-            self.data['cdos'] = CompleteDos(self.structures, total_dos=tdos, pdoss=ldoss)
+                _ldoss[self.initial_structure[int(k)-1]] = ldoss[k]
+            self.data['cdos'] = CompleteDos(self.structures, total_dos=tdos, pdoss=_ldoss)
 
     @staticmethod
     def _gauss_smear(densities, energies, npts, width):
