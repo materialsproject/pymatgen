@@ -1432,8 +1432,6 @@ class PatchedPhaseDiagram(PhaseDiagram):
                 is preserved.
             keep_all_spaces (bool): Boolean control on whether to keep chemical spaces
                 that are subspaces of other spaces.
-                NOTE in the event that we can implement StitchedPhaseDiagram keeping
-                even very small spaces could in principle be helpful.
             use_multiprocessing (bool): Whether to use multiprocessing to accellerate
                 the computation of the patch PhaseDiagrams. Default is True.
             ncores (int): Number of cores to use for applying transformations.
@@ -1545,8 +1543,6 @@ class PatchedPhaseDiagram(PhaseDiagram):
                 entry_pds[space] = self.pds[space]
 
         if not entry_pds:
-            # TODO find all the relevant pds to stitch together once StitchedPhaseDiagram
-            # is implemented.
             # NOTE due to the above we may want to keep small phase diagrams as patches
             # even if they are subsets of larger phase diagrams.
             raise ValueError("No suitable PhaseDiagrams found for {}.".format(entry))
@@ -1828,90 +1824,6 @@ class PatchedPhaseDiagram(PhaseDiagram):
         raise NotImplementedError(
             "`get_chempot_range_stability_phase` not implemented for PatchedPhaseDiagram"
         )
-
-
-class StitchedPhaseDiagram(MSONable):
-    """
-    A StitchedPhaseDiagram is constructed by stitching together smaller PhaseDiagram
-    patches and stray entries. The reason for doing this is that it is much cheaper to
-    carry out the calculations to get the convex hull on the smaller patches.
-    """
-    def __init__(self, pds: List[PhaseDiagram], entries: List[PDEntry] = []):
-        """
-
-        Args:
-            pds ([PhaseDiagram, ]): a list of PhaseDiagrams to combine
-            entries ([PDEntry, ]): a list of Entries to add into the StitchedPhaseDiagram.
-                This is useful in cases where we either have very low numbers of high rank
-                entries to include as it allows for smaller PhaseDiagrams to be calculated
-                or in cases where we watch to add additional elements to the phase diagram:
-        """
-        self.pds = pds
-        self.spaces = list(pds.keys())
-
-        # TODO assert that the stray entries are not already inside other PhaseDiagrams.
-
-        el_refs, min_entries, all_entries = _get_useful_entries(entries)
-        elements = sorted(list(set().union([els for e in entries for els in e.composition.elements])))
-
-        self.el_refs = list(set().union([pd.el_refs for pd in self.pds] + el_refs))
-        self.elements = list(set().union([pd.elements for pd in self.pds] + elements))
-        self.dim = len(self.elements)
-
-        # NOTE if the different phase diagrams have different elemental references
-        # for the same reference this will cause a problem.
-        if len(self.el_refs) != self.dim:
-            raise ValueError(
-                "Some elements have multiple references, StitchedPhaseDiagram "
-                "requires consistent references across the input PhaseDiagrams and "
-                "stray entries."
-            )
-
-        self.all_entries = list(set().union([pd.all_entries for pd in self.pds] + all_entries))
-        self.min_entries = list(set().union([pd.all_entries for pd in self.pds] + min_entries))
-        self.qhull_entries = list(set().union([pd.qhull_entries for pd in self.pds] + min_entries))
-        self._stable_entries = set().union([pd.stable_entries for pd in self.pds] + min_entries)
-
-        # TODO map old facets onto new co-ordinate system.
-        # TODO iteratively add new simplicies to the merge the convex hulls
-        self.qhull_data = qhull_data
-        self.facets = finalfacets
-        self.simplexes = [Simplex(qhull_data[f, :-1]) for f in self.facets]
-
-        def __str__(self):
-            output = [
-                "{}\nSub-Spaces: ".format(self.__class__.__name__),
-                ", ".join(self.spaces)
-            ]
-            return "".join(output)
-
-    def as_dict(self):
-        """
-        Returns:
-            MSONable dictionary representation of StitchedPhaseDiagram
-        """
-        # TODO return a dictionary that would let us construct the
-        # patches and then combine them
-        # return {
-        #     "@module": self.__class__.__module__,
-        #     "@class": self.__class__.__name__,
-        #     "all_entries": [e.as_dict() for e in self.all_entries],
-        #     "elements": [e.as_dict() for e in self.elements],
-        # }
-
-    @classmethod
-    def from_dict(cls, d):
-        """
-        Args:
-            d (dict): dictionary representation of StitchedPhaseDiagram
-
-        Returns:
-            StitchedPhaseDiagram
-        """
-        # TODO decode the individual Phasediagrams and then call StitchedPhaseDiagram
-        # entries = [MontyDecoder().process_decoded(dd) for dd in d["all_entries"]]
-        # elements = [Element.from_dict(dd) for dd in d["elements"]]
-        # return cls(entries, elements)
 
 
 class ReactionDiagram:
