@@ -17,6 +17,7 @@ import warnings
 
 from monty.io import zopen
 from monty.re import regrep
+from monty.json import jsanitize
 
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.core import Spin, Orbital
@@ -1147,25 +1148,25 @@ class Cp2kOutput:
 
         # parse any site-projected dos
         for ldos_file in ldos_files:
-            _pdos = parse_dos(ldos_file)
+            _pdos = parse_dos(ldos_file, sigma=sigma)
             for k in _pdos:
                 if k in ldoss:
                     for orbital in _pdos[k]:
                         ldoss[k][orbital].densities.update(_pdos[k][orbital].densities)
                 else:
-                    ldoss.update(parse_dos(ldos_file, sigma=sigma))
+                    ldoss.update(_pdos)
 
-        self.data['pdos'] = pdoss
-        self.data['ldos'] = ldoss
-        self.data['tdos'] = tdos
+        self.data['pdos'] = jsanitize(pdoss, strict=True)
+        self.data['ldos'] = jsanitize(ldoss, strict=True)
+        self.data['tdos'] = jsanitize(tdos, strict=True)
 
         # If number of site-projected dos == number of sites, assume they are bijective
         # and create the CompleteDos object
         _ldoss = {}
         if len(ldoss) == len(self.initial_structure):
-            for k in ldoss:
-                _ldoss[self.initial_structure[int(k)-1]] = ldoss[k]
-            self.data['cdos'] = CompleteDos(self.structures, total_dos=tdos, pdoss=_ldoss)
+            for k in self.data['ldos']:
+                _ldoss[self.initial_structure[int(k)-1]] = self.data['ldos'][k]
+            self.data['cdos'] = CompleteDos(self.final_structure, total_dos=tdos, pdoss=_ldoss)
 
     @staticmethod
     def _gauss_smear(densities, energies, npts, width):
