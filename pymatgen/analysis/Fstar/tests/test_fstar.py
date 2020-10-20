@@ -14,6 +14,7 @@ from pymatgen.io.cif import CifParser
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'tests')
 
+
 class FStarDiagram_test(PymatgenTest):
 
     def setUp(self):
@@ -49,7 +50,6 @@ class FStarDiagram_test(PymatgenTest):
             self.fstar_default.get_site_labels()[2])
         self.assertTrue(len(self.fstar_default.get_site_labels()) == len(self.fstar_neutron.get_site_labels()) ==
                         len(self.fstar_xray.get_site_labels()) == len(self.fstar_custom.get_site_labels()))
-
 
     def test_get_fstar_coords(self):
         self.assertEqual(len(self.fstar_default.get_fstar_coords()[0]), len(self.fstar_default.get_site_labels()))
