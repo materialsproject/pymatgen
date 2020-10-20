@@ -1,4 +1,3 @@
-""" This module tests an f* diagram generator."""
 
 import os
 import unittest
