@@ -28,6 +28,7 @@ Submodules
    pymatgen.io.babel
    pymatgen.io.cif
    pymatgen.io.cssr
+   pymatgen.io.cube
    pymatgen.io.fiesta
    pymatgen.io.gaussian
    pymatgen.io.jarvis
