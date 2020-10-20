@@ -1,0 +1,179 @@
+##############################################################################
+#                                                                            #
+# Co-Li-Mn-Ni-O    # LiMn0.33Co0.33Ni0.33O2                        # 1817019 #
+#                                                                            #
+##############################################################################
+#                                                                            #
+#                           Pearson's Crystal Data                           #
+#      Crystal Structure Database for Inorganic Compounds (on CD-ROM)        #
+#                              Release 2010/11                               #
+#                  Editors: Pierre Villars and Karin Cenzual                 #
+#                                                                            #
+#   Copyright (c) ASM International & Material Phases Data System (MPDS),    #
+# Switzerland & National Institute for Materials Science (NIMS), Japan, 2010 #
+#  (Data generated pre-2002: Copyright (c) ASM International & MPDS & NIMS;  #
+#             post-2001: Copyright (c) ASM International & MPDS)             #
+#                   All rights reserved. Version 2010.06                     #
+#                                                                            #
+#   This copy of Pearson's Crystal Data is licensed to:                      #
+#   Dr. Peter Khalifah, Stony Brook University                               #
+#                                                                            #
+##############################################################################
+
+data_1817019
+_audit_creation_date                     2019-10-30
+_audit_creation_method
+;
+Pearson's Crystal Data browser
+;
+#_database_code_PCD                      1817019
+
+# Entry summary
+
+_chemical_formula_structural             'LixNi1/3Co1/3Mn1/3O2, x= 1'
+_chemical_formula_sum                    Co0.333LiMn0.333Ni0.334O2
+_chemical_name_mineral                   ?
+_chemical_compound_source                ?
+_chemical_name_structure_type            NaFeO2,hR12,166
+_chemical_formula_weight                 96.5
+_chemical_melting_point                  ?
+
+# Bibliographic data
+
+_publ_section_title
+;
+The studies on structural and thermal properties of delithiated LixNi1/3Co1/3Mn1/3O2 (0 < x <= 1) as a cathode material in lithium ion batteries
+;
+_journal_coden_ASTM                      SSIOD3
+_journal_year                            2006
+_journal_volume                          177
+_journal_page_first                      1509
+_journal_page_last                       1516
+_journal_language                        English
+loop_
+ _publ_author_name
+ _publ_author_address
+'Li J.'
+;
+Xiamen University
+Department of Chemistry
+Xiamen
+China
+;
+'Zhang Z.R.'
+;
+Xiamen University
+Department of Chemistry
+Xiamen
+China
+;
+'Guo X.J.'
+;
+Xiamen University
+Department of Chemistry
+Xiamen
+China
+;
+'Yang Y.'
+;
+Xiamen University
+Department of Chemistry
+Xiamen
+China
+;
+
+# Standardized crystallographic data
+
+_cell_length_a                           2.851
+_cell_length_b                           2.851
+_cell_length_c                           14.275
+_cell_angle_alpha                        90
+_cell_angle_beta                         90
+_cell_angle_gamma                        120
+_cell_volume                             100.5
+_cell_formula_units_Z                    3
+_symmetry_Int_Tables_number              166
+_symmetry_space_group_name_H-M           'R-3m h'
+loop_
+ _symmetry_equiv_pos_site_id
+ _symmetry_equiv_pos_as_xyz
+ 1 'x, y, z'
+ 2 '-x+y, -x, z'
+ 3 '-x+y, y, z'
+ 4 '-x, -x+y, -z'
+ 5 '-x, -y, -z'
+ 6 '-y, -x, z'
+ 7 '-y, x-y, z'
+ 8 'x, x-y, z'
+ 9 'x-y, -y, -z'
+ 10 'x-y, x, -z'
+ 11 'y, -x+y, -z'
+ 12 'y, x, -z'
+ 13 '0.66667+x, 0.33333+y, 0.33333+z'
+ 14 '0.66667-x+y, 0.33333-x, 0.33333+z'
+ 15 '0.66667-x+y, 0.33333+y, 0.33333+z'
+ 16 '0.66667-x, 0.33333-x+y, 0.33333-z'
+ 17 '0.66667-x, 0.33333-y, 0.33333-z'
+ 18 '0.66667-y, 0.33333-x, 0.33333+z'
+ 19 '0.66667-y, 0.33333+x-y, 0.33333+z'
+ 20 '0.66667+x, 0.33333+x-y, 0.33333+z'
+ 21 '0.66667+x-y, 0.33333-y, 0.33333-z'
+ 22 '0.66667+x-y, 0.33333+x, 0.33333-z'
+ 23 '0.66667+y, 0.33333-x+y, 0.33333-z'
+ 24 '0.66667+y, 0.33333+x, 0.33333-z'
+ 25 '0.33333+x, 0.66667+y, 0.66667+z'
+ 26 '0.33333-x+y, 0.66667-x, 0.66667+z'
+ 27 '0.33333-x+y, 0.66667+y, 0.66667+z'
+ 28 '0.33333-x, 0.66667-x+y, 0.66667-z'
+ 29 '0.33333-x, 0.66667-y, 0.66667-z'
+ 30 '0.33333-y, 0.66667-x, 0.66667+z'
+ 31 '0.33333-y, 0.66667+x-y, 0.66667+z'
+ 32 '0.33333+x, 0.66667+x-y, 0.66667+z'
+ 33 '0.33333+x-y, 0.66667-y, 0.66667-z'
+ 34 '0.33333+x-y, 0.66667+x, 0.66667-z'
+ 35 '0.33333+y, 0.66667-x+y, 0.66667-z'
+ 36 '0.33333+y, 0.66667+x, 0.66667-z'
+
+loop_
+ _atom_site_label
+ _atom_site_type_symbol
+ _atom_site_Wyckoff_symbol
+ _atom_site_symmetry_multiplicity
+ _atom_site_fract_x
+ _atom_site_fract_y
+ _atom_site_fract_z
+ _atom_site_occupancy
+ O O c 6 0 0 0.25 1
+ M1 Co b 3 0 0 0.5 0.333
+ M2 Mn b 3 0 0 0.5 0.333
+ M3 Ni b 3 0 0 0.5 0.24299999999999994
+ M4 Li b 3 0 0 0.5 0.09
+ Li1 Li a 3 0 0 0 0.9099999999999999
+ Li2 Ni a 3 0 0 0 0.09
+
+
+_exptl_crystal_colour                    ?
+_exptl_crystal_density_meas              ?
+_cell_measurement_temperature            ?
+_cell_measurement_radiation              'X-rays, Cu Ka'
+_cell_measurement_reflns_used            ?
+_diffrn_ambient_temperature              ?
+_diffrn_measurement_device               'automatic diffractometer'
+_diffrn_measurement_device_type
+;
+Philips X'Pert Pro
+;
+_diffrn_radiation_type                   'X-rays, Cu Ka'
+_diffrn_reflns_number                    ?
+_exptl_absorpt_coefficient_mu            ?
+_exptl_absorpt_correction_type           ?
+_computing_structure_solution            'starting values from the literature'
+_refine_ls_number_parameters             ?
+_refine_ls_number_reflns                 ?
+_refine_ls_R_factor_all                  ?
+_refine_ls_wR_factor_all                 ?
+_computing_structure_refinement          GSAS
+
+# End of data set 1817019
+
+
