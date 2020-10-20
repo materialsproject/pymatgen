@@ -155,7 +155,7 @@ class CRESTOutput(MSONable):
         self.data = dict()
         self.data = dict()
         self.sorted_structures_energies = []
-
+        self.properly_terminated = False
         self._parse_crest_output()
 
     def _parse_crest_output(self):
@@ -224,6 +224,12 @@ class CRESTOutput(MSONable):
                 for i in range(start, start + d):
                     self.sorted_structures_energies[n].append([rotamer_structures[i], energies[i]])
                 start = i
+        else:
+            crestbest_path = os.path.join(self.path, 'crest_best.xyz')
+            try:
+                self.lowest_energy_structure = Molecule.from_file(crestbest_path)
+            except:
+                raise FileNotFoundError('{} not found'.format(crestbest_path))
 
 # def parse_xtb_output(file_path="xtb.out"):
 #     """
