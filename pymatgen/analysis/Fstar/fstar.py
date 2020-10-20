@@ -1,14 +1,13 @@
-""" This module implements an f* diagram generator."""
-
 import os
+import math
 import numpy as np
 import pandas as pd
+from pymatgen.io.cif import CifParser
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 import plotly.express as px
 
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
-
-# Load in the form factors
+#Load in the form factors
 
 with open(os.path.join(os.path.dirname(__file__),
                        "xray_factors_2.csv")) as f:
@@ -17,7 +16,7 @@ with open(os.path.join(os.path.dirname(__file__),
 with open(os.path.join(os.path.dirname(__file__),
                        "neutron_factors.csv")) as f:
     neutron_scatter_df = pd.read_csv(f)
-    # from http://www.ccp14.ac.uk/ccp/web-mirrors/neutrons/n-scatter/n-lengths/LIST~1.HTM
+    #from http://www.ccp14.ac.uk/ccp/web-mirrors/neutrons/n-scatter/n-lengths/LIST~1.HTM
 
 
 class FStarDiagram:
@@ -27,15 +26,15 @@ class FStarDiagram:
 
     def __init__(self, structures, scattering_type='X-ray_simple', custom_scatter=None):
         """
-        Initialize the f* diagram generator with the list of structures and scattering type.
+        Initalize the f* diagram generator with the list of structures and scattering type.
 
         Args:
-            structures(list): List of structure objects to use in the diagram.
-            scattering_type(str): Type of scattering to use in the f* calculation. Defaults to 'X-ray_simple'
+            Structures(list): List of structure objects to use in the diagram.
+            Scattering_type(str): Type of scattering to use in the f* calculation. Defaults to 'X-ray_simple'
                 which uses the atomic number as the scattering factor. 'X-ray' and 'Neutron' are built in scattering
-                types which use X-ray and neutron scattering factors, respectively. 'Custom' allows the user to
-                supplement their own calculation with any set of scattering factors.
-            custom_scatter(function): when using custom scattering set this equal to a global variable that is equal
+                types which use X-ray and neutron scattering factors, respectivley. 'Custom' allows the user to supliment
+                their own calculation with any set of scattering factors.
+            custom_scatter(function): when using custom scattering set this equal to a global varialble that is equal
                 to the custom scattering function.
         """
 
@@ -44,6 +43,31 @@ class FStarDiagram:
         self._custscat = custom_scatter
         self._symstructs = [SpacegroupAnalyzer(structure).get_symmetrized_structure() for structure in structures]
         self._equiv_inds = [struct.equivalent_indices for struct in self._symstructs]
+        self.site_labels = self.get_site_labels()
+        self.coords = self.get_fstar_coords()
+        self.df = pd.DataFrame(columns=self.site_labels, data=self.coords)
+        self.df.replace('nan', 0.0, inplace=True)
+        self.plot = px.scatter_ternary(data_frame=self.df, a=self.site_labels[0], b=self.site_labels[1],
+                                       c=self.site_labels[2])
+
+    def edit_fstar_diagram(self, combine_list=False, plot_list=False, **kwargs):
+        """
+        Edit the plot of the f* diagram using plotly express.
+
+        Args:
+            combine_list(list): This is a list of lists which indicates what unique sites need to be combied to make the plot
+                ternary.
+            plot_list(list): This is a list that indicates what unique sites to plot and what order to plot them in.
+            kwargs: use this to add any other arguments from scatter_ternary .
+        """
+        if combine_list:
+            for combo in combine_list:
+                self.df[str(combo)] = sum([self.df[site] for site in combo])
+                self.site_labels.append(str(combo))
+        if plot_list:
+            self.plot = px.scatter_ternary(data_frame=self.df, a=plot_list[0], b=plot_list[1], c=plot_list[2], **kwargs)
+        else:
+            self.plot = px.scatter_ternary(data_frame=self.df, a=self.site_labels[0], b=self.site_labels[1], c=self.site_labels[2], **kwargs)
 
     def get_site_labels(self):
         """
@@ -151,26 +175,8 @@ class FStarDiagram:
             fstar_lists.append(fstar_list)
         return fstar_lists
 
-    def plot_fstar_diagram(self, combine_list=False, plot_list=False, **kwargs):
-        """
-        Plot an f* diagram using plotly express.
 
-        Args:
-            combine_list(list): This is a list of lists which indicates what unique sites need to be combined to make
-                the plot ternary.
-            plot_list(list): This is a list that indicates what unique sites to plot and what order to plot them in.
-            kwargs: use this to add any other arguments from scatter_ternary .
-        """
-        site_labels = FStarDiagram(self._structures, scattering_type=self._scatter,
-                                   custom_scatter=self._custscat).get_site_labels()
-        coords = FStarDiagram(self._structures, scattering_type=self._scatter,
-                              custom_scatter=self._custscat).get_fstar_coords()
-        df = pd.DataFrame(columns=site_labels, data=coords)
-        df.replace('nan', 0.0, inplace=True)
-        if combine_list:
-            for combo in combine_list:
-                df[str(combo)] = sum([df[site] for site in combo])
-                site_labels.append(str(combo))
-        if plot_list:
-            return px.scatter_ternary(data_frame=df, a=plot_list[0], b=plot_list[1], c=plot_list[2], **kwargs)
-        return px.scatter_ternary(data_frame=df, a=site_labels[0], b=site_labels[1], c=site_labels[2], **kwargs)
+
+
+
+

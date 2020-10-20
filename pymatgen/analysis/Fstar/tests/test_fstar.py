@@ -7,7 +7,7 @@ import pandas as pd
 import plotly.express as px
 
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.analyzer.fstar.fstar import FStarDiagram
+from pymatgen.analyzer.Fstar.fstar import FStarDiagram
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.cif import CifParser
 
