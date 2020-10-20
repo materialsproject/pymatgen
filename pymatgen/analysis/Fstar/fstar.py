@@ -1,8 +1,6 @@
 import os
-import math
 import numpy as np
 import pandas as pd
-from pymatgen.io.cif import CifParser
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 import plotly.express as px
 
