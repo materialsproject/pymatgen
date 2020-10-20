@@ -1,6 +1,12 @@
 Change log
 ==========
 
+v2020.10.20
+-----------
+1. Better deprecation warnings.
+2. Bug fix for Py3.9 support.
+3. Bug fix for neutron diffraction get_plot.
+
 v2020.10.9
 ----------
 * Cube parsing and Cube integration to Bader (@nwinner, #1967)
