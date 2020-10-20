@@ -25,12 +25,12 @@ class FStarDiagram_test(PymatgenTest):
             return scat
 
         c = cust_scatter
-        cif_list = [i for i in os.listdir(os.getcwd()) if i.endswith('.cif')]
-        struct_list = [CifParser(file).get_structures(primitive=False)[0] for file in cif_list]
-        self.fstar_default = FStarDiagram(struct_list)
-        self.fstar_neutron = FStarDiagram(struct_list, scattering_type='Neutron')
-        self.fstar_xray = FStarDiagram(struct_list, scattering_type='X-ray')
-        self.fstar_custom = FStarDiagram(struct_list, scattering_type='Custom', custom_scatter=c)
+        self.cif_list = [i for i in os.listdir(test_dir) if i.endswith('.cif')]
+        self.struct_list = [CifParser(file).get_structures(primitive=False)[0] for file in self.cif_list]
+        self.fstar_default = FStarDiagram(self.struct_list)
+        self.fstar_neutron = FStarDiagram(self.struct_list, scattering_type='Neutron')
+        self.fstar_xray = FStarDiagram(self.struct_list, scattering_type='X-ray')
+        self.fstar_custom = FStarDiagram(self.struct_list, scattering_type='Custom', custom_scatter=c)
 
     def test_edit_fstar_diagram(self):
         self.assertEqual(len(self.fstar_default.site_labels), 3)
