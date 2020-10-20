@@ -295,7 +295,7 @@ for Fe to 5 in an oxide, or {“LDAUU”:{“Fe”:5}} to set LDAUU to
 <p>If a None value is given, that key is unset. For example,
 {“ENCUT”: None} will remove ENCUT from the incar settings.</p>
 </p></li>
-<li><p><strong>user_kpoints_settings</strong> (<em>dict</em><em> or </em><a class="reference internal" href="pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Kpoints" title="pymatgen.io.vasp.inputs.Kpoints"><em>Kpoints</em></a>) – Allow user to override kpoints
+<li><p><strong>user_kpoints_settings</strong> (<em>dict</em><em> or </em><a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.Kpoints" title="pymatgen.io.cp2k.inputs.Kpoints"><em>Kpoints</em></a>) – Allow user to override kpoints
 setting by supplying a dict E.g., {“reciprocal_density”: 1000}.
 User can also supply Kpoints object. Default is None.</p></li>
 <li><p><strong>(</strong><strong>dict</strong> (<em>user_potcar_settings</em>) – Allow user to override POTCARs. E.g.,
@@ -1100,7 +1100,7 @@ updated using the previous VASP run.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Structure from previous run.</p></li>
 <li><p><strong>prev_incar</strong> (<a class="reference internal" href="pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Incar" title="pymatgen.io.vasp.inputs.Incar"><em>Incar</em></a>) – Incar file from previous run.</p></li>
-<li><p><strong>prev_kpoints</strong> (<a class="reference internal" href="pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Kpoints" title="pymatgen.io.vasp.inputs.Kpoints"><em>Kpoints</em></a>) – Kpoints from previous run.</p></li>
+<li><p><strong>prev_kpoints</strong> (<a class="reference internal" href="pymatgen.io.cp2k.inputs.html#pymatgen.io.cp2k.inputs.Kpoints" title="pymatgen.io.cp2k.inputs.Kpoints"><em>Kpoints</em></a>) – Kpoints from previous run.</p></li>
 <li><p><strong>lepsilon</strong> (<em>bool</em>) – Whether to add static dielectric calculation</p></li>
 <li><p><strong>lcalcpol</strong> (<em>bool</em>) – Whether to turn on evaluation of the Berry phase approximations
 for electronic polarization</p></li>

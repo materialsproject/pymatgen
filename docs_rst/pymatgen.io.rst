@@ -8,6 +8,7 @@ Subpackages
    :maxdepth: 7
 
    pymatgen.io.abinit
+   pymatgen.io.cp2k
    pymatgen.io.exciting
    pymatgen.io.feff
    pymatgen.io.lammps
