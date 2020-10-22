@@ -538,17 +538,6 @@ class MPResterTest(PymatgenTest):
             m, msg="Unexpected user-agent value {}".format(headers["user-agent"])
         )
         self.assertEqual(m.groups()[:3], tuple(pmg_version.split(".")))
-        # self.assertEqual(
-        #     m.groups()[3:6],
-        #     tuple(
-        #         str(n)
-        #         for n in (
-        #             sys.version_info.major,
-        #             sys.version_info.minor,
-        #             sys.version_info.micro,
-        #         )
-        #     ),
-        # )
         self.rester = MPRester(include_user_agent=False)
         self.assertNotIn(
             "user-agent", self.rester.session.headers, msg="user-agent header unwanted"
