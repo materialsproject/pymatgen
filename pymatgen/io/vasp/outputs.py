@@ -1722,6 +1722,9 @@ class Outcar:
             self.read_pseudo_zval()
 
         # Read electrostatic potential
+        self.electrostatic_potential = None
+        self.ngf = None
+        self.sampling_radii = None
         self.read_pattern({
             'electrostatic': r"average \(electrostatic\) potential at core"})
         if self.data.get('electrostatic', []):

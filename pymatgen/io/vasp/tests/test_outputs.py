@@ -830,8 +830,12 @@ class OutcarTest(PymatgenTest):
         cl = Outcar(filepath).read_core_state_eigen()
         self.assertAlmostEqual(cl[6]["2s"][-1], -174.4779)
         filepath = self.TEST_FILES_DIR / "OUTCAR.icorelevel"
-        cl = Outcar(filepath).read_core_state_eigen()
+        outcar = Outcar(filepath)
+        cl = outcar.read_core_state_eigen()
         self.assertAlmostEqual(cl[4]["3d"][-1], -31.4522)
+
+        # test serialization
+        outcar.as_dict()
 
     def test_avg_core_poten(self):
         filepath = self.TEST_FILES_DIR / "OUTCAR.lepsilon"
