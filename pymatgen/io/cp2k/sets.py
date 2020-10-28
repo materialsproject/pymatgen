@@ -493,6 +493,9 @@ class DftSet(Cp2kInputSet):
         max_memory: int = 2000,
         cutoff_radius: float = 8.,
         potential_type: str = None,
+        scale_coulomb: float = 1,
+        scale_gaussian: float = 1,
+        scale_longrange: float = 1,
         omega: float = .2,
         aux_basis: Union[Dict, None] = None,
         admm: bool = True,
@@ -630,6 +633,19 @@ class DftSet(Cp2kInputSet):
                     "T_C_G_DATA": Keyword("T_C_G_DATA", "t_c_g.dat"),
                 }
             )
+        else:
+            ip_keywords.update(
+                {
+                    "POTENTIAL_TYPE": Keyword("POTENTIAL_TYPE", potential_type),
+                    "CUTOFF_RADIUS": Keyword("CUTOFF_RADIUS", cutoff_radius),
+                    "T_C_G_DATA": Keyword("T_C_G_DATA", "t_c_g.dat"),
+                    "SCALE_COULOMB": Keyword("SCALE_COULOMB", scale_coulomb),
+                    "SCALE_GAUSSIAN": Keyword("SCALE_GAUSSIAN", scale_gaussian),
+                    "SCALE_LONGRANGE": Keyword("SCALE_LONGRANGE", scale_longrange),
+                    "OMEGA": Keyword("OMEGA", omega)
+                }
+            )
+
         interaction_potential = Section(
             "INTERACTION_POTENTIAL", subsections={}, keywords=ip_keywords
         )
@@ -930,6 +946,10 @@ class HybridStaticSet(StaticSet):
         project_name: str = "Hybrid-Static",
         gga_x_fraction: float = 0.75,
         gga_c_fraction: float = 1,
+        potential_type: str = None,
+        scale_coulomb: float = 1,
+        scale_gaussian: float = 1,
+        scale_longrange: float = 1,
         override_default_params: Dict = {},
         max_memory: int = 2000,
         cutoff_radius: float = 8.,
@@ -960,8 +980,12 @@ class HybridStaticSet(StaticSet):
         self.hybrid_functional = hybrid_functional
         self.hf_fraction = hf_fraction
         self.project_name = project_name
+        self.potential_type = potential_type
         self.gga_x_fraction = gga_x_fraction
         self.gga_c_fraction = gga_c_fraction
+        self.scale_coulomb = scale_coulomb
+        self.scale_gaussian = scale_gaussian
+        self.scale_longrange = scale_longrange
         self.override_default_params = override_default_params
         self.max_memory = max_memory
         self.cutoff_radius = cutoff_radius
@@ -977,8 +1001,12 @@ class HybridStaticSet(StaticSet):
         self.activate_hybrid(
             hybrid_functional=hybrid_functional,
             hf_fraction=hf_fraction,
+            potential_type=potential_type,
             gga_x_fraction=gga_x_fraction,
             gga_c_fraction=gga_c_fraction,
+            scale_coulomb=scale_coulomb,
+            scale_gaussian=scale_gaussian,
+            scale_longrange=scale_longrange,
             max_memory=max_memory,
             cutoff_radius=cutoff_radius,
             omega=omega,
@@ -1003,9 +1031,13 @@ class HybridRelaxSet(RelaxSet):
         structure: Union[Structure, Molecule],
         hybrid_functional: str = "PBE0",
         hf_fraction: float = 0.25,
-        project_name: str = "Hybrid-Relax",
+        project_name: str = "Hybrid-Static",
+        potential_type: str = None,
         gga_x_fraction: float = 0.75,
         gga_c_fraction: float = 1,
+        scale_coulomb: float = 1,
+        scale_gaussian: float = 1,
+        scale_longrange: float = 1,
         override_default_params: Dict = {},
         max_memory: int = 2000,
         cutoff_radius: float = 8.,
@@ -1036,8 +1068,12 @@ class HybridRelaxSet(RelaxSet):
         self.hybrid_functional = hybrid_functional
         self.hf_fraction = hf_fraction
         self.project_name = project_name
+        self.potential_type = potential_type
         self.gga_x_fraction = gga_x_fraction
         self.gga_c_fraction = gga_c_fraction
+        self.scale_coulomb = scale_coulomb
+        self.scale_gaussian = scale_gaussian
+        self.scale_longrange = scale_longrange
         self.override_default_params = override_default_params
         self.max_memory = max_memory
         self.cutoff_radius = cutoff_radius
@@ -1053,8 +1089,12 @@ class HybridRelaxSet(RelaxSet):
         self.activate_hybrid(
             hybrid_functional=hybrid_functional,
             hf_fraction=hf_fraction,
+            potential_type=potential_type,
             gga_x_fraction=gga_x_fraction,
             gga_c_fraction=gga_c_fraction,
+            scale_coulomb=scale_coulomb,
+            scale_gaussian=scale_gaussian,
+            scale_longrange=scale_longrange,
             max_memory=max_memory,
             cutoff_radius=cutoff_radius,
             omega=omega,
@@ -1079,9 +1119,13 @@ class HybridCellOptSet(CellOptSet):
         structure: Union[Structure, Molecule],
         hybrid_functional: str = "PBE0",
         hf_fraction: float = 0.25,
-        project_name: str = "Hybrid-CellOpt",
+        project_name: str = "Hybrid-Static",
+        potential_type: str = None,
         gga_x_fraction: float = 0.75,
         gga_c_fraction: float = 1,
+        scale_coulomb: float = 1,
+        scale_gaussian: float = 1,
+        scale_longrange: float = 1,
         override_default_params: Dict = {},
         max_memory: int = 2000,
         cutoff_radius: float = 8.,
@@ -1112,8 +1156,12 @@ class HybridCellOptSet(CellOptSet):
         self.hybrid_functional = hybrid_functional
         self.hf_fraction = hf_fraction
         self.project_name = project_name
+        self.potential_type = potential_type
         self.gga_x_fraction = gga_x_fraction
         self.gga_c_fraction = gga_c_fraction
+        self.scale_coulomb = scale_coulomb
+        self.scale_gaussian = scale_gaussian
+        self.scale_longrange = scale_longrange
         self.override_default_params = override_default_params
         self.max_memory = max_memory
         self.cutoff_radius = cutoff_radius
@@ -1129,8 +1177,12 @@ class HybridCellOptSet(CellOptSet):
         self.activate_hybrid(
             hybrid_functional=hybrid_functional,
             hf_fraction=hf_fraction,
+            potential_type=potential_type,
             gga_x_fraction=gga_x_fraction,
             gga_c_fraction=gga_c_fraction,
+            scale_coulomb=scale_coulomb,
+            scale_gaussian=scale_gaussian,
+            scale_longrange=scale_longrange,
             max_memory=max_memory,
             cutoff_radius=cutoff_radius,
             omega=omega,
