@@ -57,7 +57,7 @@ class XTBOutput(MSONable):
         self.data["output"] = dict()
 
         self._read_setup()
-        #self._read_parameters()
+        # self._read_parameters()
 
         # Need some condition to see if this is an opt job
 
@@ -169,13 +169,18 @@ class CRESTOutput(MSONable):
         with open(output_filepath, 'r') as xtbout_file:
             # noinspection PyTypeChecker
             for line in xtbout_file:
+                print(line)
                 if '> crest' in line:
                     crest_cmd = line.strip()[8:]
                     break
 
         split_cmd = crest_cmd.split(' ')
-        self.coord_file = os.path.join(self.path, split_cmd[0])
-        self.input_structure = Molecule.from_file(filename=self.coord_file)
+        try:
+            self.coord_file = os.path.join(self.path, split_cmd[0])
+            self.input_structure = Molecule.from_file(filename=self.coord_file)
+        except FileNotFoundError:
+            print("Input file {} not found".format(split_cmd[0]))
+
         for i, entry in enumerate(split_cmd):
             value = None
             if entry:
@@ -195,9 +200,6 @@ class CRESTOutput(MSONable):
                 self.properly_terminated = True
 
         if self.properly_terminated:
-            self.lowest_energy_structure = Molecule.from_file(self.path + '/' + 'crest_best.xyz')
-
-            rotamer_structures = XYZ.from_file(os.path.join(self.path, 'crest_conformers.xyz')).all_molecules
 
             conformer_pattern = re.compile(
                 r"\s+\d+\s+(?P<Erel>\d*\.\d*)\s+(?P<Etot>-*\d+\.\d+)\s+(?P<weight>-*\d+\.\d+)\s+(?P<conformer>-*\d+\.\d+)\s+(?P<set>\d+)\s+(?P<degen>\d+)")
@@ -215,21 +217,35 @@ class CRESTOutput(MSONable):
                         energies.append(conformer_match['Etot'])
                     elif rotamer_match:
                         energies.append(rotamer_match['Etot'])
-            start = 0
-            for n, d in enumerate(conformer_degeneracies):
-                self.sorted_structures_energies.append([])
-                # noinspection PyArgumentList
-                i = 0
-                # noinspection PyArgumentList
-                for i in range(start, start + d):
-                    self.sorted_structures_energies[n].append([rotamer_structures[i], energies[i]])
-                start = i
+
+            crestbest_path = os.path.join(self.path, 'crest_best.xyz')
+            rotamers_path = os.path.join(self.path, 'crest_conformers.xyz')
+
+            try:
+                self.lowest_energy_structure = Molecule.from_file(crestbest_path)
+            except FileNotFoundError:
+                print('{} not found'.format(crestbest_path))
+            try:
+                rotamer_structures = XYZ.from_file(rotamers_path).all_molecules
+                start = 0
+                for n, d in enumerate(conformer_degeneracies):
+                    self.sorted_structures_energies.append([])
+                    # noinspection PyArgumentList
+                    i = 0
+                    # noinspection PyArgumentList
+                    for i in range(start, start + d):
+                        self.sorted_structures_energies[n].append([rotamer_structures[i], energies[i]])
+                    start = i
+
+            except FileNotFoundError:
+                print('{} not found'.format('crest_conformers.xyz'))
+
         else:
             crestbest_path = os.path.join(self.path, 'crest_best.xyz')
             try:
                 self.lowest_energy_structure = Molecule.from_file(crestbest_path)
-            except:
-                raise FileNotFoundError('{} not found'.format(crestbest_path))
+            except FileNotFoundError:
+                print('{} not found'.format(crestbest_path))
 
 # def parse_xtb_output(file_path="xtb.out"):
 #     """
