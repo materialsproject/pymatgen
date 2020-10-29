@@ -169,7 +169,6 @@ class CRESTOutput(MSONable):
         with open(output_filepath, 'r') as xtbout_file:
             # noinspection PyTypeChecker
             for line in xtbout_file:
-                print(line)
                 if '> crest' in line:
                     crest_cmd = line.strip()[8:]
                     break
