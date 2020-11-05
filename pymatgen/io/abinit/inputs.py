@@ -719,6 +719,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
 
     @property
     def vars(self):
+        """Dictionary with variables."""
         return self._vars
 
     @classmethod

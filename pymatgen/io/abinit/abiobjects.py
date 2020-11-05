@@ -412,6 +412,7 @@ class Smearing(AbivarAble, MSONable):
         'gaussian': 7}
 
     def __init__(self, occopt, tsmear):
+        """Build object with occopt and tsmear"""
         self.occopt = occopt
         self.tsmear = tsmear
 
@@ -480,7 +481,7 @@ class Smearing(AbivarAble, MSONable):
         return Smearing(1, 0.0)
 
     def to_abivars(self):
-        """"Return dictionary with Abinit variables."""
+        """Return dictionary with Abinit variables."""
         if self.mode == "nosmearing":
             return {"occopt": 1, "tsmear": 0.0}
         return {"occopt": self.occopt, "tsmear": self.tsmear}
@@ -504,6 +505,7 @@ class ElectronsAlgorithm(dict, AbivarAble, MSONable):
         dielam=None, diegap=None, dielng=None, diecut=None, nstep=50)
 
     def __init__(self, *args, **kwargs):
+        """Initialize object."""
         super().__init__(*args, **kwargs)
 
         for k in self:
@@ -567,7 +569,7 @@ class Electrons(AbivarAble, MSONable):
         return self.spin_mode.nspden
 
     def as_dict(self):
-        "json friendly dict representation"
+        """json friendly dict representation"""
         d = {}
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
@@ -946,6 +948,7 @@ class RelaxationMethod(AbivarAble, MSONable):
     OPTCELL_DEFAULT = 2
 
     def __init__(self, *args, **kwargs):
+        """Initialize object."""
 
         # Initialize abivars with the default values.
         self.abivars = self._default_vars
@@ -1078,6 +1081,11 @@ class PPModel(AbivarAble, MSONable):
         return cls(mode=mode, plasmon_freq=plasmon_freq)
 
     def __init__(self, mode="godby", plasmon_freq=None):
+        """
+        Args:
+            mode: ppmodel type
+            plasmon_freq: Plasmon frequency in Ha.
+        """
         if isinstance(mode, str):
             mode = PPModelModes[mode]
         self.mode = mode
@@ -1179,6 +1187,10 @@ class ModelDielectricFunction(AbivarAble):
     """Model dielectric function used for BSE calculation"""
 
     def __init__(self, mdf_epsinf):
+        """
+        Args:
+            mdf_epsinf: Value of epsilon_infinity.
+        """
         self.mdf_epsinf = mdf_epsinf
 
     def to_abivars(self):

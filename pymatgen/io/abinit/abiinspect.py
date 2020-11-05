@@ -125,6 +125,10 @@ class ScfCycle(Mapping):
     MAGIC = "Must be defined by the subclass."""
 
     def __init__(self, fields):
+        """
+        Args:
+            fields: Dictionary with label --> list of numerical values.
+        """
         self.fields = fields
         all_lens = [len(lst) for lst in self.values()]
         self.num_iterations = all_lens[0]
@@ -264,6 +268,7 @@ class CyclesPlotter:
     """Relies on the plot method of cycle objects to build multiple subfigures."""
 
     def __init__(self):
+        """Initialize object."""
         self.labels = []
         self.cycles = []
 
@@ -318,6 +323,11 @@ class Relaxation(Iterable):
     """
 
     def __init__(self, cycles):
+        """
+        Args
+            cycles: list of `GroundStateScfCycle` objects.
+        """
+
         self.cycles = cycles
         self.num_iterations = len(self.cycles)
 
@@ -519,6 +529,10 @@ class YamlTokenizer(Iterator):
     Error = YamlTokenizerError
 
     def __init__(self, filename):
+        """
+        Args:
+            filename: Filename
+        """
         # The position inside the file.
         self.linepos = 0
         self.filename = filename
