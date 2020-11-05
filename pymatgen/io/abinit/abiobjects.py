@@ -369,6 +369,7 @@ class SpinMode(collections.namedtuple('SpinMode', "mode nsppol nspinor nspden"),
             raise KeyError("Wrong value for spin_mode: %s" % str(obj))
 
     def to_abivars(self):
+        """Dictionary with Abinit input variables."""
         return {
             "nsppol": self.nsppol,
             "nspinor": self.nspinor,
@@ -377,10 +378,12 @@ class SpinMode(collections.namedtuple('SpinMode', "mode nsppol nspinor nspden"),
 
     @pmg_serialize
     def as_dict(self):
+        """Convert object to dict."""
         return {k: getattr(self, k) for k in self._fields}
 
     @classmethod
     def from_dict(cls, d):
+        """Build object from dict."""
         return cls(**{k: d[k] for k in d if k in cls._fields})
 
 
@@ -477,6 +480,7 @@ class Smearing(AbivarAble, MSONable):
         return Smearing(1, 0.0)
 
     def to_abivars(self):
+        """"Return dictionary with Abinit variables."""
         if self.mode == "nosmearing":
             return {"occopt": 1, "tsmear": 0.0}
         return {"occopt": self.occopt, "tsmear": self.tsmear}
@@ -488,6 +492,7 @@ class Smearing(AbivarAble, MSONable):
 
     @staticmethod
     def from_dict(d):
+        """Build object from dict."""
         return Smearing(d["occopt"], d["tsmear"])
 
 
@@ -507,14 +512,17 @@ class ElectronsAlgorithm(dict, AbivarAble, MSONable):
                                  "key %s" % (self.__class__.__name__, k))
 
     def to_abivars(self):
+        """Dictionary with Abinit input variables."""
         return self.copy()
 
     @pmg_serialize
     def as_dict(self):
+        """Convert object to dict."""
         return self.copy()
 
     @classmethod
     def from_dict(cls, d):
+        """Build object from dict."""
         d = d.copy()
         d.pop("@module", None)
         d.pop("@class", None)
@@ -881,9 +889,11 @@ class KSampling(AbivarAble, MSONable):
             comment=comment)
 
     def to_abivars(self):
+        """Dictionary with Abinit variables."""
         return self.abivars
 
     def as_dict(self):
+        """Convert object to dict."""
         enc = MontyEncoder()
         return {'mode': self.mode.name, 'comment': self.comment,
                 'num_kpts': self.num_kpts,
@@ -894,6 +904,7 @@ class KSampling(AbivarAble, MSONable):
 
     @classmethod
     def from_dict(cls, d):
+        """Build object from dict."""
         d = d.copy()
         d.pop('@module', None)
         d.pop('@class', None)
@@ -906,6 +917,7 @@ class Constraints(AbivarAble):
     """This object defines the constraints for structural relaxation"""
 
     def to_abivars(self):
+        """Dictionary with Abinit variables."""
         raise NotImplementedError("")
 
 
