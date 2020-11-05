@@ -17,9 +17,9 @@ class FStarDiagram_test(PymatgenTest):
 
         self.cif_list = [i for i in os.listdir(test_dir) if i.endswith('.cif')]
         self.struct_list = [CifParser(file).get_structures(primitive=False)[0] for file in self.cif_list]
-        self.fstar = FStarDiagram(structure_objects=self.struct_list)
 
     def test_edit_fstar_diagram(self):
+        self.fstar = FStarDiagram(structure_objects=self.struct_list)
         self.assertEqual(self.fstar.site_labels, ['[0. 0. 0.]Li', '[0.  0.  0.5]Co', '[0.   0.   0.25]O'])
         new = FStarDiagram(structure_objects=self.struct_list)
         self.assertEqual(self.fstar.plot, new.plot)
