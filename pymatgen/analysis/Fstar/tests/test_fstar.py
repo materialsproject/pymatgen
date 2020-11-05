@@ -8,6 +8,7 @@ from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.cif import CifParser
 
 test_dir = os.path.join(os.path.dirname(__file__))
+os.chdir(test_dir)
 
 
 class FStarDiagram_test(PymatgenTest):
