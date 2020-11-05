@@ -1,15 +1,19 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pymatgen.command_line.aconvasp_caller module &mdash; pymatgen 2020.9.14 documentation</title>
+  <title>pymatgen.command_line.aconvasp_caller module &mdash; pymatgen 2020.10.20 documentation</title>
   
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
 
   
   
@@ -19,7 +23,9 @@
   
 
   
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -32,11 +38,6 @@
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pymatgen.command_line.bader_caller module" href="pymatgen.command_line.bader_caller.html" />
@@ -61,7 +62,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> pymatgen
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pymatgen
           
 
           
@@ -71,7 +72,7 @@
             
             
               <div class="version">
-                2020.9.14
+                2020.10.20
               </div>
             
           
@@ -88,6 +89,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -135,6 +137,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -173,7 +176,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html">Docs</a> &raquo;</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
           <li><a href="modules.html">pymatgen</a> &raquo;</li>
         
@@ -209,7 +212,7 @@ Only tested on Linux. Inspired by Shyue”s qhull_caller
 WARNING: you need to have a convasp in your path for this to work</p>
 <dl class="py exception">
 <dt id="pymatgen.command_line.aconvasp_caller.AconvaspError">
-<em class="property">exception </em><code class="sig-name descname">AconvaspError</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">msg</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/command_line/aconvasp_caller.py#L110-L124"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.aconvasp_caller.AconvaspError" title="Permalink to this definition">¶</a></dt>
+<em class="property">exception </em><code class="sig-name descname">AconvaspError</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">msg</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.10.20/pymatgen/command_line/aconvasp_caller.py#L110-L124"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.aconvasp_caller.AconvaspError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
 <p>Exception class for aconvasp.
 Raised when the aconvasp gives an error</p>
@@ -222,39 +225,39 @@ Raised when the aconvasp gives an error</p>
 
 <dl class="py function">
 <dt id="pymatgen.command_line.aconvasp_caller.get_conv_struct">
-<code class="sig-name descname">get_conv_struct</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/command_line/aconvasp_caller.py#L67-L75"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.aconvasp_caller.get_conv_struct" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_conv_struct</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.10.20/pymatgen/command_line/aconvasp_caller.py#L67-L75"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.aconvasp_caller.get_conv_struct" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a minkowski reduced structure</p>
 </dd></dl>
 
 <dl class="py function">
 <dt id="pymatgen.command_line.aconvasp_caller.get_minkowski_red">
-<code class="sig-name descname">get_minkowski_red</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/command_line/aconvasp_caller.py#L48-L64"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.aconvasp_caller.get_minkowski_red" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_minkowski_red</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.10.20/pymatgen/command_line/aconvasp_caller.py#L48-L64"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.aconvasp_caller.get_minkowski_red" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a minkowski reduced structure</p>
 </dd></dl>
 
 <dl class="py function">
 <dt id="pymatgen.command_line.aconvasp_caller.get_num_division_kpoints">
-<code class="sig-name descname">get_num_division_kpoints</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">kppa</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/command_line/aconvasp_caller.py#L37-L45"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.aconvasp_caller.get_num_division_kpoints" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_num_division_kpoints</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">kppa</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.10.20/pymatgen/command_line/aconvasp_caller.py#L37-L45"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.aconvasp_caller.get_num_division_kpoints" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get kpoint divisions for a given k-point density (per reciprocal-atom):
 kppa and a given structure</p>
 </dd></dl>
 
 <dl class="py function">
 <dt id="pymatgen.command_line.aconvasp_caller.get_prim_struct">
-<code class="sig-name descname">get_prim_struct</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/command_line/aconvasp_caller.py#L78-L86"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.aconvasp_caller.get_prim_struct" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_prim_struct</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.10.20/pymatgen/command_line/aconvasp_caller.py#L78-L86"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.aconvasp_caller.get_prim_struct" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get standard primitive</p>
 </dd></dl>
 
 <dl class="py function">
 <dt id="pymatgen.command_line.aconvasp_caller.get_vasp_kpoint_file_sym">
-<code class="sig-name descname">get_vasp_kpoint_file_sym</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/command_line/aconvasp_caller.py#L89-L107"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.aconvasp_caller.get_vasp_kpoint_file_sym" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_vasp_kpoint_file_sym</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.10.20/pymatgen/command_line/aconvasp_caller.py#L89-L107"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.aconvasp_caller.get_vasp_kpoint_file_sym" title="Permalink to this definition">¶</a></dt>
 <dd><p>get a kpoint file ready to be ran in VASP along the symmetry lines of the
 Brillouin Zone</p>
 </dd></dl>
 
 <dl class="py function">
 <dt id="pymatgen.command_line.aconvasp_caller.run_aconvasp_command">
-<code class="sig-name descname">run_aconvasp_command</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">command</span></em>, <em class="sig-param"><span class="n">structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.9.14/pymatgen/command_line/aconvasp_caller.py#L25-L34"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.aconvasp_caller.run_aconvasp_command" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">run_aconvasp_command</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">command</span></em>, <em class="sig-param"><span class="n">structure</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2020.10.20/pymatgen/command_line/aconvasp_caller.py#L25-L34"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.aconvasp_caller.run_aconvasp_command" title="Permalink to this definition">¶</a></dt>
 <dd><p>Helper function for calling aconvasp with different arguments</p>
 </dd></dl>
 
@@ -271,11 +274,19 @@ Brillouin Zone</p>
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2011, Pymatgen Development Team
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -286,7 +297,6 @@ Brillouin Zone</p>
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {

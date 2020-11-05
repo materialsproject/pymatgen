@@ -21,14 +21,13 @@ import warnings
 from time import sleep
 from enum import Enum, unique
 from collections import defaultdict
-
+import logging
 import requests
 import ruamel.yaml as yaml
 from monty.json import MontyDecoder, MontyEncoder
 from monty.serialization import dumpfn
 
 from pymatgen import SETTINGS, SETTINGS_FILE, __version__ as pmg_version
-
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure
@@ -41,6 +40,9 @@ from pymatgen.entries.compatibility import (
 from pymatgen.entries.exp_entries import ExpEntry
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.sequence import get_chunks, PBar
+
+
+logger = logging.getLogger(__name__)
 
 
 @unique
@@ -189,7 +191,7 @@ class MPRester:
 
         if notify_db_version:
             db_version = self.get_database_version()
-            print(f"Connection established to Materials Project database, version {db_version}.")
+            logger.info(f"Connection established to Materials Project database, version {db_version}.")
 
             try:
                 with open(SETTINGS_FILE, "rt") as f:

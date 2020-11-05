@@ -25,10 +25,13 @@ class XSF:
         """
         self.structure = structure
 
-    def to_string(self):
+    def to_string(self, atom_symbol=True):
         """
         Returns a string with the structure in XSF format
         See http://www.xcrysden.org/doc/XSF.html
+
+        Args:
+            atom_symbol (bool): Uses atom symbol instead of atomic number. Defaults to True.
         """
         lines = []
         app = lines.append
@@ -45,8 +48,11 @@ class XSF:
         app("PRIMCOORD")
         app(" %d 1" % len(cart_coords))
 
-        for a, coord in enumerate(cart_coords):
-            sp = "%d" % self.structure.atomic_numbers[a]
+        for site, coord in zip(self.structure, cart_coords):
+            if atom_symbol:
+                sp = site.specie.symbol
+            else:
+                sp = "%d" % site.specie.Z
             app(sp + ' %20.14f %20.14f %20.14f' % tuple(coord))
 
         return "\n".join(lines)
