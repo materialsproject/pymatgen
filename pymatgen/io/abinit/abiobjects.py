@@ -215,11 +215,11 @@ or the Virtual Crystal Approximation.""")
             raise ValueError("Both enforce_znucl and enforce_typat are required!")
 
         if len(enforce_typat) != len(structure):
-            raise ValueError("typat contains %d entries while it should be natom: %s" % (
-                             len(typat)), len(structure))
+            raise ValueError("enforce_typat contains %d entries while it should be natom: %s" % (
+                             len(enforce_typat)), len(structure))
 
         if len(enforce_znucl) != ntypat:
-            raise ValueError("znucl contains %d entries while it should be ntypat: %s" % (
+            raise ValueError("enforce_znucl contains %d entries while it should be ntypat: %s" % (
                               len(enforce_znucl)), ntypat)
 
     if not enforce_order:
