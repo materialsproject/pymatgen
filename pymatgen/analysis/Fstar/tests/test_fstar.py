@@ -7,8 +7,7 @@ from pymatgen.analysis.Fstar.fstar import FStarDiagram
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.cif import CifParser
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                        'pymatgen', 'analysis', 'Fstar', 'tests')
+test_dir = os.path.join(os.path.dirname(__file__))
 
 
 class FStarDiagram_test(PymatgenTest):
