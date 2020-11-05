@@ -220,7 +220,7 @@ or the Virtual Crystal Approximation.""")
 
         if len(enforce_znucl) != ntypat:
             raise ValueError("znucl contains %d entries while it should be ntypat: %s" % (
-                              len(znucl)), ntypat)
+                              len(enforce_znucl)), ntypat)
 
     if not enforce_order:
         types_of_specie = species_by_znucl(structure)
