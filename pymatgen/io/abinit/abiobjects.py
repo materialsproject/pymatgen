@@ -162,24 +162,78 @@ def structure_from_abivars(cls=None, *args, **kwargs):
                to_unit_cell=False, coords_are_cartesian=coords_are_cartesian)
 
 
-def structure_to_abivars(structure, **kwargs):
+def species_by_znucl(structure):
     """
-    Receives a structure and returns a dictionary with the ABINIT variables.
+    Return list of unique specie found in structure **ordered according to sites**.
+
+    Example:
+
+        Site0: 0.5 0 0 O
+        Site1: 0   0 0 Si
+
+    produces [Specie_O, Specie_Si] and not set([Specie_O, Specie_Si]) as in `types_of_specie`
+    """
+    # Please, do not change this algorithm and DO NOT USE set.
+    # This logic produces a deterministic order of the species based on their first occurrence in sites.
+    # This is something one can easily implement in Fortran to facilitate interoperability between pymatgen
+    # and Abinit. Most importantly, we can reuse all the DFPT results produced so far in which the
+    # old version of structure.types_of_specie (equivalent to this one) was used!
+    types = []
+    for site in structure:
+        for sp, v in site.species.items():
+            if sp not in types and v != 0:
+                types.append(sp)
+    return types
+
+
+def structure_to_abivars(structure, enforce_znucl=None, enforce_typat=None, **kwargs):
+    """
+    Receives a structure and returns a dictionary with ABINIT variables.
+
+    Args:
+        enforce_znucl: List of ntypat entries with the value of Z for each type of atom.
+            Used to change the default ordering.
+        enforce_typat: List with natom entries with the type index.
+            Fortran conventions: start to count from 1.
+            Used to change the default ordering.
     """
     if not structure.is_ordered:
         raise ValueError("""\
-Received disordered structure with partial occupancies that cannot be converted into an Abinit input
+Received disordered structure with partial occupancies that cannot be converted into an Abinit input.
 Please use OrderDisorderedStructureTransformation or EnumerateStructureTransformation
-to build an appropriate supercell from partial occupancies or alternatively use the Virtual Crystal Approximation.""")
+to build an appropriate supercell from partial occupancies or, alternatively, use the Rigid Band Model
+or the Virtual Crystal Approximation.""")
 
-    types_of_specie = structure.types_of_species
     natom = structure.num_sites
+    ntypat = structure.ntypesp
+    enforce_order = False
 
-    znucl_type = [specie.number for specie in types_of_specie]
+    if enforce_znucl is not None or enforce_typat is not None:
+        enforce_order = True
+        # consistency check
+        if enforce_znucl is None or enforce_typat is None:
+            raise ValueError("Both enforce_znucl and enforce_typat are required!")
 
-    typat = np.zeros(natom, np.int)
-    for atm_idx, site in enumerate(structure):
-        typat[atm_idx] = types_of_specie.index(site.specie) + 1
+        if len(enforce_typat) != len(structure):
+            raise ValueError("typat contains %d entries while it should be natom: %s" % (
+                             len(typat)), len(structure))
+
+        if len(enforce_znucl) != ntypat:
+            raise ValueError("znucl contains %d entries while it should be ntypat: %s" % (
+                              len(znucl)), ntypat)
+
+    if not enforce_order:
+        types_of_specie = species_by_znucl(structure)
+        #types_of_specie = structure.types_of_species
+
+        # [ntypat] list
+        znucl_type = [specie.number for specie in types_of_specie]
+        typat = np.zeros(natom, np.int)
+        for atm_idx, site in enumerate(structure):
+            typat[atm_idx] = types_of_specie.index(site.specie) + 1
+    else:
+        znucl_type = enforce_znucl
+        typat = enforce_typat
 
     rprim = ArrayWithUnit(structure.lattice.matrix, "ang").to("bohr")
     angdeg = structure.lattice.angles
@@ -193,7 +247,7 @@ to build an appropriate supercell from partial occupancies or alternatively use 
     # Info on atoms.
     d = dict(
         natom=natom,
-        ntypat=len(types_of_specie),
+        ntypat=ntypat,
         typat=typat,
         znucl=znucl_type,
         xred=xred,
