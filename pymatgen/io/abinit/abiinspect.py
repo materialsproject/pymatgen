@@ -1,17 +1,20 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
+#
+# pylint: disable=no-member, chained-comparison, unnecessary-comprehension, not-callable
 """
 This module provides objects to inspect the status of the Abinit tasks at run-time.
 by extracting information from the main output file (text format).
 """
 
 import os
+from collections.abc import Mapping, Iterable, Iterator
+from collections import OrderedDict
+
 import numpy as np
 import ruamel.yaml as yaml
 
-from collections.abc import Mapping, Iterable, Iterator
-from collections import OrderedDict
 from tabulate import tabulate
 from monty.functools import lazy_property
 from monty.collections import AttrDict
@@ -71,8 +74,7 @@ def _magic_parser(stream, magic):
     # Convert values to numpy arrays.
     if fields:
         return OrderedDict([(k, np.array(v)) for k, v in fields.items()])
-    else:
-        return None
+    return None
 
 
 def plottable_from_outfile(filepath):
@@ -98,8 +100,7 @@ def plottable_from_outfile(filepath):
     obj = GroundStateScfCycle
     if obj is not None:
         return obj.from_file(filepath)
-    else:
-        return None
+    return None
 
 
 # Use log scale for these variables.
@@ -121,6 +122,7 @@ class ScfCycle(Mapping):
 
         num_iterations: Number of iterations performed.
     """
+    MAGIC = "Must be defined by the subclass."""
 
     def __init__(self, fields):
         self.fields = fields
@@ -171,8 +173,7 @@ class ScfCycle(Mapping):
         if fields:
             fields.pop("iter")
             return cls(fields)
-        else:
-            return None
+        return None
 
     @add_fig_kwargs
     def plot(self, ax_list=None, fontsize=12, **kwargs):
@@ -547,6 +548,7 @@ class YamlTokenizer(Iterator):
         self.close()
 
     def close(self):
+        """Close the stream."""
         try:
             self.stream.close()
         except Exception:
@@ -731,8 +733,7 @@ class YamlDoc:
         """
         if self.tag is not None:
             return self.text.replace(self.tag, "")
-        else:
-            return self.text
+        return self.text
 
     def as_dict(self):
         """Use Yaml to parse the text (without the tag) and returns a dictionary."""

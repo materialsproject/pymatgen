@@ -1,13 +1,16 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
+#
+# pylint: disable=no-member
 """Wrapper for netCDF readers."""
 
 import os.path
 import warnings
+import logging
+from collections import OrderedDict
 import numpy as np
 
-from collections import OrderedDict
 from monty.dev import requires
 from monty.collections import AttrDict
 from monty.functools import lazy_property
@@ -16,7 +19,6 @@ from pymatgen.core.units import ArrayWithUnit
 from pymatgen.core.xcfunc import XcFunc
 from pymatgen.core.structure import Structure
 
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -164,9 +166,8 @@ class NetcdfReader:
         """List of variable names stored in the group specified by path."""
         if path == "/":
             return self.rootgrp.variables.keys()
-        else:
-            group = self.path2group[path]
-            return group.variables.keys()
+        group = self.path2group[path]
+        return group.variables.keys()
 
     def read_value(self, varname, path="/", cmode=None, default=NO_DEFAULT):
         """
@@ -198,12 +199,10 @@ class NetcdfReader:
             except IndexError:
                 return var.getValue() if not var.shape else var[:]
 
-        else:
-            assert var.shape[-1] == 2
-            if cmode == "c":
-                return var[..., 0] + 1j * var[..., 1]
-            else:
-                raise ValueError("Wrong value for cmode %s" % cmode)
+        assert var.shape[-1] == 2
+        if cmode == "c":
+            return var[..., 0] + 1j * var[..., 1]
+        raise ValueError("Wrong value for cmode %s" % cmode)
 
     def read_variable(self, varname, path="/"):
         """Returns the variable with name varname in the group specified by path."""
@@ -214,9 +213,8 @@ class NetcdfReader:
         try:
             if path == "/":
                 return [self.rootgrp.dimensions[dname] for dname in dimnames]
-            else:
-                group = self.path2group[path]
-                return [group.dimensions[dname] for dname in dimnames]
+            group = self.path2group[path]
+            return [group.dimensions[dname] for dname in dimnames]
 
         except KeyError:
             raise self.Error("In file %s:\nError while reading dimensions: `%s` with kwargs: `%s`" %
@@ -227,9 +225,8 @@ class NetcdfReader:
         try:
             if path == "/":
                 return [self.rootgrp.variables[vname] for vname in varnames]
-            else:
-                group = self.path2group[path]
-                return [group.variables[vname] for vname in varnames]
+            group = self.path2group[path]
+            return [group.variables[vname] for vname in varnames]
 
         except KeyError:
             raise self.Error("In file %s:\nError while reading variables: `%s` with kwargs `%s`." %
