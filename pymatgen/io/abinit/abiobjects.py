@@ -224,7 +224,7 @@ or the Virtual Crystal Approximation.""")
 
     if not enforce_order:
         types_of_specie = species_by_znucl(structure)
-        #types_of_specie = structure.types_of_species
+        # types_of_specie = structure.types_of_species
 
         # [ntypat] list
         znucl_type = [specie.number for specie in types_of_specie]

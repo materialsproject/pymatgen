@@ -57,7 +57,7 @@ class LatticeFromAbivarsTest(PymatgenTest):
         self.assertArrayEqual(def_typat, [1, 1, 2, 2])
 
         # But it's possible to enforce a particular value of typat and znucl.
-        enforce_znucl = [7 ,31]
+        enforce_znucl = [7, 31]
         enforce_typat = [2, 2, 1, 1]
         enf_vars = structure_to_abivars(gan, enforce_znucl=enforce_znucl, enforce_typat=enforce_typat)
         self.assertArrayEqual(enf_vars["znucl"], enforce_znucl)
@@ -67,10 +67,11 @@ class LatticeFromAbivarsTest(PymatgenTest):
         assert [s.symbol for s in species_by_znucl(gan)] == ["Ga", "N"]
 
         for itype1, itype2 in zip(def_typat, enforce_typat):
-            assert def_znucl[itype1 - 1] == enforce_znucl[itype2 -1]
+            assert def_znucl[itype1 - 1] == enforce_znucl[itype2 - 1]
 
         with self.assertRaises(Exception):
             structure_to_abivars(gan, enforce_znucl=enforce_znucl, enforce_typat=None)
+
 
 class SpinModeTest(PymatgenTest):
 
