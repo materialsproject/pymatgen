@@ -94,7 +94,8 @@ class FStarDiagram:
                 if str(combo) not in self.site_labels:
                     self.site_labels.append(str(combo))
         if plot_list:
-            self.plot = px.scatter_ternary(data_frame=self.coords, a=plot_list[0], b=plot_list[1], c=plot_list[2], **kwargs)
+            self.plot = px.scatter_ternary(data_frame=self.coords, a=plot_list[0], b=plot_list[1], c=plot_list[2],
+                                           **kwargs)
         else:
             self.plot = px.scatter_ternary(data_frame=self.coords, a=self.site_labels[0], b=self.site_labels[1],
                                            c=self.site_labels[2], **kwargs)
@@ -163,12 +164,12 @@ class FStarDiagram:
                 for sp, occ in elements_and_occupancies:
                     if self.cif_list:
                         cif_dic = self.cif_list[ind1]
-                        site_frac_coord_list = [round(c,4) for c in list(self._structures[ind1][site[0]].frac_coords)]
+                        site_frac_coord_list = [round(c, 4) for c in list(self._structures[ind1][site[0]].frac_coords)]
                         for xi, x in enumerate(cif_dic['_atom_site_fract_x']):
                             if str2float(x) < 0:
-                                x = round(1.0 + str2float(x),4)
+                                x = round(1.0 + str2float(x), 4)
                             else:
-                                x = round(str2float(x),4)
+                                x = round(str2float(x), 4)
                             y = cif_dic['_atom_site_fract_y'][xi]
                             if str2float(y) < 0:
                                 y = round(1.0 + str2float(y), 4)
@@ -179,7 +180,7 @@ class FStarDiagram:
                                 z = round(1.0 + str2float(z), 4)
                             else:
                                 z = round(str2float(z), 4)
-                            frac_coord = [x,y,z]
+                            frac_coord = [x, y, z]
                             if frac_coord == site_frac_coord_list:
                                 try:
                                     if str(sp.element) == str(cif_dic['_atom_site_type_symbol'][xi]):
@@ -232,7 +233,7 @@ class FStarDiagram:
                     occ_f_list.append(f_occ)
 
                 fstar = np.absolute(mult * sum(occ_f_list))
-                fstar_df.loc[0][column[0]] = round(float(fstar),4)
+                fstar_df.loc[0][column[0]] = round(float(fstar), 4)
             tot = sum(sum(list(fstar_df.values)))
             fstar_df = pd.DataFrame(columns=self.site_labels, data=[fs / tot for fs in list(fstar_df.values)])
             fstar_df_full = fstar_df_full.append(fstar_df, ignore_index=True)
