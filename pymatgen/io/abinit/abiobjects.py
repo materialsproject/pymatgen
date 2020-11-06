@@ -1,25 +1,26 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
+#
+# pylint: disable=no-member, chained-comparison
 """
 Low-level objects providing an abstraction for the objects involved in the calculation.
 """
 
 import collections
 import abc
-import numpy as np
-import pymatgen.core.units as units
-
 from pprint import pformat
+from enum import Enum
+
+import numpy as np
 from monty.design_patterns import singleton
 from monty.collections import AttrDict
-from enum import Enum
-from monty.json import MSONable
+from monty.json import MSONable, MontyEncoder, MontyDecoder
+import pymatgen.core.units as units
 from pymatgen.core.units import ArrayWithUnit
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.util.serialization import pmg_serialize
-from monty.json import MontyEncoder, MontyDecoder
 
 
 def lattice_from_abivars(cls=None, *args, **kwargs):
@@ -51,7 +52,7 @@ def lattice_from_abivars(cls=None, *args, **kwargs):
         # Call pymatgen constructors (note that pymatgen uses Angstrom instead of Bohr).
         return cls(ArrayWithUnit(rprimd, "bohr").to("ang"))
 
-    elif angdeg is not None:
+    if angdeg is not None:
         angdeg = np.reshape(angdeg, 3)
 
         if np.any(angdeg <= 0.):
@@ -162,24 +163,78 @@ def structure_from_abivars(cls=None, *args, **kwargs):
                to_unit_cell=False, coords_are_cartesian=coords_are_cartesian)
 
 
-def structure_to_abivars(structure, **kwargs):
+def species_by_znucl(structure):
     """
-    Receives a structure and returns a dictionary with the ABINIT variables.
+    Return list of unique specie found in structure **ordered according to sites**.
+
+    Example:
+
+        Site0: 0.5 0 0 O
+        Site1: 0   0 0 Si
+
+    produces [Specie_O, Specie_Si] and not set([Specie_O, Specie_Si]) as in `types_of_specie`
+    """
+    # Please, do not change this algorithm and DO NOT USE set.
+    # This logic produces a deterministic order of the species based on their first occurrence in sites.
+    # This is something one can easily implement in Fortran to facilitate interoperability between pymatgen
+    # and Abinit. Most importantly, we can reuse all the DFPT results produced so far in which the
+    # old version of structure.types_of_specie (equivalent to this one) was used!
+    types = []
+    for site in structure:
+        for sp, v in site.species.items():
+            if sp not in types and v != 0:
+                types.append(sp)
+    return types
+
+
+def structure_to_abivars(structure, enforce_znucl=None, enforce_typat=None, **kwargs):
+    """
+    Receives a structure and returns a dictionary with ABINIT variables.
+
+    Args:
+        enforce_znucl: List of ntypat entries with the value of Z for each type of atom.
+            Used to change the default ordering.
+        enforce_typat: List with natom entries with the type index.
+            Fortran conventions: start to count from 1.
+            Used to change the default ordering.
     """
     if not structure.is_ordered:
         raise ValueError("""\
-Received disordered structure with partial occupancies that cannot be converted into an Abinit input
+Received disordered structure with partial occupancies that cannot be converted into an Abinit input.
 Please use OrderDisorderedStructureTransformation or EnumerateStructureTransformation
-to build an appropriate supercell from partial occupancies or alternatively use the Virtual Crystal Approximation.""")
+to build an appropriate supercell from partial occupancies or, alternatively, use the Rigid Band Model
+or the Virtual Crystal Approximation.""")
 
-    types_of_specie = structure.types_of_species
     natom = structure.num_sites
+    ntypat = structure.ntypesp
+    enforce_order = False
 
-    znucl_type = [specie.number for specie in types_of_specie]
+    if enforce_znucl is not None or enforce_typat is not None:
+        enforce_order = True
+        # consistency check
+        if enforce_znucl is None or enforce_typat is None:
+            raise ValueError("Both enforce_znucl and enforce_typat are required!")
 
-    typat = np.zeros(natom, np.int)
-    for atm_idx, site in enumerate(structure):
-        typat[atm_idx] = types_of_specie.index(site.specie) + 1
+        if len(enforce_typat) != len(structure):
+            raise ValueError("enforce_typat contains %d entries while it should be natom: %s" % (
+                             len(enforce_typat)), len(structure))
+
+        if len(enforce_znucl) != ntypat:
+            raise ValueError("enforce_znucl contains %d entries while it should be ntypat: %s" % (
+                              len(enforce_znucl)), ntypat)
+
+    if not enforce_order:
+        types_of_specie = species_by_znucl(structure)
+        # types_of_specie = structure.types_of_species
+
+        # [ntypat] list
+        znucl_type = [specie.number for specie in types_of_specie]
+        typat = np.zeros(natom, np.int)
+        for atm_idx, site in enumerate(structure):
+            typat[atm_idx] = types_of_specie.index(site.specie) + 1
+    else:
+        znucl_type = enforce_znucl
+        typat = enforce_typat
 
     rprim = ArrayWithUnit(structure.lattice.matrix, "ang").to("bohr")
     angdeg = structure.lattice.angles
@@ -193,7 +248,7 @@ to build an appropriate supercell from partial occupancies or alternatively use 
     # Info on atoms.
     d = dict(
         natom=natom,
-        ntypat=len(types_of_specie),
+        ntypat=ntypat,
         typat=typat,
         znucl=znucl_type,
         xred=xred,
@@ -306,14 +361,15 @@ class SpinMode(collections.namedtuple('SpinMode', "mode nsppol nspinor nspden"),
         """Converts obj into a `SpinMode` instance"""
         if isinstance(obj, cls):
             return obj
-        else:
-            # Assume a string with mode
-            try:
-                return _mode2spinvars[obj]
-            except KeyError:
-                raise KeyError("Wrong value for spin_mode: %s" % str(obj))
+
+        # Assume a string with mode
+        try:
+            return _mode2spinvars[obj]
+        except KeyError:
+            raise KeyError("Wrong value for spin_mode: %s" % str(obj))
 
     def to_abivars(self):
+        """Dictionary with Abinit input variables."""
         return {
             "nsppol": self.nsppol,
             "nspinor": self.nspinor,
@@ -322,10 +378,12 @@ class SpinMode(collections.namedtuple('SpinMode', "mode nsppol nspinor nspden"),
 
     @pmg_serialize
     def as_dict(self):
+        """Convert object to dict."""
         return {k: getattr(self, k) for k in self._fields}
 
     @classmethod
     def from_dict(cls, d):
+        """Build object from dict."""
         return cls(**{k: d[k] for k in d if k in cls._fields})
 
 
@@ -354,6 +412,7 @@ class Smearing(AbivarAble, MSONable):
         'gaussian': 7}
 
     def __init__(self, occopt, tsmear):
+        """Build object with occopt and tsmear"""
         self.occopt = occopt
         self.tsmear = tsmear
 
@@ -395,21 +454,22 @@ class Smearing(AbivarAble, MSONable):
         # obj is a string
         if obj == "nosmearing":
             return cls.nosmearing()
-        else:
-            obj, tsmear = obj.split(":")
-            obj.strip()
 
-            occopt = cls._mode2occopt[obj]
-            try:
-                tsmear = float(tsmear)
-            except ValueError:
-                tsmear, unit = tsmear.split()
-                tsmear = units.Energy(float(tsmear), unit).to("Ha")
+        obj, tsmear = obj.split(":")
+        obj.strip()
 
-            return cls(occopt, tsmear)
+        occopt = cls._mode2occopt[obj]
+        try:
+            tsmear = float(tsmear)
+        except ValueError:
+            tsmear, unit = tsmear.split()
+            tsmear = units.Energy(float(tsmear), unit).to("Ha")
+
+        return cls(occopt, tsmear)
 
     @property
     def mode(self):
+        """String with smearing technique."""
         for (mode_str, occopt) in self._mode2occopt.items():
             if occopt == self.occopt:
                 return mode_str
@@ -417,13 +477,14 @@ class Smearing(AbivarAble, MSONable):
 
     @staticmethod
     def nosmearing():
+        """Build object for calculations without smearing."""
         return Smearing(1, 0.0)
 
     def to_abivars(self):
+        """Return dictionary with Abinit variables."""
         if self.mode == "nosmearing":
             return {"occopt": 1, "tsmear": 0.0}
-        else:
-            return {"occopt": self.occopt, "tsmear": self.tsmear, }
+        return {"occopt": self.occopt, "tsmear": self.tsmear}
 
     @pmg_serialize
     def as_dict(self):
@@ -432,6 +493,7 @@ class Smearing(AbivarAble, MSONable):
 
     @staticmethod
     def from_dict(d):
+        """Build object from dict."""
         return Smearing(d["occopt"], d["tsmear"])
 
 
@@ -443,6 +505,7 @@ class ElectronsAlgorithm(dict, AbivarAble, MSONable):
         dielam=None, diegap=None, dielng=None, diecut=None, nstep=50)
 
     def __init__(self, *args, **kwargs):
+        """Initialize object."""
         super().__init__(*args, **kwargs)
 
         for k in self:
@@ -451,14 +514,17 @@ class ElectronsAlgorithm(dict, AbivarAble, MSONable):
                                  "key %s" % (self.__class__.__name__, k))
 
     def to_abivars(self):
+        """Dictionary with Abinit input variables."""
         return self.copy()
 
     @pmg_serialize
     def as_dict(self):
+        """Convert object to dict."""
         return self.copy()
 
     @classmethod
     def from_dict(cls, d):
+        """Build object from dict."""
         d = d.copy()
         d.pop("@module", None)
         d.pop("@class", None)
@@ -489,18 +555,21 @@ class Electrons(AbivarAble, MSONable):
 
     @property
     def nsppol(self):
+        """Number of independent spin polarizations."""
         return self.spin_mode.nsppol
 
     @property
     def nspinor(self):
+        """Number of independent spinor components."""
         return self.spin_mode.nspinor
 
     @property
     def nspden(self):
+        """Number of independent density components."""
         return self.spin_mode.nspden
 
     def as_dict(self):
-        "json friendly dict representation"
+        """json friendly dict representation"""
         d = {}
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
@@ -515,6 +584,7 @@ class Electrons(AbivarAble, MSONable):
 
     @classmethod
     def from_dict(cls, d):
+        """Build object from dictionary."""
         d = d.copy()
         d.pop("@module", None)
         d.pop("@class", None)
@@ -525,6 +595,7 @@ class Electrons(AbivarAble, MSONable):
         return cls(**d)
 
     def to_abivars(self):
+        """Return dictionary with Abinit variables."""
         abivars = self.spin_mode.to_abivars()
 
         abivars.update({
@@ -544,6 +615,7 @@ class Electrons(AbivarAble, MSONable):
 
 
 class KSamplingModes(Enum):
+    """Enum if the different samplings of the BZ."""
     monkhorst = 1
     path = 2
     automatic = 3
@@ -669,6 +741,7 @@ class KSampling(AbivarAble, MSONable):
 
     @property
     def is_homogeneous(self):
+        """Homogeneous sampling."""
         return self.mode not in ["path"]
 
     @classmethod
@@ -818,9 +891,11 @@ class KSampling(AbivarAble, MSONable):
             comment=comment)
 
     def to_abivars(self):
+        """Dictionary with Abinit variables."""
         return self.abivars
 
     def as_dict(self):
+        """Convert object to dict."""
         enc = MontyEncoder()
         return {'mode': self.mode.name, 'comment': self.comment,
                 'num_kpts': self.num_kpts,
@@ -831,6 +906,7 @@ class KSampling(AbivarAble, MSONable):
 
     @classmethod
     def from_dict(cls, d):
+        """Build object from dict."""
         d = d.copy()
         d.pop('@module', None)
         d.pop('@class', None)
@@ -843,6 +919,7 @@ class Constraints(AbivarAble):
     """This object defines the constraints for structural relaxation"""
 
     def to_abivars(self):
+        """Dictionary with Abinit variables."""
         raise NotImplementedError("")
 
 
@@ -871,6 +948,7 @@ class RelaxationMethod(AbivarAble, MSONable):
     OPTCELL_DEFAULT = 2
 
     def __init__(self, *args, **kwargs):
+        """Initialize object."""
 
         # Initialize abivars with the default values.
         self.abivars = self._default_vars
@@ -891,17 +969,17 @@ class RelaxationMethod(AbivarAble, MSONable):
 
     @classmethod
     def atoms_only(cls, atoms_constraints=None):
+        """Relax atomic positions, keep unit cell fixed."""
         if atoms_constraints is None:
             return cls(ionmov=cls.IONMOV_DEFAULT, optcell=0)
-        else:
-            return cls(ionmov=cls.IONMOV_DEFAULT, optcell=0, atoms_constraints=atoms_constraints)
+        return cls(ionmov=cls.IONMOV_DEFAULT, optcell=0, atoms_constraints=atoms_constraints)
 
     @classmethod
     def atoms_and_cell(cls, atoms_constraints=None):
+        """Relax atomic positions as well as unit cell"""
         if atoms_constraints is None:
             return cls(ionmov=cls.IONMOV_DEFAULT, optcell=cls.OPTCELL_DEFAULT)
-        else:
-            return cls(ionmov=cls.IONMOV_DEFAULT, optcell=cls.OPTCELL_DEFAULT, atoms_constraints=atoms_constraints)
+        return cls(ionmov=cls.IONMOV_DEFAULT, optcell=cls.OPTCELL_DEFAULT, atoms_constraints=atoms_constraints)
 
     @property
     def move_atoms(self):
@@ -945,6 +1023,7 @@ class RelaxationMethod(AbivarAble, MSONable):
         return out_vars
 
     def as_dict(self):
+        """Convert object to dict."""
         d = dict(self._default_vars)
         d['@module'] = self.__class__.__module__
         d['@class'] = self.__class__.__name__
@@ -952,6 +1031,7 @@ class RelaxationMethod(AbivarAble, MSONable):
 
     @classmethod
     def from_dict(cls, d):
+        """Build object from dictionary."""
         d = d.copy()
         d.pop('@module', None)
         d.pop('@class', None)
@@ -960,6 +1040,7 @@ class RelaxationMethod(AbivarAble, MSONable):
 
 
 class PPModelModes(Enum):
+    """Differnt kind of plasmon-pole models."""
     noppmodel = 0
     godby = 1
     hybersten = 2
@@ -1000,6 +1081,11 @@ class PPModel(AbivarAble, MSONable):
         return cls(mode=mode, plasmon_freq=plasmon_freq)
 
     def __init__(self, mode="godby", plasmon_freq=None):
+        """
+        Args:
+            mode: ppmodel type
+            plasmon_freq: Plasmon frequency in Ha.
+        """
         if isinstance(mode, str):
             mode = PPModelModes[mode]
         self.mode = mode
@@ -1008,14 +1094,13 @@ class PPModel(AbivarAble, MSONable):
     def __eq__(self, other):
         if other is None:
             return False
-        else:
-            if self.mode != other.mode:
-                return False
+        if self.mode != other.mode:
+            return False
 
-            if self.plasmon_freq is None:
-                return other.plasmon_freq is None
-            else:
-                return np.allclose(self.plasmon_freq, other.plasmon_freq)
+        if self.plasmon_freq is None:
+            return other.plasmon_freq is None
+
+        return np.allclose(self.plasmon_freq, other.plasmon_freq)
 
     def __ne__(self, other):
         return not self == other
@@ -1031,23 +1116,26 @@ class PPModel(AbivarAble, MSONable):
                                           str(self.mode))
 
     def to_abivars(self):
+        """Return dictionary with Abinit variables."""
         if self:
             return {"ppmodel": self.mode.value,
                     "ppmfrq": self.plasmon_freq}
-        else:
-            return {}
+        return {}
 
     @classmethod
     def get_noppmodel(cls):
+        """Calculation without plasmon-pole model."""
         return cls(mode="noppmodel", plasmon_freq=None)
 
     def as_dict(self):
+        """Convert object to dictionary."""
         return {"mode": self.mode.name, "plasmon_freq": self.plasmon_freq,
                 "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__}
 
     @staticmethod
     def from_dict(d):
+        """Build object from dictionary."""
         return PPModel(mode=d["mode"], plasmon_freq=d["plasmon_freq"])
 
 
@@ -1099,9 +1187,14 @@ class ModelDielectricFunction(AbivarAble):
     """Model dielectric function used for BSE calculation"""
 
     def __init__(self, mdf_epsinf):
+        """
+        Args:
+            mdf_epsinf: Value of epsilon_infinity.
+        """
         self.mdf_epsinf = mdf_epsinf
 
     def to_abivars(self):
+        """Return dictionary with abinit variables."""
         return {"mdf_epsinf": self.mdf_epsinf}
 
 
@@ -1166,6 +1259,7 @@ class Screening(AbivarAble):
 
     @property
     def use_hilbert(self):
+        """True if we are using the Hilbert transform method."""
         return hasattr(self, "hilbert")
 
     # @property
