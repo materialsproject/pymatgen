@@ -9,10 +9,10 @@ This module provides classes to define a phonon band structure.
 import collections
 import numpy as np
 
+from monty.json import MSONable
 from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.electronic_structure.bandstructure import Kpoint
-from monty.json import MSONable
 
 
 def get_reasonable_repetitions(natoms):
@@ -22,12 +22,12 @@ def get_reasonable_repetitions(natoms):
     """
     if natoms < 4:
         return [3, 3, 3]
-    if 4 < natoms < 15:
+    if 4 <= natoms < 15:
         return [2, 2, 2]
-    if 15 < natoms < 50:
+    if 15 <= natoms < 50:
         return [2, 2, 1]
-    if 50 < natoms:
-        return [1, 1, 1]
+
+    return [1, 1, 1]
 
 
 def eigenvectors_from_displacements(disp, masses):
@@ -232,8 +232,8 @@ class PhononBandStructure(MSONable):
                     if len(acoustic_modes_index) != 3:
                         acoustic_modes_index = [0, 1, 2]
                     return self.bands[acoustic_modes_index, i]
-                else:
-                    return self.bands[:3, i]
+
+                return self.bands[:3, i]
 
         return None
 
@@ -490,8 +490,8 @@ class PhononBandStructureSymmLine(PhononBandStructure):
             q1 = np.array(qpoints[nq])
             q2 = np.array(qpoints[nq - 1])
             # detect jumps
-            if ((nq in hsq_dict) and (nq - 1 in hsq_dict)):
-                if (hsq_dict[nq] != hsq_dict[nq - 1]):
+            if (nq in hsq_dict) and (nq - 1 in hsq_dict):
+                if hsq_dict[nq] != hsq_dict[nq - 1]:
                     hsq_dict[nq - 1] += "|" + hsq_dict[nq]
                 del hsq_dict[nq]
                 line_breaks.append((nqstart, nq))
