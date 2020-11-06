@@ -1,17 +1,20 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
+#
+# pylint: disable=no-member, chained-comparison, unnecessary-comprehension, not-callable
 """
 This module provides objects to inspect the status of the Abinit tasks at run-time.
 by extracting information from the main output file (text format).
 """
 
 import os
+from collections.abc import Mapping, Iterable, Iterator
+from collections import OrderedDict
+
 import numpy as np
 import ruamel.yaml as yaml
 
-from collections.abc import Mapping, Iterable, Iterator
-from collections import OrderedDict
 from tabulate import tabulate
 from monty.functools import lazy_property
 from monty.collections import AttrDict
@@ -48,6 +51,7 @@ def _magic_parser(stream, magic):
         line = line.strip()
 
         if line.startswith(magic):
+            # print("Found magic token in line:", line)
             keys = line.split()
             fields = OrderedDict((k, []) for k in keys)
 
@@ -57,10 +61,11 @@ def _magic_parser(stream, magic):
             if in_doc == 1:
                 continue
 
-            # End of the section.
-            if not line:
+            # End of the section or empty SCF cycle
+            if not line or line.startswith("prteigrs"):
                 break
 
+            # print("Try to parse line:", line)
             tokens = list(map(float, line.split()[1:]))
             assert len(tokens) == len(keys)
             for l, v in zip(fields.values(), tokens):
@@ -69,8 +74,7 @@ def _magic_parser(stream, magic):
     # Convert values to numpy arrays.
     if fields:
         return OrderedDict([(k, np.array(v)) for k, v in fields.items()])
-    else:
-        return None
+    return None
 
 
 def plottable_from_outfile(filepath):
@@ -96,8 +100,7 @@ def plottable_from_outfile(filepath):
     obj = GroundStateScfCycle
     if obj is not None:
         return obj.from_file(filepath)
-    else:
-        return None
+    return None
 
 
 # Use log scale for these variables.
@@ -119,8 +122,13 @@ class ScfCycle(Mapping):
 
         num_iterations: Number of iterations performed.
     """
+    MAGIC = "Must be defined by the subclass."""
 
     def __init__(self, fields):
+        """
+        Args:
+            fields: Dictionary with label --> list of numerical values.
+        """
         self.fields = fields
         all_lens = [len(lst) for lst in self.values()]
         self.num_iterations = all_lens[0]
@@ -169,8 +177,7 @@ class ScfCycle(Mapping):
         if fields:
             fields.pop("iter")
             return cls(fields)
-        else:
-            return None
+        return None
 
     @add_fig_kwargs
     def plot(self, ax_list=None, fontsize=12, **kwargs):
@@ -261,6 +268,7 @@ class CyclesPlotter:
     """Relies on the plot method of cycle objects to build multiple subfigures."""
 
     def __init__(self):
+        """Initialize object."""
         self.labels = []
         self.cycles = []
 
@@ -315,6 +323,11 @@ class Relaxation(Iterable):
     """
 
     def __init__(self, cycles):
+        """
+        Args
+            cycles: list of `GroundStateScfCycle` objects.
+        """
+
         self.cycles = cycles
         self.num_iterations = len(self.cycles)
 
@@ -516,6 +529,10 @@ class YamlTokenizer(Iterator):
     Error = YamlTokenizerError
 
     def __init__(self, filename):
+        """
+        Args:
+            filename: Filename
+        """
         # The position inside the file.
         self.linepos = 0
         self.filename = filename
@@ -545,6 +562,7 @@ class YamlTokenizer(Iterator):
         self.close()
 
     def close(self):
+        """Close the stream."""
         try:
             self.stream.close()
         except Exception:
@@ -729,8 +747,7 @@ class YamlDoc:
         """
         if self.tag is not None:
             return self.text.replace(self.tag, "")
-        else:
-            return self.text
+        return self.text
 
     def as_dict(self):
         """Use Yaml to parse the text (without the tag) and returns a dictionary."""
