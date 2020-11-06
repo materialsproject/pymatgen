@@ -48,18 +48,19 @@ class PhononBandStructureSymmLineTest(PymatgenTest):
         self.assertTrue(self.bs.has_nac)
         self.assertFalse(self.bs2.has_nac)
         self.assertAlmostEqual(self.bs.get_nac_frequencies_along_dir([1, 1, 0])[3], 4.6084532143)
-        self.assertIsNone(self.bs.get_nac_frequencies_along_dir([1, 1, 1]))
-        self.assertIsNone(self.bs2.get_nac_frequencies_along_dir([1, 1, 0]))
+        self.assertIsNone(self.bs.get_nac_frequencies_along_dir([0, 1, 1]))
+        self.assertIsNone(self.bs2.get_nac_frequencies_along_dir([0, 0, 1]))
         self.assertArrayAlmostEqual(self.bs.get_nac_eigendisplacements_along_dir([1, 1, 0])[3][1],
                                     [(0.1063906409128248 + 0j), 0j, 0j])
-        self.assertIsNone(self.bs.get_nac_eigendisplacements_along_dir([1, 1, 1]))
-        self.assertIsNone(self.bs2.get_nac_eigendisplacements_along_dir([1, 1, 0]))
+        self.assertIsNone(self.bs.get_nac_eigendisplacements_along_dir([0, 1, 1]))
+        self.assertIsNone(self.bs2.get_nac_eigendisplacements_along_dir([0, 0, 1]))
 
     def test_branches(self):
         self.assertEqual(self.bs.branches[0]['end_index'], 50)
         self.assertEqual(self.bs.branches[1]['start_index'], 51)
         self.assertEqual(self.bs.branches[2]['name'], 'Y-Gamma')
         self.assertAlmostEqual(self.bs.get_branch(10)[0]['name'], "Gamma-X")
+        self.assertEqual(len(self.bs.branches), 4)
 
     def test_dict_methods(self):
         s = self.bs.as_dict()

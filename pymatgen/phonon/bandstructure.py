@@ -365,14 +365,16 @@ class PhononBandStructureSymmLine(PhononBandStructure):
                 if np.allclose(qpoints[i], (0, 0, 0)):
                     if i > 0 and not np.allclose(qpoints[i - 1], (0, 0, 0)):
                         q_dir = self.qpoints[i - 1]
-                        direction = [q_dir.frac_coords / np.linalg.norm(q_dir.frac_coords)]
+                        direction = q_dir.frac_coords / np.linalg.norm(q_dir.frac_coords)
                         naf.append((direction, frequencies[:, i]))
-                        nac_eigendisplacements.append((direction, eigendisplacements[:, i]))
-                    if i < len(frequencies) - 1 and not np.allclose(qpoints[i + 1], (0, 0, 0)):
+                        if self.has_eigendisplacements:
+                            nac_eigendisplacements.append((direction, eigendisplacements[:, i]))
+                    if i < len(qpoints) - 1 and not np.allclose(qpoints[i + 1], (0, 0, 0)):
                         q_dir = self.qpoints[i + 1]
-                        direction = [q_dir.frac_coords / np.linalg.norm(q_dir.frac_coords)]
+                        direction = q_dir.frac_coords / np.linalg.norm(q_dir.frac_coords)
                         naf.append((direction, frequencies[:, i]))
-                        nac_eigendisplacements.append((direction, eigendisplacements[:, i]))
+                        if self.has_eigendisplacements:
+                            nac_eigendisplacements.append((direction, eigendisplacements[:, i]))
 
             self.nac_frequencies = np.array(naf)
             self.nac_eigendisplacements = np.array(nac_eigendisplacements)
