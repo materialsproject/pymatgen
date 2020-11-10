@@ -140,7 +140,7 @@ class FakeGaussOutput(MSONable):
 
 class CRESTOutput(MSONable):
 
-    def __init__(self, path, output_filename):
+    def __init__(self, output_filename, path='.'):
         """
         Currently assumes runtype is iMTD-GC [default]
         Args:
@@ -201,13 +201,14 @@ class CRESTOutput(MSONable):
         if self.properly_terminated:
 
             conformer_pattern = re.compile(
-                r"\s+\d+\s+(?P<Erel>\d*\.\d*)\s+(?P<Etot>-*\d+\.\d+)\s+(?P<weight>-*\d+\.\d+)\s+(?P<conformer>-*\d+\.\d+)\s+(?P<set>\d+)\s+(?P<degen>\d+)")
+                r"\s+\d+\s+(?P<Erel>\d*\.\d*)\s+(?P<Etot>-*\d+\.\d+)\s+(?P<weight>-*\d+\.\d+)\s+"
+                r"(?P<conformer>-*\d+\.\d+)\s+(?P<set>\d+)\s+(?P<degen>\d+)\s+(?P<origin>\w+)\n")
             rotamer_pattern = re.compile(
-                r"\s+\d+\s+(?P<Erel>\d*\.\d*)\s+(?P<Etot>-*\d+\.\d+)\s+(?P<weight>-*\d+\.\d+)\s+\w+\n")
+                r"\s+\d+\s+(?P<Erel>\d*\.\d*)\s+(?P<Etot>-*\d+\.\d+)\s+(?P<weight>-*\d+\.\d+)\s+"
+                r"(?P<origin>\w+)\n")
             conformer_degeneracies = []
             energies = []
             with open(output_filepath, 'r') as xtbout_file:
-                # noinspection PyTypeChecker
                 for line in xtbout_file:
                     conformer_match = conformer_pattern.match(line)
                     rotamer_match = rotamer_pattern.match(line)
@@ -216,9 +217,15 @@ class CRESTOutput(MSONable):
                         energies.append(conformer_match['Etot'])
                     elif rotamer_match:
                         energies.append(rotamer_match['Etot'])
+            n_rot_files = []
+            for f in os.listdir(self.path):
+                if 'crest_rotamers' in f:
+                    n_rot_file = int(os.path.splitext(f)[0].split('_')[2])
+                    n_rot_files.append(n_rot_file)
+            final_rotamer_filename = 'crest_rotamers_{}.xyz'.format(max(n_rot_files))
 
             crestbest_path = os.path.join(self.path, 'crest_best.xyz')
-            rotamers_path = os.path.join(self.path, 'crest_conformers.xyz')
+            rotamers_path = os.path.join(self.path, final_rotamer_filename)
 
             try:
                 self.lowest_energy_structure = Molecule.from_file(crestbest_path)
@@ -229,15 +236,13 @@ class CRESTOutput(MSONable):
                 start = 0
                 for n, d in enumerate(conformer_degeneracies):
                     self.sorted_structures_energies.append([])
-                    # noinspection PyArgumentList
                     i = 0
-                    # noinspection PyArgumentList
                     for i in range(start, start + d):
                         self.sorted_structures_energies[n].append([rotamer_structures[i], energies[i]])
                     start = i
 
             except FileNotFoundError:
-                print('{} not found'.format('crest_conformers.xyz'))
+                print('{} not found'.format(rotamers_path))
 
         else:
             crestbest_path = os.path.join(self.path, 'crest_best.xyz')
