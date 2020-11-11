@@ -217,12 +217,15 @@ class CRESTOutput(MSONable):
                         energies.append(conformer_match['Etot'])
                     elif rotamer_match:
                         energies.append(rotamer_match['Etot'])
-            n_rot_files = []
-            for f in os.listdir(self.path):
-                if 'crest_rotamers' in f:
-                    n_rot_file = int(os.path.splitext(f)[0].split('_')[2])
-                    n_rot_files.append(n_rot_file)
-            final_rotamer_filename = 'crest_rotamers_{}.xyz'.format(max(n_rot_files))
+            if 'crest_rotamers.xyz' in os.listdir(self.path):
+                final_rotamer_filename='crest_rotamers.xyz'
+            else:
+                n_rot_files = []
+                for f in os.listdir(self.path):
+                    if 'crest_rotamers' in f:
+                        n_rot_file = int(os.path.splitext(f)[0].split('_')[2])
+                        n_rot_files.append(n_rot_file)
+                final_rotamer_filename = 'crest_rotamers_{}.xyz'.format(max(n_rot_files))
 
             crestbest_path = os.path.join(self.path, 'crest_best.xyz')
             rotamers_path = os.path.join(self.path, final_rotamer_filename)
