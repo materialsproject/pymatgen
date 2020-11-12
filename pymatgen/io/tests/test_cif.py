@@ -659,6 +659,14 @@ loop_
         for l1, l2 in zip(str(writer).split("\n"), ans.split("\n")):
             self.assertEqual(l1.strip(), l2.strip())
 
+    def test_cifwrite_without_refinement(self):
+        si2 = Structure.from_file(self.TEST_FILES_DIR / "abinit" / "si.cif")
+        writer = CifWriter(si2, symprec=1e-3, significant_figures=10, refine_struct=False)
+        s = str(writer)
+        assert "Fd-3m" in s
+        same_si2 = CifParser.from_string(s).get_structures()[0]
+        assert len(si2) == len(same_si2)
+
     def test_specie_cifwriter(self):
         si4 = Species("Si", 4)
         si3 = Species("Si", 3)

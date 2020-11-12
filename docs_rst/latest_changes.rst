@@ -1,8 +1,8 @@
 Change log
 ==========
 
-v2020.10.20
+v2020.11.11
 -----------
-1. Better deprecation warnings.
-2. Bug fix for Py3.9 support.
-3. Bug fix for neutron diffraction get_plot.
+* Bug fix for PhononBandStructureSymmLine. (@gpetretto)
+* Improved robustness in ABINIT input generation. (@gpetretto)
+* Other minor bug fixes.
